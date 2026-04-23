@@ -1,0 +1,412 @@
+import os
+import threading
+import difflib
+import customtkinter as ctk
+import win32api
+from docxtpl import DocxTemplate
+
+from config import AppFonts, AppColors, AppSizes
+from data.queries import fuzzy_search_students, get_full_certificate_data
+from db import get_grade
+from ui.base_screen import BaseScreen
+from ui.widgets import make_section_header, make_primary_button
+
+class CertificateScreen(BaseScreen):
+    """
+    Screen for generating and printing student certificates.
+    """
+    def __init__(self, parent, switch_callback):
+        self._selected_student_id = None
+        super().__init__(parent, switch_callback)
+
+    def _build(self) -> None:
+        self.grid_columnconfigure(0, weight=1)
+        self.grid_columnconfigure(1, weight=1)
+        self.grid_rowconfigure(2, weight=1)
+
+        # --- Top Search Area ---
+        top_frame = ctk.CTkFrame(self, fg_color="transparent")
+        top_frame.grid(row=0, column=0, columnspan=2, sticky="ew", pady=(0, 10))
+        top_frame.grid_columnconfigure(0, weight=1)
+
+        make_section_header(top_frame, "إصدار الوثيقة", "Issue Certificate").grid(row=0, column=1, sticky="e")
+
+        search_frame = ctk.CTkFrame(top_frame, fg_color="transparent")
+        search_frame.grid(row=1, column=0, columnspan=2, sticky="ew", pady=(10, 4))
+        search_frame.grid_columnconfigure(0, weight=1)
+
+        self._search_var = ctk.StringVar()
+        self._search_var.trace_add("write", self._on_search_change)
+
+        self._search_entry = ctk.CTkEntry(
+            search_frame,
+            textvariable=self._search_var,
+            placeholder_text="ابحث باسم الطالب (عربي أو إنكليزي)  —  Search student name...",
+            font=ctk.CTkFont(family=AppFonts.FAMILY, size=AppFonts.SIZE_BODY),
+            height=40, justify="right",
+        )
+        self._search_entry.grid(row=0, column=0, sticky="ew")
+
+        ctk.CTkButton(
+            search_frame, text="بحث\nSearch",
+            font=ctk.CTkFont(family=AppFonts.FAMILY, size=AppFonts.SIZE_TINY),
+            width=70, height=40, corner_radius=8,
+            command=self._do_search,
+        ).grid(row=0, column=1, padx=(6, 0))
+
+        # --- Suggestions Frame ---
+        self._suggestion_frame = ctk.CTkScrollableFrame(self, height=180, fg_color=("gray94", "gray18"))
+        self._suggestion_frame.grid_columnconfigure(0, weight=1)
+        # Not gridded initially
+
+        # --- Content Area (Left: Student Info, Right: Options) ---
+        self._content_frame = ctk.CTkFrame(self, fg_color="transparent")
+        self._content_frame.grid(row=2, column=0, columnspan=2, sticky="nsew")
+        self._content_frame.grid_columnconfigure(0, weight=1)
+        self._content_frame.grid_columnconfigure(1, weight=1)
+
+        # Left: Student Card
+        self._student_card = ctk.CTkFrame(self._content_frame, corner_radius=10, border_width=1, border_color=AppColors.BORDER)
+        self._student_card.grid(row=0, column=0, sticky="nsew", padx=(0, 10))
+        self._student_card.grid_columnconfigure(0, weight=1)
+        self._student_card.grid_rowconfigure(1, weight=1)
+        
+        self._student_info_lbl = ctk.CTkLabel(
+            self._student_card,
+            text="الرجاء البحث واختيار طالب لعرض معلوماته.\n\nPlease search and select a student.",
+            font=ctk.CTkFont(family=AppFonts.FAMILY, size=AppFonts.SIZE_BODY),
+            text_color=AppColors.TEXT_MUTED, justify="center"
+        )
+        self._student_info_lbl.grid(row=0, column=0, pady=20, padx=10)
+
+        # Live text preview area
+        self._preview_textbox = ctk.CTkTextbox(
+            self._student_card, 
+            font=ctk.CTkFont(family="Courier", size=12),
+            state="disabled",
+            wrap="word"
+        )
+        self._preview_textbox.grid(row=1, column=0, sticky="nsew", padx=10, pady=(0, 10))
+        
+        # Right: Options Panel
+        options_panel = ctk.CTkFrame(self._content_frame, corner_radius=10, border_width=1, border_color=AppColors.BORDER)
+        options_panel.grid(row=0, column=1, sticky="nsew", padx=(10, 0))
+        options_panel.grid_columnconfigure(0, weight=1)
+
+        ctk.CTkLabel(
+            options_panel, text="خيارات الوثيقة  —  Certificate Options",
+            font=ctk.CTkFont(family=AppFonts.FAMILY, size=AppFonts.SIZE_SUBHEADING, weight="bold")
+        ).grid(row=0, column=0, pady=(15, 15))
+
+        # Title Input
+        title_frame = ctk.CTkFrame(options_panel, fg_color="transparent")
+        title_frame.grid(row=1, column=0, sticky="ew", padx=15, pady=5)
+        title_frame.grid_columnconfigure(1, weight=1)
+        ctk.CTkLabel(title_frame, text="إلى / To: ", font=ctk.CTkFont(family=AppFonts.FAMILY, size=AppFonts.SIZE_BODY)).grid(row=0, column=0, sticky="w")
+        self._title_entry = ctk.CTkEntry(title_frame, placeholder_text="Whom it May Concern", justify="left")
+        self._title_entry.grid(row=0, column=1, sticky="ew", padx=10)
+
+        # Checkboxes and Inputs
+        self._opt_summer = ctk.CTkCheckBox(options_panel, text="التدريب الصيفي / Summer Training")
+        self._opt_summer.grid(row=2, column=0, sticky="w", padx=20, pady=5)
+        self._summer_entry = ctk.CTkEntry(options_panel, placeholder_text="سنة التدريب / Year")
+        self._summer_entry.grid(row=3, column=0, sticky="ew", padx=40, pady=(0, 10))
+
+        self._opt_order = ctk.CTkCheckBox(options_panel, text="الأمر الجامعي / University Order")
+        self._opt_order.grid(row=4, column=0, sticky="w", padx=20, pady=5)
+
+        self._opt_postpone = ctk.CTkCheckBox(options_panel, text="سنوات التأجيل / Postponement")
+        self._opt_postpone.grid(row=5, column=0, sticky="w", padx=20, pady=5)
+        self._postpone_entry = ctk.CTkEntry(options_panel, placeholder_text="السنوات / Years (e.g. Nill)")
+        self._postpone_entry.grid(row=6, column=0, sticky="ew", padx=40, pady=(0, 10))
+
+        self._opt_second_trial = ctk.CTkCheckBox(options_panel, text="الدور الثاني / Second Trial")
+        self._opt_second_trial.grid(row=7, column=0, sticky="w", padx=20, pady=5)
+        self._second_trial_entry = ctk.CTkEntry(options_panel, placeholder_text="المواد / Subjects (e.g. Nill)")
+        self._second_trial_entry.grid(row=8, column=0, sticky="ew", padx=40, pady=(0, 10))
+
+        # Bottom Buttons
+        btn_frame = ctk.CTkFrame(options_panel, fg_color="transparent")
+        btn_frame.grid(row=9, column=0, sticky="ew", pady=(20, 15))
+        btn_frame.grid_columnconfigure(0, weight=1)
+        btn_frame.grid_columnconfigure(1, weight=1)
+
+        self._btn_preview = make_primary_button(btn_frame, "📄 معاينة في Word", "Preview", command=self._preview)
+        self._btn_preview.grid(row=0, column=0, padx=10, sticky="ew")
+
+        self._btn_print = make_primary_button(btn_frame, "🖨️ طباعة", "Print", command=self._print)
+        self._btn_print.grid(row=0, column=1, padx=10, sticky="ew")
+        
+        self._disable_buttons()
+
+    def refresh(self) -> None:
+        self._search_var.set("")
+        self._hide_suggestions()
+        self._selected_student_id = None
+        self._student_info_lbl.configure(text="الرجاء البحث واختيار طالب لعرض معلوماته.\n\nPlease search and select a student.")
+        self._preview_textbox.configure(state="normal")
+        self._preview_textbox.delete("1.0", "end")
+        self._preview_textbox.configure(state="disabled")
+        self._disable_buttons()
+
+    def _disable_buttons(self):
+        self._btn_preview.configure(state="disabled")
+        self._btn_print.configure(state="disabled")
+
+    def _enable_buttons(self):
+        self._btn_preview.configure(state="normal")
+        self._btn_print.configure(state="normal")
+
+    # --- Search Logic ---
+    def _on_search_change(self, *_) -> None:
+        query = self._search_var.get().strip()
+        if len(query) < 2:
+            self._hide_suggestions()
+            return
+        self._show_suggestions_for(query)
+
+    def _do_search(self) -> None:
+        query = self._search_var.get().strip()
+        if query:
+            self._show_suggestions_for(query)
+
+    def _show_suggestions_for(self, query: str) -> None:
+        candidates = fuzzy_search_students(query, limit=15)
+        if not candidates:
+            self._hide_suggestions()
+            return
+
+        def similarity(row: dict) -> float:
+            ar_score = difflib.SequenceMatcher(None, query, row["full_name_ar"]).ratio()
+            en_score = difflib.SequenceMatcher(None, query.lower(), row["full_name_en"].lower()).ratio()
+            return max(ar_score, en_score)
+
+        ranked = sorted(candidates, key=similarity, reverse=True)[:8]
+        self._render_suggestions(ranked)
+
+    def _render_suggestions(self, students: list[dict]) -> None:
+        for w in self._suggestion_frame.winfo_children():
+            w.destroy()
+
+        self._suggestion_frame.grid(row=1, column=0, columnspan=2, sticky="ew", pady=(0, 8))
+        self._suggestion_frame.tkraise()
+
+        for i, s in enumerate(students):
+            dept  = s.get("dept_name_ar", "")
+            year  = str(s.get("admission_year", ""))
+            label = f"  {s['full_name_ar']}  —  {dept}  |  دفعة {year}"
+
+            ctk.CTkButton(
+                self._suggestion_frame,
+                text=label,
+                font=ctk.CTkFont(family=AppFonts.FAMILY, size=AppFonts.SIZE_SMALL),
+                height=36, anchor="e", fg_color="transparent",
+                hover_color=AppColors.NAV_HOVER_BG, text_color=AppColors.NAV_TEXT,
+                corner_radius=6,
+                command=lambda sid=s["id"]: self._select_student(sid),
+            ).grid(row=i, column=0, sticky="ew", padx=4, pady=2)
+
+    def _hide_suggestions(self) -> None:
+        self._suggestion_frame.grid_remove()
+        for w in self._suggestion_frame.winfo_children():
+            w.destroy()
+
+    def _select_student(self, student_id: int) -> None:
+        self._hide_suggestions()
+        self._search_var.set("")
+        self._selected_student_id = student_id
+        
+        try:
+            data = get_full_certificate_data(student_id)
+            if not data:
+                self.show_error("تعذر تحميل بيانات الطالب.")
+                return
+            
+            # Display student info
+            avg = data.get("average")
+            grade_ar, grade_en = get_grade(avg) if avg else ("—", "—")
+            rank_text = f"{data['rank']} of {data['total_graduates']}" if data.get("total_graduates") else "—"
+
+            info_text = (
+                f"الاسم / Name: {data.get('full_name_en', '')}\n"
+                f"القسم / Dept: {data.get('dept_name_en', '')}\n"
+                f"المعدل / Average: {avg or '—'}\n"
+                f"التقدير / Grade: {grade_en}\n"
+                f"الترتيب / Rank: {rank_text}"
+            )
+            self._student_info_lbl.configure(text=info_text)
+
+            # Build Live Preview Text
+            preview_lines = ["--- LIVE PREVIEW / معاينة ---", ""]
+            for period in data.get("periods", []):
+                preview_lines.append(f"[{period['academic_year']} - Stage {period['stage_number']}]")
+                for enr in period.get("enrollments", []):
+                    preview_lines.append(f"  • {enr.get('name_en', '')[:30]:<30} | Mark: {enr.get('score', '')} | Unit: {enr.get('credit_hours', '')}")
+                preview_lines.append("")
+            
+            self._preview_textbox.configure(state="normal")
+            self._preview_textbox.delete("1.0", "end")
+            self._preview_textbox.insert("1.0", "\n".join(preview_lines))
+            self._preview_textbox.configure(state="disabled")
+
+            # Auto-check University Order if data exists
+            if data.get("order_number"):
+                self._opt_order.select()
+            else:
+                self._opt_order.deselect()
+
+            self._enable_buttons()
+        except Exception as e:
+            self.show_error(f"Error loading student: {e}")
+
+    # --- Generation Logic ---
+    def _build_context(self) -> dict:
+        if not self._selected_student_id:
+            return {}
+        data = get_full_certificate_data(self._selected_student_id)
+        if not data:
+            return {}
+
+        avg = data.get("average", "")
+        grade_ar, grade_en = get_grade(avg) if avg else ("", "")
+        
+        # Determine study type text
+        study_type = data.get("study_type", "")
+        study_type_display = "Morning" if study_type == "morning" else ("Evening" if study_type == "evening" else "")
+
+        # Format semesters for the template
+        # The template could use 'tables' with 'Semester _ year', 'Course', 'Mark', 'Unit'
+        # Or my rebuilt version with 'semesters', 'sem.label', 'row.left_name', etc.
+        tables = []
+        semesters = []
+        for period in data.get("periods", []):
+            sem_label = f"Stage {period['stage_number']} - {period['academic_year']}"
+            rows_for_loop = []
+            doc_rows = []
+            
+            # Prepare rows for the 6-column rebuilt template (2 courses per row)
+            # as well as the standard vertical table format
+            enrollments = period.get("enrollments", [])
+            
+            for enr in enrollments:
+                rows_for_loop.append({
+                    "Course": enr.get("name_en", ""),
+                    "Mark": str(enr.get("score", "")),
+                    "Unit": str(enr.get("credit_hours", ""))
+                })
+            
+            for i in range(0, len(enrollments), 2):
+                left = enrollments[i]
+                right = enrollments[i+1] if i+1 < len(enrollments) else {}
+                doc_rows.append({
+                    "left_name": left.get("name_en", ""),
+                    "left_mark": str(left.get("score", "")),
+                    "left_unit": str(left.get("credit_hours", "")),
+                    "right_name": right.get("name_en", ""),
+                    "right_mark": str(right.get("score", "")),
+                    "right_unit": str(right.get("credit_hours", ""))
+                })
+            
+            # User specified mapping (for old/custom tags if they ever exist)
+            tables.append({
+                "Semester_year": sem_label,
+                "rows": rows_for_loop
+            })
+            # Mapping for my rebuilt template
+            semesters.append({
+                "label": sem_label,
+                "rows": doc_rows
+            })
+
+        ctx = {
+            "Title": self._title_entry.get().strip() or "Whom it May Concern",
+            "student_name": data.get("full_name_en", ""),
+            "Birthday": data.get("date_of_birth", ""),    # Standard
+            "Birthplace": data.get("birthplace_en", "") or data.get("birthplace_other", ""),
+            "Nationality": data.get("nationality_en", ""),
+            "admission_year": data.get("admission_year", ""),
+            "department_id": data.get("dept_name_en", ""),
+            "study_type": study_type_display,
+            "graduation_date": data.get("graduation_date", ""),
+            "graduation_semester": "First" if data.get("graduation_semester") == "first" else ("Second" if data.get("graduation_semester") == "second" else ""),
+            "average": avg,
+            "Grade": grade_en,
+            "Sequence_of_Graduation": data.get("rank", ""),
+            "num_students": data.get("total_graduates", ""),
+            "Average_of_First_Student": data.get("top_average", ""),
+            "tables": tables,
+            "semesters": semesters
+        }
+
+        # Signatories
+        front_sigs = data.get("front_signatories", [])
+        for i, sig in enumerate(front_sigs):
+            idx = i + 1
+            ctx[f"sig{idx}_name"] = sig.get("name_en", "")
+            ctx[f"sig{idx}_title"] = sig.get("academic_title_en", "")
+            ctx[f"sig{idx}_resp"] = sig.get("responsibility_en", "")
+            
+        back_sigs = data.get("back_signatories", [])
+        for i, sig in enumerate(back_sigs):
+            idx = i + 5 # 5 and 6
+            ctx[f"sig{idx}_name"] = sig.get("name_en", "")
+            ctx[f"sig{idx}_title"] = sig.get("academic_title_en", "")
+            ctx[f"sig{idx}_resp"] = sig.get("responsibility_en", "")
+
+        # Optionals
+        ctx["Summer_Training_year"] = self._summer_entry.get().strip() if self._opt_summer.get() else ""
+        if self._opt_order.get():
+            ctx["order_number"] = data.get("order_number", "")
+            ctx["order_date"] = data.get("order_date", "")
+        else:
+            ctx["order_number"] = ""
+            ctx["order_date"] = ""
+
+        ctx["Postponement_and_Failure_Years"] = self._postpone_entry.get().strip() if self._opt_postpone.get() else ""
+        
+        ctx["Subjects_Passed_with_Second_Trial"] = self._second_trial_entry.get().strip() if self._opt_second_trial.get() else ""
+
+        return ctx
+
+    def _generate_docx(self, output_path: str) -> bool:
+        try:
+            template_path = os.path.join("templets", "semster - Temp.docx")
+            if not os.path.exists(template_path):
+                self.show_error(f"Template not found at: {template_path}")
+                return False
+
+            doc = DocxTemplate(template_path)
+            ctx = self._build_context()
+            doc.render(ctx)
+            doc.save(output_path)
+            return True
+        except Exception as e:
+            self.show_error(f"Error generating document:\n{e}")
+            return False
+
+    def _preview(self):
+        self._disable_buttons()
+        # Run in thread to not block UI
+        threading.Thread(target=self._run_preview, daemon=True).start()
+
+    def _run_preview(self):
+        out_path = os.path.abspath("temp_certificate.docx")
+        if self._generate_docx(out_path):
+            try:
+                os.startfile(out_path)
+            except Exception as e:
+                self.after(0, lambda: self.show_error(f"Could not open file: {e}"))
+        self.after(0, self._enable_buttons)
+
+    def _print(self):
+        self._disable_buttons()
+        threading.Thread(target=self._run_print, daemon=True).start()
+
+    def _run_print(self):
+        out_path = os.path.abspath("temp_certificate.docx")
+        if self._generate_docx(out_path):
+            try:
+                win32api.ShellExecute(0, "print", out_path, None, ".", 0)
+            except Exception as e:
+                self.after(0, lambda: self.show_error(f"Could not print file: {e}"))
+        self.after(0, self._enable_buttons)

@@ -1,0 +1,20 @@
+# .gitignore
+
+# SQLite databases
+*.db
+*.sqlite3
+
+# Python cache and environments
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+env/
+.venv/
+
+# Raw SQL dumps (prevents uploading sensitive student data to GitHub)
+*.sql
+
+# OS generated files
+.DS_Store
+Thumbs.db
