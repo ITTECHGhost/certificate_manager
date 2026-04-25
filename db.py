@@ -165,7 +165,7 @@ def _create_tables(conn: sqlite3.Connection) -> None:
         department_id INTEGER NOT NULL REFERENCES departments(id)
                                        ON UPDATE CASCADE
                                        ON DELETE RESTRICT,
-        stage_number  INTEGER NOT NULL CHECK(stage_number BETWEEN 1 AND 8),
+        stage_number  INTEGER NOT NULL ,
         period_type   TEXT    NOT NULL CHECK(period_type IN ('year', 'semester'))
     );
 
@@ -244,7 +244,7 @@ def _create_tables(conn: sqlite3.Connection) -> None:
                                        ON DELETE CASCADE,
         academic_year TEXT    NOT NULL CHECK(length(academic_year) = 9),
         period_type   TEXT    NOT NULL CHECK(period_type IN ('year', 'semester')),
-        stage_number  INTEGER NOT NULL CHECK(stage_number BETWEEN 1 AND 8),
+        stage_number  INTEGER NOT NULL ,
         passed_round  TEXT    NOT NULL CHECK(passed_round IN ('first', 'second')),
 
         UNIQUE(student_id, stage_number, period_type)

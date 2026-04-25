@@ -268,23 +268,53 @@ class CertificateScreen(BaseScreen):
                     preview_lines.append(f"  • {enr.get('name_en', '')[:30]:<30} | Mark: {enr.get('score', '')} | Unit: {enr.get('credit_hours', '')}")
                 preview_lines.append("")
             
+
+# --- REPLACE THIS SECTION IN _select_student ---
+            
             self._preview_textbox.configure(state="normal")
             self._preview_textbox.delete("1.0", "end")
             self._preview_textbox.insert("1.0", "\n".join(preview_lines))
             self._preview_textbox.configure(state="disabled")
 
-            # Reset order entries
+            # 1. Clear previous text from the input boxes
             self._order_num_entry.delete(0, 'end')
             self._order_date_entry.delete(0, 'end')
 
-            if data.get("order_number"):
+            # 2. Retrieve the order data from the database
+            order_num = data.get("order_number")
+            order_date = data.get("order_date")
+
+            # 3. If the student has an order, check the box and fill the inputs
+            if order_num:
                 self._opt_order.select()
-                self._order_num_entry.insert(0, data.get("order_number"))
-                self._order_date_entry.insert(0, data.get("order_date", ""))
+                self._order_num_entry.insert(0, str(order_num))
+                
+                if order_date:
+                    self._order_date_entry.insert(0, str(order_date))
             else:
                 self._opt_order.deselect()
 
             self._enable_buttons()
+            
+            # -----------------------------------------------
+
+            # self._preview_textbox.configure(state="normal")
+            # self._preview_textbox.delete("1.0", "end")
+            # self._preview_textbox.insert("1.0", "\n".join(preview_lines))
+            # self._preview_textbox.configure(state="disabled")
+
+            # Reset order entries
+            # self._order_num_entry.delete(0, 'end')
+            # self._order_date_entry.delete(0, 'end')
+
+            # if data.get("order_number"):
+            #     self._opt_order.select()
+            #     self._order_num_entry.insert(0, data.get("order_number"))
+            #     self._order_date_entry.insert(0, data.get("order_date", ""))
+            # else:
+            #     self._opt_order.deselect()
+
+            # self._enable_buttons()
         except Exception as e:
             self.show_error(f"Error loading student: {e}")
 

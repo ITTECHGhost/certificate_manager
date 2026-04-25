@@ -878,6 +878,22 @@ def migrate_enrollments_140(
     enrolls_inserted  = 0
     skipped_students  = 0
 
+    # Map each chronological semester to a stage number (1 to N)
+    student_sems = {}
+    for (old_sid, yearr, sem_ar) in groups.keys():
+        if old_sid not in student_sems:
+            student_sems[old_sid] = set()
+        year_int = _int_or(yearr, 2020)
+        # map semester to int for sorting
+        sem_int = 1 if 'اول' in sem_ar else (2 if 'ثان' in sem_ar else 3)
+        student_sems[old_sid].add((year_int, sem_int, sem_ar))
+        
+    student_stage_map = {}
+    for old_sid, sems in student_sems.items():
+        # Sort by year then by sem_int
+        for idx, s in enumerate(sorted(list(sems), key=lambda x: (x[0], x[1]))):
+            student_stage_map[(old_sid, s[0], s[2])] = idx + 1
+
     for (old_sid, yearr, sem_ar), rows in groups.items():
         new_sid = student_map.get(old_sid)
         if not new_sid:
@@ -887,8 +903,8 @@ def migrate_enrollments_140(
         year_int    = _int_or(yearr, 2020)
         acad_year   = f"{year_int}-{year_int + 1}"
 
-        # Derive stage from the most common code prefix in this group
-        stage = _code_to_stage(_str(rows[0].get("code", "CS101")))
+        # Stage is strictly the chronological semester (1 to N)
+        stage = student_stage_map[(old_sid, year_int, sem_ar)]
 
         # passed_round: if any course in this period was failed then resit (ثانية)
         rounds = [_passed_round(_str(r.get("failed", "اولى"))) for r in rows]
@@ -982,28 +998,44 @@ def migrate_enrollments_q(
     """
     log.info("── Migrating subjects_students_q → periods + enrollments ──")
 
-    # Group rows by (old_student_id, requirment_derived_stage)
+    # Group rows chronologically by (old_student_id, yearr, role)
     groups: dict[tuple, list[dict]] = defaultdict(list)
     for row in tables.get("subjects_students_q", []):
         old_sid = _int_or(row.get("id_student"), 0)
-        req     = _str(row.get("requirment", ""))
-        stage   = _requirment_to_stage(req) if req else 1
-        groups[(old_sid, stage)].append(row)
+        yearr   = _int_or(row.get("yearr", "0"), 2020)
+        role    = _str(row.get("role", "الاول"))
+        groups[(old_sid, yearr, role)].append(row)
 
     periods_inserted = 0
     enrolls_inserted = 0
     skipped_students = 0
 
-    for (old_sid, stage), rows in groups.items():
+    # Map each chronological semester to a stage number
+    student_sems = {}
+    for (old_sid, yearr, role) in groups.keys():
+        if old_sid not in student_sems:
+            student_sems[old_sid] = set()
+        # map role to int for sorting
+        role_int = 1 if 'اول' in role else (2 if 'ثان' in role else 3)
+        student_sems[old_sid].add((yearr, role_int, role))
+        
+    student_stage_map_q = {}
+    for old_sid, sems in student_sems.items():
+        # Sort by year then by role_int
+        for idx, s in enumerate(sorted(list(sems), key=lambda x: (x[0], x[1]))):
+            student_stage_map_q[(old_sid, s[0], s[2])] = idx + 1
+
+    for (old_sid, yearr, role), rows in groups.items():
         new_sid = student_map.get(old_sid)
         if not new_sid:
             skipped_students += 1
             continue
 
-        # Use the most recent yearr in this stage group for academic_year
-        years = [_int_or(r.get("yearr"), 2020) for r in rows]
-        year_int   = max(years)
+        year_int   = yearr
         acad_year  = f"{year_int}-{year_int + 1}"
+        
+        # Override stage with strictly chronological stage
+        stage = student_stage_map_q[(old_sid, yearr, role)]
 
         # passed_round
         rounds = [_passed_round(_str(r.get("role", "الاول"))) for r in rows]
