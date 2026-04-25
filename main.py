@@ -44,7 +44,7 @@ from screens.graduation_orders_screen import GraduationOrdersScreen
 from screens.students_screen import StudentsScreen
 from screens.order_students_screen import OrderStudentsScreen
 from screens.history_screen import HistoryScreen
-from screens.certificate_screen import CertificateScreen
+from screens.certificate_screen1 import CertificateScreen
 
 # ---------------------------------------------------------------------------
 # Global appearance — must be set before any CTk widget is created
