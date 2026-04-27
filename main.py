@@ -126,7 +126,7 @@ class Sidebar(ctk.CTkFrame):
             btn = ctk.CTkButton(
                 self,
                 text=f"{item['icon']}  {item['ar']}",
-                font=ctk.CTkFont(family=AppFonts.FAMILY, size=AppFonts.SIZE_BODY),
+                font=ctk.CTkFont(family=AppFonts.FAMILY, size=AppFonts.SIZE_HEADING),
                 anchor="e",
                 height=AppSizes.NAV_BUTTON_HEIGHT,
                 corner_radius=AppSizes.CORNER_RADIUS_BTN,
@@ -154,7 +154,7 @@ class Sidebar(ctk.CTkFrame):
         settings_btn = ctk.CTkButton(
             self,
             text=f"{SETTINGS_ITEM['icon']}  {SETTINGS_ITEM['ar']}",
-            font=ctk.CTkFont(family=AppFonts.FAMILY, size=AppFonts.SIZE_SMALL),
+            font=ctk.CTkFont(family=AppFonts.FAMILY, size=AppFonts.SIZE_HEADING),
             anchor="e",
             height=AppSizes.SETTINGS_BTN_HEIGHT,
             corner_radius=AppSizes.CORNER_RADIUS_BTN,
@@ -173,7 +173,7 @@ class Sidebar(ctk.CTkFrame):
             self,
             values=["Light", "Dark", "System"],
             variable=ctk.StringVar(value="System"),
-            font=ctk.CTkFont(family=AppFonts.FAMILY, size=AppFonts.SIZE_TINY),
+            font=ctk.CTkFont(family=AppFonts.FAMILY, size=AppFonts.SIZE_HEADING),
             command=lambda mode: ctk.set_appearance_mode(mode),
         ).grid(row=base_row + 2, column=0, padx=14, pady=(6, 18), sticky="ew")
 
@@ -220,7 +220,7 @@ class HeaderBar(ctk.CTkFrame):
             text="",
             font=ctk.CTkFont(
                 family=AppFonts.FAMILY,
-                size=AppFonts.SIZE_SUBHEADING,
+                size=AppFonts.SIZE_TITLE,
                 weight="bold",
             ),
             anchor="e",
@@ -231,7 +231,7 @@ class HeaderBar(ctk.CTkFrame):
         self._label_en = ctk.CTkLabel(
             self,
             text="",
-            font=ctk.CTkFont(family=AppFonts.FAMILY, size=AppFonts.SIZE_SMALL),
+            font=ctk.CTkFont(family=AppFonts.FAMILY, size=AppFonts.SIZE_TITLE),
             text_color=AppColors.TEXT_MUTED,
             anchor="w",
         )
