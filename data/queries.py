@@ -1498,6 +1498,7 @@ def get_full_certificate_data(student_id: int) -> dict | None:
             "SELECT * FROM personal WHERE is_active = 1 AND page_location = 'back' ORDER BY display_order"
         ).fetchall()
         
+        data["front_signatories"] = _rows_to_dicts(front_sigs)
         data["back_signatories"] = _rows_to_dicts(back_sigs)
         
         # 5. Global Settings

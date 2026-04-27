@@ -121,17 +121,11 @@ class CertificateScreen(BaseScreen):
         self._title_entry = ctk.CTkEntry(title_frame, placeholder_text="Whom it May Concern", justify="left")
         self._title_entry.grid(row=0, column=1, sticky="ew", padx=10)
 
-        # Checkboxes and Inputs
-        self._opt_summer = ctk.CTkCheckBox(options_panel, text="التدريب الصيفي / Summer Training")
-        self._opt_summer.grid(row=3, column=0, sticky="w", padx=20, pady=5)
-        self._summer_entry = ctk.CTkEntry(options_panel, placeholder_text="سنة التدريب / Year")
-        self._summer_entry.grid(row=4, column=0, sticky="ew", padx=40, pady=(0, 10))
-
         # Editable Order Number & Date
         self._opt_order = ctk.CTkCheckBox(options_panel, text="الأمر الجامعي / University Order")
-        self._opt_order.grid(row=5, column=0, sticky="w", padx=20, pady=5)
+        self._opt_order.grid(row=3, column=0, sticky="w", padx=20, pady=5)
         order_frame = ctk.CTkFrame(options_panel, fg_color="transparent")
-        order_frame.grid(row=6, column=0, sticky="ew", padx=40, pady=(0, 10))
+        order_frame.grid(row=4, column=0, sticky="ew", padx=40, pady=(0, 10))
         order_frame.grid_columnconfigure(0, weight=1)
         order_frame.grid_columnconfigure(1, weight=1)
         self._order_num_entry = ctk.CTkEntry(order_frame, placeholder_text="الرقم / Number")
@@ -139,22 +133,12 @@ class CertificateScreen(BaseScreen):
         self._order_date_entry = ctk.CTkEntry(order_frame, placeholder_text="التاريخ / Date (YYYY-MM-DD)")
         self._order_date_entry.grid(row=0, column=1, sticky="ew", padx=(5, 0))
 
-        self._opt_postpone = ctk.CTkCheckBox(options_panel, text="سنوات التأجيل / Postponement")
-        self._opt_postpone.grid(row=7, column=0, sticky="w", padx=20, pady=5)
-        self._postpone_entry = ctk.CTkEntry(options_panel, placeholder_text="السنوات / Years (e.g. Nill)")
-        self._postpone_entry.grid(row=8, column=0, sticky="ew", padx=40, pady=(0, 10))
-
-        self._opt_second_trial = ctk.CTkCheckBox(options_panel, text="الدور الثاني / Second Trial")
-        self._opt_second_trial.grid(row=9, column=0, sticky="w", padx=20, pady=5)
-        self._second_trial_entry = ctk.CTkEntry(options_panel, placeholder_text="المواد / Subjects (e.g. Nill)")
-        self._second_trial_entry.grid(row=10, column=0, sticky="ew", padx=40, pady=(0, 10))
-
         # ---> NEW: Add the Sequence Checkbox and Editable Textboxes
         self._opt_sequence = ctk.CTkCheckBox(options_panel, text="تسلسل التخرج / Graduation Sequence")
-        self._opt_sequence.grid(row=11, column=0, sticky="w", padx=20, pady=5)
+        self._opt_sequence.grid(row=5, column=0, sticky="w", padx=20, pady=5)
 
         seq_frame = ctk.CTkFrame(options_panel, fg_color="transparent")
-        seq_frame.grid(row=12, column=0, sticky="ew", padx=30, pady=(0, 10))
+        seq_frame.grid(row=6, column=0, sticky="ew", padx=30, pady=(0, 10))
         seq_frame.grid_columnconfigure((0, 1, 2), weight=1)
 
         self._seq_rank_entry = ctk.CTkEntry(seq_frame, placeholder_text="الترتيب / Rank")
@@ -165,6 +149,22 @@ class CertificateScreen(BaseScreen):
 
         self._seq_top_avg_entry = ctk.CTkEntry(seq_frame, placeholder_text="معدل الاول / Top Avg")
         self._seq_top_avg_entry.grid(row=0, column=2, sticky="ew", padx=(2, 0))
+
+        # Checkboxes and Inputs
+        self._opt_summer = ctk.CTkCheckBox(options_panel, text="التدريب الصيفي / Summer Training")
+        self._opt_summer.grid(row=7, column=0, sticky="w", padx=20, pady=5)
+        self._summer_entry = ctk.CTkEntry(options_panel, placeholder_text="سنة التدريب / Year")
+        self._summer_entry.grid(row=8, column=0, sticky="ew", padx=40, pady=(0, 10))
+
+        self._opt_postpone = ctk.CTkCheckBox(options_panel, text="سنوات التأجيل / Postponement")
+        self._opt_postpone.grid(row=9, column=0, sticky="w", padx=20, pady=5)
+        self._postpone_entry = ctk.CTkEntry(options_panel, placeholder_text="السنوات / Years (e.g. Nill)")
+        self._postpone_entry.grid(row=10, column=0, sticky="ew", padx=40, pady=(0, 10))
+
+        self._opt_second_trial = ctk.CTkCheckBox(options_panel, text="الدور الثاني / Second Trial")
+        self._opt_second_trial.grid(row=11, column=0, sticky="w", padx=20, pady=5)
+        self._second_trial_entry = ctk.CTkEntry(options_panel, placeholder_text="المواد / Subjects (e.g. Nill)")
+        self._second_trial_entry.grid(row=12, column=0, sticky="ew", padx=40, pady=(0, 10))
 
         # Bottom Buttons (Changed row to 13)
         btn_frame = ctk.CTkFrame(options_panel, fg_color="transparent")
@@ -377,6 +377,40 @@ class CertificateScreen(BaseScreen):
         selected_template = self._template_var.get().lower()
         is_english = "en" in selected_template
 
+        # ---> NEW: Number Translator Function <---
+        def _localize(val) -> str:
+            """Converts standard digits to Hindi digits and cleans decimals."""
+            if val is None or val == "":
+                return ""
+            val_str = str(val)
+            # Clean up awkward ".0" decimals (e.g., "53.0" becomes "53")
+            if val_str.endswith(".0"):
+                val_str = val_str[:-2]
+            if not is_english:
+                # Translates 0123456789 into ٠١٢٣٤٥٦٧٨٩
+                return val_str.translate(str.maketrans("0123456789", "٠١٢٣٤٥٦٧٨٩"))
+            return val_str
+
+        # ---> NEW: Date Formatter Function <---
+        def _format_date(val) -> str:
+            """Converts to DD/MM/YYYY and applies a Unicode lock to prevent Word from flipping it."""
+            if not val:
+                return ""
+            
+            val_str = str(val).strip()
+            
+            # Check if it matches our database format (YYYY-MM-DD)
+            if len(val_str) >= 10 and val_str == '-' and val_str == '-':
+                parts = val_str[:10].split("-")
+                if len(parts) == 3:
+                    year, month, day = parts
+                    # \u200E is the invisible Left-to-Right Mark. It freezes the visual order.
+                    val_str = f"\u200E{day}/{month}/{year}\u200E"
+            else:
+                val_str = f"\u200E{val_str.replace('-', '/')}\u200E"
+                
+            return _localize(val_str)
+
         study_type = data.get("study_type", "")
         if is_english:
             study_type_display = "Morning" if study_type == "morning" else ("Evening" if study_type == "evening" else "")
@@ -396,31 +430,35 @@ class CertificateScreen(BaseScreen):
         # Process periods two at a time (0, 2, 4, 6...)
         for i in range(0, len(periods), 2):
             left_period = periods[i]
-            # Safely grab the right period, or default to None if it's an odd number (e.g., 9th semester)
             right_period = periods[i+1] if i + 1 < len(periods) else None
 
-            # 1. Build Headers for this pair
-            left_label = f"Semester {left_period['stage_number']} - {left_period['academic_year']}" if is_english else f"المرحلة {left_period['stage_number']} - {left_period['academic_year']}"
+            # 1. Build Headers for this pair (Wrapped in _localize)
+            left_stage = _localize(left_period['stage_number'])
+            left_year = _localize(left_period['academic_year'])
+            left_label = f"Stage {left_stage} - {left_year}" if is_english else f"المرحلة {left_stage} - {left_year}"
+            
             right_label = ""
             if right_period:
-                right_label = f"Semester {right_period['stage_number']} - {right_period['academic_year']}" if is_english else f"المرحلة {right_period['stage_number']} - {right_period['academic_year']}"
+                right_stage = _localize(right_period['stage_number'])
+                right_year = _localize(right_period['academic_year'])
+                right_label = f"Stage {right_stage} - {right_year}" if is_english else f"المرحلة {right_stage} - {right_year}"
 
             # 2. Extract Courses
             left_courses = left_period.get("enrollments", [])
             right_courses = right_period.get("enrollments", []) if right_period else []
 
-            # 3. Zip courses row-by-row (handles uneven course counts perfectly)
+            # 3. Zip courses row-by-row (Wrapped marks and units in _localize)
             doc_rows = []
             blank_course = {} 
             for left, right in zip_longest(left_courses, right_courses, fillvalue=blank_course):
                 doc_rows.append({
-                    "left_subj": left.get("name_en" if is_english else "name_ar", ""),
-                    "left_mark": str(left.get("score", "")),
-                    "left_unit": str(left.get("credit_hours", "")),
+                    "left_subj": _localize(left.get("name_en" if is_english else "name_ar", "")),
+                    "left_mark": _localize(left.get("score", "")),
+                    "left_unit": _localize(left.get("credit_hours", "")),
                     
-                    "right_subj": right.get("name_en" if is_english else "name_ar", ""),
-                    "right_mark": str(right.get("score", "")),
-                    "right_unit": str(right.get("credit_hours", ""))
+                    "right_subj": _localize(right.get("name_en" if is_english else "name_ar", "")),
+                    "right_mark": _localize(right.get("score", "")),
+                    "right_unit": _localize(right.get("credit_hours", ""))
                 })
 
             paired_semesters.append({
@@ -432,81 +470,34 @@ class CertificateScreen(BaseScreen):
         ctx = {
             "Title": self._title_entry.get().strip() or ("Whom it May Concern" if is_english else "إلى من يهمه الأمر"),
             "student_name": data.get("full_name_en" if is_english else "full_name_ar", ""),
-            "Birthday": data.get("date_of_birth", ""),    
+            
+            # ---> Changed to _format_date <---
+            "Birthday": _format_date(data.get("date_of_birth", "")),    
+            
             "Birthplace": data.get("birthplace_en" if is_english else "birthplace_ar", "") or data.get("birthplace_other", ""),
             "Nationality": data.get("nationality_en" if is_english else "nationality_ar", ""),
-            "admission_year": data.get("admission_year", ""),
+            "admission_year": _localize(data.get("admission_year", "")),
             "department_id": dept_display,
             "study_type": study_type_display,
-            "graduation_date": data.get("graduation_date", ""),
+            
+            # ---> Changed to _format_date <---
+            "graduation_date": _format_date(data.get("graduation_date", "")),
+            
             "graduation_semester": grad_sem_display,
-            "average": avg,
+            "average": _localize(avg),
             "Grade": grade_display,
-
-            "University_Name": data.get("univ_name_en" if is_english else "univ_name_ar", ""),
-            "College_Name": data.get("college_name_en" if is_english else "college_name_ar", ""),
             
             # Word's Conditional "If" Triggers
-            # "sequence_ON": bool(data.get("rank")),
-            # Word's Conditional "If" Triggers
-            "sequence_ON": bool(self._opt_sequence.get()),
+            "sequence_ON": bool(data.get("rank")),
             "Failure_ON": bool(self._opt_postpone.get()),
             "Passed_ON": bool(self._opt_second_trial.get()),
 
-            # Pull sequence data from the textboxes (only if checkbox is ON)
-            "Sequence_of_Graduation": self._seq_rank_entry.get().strip() if self._opt_sequence.get() else "",
-            "num_students": self._seq_total_entry.get().strip() if self._opt_sequence.get() else "",
-            "Average_of_First_Student": self._seq_top_avg_entry.get().strip() if self._opt_sequence.get() else "",
+            "Sequence_of_Graduation": _localize(data.get("rank", "")),
+            "num_students": _localize(data.get("total_graduates", "")),
+            "Average_of_First_Student": _localize(data.get("top_average", "")),
             
-            # Send the new sequential structure to Word
-            "paired_semesters": paired_semesters
+            "paired_semesters": paired_semesters 
         }
-
-        # # Format semesters (Updated for stacked vertical tables)
-        # academic_periods = []
-        # for period in data.get("periods", []):
-        #     sem_title = f"Stage {period['stage_number']} - {period['academic_year']}" if is_english else f"المرحلة {period['stage_number']} - {period['academic_year']}"
-        #     doc_rows = []
-            
-        #     # Loop through enrollments 1-by-1 instead of 2-by-2
-        #     for enr in period.get("enrollments", []):
-        #         doc_rows.append({
-        #             "subject": enr.get("name_en" if is_english else "name_ar", ""),
-        #             "mark": str(enr.get("score", "")),
-        #             "unit": str(enr.get("credit_hours", ""))
-        #         })
-            
-        #     academic_periods.append({
-        #         "title": sem_title,
-        #         "rows": doc_rows
-        #     })
-
-        # ctx = {
-        #     "Title": self._title_entry.get().strip() or ("Whom it May Concern" if is_english else "إلى من يهمه الأمر"),
-        #     "student_name": data.get("full_name_en" if is_english else "full_name_ar", ""),
-        #     "Birthday": data.get("date_of_birth", ""),    
-        #     "Birthplace": data.get("birthplace_en" if is_english else "birthplace_ar", "") or data.get("birthplace_other", ""),
-        #     "Nationality": data.get("nationality_en" if is_english else "nationality_ar", ""),
-        #     "admission_year": data.get("admission_year", ""),
-        #     "department_id": dept_display,
-        #     "study_type": study_type_display,
-        #     "graduation_date": data.get("graduation_date", ""),
-        #     "graduation_semester": grad_sem_display,
-        #     "average": avg,
-        #     "Grade": grade_display,
-            
-        #     # Word's Conditional "If" Triggers
-        #     "sequence_ON": bool(data.get("rank")),
-        #     "Failure_ON": bool(self._opt_postpone.get()),
-        #     "Passed_ON": bool(self._opt_second_trial.get()),
-
-        #     "Sequence_of_Graduation": data.get("rank", ""),
-        #     "num_students": data.get("total_graduates", ""),
-        #     "Average_of_First_Student": data.get("top_average", ""),
-            
-        #     # Now perfectly matches the Word template
-        #     "academic_periods": academic_periods 
-        # }
 
         # Signatories
         front_sigs = data.get("front_signatories", [])
@@ -523,18 +514,18 @@ class CertificateScreen(BaseScreen):
             ctx[f"sig{idx}_title"] = sig.get("academic_title_en" if is_english else "academic_title_ar", "")
             ctx[f"sig{idx}_resp"] = sig.get("responsibility_en" if is_english else "responsibility_ar", "")
 
-        # Optionals
-        ctx["Summer_Training_year"] = self._summer_entry.get().strip() if self._opt_summer.get() else ""
-        
+        # Optionals (Wrapped in _localize)
+        ctx["Summer_Training_year"] = _localize(self._summer_entry.get().strip() if self._opt_summer.get() else "")
+
         if self._opt_order.get():
-            ctx["order_number"] = self._order_num_entry.get().strip()
-            ctx["order_date"] = self._order_date_entry.get().strip()
+            ctx["order_number"] = _localize(self._order_num_entry.get().strip())
+            ctx["order_date"] = _format_date(self._order_date_entry.get().strip())
         else:
             ctx["order_number"] = ""
             ctx["order_date"] = ""
 
-        ctx["Postponement_and_Failure_Years"] = self._postpone_entry.get().strip()
-        ctx["Subjects_Passed_with_Second_Trial"] = self._second_trial_entry.get().strip()
+        ctx["Postponement_and_Failure_Years"] = _localize(self._postpone_entry.get().strip())
+        ctx["Subjects_Passed_with_Second_Trial"] = _localize(self._second_trial_entry.get().strip())
 
         return ctx
 
