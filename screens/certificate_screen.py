@@ -4,9 +4,7 @@ import difflib
 import customtkinter as ctk
 import win32api
 from docxtpl import DocxTemplate
-import re
-from docx import Document
-import jinja2
+from itertools import zip_longest
 from config import AppFonts, AppColors
 from data.queries import fuzzy_search_students, get_full_certificate_data
 from db import get_grade
@@ -151,9 +149,34 @@ class CertificateScreen(BaseScreen):
         self._second_trial_entry = ctk.CTkEntry(options_panel, placeholder_text="المواد / Subjects (e.g. Nill)")
         self._second_trial_entry.grid(row=10, column=0, sticky="ew", padx=40, pady=(0, 10))
 
-        # Bottom Buttons
+        # ---> NEW: Add the Sequence Checkbox and Editable Textboxes
+        self._opt_sequence = ctk.CTkCheckBox(options_panel, text="تسلسل التخرج / Graduation Sequence")
+        self._opt_sequence.grid(row=11, column=0, sticky="w", padx=20, pady=5)
+
+        seq_frame = ctk.CTkFrame(options_panel, fg_color="transparent")
+        seq_frame.grid(row=12, column=0, sticky="ew", padx=30, pady=(0, 10))
+        seq_frame.grid_columnconfigure((0, 1, 2), weight=1)
+
+        self._seq_rank_entry = ctk.CTkEntry(seq_frame, placeholder_text="الترتيب / Rank")
+        self._seq_rank_entry.grid(row=0, column=0, sticky="ew", padx=(0, 2))
+
+        self._seq_total_entry = ctk.CTkEntry(seq_frame, placeholder_text="العدد / Total")
+        self._seq_total_entry.grid(row=0, column=1, sticky="ew", padx=2)
+
+        self._seq_top_avg_entry = ctk.CTkEntry(seq_frame, placeholder_text="معدل الاول / Top Avg")
+        self._seq_top_avg_entry.grid(row=0, column=2, sticky="ew", padx=(2, 0))
+
+        # Bottom Buttons (Changed row to 13)
         btn_frame = ctk.CTkFrame(options_panel, fg_color="transparent")
-        btn_frame.grid(row=11, column=0, sticky="ew", pady=(20, 15))
+        btn_frame.grid(row=13, column=0, sticky="ew", pady=(20, 15))
+
+        # # ---> NEW: Add the Sequence Checkbox
+        # self._opt_sequence = ctk.CTkCheckBox(options_panel, text="تسلسل التخرج / Graduation Sequence")
+        # self._opt_sequence.grid(row=11, column=0, sticky="w", padx=20, pady=5)
+
+        # # Bottom Buttons
+        # btn_frame = ctk.CTkFrame(options_panel, fg_color="transparent")
+        # btn_frame.grid(row=12, column=0, sticky="ew", pady=(20, 15))
         btn_frame.grid_columnconfigure(0, weight=1)
         btn_frame.grid_columnconfigure(1, weight=1)
 
@@ -265,13 +288,13 @@ class CertificateScreen(BaseScreen):
 
             preview_lines = ["--- LIVE PREVIEW / معاينة ---", ""]
             for period in data.get("periods", []):
-                preview_lines.append(f"[{period['academic_year']} - Stage {period['stage_number']}]")
+                preview_lines.append(f"[{period['academic_year']} - Semester {period['stage_number']}]")
                 for enr in period.get("enrollments", []):
                     preview_lines.append(f"  • {enr.get('name_en', '')[:30]:<30} | Mark: {enr.get('score', '')} | Unit: {enr.get('credit_hours', '')}")
                 preview_lines.append("")
             
 
-# --- REPLACE THIS SECTION IN _select_student ---
+            # --- REPLACE THIS SECTION IN _select_student ---
             
             self._preview_textbox.configure(state="normal")
             self._preview_textbox.delete("1.0", "end")
@@ -298,6 +321,25 @@ class CertificateScreen(BaseScreen):
 
             self._enable_buttons()
             
+            # ---> NEW: 4. Auto-check the sequence box and fill editable inputs
+            # Clear previous text from the inputs
+            self._seq_rank_entry.delete(0, 'end')
+            self._seq_total_entry.delete(0, 'end')
+            self._seq_top_avg_entry.delete(0, 'end')
+
+            rank_val = data.get("rank")
+            if rank_val:
+                self._opt_sequence.select()
+                self._seq_rank_entry.insert(0, str(rank_val))
+                
+                if data.get("total_graduates"):
+                    self._seq_total_entry.insert(0, str(data.get("total_graduates")))
+                if data.get("top_average"):
+                    self._seq_top_avg_entry.insert(0, str(data.get("top_average")))
+            else:
+                self._opt_sequence.deselect()
+
+            self._enable_buttons()
             # -----------------------------------------------
 
             # self._preview_textbox.configure(state="normal")
@@ -347,27 +389,43 @@ class CertificateScreen(BaseScreen):
             grad_sem_display = "الاول" if data.get("graduation_semester") == "first" else ("الثاني" if data.get("graduation_semester") == "second" else "")
             grade_display = grade_ar
 
-        # Format semesters
-        semesters = []
-        for period in data.get("periods", []):
-            sem_label = f"Stage {period['stage_number']} - {period['academic_year']}" if is_english else f"المرحلة {period['stage_number']} - {period['academic_year']}"
+        # Format semesters (Bulletproof Sequential Pairing)
+        paired_semesters = []
+        periods = data.get("periods", [])
+
+        # Process periods two at a time (0, 2, 4, 6...)
+        for i in range(0, len(periods), 2):
+            left_period = periods[i]
+            # Safely grab the right period, or default to None if it's an odd number (e.g., 9th semester)
+            right_period = periods[i+1] if i + 1 < len(periods) else None
+
+            # 1. Build Headers for this pair
+            left_label = f"Semester {left_period['stage_number']} - {left_period['academic_year']}" if is_english else f"المرحلة {left_period['stage_number']} - {left_period['academic_year']}"
+            right_label = ""
+            if right_period:
+                right_label = f"Semester {right_period['stage_number']} - {right_period['academic_year']}" if is_english else f"المرحلة {right_period['stage_number']} - {right_period['academic_year']}"
+
+            # 2. Extract Courses
+            left_courses = left_period.get("enrollments", [])
+            right_courses = right_period.get("enrollments", []) if right_period else []
+
+            # 3. Zip courses row-by-row (handles uneven course counts perfectly)
             doc_rows = []
-            enrollments = period.get("enrollments", [])
-            
-            for i in range(0, len(enrollments), 2):
-                left = enrollments[i]
-                right = enrollments[i+1] if i+1 < len(enrollments) else {}
+            blank_course = {} 
+            for left, right in zip_longest(left_courses, right_courses, fillvalue=blank_course):
                 doc_rows.append({
-                    "left_name": left.get("name_en" if is_english else "name_ar", ""),
+                    "left_subj": left.get("name_en" if is_english else "name_ar", ""),
                     "left_mark": str(left.get("score", "")),
                     "left_unit": str(left.get("credit_hours", "")),
-                    "right_name": right.get("name_en" if is_english else "name_ar", ""),
+                    
+                    "right_subj": right.get("name_en" if is_english else "name_ar", ""),
                     "right_mark": str(right.get("score", "")),
                     "right_unit": str(right.get("credit_hours", ""))
                 })
-            
-            semesters.append({
-                "label": sem_label,
+
+            paired_semesters.append({
+                "left_label": left_label,
+                "right_label": right_label,
                 "rows": doc_rows
             })
 
@@ -386,15 +444,66 @@ class CertificateScreen(BaseScreen):
             "Grade": grade_display,
             
             # Word's Conditional "If" Triggers
-            "sequence_ON": bool(data.get("rank")),
+            # "sequence_ON": bool(data.get("rank")),
+            # Word's Conditional "If" Triggers
+            "sequence_ON": bool(self._opt_sequence.get()),
             "Failure_ON": bool(self._opt_postpone.get()),
             "Passed_ON": bool(self._opt_second_trial.get()),
 
-            "Sequence_of_Graduation": data.get("rank", ""),
-            "num_students": data.get("total_graduates", ""),
-            "Average_of_First_Student": data.get("top_average", ""),
-            "semesters": semesters
+            # Pull sequence data from the textboxes (only if checkbox is ON)
+            "Sequence_of_Graduation": self._seq_rank_entry.get().strip() if self._opt_sequence.get() else "",
+            "num_students": self._seq_total_entry.get().strip() if self._opt_sequence.get() else "",
+            "Average_of_First_Student": self._seq_top_avg_entry.get().strip() if self._opt_sequence.get() else "",
+            
+            # Send the new sequential structure to Word
+            "paired_semesters": paired_semesters
         }
+
+        # # Format semesters (Updated for stacked vertical tables)
+        # academic_periods = []
+        # for period in data.get("periods", []):
+        #     sem_title = f"Stage {period['stage_number']} - {period['academic_year']}" if is_english else f"المرحلة {period['stage_number']} - {period['academic_year']}"
+        #     doc_rows = []
+            
+        #     # Loop through enrollments 1-by-1 instead of 2-by-2
+        #     for enr in period.get("enrollments", []):
+        #         doc_rows.append({
+        #             "subject": enr.get("name_en" if is_english else "name_ar", ""),
+        #             "mark": str(enr.get("score", "")),
+        #             "unit": str(enr.get("credit_hours", ""))
+        #         })
+            
+        #     academic_periods.append({
+        #         "title": sem_title,
+        #         "rows": doc_rows
+        #     })
+
+        # ctx = {
+        #     "Title": self._title_entry.get().strip() or ("Whom it May Concern" if is_english else "إلى من يهمه الأمر"),
+        #     "student_name": data.get("full_name_en" if is_english else "full_name_ar", ""),
+        #     "Birthday": data.get("date_of_birth", ""),    
+        #     "Birthplace": data.get("birthplace_en" if is_english else "birthplace_ar", "") or data.get("birthplace_other", ""),
+        #     "Nationality": data.get("nationality_en" if is_english else "nationality_ar", ""),
+        #     "admission_year": data.get("admission_year", ""),
+        #     "department_id": dept_display,
+        #     "study_type": study_type_display,
+        #     "graduation_date": data.get("graduation_date", ""),
+        #     "graduation_semester": grad_sem_display,
+        #     "average": avg,
+        #     "Grade": grade_display,
+            
+        #     # Word's Conditional "If" Triggers
+        #     "sequence_ON": bool(data.get("rank")),
+        #     "Failure_ON": bool(self._opt_postpone.get()),
+        #     "Passed_ON": bool(self._opt_second_trial.get()),
+
+        #     "Sequence_of_Graduation": data.get("rank", ""),
+        #     "num_students": data.get("total_graduates", ""),
+        #     "Average_of_First_Student": data.get("top_average", ""),
+            
+        #     # Now perfectly matches the Word template
+        #     "academic_periods": academic_periods 
+        # }
 
         # Signatories
         front_sigs = data.get("front_signatories", [])
