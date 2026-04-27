@@ -1,0 +1,5 @@
+{% for period in academic_periods %}
+{% endfor %}
+
+{%tr for row in period.rows  %}
+{%tr endfor  %}

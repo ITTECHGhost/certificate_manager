@@ -4,7 +4,9 @@ import difflib
 import customtkinter as ctk
 import win32api
 from docxtpl import DocxTemplate
-
+import re
+from docx import Document
+import jinja2
 from config import AppFonts, AppColors
 from data.queries import fuzzy_search_students, get_full_certificate_data
 from db import get_grade
@@ -424,6 +426,34 @@ class CertificateScreen(BaseScreen):
 
         return ctx
 
+
+
+    def validate_template_syntax(template_path: str) -> tuple[bool, str]:
+        """Scans a Word template and returns the exact visual location of broken tags."""
+        try:
+            doc = Document(template_path)
+        except Exception as e:
+            return False, f"Could not read Word file: {e}"
+
+        pattern_start = re.compile(r'\{%[^\s]') 
+        pattern_end = re.compile(r'[^\s]%\}')
+
+        # Scan paragraphs
+        for i, p in enumerate(doc.paragraphs):
+            if p.text.strip():
+                if pattern_start.search(p.text) or pattern_end.search(p.text):
+                    return False, f"Spacing error in Paragraph {i+1}:\n{p.text}"
+
+        # Scan tables (This tells you the EXACT row)
+        for t_idx, table in enumerate(doc.tables):
+            for r_idx, row in enumerate(table.rows):
+                for c_idx, cell in enumerate(row.cells):
+                    if cell.text.strip():
+                        if pattern_start.search(cell.text) or pattern_end.search(cell.text):
+                            return False, f"Spacing error in Table {t_idx+1}, Row {r_idx+1}, Column {c_idx+1}:\n{cell.text}"
+
+        return True, "No syntax errors found."
+
     def _generate_docx(self, output_path: str) -> bool:
         try:
             selected = self._template_var.get()
@@ -441,11 +471,25 @@ class CertificateScreen(BaseScreen):
                 self.show_error("الرجاء إدخال رقم الأمر الجامعي / Please enter the Order Number")
                 return False
 
+            # ---> NEW: Run the visual pre-flight check <---
+            is_valid, error_msg = validate_template_syntax(template_path)
+            if not is_valid:
+                self.show_error(f"Template Syntax Error:\n{error_msg}")
+                return False
+
             doc = DocxTemplate(template_path)
             ctx = self._build_context()
-            doc.render(ctx)
+            
+            # ---> NEW: Catch specific Jinja parsing errors <---
+            try:
+                doc.render(ctx)
+            except jinja2.exceptions.TemplateSyntaxError as jinja_err:
+                self.show_error(f"Jinja Code Error:\n{jinja_err.message}\n(Likely hidden Word formatting)")
+                return False
+
             doc.save(output_path)
             return True
+
         except Exception as e:
             self.show_error(f"Error generating document:\n{e}")
             return False
