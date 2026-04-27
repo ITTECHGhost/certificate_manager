@@ -112,58 +112,41 @@ class StudentFormPanel(SidePanel):
     # ── Build ─────────────────────────────────────────────────────────────────
 
     def _build_fields(self) -> None:
-        self._add_section_label("الاسم", "Name")
-        self._name_ar  = self._add_entry(
-            "الاسم الكامل بالعربية", "Full Arabic Name",
-            placeholder="مثال: حسين علي خيرالله",
-        )
-        self._name_en  = self._add_entry(
-            "الاسم الكامل بالإنكليزية", "Full English Name",
-            placeholder="e.g. Hussein Ali Khairallah",
-        )
+        # Force the form to split into 3 equal vertical columns
+        self._fields_frame.grid_columnconfigure((0, 1, 2), weight=1)
 
-        self._add_section_label("البيانات الشخصية", "Personal Details")
-        self._dob      = self._add_entry(
-            "تاريخ الميلاد", "Date of Birth (YYYY-MM-DD)",
-            placeholder="مثال: 2000-05-14",
-        )
-        self._nationality = self._add_dropdown(
-            "الجنسية", "Nationality", values=["—"]
-        )
-        self._birthplace_gov = self._add_dropdown(
-            "محل الولادة (محافظة عراقية)", "Birthplace (Iraqi governorate)",
-            values=["—  أجنبي / Foreign"]
-        )
-        self._birthplace_other = self._add_entry(
-            "محل الولادة (خارج العراق)", "Birthplace (outside Iraq)",
-            placeholder="اتركه فارغاً إذا كان عراقي الولادة",
-        )
+        # -- ROW 0: Name Section --
+        self._add_section_label("الاسم", "Name", row=0, col=0, colspan=3)
 
-        self._add_section_label("الدراسة", "Academic")
-        self._dept     = self._add_dropdown("القسم", "Department", values=["—"])
-        self._adm_year = self._add_entry(
-            "سنة القبول", "Admission Year", placeholder="مثال: 2020"
-        )
-        self._study_type = self._add_dropdown(
-            "نوع الدراسة", "Study Type", values=list(STUDY_TYPE_OPTIONS.keys())
-        )
+        self._name_ar = self._add_entry("الاسم الكامل بالعربية", "Full Arabic Name", placeholder="مثال: حسين علي خيرالله", row=2, col=0)
+        # Span English name across 2 columns to give it plenty of breathing room
+        self._name_en = self._add_entry("الاسم الكامل بالإنكليزية", "Full English Name", placeholder="e.g. Hussein Ali Khairallah", row=2, col=1, colspan=2)
 
-        self._add_section_label("التخرج", "Graduation  (optional)")
-        self._grad_date = self._add_entry(
-            "تاريخ التخرج", "Graduation Date (YYYY-MM-DD)",
-            placeholder="اتركه فارغاً إن لم يتخرج بعد",
-        )
-        self._grad_sem  = self._add_dropdown(
-            "فصل التخرج", "Graduation Semester",
-            values=["— لم يتخرج بعد / Not yet"] + list(SEMESTER_OPTIONS.keys())
-        )
-        self._average   = self._add_entry(
-            "المعدل العام", "Overall Average (50–100)",
-            placeholder="مثال: 78",
-        )
-        self._order     = self._add_dropdown(
-            "الأمر الجامعي", "Graduation Order", values=["— بدون أمر / None"]
-        )
+        # -- ROW 4: Personal Details Section --
+        self._add_section_label("البيانات الشخصية", "Personal Details", row=4, col=0, colspan=3)
+
+        self._dob = self._add_entry("تاريخ الميلاد", "Date of Birth (YYYY-MM-DD)", placeholder="مثال: 2000-05-14", row=6, col=0)
+        self._nationality = self._add_dropdown("الجنسية", "Nationality", values=["—"], row=6, col=1)
+        self._birthplace_gov = self._add_dropdown("محل الولادة (محافظة عراقية)", "Birthplace (Iraqi governorate)", values=["—  أجنبي / Foreign"], row=6, col=2)
+
+        # Placed below governorate for foreign students
+        self._birthplace_other = self._add_entry("محل الولادة (خارج العراق)", "Birthplace (outside Iraq)", placeholder="اتركه فارغاً إذا كان عراقي الولادة", row=8, col=0, colspan=2)
+
+        # -- ROW 10: Academic Section --
+        self._add_section_label("الدراسة", "Academic", row=10, col=0, colspan=3)
+
+        self._dept = self._add_dropdown("القسم", "Department", values=["—"], row=12, col=0)
+        self._adm_year = self._add_entry("سنة القبول", "Admission Year", placeholder="مثال: 2020", row=12, col=1)
+        self._study_type = self._add_dropdown("نوع الدراسة", "Study Type", values=list(STUDY_TYPE_OPTIONS.keys()), row=12, col=2)
+
+        # -- ROW 14: Graduation Section --
+        self._add_section_label("التخرج", "Graduation (optional)", row=14, col=0, colspan=3)
+
+        self._grad_date = self._add_entry("تاريخ التخرج", "Graduation Date", placeholder="اتركه فارغاً إن لم يتخرج بعد", row=16, col=0)
+        self._grad_sem = self._add_dropdown("فصل التخرج", "Graduation Semester", values=["— لم يتخرج بعد / Not yet"] + list(SEMESTER_OPTIONS.keys()), row=16, col=1)
+        self._average = self._add_entry("المعدل العام", "Overall Average (50–100)", placeholder="مثال: 78", row=16, col=2)
+
+        self._order = self._add_dropdown("الأمر الجامعي", "Graduation Order", values=["— بدون أمر / None"], row=18, col=0, colspan=2)
 
     def _reload_lookups(self) -> None:
         """Reload all dropdown data from the database."""
@@ -190,9 +173,16 @@ class StudentFormPanel(SidePanel):
         # Default nationality to Iraq
         iraq_label = next(
             (f"{c['name_ar']}  ({c['iso_code']})" for c in self._countries
-             if c["iso_code"] == "IQ"), nat_labels[0]
+             if c["iso_code"] == "IQ"), nat_labels
         )
         self._nationality.set(iraq_label)
+
+        # ---> NEW: Default birthplace to Basrah <---
+        basrah_label = next(
+            (f"{g['name_ar']}  /  {g['name_en']}" for g in self._govs
+             if "بصرة" in g["name_ar"] or "Basra" in g["name_en"]), gov_labels
+        )
+        self._birthplace_gov.set(basrah_label)
 
     def open_add(self) -> None:
         self._reload_lookups()
@@ -874,56 +864,48 @@ class StudentsScreen(BaseScreen):
         row = 0
 
         # ── Identity card ─────────────────────────────────────────────────────
-        card = ctk.CTkFrame(frame, corner_radius=10, border_width=1,
-                            border_color=AppColors.BORDER)
-        card.grid(row=row, column=0, sticky="ew", pady=(0, 14))
-        card.grid_columnconfigure(1, weight=1)
+        card = ctk.CTkFrame(frame, corner_radius=12, border_width=1,
+                            border_color=AppColors.BORDER, fg_color=("gray98", "gray14"))
+        card.grid(row=row, column=0, sticky="ew", pady=(0, 20), padx=10)
+        card.grid_columnconfigure(0, weight=1)
         row += 1
 
-        # Card header
-        card_hdr = ctk.CTkFrame(card, fg_color=AppColors.HEADER_BG,
-                                height=40, corner_radius=0)
-        card_hdr.grid(row=0, column=0, columnspan=2, sticky="ew")
-        card_hdr.grid_columnconfigure(0, weight=1)
-        card_hdr.grid_propagate(False)
+        # Card header (Distinct background)
+        card_hdr = ctk.CTkFrame(card, fg_color=("gray90", "gray20"), corner_radius=12)
+        card_hdr.grid(row=0, column=0, sticky="ew")
+        card_hdr.grid_columnconfigure(1, weight=1)
 
-        ctk.CTkLabel(
-            card_hdr,
-            text=f"  {data['full_name_ar']}  —  {data['full_name_en']}",
-            font=ctk.CTkFont(family=AppFonts.FAMILY, size=AppFonts.SIZE_BODY, weight="bold"),
-            anchor="e",
-        ).grid(row=0, column=0, sticky="e", padx=(0, 14))
-
-        # Edit + Delete buttons in header
+        # Action Buttons (Left side)
         btn_row = ctk.CTkFrame(card_hdr, fg_color="transparent")
-        btn_row.grid(row=0, column=0, sticky="w", padx=8)
+        btn_row.grid(row=0, column=0, sticky="w", padx=15, pady=10)
 
         ctk.CTkButton(
-            btn_row, text="تعديل  /  Edit", height=28, width=100,
-            font=ctk.CTkFont(family=AppFonts.FAMILY, size=10),
+            btn_row, text="تعديل  /  Edit", height=32, width=100,
+            font=ctk.CTkFont(family=AppFonts.FAMILY, size=12),
             corner_radius=6,
             command=lambda: self._form_panel.open_edit(self._selected_student),
-        ).pack(side="left", padx=(0, 4))
+        ).pack(side="left", padx=(0, 8))
 
         ctk.CTkButton(
-            btn_row, text="حذف  /  Delete", height=28, width=100,
-            font=ctk.CTkFont(family=AppFonts.FAMILY, size=10),
+            btn_row, text="حذف  /  Delete", height=32, width=100,
+            font=ctk.CTkFont(family=AppFonts.FAMILY, size=12),
             corner_radius=6, fg_color=AppColors.COLOR_ERROR, hover_color="#B71C1C",
             command=self._confirm_delete,
         ).pack(side="left")
 
-        # Info fields
-        def info_row(parent, label, value, r):
-            ctk.CTkLabel(
-                parent, text=label,
-                font=ctk.CTkFont(family=AppFonts.FAMILY, size=AppFonts.SIZE_SMALL),
-                text_color=AppColors.TEXT_MUTED, anchor="e", width=180,
-            ).grid(row=r, column=0, sticky="e", padx=(14, 8), pady=3)
-            ctk.CTkLabel(
-                parent, text=str(value) if value else "—",
-                font=ctk.CTkFont(family=AppFonts.FAMILY, size=AppFonts.SIZE_SMALL),
-                anchor="w",
-            ).grid(row=r, column=1, sticky="w", padx=(0, 14), pady=3)
+        # Student Name (Right side)
+        ctk.CTkLabel(
+            card_hdr,
+            text=f"{data['full_name_ar']}  —  {data['full_name_en']}",
+            font=ctk.CTkFont(family=AppFonts.FAMILY, size=AppFonts.SIZE_SUBHEADING, weight="bold"),
+            anchor="e",
+        ).grid(row=0, column=1, sticky="e", padx=20, pady=10)
+
+        # ── Info Fields Grid (2 Columns) ──────────────────────────────────────
+        info_container = ctk.CTkFrame(card, fg_color="transparent")
+        info_container.grid(row=1, column=0, sticky="ew", padx=15, pady=15)
+        # 4 internal columns: [Label L] [Value L] [Label R] [Value R]
+        info_container.grid_columnconfigure((0, 1, 2, 3), weight=1)
 
         avg   = data.get("average")
         grade_ar, grade_en = get_grade(avg) if avg else ("—", "—")
@@ -944,8 +926,29 @@ class StudentsScreen(BaseScreen):
             ("المعدل  /  Average",          f"{avg}  ({grade_ar} / {grade_en})" if avg else "—"),
         ]
 
-        for r_idx, (lbl, val) in enumerate(fields):
-            info_row(card, lbl, val, r_idx + 1)
+        def draw_field(parent, label, value, row_idx, col_offset):
+            # Text Label
+            ctk.CTkLabel(
+                parent, text=label,
+                font=ctk.CTkFont(family=AppFonts.FAMILY, size=11),
+                text_color=AppColors.TEXT_MUTED, anchor="e",
+            ).grid(row=row_idx, column=col_offset, sticky="e", padx=(10, 15), pady=8)
+            
+            # Data Value Box (Badge styling)
+            val_box = ctk.CTkFrame(parent, fg_color=("gray90", "gray20"), corner_radius=6)
+            val_box.grid(row=row_idx, column=col_offset + 1, sticky="we", padx=(0, 20), pady=6)
+            ctk.CTkLabel(
+                val_box, text=str(value) if value else "—",
+                font=ctk.CTkFont(family=AppFonts.FAMILY, size=12, weight="bold"),
+                anchor="w",
+            ).pack(fill="x", padx=12, pady=5)
+
+        # Distribute fields across 2 columns (RTL logical flow)
+        for idx, (lbl, val) in enumerate(fields):
+            r_idx = idx // 2
+            # Start filling from the right side to respect Arabic reading direction
+            c_offset = 2 if idx % 2 == 0 else 0 
+            draw_field(info_container, lbl, val, r_idx, c_offset)
 
         # ── Academic Periods ──────────────────────────────────────────────────
         ctk.CTkLabel(

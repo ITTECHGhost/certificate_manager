@@ -15,7 +15,7 @@ import customtkinter as ctk
 
 from config import AppFonts, AppColors
 from data.queries import (
-    get_all_personal, insert_personal, update_personal, deactivate_personal,
+    get_all_personal, insert_personal, update_personal, deactivate_personal, delete_personal
 )
 from ui.base_screen import BaseScreen
 from ui.side_panel import SidePanel
@@ -46,29 +46,28 @@ class PersonalPanel(SidePanel):
         )
 
     def _build_fields(self) -> None:
-        self._add_section_label("الاسم", "Name")
-        self._name_ar   = self._add_entry("الاسم بالعربية",    "Arabic Name",
-                                           placeholder="مثال: رائدة سالم خضير")
-        self._name_en   = self._add_entry("الاسم بالإنكليزية", "English Name",
-                                           placeholder="e.g. Raeda Salem Khudhair")
+        # Force the form to split into 3 equal vertical columns
+        self._fields_frame.grid_columnconfigure((0, 1, 2), weight=1)
 
-        self._add_section_label("اللقب الأكاديمي", "Academic Title")
-        self._title_ar  = self._add_entry("اللقب بالعربية",    "Arabic Title",
-                                           placeholder="مثال: الأستاذ الدكتور")
-        self._title_en  = self._add_entry("اللقب بالإنكليزية", "English Title",
-                                           placeholder="e.g. Prof. Dr.")
+        # -- ROW 0: Main Header (Spans all 3 columns) --
+        self._add_section_label("المعلومات الشخصية", "Personal Information", row=0, col=0, colspan=3)
 
-        self._add_section_label("المنصب والموقع", "Role & Position")
-        self._resp_ar   = self._add_entry("المنصب بالعربية",    "Arabic Responsibility",
-                                           placeholder="مثال: معاون العميد للشؤون العلمية")
-        self._resp_en   = self._add_entry("المنصب بالإنكليزية", "English Responsibility",
-                                           placeholder="e.g. Vice Dean for Academic Affairs")
+        # -- ROW 1: First 3 Fields --
+        self._name_ar  = self._add_entry("الاسم بالعربية", "Arabic Name", placeholder="مثال: رائدة سالم", row=1, col=0)
+        self._title_ar = self._add_entry("اللقب بالعربية", "Arabic Title", placeholder="مثال: أستاذ", row=1, col=1)
+        self._resp_ar  = self._add_entry("المنصب بالعربية", "Arabic Resp.", placeholder="معاون العميد", row=1, col=2)
 
-        self._add_section_label("الموقع في الوثيقة", "Document Position")
-        self._page      = self._add_dropdown("صفحة التوقيع", "Signature Page",
-                                              values=list(self.PAGE_OPTIONS.keys()))
-        self._order     = self._add_dropdown("ترتيب التوقيع", "Signature Order",
-                                              values=["1", "2", "3", "4", "5", "6"])
+        # -- ROW 3: Next 3 Fields (Row 2 is taken by the input boxes of Row 1) --
+        self._name_en  = self._add_entry("الاسم بالإنكليزية", "English Name", placeholder="e.g. Raeda Salem", row=3, col=0)
+        self._title_en = self._add_entry("اللقب بالإنكليزية", "English Title", placeholder="e.g. Prof. Dr.", row=3, col=1)
+        self._resp_en  = self._add_entry("المنصب بالإنكليزية", "English Resp.", placeholder="Vice Dean", row=3, col=2)
+
+        # -- ROW 5: Document Position Header --
+        self._add_section_label("الموقع في الوثيقة", "Document Position", row=5, col=0, colspan=3)
+
+        # -- ROW 6: Last 2 Dropdowns --
+        self._page  = self._add_dropdown("صفحة التوقيع", "Signature Page", values=list(self.PAGE_OPTIONS.keys()), row=6, col=0)
+        self._order = self._add_dropdown("ترتيب التوقيع", "Signature Order", values=["1", "2", "3", "4", "5", "6"], row=6, col=1)
 
     def _populate(self, data: dict) -> None:
         self._set_entry(self._name_ar,  data.get("name_ar",           ""))
@@ -159,7 +158,10 @@ class PersonalScreen(BaseScreen):
         # Record list
         self._list = RecordList(self, columns=self.COLUMNS,
                                 on_edit=self._panel.open_edit,
-                                on_delete=self._confirm_deactivate)
+                                on_delete=self._handle_delete_click)
+        # self._list = RecordList(self, columns=self.COLUMNS,
+        #                         on_edit=self._panel.open_edit,
+        #                         on_delete=self._confirm_deactivate)
         self._list.grid(row=2, column=0, sticky="nsew")
 
         # Pagination bar
@@ -190,18 +192,51 @@ class PersonalScreen(BaseScreen):
             "✅ نشط" if r["is_active"] else "⛔ غير نشط",
         ])
 
-    def _confirm_deactivate(self, row: dict) -> None:
-        if not row["is_active"]:
-            self.show_error("هذا الكادر غير نشط بالفعل.\nThis person is already inactive.")
-            return
-        self.show_confirm(
-            message=(f"هل تريد إلغاء تفعيل: {row['name_ar']}؟\n"
-                     f"Deactivate: {row['name_en']}?\n\n"
-                     "لن يظهر في الوثائق الجديدة لكن سيبقى السجل محفوظاً.\n"
-                     "Won't appear on new certificates but the record is kept."),
-            on_confirm=lambda: self._deactivate(row),
-        )
+    def _handle_delete_click(self, row: dict) -> None:
+        """Determines whether to offer Deactivation or Hard Delete based on current status."""
+        if row.get("is_active"):
+            # Stage 1: Offer Deactivation
+            self.show_confirm(
+                message=(f"هل تريد إلغاء تفعيل: {row['name_ar']}؟\n"
+                         f"Deactivate: {row['name_en']}?\n\n"
+                         "لن يظهر في الوثائق الجديدة لكن سيبقى السجل محفوظاً.\n"
+                         "Won't appear on new certificates but the record is kept."),
+                on_confirm=lambda: self._deactivate(row),
+            )
+        else:
+            # Stage 2: Offer Permanent Deletion
+            self.show_confirm(
+                message=(f"هذا الكادر غير نشط. هل أنت متأكد من حذفه نهائياً؟\n"
+                         f"This person is inactive. Are you sure you want to permanently delete:\n\n"
+                         f"{row['name_ar']} / {row['name_en']}?\n\n"
+                         "تحذير: لا يمكن التراجع عن هذا الإجراء.\n"
+                         "Warning: This action cannot be undone."),
+                on_confirm=lambda: self._delete(row),
+            )
 
     def _deactivate(self, row: dict) -> None:
         deactivate_personal(row["id"])
         self.refresh()
+
+    def _delete(self, row: dict) -> None:
+        try:
+            delete_personal(row["id"])
+            self.refresh()
+        except Exception as e:
+            self.show_error(f"Cannot delete record. It may be linked to existing data.\nError: {e}")
+
+    # def _confirm_deactivate(self, row: dict) -> None:
+    #     if not row["is_active"]:
+    #         self.show_error("هذا الكادر غير نشط بالفعل.\nThis person is already inactive.")
+    #         return
+    #     self.show_confirm(
+    #         message=(f"هل تريد إلغاء تفعيل: {row['name_ar']}؟\n"
+    #                  f"Deactivate: {row['name_en']}?\n\n"
+    #                  "لن يظهر في الوثائق الجديدة لكن سيبقى السجل محفوظاً.\n"
+    #                  "Won't appear on new certificates but the record is kept."),
+    #         on_confirm=lambda: self._deactivate(row),
+    #     )
+
+    # def _deactivate(self, row: dict) -> None:
+    #     deactivate_personal(row["id"])
+    #     self.refresh()

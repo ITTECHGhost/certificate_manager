@@ -95,7 +95,7 @@ class CertificateScreen(BaseScreen):
         self._preview_textbox.grid(row=1, column=0, sticky="nsew", padx=10, pady=(0, 10))
         
         # Right: Options Panel
-        options_panel = ctk.CTkFrame(self._content_frame, corner_radius=10, border_width=1, border_color=AppColors.BORDER)
+        options_panel = ctk.CTkScrollableFrame(self._content_frame, corner_radius=10, border_width=1, border_color=AppColors.BORDER)
         options_panel.grid(row=0, column=1, sticky="nsew", padx=(10, 0))
         options_panel.grid_columnconfigure(0, weight=1)
 
@@ -535,34 +535,6 @@ class CertificateScreen(BaseScreen):
 
         return ctx
 
-
-
-    def validate_template_syntax(template_path: str) -> tuple[bool, str]:
-        """Scans a Word template and returns the exact visual location of broken tags."""
-        try:
-            doc = Document(template_path)
-        except Exception as e:
-            return False, f"Could not read Word file: {e}"
-
-        pattern_start = re.compile(r'\{%[^\s]') 
-        pattern_end = re.compile(r'[^\s]%\}')
-
-        # Scan paragraphs
-        for i, p in enumerate(doc.paragraphs):
-            if p.text.strip():
-                if pattern_start.search(p.text) or pattern_end.search(p.text):
-                    return False, f"Spacing error in Paragraph {i+1}:\n{p.text}"
-
-        # Scan tables (This tells you the EXACT row)
-        for t_idx, table in enumerate(doc.tables):
-            for r_idx, row in enumerate(table.rows):
-                for c_idx, cell in enumerate(row.cells):
-                    if cell.text.strip():
-                        if pattern_start.search(cell.text) or pattern_end.search(cell.text):
-                            return False, f"Spacing error in Table {t_idx+1}, Row {r_idx+1}, Column {c_idx+1}:\n{cell.text}"
-
-        return True, "No syntax errors found."
-
     def _generate_docx(self, output_path: str) -> bool:
         try:
             selected = self._template_var.get()
@@ -580,35 +552,45 @@ class CertificateScreen(BaseScreen):
                 self.show_error("الرجاء إدخال رقم الأمر الجامعي / Please enter the Order Number")
                 return False
 
-            # ---> NEW: Run the visual pre-flight check <---
-            is_valid, error_msg = validate_template_syntax(template_path)
-            if not is_valid:
-                self.show_error(f"Template Syntax Error:\n{error_msg}")
-                return False
-
             doc = DocxTemplate(template_path)
             ctx = self._build_context()
-            
-            # ---> NEW: Catch specific Jinja parsing errors <---
-            try:
-                doc.render(ctx)
-            except jinja2.exceptions.TemplateSyntaxError as jinja_err:
-                self.show_error(f"Jinja Code Error:\n{jinja_err.message}\n(Likely hidden Word formatting)")
-                return False
-
+            doc.render(ctx)
             doc.save(output_path)
             return True
-
         except Exception as e:
             self.show_error(f"Error generating document:\n{e}")
             return False
+    
+    def _get_save_path(self) -> str:
+        """Creates the 'certificates' folder and generates a safe file name based on the student."""
+        import os
+        import re
+        
+        # 1. Ensure the 'certificates' directory exists
+        cert_dir = os.path.abspath("certificates")
+        os.makedirs(cert_dir, exist_ok=True)
+        
+        # 2. Grab the student's name from our existing context builder
+        ctx = self._build_context()
+        student_name = ctx.get("student_name", "Unknown_Student")
+        
+        # 3. Clean the name to prevent Windows file path crashes (removes illegal characters)
+        safe_name = re.sub(r'[\\/*?:"<>|]', "", student_name).strip()
+        if not safe_name:
+            safe_name = "Unknown_Student"
+            
+        # 4. Construct and return the full path
+        return os.path.join(cert_dir, f"{safe_name}.docx")
 
     def _preview(self):
         self._disable_buttons()
         threading.Thread(target=self._run_preview, daemon=True).start()
 
     def _run_preview(self):
-        out_path = os.path.abspath("temp_certificate.docx")
+        import os
+        # Ask for the dynamic path instead of a temp file
+        out_path = self._get_save_path()
+        
         if self._generate_docx(out_path):
             try:
                 os.startfile(out_path)
@@ -618,10 +600,15 @@ class CertificateScreen(BaseScreen):
 
     def _print(self):
         self._disable_buttons()
+        import threading
         threading.Thread(target=self._run_print, daemon=True).start()
 
     def _run_print(self):
-        out_path = os.path.abspath("temp_certificate.docx")
+        import os
+        import win32api
+        # Ask for the dynamic path instead of a temp file
+        out_path = self._get_save_path()
+        
         if self._generate_docx(out_path):
             try:
                 win32api.ShellExecute(0, "print", out_path, None, ".", 0)

@@ -116,28 +116,28 @@ class SidePanel(ctk.CTkFrame, ABC):
 
     def _build_scroll_area(self) -> None:
         """
-        Centered scrollable form area.  Uses a centering frame so the fields
-        don't stretch to the full window width on wide monitors.
+        Scrollable form area that dynamically stretches to fill the entire window width.
         """
         outer = ctk.CTkFrame(self, fg_color="transparent")
         outer.grid(row=1, column=0, sticky="nsew")
-        outer.grid_columnconfigure(0, weight=1)
-        outer.grid_columnconfigure(2, weight=1)
+        
+        # ---> THE FIX: Give all horizontal stretching power to column 1 <---
+        outer.grid_columnconfigure(1, weight=1)
         outer.grid_rowconfigure(0, weight=1)
 
-        # Center column: fixed max width for the form
         center = ctk.CTkFrame(outer, fg_color="transparent")
         center.grid(row=0, column=1, sticky="nsew")
         center.grid_columnconfigure(0, weight=1)
+        center.grid_rowconfigure(0, weight=1)
 
         self._fields_frame = ctk.CTkScrollableFrame(
             center,
             fg_color="transparent",
-            width=560,
+            # We no longer need a hardcoded width=1000 because sticky="nsew" + weight=1
+            # forces it to calculate the window width automatically!
         )
         self._fields_frame.grid(row=0, column=0, sticky="nsew", padx=24, pady=(12, 0))
-        self._fields_frame.grid_columnconfigure(0, weight=1)
-
+        
     def _build_buttons(self) -> None:
         """Save and Cancel buttons pinned to the bottom, centred."""
         outer = ctk.CTkFrame(self, fg_color="transparent")
@@ -172,19 +172,20 @@ class SidePanel(ctk.CTkFrame, ABC):
     # =========================================================================
 
     def _add_entry(
-        self,
-        label_ar: str,
-        label_en: str,
-        placeholder: str = "",
+        self, label_ar: str, label_en: str, placeholder: str = "", 
+        row: int = None, col: int = 0, colspan: int = 1
     ) -> ctk.CTkEntry:
         """Add a labeled text entry field to the panel."""
+        if row is None:
+            row = self._field_row
+            self._field_row += 2
+
         ctk.CTkLabel(
             self._fields_frame,
             text=f"{label_ar}  /  {label_en}",
             font=ctk.CTkFont(family=AppFonts.FAMILY, size=AppFonts.SIZE_SMALL),
             anchor="e",
-        ).grid(row=self._field_row, column=0, sticky="e", pady=(8, 2))
-        self._field_row += 1
+        ).grid(row=row, column=col, columnspan=colspan, sticky="e", pady=(8, 2), padx=10)
 
         entry = ctk.CTkEntry(
             self._fields_frame,
@@ -193,8 +194,7 @@ class SidePanel(ctk.CTkFrame, ABC):
             height=36,
             justify="right",
         )
-        entry.grid(row=self._field_row, column=0, sticky="ew", pady=(0, 2))
-        self._field_row += 1
+        entry.grid(row=row+1, column=col, columnspan=colspan, sticky="ew", pady=(0, 2), padx=10)
 
         try:
             entry._entry.configure(justify="right")
@@ -204,19 +204,20 @@ class SidePanel(ctk.CTkFrame, ABC):
         return entry
 
     def _add_dropdown(
-        self,
-        label_ar: str,
-        label_en: str,
-        values: list[str],
+        self, label_ar: str, label_en: str, values: list[str], 
+        row: int = None, col: int = 0, colspan: int = 1
     ) -> ctk.CTkOptionMenu:
         """Add a labeled dropdown to the panel."""
+        if row is None:
+            row = self._field_row
+            self._field_row += 2
+
         ctk.CTkLabel(
             self._fields_frame,
             text=f"{label_ar}  /  {label_en}",
             font=ctk.CTkFont(family=AppFonts.FAMILY, size=AppFonts.SIZE_SMALL),
             anchor="e",
-        ).grid(row=self._field_row, column=0, sticky="e", pady=(8, 2))
-        self._field_row += 1
+        ).grid(row=row, column=col, columnspan=colspan, sticky="e", pady=(8, 2), padx=10)
 
         dropdown = ctk.CTkOptionMenu(
             self._fields_frame,
@@ -225,34 +226,31 @@ class SidePanel(ctk.CTkFrame, ABC):
             height=36,
             anchor="e",
         )
-        dropdown.grid(row=self._field_row, column=0, sticky="ew", pady=(0, 2))
-        self._field_row += 1
+        dropdown.grid(row=row+1, column=col, columnspan=colspan, sticky="ew", pady=(0, 2), padx=10)
 
         if values:
-            dropdown.set(values[0])
+            dropdown.set(values)
 
         return dropdown
 
-    def _add_section_label(self, text_ar: str, text_en: str) -> None:
+    def _add_section_label(self, text_ar: str, text_en: str, row: int = None, col: int = 0, colspan: int = 1) -> None:
         """Add a visual section divider with a bilingual subheading."""
+        if row is None:
+            row = self._field_row
+            self._field_row += 2
+
         ctk.CTkFrame(
             self._fields_frame,
             height=1,
             fg_color=AppColors.DIVIDER,
-        ).grid(row=self._field_row, column=0, sticky="ew", pady=(12, 0))
-        self._field_row += 1
+        ).grid(row=row, column=col, columnspan=colspan, sticky="ew", pady=(18, 0), padx=10)
 
         ctk.CTkLabel(
             self._fields_frame,
             text=f"{text_ar}  —  {text_en}",
-            font=ctk.CTkFont(
-                family=AppFonts.FAMILY,
-                size=AppFonts.SIZE_SMALL,
-                weight="bold",
-            ),
+            font=ctk.CTkFont(family=AppFonts.FAMILY, size=AppFonts.SIZE_SMALL, weight="bold"),
             anchor="e",
-        ).grid(row=self._field_row, column=0, sticky="e", pady=(4, 4))
-        self._field_row += 1
+        ).grid(row=row+1, column=col, columnspan=colspan, sticky="e", pady=(4, 4), padx=10)
 
     # =========================================================================
     # Convenience write helpers
@@ -357,9 +355,8 @@ class SidePanel(ctk.CTkFrame, ABC):
             justify="right",
             anchor="e",
         )
-        self._error_label.grid(
-            row=self._field_row, column=0, sticky="e", pady=(8, 0)
-        )
+        # We use row 1000 to guarantee it always drops to the very bottom of the grid
+        self._error_label.grid(row=1000, column=0, columnspan=3, sticky="e", pady=(15, 0), padx=10)
 
     def _clear_error(self) -> None:
         """Remove the inline error label if one exists."""

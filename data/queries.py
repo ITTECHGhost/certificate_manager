@@ -336,6 +336,7 @@ def insert_personal(
             (new_id, f"INSERT signatory id={new_id} ({name_ar})")
         )
         conn.commit()
+        insert_audit_log("personal", "INSERT", f"تم إضافة كادر جديد: {name_ar}")
     return new_id
 
 
@@ -366,6 +367,7 @@ def update_personal(
              responsibility_ar, responsibility_en,
              display_order, page_location, person_id)
         )
+        insert_audit_log("personal", "UPDATE", f"تم تعديل بيانات الكادر: {name_ar}")
         conn.commit()
 
 
@@ -377,16 +379,41 @@ def deactivate_personal(person_id: int) -> None:
     """
     with get_connection() as conn:
         _log_personal_snapshot(conn, "deactivate", person_id)
+        # 1. Grab the name before we delete them so we can log it
+        personal = conn.execute("SELECT name_ar FROM personal WHERE id = ?", (person_id,)).fetchone()
+        personal_name = personal["name_ar"] if personal else f"ID: {person_id}"
         conn.execute(
             "UPDATE personal SET is_active = 0 WHERE id = ?",
             (person_id,)
         )
         conn.commit()
+        insert_audit_log("personal", "UPDATE", f"تم إلغاء تفعيل الكادر: {personal_name}")
 
+def delete_personal(person_id: int) -> None:
+    """Permanently deletes a signatory from the database."""
+    with get_connection() as conn:
+        # 1. Grab the name before we delete them so we can log it
+        personal = conn.execute("SELECT name_ar FROM personal WHERE id = ?", (person_id,)).fetchone()
+        personal_name = personal["name_ar"] if personal else f"ID: {person_id}"
+        # 2. Delete the personal
+        conn.execute("DELETE FROM personal WHERE id = ?", (person_id,))
+        insert_audit_log("personal", "DELETE", f"تم حذف الكادر: {personal_name}")
+        conn.commit()
 
 # =============================================================================
 # AUDIT LOG
 # =============================================================================
+def insert_audit_log(table_name: str, action: str, summary: str, error_info: str = "") -> None:
+    """Logs an action to the audit_log table for the History screen."""
+    from db import get_connection
+    with get_connection() as conn:
+        conn.execute(
+            """
+            INSERT INTO audit_log (table_name, action, summary, error_info)
+            VALUES (?, ?, ?, ?)
+            """,
+            (table_name, action, summary, error_info)
+        )
 
 def write_audit_log(
     table_name: str,
@@ -714,19 +741,14 @@ def insert_student(
              study_type, graduation_date, graduation_semester, average)
         )
         conn.commit()
+        # ---> Log student creation <---      
+        insert_audit_log("students", "INSERT", f"تم إضافة طالب جديد: {full_name_ar}")
     return cursor.lastrowid
 
 
 def update_student(student_id: int, **fields) -> None:
     """
     Update one or more fields on a student record.
-
-    Args:
-        student_id: The student's primary key.
-        **fields:   Keyword arguments matching column names.
-
-    Example:
-        update_student(5, average=87, graduation_date="2024-06-15")
     """
     if not fields:
         return
@@ -740,6 +762,8 @@ def update_student(student_id: int, **fields) -> None:
             values
         )
         conn.commit()
+        # ---> Log student update (FIXED BUG: changed kwargs to fields) <---     
+        insert_audit_log("students", "UPDATE", f"تم تعديل بيانات الطالب: {fields.get('full_name_ar', 'ID: ' + str(student_id))}")
 
 
 # =============================================================================
@@ -1213,8 +1237,16 @@ def delete_student(student_id: int) -> None:
     Cascade rules in the schema handle periods and enrollments automatically.
     """
     with get_connection() as conn:
+        # 1. Grab the name before we delete them so we can log it
+        student = conn.execute("SELECT full_name_ar FROM students WHERE id = ?", (student_id,)).fetchone()
+        student_name = student["full_name_ar"] if student else f"ID: {student_id}"
+
+        # 2. Delete the student
         conn.execute("DELETE FROM students WHERE id = ?", (student_id,))
         conn.commit()
+
+        # 3. Log the deletion
+        insert_audit_log("students", "DELETE", f"تم حذف الطالب: {student_name}")
 
 
 def update_period(period_id: int, academic_year: str, passed_round: str) -> None:
