@@ -45,12 +45,12 @@ class DepartmentPanel(SidePanel):
         self._name_ar    = self._add_entry("اسم القسم بالعربية",    "Arabic Name",
                                            placeholder="مثال: قسم علوم الحاسوب")
         self._name_en    = self._add_entry("اسم القسم بالإنكليزية", "English Name",
-                                           placeholder="e.g. Computer Science")
+                                           placeholder="e.g. Computer Science", justify="left")
         self._add_section_label("معلومات الكلية", "College Info")
         self._college_ar = self._add_entry("اسم الكلية بالعربية",    "Arabic College Name",
                                            placeholder="مثال: كلية التقنية المعلوماتية")
         self._college_en = self._add_entry("اسم الكلية بالإنكليزية", "English College Name",
-                                           placeholder="e.g. College of Information Technology")
+                                           placeholder="e.g. College of Information Technology", justify="left")
 
     def _populate(self, data: dict) -> None:
         self._set_entry(self._name_ar,    data.get("name_ar",    ""))

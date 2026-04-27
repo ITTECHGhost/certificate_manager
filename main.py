@@ -34,6 +34,7 @@ from db import init_db
 from config import (
     AppColors, AppFonts, AppSizes,
     NAV_ITEMS, SETTINGS_ITEM, SCREEN_HEADERS,
+    refresh_config
 )
 from screens.home_screen import HomeScreen
 from screens.placeholder_screen import PlaceholderScreen
@@ -45,12 +46,11 @@ from screens.students_screen import StudentsScreen
 from screens.order_students_screen import OrderStudentsScreen
 from screens.history_screen import HistoryScreen
 from screens.certificate_screen import CertificateScreen
+from screens.settings_screen import SettingsScreen
 
 # ---------------------------------------------------------------------------
 # Global appearance — must be set before any CTk widget is created
 # ---------------------------------------------------------------------------
-ctk.set_appearance_mode("System")
-ctk.set_default_color_theme("blue")
 
 
 # ===========================================================================
@@ -276,6 +276,7 @@ class CertificateManagerApp(ctk.CTk):
         super().__init__()
         self._setup_window()
         init_db()
+        refresh_config() # Apply user preferences (theme, fonts, etc.)
         self._build_layout()
         self._build_screens()
         self._show_screen("home")       # start on the home / dashboard screen
@@ -374,8 +375,8 @@ class CertificateManagerApp(ctk.CTk):
             "history": HistoryScreen(
                 self._screen_slot, self._show_screen,
             ),
-            "settings": PlaceholderScreen(
-                self._screen_slot, self._show_screen, "الإعدادات", "Settings"
+            "settings": SettingsScreen(
+                self._screen_slot, self._show_screen
             ),
         }
 

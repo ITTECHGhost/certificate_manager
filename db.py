@@ -51,6 +51,20 @@ def get_connection() -> sqlite3.Connection:
     return conn
 
 
+def insert_audit_log(table_name: str, action: str, summary: str, error_info: str = "") -> None:
+    """
+    Universal audit logging function. Logs an action to the audit_log table.
+    Can be called from any module.
+    """
+    with get_connection() as conn:
+        conn.execute(
+            "INSERT INTO audit_log (table_name, action, summary, error_info) "
+            "VALUES (?, ?, ?, ?)",
+            (table_name, action, summary, error_info or None)
+        )
+        conn.commit()
+
+
 # ---------------------------------------------------------------------------
 # Public Entry Point
 # ---------------------------------------------------------------------------
@@ -72,6 +86,29 @@ def init_db() -> None:
         log.info("Database initialization complete.")
     except sqlite3.Error as e:
         log.error("Database initialization failed: %s", e)
+        raise
+
+def backup_db(dest_path: Path) -> None:
+    """Copy the database file to a new location."""
+    import shutil
+    try:
+        shutil.copy2(DB_PATH, dest_path)
+        log.info("Database backup created at: %s", dest_path)
+    except Exception as e:
+        log.error("Database backup failed: %s", e)
+        raise
+
+
+def restore_db(src_path: Path) -> None:
+    """Overwrite the current database with a backup file."""
+    import shutil
+    try:
+        # Note: In a production app, we should ensure all connections are closed.
+        # SQLite on Windows may lock the file if connections are active.
+        shutil.copy2(src_path, DB_PATH)
+        log.info("Database restored from: %s", src_path)
+    except Exception as e:
+        log.error("Database restore failed: %s", e)
         raise
 
 
@@ -319,6 +356,23 @@ def _create_tables(conn: sqlite3.Connection) -> None:
         error_info  TEXT,
         created_at  TEXT    NOT NULL DEFAULT (datetime('now'))
     );
+    -- -------------------------------------------------------------------------
+    -- settings: Global application configuration.
+    -- -------------------------------------------------------------------------
+    CREATE TABLE IF NOT EXISTS settings (
+        id                INTEGER PRIMARY KEY CHECK (id = 1), -- only one row
+        univ_name_ar      TEXT    NOT NULL DEFAULT 'جامعة واسط',
+        univ_name_en      TEXT    NOT NULL DEFAULT 'Wasit University',
+        college_name_ar   TEXT    NOT NULL DEFAULT 'كلية الهندسة',
+        college_name_en   TEXT    NOT NULL DEFAULT 'College of Engineering',
+        theme             TEXT    NOT NULL DEFAULT 'System',
+        accent_color      TEXT    NOT NULL DEFAULT 'blue',
+        font_family       TEXT    NOT NULL DEFAULT 'Arial',
+        font_size_base    INTEGER NOT NULL DEFAULT 13
+    );
+
+    -- Ensure a settings row exists
+    INSERT OR IGNORE INTO settings (id) VALUES (1);
     """)
     log.info("All tables created (or already exist).")
 

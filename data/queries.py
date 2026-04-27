@@ -27,7 +27,7 @@
 # =============================================================================
 
 import sqlite3
-from db import get_connection
+from db import get_connection, insert_audit_log
 
 
 # =============================================================================
@@ -74,6 +74,43 @@ def count_table_rows(table: str, extra_filter: str = "") -> int:
     with get_connection() as conn:
         return conn.execute(query).fetchone()[0]
 
+
+# =============================================================================
+# SETTINGS
+# =============================================================================
+
+def get_settings() -> Row:
+    """Return the single row from the settings table."""
+    with get_connection() as conn:
+        row = conn.execute("SELECT * FROM settings WHERE id = 1").fetchone()
+    return _row_to_dict(row)
+
+def update_settings(
+    univ_ar: str, univ_en: str, 
+    college_ar: str, college_en: str,
+    theme: str, accent: str,
+    font: str, size: int
+) -> None:
+    """Update global application settings."""
+    with get_connection() as conn:
+        conn.execute(
+            "UPDATE settings SET "
+            "univ_name_ar=?, univ_name_en=?, "
+            "college_name_ar=?, college_name_en=?, "
+            "theme=?, accent_color=?, "
+            "font_family=?, font_size_base=? "
+            "WHERE id=1",
+            (univ_ar, univ_en, college_ar, college_en, theme, accent, font, size)
+        )
+        conn.commit()
+    insert_audit_log("settings", "UPDATE", "تم تحديث إعدادات النظام والمظهر")
+
+def clear_audit_logs() -> None:
+    """Permanently delete all rows from audit_log."""
+    with get_connection() as conn:
+        conn.execute("DELETE FROM audit_log")
+        conn.commit()
+    insert_audit_log("audit_log", "DELETE", "تم مسح سجل التغييرات بالكامل")
 
 # =============================================================================
 # COUNTRIES
@@ -191,7 +228,9 @@ def insert_department(
             (name_ar, name_en, college_ar, college_en, study_years, period_type)
         )
         conn.commit()
-    return cursor.lastrowid
+        new_id = cursor.lastrowid
+    insert_audit_log("departments", "INSERT", f"تم إضافة قسم جديد: {name_ar}")
+    return new_id
 
 
 def update_department(
@@ -214,6 +253,7 @@ def update_department(
              study_years, period_type, dept_id)
         )
         conn.commit()
+    insert_audit_log("departments", "UPDATE", f"تم تعديل بيانات القسم: {name_ar}")
 
 
 def delete_department(dept_id: int) -> None:
@@ -222,8 +262,13 @@ def delete_department(dept_id: int) -> None:
     Raises sqlite3.IntegrityError if students or courses depend on it.
     """
     with get_connection() as conn:
+        # 1. Grab the name before we delete it so we can log it
+        dept = conn.execute("SELECT name_ar FROM departments WHERE id = ?", (dept_id,)).fetchone()
+        dept_name = dept["name_ar"] if dept else f"ID: {dept_id}"
+        
         conn.execute("DELETE FROM departments WHERE id = ?", (dept_id,))
         conn.commit()
+    insert_audit_log("departments", "DELETE", f"تم حذف القسم: {dept_name}")
 
 
 # =============================================================================
@@ -330,13 +375,8 @@ def insert_personal(
              responsibility_ar, responsibility_en, display_order, page_location)
         )
         new_id = cursor.lastrowid
-        conn.execute(
-            "INSERT INTO audit_log (table_name, record_id, action, summary) "
-            "VALUES ('personal', ?, 'INSERT', ?)",
-            (new_id, f"INSERT signatory id={new_id} ({name_ar})")
-        )
         conn.commit()
-        insert_audit_log("personal", "INSERT", f"تم إضافة كادر جديد: {name_ar}")
+    insert_audit_log("personal", "INSERT", f"تم إضافة كادر جديد: {name_ar}")
     return new_id
 
 
@@ -367,8 +407,8 @@ def update_personal(
              responsibility_ar, responsibility_en,
              display_order, page_location, person_id)
         )
-        insert_audit_log("personal", "UPDATE", f"تم تعديل بيانات الكادر: {name_ar}")
         conn.commit()
+    insert_audit_log("personal", "UPDATE", f"تم تعديل بيانات الكادر: {name_ar}")
 
 
 def deactivate_personal(person_id: int) -> None:
@@ -387,7 +427,7 @@ def deactivate_personal(person_id: int) -> None:
             (person_id,)
         )
         conn.commit()
-        insert_audit_log("personal", "UPDATE", f"تم إلغاء تفعيل الكادر: {personal_name}")
+    insert_audit_log("personal", "UPDATE", f"تم إلغاء تفعيل الكادر: {personal_name}")
 
 def delete_personal(person_id: int) -> None:
     """Permanently deletes a signatory from the database."""
@@ -397,43 +437,13 @@ def delete_personal(person_id: int) -> None:
         personal_name = personal["name_ar"] if personal else f"ID: {person_id}"
         # 2. Delete the personal
         conn.execute("DELETE FROM personal WHERE id = ?", (person_id,))
-        insert_audit_log("personal", "DELETE", f"تم حذف الكادر: {personal_name}")
         conn.commit()
+    insert_audit_log("personal", "DELETE", f"تم حذف الكادر: {personal_name}")
 
 # =============================================================================
 # AUDIT LOG
 # =============================================================================
-def insert_audit_log(table_name: str, action: str, summary: str, error_info: str = "") -> None:
-    """Logs an action to the audit_log table for the History screen."""
-    from db import get_connection
-    with get_connection() as conn:
-        conn.execute(
-            """
-            INSERT INTO audit_log (table_name, action, summary, error_info)
-            VALUES (?, ?, ?, ?)
-            """,
-            (table_name, action, summary, error_info)
-        )
 
-def write_audit_log(
-    table_name: str,
-    record_id: int | None,
-    action: str,
-    summary: str = "",
-    error_info: str = "",
-) -> None:
-    """
-    Write one row to the universal audit_log table.
-    Call this from any query that adds, edits, or deletes data.
-    """
-    with get_connection() as conn:
-        conn.execute(
-            "INSERT INTO audit_log "
-            "(table_name, record_id, action, summary, error_info) "
-            "VALUES (?, ?, ?, ?, ?)",
-            (table_name, record_id, action, summary, error_info or None)
-        )
-        conn.commit()
 
 
 def get_audit_log(
@@ -605,8 +615,8 @@ def insert_course(
                 "INSERT OR IGNORE INTO course_departments (course_id, department_id) VALUES (?, ?)",
                 [(new_id, did) for did in shared_dept_ids]
             )
-        write_audit_log("courses", new_id, "INSERT", f"INSERT course '{name_ar}'")
         conn.commit()
+    insert_audit_log("courses", "INSERT", f"تم إضافة مادة جديدة: {name_ar}")
     return new_id
 
 
@@ -638,8 +648,8 @@ def update_course(
                 "INSERT OR IGNORE INTO course_departments (course_id, department_id) VALUES (?, ?)",
                 [(course_id, did) for did in shared_dept_ids]
             )
-        write_audit_log("courses", course_id, "UPDATE", f"UPDATE course '{name_ar}'")
         conn.commit()
+    insert_audit_log("courses", "UPDATE", f"تم تعديل بيانات المادة: {name_ar}")
 
 
 def delete_course(course_id: int) -> None:
@@ -648,11 +658,12 @@ def delete_course(course_id: int) -> None:
     Raises sqlite3.IntegrityError if enrollments depend on it.
     """
     with get_connection() as conn:
-        name = conn.execute("SELECT name_ar FROM courses WHERE id=?", (course_id,)).fetchone()
+        course = conn.execute("SELECT name_ar FROM courses WHERE id=?", (course_id,)).fetchone()
+        course_name = course["name_ar"] if course else f"ID: {course_id}"
+        
         conn.execute("DELETE FROM courses WHERE id = ?", (course_id,))
-        write_audit_log("courses", course_id, "DELETE",
-                        f"DELETE course '{name['name_ar'] if name else '?'}'")
         conn.commit()
+    insert_audit_log("courses", "DELETE", f"تم حذف المادة: {course_name}")
 
 
 # =============================================================================
@@ -741,9 +752,10 @@ def insert_student(
              study_type, graduation_date, graduation_semester, average)
         )
         conn.commit()
-        # ---> Log student creation <---      
-        insert_audit_log("students", "INSERT", f"تم إضافة طالب جديد: {full_name_ar}")
-    return cursor.lastrowid
+        new_id = cursor.lastrowid
+    # ---> Log student creation <---      
+    insert_audit_log("students", "INSERT", f"تم إضافة طالب جديد: {full_name_ar}")
+    return new_id
 
 
 def update_student(student_id: int, **fields) -> None:
@@ -762,8 +774,8 @@ def update_student(student_id: int, **fields) -> None:
             values
         )
         conn.commit()
-        # ---> Log student update (FIXED BUG: changed kwargs to fields) <---     
-        insert_audit_log("students", "UPDATE", f"تم تعديل بيانات الطالب: {fields.get('full_name_ar', 'ID: ' + str(student_id))}")
+    # ---> Log student update (FIXED BUG: changed kwargs to fields) <---     
+    insert_audit_log("students", "UPDATE", f"تم تعديل بيانات الطالب: {fields.get('full_name_ar', 'ID: ' + str(student_id))}")
 
 
 # =============================================================================
@@ -807,7 +819,9 @@ def insert_period(
             (student_id, academic_year, period_type, stage_number, passed_round)
         )
         conn.commit()
-    return cursor.lastrowid
+        new_id = cursor.lastrowid
+    insert_audit_log("academic_periods", "INSERT", f"تم إضافة مرحلة دراسية جديدة للطالب ID: {student_id}")
+    return new_id
 
 
 # =============================================================================
@@ -861,7 +875,9 @@ def insert_enrollment(
             (period_id, course_id, score, is_second_round)
         )
         conn.commit()
-    return cursor.lastrowid
+        new_id = cursor.lastrowid
+    insert_audit_log("enrollments", "INSERT", f"تم إضافة درجة مادة جديدة للمرحلة ID: {period_id}")
+    return new_id
 
 
 def delete_enrollment(enrollment_id: int) -> None:
@@ -869,6 +885,7 @@ def delete_enrollment(enrollment_id: int) -> None:
     with get_connection() as conn:
         conn.execute("DELETE FROM enrollments WHERE id = ?", (enrollment_id,))
         conn.commit()
+    insert_audit_log("enrollments", "DELETE", f"تم حذف درجة مادة ID: {enrollment_id}")
 
 
 # =============================================================================
@@ -1016,7 +1033,9 @@ def insert_order(
              admission_year, graduation_semester, num_students, notes)
         )
         conn.commit()
-    return cursor.lastrowid
+        new_id = cursor.lastrowid
+    insert_audit_log("graduation_orders", "INSERT", f"تم إضافة أمر جامعي جديد: {order_number}")
+    return new_id
 
 
 def update_order(
@@ -1041,6 +1060,7 @@ def update_order(
              admission_year, graduation_semester, num_students, notes, order_id)
         )
         conn.commit()
+    insert_audit_log("graduation_orders", "UPDATE", f"تم تعديل بيانات الأمر الجامعي: {order_number}")
 
 
 def delete_order(order_id: int) -> None:
@@ -1050,12 +1070,17 @@ def delete_order(order_id: int) -> None:
     so no orphaned FK references remain.
     """
     with get_connection() as conn:
+        # 1. Grab order number for logging
+        order = conn.execute("SELECT order_number FROM graduation_orders WHERE id = ?", (order_id,)).fetchone()
+        order_num = order["order_number"] if order else f"ID: {order_id}"
+        
         conn.execute(
             "UPDATE students SET order_id = NULL WHERE order_id = ?",
             (order_id,)
         )
         conn.execute("DELETE FROM graduation_orders WHERE id = ?", (order_id,))
         conn.commit()
+    insert_audit_log("graduation_orders", "DELETE", f"تم حذف الأمر الجامعي: {order_num}")
 
 
 def get_students_for_order(order_id: int) -> list[Row]:
@@ -1117,7 +1142,10 @@ def link_students_to_order(order_id: int) -> int:
             )
         )
         conn.commit()
-    return cursor.rowcount
+        count = cursor.rowcount
+    if count > 0:
+        insert_audit_log("students", "UPDATE", f"تم ربط {count} طالب بالأمر الجامعي ID: {order_id}")
+    return count
 
 
 def unlink_student_from_order(student_id: int) -> None:
@@ -1128,6 +1156,7 @@ def unlink_student_from_order(student_id: int) -> None:
             (student_id,)
         )
         conn.commit()
+    insert_audit_log("students", "UPDATE", f"تم فك ارتباط الطالب ID: {student_id} بالأمر الجامعي")
 
 
 def import_students_from_order_excel(
@@ -1223,7 +1252,7 @@ def import_students_from_order_excel(
                 created += 1
 
         conn.commit()
-
+    insert_audit_log("students", "INSERT", f"تم استيراد {created} طالب جديد وربط {linked} طالب بالأمر الجامعي ID: {order_id}")
     return (linked, created)
 
 
@@ -1245,8 +1274,8 @@ def delete_student(student_id: int) -> None:
         conn.execute("DELETE FROM students WHERE id = ?", (student_id,))
         conn.commit()
 
-        # 3. Log the deletion
-        insert_audit_log("students", "DELETE", f"تم حذف الطالب: {student_name}")
+    # 3. Log the deletion
+    insert_audit_log("students", "DELETE", f"تم حذف الطالب: {student_name}")
 
 
 def update_period(period_id: int, academic_year: str, passed_round: str) -> None:
@@ -1257,6 +1286,7 @@ def update_period(period_id: int, academic_year: str, passed_round: str) -> None
             (academic_year, passed_round, period_id)
         )
         conn.commit()
+    insert_audit_log("academic_periods", "UPDATE", f"تم تعديل بيانات المرحلة الدراسية ID: {period_id}")
 
 
 def delete_period(period_id: int) -> None:
@@ -1267,6 +1297,7 @@ def delete_period(period_id: int) -> None:
     with get_connection() as conn:
         conn.execute("DELETE FROM academic_periods WHERE id = ?", (period_id,))
         conn.commit()
+    insert_audit_log("academic_periods", "DELETE", f"تم حذف المرحلة الدراسية ID: {period_id}")
 
 
 def update_enrollment(enrollment_id: int, score: float, is_second_round: int) -> None:
@@ -1277,6 +1308,7 @@ def update_enrollment(enrollment_id: int, score: float, is_second_round: int) ->
             (score, is_second_round, enrollment_id)
         )
         conn.commit()
+    insert_audit_log("enrollments", "UPDATE", f"تم تعديل درجة المادة ID: {enrollment_id}")
 
 
 def get_courses_for_dept_stage(
@@ -1466,8 +1498,15 @@ def get_full_certificate_data(student_id: int) -> dict | None:
             "SELECT * FROM personal WHERE is_active = 1 AND page_location = 'back' ORDER BY display_order"
         ).fetchall()
         
-        data["front_signatories"] = _rows_to_dicts(front_sigs)
         data["back_signatories"] = _rows_to_dicts(back_sigs)
+        
+        # 5. Global Settings
+        settings = conn.execute("SELECT * FROM settings WHERE id = 1").fetchone()
+        if settings:
+            data["univ_name_ar"] = settings["univ_name_ar"]
+            data["univ_name_en"] = settings["univ_name_en"]
+            data["college_name_ar"] = settings["college_name_ar"]
+            data["college_name_en"] = settings["college_name_en"]
         
         return data
 def get_students_paginated(

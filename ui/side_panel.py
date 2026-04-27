@@ -173,7 +173,8 @@ class SidePanel(ctk.CTkFrame, ABC):
 
     def _add_entry(
         self, label_ar: str, label_en: str, placeholder: str = "", 
-        row: int = None, col: int = 0, colspan: int = 1
+        row: int = None, col: int = 0, colspan: int = 1,
+        justify: str = "right"
     ) -> ctk.CTkEntry:
         """Add a labeled text entry field to the panel."""
         if row is None:
@@ -192,12 +193,12 @@ class SidePanel(ctk.CTkFrame, ABC):
             placeholder_text=placeholder,
             font=ctk.CTkFont(family=AppFonts.FAMILY, size=AppFonts.SIZE_BODY),
             height=36,
-            justify="right",
+            justify=justify,
         )
         entry.grid(row=row+1, column=col, columnspan=colspan, sticky="ew", pady=(0, 2), padx=10)
 
         try:
-            entry._entry.configure(justify="right")
+            entry._entry.configure(justify=justify)
         except Exception:
             pass
 

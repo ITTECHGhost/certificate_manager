@@ -48,7 +48,7 @@ class CoursePanel(SidePanel):
         self._name_ar    = self._add_entry("اسم المادة بالعربية",    "Arabic Course Name",
                                            placeholder="مثال: هياكل البيانات")
         self._name_en    = self._add_entry("اسم المادة بالإنكليزية", "English Course Name",
-                                           placeholder="e.g. Data Structures")
+                                           placeholder="e.g. Data Structures", justify="left")
 
         self._add_section_label("تفاصيل المادة", "Course Details")
         self._credits    = self._add_dropdown("الوحدات الدراسية", "Credit Hours",

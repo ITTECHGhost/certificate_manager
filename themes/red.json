@@ -1,0 +1,47 @@
+{
+  "CTk": { "fg_color": ["gray95", "gray10"] },
+  "CTkToplevel": { "fg_color": ["gray95", "gray10"] },
+  "CTkFrame": {
+    "fg_color": ["gray90", "gray13"],
+    "top_fg_color": ["gray90", "gray13"],
+    "border_color": ["gray80", "gray20"]
+  },
+  "CTkButton": {
+    "fg_color": ["#F44336", "#D32F2F"],
+    "hover_color": ["#E53935", "#C62828"],
+    "text_color": ["#DCE4EE", "#DCE4EE"]
+  },
+  "CTkLabel": { "fg_color": "transparent", "text_color": ["gray14", "gray84"] },
+  "CTkEntry": {
+    "fg_color": ["#F9F9FA", "#1D1E1E"],
+    "border_color": ["#979DA2", "#565B5E"],
+    "text_color": ["gray14", "gray84"]
+  },
+  "CTkCheckbox": {
+    "fg_color": ["#F44336", "#D32F2F"],
+    "hover_color": ["#E53935", "#C62828"]
+  },
+  "CTkSwitch": {
+    "progress_color": ["#F44336", "#D32F2F"]
+  },
+  "CTkRadiobutton": {
+    "fg_color": ["#F44336", "#D32F2F"],
+    "hover_color": ["#E53935", "#C62828"]
+  },
+  "CTkProgressBar": {
+    "progress_color": ["#F44336", "#D32F2F"]
+  },
+  "CTkSlider": {
+    "progress_color": ["#F44336", "#D32F2F"],
+    "button_color": ["#F44336", "#D32F2F"]
+  },
+  "CTkOptionMenu": {
+    "fg_color": ["#F44336", "#D32F2F"],
+    "button_color": ["#E53935", "#C62828"],
+    "button_hover_color": ["#E53935", "#C62828"]
+  },
+  "CTkSegmentedButton": {
+    "selected_color": ["#F44336", "#D32F2F"],
+    "selected_hover_color": ["#E53935", "#C62828"]
+  }
+}

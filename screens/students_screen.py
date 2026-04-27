@@ -120,7 +120,7 @@ class StudentFormPanel(SidePanel):
 
         self._name_ar = self._add_entry("الاسم الكامل بالعربية", "Full Arabic Name", placeholder="مثال: حسين علي خيرالله", row=2, col=0)
         # Span English name across 2 columns to give it plenty of breathing room
-        self._name_en = self._add_entry("الاسم الكامل بالإنكليزية", "Full English Name", placeholder="e.g. Hussein Ali Khairallah", row=2, col=1, colspan=2)
+        self._name_en = self._add_entry("الاسم الكامل بالإنكليزية", "Full English Name", placeholder="e.g. Hussein Ali Khairallah", row=2, col=1, colspan=2, justify="left")
 
         # -- ROW 4: Personal Details Section --
         self._add_section_label("البيانات الشخصية", "Personal Details", row=4, col=0, colspan=3)
@@ -130,7 +130,7 @@ class StudentFormPanel(SidePanel):
         self._birthplace_gov = self._add_dropdown("محل الولادة (محافظة عراقية)", "Birthplace (Iraqi governorate)", values=["—  أجنبي / Foreign"], row=6, col=2)
 
         # Placed below governorate for foreign students
-        self._birthplace_other = self._add_entry("محل الولادة (خارج العراق)", "Birthplace (outside Iraq)", placeholder="اتركه فارغاً إذا كان عراقي الولادة", row=8, col=0, colspan=2)
+        self._birthplace_other = self._add_entry("محل الولادة (خارج العراق)", "Birthplace (outside Iraq)", placeholder="اتركه فارغاً إذا كان عراقي الولادة", row=8, col=0, colspan=2, justify="left")
 
         # -- ROW 10: Academic Section --
         self._add_section_label("الدراسة", "Academic", row=10, col=0, colspan=3)
@@ -142,7 +142,7 @@ class StudentFormPanel(SidePanel):
         # -- ROW 14: Graduation Section --
         self._add_section_label("التخرج", "Graduation (optional)", row=14, col=0, colspan=3)
 
-        self._grad_date = self._add_entry("تاريخ التخرج", "Graduation Date", placeholder="اتركه فارغاً إن لم يتخرج بعد", row=16, col=0)
+        self._grad_date = self._add_entry("تاريخ التخرج", "Graduation Date", placeholder="اتركه فارغاً إن لم يتخرج بعد", row=16, col=0, justify="left")
         self._grad_sem = self._add_dropdown("فصل التخرج", "Graduation Semester", values=["— لم يتخرج بعد / Not yet"] + list(SEMESTER_OPTIONS.keys()), row=16, col=1)
         self._average = self._add_entry("المعدل العام", "Overall Average (50–100)", placeholder="مثال: 78", row=16, col=2)
 

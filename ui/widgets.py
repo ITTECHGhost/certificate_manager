@@ -151,6 +151,7 @@ def make_labeled_entry(
     label_en: str,
     placeholder: str = "",
     width: int = 300,
+    justify: str = "right",
 ) -> ctk.CTkEntry:
     """
     Build a labeled text entry field with bilingual label above.
@@ -185,6 +186,7 @@ def make_labeled_entry(
         container,
         placeholder_text=placeholder,
         width=width,
+        justify=justify,
         font=ctk.CTkFont(family=AppFonts.FAMILY, size=AppFonts.SIZE_BODY),
     )
     entry.grid(row=1, column=0, sticky="ew")
@@ -338,7 +340,7 @@ def make_quick_action_button(
     return ctk.CTkButton(
         parent,
         text=f"{text_ar}\n{text_en}",
-        font=ctk.CTkFont(family=AppFonts.FAMILY, size=AppFonts.SIZE_SMALL),
+        font=ctk.CTkFont(family=AppFonts.FAMILY, size=AppFonts.SIZE_HEADING),
         height=AppSizes.ACTION_BUTTON_HEIGHT,
         corner_radius=AppSizes.CORNER_RADIUS_CARD,
         command=command,

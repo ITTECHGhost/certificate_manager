@@ -36,12 +36,54 @@ class AppColors:
 
 class AppFonts:
     FAMILY              = "Arial"
+    BASE_SIZE           = 13
+    
+    # These will be properties or updated via refresh_config
     SIZE_TITLE          = 22
     SIZE_HEADING        = 18
     SIZE_SUBHEADING     = 16
     SIZE_BODY           = 13
     SIZE_SMALL          = 12
     SIZE_TINY           = 11
+
+    @classmethod
+    def update_sizes(cls, base: int):
+        cls.BASE_SIZE = base
+        cls.SIZE_TITLE      = int(base * 1.7)
+        cls.SIZE_HEADING    = int(base * 1.4)
+        cls.SIZE_SUBHEADING = int(base * 1.2)
+        cls.SIZE_BODY       = base
+        cls.SIZE_SMALL      = int(base * 0.9)
+        cls.SIZE_TINY       = int(base * 0.8)
+
+def refresh_config():
+    """Load settings from the database and update global configuration."""
+    try:
+        from data.queries import get_settings
+        import customtkinter as ctk
+        
+        settings = get_settings()
+        if settings:
+            # Update Fonts
+            AppFonts.FAMILY = settings.get("font_family", "Arial")
+            AppFonts.update_sizes(settings.get("font_size_base", 13))
+            
+            # Update Theme
+            ctk.set_appearance_mode(settings.get("theme", "System"))
+            
+            accent = settings.get("accent_color", "blue")
+            if accent in ["orange", "purple", "red"]:
+                import os
+                theme_path = os.path.join(os.getcwd(), "themes", f"{accent}.json")
+                if os.path.exists(theme_path):
+                    ctk.set_default_color_theme(theme_path)
+                else:
+                    ctk.set_default_color_theme("blue")
+            else:
+                ctk.set_default_color_theme(accent)
+    except Exception:
+        # Fallback to defaults if DB not ready
+        AppFonts.update_sizes(13)
 
 
 class AppSizes:

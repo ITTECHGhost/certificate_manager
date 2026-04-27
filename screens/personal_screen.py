@@ -31,11 +31,17 @@ from ui.widgets import make_section_header, make_primary_button
 class PersonalPanel(SidePanel):
     """Add / Edit panel for a single signatory."""
 
-    PAGE_OPTIONS = {
-        "وجه الوثيقة  /  Front Page (1-4)": "front",
-        "ظهر الوثيقة  /  Back Page  (5-6)": "back",
+    # Single mapping for the combined dropdown
+    ORDER_OPTIONS = {
+        "1 - وجه الوثيقة / Front Page": (1, "front"),
+        "2 - وجه الوثيقة / Front Page": (2, "front"),
+        "3 - وجه الوثيقة / Front Page": (3, "front"),
+        "4 - وجه الوثيقة / Front Page": (4, "front"),
+        "5 - ظهر الوثيقة / Back Page": (5, "back"),
+        "6 - ظهر الوثيقة / Back Page": (6, "back"),
     }
-    PAGE_DISPLAY = {v: k for k, v in PAGE_OPTIONS.items()}
+    # Reverse mapping for population: (order, page) -> display_string
+    ORDER_REVERSE = {v: k for k, v in ORDER_OPTIONS.items()}
 
     def __init__(self, parent_screen, on_save_callback) -> None:
         super().__init__(
@@ -58,16 +64,19 @@ class PersonalPanel(SidePanel):
         self._resp_ar  = self._add_entry("المنصب بالعربية", "Arabic Resp.", placeholder="معاون العميد", row=1, col=2)
 
         # -- ROW 3: Next 3 Fields (Row 2 is taken by the input boxes of Row 1) --
-        self._name_en  = self._add_entry("الاسم بالإنكليزية", "English Name", placeholder="e.g. Raeda Salem", row=3, col=0)
-        self._title_en = self._add_entry("اللقب بالإنكليزية", "English Title", placeholder="e.g. Prof. Dr.", row=3, col=1)
-        self._resp_en  = self._add_entry("المنصب بالإنكليزية", "English Resp.", placeholder="Vice Dean", row=3, col=2)
+        self._name_en  = self._add_entry("الاسم بالإنكليزية", "English Name", placeholder="e.g. Raeda Salem", row=3, col=0, justify="left")
+        self._title_en = self._add_entry("اللقب بالإنكليزية", "English Title", placeholder="e.g. Prof. Dr.", row=3, col=1, justify="left")
+        self._resp_en  = self._add_entry("المنصب بالإنكليزية", "English Resp.", placeholder="Vice Dean", row=3, col=2, justify="left")
 
         # -- ROW 5: Document Position Header --
         self._add_section_label("الموقع في الوثيقة", "Document Position", row=5, col=0, colspan=3)
 
-        # -- ROW 6: Last 2 Dropdowns --
-        self._page  = self._add_dropdown("صفحة التوقيع", "Signature Page", values=list(self.PAGE_OPTIONS.keys()), row=6, col=0)
-        self._order = self._add_dropdown("ترتيب التوقيع", "Signature Order", values=["1", "2", "3", "4", "5", "6"], row=6, col=1)
+        # -- ROW 6: Unified Document Position Dropdown --
+        self._pos_dropdown = self._add_dropdown(
+            "الموقع في الوثيقة", "Document Position", 
+            values=list(self.ORDER_OPTIONS.keys()), 
+            row=6, col=0, colspan=2
+        )
 
     def _populate(self, data: dict) -> None:
         self._set_entry(self._name_ar,  data.get("name_ar",           ""))
@@ -76,9 +85,10 @@ class PersonalPanel(SidePanel):
         self._set_entry(self._title_en, data.get("academic_title_en", ""))
         self._set_entry(self._resp_ar,  data.get("responsibility_ar", ""))
         self._set_entry(self._resp_en,  data.get("responsibility_en", ""))
-        self._set_dropdown(self._page,
-                           self.PAGE_DISPLAY.get(data.get("page_location", "front"), ""))
-        self._set_dropdown(self._order, str(data.get("display_order", "1")))
+        order = data.get("display_order", 1)
+        page  = data.get("page_location", "front")
+        display_str = self.ORDER_REVERSE.get((order, page), "")
+        self._set_dropdown(self._pos_dropdown, display_str)
 
     def _validate(self) -> str | None:
         if not self._name_ar.get().strip():
@@ -102,8 +112,8 @@ class PersonalPanel(SidePanel):
             academic_title_en = self._title_en.get().strip(),
             responsibility_ar = self._resp_ar.get().strip(),
             responsibility_en = self._resp_en.get().strip(),
-            display_order     = int(self._order.get()),
-            page_location     = self.PAGE_OPTIONS[self._page.get()],
+            display_order     = self.ORDER_OPTIONS[self._pos_dropdown.get()][0],
+            page_location     = self.ORDER_OPTIONS[self._pos_dropdown.get()][1],
         )
         if existing:
             update_personal(person_id=existing["id"], **kwargs)

@@ -442,6 +442,9 @@ class CertificateScreen(BaseScreen):
             "graduation_semester": grad_sem_display,
             "average": avg,
             "Grade": grade_display,
+
+            "University_Name": data.get("univ_name_en" if is_english else "univ_name_ar", ""),
+            "College_Name": data.get("college_name_en" if is_english else "college_name_ar", ""),
             
             # Word's Conditional "If" Triggers
             # "sequence_ON": bool(data.get("rank")),
@@ -570,17 +573,23 @@ class CertificateScreen(BaseScreen):
         cert_dir = os.path.abspath("certificates")
         os.makedirs(cert_dir, exist_ok=True)
         
-        # 2. Grab the student's name from our existing context builder
+        # 2. Grab the student's name and template name
         ctx = self._build_context()
         student_name = ctx.get("student_name", "Unknown_Student")
         
-        # 3. Clean the name to prevent Windows file path crashes (removes illegal characters)
-        safe_name = re.sub(r'[\\/*?:"<>|]', "", student_name).strip()
-        if not safe_name:
-            safe_name = "Unknown_Student"
+        selected_template = self._template_var.get()
+        template_base = os.path.splitext(selected_template)[0] if selected_template else "Template"
+        
+        # 3. Clean both names to prevent Windows file path crashes
+        safe_student = re.sub(r'[\\/*?:"<>|]', "", student_name).strip()
+        safe_template = re.sub(r'[\\/*?:"<>|]', "", template_base).strip()
+        
+        if not safe_student: safe_student = "Unknown_Student"
+        if not safe_template: safe_template = "Template"
             
-        # 4. Construct and return the full path
-        return os.path.join(cert_dir, f"{safe_name}.docx")
+        # 4. Construct and return the full path (Template - Student.docx)
+        filename = f"{safe_template} - {safe_student}.docx"
+        return os.path.join(cert_dir, filename)
 
     def _preview(self):
         self._disable_buttons()

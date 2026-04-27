@@ -63,10 +63,12 @@ class GraduationOrderPanel(SidePanel):
         self._order_number = self._add_entry(
             "رقم الأمر", "Order Number",
             placeholder="مثال: 18515/13/2",
+            justify="left"
         )
         self._order_date = self._add_entry(
             "تاريخ الأمر", "Order Date (YYYY-MM-DD)",
             placeholder="مثال: 2024-06-15",
+            justify="left"
         )
 
         self._add_section_label("البيانات الأكاديمية", "Academic Details")
@@ -78,6 +80,7 @@ class GraduationOrderPanel(SidePanel):
         self._admission_year = self._add_entry(
             "سنة القبول (الدفعة)", "Admission Year",
             placeholder="مثال: 2018",
+            justify="left"
         )
         self._graduation_semester = self._add_dropdown(
             "فصل التخرج", "Graduation Semester",
@@ -88,6 +91,7 @@ class GraduationOrderPanel(SidePanel):
         self._num_students = self._add_entry(
             "عدد الطلاب (حسب الوثيقة)", "Number of Students (from document)",
             placeholder="اختياري / Optional",
+            justify="left"
         )
         self._notes = self._add_entry(
             "ملاحظات", "Notes",

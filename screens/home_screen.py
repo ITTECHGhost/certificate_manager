@@ -52,7 +52,7 @@ class HomeScreen(BaseScreen):
         ctk.CTkLabel(
             parent,
             text="Welcome to the Certificate Management System",
-            font=ctk.CTkFont(family=AppFonts.FAMILY, size=AppFonts.SIZE_TINY),
+            font=ctk.CTkFont(family=AppFonts.FAMILY, size=AppFonts.SIZE_HEADING),
             text_color=AppColors.TEXT_MUTED,
             anchor="e",
         ).grid(row=1, column=0, sticky="e", pady=(0, 24))
@@ -79,7 +79,7 @@ class HomeScreen(BaseScreen):
         ctk.CTkLabel(
             parent,
             text="إجراءات سريعة  —  Quick Actions",
-            font=ctk.CTkFont(family=AppFonts.FAMILY, size=AppFonts.SIZE_BODY, weight="bold"),
+            font=ctk.CTkFont(family=AppFonts.FAMILY, size=AppFonts.SIZE_HEADING, weight="bold"),
             anchor="e",
         ).grid(row=4, column=0, sticky="e", pady=(0, 10))
 
