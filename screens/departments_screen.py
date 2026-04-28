@@ -79,8 +79,6 @@ class DepartmentPanel(SidePanel):
             name_en    = self._name_en.get().strip(),
             college_ar = self._college_ar.get().strip(),
             college_en = self._college_en.get().strip(),
-            study_years = 4,
-            period_type = "year",
         )
         if existing:
             update_department(dept_id=existing["id"], **kwargs)

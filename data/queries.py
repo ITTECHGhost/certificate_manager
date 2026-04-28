@@ -112,6 +112,84 @@ def clear_audit_logs() -> None:
         conn.commit()
     insert_audit_log("audit_log", "DELETE", "تم مسح سجل التغييرات بالكامل")
 
+
+# =============================================================================
+# STUDY SYSTEMS
+# =============================================================================
+
+def get_all_study_systems() -> list[Row]:
+    """Return all study systems ordered by id."""
+    with get_connection() as conn:
+        rows = conn.execute(
+            "SELECT id, name_ar, name_en, calculation_rule, calculation_weights, is_active, created_at "
+            "FROM study_systems ORDER BY id"
+        ).fetchall()
+    return _rows_to_dicts(rows)
+
+
+def get_active_study_systems() -> list[Row]:
+    """Return only active study systems."""
+    with get_connection() as conn:
+        rows = conn.execute(
+            "SELECT id, name_ar, name_en, calculation_rule, calculation_weights "
+            "FROM study_systems WHERE is_active = 1 ORDER BY id"
+        ).fetchall()
+    return _rows_to_dicts(rows)
+
+
+def get_study_system_by_id(ss_id: int) -> Row | None:
+    with get_connection() as conn:
+        row = conn.execute(
+            "SELECT id, name_ar, name_en, calculation_rule, is_active "
+            "FROM study_systems WHERE id = ?", (ss_id,)
+        ).fetchone()
+    return _row_to_dict(row) if row else None
+
+
+def insert_study_system(name_ar: str, name_en: str, calculation_rule: str, calculation_weights: str = "10:20:30:40") -> int:
+    with get_connection() as conn:
+        cur = conn.execute(
+            "INSERT INTO study_systems (name_ar, name_en, calculation_rule, calculation_weights) VALUES (?, ?, ?, ?)",
+            (name_ar, name_en, calculation_rule, calculation_weights)
+        )
+        conn.commit()
+        new_id = cur.lastrowid
+    insert_audit_log("study_systems", "INSERT", f"تم إضافة نظام دراسة: {name_ar}")
+    return new_id
+
+
+def update_study_system(ss_id: int, name_ar: str, name_en: str, calculation_rule: str, calculation_weights: str, is_active: int) -> None:
+    with get_connection() as conn:
+        conn.execute(
+            "UPDATE study_systems SET name_ar=?, name_en=?, calculation_rule=?, calculation_weights=?, is_active=? WHERE id=?",
+            (name_ar, name_en, calculation_rule, calculation_weights, is_active, ss_id)
+        )
+        conn.commit()
+    insert_audit_log("study_systems", "UPDATE", f"تم تعديل نظام الدراسة: {name_ar}")
+
+
+def toggle_study_system(ss_id: int, is_active: int) -> None:
+    with get_connection() as conn:
+        conn.execute("UPDATE study_systems SET is_active=? WHERE id=?", (is_active, ss_id))
+        conn.commit()
+    insert_audit_log("study_systems", "UPDATE", f"تم تغيير حالة نظام الدراسة ID: {ss_id}")
+
+
+def delete_study_system(ss_id: int) -> bool:
+    """Delete a study system if no students or courses are linked to it."""
+    with get_connection() as conn:
+        # Check usage
+        s_count = conn.execute("SELECT COUNT(*) FROM students WHERE study_system_id = ?", (ss_id,)).fetchone()[0]
+        c_count = conn.execute("SELECT COUNT(*) FROM courses WHERE study_system_id = ?", (ss_id,)).fetchone()[0]
+        
+        if s_count > 0 or c_count > 0:
+            return False
+            
+        conn.execute("DELETE FROM study_systems WHERE id = ?", (ss_id,))
+        conn.commit()
+    insert_audit_log("study_systems", "DELETE", f"تم حذف نظام الدراسة ID: {ss_id}")
+    return True
+
 # =============================================================================
 # COUNTRIES
 # =============================================================================
@@ -172,16 +250,12 @@ def get_all_departments() -> list[Row]:
     Return all departments ordered by Arabic name.
 
     Returns:
-        List of dicts with keys:
-            id, name_ar, name_en, college_ar, college_en,
-            study_years, period_type
+        List of dicts with keys: id, name_ar, name_en, college_ar, college_en, study_years
     """
     with get_connection() as conn:
         rows = conn.execute(
-            "SELECT id, name_ar, name_en, college_ar, college_en, "
-            "       study_years, period_type "
-            "FROM departments "
-            "ORDER BY name_ar"
+            "SELECT id, name_ar, name_en, college_ar, college_en, study_years "
+            "FROM departments ORDER BY name_ar"
         ).fetchall()
     return _rows_to_dicts(rows)
 
@@ -190,8 +264,7 @@ def get_department_by_id(dept_id: int) -> Row | None:
     """Return a single department row by its primary key, or None."""
     with get_connection() as conn:
         row = conn.execute(
-            "SELECT id, name_ar, name_en, college_ar, college_en, "
-            "       study_years, period_type "
+            "SELECT id, name_ar, name_en, college_ar, college_en, study_years "
             "FROM departments WHERE id = ?",
             (dept_id,)
         ).fetchone()
@@ -203,29 +276,14 @@ def insert_department(
     name_en: str,
     college_ar: str,
     college_en: str,
-    study_years: int,
-    period_type: str,
+    study_years: int = 4,
 ) -> int:
-    """
-    Insert a new department and return its new ID.
-
-    Args:
-        name_ar:     Department name in Arabic
-        name_en:     Department name in English
-        college_ar:  College name in Arabic
-        college_en:  College name in English
-        study_years: Number of study years (2–6)
-        period_type: 'year' or 'semester'
-
-    Returns:
-        The integer ID of the newly created department.
-    """
+    """Insert a new department and return its new ID."""
     with get_connection() as conn:
         cursor = conn.execute(
-            "INSERT INTO departments "
-            "(name_ar, name_en, college_ar, college_en, study_years, period_type) "
-            "VALUES (?, ?, ?, ?, ?, ?)",
-            (name_ar, name_en, college_ar, college_en, study_years, period_type)
+            "INSERT INTO departments (name_ar, name_en, college_ar, college_en, study_years) "
+            "VALUES (?, ?, ?, ?, ?)",
+            (name_ar, name_en, college_ar, college_en, study_years)
         )
         conn.commit()
         new_id = cursor.lastrowid
@@ -239,18 +297,15 @@ def update_department(
     name_en: str,
     college_ar: str,
     college_en: str,
-    study_years: int,
-    period_type: str,
+    study_years: int = 4,
 ) -> None:
     """Update all fields of an existing department row."""
     with get_connection() as conn:
         conn.execute(
             "UPDATE departments "
-            "SET name_ar=?, name_en=?, college_ar=?, college_en=?, "
-            "    study_years=?, period_type=? "
+            "SET name_ar=?, name_en=?, college_ar=?, college_en=?, study_years=? "
             "WHERE id=?",
-            (name_ar, name_en, college_ar, college_en,
-             study_years, period_type, dept_id)
+            (name_ar, name_en, college_ar, college_en, study_years, dept_id)
         )
         conn.commit()
     insert_audit_log("departments", "UPDATE", f"تم تعديل بيانات القسم: {name_ar}")
@@ -514,12 +569,12 @@ def get_courses_by_department(dept_id: int) -> list[Row]:
     Returns:
         List of dicts with keys:
             id, name_ar, name_en, credit_hours,
-            department_id, stage_number, period_type
+            department_id, stage_number, study_system_id
     """
     with get_connection() as conn:
         rows = conn.execute(
             "SELECT id, name_ar, name_en, credit_hours, "
-            "       department_id, stage_number, period_type "
+            "       department_id, stage_number, study_system_id, is_shared "
             "FROM courses "
             "WHERE department_id = ? "
             "ORDER BY stage_number, name_ar",
@@ -538,20 +593,22 @@ def get_all_courses() -> list[Row]:
     with get_connection() as conn:
         rows = conn.execute(
             "SELECT c.id, c.name_ar, c.name_en, c.credit_hours, "
-            "       c.department_id, c.stage_number, c.period_type, "
+            "       c.department_id, c.stage_number, c.study_system_id, "
+            "       ss.name_ar AS study_system_name_ar, "
+            "       ss.calculation_rule, "
             "       CASE WHEN c.department_id IS NOT NULL "
             "            THEN d.name_ar "
             "            ELSE NULL END AS dept_name_ar, "
             "       c.is_shared "
             "FROM courses c "
             "LEFT JOIN departments d ON c.department_id = d.id "
+            "LEFT JOIN study_systems ss ON c.study_system_id = ss.id "
             "ORDER BY COALESCE(d.name_ar, 'ي'), c.stage_number, c.name_ar"
         ).fetchall()
         result = []
         for row in rows:
             r = _row_to_dict(row)
             if r.get("is_shared"):
-                # Build dept label from junction table
                 depts = conn.execute(
                     "SELECT d.name_ar FROM course_departments cd "
                     "JOIN departments d ON cd.department_id = d.id "
@@ -592,22 +649,21 @@ def insert_course(
     credit_hours: int,
     department_id: int | None,
     stage_number: int,
-    period_type: str,
+    study_system_id: int,
     shared_dept_ids: list[int] | None = None,
 ) -> int:
     """
     Insert a new course.
-    If department_id is None, the course is shared; shared_dept_ids lists
-    which departments it belongs to (written to course_departments).
+    If department_id is None, the course is shared.
     Returns new course ID.
     """
     is_shared = 1 if department_id is None else 0
     with get_connection() as conn:
         cursor = conn.execute(
             "INSERT INTO courses "
-            "(name_ar, name_en, credit_hours, department_id, stage_number, period_type, is_shared) "
+            "(name_ar, name_en, credit_hours, department_id, stage_number, study_system_id, is_shared) "
             "VALUES (?, ?, ?, ?, ?, ?, ?)",
-            (name_ar, name_en, credit_hours, department_id, stage_number, period_type, is_shared)
+            (name_ar, name_en, credit_hours, department_id, stage_number, study_system_id, is_shared)
         )
         new_id = cursor.lastrowid
         if is_shared and shared_dept_ids:
@@ -627,7 +683,7 @@ def update_course(
     credit_hours: int,
     department_id: int | None,
     stage_number: int,
-    period_type: str,
+    study_system_id: int,
     shared_dept_ids: list[int] | None = None,
 ) -> None:
     """Update an existing course. Handles shared <-> dedicated transitions."""
@@ -636,12 +692,11 @@ def update_course(
         conn.execute(
             "UPDATE courses "
             "SET name_ar=?, name_en=?, credit_hours=?, "
-            "    department_id=?, stage_number=?, period_type=?, is_shared=? "
+            "    department_id=?, stage_number=?, study_system_id=?, is_shared=? "
             "WHERE id=?",
             (name_ar, name_en, credit_hours,
-             department_id, stage_number, period_type, is_shared, course_id)
+             department_id, stage_number, study_system_id, is_shared, course_id)
         )
-        # Rebuild junction rows
         conn.execute("DELETE FROM course_departments WHERE course_id=?", (course_id,))
         if is_shared and shared_dept_ids:
             conn.executemany(
@@ -702,23 +757,26 @@ def search_students(query: str) -> list[Row]:
 
 def get_student_by_id(student_id: int) -> Row | None:
     """
-    Return a full student record joined with department and location names.
-    Returns None if no student with that ID exists.
+    Return a full student record joined with department, study system,
+    and location names. Returns None if not found.
     """
     with get_connection() as conn:
         row = conn.execute(
             "SELECT s.*, "
             "       d.name_ar  AS dept_name_ar, "
             "       d.name_en  AS dept_name_en, "
-            "       d.period_type AS dept_period_type, "
+            "       ss.name_ar AS study_system_name_ar, "
+            "       ss.name_en AS study_system_name_en, "
+            "       ss.calculation_rule, "
             "       g.name_ar  AS birthplace_ar, "
             "       g.name_en  AS birthplace_en, "
             "       c.name_ar  AS nationality_ar, "
             "       c.name_en  AS nationality_en "
             "FROM students s "
-            "LEFT JOIN departments d  ON s.department_id   = d.id "
-            "LEFT JOIN governorates g ON s.birthplace_id   = g.id "
-            "LEFT JOIN countries    c ON s.nationality_id  = c.id "
+            "LEFT JOIN departments d   ON s.department_id   = d.id "
+            "LEFT JOIN study_systems ss ON s.study_system_id = ss.id "
+            "LEFT JOIN governorates g  ON s.birthplace_id   = g.id "
+            "LEFT JOIN countries    c  ON s.nationality_id  = c.id "
             "WHERE s.id = ?",
             (student_id,)
         ).fetchone()
@@ -733,6 +791,7 @@ def insert_student(
     birthplace_other: str | None,
     nationality_id: int,
     department_id: int,
+    study_system_id: int,
     admission_year: int,
     study_type: str,
     graduation_date: str | None = None,
@@ -744,16 +803,15 @@ def insert_student(
         cursor = conn.execute(
             "INSERT INTO students "
             "(full_name_ar, full_name_en, date_of_birth, birthplace_id, "
-            " birthplace_other, nationality_id, department_id, admission_year, "
-            " study_type, graduation_date, graduation_semester, average) "
-            "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+            " birthplace_other, nationality_id, department_id, study_system_id, "
+            " admission_year, study_type, graduation_date, graduation_semester, average) "
+            "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
             (full_name_ar, full_name_en, date_of_birth, birthplace_id,
-             birthplace_other, nationality_id, department_id, admission_year,
-             study_type, graduation_date, graduation_semester, average)
+             birthplace_other, nationality_id, department_id, study_system_id,
+             admission_year, study_type, graduation_date, graduation_semester, average)
         )
         conn.commit()
         new_id = cursor.lastrowid
-    # ---> Log student creation <---      
     insert_audit_log("students", "INSERT", f"تم إضافة طالب جديد: {full_name_ar}")
     return new_id
 
@@ -788,13 +846,13 @@ def get_periods_for_student(student_id: int) -> list[Row]:
 
     Returns:
         List of dicts with keys:
-            id, student_id, academic_year, period_type,
+            id, student_id, academic_year, study_system_id,
             stage_number, passed_round
     """
     with get_connection() as conn:
         rows = conn.execute(
             "SELECT id, student_id, academic_year, "
-            "       period_type, stage_number, passed_round "
+            "       study_system_id, stage_number, passed_round "
             "FROM academic_periods "
             "WHERE student_id = ? "
             "ORDER BY stage_number",
@@ -806,7 +864,7 @@ def get_periods_for_student(student_id: int) -> list[Row]:
 def insert_period(
     student_id: int,
     academic_year: str,
-    period_type: str,
+    study_system_id: int,
     stage_number: int,
     passed_round: str,
 ) -> int:
@@ -814,9 +872,9 @@ def insert_period(
     with get_connection() as conn:
         cursor = conn.execute(
             "INSERT INTO academic_periods "
-            "(student_id, academic_year, period_type, stage_number, passed_round) "
+            "(student_id, academic_year, study_system_id, stage_number, passed_round) "
             "VALUES (?, ?, ?, ?, ?)",
-            (student_id, academic_year, period_type, stage_number, passed_round)
+            (student_id, academic_year, study_system_id, stage_number, passed_round)
         )
         conn.commit()
         new_id = cursor.lastrowid
@@ -1312,19 +1370,19 @@ def update_enrollment(enrollment_id: int, score: float, is_second_round: int) ->
 
 
 def get_courses_for_dept_stage(
-    department_id: int, stage_number: int, period_type: str
+    department_id: int, stage_number: int, study_system_id: int
 ) -> list[Row]:
     """
-    Return all courses defined for a specific department + stage + type.
+    Return all courses defined for a specific department + stage + study system.
     Used to populate the course picker when adding enrollments.
     """
     with get_connection() as conn:
         rows = conn.execute(
             "SELECT id, name_ar, name_en, credit_hours "
             "FROM courses "
-            "WHERE department_id=? AND stage_number=? AND period_type=? "
+            "WHERE department_id=? AND stage_number=? AND study_system_id=? "
             "ORDER BY name_ar",
-            (department_id, stage_number, period_type)
+            (department_id, stage_number, study_system_id)
         ).fetchall()
     return _rows_to_dicts(rows)
 
@@ -1447,13 +1505,16 @@ def get_full_certificate_data(student_id: int) -> dict | None:
         row = conn.execute(
             "SELECT s.*, "
             "       d.name_ar AS dept_name_ar, d.name_en AS dept_name_en, "
+            "       ss.name_ar AS study_system_name_ar, ss.name_en AS study_system_name_en, "
+            "       ss.calculation_rule, "
             "       c.name_ar AS nationality_ar, c.name_en AS nationality_en, "
             "       g.name_ar AS birthplace_ar, g.name_en AS birthplace_en, "
             "       o.order_number, o.order_date "
             "FROM students s "
-            "LEFT JOIN departments d ON s.department_id = d.id "
-            "LEFT JOIN countries c ON s.nationality_id = c.id "
-            "LEFT JOIN governorates g ON s.birthplace_id = g.id "
+            "LEFT JOIN departments d    ON s.department_id   = d.id "
+            "LEFT JOIN study_systems ss ON s.study_system_id = ss.id "
+            "LEFT JOIN countries c      ON s.nationality_id  = c.id "
+            "LEFT JOIN governorates g   ON s.birthplace_id   = g.id "
             "LEFT JOIN graduation_orders o ON s.order_id = o.id "
             "WHERE s.id = ?",
             (student_id,)

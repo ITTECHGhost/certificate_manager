@@ -234,6 +234,35 @@ class SidePanel(ctk.CTkFrame, ABC):
 
         return dropdown
 
+    def _add_combobox(
+        self, label_ar: str, label_en: str, values: list[str], 
+        row: int = None, col: int = 0, colspan: int = 1
+    ) -> ctk.CTkComboBox:
+        """Add a labeled combobox (editable dropdown) to the panel."""
+        if row is None:
+            row = self._field_row
+            self._field_row += 2
+
+        ctk.CTkLabel(
+            self._fields_frame,
+            text=f"{label_ar}  /  {label_en}",
+            font=ctk.CTkFont(family=AppFonts.FAMILY, size=AppFonts.SIZE_SMALL),
+            anchor="e",
+        ).grid(row=row, column=col, columnspan=colspan, sticky="e", pady=(8, 2), padx=10)
+
+        combo = ctk.CTkComboBox(
+            self._fields_frame,
+            values=values,
+            font=ctk.CTkFont(family=AppFonts.FAMILY, size=AppFonts.SIZE_BODY),
+            height=36,
+        )
+        combo.grid(row=row+1, column=col, columnspan=colspan, sticky="ew", pady=(0, 2), padx=10)
+        
+        if values:
+            combo.set(values[0])
+
+        return combo
+
     def _add_section_label(self, text_ar: str, text_en: str, row: int = None, col: int = 0, colspan: int = 1) -> None:
         """Add a visual section divider with a bilingual subheading."""
         if row is None:

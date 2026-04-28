@@ -13,9 +13,10 @@
 import customtkinter as ctk
 import sqlite3
 
-from config import AppFonts, AppColors, AppSizes, PERIOD_TYPE_OPTIONS, PERIOD_TYPE_DISPLAY
+from config import AppFonts, AppColors, AppSizes
 from data.queries import (
     get_all_courses, get_all_departments,
+    get_active_study_systems,
     insert_course, update_course, delete_course,
     get_shared_dept_ids,
 )
@@ -35,6 +36,7 @@ class CoursePanel(SidePanel):
 
     def __init__(self, parent_screen, on_save_callback) -> None:
         self._departments: list[dict] = []
+        self._study_systems: list[dict] = []
         self._dept_checks: list[tuple[ctk.CTkCheckBox, int]] = []
         super().__init__(
             parent_screen,
@@ -55,8 +57,8 @@ class CoursePanel(SidePanel):
                                                values=["1","2","3","4","5","6"])
         self._stage      = self._add_dropdown("المرحلة / الفصل", "Stage / Semester",
                                                values=["1","2","3","4","5","6","7","8"])
-        self._period     = self._add_dropdown("نظام الدراسة", "Study System",
-                                               values=list(PERIOD_TYPE_OPTIONS.keys()))
+        self._system     = self._add_dropdown("نظام الدراسة", "Study System",
+                                               values=["—"])
 
         # Shared toggle
         self._add_section_label("نطاق المادة", "Course Scope")
@@ -133,6 +135,12 @@ class CoursePanel(SidePanel):
         labels = [f"{d['name_ar']}  /  {d['name_en']}" for d in self._departments] or ["—"]
         self._dept.configure(values=labels)
         self._dept.set(labels[0])
+        # Reload study systems
+        self._study_systems = get_active_study_systems()
+        ss_labels = [f"{s['name_ar']}  /  {s['name_en']}" for s in self._study_systems] or ["—"]
+        self._system.configure(values=ss_labels)
+        if ss_labels:
+            self._system.set(ss_labels[0])
         # Rebuild checklist
         for w in self._dept_checklist.winfo_children():
             w.destroy()
@@ -177,10 +185,13 @@ class CoursePanel(SidePanel):
         self._set_entry(self._name_en, data.get("name_en", ""))
         self._set_dropdown(self._credits, str(data.get("credit_hours", "3")))
         self._set_dropdown(self._stage,   str(data.get("stage_number", "1")))
-        self._set_dropdown(self._period,  PERIOD_TYPE_DISPLAY.get(data.get("period_type","year"), ""))
-
+        # Set study system by id
+        ss_id = data.get("study_system_id")
+        for s in self._study_systems:
+            if s["id"] == ss_id:
+                self._set_dropdown(self._system, f"{s['name_ar']}  /  {s['name_en']}")
+                break
         if data.get("is_shared"):
-            # Tick the right departments in the checklist
             shared_ids = get_shared_dept_ids(data["id"])
             for var, did in self._dept_checks:
                 var.set(did in shared_ids)
@@ -202,7 +213,13 @@ class CoursePanel(SidePanel):
         return None
 
     def _on_save(self, existing: dict | None) -> None:
-        period_val = PERIOD_TYPE_OPTIONS.get(self._period.get(), "year")
+        # Resolve study_system_id from dropdown label
+        ss_label = self._system.get()
+        ss_id = next(
+            (s["id"] for s in self._study_systems
+             if f"{s['name_ar']}  /  {s['name_en']}" == ss_label),
+            (self._study_systems[0]["id"] if self._study_systems else 1)
+        )
         is_shared  = self._shared_var.get()
 
         if is_shared:
@@ -213,13 +230,13 @@ class CoursePanel(SidePanel):
             shared_ids = None
 
         kwargs = dict(
-            name_ar        = self._name_ar.get().strip(),
-            name_en        = self._name_en.get().strip(),
-            credit_hours   = int(self._credits.get()),
-            department_id  = dept_id,
-            stage_number   = int(self._stage.get()),
-            period_type    = period_val,
-            shared_dept_ids= shared_ids,
+            name_ar         = self._name_ar.get().strip(),
+            name_en         = self._name_en.get().strip(),
+            credit_hours    = int(self._credits.get()),
+            department_id   = dept_id,
+            stage_number    = int(self._stage.get()),
+            study_system_id = ss_id,
+            shared_dept_ids = shared_ids,
         )
         if existing:
             update_course(course_id=existing["id"], **kwargs)
@@ -339,7 +356,7 @@ class CoursesScreen(BaseScreen):
             r.get("dept_name_ar", "—"),
             str(r["stage_number"]),
             str(r["credit_hours"]),
-            PERIOD_TYPE_DISPLAY.get(r["period_type"], r["period_type"]),
+            r.get("study_system_name_ar", "—"),
         ])
 
     def _confirm_delete(self, row: dict) -> None:
