@@ -42,7 +42,7 @@ import difflib
 import customtkinter as ctk
 from db import get_grade
 
-from config import AppFonts, AppColors, AppSizes, PERIOD_TYPE_OPTIONS, PERIOD_TYPE_DISPLAY
+from config import AppFonts, AppColors, AppSizes
 from data.queries import (
     fuzzy_search_students, get_student_by_id,
     insert_student, update_student, delete_student,
@@ -52,6 +52,7 @@ from data.queries import (
     get_courses_for_dept_stage,
     get_all_departments, get_all_governorates,
     get_all_countries, get_all_orders,
+    get_active_study_systems,
     get_connection,
 )
 from ui.base_screen import BaseScreen
@@ -102,6 +103,7 @@ class StudentFormPanel(SidePanel):
         self._govs:   list[dict] = []
         self._countries: list[dict] = []
         self._orders: list[dict] = []
+        self._study_systems: list[dict] = []
         super().__init__(
             parent_screen,
             title_ar_add="إضافة طالب جديد", title_en_add="Add New Student",
@@ -136,14 +138,15 @@ class StudentFormPanel(SidePanel):
         self._add_section_label("الدراسة", "Academic", row=10, col=0, colspan=3)
 
         self._dept = self._add_dropdown("القسم", "Department", values=["—"], row=12, col=0)
-        self._adm_year = self._add_entry("سنة القبول", "Admission Year", placeholder="مثال: 2020", row=12, col=1)
-        self._study_type = self._add_dropdown("نوع الدراسة", "Study Type", values=list(STUDY_TYPE_OPTIONS.keys()), row=12, col=2)
+        self._study_system = self._add_dropdown("نظام الدراسة", "Study System", values=["—"], row=12, col=1)
+        self._adm_year = self._add_entry("سنة القبول", "Admission Year", placeholder="مثال: 2020", row=12, col=2)
+        self._study_type = self._add_dropdown("نوع الدراسة", "Study Type", values=list(STUDY_TYPE_OPTIONS.keys()), row=14, col=0)
 
         # -- ROW 14: Graduation Section --
         self._add_section_label("التخرج", "Graduation (optional)", row=14, col=0, colspan=3)
 
         self._grad_date = self._add_entry("تاريخ التخرج", "Graduation Date", placeholder="اتركه فارغاً إن لم يتخرج بعد", row=16, col=0, justify="left")
-        self._grad_sem = self._add_dropdown("فصل التخرج", "Graduation Semester", values=["— لم يتخرج بعد / Not yet"] + list(SEMESTER_OPTIONS.keys()), row=16, col=1)
+        self._grad_sem = self._add_combobox("فصل التخرج / الدور", "Graduation Semester / Role", values=["— لم يتخرج بعد / Not yet"] + list(SEMESTER_OPTIONS.keys()), row=16, col=1)
         self._average = self._add_entry("المعدل العام", "Overall Average (50–100)", placeholder="مثال: 78", row=16, col=2)
 
         self._order = self._add_dropdown("الأمر الجامعي", "Graduation Order", values=["— بدون أمر / None"], row=18, col=0, colspan=2)
@@ -154,6 +157,7 @@ class StudentFormPanel(SidePanel):
         self._govs     = get_all_governorates()
         self._countries = get_all_countries()
         self._orders   = get_all_orders()
+        self._study_systems = get_active_study_systems()
 
         dept_labels = [f"{d['name_ar']}  /  {d['name_en']}" for d in self._depts] or ["—"]
         gov_labels  = ["—  أجنبي / Foreign"] + [
@@ -164,11 +168,15 @@ class StudentFormPanel(SidePanel):
             f"{o['order_number']}  |  {o.get('dept_name_ar','')}  |  {o['admission_year']}"
             for o in self._orders
         ]
+        ss_labels = [f"{s['name_ar']}  /  {s['name_en']}" for s in self._study_systems] or ["—"]
 
         self._dept.configure(values=dept_labels)
         self._birthplace_gov.configure(values=gov_labels)
         self._nationality.configure(values=nat_labels)
         self._order.configure(values=order_labels)
+        self._study_system.configure(values=ss_labels)
+        if ss_labels:
+            self._study_system.set(ss_labels[0])
 
         # Default nationality to Iraq
         iraq_label = next(
@@ -177,7 +185,7 @@ class StudentFormPanel(SidePanel):
         )
         self._nationality.set(iraq_label)
 
-        # ---> NEW: Default birthplace to Basrah <---
+        # Default birthplace to Basrah
         basrah_label = next(
             (f"{g['name_ar']}  /  {g['name_en']}" for g in self._govs
              if "بصرة" in g["name_ar"] or "Basra" in g["name_en"]), gov_labels
@@ -233,12 +241,18 @@ class StudentFormPanel(SidePanel):
             STUDY_TYPE_DISPLAY.get(data.get("study_type", "morning"), "")
         )
 
-        # Graduation semester
+        # Graduation semester / Role
         if data.get("graduation_semester"):
-            self._set_dropdown(
-                self._grad_sem,
-                SEMESTER_DISPLAY.get(data["graduation_semester"], "— لم يتخرج بعد / Not yet")
-            )
+            val = SEMESTER_DISPLAY.get(data["graduation_semester"], data["graduation_semester"])
+            self._grad_sem.set(val)
+        else:
+            self._grad_sem.set("— لم يتخرج بعد / Not yet")
+
+        # Study System
+        for s in self._study_systems:
+            if s["id"] == data.get("study_system_id"):
+                self._set_dropdown(self._study_system, f"{s['name_ar']}  /  {s['name_en']}")
+                break
 
         # Order
         if data.get("order_id"):
@@ -310,16 +324,24 @@ class StudentFormPanel(SidePanel):
                 return o["id"]
         return None
 
+    def _get_study_system_id(self) -> int:
+        label = self._study_system.get()
+        for s in self._study_systems:
+            if f"{s['name_ar']}  /  {s['name_en']}" == label:
+                return s["id"]
+        # fallback: first active system (annual = id 1)
+        return self._study_systems[0]["id"] if self._study_systems else 1
+
     def _on_save(self, existing: dict | None) -> None:
         bp_id, bp_other = self._get_birthplace()
         avg_raw = self._average.get().strip()
         avg_val = int(avg_raw) if avg_raw.isdigit() else None
 
         grad_sem_label = self._grad_sem.get()
-        grad_sem = (
-            SEMESTER_OPTIONS.get(grad_sem_label)
-            if "لم يتخرج" not in grad_sem_label else None
-        )
+        grad_sem = None
+        if "لم يتخرج" not in grad_sem_label:
+            # Map back if it's one of the standard ones, otherwise use text directly
+            grad_sem = SEMESTER_OPTIONS.get(grad_sem_label, grad_sem_label)
         grad_date = self._grad_date.get().strip() or None
 
         order_id = self._get_order_id()
@@ -334,6 +356,7 @@ class StudentFormPanel(SidePanel):
                 birthplace_other    = bp_other,
                 nationality_id      = self._get_nationality_id(),
                 department_id       = self._get_dept_id(),
+                study_system_id     = self._get_study_system_id(),
                 admission_year      = int(self._adm_year.get().strip()),
                 study_type          = STUDY_TYPE_OPTIONS[self._study_type.get()],
                 graduation_date     = grad_date,
@@ -350,6 +373,7 @@ class StudentFormPanel(SidePanel):
                 birthplace_other    = bp_other,
                 nationality_id      = self._get_nationality_id(),
                 department_id       = self._get_dept_id(),
+                study_system_id     = self._get_study_system_id(),
                 admission_year      = int(self._adm_year.get().strip()),
                 study_type          = STUDY_TYPE_OPTIONS[self._study_type.get()],
                 graduation_date     = grad_date,
@@ -495,7 +519,7 @@ class EnrollmentPanel(ctk.CTkFrame):
         self._courses = get_courses_for_dept_stage(
             self._student.get("department_id", 0),
             self._period["stage_number"],
-            self._period["period_type"],
+            self._student.get("study_system_id", 1),
         )
         labels = (
             [f"{c['name_ar']}  ({c['credit_hours']} وحدة)" for c in self._courses]
@@ -912,6 +936,7 @@ class StudentsScreen(BaseScreen):
 
         fields = [
             ("القسم  /  Department",        data.get("dept_name_ar", "—")),
+            ("نظام الدراسة  /  Study System", data.get("study_system_name_ar", "—")),
             ("سنة القبول  /  Admission Year", data.get("admission_year", "—")),
             ("تاريخ الميلاد  /  Date of Birth", data.get("date_of_birth", "—")),
             ("الجنسية  /  Nationality",      data.get("nationality_ar", "—")),
@@ -965,11 +990,15 @@ class StudentsScreen(BaseScreen):
         add_period_frame.grid_columnconfigure(0, weight=1)
         row += 1
 
+        # Stage placeholder based on system
+        ss_id = data.get("study_system_id", 1)
+        stage_placeholder = "رقم السنة  /  Year No. (1-4)" if ss_id == 1 else "رقم الفصل  /  Sem No. (1-8)"
+        
         self._new_stage = ctk.CTkEntry(
             add_period_frame,
-            placeholder_text="رقم المرحلة  /  Stage No. (1-8)",
+            placeholder_text=stage_placeholder,
             font=ctk.CTkFont(family=AppFonts.FAMILY, size=AppFonts.SIZE_SMALL),
-            width=160, height=34, justify="center",
+            width=200, height=34, justify="center",
         )
         self._new_stage.grid(row=0, column=0, sticky="w")
 
@@ -1023,7 +1052,7 @@ class StudentsScreen(BaseScreen):
 
         ctk.CTkLabel(
             p_hdr,
-            text=(f"  المرحلة {period['stage_number']}  |  "
+            text=(f"  {'السنة' if student.get('study_system_id') == 1 else 'الفصل'} {period['stage_number']}  |  "
                   f"{period['academic_year']}  |  "
                   f"{ROUND_AR.get(period['passed_round'], period['passed_round'])}"),
             font=ctk.CTkFont(family=AppFonts.FAMILY, size=AppFonts.SIZE_SMALL, weight="bold"),
@@ -1085,8 +1114,11 @@ class StudentsScreen(BaseScreen):
         stage_str = self._new_stage.get().strip()
         year_str  = self._new_year.get().strip()
 
-        if not stage_str.isdigit() or not (1 <= int(stage_str) <= 8):
-            self.show_error("رقم المرحلة يجب أن يكون بين 1 و8.")
+        ss_id = self._selected_student.get("study_system_id", 1)
+        max_stage = 4 if ss_id == 1 else 12 # some systems have up to 12 semesters (medicine)
+        
+        if not stage_str.isdigit() or not (1 <= int(stage_str) <= max_stage):
+            self.show_error(f"رقم المرحلة يجب أن يكون بين 1 و {max_stage}.")
             return
         if len(year_str) != 9 or "-" not in year_str:
             self.show_error(
@@ -1095,13 +1127,11 @@ class StudentsScreen(BaseScreen):
             )
             return
 
-        dept = self._selected_student
-        period_type = "year"    # default — could be inferred from dept later
         try:
             insert_period(
-                student_id   = self._selected_student["id"],
+                student_id    = self._selected_student["id"],
                 academic_year = year_str,
-                period_type   = period_type,
+                study_system_id = self._selected_student.get("study_system_id", 1),
                 stage_number  = int(stage_str),
                 passed_round  = "first",
             )

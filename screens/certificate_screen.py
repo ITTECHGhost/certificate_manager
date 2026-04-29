@@ -20,11 +20,19 @@ class CertificateScreen(BaseScreen):
         self._templates_dir = "templets"
         super().__init__(parent, switch_callback)
 
-    def _get_available_templates(self) -> list[str]:
-        """Scans the templets folder for docx files."""
+    def _get_available_templates(self, calculation_rule: str | None = None) -> list[str]:
+        """Scans the templets folder for docx files, optionally filtered by study system."""
         if not os.path.exists(self._templates_dir):
             os.makedirs(self._templates_dir, exist_ok=True)
-        files = [f for f in os.listdir(self._templates_dir) if f.endswith('.docx') and not f.startswith('~')]
+        files = [
+            f for f in os.listdir(self._templates_dir)
+            if f.endswith('.docx') and not f.startswith('~')
+        ]
+        if calculation_rule and files:
+            rule_map = {"annual": "year", "semester": "semester"}
+            target = rule_map.get(calculation_rule.lower(), calculation_rule.lower())
+            filtered = [f for f in files if target in f.lower() or calculation_rule.lower() in f.lower()]
+            files = filtered if filtered else files  # fallback to all if no match
         return files if files else ["لا توجد قوالب (No templates found)"]
 
     def _build(self) -> None:
@@ -286,6 +294,13 @@ class CertificateScreen(BaseScreen):
             )
             self._student_info_lbl.configure(text=info_text)
 
+            # Filter templates based on student's study system
+            rule = data.get("calculation_rule")
+            templates = self._get_available_templates(rule)
+            self._template_dropdown.configure(values=templates)
+            if templates:
+                self._template_dropdown.set(templates[0])
+
             preview_lines = ["--- LIVE PREVIEW / معاينة ---", ""]
             for period in data.get("periods", []):
                 preview_lines.append(f"[{period['academic_year']} - Semester {period['stage_number']}]")
@@ -435,13 +450,13 @@ class CertificateScreen(BaseScreen):
             # 1. Build Headers for this pair (Wrapped in _localize)
             left_stage = _localize(left_period['stage_number'])
             left_year = _localize(left_period['academic_year'])
-            left_label = f"Stage {left_stage} - {left_year}" if is_english else f"المرحلة {left_stage} - {left_year}"
+            left_label = f"Stage 2" if is_english else f"الفصل 2"
             
             right_label = ""
             if right_period:
                 right_stage = _localize(right_period['stage_number'])
                 right_year = _localize(right_period['academic_year'])
-                right_label = f"Stage {right_stage} - {right_year}" if is_english else f"المرحلة {right_stage} - {right_year}"
+                right_label = f"Stage 1" if is_english else f"الفصل 1"
 
             # 2. Extract Courses
             left_courses = left_period.get("enrollments", [])
@@ -464,11 +479,12 @@ class CertificateScreen(BaseScreen):
             paired_semesters.append({
                 "left_label": left_label,
                 "right_label": right_label,
+                "year_label": _localize(left_year),
                 "rows": doc_rows
             })
 
         ctx = {
-            "Title": self._title_entry.get().strip() or ("Whom it May Concern" if is_english else "إلى من يهمه الأمر"),
+            "Title": self._title_entry.get().strip() or ("Whom it May Concern" if is_english else "من يهمه الأمر"),
             "student_name": data.get("full_name_en" if is_english else "full_name_ar", ""),
             
             # ---> Changed to _format_date <---
@@ -496,7 +512,8 @@ class CertificateScreen(BaseScreen):
             "num_students": _localize(data.get("total_graduates", "")),
             "Average_of_First_Student": _localize(data.get("top_average", "")),
             
-            "paired_semesters": paired_semesters 
+            "paired_semesters": paired_semesters,
+            "paired_years": paired_semesters  # New templates use paired_years for annual systems
         }
 
         # Signatories

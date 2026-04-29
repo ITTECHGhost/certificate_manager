@@ -178,6 +178,42 @@ class BaseScreen(ctk.CTkFrame, ABC):
             command=dialog.destroy,
         ).grid(row=2, column=0, pady=16)
 
+    def show_info(self, message: str, title: str = "معلومات  —  Information") -> None:
+        """
+        Display a modal info dialog with the given message.
+
+        Args:
+            message: The information message to display.
+            title:   Dialog window title. Defaults to bilingual "Information".
+        """
+        dialog = ctk.CTkToplevel(self)
+        dialog.title(title)
+        dialog.geometry("420x180")
+        dialog.resizable(False, False)
+        dialog.grab_set()
+        dialog.grid_columnconfigure(0, weight=1)
+
+        ctk.CTkLabel(
+            dialog,
+            text="ℹ️",
+            font=ctk.CTkFont(size=32),
+        ).grid(row=0, column=0, pady=(20, 6))
+
+        ctk.CTkLabel(
+            dialog,
+            text=message,
+            font=ctk.CTkFont(family="Arial", size=13),
+            wraplength=360,
+            justify="center",
+        ).grid(row=1, column=0, padx=20)
+
+        ctk.CTkButton(
+            dialog,
+            text="حسناً  /  OK",
+            width=120,
+            command=dialog.destroy,
+        ).grid(row=2, column=0, pady=16)
+
     def show_confirm(
         self,
         message: str,

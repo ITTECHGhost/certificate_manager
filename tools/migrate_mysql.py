@@ -240,34 +240,25 @@ def _passed_round(arabic: str) -> str:
     return "second"
 
 
-def _requirment_to_stage(req: str) -> int:
+def _requirment_to_stage(req: str, is_semester: bool = True) -> int:
     """
-    Map the `requirment` field from subjects_q / subjects_students_q to
-    a stage_number (1–8) for the semester-based system.
-
-    Encoding:
-        مرحلة اولى-كورس اول   → 1    (Year 1, Semester 1)
-        مرحلة اولى-كورس ثاني  → 2    (Year 1, Semester 2)
-        مرحلة ثانية-كورس اول  → 3    (Year 2, Semester 1)
-        مرحلة ثانية-كورس ثاني → 4    (Year 2, Semester 2)
-        مرحلة ثالثة-كورس اول  → 5    (Year 3, Semester 1)
-        مرحلة ثالثة-كورس ثاني → 6    (Year 3, Semester 2)
-        مرحلة رابعة-كورس اول  → 7    (Year 4, Semester 1)
-        مرحلة رابعة-كورس ثاني → 8    (Year 4, Semester 2)
+    Map the `requirment` field from subjects_q / subjects_140 to
+    a stage_number.
+    
+    If is_semester=True: 1-8 (Year 1 Sem 1 = 1, Year 1 Sem 2 = 2, etc.)
+    If is_semester=False: 1-4 (Year 1 = 1, Year 2 = 2, etc.)
     """
     YEAR_MAP  = {"اولى": 1, "ثانية": 2, "ثالثة": 3, "رابعة": 4}
-    SEM_MAP   = {"اول": 0, "ثاني": 1}      # 0=first, 1=second
     year_num  = 1
-    sem_num   = 0
-
     for key, val in YEAR_MAP.items():
         if key in req:
             year_num = val
             break
-
-    if "ثاني" in req.split("-")[-1]:
-        sem_num = 1
-
+            
+    if not is_semester:
+        return year_num
+        
+    sem_num = 1 if "ثاني" in req.split("-")[-1] else 0
     return (year_num - 1) * 2 + sem_num + 1
 
 
@@ -323,8 +314,8 @@ def migrate_departments(
         else:
             cursor = conn.execute(
                 "INSERT INTO departments "
-                "(name_ar, name_en, college_ar, college_en, study_years, period_type) "
-                "VALUES (?, ?, ?, ?, 4, 'year')",
+                "(name_ar, name_en, college_ar, college_en, study_years) "
+                "VALUES (?, ?, ?, ?, 4)",
                 (name_ar, name_en, college_ar, college_en),
             )
             dept_name_map[name_ar] = cursor.lastrowid
@@ -387,6 +378,11 @@ def migrate_signatures(tables: dict, conn: sqlite3.Connection) -> None:
             "doc_organize_en", "sin_doc_organize_en", "pos_doc_organize_en",
             5, "back",
         ),
+        (
+            "sign_m", "sin_sign_m", "pos_sing_m",
+            "sign_m_e", "sin_sign_m_e", "pos_sign_m_e",
+            6, "front",
+        ),
     ]
 
     for (name_ar_col, title_ar_col, resp_ar_col,
@@ -447,18 +443,20 @@ def migrate_courses(
     courses_140_map: dict[str, int] = {}
     courses_q_map:   dict[str, int] = {}
 
-    # ── Year-based courses (subjects_140) ────────────────────────────────────
+    # NOTE: _140 = Semester system (Course-based), study_system_id=2
     for row in tables.get("subjects_140", []):
         code    = _str(row.get("code",    ""))
         name_ar = _str(row.get("name_ar", ""))
         name_en = _str(row.get("name_en", ""))
         units   = _int_or(row.get("units"), 3)
         dep_ar  = _str(row.get("dep",     ""))
+        req     = _str(row.get("requirment", ""))
         dept_id = dept_name_map.get(dep_ar, list(dept_name_map.values())[0] if dept_name_map else 1)
-        stage   = _code_to_stage(code)
+        # Use requirement if available for semester, otherwise code
+        stage   = _requirment_to_stage(req, is_semester=True) if req else _code_to_stage(code)
 
         existing = conn.execute(
-            "SELECT id FROM courses WHERE name_ar = ? AND department_id = ? AND period_type='year'",
+            "SELECT id FROM courses WHERE name_ar = ? AND department_id = ? AND study_system_id=2",
             (name_ar, dept_id)
         ).fetchone()
 
@@ -466,15 +464,15 @@ def migrate_courses(
             courses_140_map[code] = existing["id"]
         else:
             cur = conn.execute(
-                "INSERT INTO courses (name_ar, name_en, credit_hours, department_id, stage_number, period_type) "
-                "VALUES (?, ?, ?, ?, ?, 'year')",
+                "INSERT INTO courses (name_ar, name_en, credit_hours, department_id, stage_number, study_system_id) "
+                "VALUES (?, ?, ?, ?, ?, 2)",
                 (name_ar, name_en, units, dept_id, stage)
             )
             courses_140_map[code] = cur.lastrowid
 
-    log.info("  subjects_140: %d courses", len(courses_140_map))
+    log.info("  subjects_140 (semester): %d courses", len(courses_140_map))
 
-    # ── Semester-based courses (subjects_q) ──────────────────────────────────
+    # NOTE: _q = Annual system (Year-based), study_system_id=1
     for row in tables.get("subjects_q", []):
         name_ar = _str(row.get("name_ar", ""))
         name_en = _str(row.get("name_en", ""))
@@ -482,10 +480,10 @@ def migrate_courses(
         dep_ar  = _str(row.get("dep",     ""))
         req     = _str(row.get("requirment", ""))
         dept_id = dept_name_map.get(dep_ar, list(dept_name_map.values())[0] if dept_name_map else 1)
-        stage   = _requirment_to_stage(req) if req else 1
+        stage   = _requirment_to_stage(req, is_semester=False) if req else 1
 
         existing = conn.execute(
-            "SELECT id FROM courses WHERE name_ar = ? AND department_id = ? AND period_type='semester'",
+            "SELECT id FROM courses WHERE name_ar = ? AND department_id = ? AND study_system_id=1",
             (name_ar, dept_id)
         ).fetchone()
 
@@ -493,15 +491,17 @@ def migrate_courses(
             courses_q_map[name_ar] = existing["id"]
         else:
             cur = conn.execute(
-                "INSERT INTO courses (name_ar, name_en, credit_hours, department_id, stage_number, period_type) "
-                "VALUES (?, ?, ?, ?, ?, 'semester')",
+                "INSERT INTO courses (name_ar, name_en, credit_hours, department_id, stage_number, study_system_id) "
+                "VALUES (?, ?, ?, ?, ?, 1)",
                 (name_ar, name_en, units, dept_id, stage)
             )
             courses_q_map[name_ar] = cur.lastrowid
 
-    log.info("  subjects_q:   %d courses", len(courses_q_map))
+    log.info("  subjects_q (annual): %d courses", len(courses_q_map))
     conn.commit()
     return courses_140_map, courses_q_map
+
+
 
 
 # # =============================================================================
@@ -667,7 +667,7 @@ def migrate_students(
         grad_sem_ar: str,
         average_str: str,
         order_index: dict,
-        period_type: str,
+        study_system_id: int,   # 1=annual(_q), 2=semester(_140)
     ) -> int | None:
         """Insert one student and return their new SQLite ID, or None on error."""
         dept_id = dept_name_map.get(dep_ar)
@@ -758,14 +758,15 @@ def migrate_students(
             "INSERT INTO students "
             "(full_name_ar, full_name_en, date_of_birth, "
             " birthplace_id, birthplace_other, nationality_id, "
-            " department_id, admission_year, study_type, "
+            " department_id, study_system_id, admission_year, study_type, "
             " graduation_date, graduation_semester, average, order_id) "
-            "VALUES (?, ?, '2000-01-01', NULL, 'غير محدد', ?, ?, ?, ?, ?, ?, ?, ?)",
+            "VALUES (?, ?, '2000-01-01', NULL, 'غير محدد', ?, ?, ?, ?, ?, ?, ?, ?, ?)",
             (
                 name_ar,
                 name_en or name_ar,
                 iraq_id,
                 dept_id,
+                study_system_id,
                 admission_year,
                 _study_type(study),
                 grad_date,
@@ -776,7 +777,7 @@ def migrate_students(
         )
         return cur.lastrowid
 
-    # ── students_140 (year-based) ─────────────────────────────────────────────
+    # ── students_140 (SEMESTER-based: 2 stages per year) ───────────────────────
     inserted_140 = 0
     for row in tables.get("students_140", []):
         old_id  = _int_or(row.get("id"), 0)
@@ -800,15 +801,15 @@ def migrate_students(
             _str(row.get("graduation_semester",  "")),
             _str(row.get("average",              "")),
             order_index,
-            "year",
+            2,   # semester system
         )
         if new_id:
             map_140[old_id] = new_id
             inserted_140 += 1
 
-    log.info("  students_140: %d inserted, %d total", inserted_140, len(map_140))
+    log.info("  students_140 (semester): %d inserted, %d total", inserted_140, len(map_140))
 
-    # ── students_q (semester-based) ───────────────────────────────────────────
+    # ── students_q (ANNUAL-based: one stage per year) ──────────────────────────
     inserted_q = 0
     for row in tables.get("students_q", []):
         old_id  = _int_or(row.get("id"), 0)
@@ -834,13 +835,13 @@ def migrate_students(
             grad_sem_ar,
             _str(row.get("average",            "")),
             order_index,
-            "semester",
+            1,   # annual system
         )
         if new_id:
             map_q[old_id] = new_id
             inserted_q += 1
 
-    log.info("  students_q:   %d inserted, %d total", inserted_q, len(map_q))
+    log.info("  students_q (annual): %d inserted, %d total", inserted_q, len(map_q))
     conn.commit()
     return map_140, map_q
 
@@ -856,12 +857,12 @@ def migrate_enrollments_140(
     conn: sqlite3.Connection,
 ) -> None:
     """
-    Import year-based enrollment data from subjects_students_140.
+    Import semester-based enrollment data from subjects_students_140.
 
     Grouping logic:
         Each (student_id, yearr, semester) combination = one academic_period.
         academic_year is constructed as "yearr-(yearr+1)".
-        stage_number = derived from course code (CS1xx=1, CS2xx=2, etc.)
+        stage_number = derived from chronological order of semesters.
         passed_round = from `failed` column ('اولى'→first, 'ثانية'→second)
     """
     log.info("── Migrating subjects_students_140 → periods + enrollments ──")
@@ -878,7 +879,7 @@ def migrate_enrollments_140(
     enrolls_inserted  = 0
     skipped_students  = 0
 
-    # Map each chronological semester to a stage number (1 to N)
+    # Map each chronological semester to a stage number (1 to 8+)
     student_sems = {}
     for (old_sid, yearr, sem_ar) in groups.keys():
         if old_sid not in student_sems:
@@ -913,8 +914,8 @@ def migrate_enrollments_140(
         # Check if period already exists
         existing_period = conn.execute(
             "SELECT id FROM academic_periods "
-            "WHERE student_id=? AND stage_number=? AND period_type='year'",
-            (new_sid, stage)
+            "WHERE student_id=? AND stage_number=? AND academic_year=?",
+            (new_sid, stage, acad_year)
         ).fetchone()
 
         if existing_period:
@@ -922,14 +923,14 @@ def migrate_enrollments_140(
         else:
             cur = conn.execute(
                 "INSERT INTO academic_periods "
-                "(student_id, academic_year, period_type, stage_number, passed_round) "
-                "VALUES (?, ?, 'year', ?, ?)",
+                "(student_id, academic_year, study_system_id, stage_number, passed_round) "
+                "VALUES (?, ?, 2, ?, ?)",
                 (new_sid, acad_year, stage, passed_round)
             )
             period_id = cur.lastrowid
             periods_inserted += 1
 
-        # Insert enrollments for each course in this period
+        # Insert enrollments
         for row in rows:
             code    = _str(row.get("code",    ""))
             score   = _float_or(row.get("degree"), 0.0)
@@ -937,27 +938,25 @@ def migrate_enrollments_140(
 
             course_id = courses_map.get(code)
             if not course_id:
-                # Course not in catalog — insert it on the fly
                 name_ar = _str(row.get("name_ar", code))
                 name_en = _str(row.get("name_en", code))
                 units   = _int_or(row.get("units"), 3)
-                # Get dept from student record
                 student = conn.execute(
                     "SELECT department_id FROM students WHERE id=?", (new_sid,)
                 ).fetchone()
                 dept_id = student["department_id"] if student else 1
 
                 existing_c = conn.execute(
-                    "SELECT id FROM courses WHERE name_ar=? AND department_id=? AND period_type='year'",
+                    "SELECT id FROM courses WHERE name_ar=? AND department_id=? AND study_system_id=2",
                     (name_ar, dept_id)
                 ).fetchone()
                 if existing_c:
                     course_id = existing_c["id"]
                 else:
                     c = conn.execute(
-                        "INSERT INTO courses (name_ar, name_en, credit_hours, department_id, stage_number, period_type) "
-                        "VALUES (?, ?, ?, ?, ?, 'year')",
-                        (name_ar, name_en, units, dept_id, _code_to_stage(code))
+                        "INSERT INTO courses (name_ar, name_en, credit_hours, department_id, stage_number, study_system_id) "
+                        "VALUES (?, ?, ?, ?, ?, 2)",
+                        (name_ar, name_en, units, dept_id, stage)
                     )
                     course_id = c.lastrowid
                     courses_map[code] = course_id
@@ -989,62 +988,46 @@ def migrate_enrollments_q(
     conn: sqlite3.Connection,
 ) -> None:
     """
-    Import semester-based enrollment data from subjects_students_q.
+    Import annual-based enrollment data from subjects_students_q.
 
     Grouping logic:
-        Each (student_id, requirment_stage) = one academic_period.
-        The `yearr` of the latest course in that stage is used for academic_year.
+        Each (student_id, yearr) combination = one academic_period.
+        academic_year is constructed as "yearr-(yearr+1)".
+        stage_number = derived from requirement string.
         passed_round = from `role` column (الاول/الثاني).
     """
     log.info("── Migrating subjects_students_q → periods + enrollments ──")
 
-    # Group rows chronologically by (old_student_id, yearr, role)
+    # Group rows by (old_student_id, yearr)
     groups: dict[tuple, list[dict]] = defaultdict(list)
     for row in tables.get("subjects_students_q", []):
         old_sid = _int_or(row.get("id_student"), 0)
         yearr   = _int_or(row.get("yearr", "0"), 2020)
-        role    = _str(row.get("role", "الاول"))
-        groups[(old_sid, yearr, role)].append(row)
+        groups[(old_sid, yearr)].append(row)
 
     periods_inserted = 0
     enrolls_inserted = 0
     skipped_students = 0
 
-    # Map each chronological semester to a stage number
-    student_sems = {}
-    for (old_sid, yearr, role) in groups.keys():
-        if old_sid not in student_sems:
-            student_sems[old_sid] = set()
-        # map role to int for sorting
-        role_int = 1 if 'اول' in role else (2 if 'ثان' in role else 3)
-        student_sems[old_sid].add((yearr, role_int, role))
-        
-    student_stage_map_q = {}
-    for old_sid, sems in student_sems.items():
-        # Sort by year then by role_int
-        for idx, s in enumerate(sorted(list(sems), key=lambda x: (x[0], x[1]))):
-            student_stage_map_q[(old_sid, s[0], s[2])] = idx + 1
-
-    for (old_sid, yearr, role), rows in groups.items():
+    for (old_sid, year_int), rows in groups.items():
         new_sid = student_map.get(old_sid)
         if not new_sid:
             skipped_students += 1
             continue
 
-        year_int   = yearr
         acad_year  = f"{year_int}-{year_int + 1}"
         
-        # Override stage with strictly chronological stage
-        stage = student_stage_map_q[(old_sid, yearr, role)]
+        # Stage is derived from requirement of first course
+        first_req = _str(rows[0].get("requirment", ""))
+        stage = _requirment_to_stage(first_req, is_semester=False)
 
-        # passed_round
         rounds = [_passed_round(_str(r.get("role", "الاول"))) for r in rows]
         passed_round = "second" if "second" in rounds else "first"
 
         existing_period = conn.execute(
             "SELECT id FROM academic_periods "
-            "WHERE student_id=? AND stage_number=? AND period_type='semester'",
-            (new_sid, stage)
+            "WHERE student_id=? AND stage_number=? AND academic_year=?",
+            (new_sid, stage, acad_year)
         ).fetchone()
 
         if existing_period:
@@ -1052,8 +1035,8 @@ def migrate_enrollments_q(
         else:
             cur = conn.execute(
                 "INSERT INTO academic_periods "
-                "(student_id, academic_year, period_type, stage_number, passed_round) "
-                "VALUES (?, ?, 'semester', ?, ?)",
+                "(student_id, academic_year, study_system_id, stage_number, passed_round) "
+                "VALUES (?, ?, 1, ?, ?)",
                 (new_sid, acad_year, stage, passed_round)
             )
             period_id = cur.lastrowid
@@ -1066,7 +1049,6 @@ def migrate_enrollments_q(
 
             course_id = courses_map.get(name_ar)
             if not course_id:
-                # Create course on the fly
                 name_en = _str(row.get("name_en", ""))
                 units   = _int_or(row.get("units"), 3)
                 student = conn.execute(
@@ -1075,15 +1057,15 @@ def migrate_enrollments_q(
                 dept_id = student["department_id"] if student else 1
 
                 existing_c = conn.execute(
-                    "SELECT id FROM courses WHERE name_ar=? AND department_id=? AND period_type='semester'",
+                    "SELECT id FROM courses WHERE name_ar=? AND department_id=? AND study_system_id=1",
                     (name_ar, dept_id)
                 ).fetchone()
                 if existing_c:
                     course_id = existing_c["id"]
                 else:
                     c = conn.execute(
-                        "INSERT INTO courses (name_ar, name_en, credit_hours, department_id, stage_number, period_type) "
-                        "VALUES (?, ?, ?, ?, ?, 'semester')",
+                        "INSERT INTO courses (name_ar, name_en, credit_hours, department_id, stage_number, study_system_id) "
+                        "VALUES (?, ?, ?, ?, ?, 1)",
                         (name_ar, name_en, units, dept_id, stage)
                     )
                     course_id = c.lastrowid
@@ -1128,18 +1110,11 @@ def print_report(conn: sqlite3.Connection) -> None:
 # MAIN
 # =============================================================================
 
-def main() -> None:
-    if len(sys.argv) < 2:
-        print()
-        print("Usage:")
-        print('  python tools/migrate_mysql.py "path\\to\\localhost.sql"')
-        print()
-        sys.exit(1)
-
-    sql_path = sys.argv[1]
+def run_migration(sql_path: str) -> None:
+    """Entry point for migration, callable from CLI or UI."""
     if not Path(sql_path).exists():
         log.error("File not found: %s", sql_path)
-        sys.exit(1)
+        raise FileNotFoundError(f"SQL file not found: {sql_path}")
 
     # Make sure destination DB exists and is initialized
     init_db()
@@ -1152,8 +1127,7 @@ def main() -> None:
         dept_map              = migrate_departments(tables, conn)
         migrate_signatures(tables, conn)
         courses_140, courses_q = migrate_courses(tables, dept_map, conn)
-        # order_idx             = build_order_index(tables)
-        # map_140, map_q        = migrate_students(tables, dept_map, order_idx, conn)
+        
         order_idx             = migrate_orders(tables, dept_map, conn)
         map_140, map_q        = migrate_students(tables, dept_map, order_idx, conn)
 
@@ -1161,8 +1135,21 @@ def main() -> None:
         migrate_enrollments_q  (tables, map_q,   courses_q,   conn)
 
         print_report(conn)
+    
+    log.info("Migration finished successfully.")
 
-    log.info("Done. Open main.py to view imported data.")
+
+def main() -> None:
+    if len(sys.argv) < 2:
+        print("\nUsage: python tools/migrate_mysql.py \"path\\to\\localhost.sql\"\n")
+        sys.exit(1)
+
+    try:
+        run_migration(sys.argv[1])
+        log.info("Done. Open main.py to view imported data.")
+    except Exception as e:
+        log.error("Migration failed: %s", e)
+        sys.exit(1)
 
 
 if __name__ == "__main__":
