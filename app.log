@@ -8,3 +8,25 @@
 2026-04-30 10:08:18,468 [INFO] db: Countries already seeded (195 rows). Skipping.
 2026-04-30 10:08:18,468 [INFO] db: Database initialization complete.
 2026-04-30 10:19:48,527 [INFO] __main__: Application closed normally.
+2026-04-30 10:33:35,979 [INFO] __main__: Application starting...
+2026-04-30 10:33:35,980 [INFO] db: Initializing database at: F:\CR_PY\certificate_manager\certificate_manager.db
+2026-04-30 10:33:35,987 [INFO] db: All tables created (or already exist).
+2026-04-30 10:33:35,990 [INFO] db: Backfill of study_system_id and period_display complete.
+2026-04-30 10:33:35,990 [INFO] db: All indexes created (or already exist).
+2026-04-30 10:33:35,991 [INFO] db: Study systems seeded (or already exist).
+2026-04-30 10:33:35,992 [INFO] db: Governorates already seeded (18 rows). Skipping.
+2026-04-30 10:33:35,992 [INFO] db: Countries already seeded (195 rows). Skipping.
+2026-04-30 10:33:35,992 [INFO] db: Database initialization complete.
+2026-04-30 10:35:50,446 [ERROR] __main__: Unhandled exception in Tkinter callback:
+Traceback (most recent call last):
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\tkinter\__init__.py", line 2093, in __call__
+    return self.func(*args)
+           ~~~~~~~~~^^^^^^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\tkinter\__init__.py", line 876, in callit
+    func(*args, **kw)
+    ~~~~^^^^^^^^^^^^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\tkinter\__init__.py", line 802, in focus_set
+    self.tk.call('focus', self._w)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+_tkinter.TclError: bad window path name ".!ctkframe.!ctkframe.!settingsscreen.!ctkframe.!canvas.!ctkscrollableframe.!ctkframe2.!ctkentry3.!entry"
+2026-04-30 10:37:32,738 [INFO] __main__: Application closed normally.
