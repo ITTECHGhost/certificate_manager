@@ -1,0 +1,30 @@
+Traceback (most recent call last):
+  File "f:\CR_PY\certificate_manager\main.py", line 414, in <module>
+    app = CertificateManagerApp()
+  File "f:\CR_PY\certificate_manager\main.py", line 282, in __init__
+    self._build_layout()
+    ~~~~~~~~~~~~~~~~~~^^
+  File "f:\CR_PY\certificate_manager\main.py", line 311, in _build_layout
+    self._sidebar = Sidebar(self, on_navigate=self._show_screen)
+                    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "f:\CR_PY\certificate_manager\main.py", line 82, in __init__
+    super().__init__(
+    ~~~~~~~~~~~~~~~~^
+        parent,
+        ^^^^^^^
+        width=AppSizes.SIDEBAR_WIDTH,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        corner_radius=0,
+        ^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\customtkinter\windows\widgets\ctk_frame.py", line 65, in __init__
+    self._draw(no_color_updates=True)
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\customtkinter\windows\widgets\ctk_frame.py", line 113, in _draw
+    self._apply_widget_scaling(self._border_width),
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\customtkinter\windows\widgets\scaling\scaling_base_class.py", line 62, in _apply_widget_scaling
+    return value * self.__widget_scaling
+           ~~~~~~^~~~~~~~~~~~~~~~~~~~~~~
+TypeError: can't multiply sequence by non-int of type 'float'

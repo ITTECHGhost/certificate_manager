@@ -13,7 +13,6 @@ from pathlib import Path
 
 DB_PATH = Path("certificate_manager.db")
 
-logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
 log = logging.getLogger(__name__)
 
 
@@ -88,6 +87,9 @@ def _migrate_db(conn: sqlite3.Connection) -> None:
         # New: study_system_id on academic_periods (nullable for legacy rows)
         "ALTER TABLE academic_periods ADD COLUMN study_system_id INTEGER REFERENCES study_systems(id) ON UPDATE CASCADE ON DELETE RESTRICT",
         "ALTER TABLE study_systems ADD COLUMN calculation_weights TEXT DEFAULT '10:20:30:40'",
+        # New fields: prefix (short code) and period_display ('year' or 'semester')
+        "ALTER TABLE study_systems ADD COLUMN prefix TEXT DEFAULT ''",
+        "ALTER TABLE study_systems ADD COLUMN period_display TEXT DEFAULT 'semester' CHECK(period_display IN ('year','semester'))",
     ]
     for sql in migrations:
         try:
@@ -95,6 +97,36 @@ def _migrate_db(conn: sqlite3.Connection) -> None:
             log.info("Migration applied: %s", sql[:70])
         except sqlite3.OperationalError:
             pass
+
+    # Backfill study_system_id = 2 (semester) for students where it is NULL
+    # (legacy data imported before study_system_id column existed)
+    try:
+        conn.execute(
+            "UPDATE students SET study_system_id = 2 "
+            "WHERE study_system_id IS NULL AND "
+            "id IN (SELECT DISTINCT student_id FROM academic_periods WHERE study_system_id = 2)"
+        )
+        conn.execute(
+            "UPDATE students SET study_system_id = 1 "
+            "WHERE study_system_id IS NULL AND "
+            "id IN (SELECT DISTINCT student_id FROM academic_periods WHERE study_system_id = 1)"
+        )
+        # Remaining NULLs fall back to semester (system 2) as default
+        conn.execute(
+            "UPDATE students SET study_system_id = 2 WHERE study_system_id IS NULL"
+        )
+        # Backfill period_display on study_systems seeded rows
+        conn.execute(
+            "UPDATE study_systems SET period_display = 'year' "
+            "WHERE calculation_rule = 'annual' AND (period_display IS NULL OR period_display = '')"
+        )
+        conn.execute(
+            "UPDATE study_systems SET period_display = 'semester' "
+            "WHERE calculation_rule = 'semester' AND (period_display IS NULL OR period_display = '')"
+        )
+        log.info("Backfill of study_system_id and period_display complete.")
+    except sqlite3.Error as e:
+        log.warning("Backfill warning (non-fatal): %s", e)
 
 
 def _create_tables(conn: sqlite3.Connection) -> None:

@@ -73,10 +73,24 @@ def refresh_config():
             
             accent = settings.get("accent_color", "blue")
             if accent in ["orange", "purple", "red"]:
-                import os
+                import os, json
                 theme_path = os.path.join(os.getcwd(), "themes", f"{accent}.json")
                 if os.path.exists(theme_path):
-                    ctk.set_default_color_theme(theme_path)
+                    ctk.set_default_color_theme("blue")  # Load base first
+                    try:
+                        with open(theme_path, "r", encoding="utf-8") as f:
+                            custom = json.load(f)
+                        
+                        from customtkinter import ThemeManager
+                        def deep_update(d, u):
+                            for k, v in u.items():
+                                if isinstance(v, dict) and k in d and isinstance(d[k], dict):
+                                    deep_update(d[k], v)
+                                else:
+                                    d[k] = v
+                        deep_update(ThemeManager.theme, custom)
+                    except Exception as e:
+                        print(f"Error merging custom theme {accent}: {e}")
                 else:
                     ctk.set_default_color_theme("blue")
             else:

@@ -15,7 +15,8 @@ import customtkinter as ctk
 
 from config import AppFonts, AppColors
 from data.queries import (
-    get_all_personal, insert_personal, update_personal, deactivate_personal, delete_personal
+    get_all_personal, insert_personal, update_personal, 
+    deactivate_personal, activate_personal, delete_personal
 )
 from ui.base_screen import BaseScreen
 from ui.side_panel import SidePanel
@@ -168,10 +169,10 @@ class PersonalScreen(BaseScreen):
         # Record list
         self._list = RecordList(self, columns=self.COLUMNS,
                                 on_edit=self._panel.open_edit,
-                                on_delete=self._handle_delete_click)
-        # self._list = RecordList(self, columns=self.COLUMNS,
-        #                         on_edit=self._panel.open_edit,
-        #                         on_delete=self._confirm_deactivate)
+                                on_delete=self._handle_delete_click,
+                                on_extra=self._handle_status_click,
+                                extra_label="تغيير الحالة\nStatus",
+                                extra_color=AppColors.ACCENT_ORANGE)
         self._list.grid(row=2, column=0, sticky="nsew")
 
         # Pagination bar
@@ -202,10 +203,10 @@ class PersonalScreen(BaseScreen):
             "✅ نشط" if r["is_active"] else "⛔ غير نشط",
         ])
 
-    def _handle_delete_click(self, row: dict) -> None:
-        """Determines whether to offer Deactivation or Hard Delete based on current status."""
+    def _handle_status_click(self, row: dict) -> None:
+        """Toggle between Active and Inactive status."""
         if row.get("is_active"):
-            # Stage 1: Offer Deactivation
+            # Deactivate
             self.show_confirm(
                 message=(f"هل تريد إلغاء تفعيل: {row['name_ar']}؟\n"
                          f"Deactivate: {row['name_en']}?\n\n"
@@ -214,26 +215,46 @@ class PersonalScreen(BaseScreen):
                 on_confirm=lambda: self._deactivate(row),
             )
         else:
-            # Stage 2: Offer Permanent Deletion
+            # Activate
             self.show_confirm(
-                message=(f"هذا الكادر غير نشط. هل أنت متأكد من حذفه نهائياً؟\n"
-                         f"This person is inactive. Are you sure you want to permanently delete:\n\n"
-                         f"{row['name_ar']} / {row['name_en']}?\n\n"
-                         "تحذير: لا يمكن التراجع عن هذا الإجراء.\n"
-                         "Warning: This action cannot be undone."),
-                on_confirm=lambda: self._delete(row),
+                message=(f"هل تريد إعادة تفعيل: {row['name_ar']}؟\n"
+                         f"Activate: {row['name_en']}?\n\n"
+                         "سيظهر هذا الكادر مرة أخرى في قوائم الاختيار.\n"
+                         "This person will appear again in selection lists."),
+                on_confirm=lambda: self._activate(row),
             )
+
+    def _activate(self, row: dict) -> None:
+        activate_personal(row["id"])
+        self.refresh()
 
     def _deactivate(self, row: dict) -> None:
         deactivate_personal(row["id"])
         self.refresh()
+
+    def _handle_delete_click(self, row: dict) -> None:
+        """Handle permanent deletion of a signatory."""
+        warning = ""
+        if row.get("is_active"):
+            warning = ("تحذير: هذا الكادر لا يزال نشطاً. يفضل إلغاء التفعيل بدلاً من الحذف.\n"
+                       "Warning: This person is still active. Deactivation is recommended instead of deletion.\n\n")
+        
+        self.show_confirm(
+            message=(f"{warning}هل أنت متأكد من حذف هذا السجل نهائياً؟\n"
+                     f"Are you sure you want to permanently delete:\n\n"
+                     f"{row['name_ar']} / {row['name_en']}?\n\n"
+                     "لا يمكن التراجع عن هذا الإجراء.\n"
+                     "This action cannot be undone."),
+            on_confirm=lambda: self._delete(row),
+        )
 
     def _delete(self, row: dict) -> None:
         try:
             delete_personal(row["id"])
             self.refresh()
         except Exception as e:
-            self.show_error(f"Cannot delete record. It may be linked to existing data.\nError: {e}")
+            self.show_error(f"Cannot delete record. It may be linked to existing data (audit logs, etc).\nError: {e}")
+
 
     # def _confirm_deactivate(self, row: dict) -> None:
     #     if not row["is_active"]:

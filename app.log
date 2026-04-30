@@ -1,0 +1,121 @@
+2026-04-30 09:34:50,002 [INFO] __main__: Application starting...
+2026-04-30 09:34:50,002 [INFO] db: Initializing database at: F:\CR_PY\certificate_manager\certificate_manager.db
+2026-04-30 09:34:50,008 [INFO] db: All tables created (or already exist).
+2026-04-30 09:34:50,009 [INFO] db: Backfill of study_system_id and period_display complete.
+2026-04-30 09:34:50,010 [INFO] db: All indexes created (or already exist).
+2026-04-30 09:34:50,010 [INFO] db: Study systems seeded (or already exist).
+2026-04-30 09:34:50,010 [INFO] db: Governorates already seeded (18 rows). Skipping.
+2026-04-30 09:34:50,011 [INFO] db: Countries already seeded (195 rows). Skipping.
+2026-04-30 09:34:50,011 [INFO] db: Database initialization complete.
+2026-04-30 09:35:10,332 [INFO] __main__: Application closed normally.
+2026-04-30 09:41:05,309 [INFO] __main__: Application starting...
+2026-04-30 09:41:05,309 [INFO] db: Initializing database at: F:\CR_PY\certificate_manager\certificate_manager.db
+2026-04-30 09:41:05,311 [INFO] db: All tables created (or already exist).
+2026-04-30 09:41:05,312 [INFO] db: Backfill of study_system_id and period_display complete.
+2026-04-30 09:41:05,312 [INFO] db: All indexes created (or already exist).
+2026-04-30 09:41:05,312 [INFO] db: Study systems seeded (or already exist).
+2026-04-30 09:41:05,313 [INFO] db: Governorates already seeded (18 rows). Skipping.
+2026-04-30 09:41:05,313 [INFO] db: Countries already seeded (195 rows). Skipping.
+2026-04-30 09:41:05,313 [INFO] db: Database initialization complete.
+2026-04-30 09:41:47,062 [INFO] __main__: Application closed normally.
+2026-04-30 09:45:30,247 [INFO] __main__: Application starting...
+2026-04-30 09:45:30,248 [INFO] db: Initializing database at: F:\CR_PY\certificate_manager\certificate_manager.db
+2026-04-30 09:45:30,251 [INFO] db: All tables created (or already exist).
+2026-04-30 09:45:30,251 [INFO] db: Backfill of study_system_id and period_display complete.
+2026-04-30 09:45:30,252 [INFO] db: All indexes created (or already exist).
+2026-04-30 09:45:30,252 [INFO] db: Study systems seeded (or already exist).
+2026-04-30 09:45:30,252 [INFO] db: Governorates already seeded (18 rows). Skipping.
+2026-04-30 09:45:30,252 [INFO] db: Countries already seeded (195 rows). Skipping.
+2026-04-30 09:45:30,252 [INFO] db: Database initialization complete.
+2026-04-30 09:45:49,795 [ERROR] __main__: Unhandled exception in Tkinter callback:
+Traceback (most recent call last):
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\tkinter\__init__.py", line 2093, in __call__
+    return self.func(*args)
+           ~~~~~~~~~^^^^^^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\customtkinter\windows\widgets\ctk_button.py", line 554, in _clicked
+    self._command()
+    ~~~~~~~~~~~~~^^
+  File "f:\CR_PY\certificate_manager\ui\base_screen.py", line 263, in _on_yes
+    on_confirm()
+    ~~~~~~~~~~^^
+  File "f:\CR_PY\certificate_manager\screens\personal_screen.py", line 224, in <lambda>
+    on_confirm=lambda: self._activate(row),
+                       ~~~~~~~~~~~~~~^^^^^
+  File "f:\CR_PY\certificate_manager\screens\personal_screen.py", line 228, in _activate
+    activate_personal(row["id"])
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^
+  File "f:\CR_PY\certificate_manager\data\queries.py", line 510, in activate_personal
+    _log_personal_snapshot(conn, "activate", person_id)
+    ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "f:\CR_PY\certificate_manager\data\queries.py", line 374, in _log_personal_snapshot
+    conn.execute(
+    ~~~~~~~~~~~~^
+        "INSERT INTO audit_log (table_name, record_id, action, summary) "
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<2 lines>...
+         f"{action} signatory id={person_id} ({row['name_ar'] if row else '?'})")
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+sqlite3.IntegrityError: CHECK constraint failed: action IN ('INSERT','UPDATE','DELETE','ERROR')
+2026-04-30 09:45:56,661 [ERROR] __main__: Unhandled exception in Tkinter callback:
+Traceback (most recent call last):
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\tkinter\__init__.py", line 2093, in __call__
+    return self.func(*args)
+           ~~~~~~~~~^^^^^^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\customtkinter\windows\widgets\ctk_button.py", line 554, in _clicked
+    self._command()
+    ~~~~~~~~~~~~~^^
+  File "f:\CR_PY\certificate_manager\ui\base_screen.py", line 263, in _on_yes
+    on_confirm()
+    ~~~~~~~~~~^^
+  File "f:\CR_PY\certificate_manager\screens\personal_screen.py", line 224, in <lambda>
+    on_confirm=lambda: self._activate(row),
+                       ~~~~~~~~~~~~~~^^^^^
+  File "f:\CR_PY\certificate_manager\screens\personal_screen.py", line 228, in _activate
+    activate_personal(row["id"])
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^
+  File "f:\CR_PY\certificate_manager\data\queries.py", line 510, in activate_personal
+    _log_personal_snapshot(conn, "activate", person_id)
+    ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "f:\CR_PY\certificate_manager\data\queries.py", line 374, in _log_personal_snapshot
+    conn.execute(
+    ~~~~~~~~~~~~^
+        "INSERT INTO audit_log (table_name, record_id, action, summary) "
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<2 lines>...
+         f"{action} signatory id={person_id} ({row['name_ar'] if row else '?'})")
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+sqlite3.IntegrityError: CHECK constraint failed: action IN ('INSERT','UPDATE','DELETE','ERROR')
+2026-04-30 09:46:27,325 [INFO] __main__: Application closed normally.
+2026-04-30 09:49:02,248 [INFO] __main__: Application starting...
+2026-04-30 09:49:02,249 [INFO] db: Initializing database at: F:\CR_PY\certificate_manager\certificate_manager.db
+2026-04-30 09:49:02,251 [INFO] db: All tables created (or already exist).
+2026-04-30 09:49:02,251 [INFO] db: Backfill of study_system_id and period_display complete.
+2026-04-30 09:49:02,252 [INFO] db: All indexes created (or already exist).
+2026-04-30 09:49:02,252 [INFO] db: Study systems seeded (or already exist).
+2026-04-30 09:49:02,252 [INFO] db: Governorates already seeded (18 rows). Skipping.
+2026-04-30 09:49:02,253 [INFO] db: Countries already seeded (195 rows). Skipping.
+2026-04-30 09:49:02,253 [INFO] db: Database initialization complete.
+2026-04-30 10:00:49,826 [INFO] __main__: Application closed normally.
+2026-04-30 10:00:54,154 [INFO] __main__: Application starting...
+2026-04-30 10:00:54,154 [INFO] db: Initializing database at: F:\CR_PY\certificate_manager\certificate_manager.db
+2026-04-30 10:00:54,156 [INFO] db: All tables created (or already exist).
+2026-04-30 10:00:54,157 [INFO] db: Backfill of study_system_id and period_display complete.
+2026-04-30 10:00:54,157 [INFO] db: All indexes created (or already exist).
+2026-04-30 10:00:54,158 [INFO] db: Study systems seeded (or already exist).
+2026-04-30 10:00:54,158 [INFO] db: Governorates already seeded (18 rows). Skipping.
+2026-04-30 10:00:54,158 [INFO] db: Countries already seeded (195 rows). Skipping.
+2026-04-30 10:00:54,158 [INFO] db: Database initialization complete.
+2026-04-30 10:02:39,961 [INFO] __main__: Application closed normally.
+2026-04-30 10:08:18,464 [INFO] __main__: Application starting...
+2026-04-30 10:08:18,465 [INFO] db: Initializing database at: F:\CR_PY\certificate_manager\certificate_manager.db
+2026-04-30 10:08:18,466 [INFO] db: All tables created (or already exist).
+2026-04-30 10:08:18,467 [INFO] db: Backfill of study_system_id and period_display complete.
+2026-04-30 10:08:18,468 [INFO] db: All indexes created (or already exist).
+2026-04-30 10:08:18,468 [INFO] db: Study systems seeded (or already exist).
+2026-04-30 10:08:18,468 [INFO] db: Governorates already seeded (18 rows). Skipping.
+2026-04-30 10:08:18,468 [INFO] db: Countries already seeded (195 rows). Skipping.
+2026-04-30 10:08:18,468 [INFO] db: Database initialization complete.

@@ -121,7 +121,10 @@ def get_all_study_systems() -> list[Row]:
     """Return all study systems ordered by id."""
     with get_connection() as conn:
         rows = conn.execute(
-            "SELECT id, name_ar, name_en, calculation_rule, calculation_weights, is_active, created_at "
+            "SELECT id, name_ar, name_en, calculation_rule, calculation_weights, "
+            "is_active, created_at, "
+            "COALESCE(prefix, '') as prefix, "
+            "COALESCE(period_display, 'semester') as period_display "
             "FROM study_systems ORDER BY id"
         ).fetchall()
     return _rows_to_dicts(rows)
@@ -131,7 +134,9 @@ def get_active_study_systems() -> list[Row]:
     """Return only active study systems."""
     with get_connection() as conn:
         rows = conn.execute(
-            "SELECT id, name_ar, name_en, calculation_rule, calculation_weights "
+            "SELECT id, name_ar, name_en, calculation_rule, calculation_weights, "
+            "COALESCE(prefix, '') as prefix, "
+            "COALESCE(period_display, 'semester') as period_display "
             "FROM study_systems WHERE is_active = 1 ORDER BY id"
         ).fetchall()
     return _rows_to_dicts(rows)
@@ -140,17 +145,22 @@ def get_active_study_systems() -> list[Row]:
 def get_study_system_by_id(ss_id: int) -> Row | None:
     with get_connection() as conn:
         row = conn.execute(
-            "SELECT id, name_ar, name_en, calculation_rule, is_active "
+            "SELECT id, name_ar, name_en, calculation_rule, is_active, "
+            "COALESCE(prefix, '') as prefix, "
+            "COALESCE(period_display, 'semester') as period_display "
             "FROM study_systems WHERE id = ?", (ss_id,)
         ).fetchone()
     return _row_to_dict(row) if row else None
 
 
-def insert_study_system(name_ar: str, name_en: str, calculation_rule: str, calculation_weights: str = "10:20:30:40") -> int:
+def insert_study_system(name_ar: str, name_en: str, calculation_rule: str,
+                        calculation_weights: str = "10:20:30:40",
+                        prefix: str = "", period_display: str = "semester") -> int:
     with get_connection() as conn:
         cur = conn.execute(
-            "INSERT INTO study_systems (name_ar, name_en, calculation_rule, calculation_weights) VALUES (?, ?, ?, ?)",
-            (name_ar, name_en, calculation_rule, calculation_weights)
+            "INSERT INTO study_systems (name_ar, name_en, calculation_rule, calculation_weights, prefix, period_display) "
+            "VALUES (?, ?, ?, ?, ?, ?)",
+            (name_ar, name_en, calculation_rule, calculation_weights, prefix, period_display)
         )
         conn.commit()
         new_id = cur.lastrowid
@@ -158,11 +168,15 @@ def insert_study_system(name_ar: str, name_en: str, calculation_rule: str, calcu
     return new_id
 
 
-def update_study_system(ss_id: int, name_ar: str, name_en: str, calculation_rule: str, calculation_weights: str, is_active: int) -> None:
+def update_study_system(ss_id: int, name_ar: str, name_en: str, calculation_rule: str,
+                        calculation_weights: str, is_active: int,
+                        prefix: str = "", period_display: str = "semester") -> None:
     with get_connection() as conn:
         conn.execute(
-            "UPDATE study_systems SET name_ar=?, name_en=?, calculation_rule=?, calculation_weights=?, is_active=? WHERE id=?",
-            (name_ar, name_en, calculation_rule, calculation_weights, is_active, ss_id)
+            "UPDATE study_systems SET name_ar=?, name_en=?, calculation_rule=?, "
+            "calculation_weights=?, is_active=?, prefix=?, period_display=? WHERE id=?",
+            (name_ar, name_en, calculation_rule, calculation_weights, is_active,
+             prefix, period_display, ss_id)
         )
         conn.commit()
     insert_audit_log("study_systems", "UPDATE", f"تم تعديل نظام الدراسة: {name_ar}")
@@ -354,10 +368,13 @@ def _log_personal_snapshot(conn, action: str, person_id: int) -> None:
              row["responsibility_ar"], row["responsibility_en"],
              row["display_order"], row["page_location"], row["is_active"])
         )
+    # audit_log only accepts: INSERT, UPDATE, DELETE, ERROR
+    audit_action = "UPDATE" if action in ("deactivate", "activate") else action.upper()
+
     conn.execute(
         "INSERT INTO audit_log (table_name, record_id, action, summary) "
         "VALUES ('personal', ?, ?, ?)",
-        (person_id, action.upper(),
+        (person_id, audit_action,
          f"{action} signatory id={person_id} ({row['name_ar'] if row else '?'})")
     )
 
@@ -474,7 +491,7 @@ def deactivate_personal(person_id: int) -> None:
     """
     with get_connection() as conn:
         _log_personal_snapshot(conn, "deactivate", person_id)
-        # 1. Grab the name before we delete them so we can log it
+        # 1. Grab the name before we update them so we can log it
         personal = conn.execute("SELECT name_ar FROM personal WHERE id = ?", (person_id,)).fetchone()
         personal_name = personal["name_ar"] if personal else f"ID: {person_id}"
         conn.execute(
@@ -483,6 +500,23 @@ def deactivate_personal(person_id: int) -> None:
         )
         conn.commit()
     insert_audit_log("personal", "UPDATE", f"تم إلغاء تفعيل الكادر: {personal_name}")
+
+
+def activate_personal(person_id: int) -> None:
+    """
+    Restore a signatory to active status (is_active = 1).
+    """
+    with get_connection() as conn:
+        _log_personal_snapshot(conn, "activate", person_id)
+        personal = conn.execute("SELECT name_ar FROM personal WHERE id = ?", (person_id,)).fetchone()
+        personal_name = personal["name_ar"] if personal else f"ID: {person_id}"
+        conn.execute(
+            "UPDATE personal SET is_active = 1 WHERE id = ?",
+            (person_id,)
+        )
+        conn.commit()
+    insert_audit_log("personal", "UPDATE", f"تم إعادة تفعيل الكادر: {personal_name}")
+
 
 def delete_personal(person_id: int) -> None:
     """Permanently deletes a signatory from the database."""
@@ -1486,6 +1520,77 @@ def count_students_for_order(
         ).fetchone()[0]
 
 
+# =============================================================================
+# GRADUATION ORDERS - LINKING STUDENTS
+# =============================================================================
+
+def get_students_for_order(order_id: int) -> list[Row]:
+    with get_connection() as conn:
+        rows = conn.execute(
+            "SELECT id, full_name_ar, average, order_id "
+            "FROM students WHERE order_id = ? ORDER BY full_name_ar",
+            (order_id,)
+        ).fetchall()
+    return _rows_to_dicts(rows)
+
+def search_students_for_order(name_query: str, admission_year: int | None, department_id: int | None, limit: int) -> list[Row]:
+    query = (
+        "SELECT s.id, s.full_name_ar, s.admission_year, s.order_id, "
+        "d.name_ar as dept_name_ar "
+        "FROM students s "
+        "LEFT JOIN departments d ON s.department_id = d.id "
+        "WHERE 1=1"
+    )
+    params = []
+    
+    if name_query:
+        query += " AND s.full_name_ar LIKE ?"
+        params.append(f"%{name_query}%")
+    
+    if admission_year:
+        query += " AND s.admission_year = ?"
+        params.append(admission_year)
+        
+    if department_id:
+        query += " AND s.department_id = ?"
+        params.append(department_id)
+        
+    query += " ORDER BY s.full_name_ar LIMIT ?"
+    params.append(limit)
+    
+    with get_connection() as conn:
+        rows = conn.execute(query, params).fetchall()
+    return _rows_to_dicts(rows)
+
+def link_students_to_order(order_id: int) -> int:
+    with get_connection() as conn:
+        order = conn.execute(
+            "SELECT department_id, admission_year, study_type, order_date, graduation_semester "
+            "FROM graduation_orders WHERE id = ?",
+            (order_id,)
+        ).fetchone()
+        
+        if not order:
+            return 0
+            
+        cur = conn.execute(
+            "UPDATE students SET order_id = ?, graduation_date = ?, graduation_semester = ? "
+            "WHERE department_id = ? AND admission_year = ? AND study_type = ? AND order_id IS NULL",
+            (order_id, order["order_date"], order["graduation_semester"],
+             order["department_id"], order["admission_year"], order["study_type"])
+        )
+        conn.commit()
+        return cur.rowcount
+
+def unlink_student_from_order(student_id: int) -> None:
+    with get_connection() as conn:
+        conn.execute(
+            "UPDATE students SET order_id = NULL, graduation_date = NULL, graduation_semester = NULL "
+            "WHERE id = ?",
+            (student_id,)
+        )
+        conn.commit()
+    insert_audit_log("students", "UPDATE", f"تم إلغاء ربط الطالب {student_id} من الأمر الجامعي")
 # =============================================================================
 # CERTIFICATE GENERATION
 # =============================================================================

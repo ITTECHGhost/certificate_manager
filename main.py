@@ -29,6 +29,8 @@
 #
 # =============================================================================
 
+import sys
+import logging
 import customtkinter as ctk
 from db import init_db
 from config import (
@@ -49,8 +51,27 @@ from screens.certificate_screen import CertificateScreen
 from screens.settings_screen import SettingsScreen
 
 # ---------------------------------------------------------------------------
+# Global logging — captures errors and warnings to app.log
+# ---------------------------------------------------------------------------
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
+    handlers=[
+        logging.FileHandler("app.log", mode="a", encoding="utf-8"),
+        logging.StreamHandler(sys.stdout)
+    ]
+)
+logger = logging.getLogger(__name__)
+logging.captureWarnings(True)
+
+logger.info("Application starting...")
+
+# ---------------------------------------------------------------------------
 # Global appearance — must be set before any CTk widget is created
 # ---------------------------------------------------------------------------
+# Initialize DB and apply saved theme BEFORE creating any CTk widgets.
+init_db()
+refresh_config()
 
 
 # ===========================================================================
@@ -274,12 +295,19 @@ class CertificateManagerApp(ctk.CTk):
 
     def __init__(self) -> None:
         super().__init__()
+        # Hook into tkinter error handling to log callback exceptions
+        self.report_callback_exception = self._on_tkinter_error
+        
         self._setup_window()
-        init_db()
-        refresh_config() # Apply user preferences (theme, fonts, etc.)
+        # init_db() and refresh_config() already ran at module level
         self._build_layout()
         self._build_screens()
         self._show_screen("home")       # start on the home / dashboard screen
+
+    def _on_tkinter_error(self, exc, val, tb):
+        """Log unhandled exceptions in Tkinter callbacks to app.log."""
+        logger.error("Unhandled exception in Tkinter callback:", exc_info=(exc, val, tb))
+
 
     # -------------------------------------------------------------------------
     # Window setup
@@ -408,5 +436,11 @@ class CertificateManagerApp(ctk.CTk):
 # ===========================================================================
 
 if __name__ == "__main__":
-    app = CertificateManagerApp()
-    app.mainloop()
+    try:
+        app = CertificateManagerApp()
+        app.mainloop()
+        logger.info("Application closed normally.")
+    except Exception:
+        logger.exception("A critical error occurred that caused the application to crash:")
+        sys.exit(1)
+

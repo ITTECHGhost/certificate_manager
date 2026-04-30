@@ -301,9 +301,13 @@ class CertificateScreen(BaseScreen):
             if templates:
                 self._template_dropdown.set(templates[0])
 
+            # Terminology for preview
+            system_name = data.get("study_system_name_en", "")
+            term = "Year" if "Annual" in system_name else "Semester"
+
             preview_lines = ["--- LIVE PREVIEW / معاينة ---", ""]
             for period in data.get("periods", []):
-                preview_lines.append(f"[{period['academic_year']} - Semester {period['stage_number']}]")
+                preview_lines.append(f"[{period['academic_year']} - {term} {period['stage_number']}]")
                 for enr in period.get("enrollments", []):
                     preview_lines.append(f"  • {enr.get('name_en', '')[:30]:<30} | Mark: {enr.get('score', '')} | Unit: {enr.get('credit_hours', '')}")
                 preview_lines.append("")
@@ -355,27 +359,36 @@ class CertificateScreen(BaseScreen):
                 self._opt_sequence.deselect()
 
             self._enable_buttons()
+
+            # --- NEW: Defaults for Summer, Postponement, Second Trial ---
+            self._summer_entry.delete(0, 'end')
+            self._postpone_entry.delete(0, 'end')
+            self._second_trial_entry.delete(0, 'end')
+
+            # 1. Summer Training Year (Graduation Year - 1)
+            # We look at graduation_date (formatted as YYYY-MM-DD in DB)
+            grad_date = data.get("graduation_date")
+            if grad_date:
+                try:
+                    grad_year = int(str(grad_date).split("-")[0])
+                    self._summer_entry.insert(0, str(grad_year - 1))
+                    self._opt_summer.select()
+                except (ValueError, IndexError):
+                    self._opt_summer.deselect()
+            else:
+                self._opt_summer.deselect()
+            
+            # 2. Postponement (Default: Nill)
+            self._postpone_entry.insert(0, "Nill")
+            self._opt_postpone.select()
+
+            # 3. Second Trial (Default: Nill)
+            self._second_trial_entry.insert(0, "Nill")
+            self._opt_second_trial.select()
             # -----------------------------------------------
-
-            # self._preview_textbox.configure(state="normal")
-            # self._preview_textbox.delete("1.0", "end")
-            # self._preview_textbox.insert("1.0", "\n".join(preview_lines))
-            # self._preview_textbox.configure(state="disabled")
-
-            # Reset order entries
-            # self._order_num_entry.delete(0, 'end')
-            # self._order_date_entry.delete(0, 'end')
-
-            # if data.get("order_number"):
-            #     self._opt_order.select()
-            #     self._order_num_entry.insert(0, data.get("order_number"))
-            #     self._order_date_entry.insert(0, data.get("order_date", ""))
-            # else:
-            #     self._opt_order.deselect()
-
-            # self._enable_buttons()
         except Exception as e:
             self.show_error(f"Error loading student: {e}")
+
 
     # --- Generation Logic ---
     def _build_context(self) -> dict:
@@ -398,6 +411,11 @@ class CertificateScreen(BaseScreen):
             if val is None or val == "":
                 return ""
             val_str = str(val)
+
+            # Translation for "Nill" in Arabic certificates
+            if not is_english and val_str.lower() == "nill":
+                return "لا يوجد"
+
             # Clean up awkward ".0" decimals (e.g., "53.0" becomes "53")
             if val_str.endswith(".0"):
                 val_str = val_str[:-2]
@@ -442,44 +460,58 @@ class CertificateScreen(BaseScreen):
         paired_semesters = []
         periods = data.get("periods", [])
 
-        # Process periods two at a time (0, 2, 4, 6...)
+        # Detect System
+        is_annual = data.get("study_system_name_en") == "Annual System"    
+
         for i in range(0, len(periods), 2):
             left_period = periods[i]
             right_period = periods[i+1] if i + 1 < len(periods) else None
 
-            # 1. Build Headers for this pair (Wrapped in _localize)
-            left_stage = _localize(left_period['stage_number'])
-            left_year = _localize(left_period['academic_year'])
-            left_label = f"Stage 2" if is_english else f"الفصل 2"
-            
-            right_label = ""
-            if right_period:
-                right_stage = _localize(right_period['stage_number'])
-                right_year = _localize(right_period['academic_year'])
-                right_label = f"Stage 1" if is_english else f"الفصل 1"
+            # 1. Build Headers and Labels
+            if is_annual:
+                # Annual: Each side shows a whole year. Row year label is usually empty.
+                left_year = _localize(left_period['academic_year'])
+                left_label = f"Year: {left_year}" if is_english else f"العام: {left_year}"
+                
+                right_label = ""
+                if right_period:
+                    right_year = _localize(right_period['academic_year'])
+                    right_label = f"Year: {right_year}" if is_english else f"العام: {right_year}"
+                
+                row_year_display = "" # Years vary across sides
+            else:
+                # Semester: One year per row, two semesters side-by-side.
+                left_label = f"Stage 1" if is_english else f"الفصل 1"
+                right_label = f"Stage 2" if is_english else f"الفصل 2" if right_period else ""
+                
+                row_year_display = _localize(left_period['academic_year'])
 
             # 2. Extract Courses
             left_courses = left_period.get("enrollments", [])
             right_courses = right_period.get("enrollments", []) if right_period else []
 
-            # 3. Zip courses row-by-row (Wrapped marks and units in _localize)
+            # 3. Zip courses row-by-row
             doc_rows = []
             blank_course = {} 
             for left, right in zip_longest(left_courses, right_courses, fillvalue=blank_course):
                 doc_rows.append({
-                    "left_subj": _localize(left.get("name_en" if is_english else "name_ar", "")),
+                    "left_name": _localize(left.get("name_en" if is_english else "name_ar", "")),
                     "left_mark": _localize(left.get("score", "")),
                     "left_unit": _localize(left.get("credit_hours", "")),
                     
-                    "right_subj": _localize(right.get("name_en" if is_english else "name_ar", "")),
+                    "right_name": _localize(right.get("name_en" if is_english else "name_ar", "")),
                     "right_mark": _localize(right.get("score", "")),
-                    "right_unit": _localize(right.get("credit_hours", ""))
+                    "right_unit": _localize(right.get("credit_hours", "")),
+                    
+                    # Keep old keys for safety
+                    "left_subj": _localize(left.get("name_en" if is_english else "name_ar", "")),
+                    "right_subj": _localize(right.get("name_en" if is_english else "name_ar", "")),
                 })
 
             paired_semesters.append({
                 "left_label": left_label,
                 "right_label": right_label,
-                "year_label": _localize(left_year),
+                "year_label": row_year_display,
                 "rows": doc_rows
             })
 
@@ -507,13 +539,15 @@ class CertificateScreen(BaseScreen):
             "sequence_ON": bool(data.get("rank")),
             "Failure_ON": bool(self._opt_postpone.get()),
             "Passed_ON": bool(self._opt_second_trial.get()),
+            "Summer_ON": bool(self._opt_summer.get()),
 
             "Sequence_of_Graduation": _localize(data.get("rank", "")),
             "num_students": _localize(data.get("total_graduates", "")),
             "Average_of_First_Student": _localize(data.get("top_average", "")),
             
             "paired_semesters": paired_semesters,
-            "paired_years": paired_semesters  # New templates use paired_years for annual systems
+            "paired_years": paired_semesters,  # Backward compatibility
+            "semesters": paired_semesters      # New templates expect this
         }
 
         # Signatories

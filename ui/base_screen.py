@@ -116,7 +116,7 @@ class BaseScreen(ctk.CTkFrame, ABC):
         """
         dialog = ctk.CTkToplevel(self)
         dialog.title(title)
-        dialog.geometry("420x180")
+        dialog.geometry("420x220")
         dialog.resizable(False, False)
         dialog.grab_set()                   # make it modal
         dialog.grid_columnconfigure(0, weight=1)
@@ -152,7 +152,7 @@ class BaseScreen(ctk.CTkFrame, ABC):
         """
         dialog = ctk.CTkToplevel(self)
         dialog.title(title)
-        dialog.geometry("420x180")
+        dialog.geometry("420x220")
         dialog.resizable(False, False)
         dialog.grab_set()
         dialog.grid_columnconfigure(0, weight=1)
@@ -188,7 +188,7 @@ class BaseScreen(ctk.CTkFrame, ABC):
         """
         dialog = ctk.CTkToplevel(self)
         dialog.title(title)
-        dialog.geometry("420x180")
+        dialog.geometry("420x220")
         dialog.resizable(False, False)
         dialog.grab_set()
         dialog.grid_columnconfigure(0, weight=1)
@@ -236,7 +236,7 @@ class BaseScreen(ctk.CTkFrame, ABC):
         """
         dialog = ctk.CTkToplevel(self)
         dialog.title(title)
-        dialog.geometry("440x200")
+        dialog.geometry("440x260")
         dialog.resizable(False, False)
         dialog.grab_set()
         dialog.grid_columnconfigure(0, weight=1)

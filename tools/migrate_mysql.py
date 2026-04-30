@@ -50,12 +50,14 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 from db import get_connection, init_db
 
 # ── logging ───────────────────────────────────────────────────────────────────
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s  %(message)s",
-    datefmt="%H:%M:%S",
-)
 log = logging.getLogger(__name__)
+
+if __name__ == "__main__":
+    logging.basicConfig(
+        level=logging.INFO,
+        format="%(asctime)s  %(message)s",
+        datefmt="%H:%M:%S",
+    )
 
 
 # =============================================================================
@@ -785,10 +787,16 @@ def migrate_students(
 
         # Skip if already imported (idempotency check on name)
         existing = conn.execute(
-            "SELECT id FROM students WHERE full_name_ar = ?", (name_ar,)
+            "SELECT id, study_system_id FROM students WHERE full_name_ar = ?", (name_ar,)
         ).fetchone()
         if existing:
             map_140[old_id] = existing["id"]
+            # Patch study_system_id if it was NULL (legacy migration)
+            if existing["study_system_id"] is None:
+                conn.execute(
+                    "UPDATE students SET study_system_id = 2 WHERE id = ?",
+                    (existing["id"],)
+                )
             continue
 
         new_id = _insert_student(
@@ -816,10 +824,16 @@ def migrate_students(
         name_ar = _str(row.get("name",  ""))
 
         existing = conn.execute(
-            "SELECT id FROM students WHERE full_name_ar = ?", (name_ar,)
+            "SELECT id, study_system_id FROM students WHERE full_name_ar = ?", (name_ar,)
         ).fetchone()
         if existing:
             map_q[old_id] = existing["id"]
+            # Patch study_system_id if it was NULL (legacy migration)
+            if existing["study_system_id"] is None:
+                conn.execute(
+                    "UPDATE students SET study_system_id = 1 WHERE id = ?",
+                    (existing["id"],)
+                )
             continue
 
         # students_q uses 'role' instead of 'graduation_semester'
