@@ -134,6 +134,19 @@ def _migrate_db(conn: sqlite3.Connection) -> None:
 def _create_tables(conn: sqlite3.Connection) -> None:
     conn.executescript("""
     -- -------------------------------------------------------------------------
+    -- users: Application authentication and role management
+    -- -------------------------------------------------------------------------
+    CREATE TABLE IF NOT EXISTS users (
+        id          INTEGER PRIMARY KEY AUTOINCREMENT,
+        name        TEXT    NOT NULL CHECK(length(name) <= 100),
+        username    TEXT    NOT NULL UNIQUE CHECK(length(username) <= 50),
+        password    TEXT    NOT NULL,
+        role        TEXT    NOT NULL DEFAULT 'user' CHECK(role IN ('admin', 'user')),
+        is_active   INTEGER NOT NULL DEFAULT 1 CHECK(is_active IN (0,1)),
+        created_at  TEXT    NOT NULL DEFAULT (datetime('now'))
+    );
+
+    -- -------------------------------------------------------------------------
     -- study_systems: Dynamic study system definitions (Annual / Semester)
     -- calculation_rule: 'annual' or 'semester' — machine-readable key
     -- -------------------------------------------------------------------------
@@ -385,6 +398,8 @@ def _create_indexes(conn: sqlite3.Connection) -> None:
         ON audit_log(table_name, created_at DESC);
     CREATE INDEX IF NOT EXISTS idx_personal_log_date
         ON personal_log(changed_at DESC);
+    CREATE INDEX IF NOT EXISTS idx_users_username
+        ON users(username);
     """)
     log.info("All indexes created (or already exist).")
 

@@ -151,8 +151,8 @@ class MigrationManager:
             return row[0]
         name_en = "Information Systems" if "نظم" in name_ar else "Computer Science"
         self.cursor.execute(
-            "INSERT INTO departments (name_ar, name_en, college_ar, college_en, study_years, period_type) VALUES (?, ?, ?, ?, ?, ?)",
-            (name_ar, name_en, "كلية علوم الحاسوب وتكنولوجيا المعلومات", "College of Computer Science and IT", 4, period_type)
+            "INSERT INTO departments (name_ar, name_en, college_ar, college_en, study_years) VALUES (?, ?, ?, ?, ?)",
+            (name_ar, name_en, "كلية علوم الحاسوب وتكنولوجيا المعلومات", "College of Computer Science and IT", 4)
         )
         dept_id = self.cursor.lastrowid
         self.dept_map[name_ar] = dept_id
@@ -160,16 +160,34 @@ class MigrationManager:
 
     def run(self):
         logger.info("Starting migration...")
+        
+        # Clear existing data to ensure a clean import and avoid IntegrityErrors
+        logger.info("Clearing existing database tables...")
+        self.cursor.executescript("""
+            DELETE FROM enrollments;
+            DELETE FROM academic_periods;
+            DELETE FROM courses;
+            DELETE FROM students;
+            DELETE FROM graduation_orders;
+            DELETE FROM departments;
+        """)
+        
         parser = SQLParser(self.sql_dump_path)
         
         for table_name, rows in parser.parse():
             logger.info(f"Processing table: {table_name} ({len(rows)} rows)")
-            if table_name in ('students_140', 'students_q'):
-                system_id = 1 if '140' in table_name else 2
-                period_type = 'year' if '140' in table_name else 'semester'
+            if table_name == 'admin':
+                self.migrate_users(rows)
+            elif table_name == 'info_system':
+                self.migrate_info_system(rows)
+            elif table_name == 'order_university':
+                self.migrate_orders(rows)
+            elif table_name in ('students_140', 'students_q'):
+                system_id = 2 if '140' in table_name else 1
+                period_type = 'semester' if '140' in table_name else 'year'
                 self.migrate_students(rows, system_id, period_type)
             elif table_name in ('subjects_students_140', 'subjects_students_q'):
-                period_type = 'year' if '140' in table_name else 'semester'
+                period_type = 'semester' if '140' in table_name else 'year'
                 self.migrate_enrollments(rows, period_type)
             elif table_name == 'signatures':
                 self.migrate_personal(rows)
@@ -177,21 +195,71 @@ class MigrationManager:
         self.conn.commit()
         logger.info("Migration complete.")
 
+    def migrate_users(self, rows):
+        self.cursor.execute("DELETE FROM users")
+        for row in rows:
+            if len(row) < 5: continue
+            role = 'admin' if 'مسؤول' in row[4] else 'user'
+            try:
+                self.cursor.execute(
+                    "INSERT INTO users (id, name, username, password, role) VALUES (?, ?, ?, ?, ?)",
+                    (row[0], row[1], row[2], row[3], role)
+                )
+            except sqlite3.IntegrityError:
+                pass
+
+    def migrate_info_system(self, rows):
+        if not rows: return
+        row = rows[0]
+        if len(row) < 5: return
+        try:
+            self.cursor.execute(
+                "UPDATE settings SET univ_name_ar = ?, college_name_ar = ?, univ_name_en = ?, college_name_en = ? WHERE id = 1",
+                (row[1], row[2], row[3], row[4])
+            )
+        except sqlite3.Error:
+            pass
+
+    def migrate_orders(self, rows):
+        for row in rows:
+            if len(row) < 9: continue
+            dept_id = self.get_or_create_dept(row[1])
+            study_type = 'evening' if 'مسائي' in row[2] else 'morning'
+            admission_year = int(row[3]) if row[3].isdigit() else 2018
+            sem_val = (row[4] if row[4] else '') + ' ' + (row[5] if len(row)>5 and row[5] else '')
+            sem = 'second' if 'ثاني' in sem_val else 'first'
+            num_st = int(row[8]) if row[8] and row[8].isdigit() else None
+            
+            try:
+                self.cursor.execute(
+                    "INSERT INTO graduation_orders (order_number, order_date, department_id, study_type, admission_year, graduation_semester, num_students) "
+                    "VALUES (?, ?, ?, ?, ?, ?, ?)",
+                    (row[6], row[7], dept_id, study_type, admission_year, sem, num_st)
+                )
+            except sqlite3.IntegrityError:
+                pass
+
     def migrate_personal(self, rows):
         for row in rows:
-            if len(row) < 4: continue
+            if len(row) < 37: continue
             self.cursor.execute("DELETE FROM personal")
             sigs = [
-                (row[1], "Director of Registration", "مدير التسجيل", 1, "front"),
-                (row[2], "Department Head", "رئيس القسم", 2, "back"),
-                (row[3], "Dean", "العميد", 3, "back")
+                (row[31], row[34], row[32], row[35], row[33], row[36], 1, "front"),
+                (row[13], row[14], row[15], row[16], row[17], row[18], 2, "front"),
+                (row[7], row[8], row[9], row[10], row[11], row[12], 3, "back"),
+                (row[1], row[2], row[3], row[4], row[5], row[6], 4, "back"),
+                (row[25], row[26], row[27], row[28], row[29], row[30], 5, "back"),
+                (row[19], row[20], row[21], row[22], row[23], row[24], 6, "back")
             ]
-            for name, role_en, role_ar, order, loc in sigs:
-                self.cursor.execute(
-                    "INSERT INTO personal (name_ar, name_en, academic_title_ar, academic_title_en, responsibility_ar, responsibility_en, display_order, page_location, is_active) "
-                    "VALUES (?, ?, ?, ?, ?, ?, ?, ?, 1)",
-                    (name, "", "", "", role_ar, role_en, order, loc)
-                )
+            for s in sigs:
+                try:
+                    self.cursor.execute(
+                        "INSERT INTO personal (name_ar, name_en, academic_title_ar, academic_title_en, responsibility_ar, responsibility_en, display_order, page_location, is_active) "
+                        "VALUES (?, ?, ?, ?, ?, ?, ?, ?, 1)",
+                        s
+                    )
+                except sqlite3.Error:
+                    pass
 
     def migrate_students(self, rows, system_id, period_type):
         for row in rows:
@@ -209,13 +277,30 @@ class MigrationManager:
                 try: avg = round(float(avg_str))
                 except: pass
 
+            admission_year = int(row[6]) if row[6].isdigit() else 2018
+
+            order_number = row[11] if len(row) > 11 else None
+            order_id = None
+            if order_number:
+                self.cursor.execute(
+                    "SELECT id FROM graduation_orders WHERE order_number = ? AND department_id = ? AND study_type = ?", 
+                    (order_number, dept_id, study_type)
+                )
+                orow = self.cursor.fetchone()
+                if orow: 
+                    order_id = orow[0]
+                else:
+                    self.cursor.execute("SELECT id FROM graduation_orders WHERE order_number = ?", (order_number,))
+                    orow = self.cursor.fetchone()
+                    if orow: order_id = orow[0]
+
             try:
                 self.cursor.execute(
-                    "INSERT INTO students (id, full_name_ar, full_name_en, date_of_birth, birthplace_id, nationality_id, department_id, study_system_id, admission_year, study_type, graduation_semester, average) "
-                    "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                    "INSERT INTO students (id, full_name_ar, full_name_en, date_of_birth, birthplace_id, nationality_id, department_id, study_system_id, order_id, admission_year, study_type, graduation_semester, average) "
+                    "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
                     (
                         row[0], row[1], row[2], '2000-01-01', gov_id, country_id, dept_id, 
-                        system_id, int(row[6])-4 if row[6].isdigit() else 2018, 
+                        system_id, order_id, admission_year, 
                         study_type, sem, avg
                     )
                 )
@@ -236,8 +321,8 @@ class MigrationManager:
             if crow: cid = crow[0]
             else:
                 self.cursor.execute(
-                    "INSERT INTO courses (name_ar, name_en, credit_hours, department_id, stage_number, period_type, study_system_id) VALUES (?, ?, ?, ?, ?, ?, ?)",
-                    (n_ar, n_en, int(units) if units and units.isdigit() else 3, 1, 1, period_type, 1 if period_type == 'year' else 2)
+                    "INSERT INTO courses (name_ar, name_en, credit_hours, department_id, stage_number, study_system_id) VALUES (?, ?, ?, ?, ?, ?)",
+                    (n_ar, n_en, int(units) if units and units.isdigit() else 3, 1, 1, 1 if period_type == 'year' else 2)
                 )
                 cid = self.cursor.lastrowid
             
@@ -246,16 +331,16 @@ class MigrationManager:
             
             # 2. Get/Create Academic Period
             self.cursor.execute(
-                "SELECT id FROM academic_periods WHERE student_id = ? AND academic_year = ? AND period_type = ?", 
-                (sid, year_str, period_type)
+                "SELECT id FROM academic_periods WHERE student_id = ? AND academic_year = ? AND study_system_id = ?", 
+                (sid, year_str, 1 if period_type == 'year' else 2)
             )
             prow = self.cursor.fetchone()
             if prow: pid = prow[0]
             else:
                 try:
                     self.cursor.execute(
-                        "INSERT INTO academic_periods (student_id, academic_year, period_type, study_system_id, stage_number, passed_round) VALUES (?, ?, ?, ?, ?, ?)",
-                        (sid, year_str, period_type, 1 if period_type == 'year' else 2, 1, 'first')
+                        "INSERT INTO academic_periods (student_id, academic_year, study_system_id, stage_number, passed_round) VALUES (?, ?, ?, ?, ?)",
+                        (sid, year_str, 1 if period_type == 'year' else 2, 1, 'first')
                     )
                     pid = self.cursor.lastrowid
                 except sqlite3.IntegrityError:
