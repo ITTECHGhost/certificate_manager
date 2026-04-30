@@ -273,6 +273,11 @@ class MigrationManager:
             except sqlite3.IntegrityError:
                 pass
 
+def run_migration(sql_dump_path: str):
+    from db import DB_PATH
+    manager = MigrationManager(sql_dump_path, str(DB_PATH))
+    manager.run()
+
 if __name__ == "__main__":
     SQL_FILE = r"f:\CR_PY\certificate_manager\project2 (2).sql"
     DB_FILE = r"f:\CR_PY\certificate_manager\certificate_manager1.db"

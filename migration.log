@@ -109,3 +109,12 @@
 2026-04-30 13:31:39,085 [INFO] Processing table: subjects_students_q (457 rows)
 2026-04-30 13:31:39,114 [INFO] Processing table: subjects_students_q (338 rows)
 2026-04-30 13:31:39,131 [INFO] Migration complete.
+2026-04-30 21:05:22,708 [INFO] Application starting...
+2026-04-30 21:05:22,710 [INFO] Initializing database at: C:\Users\alhayat\Music\certificate_manager\certificate_manager.db
+2026-04-30 21:05:22,711 [INFO] All tables created (or already exist).
+2026-04-30 21:05:22,711 [INFO] Backfill of study_system_id and period_display complete.
+2026-04-30 21:05:22,712 [INFO] All indexes created (or already exist).
+2026-04-30 21:05:22,712 [INFO] Study systems seeded (or already exist).
+2026-04-30 21:05:22,712 [INFO] Governorates already seeded (18 rows). Skipping.
+2026-04-30 21:05:22,712 [INFO] Countries already seeded (195 rows). Skipping.
+2026-04-30 21:05:22,712 [INFO] Database initialization complete.
