@@ -20,7 +20,7 @@ class CertificateScreen(BaseScreen):
         self._templates_dir = "templets"
         super().__init__(parent, switch_callback)
 
-    def _get_available_templates(self, calculation_rule: str | None = None) -> list[str]:
+    def _get_available_templates(self, calculation_rule: str | None = None, prefix: str | None = None) -> list[str]:
         """Scans the templets folder for docx files, optionally filtered by study system."""
         if not os.path.exists(self._templates_dir):
             os.makedirs(self._templates_dir, exist_ok=True)
@@ -28,11 +28,22 @@ class CertificateScreen(BaseScreen):
             f for f in os.listdir(self._templates_dir)
             if f.endswith('.docx') and not f.startswith('~')
         ]
-        if calculation_rule and files:
-            rule_map = {"annual": "year", "semester": "semester"}
-            target = rule_map.get(calculation_rule.lower(), calculation_rule.lower())
-            filtered = [f for f in files if target in f.lower() or calculation_rule.lower() in f.lower()]
-            files = filtered if filtered else files  # fallback to all if no match
+        
+        if files:
+            # 1. Prioritize prefix if provided
+            if prefix:
+                prefix_matches = [f for f in files if f.upper().startswith(prefix.upper())]
+                if prefix_matches:
+                    return prefix_matches
+            
+            # 2. Fallback to calculation rule (year/semester)
+            if calculation_rule:
+                rule_map = {"annual": "year", "semester": "semester"}
+                target = rule_map.get(calculation_rule.lower(), calculation_rule.lower())
+                filtered = [f for f in files if target in f.lower() or calculation_rule.lower() in f.lower()]
+                if filtered:
+                    return filtered
+                    
         return files if files else ["لا توجد قوالب (No templates found)"]
 
     def _build(self) -> None:
@@ -297,6 +308,11 @@ class CertificateScreen(BaseScreen):
             # Filter templates based on student's study system
             rule = data.get("calculation_rule")
             templates = self._get_available_templates(rule)
+            # Refresh template list dynamically using prefix
+            templates = self._get_available_templates(
+                calculation_rule=data.get("calculation_rule"),
+                prefix=data.get("study_system_prefix")
+            )
             self._template_dropdown.configure(values=templates)
             if templates:
                 self._template_dropdown.set(templates[0])
@@ -366,15 +382,24 @@ class CertificateScreen(BaseScreen):
             self._second_trial_entry.delete(0, 'end')
 
             # 1. Summer Training Year (Graduation Year - 1)
-            # We look at graduation_date (formatted as YYYY-MM-DD in DB)
-            grad_date = data.get("graduation_date")
+            # Strategy: graduation_date -> order_date -> admission_year + 4
+            grad_date = data.get("graduation_date") or data.get("order_date")
+            grad_year = None
             if grad_date:
                 try:
                     grad_year = int(str(grad_date).split("-")[0])
-                    self._summer_entry.insert(0, str(grad_year - 1))
-                    self._opt_summer.select()
                 except (ValueError, IndexError):
-                    self._opt_summer.deselect()
+                    pass
+            
+            if not grad_year and data.get("admission_year"):
+                try:
+                    grad_year = int(data.get("admission_year")) + 4
+                except (ValueError, TypeError):
+                    pass
+            
+            if grad_year:
+                self._summer_entry.insert(0, str(grad_year - 1))
+                self._opt_summer.select()
             else:
                 self._opt_summer.deselect()
             
@@ -414,7 +439,7 @@ class CertificateScreen(BaseScreen):
 
             # Translation for "Nill" in Arabic certificates
             if not is_english and val_str.lower() == "nill":
-                return "لا يوجد"
+                return "لايوجد"
 
             # Clean up awkward ".0" decimals (e.g., "53.0" becomes "53")
             if val_str.endswith(".0"):
@@ -461,7 +486,7 @@ class CertificateScreen(BaseScreen):
         periods = data.get("periods", [])
 
         # Detect System
-        is_annual = data.get("study_system_name_en") == "Annual System"    
+        is_annual = data.get("period_display") == "year"    
 
         for i in range(0, len(periods), 2):
             left_period = periods[i]

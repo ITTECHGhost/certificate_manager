@@ -13,7 +13,7 @@ env/
 .venv/
 
 # Raw SQL dumps (prevents uploading sensitive student data to GitHub)
-*.sql
+# *.sql
 
 # OS generated files
 .DS_Store

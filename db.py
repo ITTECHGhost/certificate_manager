@@ -24,11 +24,11 @@ def get_connection() -> sqlite3.Connection:
     return conn
 
 
-def insert_study_system(name_ar: str, name_en: str, calculation_rule: str, calculation_weights: str = "10:20:30:40") -> int:
+def insert_study_system(name_ar: str, name_en: str, calculation_rule: str, semester_weight: int = 50, year_weight: int = 25, prefix: str = "", period_display: str = "semester") -> int:
     with get_connection() as conn:
         cur = conn.execute(
-            "INSERT INTO study_systems (name_ar, name_en, calculation_rule, calculation_weights) VALUES (?, ?, ?, ?)",
-            (name_ar, name_en, calculation_rule, calculation_weights)
+            "INSERT INTO study_systems (name_ar, name_en, calculation_rule, semester_weight, year_weight, prefix, period_display) VALUES (?, ?, ?, ?, ?, ?, ?)",
+            (name_ar, name_en, calculation_rule, semester_weight, year_weight, prefix, period_display)
         )
         conn.commit()
         return cur.lastrowid
@@ -90,6 +90,8 @@ def _migrate_db(conn: sqlite3.Connection) -> None:
         # New fields: prefix (short code) and period_display ('year' or 'semester')
         "ALTER TABLE study_systems ADD COLUMN prefix TEXT DEFAULT ''",
         "ALTER TABLE study_systems ADD COLUMN period_display TEXT DEFAULT 'semester' CHECK(period_display IN ('year','semester'))",
+        "ALTER TABLE study_systems ADD COLUMN semester_weight INTEGER DEFAULT 50",
+        "ALTER TABLE study_systems ADD COLUMN year_weight INTEGER DEFAULT 25",
     ]
     for sql in migrations:
         try:
@@ -393,9 +395,9 @@ def _create_indexes(conn: sqlite3.Connection) -> None:
 
 def _seed_study_systems(conn: sqlite3.Connection) -> None:
     conn.execute(
-        "INSERT OR IGNORE INTO study_systems (id, name_ar, name_en, calculation_rule, calculation_weights, is_active) "
-        "VALUES (1, 'النظام السنوي', 'Annual System', 'annual', '10:20:30:40', 1), "
-        "       (2, 'النظام الفصلي', 'Semester System', 'semester', '10:20:30:40', 1)"
+        "INSERT OR IGNORE INTO study_systems (id, name_ar, name_en, calculation_rule, semester_weight, year_weight, prefix, period_display, is_active) "
+        "VALUES (1, 'النظام السنوي', 'Annual System', 'annual', 50, 25, 'A', 'year', 1), "
+        "       (2, 'النظام الفصلي', 'Semester System', 'semester', 50, 25, 'S', 'semester', 1)"
     )
     log.info("Study systems seeded (or already exist).")
 

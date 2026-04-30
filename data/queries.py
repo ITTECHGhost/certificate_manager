@@ -122,6 +122,7 @@ def get_all_study_systems() -> list[Row]:
     with get_connection() as conn:
         rows = conn.execute(
             "SELECT id, name_ar, name_en, calculation_rule, calculation_weights, "
+            "semester_weight, year_weight, "
             "is_active, created_at, "
             "COALESCE(prefix, '') as prefix, "
             "COALESCE(period_display, 'semester') as period_display "
@@ -135,6 +136,7 @@ def get_active_study_systems() -> list[Row]:
     with get_connection() as conn:
         rows = conn.execute(
             "SELECT id, name_ar, name_en, calculation_rule, calculation_weights, "
+            "semester_weight, year_weight, "
             "COALESCE(prefix, '') as prefix, "
             "COALESCE(period_display, 'semester') as period_display "
             "FROM study_systems WHERE is_active = 1 ORDER BY id"
@@ -146,6 +148,7 @@ def get_study_system_by_id(ss_id: int) -> Row | None:
     with get_connection() as conn:
         row = conn.execute(
             "SELECT id, name_ar, name_en, calculation_rule, is_active, "
+            "semester_weight, year_weight, "
             "COALESCE(prefix, '') as prefix, "
             "COALESCE(period_display, 'semester') as period_display "
             "FROM study_systems WHERE id = ?", (ss_id,)
@@ -154,13 +157,13 @@ def get_study_system_by_id(ss_id: int) -> Row | None:
 
 
 def insert_study_system(name_ar: str, name_en: str, calculation_rule: str,
-                        calculation_weights: str = "10:20:30:40",
+                        semester_weight: int = 50, year_weight: int = 25,
                         prefix: str = "", period_display: str = "semester") -> int:
     with get_connection() as conn:
         cur = conn.execute(
-            "INSERT INTO study_systems (name_ar, name_en, calculation_rule, calculation_weights, prefix, period_display) "
-            "VALUES (?, ?, ?, ?, ?, ?)",
-            (name_ar, name_en, calculation_rule, calculation_weights, prefix, period_display)
+            "INSERT INTO study_systems (name_ar, name_en, calculation_rule, semester_weight, year_weight, prefix, period_display) "
+            "VALUES (?, ?, ?, ?, ?, ?, ?)",
+            (name_ar, name_en, calculation_rule, semester_weight, year_weight, prefix, period_display)
         )
         conn.commit()
         new_id = cur.lastrowid
@@ -169,13 +172,13 @@ def insert_study_system(name_ar: str, name_en: str, calculation_rule: str,
 
 
 def update_study_system(ss_id: int, name_ar: str, name_en: str, calculation_rule: str,
-                        calculation_weights: str, is_active: int,
+                        semester_weight: int, year_weight: int, is_active: int,
                         prefix: str = "", period_display: str = "semester") -> None:
     with get_connection() as conn:
         conn.execute(
             "UPDATE study_systems SET name_ar=?, name_en=?, calculation_rule=?, "
-            "calculation_weights=?, is_active=?, prefix=?, period_display=? WHERE id=?",
-            (name_ar, name_en, calculation_rule, calculation_weights, is_active,
+            "semester_weight=?, year_weight=?, is_active=?, prefix=?, period_display=? WHERE id=?",
+            (name_ar, name_en, calculation_rule, semester_weight, year_weight, is_active,
              prefix, period_display, ss_id)
         )
         conn.commit()
@@ -1611,7 +1614,8 @@ def get_full_certificate_data(student_id: int) -> dict | None:
             "SELECT s.*, "
             "       d.name_ar AS dept_name_ar, d.name_en AS dept_name_en, "
             "       ss.name_ar AS study_system_name_ar, ss.name_en AS study_system_name_en, "
-            "       ss.calculation_rule, "
+            "       ss.calculation_rule, ss.semester_weight, ss.year_weight, "
+            "       ss.prefix AS study_system_prefix, ss.period_display, "
             "       c.name_ar AS nationality_ar, c.name_en AS nationality_en, "
             "       g.name_ar AS birthplace_ar, g.name_en AS birthplace_en, "
             "       o.order_number, o.order_date "
