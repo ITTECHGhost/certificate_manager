@@ -85,6 +85,12 @@ ROUND_OPTIONS = {
 }
 ROUND_DISPLAY = {v: k for k, v in ROUND_OPTIONS.items()}
 
+GENDER_OPTIONS = {
+    "ذكر  /  Male": "M",
+    "أنثى  /  Female": "F",
+}
+GENDER_DISPLAY = {v: k for k, v in GENDER_OPTIONS.items()}
+
 
 # =============================================================================
 # STUDENT FORM PANEL  (Add / Edit student information)
@@ -131,8 +137,8 @@ class StudentFormPanel(SidePanel):
         self._nationality = self._add_dropdown("الجنسية", "Nationality", values=["—"], row=6, col=1)
         self._birthplace_gov = self._add_dropdown("محل الولادة (محافظة عراقية)", "Birthplace (Iraqi governorate)", values=["—  أجنبي / Foreign"], row=6, col=2)
 
-        # Placed below governorate for foreign students
-        self._birthplace_other = self._add_entry("محل الولادة (خارج العراق)", "Birthplace (outside Iraq)", placeholder="اتركه فارغاً إذا كان عراقي الولادة", row=8, col=0, colspan=2, justify="left")
+        self._gender = self._add_dropdown("الجنس", "Gender", values=list(GENDER_OPTIONS.keys()), row=8, col=0)
+        self._birthplace_other = self._add_entry("محل الولادة (خارج العراق)", "Birthplace (outside Iraq)", placeholder="اتركه فارغاً إذا كان عراقي الولادة", row=8, col=1, colspan=2, justify="left")
 
         # -- ROW 10: Academic Section --
         self._add_section_label("الدراسة", "Academic", row=10, col=0, colspan=3)
@@ -140,7 +146,9 @@ class StudentFormPanel(SidePanel):
         self._dept = self._add_dropdown("القسم", "Department", values=["—"], row=12, col=0)
         self._study_system = self._add_dropdown("نظام الدراسة", "Study System", values=["—"], row=12, col=1)
         self._adm_year = self._add_entry("سنة القبول", "Admission Year", placeholder="مثال: 2020", row=12, col=2)
+        
         self._study_type = self._add_dropdown("نوع الدراسة", "Study Type", values=list(STUDY_TYPE_OPTIONS.keys()), row=14, col=0)
+        self._sequence_number = self._add_entry("رقم التسلسل", "Sequence Number", placeholder="مثال: 12", row=14, col=1)
 
         # -- ROW 14: Graduation Section --
         self._add_section_label("التخرج", "Graduation (optional)", row=14, col=0, colspan=3)
@@ -209,6 +217,13 @@ class StudentFormPanel(SidePanel):
         self._set_entry(self._adm_year,     str(data.get("admission_year", "")))
         self._set_entry(self._grad_date,    data.get("graduation_date", "") or "")
         self._set_entry(self._average,      str(data.get("average", "") or ""))
+        self._set_entry(self._sequence_number, str(data.get("sequence_number", "") or ""))
+
+        # Gender
+        self._set_dropdown(
+            self._gender,
+            GENDER_DISPLAY.get(data.get("gender", "M"), list(GENDER_OPTIONS.keys())[0])
+        )
 
         # Department
         for d in self._depts:
@@ -336,6 +351,11 @@ class StudentFormPanel(SidePanel):
         bp_id, bp_other = self._get_birthplace()
         avg_raw = self._average.get().strip()
         avg_val = int(avg_raw) if avg_raw.isdigit() else None
+        
+        seq_raw = self._sequence_number.get().strip()
+        seq_val = int(seq_raw) if seq_raw.isdigit() else None
+        
+        gender_val = GENDER_OPTIONS[self._gender.get()]
 
         grad_sem_label = self._grad_sem.get()
         grad_sem = None
@@ -351,6 +371,8 @@ class StudentFormPanel(SidePanel):
                 existing["id"],
                 full_name_ar        = self._name_ar.get().strip(),
                 full_name_en        = self._name_en.get().strip(),
+                gender              = gender_val,
+                sequence_number     = seq_val,
                 date_of_birth       = self._dob.get().strip(),
                 birthplace_id       = bp_id,
                 birthplace_other    = bp_other,
@@ -368,6 +390,8 @@ class StudentFormPanel(SidePanel):
             insert_student(
                 full_name_ar        = self._name_ar.get().strip(),
                 full_name_en        = self._name_en.get().strip(),
+                gender              = gender_val,
+                sequence_number     = seq_val,
                 date_of_birth       = self._dob.get().strip(),
                 birthplace_id       = bp_id,
                 birthplace_other    = bp_other,

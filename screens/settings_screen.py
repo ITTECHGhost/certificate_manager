@@ -7,6 +7,15 @@ import customtkinter as ctk
 from pathlib import Path
 from tkinter import filedialog
 from config import AppFonts, AppColors, AppSizes
+# =============================================================================
+# screens/settings_screen.py — Application Configuration Screen
+# =============================================================================
+
+import os
+import customtkinter as ctk
+from pathlib import Path
+from tkinter import filedialog
+from config import AppFonts, AppColors, AppSizes
 from ui.base_screen import BaseScreen
 from ui.widgets import (
     make_section_header, make_labeled_entry, make_primary_button, 
@@ -16,10 +25,11 @@ import threading
 from data.queries import (
     get_settings, update_settings, clear_audit_logs,
     get_all_study_systems, update_study_system, 
-    insert_study_system, delete_study_system
+    insert_study_system, delete_study_system,
+    get_user_appearance, update_user_appearance
 )
 from db import backup_db, restore_db
-from tools.migrate_mysql import run_migration
+from tools.migrate_mysql import trigger_migration
 
 class SettingsScreen(BaseScreen):
     """
@@ -71,17 +81,18 @@ class SettingsScreen(BaseScreen):
         ctk.CTkLabel(self._systems_card, text="القاعدة\nRule", font=ctk.CTkFont(family=AppFonts.FAMILY, size=11, weight="bold")).grid(row=0, column=0, padx=5, pady=10)
         ctk.CTkLabel(self._systems_card, text="وزن الفصل\nSem W", font=ctk.CTkFont(family=AppFonts.FAMILY, size=11, weight="bold")).grid(row=0, column=1, padx=5, pady=10)
         ctk.CTkLabel(self._systems_card, text="وزن السنة\nYear W", font=ctk.CTkFont(family=AppFonts.FAMILY, size=11, weight="bold")).grid(row=0, column=2, padx=5, pady=10)
-        ctk.CTkLabel(self._systems_card, text="العرض\nDisplay", font=ctk.CTkFont(family=AppFonts.FAMILY, size=11, weight="bold")).grid(row=0, column=3, padx=5, pady=10)
-        ctk.CTkLabel(self._systems_card, text="البادئة\nPrefix", font=ctk.CTkFont(family=AppFonts.FAMILY, size=11, weight="bold")).grid(row=0, column=4, padx=5, pady=10)
-        ctk.CTkLabel(self._systems_card, text="الاسم بالإنكليزية\nEnglish Name", font=ctk.CTkFont(family=AppFonts.FAMILY, size=11, weight="bold")).grid(row=0, column=5, padx=5, pady=10)
-        ctk.CTkLabel(self._systems_card, text="الاسم بالعربية\nArabic Name", font=ctk.CTkFont(family=AppFonts.FAMILY, size=11, weight="bold")).grid(row=0, column=6, padx=5, pady=10)
-        ctk.CTkLabel(self._systems_card, text="تفعيل\nActive", font=ctk.CTkFont(family=AppFonts.FAMILY, size=11, weight="bold")).grid(row=0, column=7, padx=5, pady=10)
+        ctk.CTkLabel(self._systems_card, text="طريقة العرض\nDisplay Type", font=ctk.CTkFont(family=AppFonts.FAMILY, size=11, weight="bold")).grid(row=0, column=3, padx=5, pady=10)
+        ctk.CTkLabel(self._systems_card, text="طريقة الوزن\nWeight Type", font=ctk.CTkFont(family=AppFonts.FAMILY, size=11, weight="bold")).grid(row=0, column=4, padx=5, pady=10)
+        ctk.CTkLabel(self._systems_card, text="البادئة\nPrefix", font=ctk.CTkFont(family=AppFonts.FAMILY, size=11, weight="bold")).grid(row=0, column=5, padx=5, pady=10)
+        ctk.CTkLabel(self._systems_card, text="الاسم بالإنكليزية\nEnglish Name", font=ctk.CTkFont(family=AppFonts.FAMILY, size=11, weight="bold")).grid(row=0, column=6, padx=5, pady=10)
+        ctk.CTkLabel(self._systems_card, text="الاسم بالعربية\nArabic Name", font=ctk.CTkFont(family=AppFonts.FAMILY, size=11, weight="bold")).grid(row=0, column=7, padx=5, pady=10)
+        ctk.CTkLabel(self._systems_card, text="تفعيل\nActive", font=ctk.CTkFont(family=AppFonts.FAMILY, size=11, weight="bold")).grid(row=0, column=8, padx=5, pady=10)
         
         # Add Button in Header row
         ctk.CTkButton(self._systems_card, text="+", width=40, font=ctk.CTkFont(family=AppFonts.FAMILY, size=16, weight="bold"), 
-                     fg_color=AppColors.COLOR_INFO, command=self._add_system).grid(row=0, column=8, padx=5, pady=10)
+                     fg_color=AppColors.COLOR_INFO, command=self._add_system).grid(row=0, column=9, padx=5, pady=10)
 
-        self._system_rows = [] # list of (id, entry_ar, entry_en, rule_label, switch_active)
+        self._system_rows = [] # list of dicts
         
         # --- Section 3: Appearance & Theme ---
         make_section_header(self._scroll_frame, "المظهر والسمات", "Appearance & Theme").grid(row=4, column=0, sticky="e", pady=(10, 20))
@@ -162,11 +173,15 @@ class SettingsScreen(BaseScreen):
         self._college_en.delete(0, "end")
         self._college_en.insert(0, settings["college_name_en"])
 
-        self._theme.set(settings.get("theme", "System"))
-        self._accent.set(settings.get("accent_color", "blue"))
-        self._font.set(settings.get("font_family", "Arial"))
+        # Load user appearance preferences
+        user_id = self.winfo_toplevel().current_user["id"]
+        appearance = get_user_appearance(user_id)
+        
+        self._theme.set(appearance.get("theme", "System"))
+        self._accent.set(appearance.get("accent_color", "blue"))
+        self._font.set(appearance.get("font_family", "Arial"))
         self._font_size.delete(0, "end")
-        self._font_size.insert(0, str(settings.get("font_size_base", 13)))
+        self._font_size.insert(0, str(appearance.get("font_size_base", 13)))
 
         # Load Study Systems — destroy all non-header children safely
         for widget in list(self._systems_card.winfo_children()):
@@ -184,20 +199,25 @@ class SettingsScreen(BaseScreen):
             
             ent_ar = ctk.CTkEntry(self._systems_card, font=ctk.CTkFont(family=AppFonts.FAMILY, size=AppFonts.SIZE_BODY), justify="right")
             ent_ar.insert(0, s["name_ar"])
-            ent_ar.grid(row=row_idx, column=6, padx=5, pady=5, sticky="ew")
+            ent_ar.grid(row=row_idx, column=7, padx=5, pady=5, sticky="ew")
             
             ent_en = ctk.CTkEntry(self._systems_card, font=ctk.CTkFont(family=AppFonts.FAMILY, size=AppFonts.SIZE_BODY), justify="left")
             ent_en.insert(0, s["name_en"])
-            ent_en.grid(row=row_idx, column=5, padx=5, pady=5, sticky="ew")
+            ent_en.grid(row=row_idx, column=6, padx=5, pady=5, sticky="ew")
 
             ent_prefix = ctk.CTkEntry(self._systems_card, font=ctk.CTkFont(family=AppFonts.FAMILY, size=AppFonts.SIZE_BODY), width=60, placeholder_text="e.g. S")
             ent_prefix.insert(0, s.get("prefix", "") or "")
-            ent_prefix.grid(row=row_idx, column=4, padx=5, pady=5, sticky="ew")
+            ent_prefix.grid(row=row_idx, column=5, padx=5, pady=5, sticky="ew")
 
-            period_menu = ctk.CTkOptionMenu(self._systems_card, values=["year", "semester"], width=80,
+            weight_type_menu = ctk.CTkOptionMenu(self._systems_card, values=["year_weight", "semester_weight", "none"], width=80,
                                             font=ctk.CTkFont(family=AppFonts.FAMILY, size=AppFonts.SIZE_SMALL))
-            period_menu.set(s.get("period_display", "semester") or "semester")
-            period_menu.grid(row=row_idx, column=3, padx=5, pady=5)
+            weight_type_menu.set(s.get("weight_type", "year_weight") or "year_weight")
+            weight_type_menu.grid(row=row_idx, column=4, padx=5, pady=5)
+
+            display_type_menu = ctk.CTkOptionMenu(self._systems_card, values=["year", "semester"], width=80,
+                                            font=ctk.CTkFont(family=AppFonts.FAMILY, size=AppFonts.SIZE_SMALL))
+            display_type_menu.set(s.get("display_type", "year") or "year")
+            display_type_menu.grid(row=row_idx, column=3, padx=5, pady=5)
 
             ent_sem_w = ctk.CTkEntry(self._systems_card, font=ctk.CTkFont(family=AppFonts.FAMILY, size=AppFonts.SIZE_BODY), width=60)
             ent_sem_w.insert(0, str(s.get("semester_weight", 50)))
@@ -214,12 +234,12 @@ class SettingsScreen(BaseScreen):
             sw_active = ctk.CTkSwitch(self._systems_card, text="", width=50)
             if s["is_active"]: sw_active.select()
             else: sw_active.deselect()
-            sw_active.grid(row=row_idx, column=7, padx=5, pady=5)
+            sw_active.grid(row=row_idx, column=8, padx=5, pady=5)
             
             # Delete button
             del_btn = ctk.CTkButton(self._systems_card, text="X", width=30, fg_color="transparent", text_color=AppColors.COLOR_ERROR, 
                                    command=lambda sid=s["id"]: self._delete_system(sid))
-            del_btn.grid(row=row_idx, column=8, padx=5, pady=5)
+            del_btn.grid(row=row_idx, column=9, padx=5, pady=5)
 
             self._system_rows.append({
                 "id": s["id"],
@@ -229,19 +249,40 @@ class SettingsScreen(BaseScreen):
                 "ent_sem_w": ent_sem_w,
                 "ent_year_w": ent_year_w,
                 "rule_menu": rule_menu,
-                "period_menu": period_menu,
+                "display_type_menu": display_type_menu,
+                "weight_type_menu": weight_type_menu,
                 "sw": sw_active
             })
             
         make_primary_button(self._systems_card, "حفظ التعديلات", "Save Changes", command=self._save_systems).grid(row=len(systems)+1, column=0, columnspan=9, pady=20)
 
     def _save_info(self) -> None:
-        self._do_save("تم حفظ معلومات المؤسسة بنجاح\nInstitution info saved successfully")
+        try:
+            update_settings(
+                univ_ar=self._univ_ar.get(),
+                univ_en=self._univ_en.get(),
+                college_ar=self._college_ar.get(),
+                college_en=self._college_en.get()
+            )
+            self.show_success("تم حفظ معلومات المؤسسة بنجاح\nInstitution info saved successfully")
+        except Exception as e:
+            self.show_error(f"Error saving settings: {e}")
 
     def _save_visuals(self) -> None:
-        self._do_save("تم تطبيق المظهر الجديد بنجاح (قد يتطلب إعادة تشغيل لبعض العناصر)\nTheme applied successfully (some elements may need restart)")
-        from config import refresh_config
-        refresh_config()
+        try:
+            user_id = self.winfo_toplevel().current_user["id"]
+            update_user_appearance(
+                user_id=user_id,
+                theme=self._theme.get(),
+                accent=self._accent.get(),
+                font=self._font.get(),
+                size=int(self._font_size.get() or 13)
+            )
+            self.show_success("تم تطبيق المظهر الجديد بنجاح (قد يتطلب إعادة تشغيل لبعض العناصر)\nTheme applied successfully (some elements may need restart)")
+            from config import refresh_config
+            refresh_config(user_id)
+        except Exception as e:
+            self.show_error(f"Error saving visuals: {e}")
 
     def _save_systems(self) -> None:
         try:
@@ -255,7 +296,8 @@ class SettingsScreen(BaseScreen):
                     year_weight=int(row["ent_year_w"].get() or 25),
                     is_active=1 if row["sw"].get() else 0,
                     prefix=row["ent_prefix"].get().strip(),
-                    period_display=row["period_menu"].get()
+                    display_type=row["display_type_menu"].get(),
+                    weight_type=row["weight_type_menu"].get()
                 )
             self.show_success("تم حفظ أنظمة الدراسة بنجاح\nStudy systems saved successfully")
             self.refresh()
@@ -272,7 +314,8 @@ class SettingsScreen(BaseScreen):
                 semester_weight=50,
                 year_weight=25,
                 prefix="N",
-                period_display="semester"
+                display_type="year",
+                weight_type="year_weight"
             )
             self.show_success("تم إضافة نظام دراسة جديد\nNew study system added")
             self.refresh()
@@ -296,22 +339,6 @@ class SettingsScreen(BaseScreen):
                 self.show_error("لا يمكن حذف النظام لأنه مستخدم حالياً\nCannot delete: system is in use")
         except Exception as e:
             self.show_error(f"Error deleting system: {e}")
-
-    def _do_save(self, success_msg: str) -> None:
-        try:
-            update_settings(
-                univ_ar=self._univ_ar.get(),
-                univ_en=self._univ_en.get(),
-                college_ar=self._college_ar.get(),
-                college_en=self._college_en.get(),
-                theme=self._theme.get(),
-                accent=self._accent.get(),
-                font=self._font.get(),
-                size=int(self._font_size.get() or 13)
-            )
-            self.show_success(success_msg)
-        except Exception as e:
-            self.show_error(f"Error saving settings: {e}")
 
     def _handle_backup(self) -> None:
         try:
@@ -377,11 +404,13 @@ class SettingsScreen(BaseScreen):
         self.show_info("جاري استيراد البيانات، يرجى الانتظار...\nImporting data, please wait...")
         threading.Thread(target=self._run_migration_task, args=(sql_path,), daemon=True).start()
 
-    def _run_migration_task(self, sql_path: str) -> None:
-        try:
-            run_migration(sql_path)
-            # Use after() to show success on main thread
-            self.after(0, lambda: self.show_success("تم استيراد البيانات بنجاح!\nData imported successfully!"))
-            self.after(0, self.refresh)
-        except Exception as e:
-            self.after(0, lambda err=e: self.show_error(f"فشل الاستيراد:\n{err}\nImport failed."))
+    def _run_migration_task(self, path: str) -> None:
+        if path:
+            def _do_import():
+                success = trigger_migration(path, "certificate_manager.db")
+                if success:
+                    self.after(0, lambda: self.show_success("تم الاستيراد بنجاح\nImported successfully"))
+                else:
+                    self.after(0, lambda: self.show_error("فشل الاستيراد. راجع السجل.\nImport failed. Check logs."))
+            import threading
+            threading.Thread(target=_do_import, daemon=True).start()

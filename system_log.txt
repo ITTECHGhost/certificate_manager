@@ -1,0 +1,1101 @@
+2026-05-02 22:13:29,124 [SYSTEM] INFO: Application starting...
+2026-05-02 22:13:29,124 [SYSTEM] INFO: Application starting...
+2026-05-02 22:13:29,125 [SYSTEM] INFO: Initializing database at: C:\Users\alhayat\Music\certificate_manager\certificate_manager.db
+2026-05-02 22:13:29,125 [SYSTEM] INFO: Initializing database at: C:\Users\alhayat\Music\certificate_manager\certificate_manager.db
+2026-05-02 22:13:29,139 [SYSTEM] INFO: All tables created (or already exist).
+2026-05-02 22:13:29,139 [SYSTEM] INFO: All tables created (or already exist).
+2026-05-02 22:13:29,150 [SYSTEM] INFO: All indexes created (or already exist).
+2026-05-02 22:13:29,150 [SYSTEM] INFO: All indexes created (or already exist).
+2026-05-02 22:13:29,151 [SYSTEM] ERROR: Database initialization failed: table study_systems has no column named display_type
+2026-05-02 22:13:29,151 [SYSTEM] ERROR: Database initialization failed: table study_systems has no column named display_type
+2026-05-02 22:14:25,215 [SYSTEM] INFO: Application starting...
+2026-05-02 22:14:25,215 [SYSTEM] INFO: Application starting...
+2026-05-02 22:14:25,216 [SYSTEM] INFO: Initializing database at: C:\Users\alhayat\Music\certificate_manager\certificate_manager.db
+2026-05-02 22:14:25,216 [SYSTEM] INFO: Initializing database at: C:\Users\alhayat\Music\certificate_manager\certificate_manager.db
+2026-05-02 22:14:25,221 [SYSTEM] INFO: All tables created (or already exist).
+2026-05-02 22:14:25,221 [SYSTEM] INFO: All tables created (or already exist).
+2026-05-02 22:14:25,234 [SYSTEM] INFO: All indexes created (or already exist).
+2026-05-02 22:14:25,234 [SYSTEM] INFO: All indexes created (or already exist).
+2026-05-02 22:14:25,234 [SYSTEM] INFO: Study systems seeded (or already exist).
+2026-05-02 22:14:25,234 [SYSTEM] INFO: Study systems seeded (or already exist).
+2026-05-02 22:14:25,234 [SYSTEM] INFO: Governorates already seeded (18 rows). Skipping.
+2026-05-02 22:14:25,234 [SYSTEM] INFO: Governorates already seeded (18 rows). Skipping.
+2026-05-02 22:14:25,234 [SYSTEM] INFO: Countries already seeded (195 rows). Skipping.
+2026-05-02 22:14:25,234 [SYSTEM] INFO: Countries already seeded (195 rows). Skipping.
+2026-05-02 22:14:25,234 [SYSTEM] INFO: Database initialization complete.
+2026-05-02 22:14:25,234 [SYSTEM] INFO: Database initialization complete.
+2026-05-02 22:14:25,497 [SYSTEM] ERROR: A critical error occurred that caused the application to crash:
+Traceback (most recent call last):
+  File "C:\Users\alhayat\Music\certificate_manager\main.py", line 344, in <module>
+    app = CertificateManagerApp()
+          ^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\alhayat\Music\certificate_manager\main.py", line 245, in __init__
+    self._login_screen = LoginScreen(self, on_login_success=self._on_login_success)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\alhayat\Music\certificate_manager\screens\login_screen.py", line 7, in __init__
+    super().__init__(parent, fg_color=AppColors.BG_DEFAULT, corner_radius=0)
+                                      ^^^^^^^^^^^^^^^^^^^^
+AttributeError: type object 'AppColors' has no attribute 'BG_DEFAULT'
+2026-05-02 22:14:25,497 [SYSTEM] ERROR: A critical error occurred that caused the application to crash:
+Traceback (most recent call last):
+  File "C:\Users\alhayat\Music\certificate_manager\main.py", line 344, in <module>
+    app = CertificateManagerApp()
+          ^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\alhayat\Music\certificate_manager\main.py", line 245, in __init__
+    self._login_screen = LoginScreen(self, on_login_success=self._on_login_success)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\alhayat\Music\certificate_manager\screens\login_screen.py", line 7, in __init__
+    super().__init__(parent, fg_color=AppColors.BG_DEFAULT, corner_radius=0)
+                                      ^^^^^^^^^^^^^^^^^^^^
+AttributeError: type object 'AppColors' has no attribute 'BG_DEFAULT'
+2026-05-02 22:14:25,497 [SYSTEM] ERROR: A critical error occurred that caused the application to crash:
+Traceback (most recent call last):
+  File "C:\Users\alhayat\Music\certificate_manager\main.py", line 344, in <module>
+    app = CertificateManagerApp()
+          ^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\alhayat\Music\certificate_manager\main.py", line 245, in __init__
+    self._login_screen = LoginScreen(self, on_login_success=self._on_login_success)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\alhayat\Music\certificate_manager\screens\login_screen.py", line 7, in __init__
+    super().__init__(parent, fg_color=AppColors.BG_DEFAULT, corner_radius=0)
+                                      ^^^^^^^^^^^^^^^^^^^^
+AttributeError: type object 'AppColors' has no attribute 'BG_DEFAULT'
+2026-05-02 22:14:25,497 [SYSTEM] ERROR: A critical error occurred that caused the application to crash:
+Traceback (most recent call last):
+  File "C:\Users\alhayat\Music\certificate_manager\main.py", line 344, in <module>
+    app = CertificateManagerApp()
+          ^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\alhayat\Music\certificate_manager\main.py", line 245, in __init__
+    self._login_screen = LoginScreen(self, on_login_success=self._on_login_success)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\alhayat\Music\certificate_manager\screens\login_screen.py", line 7, in __init__
+    super().__init__(parent, fg_color=AppColors.BG_DEFAULT, corner_radius=0)
+                                      ^^^^^^^^^^^^^^^^^^^^
+AttributeError: type object 'AppColors' has no attribute 'BG_DEFAULT'
+2026-05-02 22:14:46,535 [SYSTEM] INFO: Application starting...
+2026-05-02 22:14:46,535 [SYSTEM] INFO: Application starting...
+2026-05-02 22:14:46,536 [SYSTEM] INFO: Initializing database at: C:\Users\alhayat\Music\certificate_manager\certificate_manager.db
+2026-05-02 22:14:46,536 [SYSTEM] INFO: Initializing database at: C:\Users\alhayat\Music\certificate_manager\certificate_manager.db
+2026-05-02 22:14:46,538 [SYSTEM] INFO: All tables created (or already exist).
+2026-05-02 22:14:46,538 [SYSTEM] INFO: All tables created (or already exist).
+2026-05-02 22:14:46,539 [SYSTEM] INFO: All indexes created (or already exist).
+2026-05-02 22:14:46,539 [SYSTEM] INFO: All indexes created (or already exist).
+2026-05-02 22:14:46,539 [SYSTEM] INFO: Study systems seeded (or already exist).
+2026-05-02 22:14:46,539 [SYSTEM] INFO: Study systems seeded (or already exist).
+2026-05-02 22:14:46,539 [SYSTEM] INFO: Governorates already seeded (18 rows). Skipping.
+2026-05-02 22:14:46,539 [SYSTEM] INFO: Governorates already seeded (18 rows). Skipping.
+2026-05-02 22:14:46,539 [SYSTEM] INFO: Countries already seeded (195 rows). Skipping.
+2026-05-02 22:14:46,539 [SYSTEM] INFO: Countries already seeded (195 rows). Skipping.
+2026-05-02 22:14:46,539 [SYSTEM] INFO: Database initialization complete.
+2026-05-02 22:14:46,539 [SYSTEM] INFO: Database initialization complete.
+2026-05-02 22:14:46,677 [SYSTEM] ERROR: A critical error occurred that caused the application to crash:
+Traceback (most recent call last):
+  File "C:\Users\alhayat\Music\certificate_manager\main.py", line 344, in <module>
+    app = CertificateManagerApp()
+          ^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\alhayat\Music\certificate_manager\main.py", line 245, in __init__
+    self._login_screen = LoginScreen(self, on_login_success=self._on_login_success)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\alhayat\Music\certificate_manager\screens\login_screen.py", line 10, in __init__
+    self._build()
+  File "C:\Users\alhayat\Music\certificate_manager\screens\login_screen.py", line 28, in _build
+    text_color=AppColors.TEXT_MAIN
+               ^^^^^^^^^^^^^^^^^^^
+AttributeError: type object 'AppColors' has no attribute 'TEXT_MAIN'
+2026-05-02 22:14:46,677 [SYSTEM] ERROR: A critical error occurred that caused the application to crash:
+Traceback (most recent call last):
+  File "C:\Users\alhayat\Music\certificate_manager\main.py", line 344, in <module>
+    app = CertificateManagerApp()
+          ^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\alhayat\Music\certificate_manager\main.py", line 245, in __init__
+    self._login_screen = LoginScreen(self, on_login_success=self._on_login_success)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\alhayat\Music\certificate_manager\screens\login_screen.py", line 10, in __init__
+    self._build()
+  File "C:\Users\alhayat\Music\certificate_manager\screens\login_screen.py", line 28, in _build
+    text_color=AppColors.TEXT_MAIN
+               ^^^^^^^^^^^^^^^^^^^
+AttributeError: type object 'AppColors' has no attribute 'TEXT_MAIN'
+2026-05-02 22:14:46,677 [SYSTEM] ERROR: A critical error occurred that caused the application to crash:
+Traceback (most recent call last):
+  File "C:\Users\alhayat\Music\certificate_manager\main.py", line 344, in <module>
+    app = CertificateManagerApp()
+          ^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\alhayat\Music\certificate_manager\main.py", line 245, in __init__
+    self._login_screen = LoginScreen(self, on_login_success=self._on_login_success)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\alhayat\Music\certificate_manager\screens\login_screen.py", line 10, in __init__
+    self._build()
+  File "C:\Users\alhayat\Music\certificate_manager\screens\login_screen.py", line 28, in _build
+    text_color=AppColors.TEXT_MAIN
+               ^^^^^^^^^^^^^^^^^^^
+AttributeError: type object 'AppColors' has no attribute 'TEXT_MAIN'
+2026-05-02 22:14:46,677 [SYSTEM] ERROR: A critical error occurred that caused the application to crash:
+Traceback (most recent call last):
+  File "C:\Users\alhayat\Music\certificate_manager\main.py", line 344, in <module>
+    app = CertificateManagerApp()
+          ^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\alhayat\Music\certificate_manager\main.py", line 245, in __init__
+    self._login_screen = LoginScreen(self, on_login_success=self._on_login_success)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\alhayat\Music\certificate_manager\screens\login_screen.py", line 10, in __init__
+    self._build()
+  File "C:\Users\alhayat\Music\certificate_manager\screens\login_screen.py", line 28, in _build
+    text_color=AppColors.TEXT_MAIN
+               ^^^^^^^^^^^^^^^^^^^
+AttributeError: type object 'AppColors' has no attribute 'TEXT_MAIN'
+2026-05-02 22:15:13,239 [SYSTEM] INFO: Application starting...
+2026-05-02 22:15:13,239 [SYSTEM] INFO: Application starting...
+2026-05-02 22:15:13,240 [SYSTEM] INFO: Initializing database at: C:\Users\alhayat\Music\certificate_manager\certificate_manager.db
+2026-05-02 22:15:13,240 [SYSTEM] INFO: Initializing database at: C:\Users\alhayat\Music\certificate_manager\certificate_manager.db
+2026-05-02 22:15:13,241 [SYSTEM] INFO: All tables created (or already exist).
+2026-05-02 22:15:13,241 [SYSTEM] INFO: All tables created (or already exist).
+2026-05-02 22:15:13,242 [SYSTEM] INFO: All indexes created (or already exist).
+2026-05-02 22:15:13,242 [SYSTEM] INFO: All indexes created (or already exist).
+2026-05-02 22:15:13,243 [SYSTEM] INFO: Study systems seeded (or already exist).
+2026-05-02 22:15:13,243 [SYSTEM] INFO: Study systems seeded (or already exist).
+2026-05-02 22:15:13,243 [SYSTEM] INFO: Governorates already seeded (18 rows). Skipping.
+2026-05-02 22:15:13,243 [SYSTEM] INFO: Governorates already seeded (18 rows). Skipping.
+2026-05-02 22:15:13,243 [SYSTEM] INFO: Countries already seeded (195 rows). Skipping.
+2026-05-02 22:15:13,243 [SYSTEM] INFO: Countries already seeded (195 rows). Skipping.
+2026-05-02 22:15:13,243 [SYSTEM] INFO: Database initialization complete.
+2026-05-02 22:15:13,243 [SYSTEM] INFO: Database initialization complete.
+2026-05-02 22:17:52,972 [SYSTEM] INFO: Application starting...
+2026-05-02 22:17:52,972 [SYSTEM] INFO: Application starting...
+2026-05-02 22:17:52,972 [SYSTEM] INFO: Initializing database at: C:\Users\alhayat\Music\certificate_manager\certificate_manager.db
+2026-05-02 22:17:52,972 [SYSTEM] INFO: Initializing database at: C:\Users\alhayat\Music\certificate_manager\certificate_manager.db
+2026-05-02 22:17:52,974 [SYSTEM] INFO: All tables created (or already exist).
+2026-05-02 22:17:52,974 [SYSTEM] INFO: All tables created (or already exist).
+2026-05-02 22:17:52,976 [SYSTEM] INFO: All indexes created (or already exist).
+2026-05-02 22:17:52,976 [SYSTEM] INFO: All indexes created (or already exist).
+2026-05-02 22:17:52,976 [SYSTEM] INFO: Study systems seeded (or already exist).
+2026-05-02 22:17:52,976 [SYSTEM] INFO: Study systems seeded (or already exist).
+2026-05-02 22:17:52,977 [SYSTEM] INFO: Governorates already seeded (18 rows). Skipping.
+2026-05-02 22:17:52,977 [SYSTEM] INFO: Governorates already seeded (18 rows). Skipping.
+2026-05-02 22:17:52,977 [SYSTEM] INFO: Countries already seeded (195 rows). Skipping.
+2026-05-02 22:17:52,977 [SYSTEM] INFO: Countries already seeded (195 rows). Skipping.
+2026-05-02 22:17:52,978 [SYSTEM] INFO: Database initialization complete.
+2026-05-02 22:17:52,978 [SYSTEM] INFO: Database initialization complete.
+2026-05-02 22:18:01,420 [SYSTEM] INFO: User '1' logged in successfully.
+2026-05-02 22:18:01,420 [SYSTEM] INFO: User '1' logged in successfully.
+2026-05-02 22:18:01,420 [SYSTEM] INFO: User '1' logged in successfully.
+2026-05-02 22:18:01,420 [SYSTEM] INFO: User '1' logged in successfully.
+2026-05-02 22:19:51,606 [SYSTEM] INFO: Application closed normally.
+2026-05-02 22:19:51,606 [SYSTEM] INFO: Application closed normally.
+2026-05-02 22:35:18,653 [SYSTEM] INFO: Initializing schema...
+2026-05-02 22:35:18,654 [SYSTEM] ERROR: Migration Failed: table study_systems has no column named weights_distribution
+Traceback (most recent call last):
+  File "C:\Users\alhayat\Music\certificate_manager\tools\migrate_mysql.py", line 534, in trigger_migration
+    manager = MigrationManager(sql_dump_path, db_path)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\alhayat\Music\certificate_manager\tools\migrate_mysql.py", line 155, in __init__
+    self._build_new_schema()
+  File "C:\Users\alhayat\Music\certificate_manager\tools\migrate_mysql.py", line 161, in _build_new_schema
+    self.cursor.executescript("""
+sqlite3.OperationalError: table study_systems has no column named weights_distribution
+2026-05-02 22:35:55,043 [SYSTEM] INFO: Initializing schema...
+2026-05-02 22:38:51,607 [SYSTEM] INFO: Application starting...
+2026-05-02 22:38:51,607 [SYSTEM] INFO: Application starting...
+2026-05-02 22:38:51,607 [SYSTEM] INFO: Initializing database at: C:\Users\alhayat\Music\certificate_manager\certificate_manager.db
+2026-05-02 22:38:51,607 [SYSTEM] INFO: Initializing database at: C:\Users\alhayat\Music\certificate_manager\certificate_manager.db
+2026-05-02 22:38:51,615 [SYSTEM] INFO: All tables created (or already exist).
+2026-05-02 22:38:51,615 [SYSTEM] INFO: All tables created (or already exist).
+2026-05-02 22:38:51,616 [SYSTEM] INFO: All indexes created (or already exist).
+2026-05-02 22:38:51,616 [SYSTEM] INFO: All indexes created (or already exist).
+2026-05-02 22:38:51,616 [SYSTEM] INFO: Study systems seeded (or already exist).
+2026-05-02 22:38:51,616 [SYSTEM] INFO: Study systems seeded (or already exist).
+2026-05-02 22:38:51,616 [SYSTEM] INFO: Governorates already seeded (18 rows). Skipping.
+2026-05-02 22:38:51,616 [SYSTEM] INFO: Governorates already seeded (18 rows). Skipping.
+2026-05-02 22:38:51,616 [SYSTEM] INFO: Countries already seeded (195 rows). Skipping.
+2026-05-02 22:38:51,616 [SYSTEM] INFO: Countries already seeded (195 rows). Skipping.
+2026-05-02 22:38:51,617 [SYSTEM] INFO: Database initialization complete.
+2026-05-02 22:38:51,617 [SYSTEM] INFO: Database initialization complete.
+2026-05-02 22:39:57,485 [SYSTEM] INFO: Application starting...
+2026-05-02 22:39:57,485 [SYSTEM] INFO: Application starting...
+2026-05-02 22:39:57,485 [SYSTEM] INFO: Initializing database at: C:\Users\alhayat\Music\certificate_manager\certificate_manager.db
+2026-05-02 22:39:57,485 [SYSTEM] INFO: Initializing database at: C:\Users\alhayat\Music\certificate_manager\certificate_manager.db
+2026-05-02 22:39:57,490 [SYSTEM] INFO: All tables created (or already exist).
+2026-05-02 22:39:57,490 [SYSTEM] INFO: All tables created (or already exist).
+2026-05-02 22:39:57,490 [SYSTEM] INFO: All indexes created (or already exist).
+2026-05-02 22:39:57,490 [SYSTEM] INFO: All indexes created (or already exist).
+2026-05-02 22:39:57,491 [SYSTEM] INFO: Study systems seeded (or already exist).
+2026-05-02 22:39:57,491 [SYSTEM] INFO: Study systems seeded (or already exist).
+2026-05-02 22:39:57,492 [SYSTEM] INFO: Governorates already seeded (18 rows). Skipping.
+2026-05-02 22:39:57,492 [SYSTEM] INFO: Governorates already seeded (18 rows). Skipping.
+2026-05-02 22:39:57,492 [SYSTEM] INFO: Countries already seeded (195 rows). Skipping.
+2026-05-02 22:39:57,492 [SYSTEM] INFO: Countries already seeded (195 rows). Skipping.
+2026-05-02 22:39:57,494 [SYSTEM] INFO: Database initialization complete.
+2026-05-02 22:39:57,494 [SYSTEM] INFO: Database initialization complete.
+2026-05-02 22:40:01,840 [SYSTEM] INFO: User '1' logged in successfully.
+2026-05-02 22:40:01,840 [SYSTEM] INFO: User '1' logged in successfully.
+2026-05-02 22:40:37,144 [SYSTEM] INFO: Initializing database at: C:\Users\alhayat\Music\certificate_manager\certificate_manager.db
+2026-05-02 22:40:37,144 [SYSTEM] INFO: Initializing database at: C:\Users\alhayat\Music\certificate_manager\certificate_manager.db
+2026-05-02 22:40:37,146 [SYSTEM] INFO: All tables created (or already exist).
+2026-05-02 22:40:37,146 [SYSTEM] INFO: All tables created (or already exist).
+2026-05-02 22:40:37,147 [SYSTEM] INFO: All indexes created (or already exist).
+2026-05-02 22:40:37,147 [SYSTEM] INFO: All indexes created (or already exist).
+2026-05-02 22:40:37,148 [SYSTEM] INFO: Study systems seeded (or already exist).
+2026-05-02 22:40:37,148 [SYSTEM] INFO: Study systems seeded (or already exist).
+2026-05-02 22:40:37,148 [SYSTEM] INFO: Governorates already seeded (18 rows). Skipping.
+2026-05-02 22:40:37,148 [SYSTEM] INFO: Governorates already seeded (18 rows). Skipping.
+2026-05-02 22:40:37,149 [SYSTEM] INFO: Countries already seeded (195 rows). Skipping.
+2026-05-02 22:40:37,149 [SYSTEM] INFO: Countries already seeded (195 rows). Skipping.
+2026-05-02 22:40:37,149 [SYSTEM] INFO: Database initialization complete.
+2026-05-02 22:40:37,149 [SYSTEM] INFO: Database initialization complete.
+2026-05-02 22:40:37,184 [SYSTEM] INFO: Starting one-time database replacement migration...
+2026-05-02 22:40:37,184 [SYSTEM] INFO: Starting one-time database replacement migration...
+2026-05-02 22:40:37,184 [SYSTEM] INFO: Starting one-time database replacement migration...
+2026-05-02 22:40:37,184 [SYSTEM] INFO: Starting one-time database replacement migration...
+2026-05-02 22:40:37,197 [SYSTEM] INFO: Processing table: admin (6 rows)
+2026-05-02 22:40:37,197 [SYSTEM] INFO: Processing table: admin (6 rows)
+2026-05-02 22:40:37,197 [SYSTEM] INFO: Processing table: admin (6 rows)
+2026-05-02 22:40:37,197 [SYSTEM] INFO: Processing table: admin (6 rows)
+2026-05-02 22:40:37,198 [SYSTEM] INFO: Processing table: department (2 rows)
+2026-05-02 22:40:37,198 [SYSTEM] INFO: Processing table: department (2 rows)
+2026-05-02 22:40:37,198 [SYSTEM] INFO: Processing table: department (2 rows)
+2026-05-02 22:40:37,198 [SYSTEM] INFO: Processing table: department (2 rows)
+2026-05-02 22:40:37,199 [SYSTEM] INFO: Processing table: info_system (1 rows)
+2026-05-02 22:40:37,199 [SYSTEM] INFO: Processing table: info_system (1 rows)
+2026-05-02 22:40:37,199 [SYSTEM] INFO: Processing table: info_system (1 rows)
+2026-05-02 22:40:37,199 [SYSTEM] INFO: Processing table: info_system (1 rows)
+2026-05-02 22:40:37,205 [SYSTEM] INFO: Processing table: order_university (63 rows)
+2026-05-02 22:40:37,205 [SYSTEM] INFO: Processing table: order_university (63 rows)
+2026-05-02 22:40:37,205 [SYSTEM] INFO: Processing table: order_university (63 rows)
+2026-05-02 22:40:37,205 [SYSTEM] INFO: Processing table: order_university (63 rows)
+2026-05-02 22:40:37,208 [SYSTEM] ERROR: Migration Failed: NOT NULL constraint failed: departments.college_ar
+Traceback (most recent call last):
+  File "c:\Users\alhayat\Music\certificate_manager\tools\migrate_mysql.py", line 410, in trigger_migration
+    manager.run()
+  File "c:\Users\alhayat\Music\certificate_manager\tools\migrate_mysql.py", line 206, in run
+    self.migrate_orders(rows)
+  File "c:\Users\alhayat\Music\certificate_manager\tools\migrate_mysql.py", line 267, in migrate_orders
+    dept_id = self.get_or_create_dept(row[1])
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\alhayat\Music\certificate_manager\tools\migrate_mysql.py", line 177, in get_or_create_dept
+    self.cursor.execute("INSERT INTO departments (name_ar, name_en) VALUES (?, ?)", (name_ar, name_en))
+sqlite3.IntegrityError: NOT NULL constraint failed: departments.college_ar
+2026-05-02 22:40:37,208 [SYSTEM] ERROR: Migration Failed: NOT NULL constraint failed: departments.college_ar
+Traceback (most recent call last):
+  File "c:\Users\alhayat\Music\certificate_manager\tools\migrate_mysql.py", line 410, in trigger_migration
+    manager.run()
+  File "c:\Users\alhayat\Music\certificate_manager\tools\migrate_mysql.py", line 206, in run
+    self.migrate_orders(rows)
+  File "c:\Users\alhayat\Music\certificate_manager\tools\migrate_mysql.py", line 267, in migrate_orders
+    dept_id = self.get_or_create_dept(row[1])
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\alhayat\Music\certificate_manager\tools\migrate_mysql.py", line 177, in get_or_create_dept
+    self.cursor.execute("INSERT INTO departments (name_ar, name_en) VALUES (?, ?)", (name_ar, name_en))
+sqlite3.IntegrityError: NOT NULL constraint failed: departments.college_ar
+2026-05-02 22:40:37,208 [SYSTEM] ERROR: Migration Failed: NOT NULL constraint failed: departments.college_ar
+Traceback (most recent call last):
+  File "c:\Users\alhayat\Music\certificate_manager\tools\migrate_mysql.py", line 410, in trigger_migration
+    manager.run()
+  File "c:\Users\alhayat\Music\certificate_manager\tools\migrate_mysql.py", line 206, in run
+    self.migrate_orders(rows)
+  File "c:\Users\alhayat\Music\certificate_manager\tools\migrate_mysql.py", line 267, in migrate_orders
+    dept_id = self.get_or_create_dept(row[1])
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\alhayat\Music\certificate_manager\tools\migrate_mysql.py", line 177, in get_or_create_dept
+    self.cursor.execute("INSERT INTO departments (name_ar, name_en) VALUES (?, ?)", (name_ar, name_en))
+sqlite3.IntegrityError: NOT NULL constraint failed: departments.college_ar
+2026-05-02 22:40:37,208 [SYSTEM] ERROR: Migration Failed: NOT NULL constraint failed: departments.college_ar
+Traceback (most recent call last):
+  File "c:\Users\alhayat\Music\certificate_manager\tools\migrate_mysql.py", line 410, in trigger_migration
+    manager.run()
+  File "c:\Users\alhayat\Music\certificate_manager\tools\migrate_mysql.py", line 206, in run
+    self.migrate_orders(rows)
+  File "c:\Users\alhayat\Music\certificate_manager\tools\migrate_mysql.py", line 267, in migrate_orders
+    dept_id = self.get_or_create_dept(row[1])
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\alhayat\Music\certificate_manager\tools\migrate_mysql.py", line 177, in get_or_create_dept
+    self.cursor.execute("INSERT INTO departments (name_ar, name_en) VALUES (?, ?)", (name_ar, name_en))
+sqlite3.IntegrityError: NOT NULL constraint failed: departments.college_ar
+2026-05-02 22:40:56,031 [SYSTEM] INFO: Application closed normally.
+2026-05-02 22:40:56,031 [SYSTEM] INFO: Application closed normally.
+2026-05-02 22:43:15,240 [SYSTEM] INFO: Starting one-time database replacement migration...
+2026-05-02 22:43:15,252 [SYSTEM] INFO: Processing table: admin (6 rows)
+2026-05-02 22:43:15,252 [SYSTEM] INFO: Processing table: department (2 rows)
+2026-05-02 22:43:15,252 [SYSTEM] INFO: Processing table: info_system (1 rows)
+2026-05-02 22:43:15,256 [SYSTEM] INFO: Processing table: order_university (63 rows)
+2026-05-02 22:43:15,257 [SYSTEM] ERROR: Migration Failed: NOT NULL constraint failed: departments.college_ar
+Traceback (most recent call last):
+  File "C:\Users\alhayat\Music\certificate_manager\tools\migrate_mysql.py", line 410, in trigger_migration
+    manager.run()
+  File "C:\Users\alhayat\Music\certificate_manager\tools\migrate_mysql.py", line 206, in run
+    self.migrate_orders(rows)
+  File "C:\Users\alhayat\Music\certificate_manager\tools\migrate_mysql.py", line 267, in migrate_orders
+    dept_id = self.get_or_create_dept(row[1])
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\alhayat\Music\certificate_manager\tools\migrate_mysql.py", line 177, in get_or_create_dept
+    self.cursor.execute("INSERT INTO departments (name_ar, name_en) VALUES (?, ?)", (name_ar, name_en))
+sqlite3.IntegrityError: NOT NULL constraint failed: departments.college_ar
+2026-05-02 22:44:16,478 [SYSTEM] INFO: Starting one-time database replacement migration...
+2026-05-02 22:44:16,488 [SYSTEM] INFO: Processing table: admin (6 rows)
+2026-05-02 22:44:16,488 [SYSTEM] INFO: Processing table: department (2 rows)
+2026-05-02 22:44:16,489 [SYSTEM] INFO: Processing table: info_system (1 rows)
+2026-05-02 22:44:16,491 [SYSTEM] INFO: Processing table: order_university (63 rows)
+2026-05-02 22:44:16,492 [SYSTEM] INFO: Processing table: signatures (1 rows)
+2026-05-02 22:44:16,501 [SYSTEM] INFO: Processing table: students_140 (118 rows)
+2026-05-02 22:44:16,502 [SYSTEM] ERROR: Migration Failed: table students has no column named gender
+Traceback (most recent call last):
+  File "C:\Users\alhayat\Music\certificate_manager\tools\migrate_mysql.py", line 419, in trigger_migration
+    manager.run()
+  File "C:\Users\alhayat\Music\certificate_manager\tools\migrate_mysql.py", line 220, in run
+    self.migrate_students(rows, system_id)
+  File "C:\Users\alhayat\Music\certificate_manager\tools\migrate_mysql.py", line 337, in migrate_students
+    self.cursor.executemany(
+sqlite3.OperationalError: table students has no column named gender
+2026-05-02 22:45:37,610 [SYSTEM] INFO: Application starting...
+2026-05-02 22:45:37,610 [SYSTEM] INFO: Application starting...
+2026-05-02 22:45:37,611 [SYSTEM] INFO: Initializing database at: C:\Users\alhayat\Music\certificate_manager\certificate_manager.db
+2026-05-02 22:45:37,611 [SYSTEM] INFO: Initializing database at: C:\Users\alhayat\Music\certificate_manager\certificate_manager.db
+2026-05-02 22:45:37,613 [SYSTEM] INFO: All tables created (or already exist).
+2026-05-02 22:45:37,613 [SYSTEM] INFO: All tables created (or already exist).
+2026-05-02 22:45:37,614 [SYSTEM] INFO: All indexes created (or already exist).
+2026-05-02 22:45:37,614 [SYSTEM] INFO: All indexes created (or already exist).
+2026-05-02 22:45:37,614 [SYSTEM] INFO: Study systems seeded (or already exist).
+2026-05-02 22:45:37,614 [SYSTEM] INFO: Study systems seeded (or already exist).
+2026-05-02 22:45:37,615 [SYSTEM] INFO: Governorates already seeded (18 rows). Skipping.
+2026-05-02 22:45:37,615 [SYSTEM] INFO: Governorates already seeded (18 rows). Skipping.
+2026-05-02 22:45:37,616 [SYSTEM] INFO: Countries already seeded (195 rows). Skipping.
+2026-05-02 22:45:37,616 [SYSTEM] INFO: Countries already seeded (195 rows). Skipping.
+2026-05-02 22:45:37,616 [SYSTEM] INFO: Database initialization complete.
+2026-05-02 22:45:37,616 [SYSTEM] INFO: Database initialization complete.
+2026-05-02 22:45:42,446 [SYSTEM] INFO: User '1' logged in successfully.
+2026-05-02 22:45:42,446 [SYSTEM] INFO: User '1' logged in successfully.
+2026-05-02 22:45:59,297 [SYSTEM] INFO: Initializing database at: C:\Users\alhayat\Music\certificate_manager\certificate_manager.db
+2026-05-02 22:45:59,297 [SYSTEM] INFO: Initializing database at: C:\Users\alhayat\Music\certificate_manager\certificate_manager.db
+2026-05-02 22:45:59,301 [SYSTEM] INFO: All tables created (or already exist).
+2026-05-02 22:45:59,301 [SYSTEM] INFO: All tables created (or already exist).
+2026-05-02 22:45:59,302 [SYSTEM] INFO: All indexes created (or already exist).
+2026-05-02 22:45:59,302 [SYSTEM] INFO: All indexes created (or already exist).
+2026-05-02 22:45:59,303 [SYSTEM] INFO: Study systems seeded (or already exist).
+2026-05-02 22:45:59,303 [SYSTEM] INFO: Study systems seeded (or already exist).
+2026-05-02 22:45:59,304 [SYSTEM] INFO: Governorates already seeded (18 rows). Skipping.
+2026-05-02 22:45:59,304 [SYSTEM] INFO: Governorates already seeded (18 rows). Skipping.
+2026-05-02 22:45:59,304 [SYSTEM] INFO: Countries already seeded (195 rows). Skipping.
+2026-05-02 22:45:59,304 [SYSTEM] INFO: Countries already seeded (195 rows). Skipping.
+2026-05-02 22:45:59,305 [SYSTEM] INFO: Database initialization complete.
+2026-05-02 22:45:59,305 [SYSTEM] INFO: Database initialization complete.
+2026-05-02 22:45:59,370 [SYSTEM] INFO: Starting one-time database replacement migration...
+2026-05-02 22:45:59,370 [SYSTEM] INFO: Starting one-time database replacement migration...
+2026-05-02 22:45:59,370 [SYSTEM] INFO: Starting one-time database replacement migration...
+2026-05-02 22:45:59,370 [SYSTEM] INFO: Starting one-time database replacement migration...
+2026-05-02 22:45:59,382 [SYSTEM] INFO: Processing table: admin (6 rows)
+2026-05-02 22:45:59,382 [SYSTEM] INFO: Processing table: admin (6 rows)
+2026-05-02 22:45:59,382 [SYSTEM] INFO: Processing table: admin (6 rows)
+2026-05-02 22:45:59,382 [SYSTEM] INFO: Processing table: admin (6 rows)
+2026-05-02 22:45:59,384 [SYSTEM] INFO: Processing table: department (2 rows)
+2026-05-02 22:45:59,384 [SYSTEM] INFO: Processing table: department (2 rows)
+2026-05-02 22:45:59,384 [SYSTEM] INFO: Processing table: department (2 rows)
+2026-05-02 22:45:59,384 [SYSTEM] INFO: Processing table: department (2 rows)
+2026-05-02 22:45:59,384 [SYSTEM] INFO: Processing table: info_system (1 rows)
+2026-05-02 22:45:59,384 [SYSTEM] INFO: Processing table: info_system (1 rows)
+2026-05-02 22:45:59,384 [SYSTEM] INFO: Processing table: info_system (1 rows)
+2026-05-02 22:45:59,384 [SYSTEM] INFO: Processing table: info_system (1 rows)
+2026-05-02 22:45:59,390 [SYSTEM] INFO: Processing table: order_university (63 rows)
+2026-05-02 22:45:59,390 [SYSTEM] INFO: Processing table: order_university (63 rows)
+2026-05-02 22:45:59,390 [SYSTEM] INFO: Processing table: order_university (63 rows)
+2026-05-02 22:45:59,390 [SYSTEM] INFO: Processing table: order_university (63 rows)
+2026-05-02 22:45:59,394 [SYSTEM] INFO: Processing table: signatures (1 rows)
+2026-05-02 22:45:59,394 [SYSTEM] INFO: Processing table: signatures (1 rows)
+2026-05-02 22:45:59,394 [SYSTEM] INFO: Processing table: signatures (1 rows)
+2026-05-02 22:45:59,394 [SYSTEM] INFO: Processing table: signatures (1 rows)
+2026-05-02 22:45:59,413 [SYSTEM] INFO: Processing table: students_140 (118 rows)
+2026-05-02 22:45:59,413 [SYSTEM] INFO: Processing table: students_140 (118 rows)
+2026-05-02 22:45:59,413 [SYSTEM] INFO: Processing table: students_140 (118 rows)
+2026-05-02 22:45:59,413 [SYSTEM] INFO: Processing table: students_140 (118 rows)
+2026-05-02 22:45:59,431 [SYSTEM] INFO: Processing table: students_140_backup_1775558661 (118 rows)
+2026-05-02 22:45:59,431 [SYSTEM] INFO: Processing table: students_140_backup_1775558661 (118 rows)
+2026-05-02 22:45:59,431 [SYSTEM] INFO: Processing table: students_140_backup_1775558661 (118 rows)
+2026-05-02 22:45:59,431 [SYSTEM] INFO: Processing table: students_140_backup_1775558661 (118 rows)
+2026-05-02 22:45:59,643 [SYSTEM] INFO: Processing table: students_q (1474 rows)
+2026-05-02 22:45:59,643 [SYSTEM] INFO: Processing table: students_q (1474 rows)
+2026-05-02 22:45:59,643 [SYSTEM] INFO: Processing table: students_q (1474 rows)
+2026-05-02 22:45:59,643 [SYSTEM] INFO: Processing table: students_q (1474 rows)
+2026-05-02 22:45:59,700 [SYSTEM] INFO: Processing table: subjects_140 (130 rows)
+2026-05-02 22:45:59,700 [SYSTEM] INFO: Processing table: subjects_140 (130 rows)
+2026-05-02 22:45:59,700 [SYSTEM] INFO: Processing table: subjects_140 (130 rows)
+2026-05-02 22:45:59,700 [SYSTEM] INFO: Processing table: subjects_140 (130 rows)
+2026-05-02 22:45:59,708 [SYSTEM] INFO: Processing table: subjects_q (100 rows)
+2026-05-02 22:45:59,708 [SYSTEM] INFO: Processing table: subjects_q (100 rows)
+2026-05-02 22:45:59,708 [SYSTEM] INFO: Processing table: subjects_q (100 rows)
+2026-05-02 22:45:59,708 [SYSTEM] INFO: Processing table: subjects_q (100 rows)
+2026-05-02 22:45:59,796 [SYSTEM] INFO: Processing table: subjects_students_140 (1210 rows)
+2026-05-02 22:45:59,796 [SYSTEM] INFO: Processing table: subjects_students_140 (1210 rows)
+2026-05-02 22:45:59,796 [SYSTEM] INFO: Processing table: subjects_students_140 (1210 rows)
+2026-05-02 22:45:59,796 [SYSTEM] INFO: Processing table: subjects_students_140 (1210 rows)
+2026-05-02 22:45:59,918 [SYSTEM] INFO: Processing table: subjects_students_q (1719 rows)
+2026-05-02 22:45:59,918 [SYSTEM] INFO: Processing table: subjects_students_q (1719 rows)
+2026-05-02 22:45:59,918 [SYSTEM] INFO: Processing table: subjects_students_q (1719 rows)
+2026-05-02 22:45:59,918 [SYSTEM] INFO: Processing table: subjects_students_q (1719 rows)
+2026-05-02 22:45:59,943 [SYSTEM] INFO: Migration strictly complete.
+2026-05-02 22:45:59,943 [SYSTEM] INFO: Migration strictly complete.
+2026-05-02 22:45:59,943 [SYSTEM] INFO: Migration strictly complete.
+2026-05-02 22:45:59,943 [SYSTEM] INFO: Migration strictly complete.
+2026-05-02 22:45:59,944 [SYSTEM] INFO: Database migrated successfully using C:/Users/alhayat/Music/certificate_manager/CSIT_SQL_DATABASE2.sql
+2026-05-02 22:45:59,944 [SYSTEM] INFO: Database migrated successfully using C:/Users/alhayat/Music/certificate_manager/CSIT_SQL_DATABASE2.sql
+2026-05-02 22:47:13,119 [SYSTEM] INFO: تم توليد وثيقة للطالب ID: 10 بواسطة المستخدم ID: 1
+2026-05-02 22:47:13,119 [SYSTEM] INFO: تم توليد وثيقة للطالب ID: 10 بواسطة المستخدم ID: 1
+2026-05-02 22:49:48,042 [SYSTEM] INFO: Application closed normally.
+2026-05-02 22:49:48,042 [SYSTEM] INFO: Application closed normally.
+2026-05-02 22:52:36,362 [SYSTEM] INFO: Application starting...
+2026-05-02 22:52:36,362 [SYSTEM] INFO: Application starting...
+2026-05-02 22:52:36,362 [SYSTEM] INFO: Initializing database at: C:\Users\alhayat\Music\certificate_manager\certificate_manager.db
+2026-05-02 22:52:36,362 [SYSTEM] INFO: Initializing database at: C:\Users\alhayat\Music\certificate_manager\certificate_manager.db
+2026-05-02 22:52:36,365 [SYSTEM] INFO: All tables created (or already exist).
+2026-05-02 22:52:36,365 [SYSTEM] INFO: All tables created (or already exist).
+2026-05-02 22:52:36,365 [SYSTEM] INFO: All indexes created (or already exist).
+2026-05-02 22:52:36,365 [SYSTEM] INFO: All indexes created (or already exist).
+2026-05-02 22:52:36,365 [SYSTEM] INFO: Study systems seeded (or already exist).
+2026-05-02 22:52:36,365 [SYSTEM] INFO: Study systems seeded (or already exist).
+2026-05-02 22:52:36,365 [SYSTEM] INFO: Governorates already seeded (18 rows). Skipping.
+2026-05-02 22:52:36,365 [SYSTEM] INFO: Governorates already seeded (18 rows). Skipping.
+2026-05-02 22:52:36,365 [SYSTEM] INFO: Countries already seeded (195 rows). Skipping.
+2026-05-02 22:52:36,365 [SYSTEM] INFO: Countries already seeded (195 rows). Skipping.
+2026-05-02 22:52:36,365 [SYSTEM] INFO: Database initialization complete.
+2026-05-02 22:52:36,365 [SYSTEM] INFO: Database initialization complete.
+2026-05-02 22:57:26,040 [SYSTEM] INFO: Application starting...
+2026-05-02 22:57:26,040 [SYSTEM] INFO: Application starting...
+2026-05-02 22:57:26,041 [SYSTEM] INFO: Initializing database at: C:\Users\alhayat\Music\certificate_manager\certificate_manager.db
+2026-05-02 22:57:26,041 [SYSTEM] INFO: Initializing database at: C:\Users\alhayat\Music\certificate_manager\certificate_manager.db
+2026-05-02 22:57:26,044 [SYSTEM] INFO: All tables created (or already exist).
+2026-05-02 22:57:26,044 [SYSTEM] INFO: All tables created (or already exist).
+2026-05-02 22:57:26,045 [SYSTEM] INFO: All indexes created (or already exist).
+2026-05-02 22:57:26,045 [SYSTEM] INFO: All indexes created (or already exist).
+2026-05-02 22:57:26,045 [SYSTEM] INFO: Study systems seeded (or already exist).
+2026-05-02 22:57:26,045 [SYSTEM] INFO: Study systems seeded (or already exist).
+2026-05-02 22:57:26,046 [SYSTEM] INFO: Governorates already seeded (18 rows). Skipping.
+2026-05-02 22:57:26,046 [SYSTEM] INFO: Governorates already seeded (18 rows). Skipping.
+2026-05-02 22:57:26,046 [SYSTEM] INFO: Countries already seeded (195 rows). Skipping.
+2026-05-02 22:57:26,046 [SYSTEM] INFO: Countries already seeded (195 rows). Skipping.
+2026-05-02 22:57:26,047 [SYSTEM] INFO: Database initialization complete.
+2026-05-02 22:57:26,047 [SYSTEM] INFO: Database initialization complete.
+2026-05-02 22:57:32,045 [SYSTEM] INFO: User '1' logged in successfully.
+2026-05-02 22:57:32,045 [SYSTEM] INFO: User '1' logged in successfully.
+2026-05-02 22:57:32,045 [SYSTEM] INFO: User '1' logged in successfully.
+2026-05-02 22:57:32,045 [SYSTEM] INFO: User '1' logged in successfully.
+2026-05-02 22:58:05,526 [SYSTEM] INFO: Application closed normally.
+2026-05-02 22:58:05,526 [SYSTEM] INFO: Application closed normally.
+2026-05-02 23:03:57,558 [SYSTEM] INFO: Application starting...
+2026-05-02 23:03:57,558 [SYSTEM] INFO: Application starting...
+2026-05-02 23:03:57,559 [SYSTEM] INFO: Initializing database at: C:\Users\alhayat\Music\certificate_manager\certificate_manager.db
+2026-05-02 23:03:57,559 [SYSTEM] INFO: Initializing database at: C:\Users\alhayat\Music\certificate_manager\certificate_manager.db
+2026-05-02 23:03:57,561 [SYSTEM] INFO: All tables created (or already exist).
+2026-05-02 23:03:57,561 [SYSTEM] INFO: All tables created (or already exist).
+2026-05-02 23:03:57,562 [SYSTEM] INFO: All indexes created (or already exist).
+2026-05-02 23:03:57,562 [SYSTEM] INFO: All indexes created (or already exist).
+2026-05-02 23:03:57,562 [SYSTEM] INFO: Study systems seeded (or already exist).
+2026-05-02 23:03:57,562 [SYSTEM] INFO: Study systems seeded (or already exist).
+2026-05-02 23:03:57,563 [SYSTEM] INFO: Governorates already seeded (18 rows). Skipping.
+2026-05-02 23:03:57,563 [SYSTEM] INFO: Governorates already seeded (18 rows). Skipping.
+2026-05-02 23:03:57,563 [SYSTEM] INFO: Countries already seeded (195 rows). Skipping.
+2026-05-02 23:03:57,563 [SYSTEM] INFO: Countries already seeded (195 rows). Skipping.
+2026-05-02 23:03:57,564 [SYSTEM] INFO: Database initialization complete.
+2026-05-02 23:03:57,564 [SYSTEM] INFO: Database initialization complete.
+2026-05-02 23:04:02,736 [SYSTEM] INFO: User '1' logged in successfully.
+2026-05-02 23:04:02,736 [SYSTEM] INFO: User '1' logged in successfully.
+2026-05-02 23:04:02,736 [SYSTEM] INFO: User '1' logged in successfully.
+2026-05-02 23:04:02,736 [SYSTEM] INFO: User '1' logged in successfully.
+2026-05-02 23:04:25,528 [SYSTEM] INFO: Initializing database at: C:\Users\alhayat\Music\certificate_manager\certificate_manager.db
+2026-05-02 23:04:25,528 [SYSTEM] INFO: Initializing database at: C:\Users\alhayat\Music\certificate_manager\certificate_manager.db
+2026-05-02 23:04:25,531 [SYSTEM] INFO: All tables created (or already exist).
+2026-05-02 23:04:25,531 [SYSTEM] INFO: All tables created (or already exist).
+2026-05-02 23:04:25,531 [SYSTEM] INFO: All indexes created (or already exist).
+2026-05-02 23:04:25,531 [SYSTEM] INFO: All indexes created (or already exist).
+2026-05-02 23:04:25,533 [SYSTEM] INFO: Study systems seeded (or already exist).
+2026-05-02 23:04:25,533 [SYSTEM] INFO: Study systems seeded (or already exist).
+2026-05-02 23:04:25,534 [SYSTEM] INFO: Governorates already seeded (18 rows). Skipping.
+2026-05-02 23:04:25,534 [SYSTEM] INFO: Governorates already seeded (18 rows). Skipping.
+2026-05-02 23:04:25,534 [SYSTEM] INFO: Countries already seeded (195 rows). Skipping.
+2026-05-02 23:04:25,534 [SYSTEM] INFO: Countries already seeded (195 rows). Skipping.
+2026-05-02 23:04:25,535 [SYSTEM] INFO: Database initialization complete.
+2026-05-02 23:04:25,535 [SYSTEM] INFO: Database initialization complete.
+2026-05-02 23:04:25,602 [SYSTEM] INFO: Starting database replacement migration...
+2026-05-02 23:04:25,602 [SYSTEM] INFO: Starting database replacement migration...
+2026-05-02 23:04:25,602 [SYSTEM] INFO: Starting database replacement migration...
+2026-05-02 23:04:25,602 [SYSTEM] INFO: Starting database replacement migration...
+2026-05-02 23:04:25,620 [SYSTEM] INFO: Processing table: admin (6 rows)
+2026-05-02 23:04:25,620 [SYSTEM] INFO: Processing table: admin (6 rows)
+2026-05-02 23:04:25,620 [SYSTEM] INFO: Processing table: admin (6 rows)
+2026-05-02 23:04:25,620 [SYSTEM] INFO: Processing table: admin (6 rows)
+2026-05-02 23:04:25,622 [SYSTEM] INFO: Processing table: department (2 rows)
+2026-05-02 23:04:25,622 [SYSTEM] INFO: Processing table: department (2 rows)
+2026-05-02 23:04:25,622 [SYSTEM] INFO: Processing table: department (2 rows)
+2026-05-02 23:04:25,622 [SYSTEM] INFO: Processing table: department (2 rows)
+2026-05-02 23:04:25,623 [SYSTEM] INFO: Processing table: info_system (1 rows)
+2026-05-02 23:04:25,623 [SYSTEM] INFO: Processing table: info_system (1 rows)
+2026-05-02 23:04:25,623 [SYSTEM] INFO: Processing table: info_system (1 rows)
+2026-05-02 23:04:25,623 [SYSTEM] INFO: Processing table: info_system (1 rows)
+2026-05-02 23:04:25,629 [SYSTEM] INFO: Processing table: order_university (63 rows)
+2026-05-02 23:04:25,629 [SYSTEM] INFO: Processing table: order_university (63 rows)
+2026-05-02 23:04:25,629 [SYSTEM] INFO: Processing table: order_university (63 rows)
+2026-05-02 23:04:25,629 [SYSTEM] INFO: Processing table: order_university (63 rows)
+2026-05-02 23:04:25,631 [SYSTEM] ERROR: Migration Failed: NOT NULL constraint failed: departments.college_ar
+Traceback (most recent call last):
+  File "c:\Users\alhayat\Music\certificate_manager\tools\migrate_mysql.py", line 444, in trigger_migration
+    manager.run()
+  File "c:\Users\alhayat\Music\certificate_manager\tools\migrate_mysql.py", line 206, in run
+    self.migrate_orders(rows)
+  File "c:\Users\alhayat\Music\certificate_manager\tools\migrate_mysql.py", line 268, in migrate_orders
+    dept_id = self.get_or_create_dept(row[1])
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\alhayat\Music\certificate_manager\tools\migrate_mysql.py", line 176, in get_or_create_dept
+    self.cursor.execute("INSERT INTO departments (name_ar, name_en) VALUES (?, ?)", (name_ar, name_en))
+sqlite3.IntegrityError: NOT NULL constraint failed: departments.college_ar
+2026-05-02 23:04:25,631 [SYSTEM] ERROR: Migration Failed: NOT NULL constraint failed: departments.college_ar
+Traceback (most recent call last):
+  File "c:\Users\alhayat\Music\certificate_manager\tools\migrate_mysql.py", line 444, in trigger_migration
+    manager.run()
+  File "c:\Users\alhayat\Music\certificate_manager\tools\migrate_mysql.py", line 206, in run
+    self.migrate_orders(rows)
+  File "c:\Users\alhayat\Music\certificate_manager\tools\migrate_mysql.py", line 268, in migrate_orders
+    dept_id = self.get_or_create_dept(row[1])
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\alhayat\Music\certificate_manager\tools\migrate_mysql.py", line 176, in get_or_create_dept
+    self.cursor.execute("INSERT INTO departments (name_ar, name_en) VALUES (?, ?)", (name_ar, name_en))
+sqlite3.IntegrityError: NOT NULL constraint failed: departments.college_ar
+2026-05-02 23:04:25,631 [SYSTEM] ERROR: Migration Failed: NOT NULL constraint failed: departments.college_ar
+Traceback (most recent call last):
+  File "c:\Users\alhayat\Music\certificate_manager\tools\migrate_mysql.py", line 444, in trigger_migration
+    manager.run()
+  File "c:\Users\alhayat\Music\certificate_manager\tools\migrate_mysql.py", line 206, in run
+    self.migrate_orders(rows)
+  File "c:\Users\alhayat\Music\certificate_manager\tools\migrate_mysql.py", line 268, in migrate_orders
+    dept_id = self.get_or_create_dept(row[1])
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\alhayat\Music\certificate_manager\tools\migrate_mysql.py", line 176, in get_or_create_dept
+    self.cursor.execute("INSERT INTO departments (name_ar, name_en) VALUES (?, ?)", (name_ar, name_en))
+sqlite3.IntegrityError: NOT NULL constraint failed: departments.college_ar
+2026-05-02 23:04:25,631 [SYSTEM] ERROR: Migration Failed: NOT NULL constraint failed: departments.college_ar
+Traceback (most recent call last):
+  File "c:\Users\alhayat\Music\certificate_manager\tools\migrate_mysql.py", line 444, in trigger_migration
+    manager.run()
+  File "c:\Users\alhayat\Music\certificate_manager\tools\migrate_mysql.py", line 206, in run
+    self.migrate_orders(rows)
+  File "c:\Users\alhayat\Music\certificate_manager\tools\migrate_mysql.py", line 268, in migrate_orders
+    dept_id = self.get_or_create_dept(row[1])
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\alhayat\Music\certificate_manager\tools\migrate_mysql.py", line 176, in get_or_create_dept
+    self.cursor.execute("INSERT INTO departments (name_ar, name_en) VALUES (?, ?)", (name_ar, name_en))
+sqlite3.IntegrityError: NOT NULL constraint failed: departments.college_ar
+2026-05-02 23:04:41,371 [SYSTEM] INFO: Application closed normally.
+2026-05-02 23:04:41,371 [SYSTEM] INFO: Application closed normally.
+2026-05-02 23:06:36,216 [SYSTEM] INFO: Starting database replacement migration...
+2026-05-02 23:06:36,228 [SYSTEM] INFO: Processing table: admin (6 rows)
+2026-05-02 23:06:36,230 [SYSTEM] INFO: Processing table: department (2 rows)
+2026-05-02 23:06:36,230 [SYSTEM] INFO: Processing table: info_system (1 rows)
+2026-05-02 23:06:36,232 [SYSTEM] INFO: Processing table: order_university (63 rows)
+2026-05-02 23:06:36,233 [SYSTEM] INFO: Processing table: signatures (1 rows)
+2026-05-02 23:06:36,242 [SYSTEM] INFO: Processing table: students_140 (118 rows)
+2026-05-02 23:06:36,252 [SYSTEM] INFO: Processing table: students_140_backup_1775558661 (118 rows)
+2026-05-02 23:06:36,372 [SYSTEM] INFO: Processing table: students_q (1474 rows)
+2026-05-02 23:06:36,406 [SYSTEM] INFO: Processing table: subjects_140 (130 rows)
+2026-05-02 23:06:36,409 [SYSTEM] INFO: Processing table: subjects_q (100 rows)
+2026-05-02 23:06:36,471 [SYSTEM] INFO: Processing table: subjects_students_140 (1210 rows)
+2026-05-02 23:06:36,566 [SYSTEM] INFO: Processing table: subjects_students_q (1719 rows)
+2026-05-02 23:06:36,590 [SYSTEM] INFO: Migration strictly complete.
+2026-05-02 23:08:43,327 [SYSTEM] INFO: Application starting...
+2026-05-02 23:08:43,327 [SYSTEM] INFO: Application starting...
+2026-05-02 23:08:43,328 [SYSTEM] INFO: Initializing database at: C:\Users\alhayat\Music\certificate_manager\certificate_manager.db
+2026-05-02 23:08:43,328 [SYSTEM] INFO: Initializing database at: C:\Users\alhayat\Music\certificate_manager\certificate_manager.db
+2026-05-02 23:08:43,332 [SYSTEM] INFO: All tables created (or already exist).
+2026-05-02 23:08:43,332 [SYSTEM] INFO: All tables created (or already exist).
+2026-05-02 23:08:43,334 [SYSTEM] INFO: All indexes created (or already exist).
+2026-05-02 23:08:43,334 [SYSTEM] INFO: All indexes created (or already exist).
+2026-05-02 23:08:43,334 [SYSTEM] INFO: Study systems seeded (or already exist).
+2026-05-02 23:08:43,334 [SYSTEM] INFO: Study systems seeded (or already exist).
+2026-05-02 23:08:43,334 [SYSTEM] INFO: Governorates already seeded (18 rows). Skipping.
+2026-05-02 23:08:43,334 [SYSTEM] INFO: Governorates already seeded (18 rows). Skipping.
+2026-05-02 23:08:43,336 [SYSTEM] INFO: Countries already seeded (195 rows). Skipping.
+2026-05-02 23:08:43,336 [SYSTEM] INFO: Countries already seeded (195 rows). Skipping.
+2026-05-02 23:08:43,336 [SYSTEM] INFO: Database initialization complete.
+2026-05-02 23:08:43,336 [SYSTEM] INFO: Database initialization complete.
+2026-05-02 23:08:48,280 [SYSTEM] INFO: User '1' logged in successfully.
+2026-05-02 23:08:48,280 [SYSTEM] INFO: User '1' logged in successfully.
+2026-05-02 23:08:48,280 [SYSTEM] INFO: User '1' logged in successfully.
+2026-05-02 23:08:48,280 [SYSTEM] INFO: User '1' logged in successfully.
+2026-05-02 23:09:03,620 [SYSTEM] INFO: Initializing database at: C:\Users\alhayat\Music\certificate_manager\certificate_manager.db
+2026-05-02 23:09:03,620 [SYSTEM] INFO: Initializing database at: C:\Users\alhayat\Music\certificate_manager\certificate_manager.db
+2026-05-02 23:09:03,624 [SYSTEM] INFO: All tables created (or already exist).
+2026-05-02 23:09:03,624 [SYSTEM] INFO: All tables created (or already exist).
+2026-05-02 23:09:03,626 [SYSTEM] INFO: All indexes created (or already exist).
+2026-05-02 23:09:03,626 [SYSTEM] INFO: All indexes created (or already exist).
+2026-05-02 23:09:03,626 [SYSTEM] INFO: Study systems seeded (or already exist).
+2026-05-02 23:09:03,626 [SYSTEM] INFO: Study systems seeded (or already exist).
+2026-05-02 23:09:03,627 [SYSTEM] INFO: Governorates already seeded (18 rows). Skipping.
+2026-05-02 23:09:03,627 [SYSTEM] INFO: Governorates already seeded (18 rows). Skipping.
+2026-05-02 23:09:03,628 [SYSTEM] INFO: Countries already seeded (195 rows). Skipping.
+2026-05-02 23:09:03,628 [SYSTEM] INFO: Countries already seeded (195 rows). Skipping.
+2026-05-02 23:09:03,628 [SYSTEM] INFO: Database initialization complete.
+2026-05-02 23:09:03,628 [SYSTEM] INFO: Database initialization complete.
+2026-05-02 23:09:03,683 [SYSTEM] INFO: Starting database replacement migration...
+2026-05-02 23:09:03,683 [SYSTEM] INFO: Starting database replacement migration...
+2026-05-02 23:09:03,683 [SYSTEM] INFO: Starting database replacement migration...
+2026-05-02 23:09:03,683 [SYSTEM] INFO: Starting database replacement migration...
+2026-05-02 23:09:03,700 [SYSTEM] INFO: Processing table: admin (6 rows)
+2026-05-02 23:09:03,700 [SYSTEM] INFO: Processing table: admin (6 rows)
+2026-05-02 23:09:03,700 [SYSTEM] INFO: Processing table: admin (6 rows)
+2026-05-02 23:09:03,700 [SYSTEM] INFO: Processing table: admin (6 rows)
+2026-05-02 23:09:03,701 [SYSTEM] INFO: Processing table: department (2 rows)
+2026-05-02 23:09:03,701 [SYSTEM] INFO: Processing table: department (2 rows)
+2026-05-02 23:09:03,701 [SYSTEM] INFO: Processing table: department (2 rows)
+2026-05-02 23:09:03,701 [SYSTEM] INFO: Processing table: department (2 rows)
+2026-05-02 23:09:03,702 [SYSTEM] INFO: Processing table: info_system (1 rows)
+2026-05-02 23:09:03,702 [SYSTEM] INFO: Processing table: info_system (1 rows)
+2026-05-02 23:09:03,702 [SYSTEM] INFO: Processing table: info_system (1 rows)
+2026-05-02 23:09:03,702 [SYSTEM] INFO: Processing table: info_system (1 rows)
+2026-05-02 23:09:03,710 [SYSTEM] INFO: Processing table: order_university (63 rows)
+2026-05-02 23:09:03,710 [SYSTEM] INFO: Processing table: order_university (63 rows)
+2026-05-02 23:09:03,710 [SYSTEM] INFO: Processing table: order_university (63 rows)
+2026-05-02 23:09:03,710 [SYSTEM] INFO: Processing table: order_university (63 rows)
+2026-05-02 23:09:03,713 [SYSTEM] INFO: Processing table: signatures (1 rows)
+2026-05-02 23:09:03,713 [SYSTEM] INFO: Processing table: signatures (1 rows)
+2026-05-02 23:09:03,713 [SYSTEM] INFO: Processing table: signatures (1 rows)
+2026-05-02 23:09:03,713 [SYSTEM] INFO: Processing table: signatures (1 rows)
+2026-05-02 23:09:03,735 [SYSTEM] INFO: Processing table: students_140 (118 rows)
+2026-05-02 23:09:03,735 [SYSTEM] INFO: Processing table: students_140 (118 rows)
+2026-05-02 23:09:03,735 [SYSTEM] INFO: Processing table: students_140 (118 rows)
+2026-05-02 23:09:03,735 [SYSTEM] INFO: Processing table: students_140 (118 rows)
+2026-05-02 23:09:03,751 [SYSTEM] INFO: Processing table: students_140_backup_1775558661 (118 rows)
+2026-05-02 23:09:03,751 [SYSTEM] INFO: Processing table: students_140_backup_1775558661 (118 rows)
+2026-05-02 23:09:03,751 [SYSTEM] INFO: Processing table: students_140_backup_1775558661 (118 rows)
+2026-05-02 23:09:03,751 [SYSTEM] INFO: Processing table: students_140_backup_1775558661 (118 rows)
+2026-05-02 23:09:03,908 [SYSTEM] INFO: Processing table: students_q (1474 rows)
+2026-05-02 23:09:03,908 [SYSTEM] INFO: Processing table: students_q (1474 rows)
+2026-05-02 23:09:03,908 [SYSTEM] INFO: Processing table: students_q (1474 rows)
+2026-05-02 23:09:03,908 [SYSTEM] INFO: Processing table: students_q (1474 rows)
+2026-05-02 23:09:03,965 [SYSTEM] INFO: Processing table: subjects_140 (130 rows)
+2026-05-02 23:09:03,965 [SYSTEM] INFO: Processing table: subjects_140 (130 rows)
+2026-05-02 23:09:03,965 [SYSTEM] INFO: Processing table: subjects_140 (130 rows)
+2026-05-02 23:09:03,965 [SYSTEM] INFO: Processing table: subjects_140 (130 rows)
+2026-05-02 23:09:03,985 [SYSTEM] INFO: Processing table: subjects_q (100 rows)
+2026-05-02 23:09:03,985 [SYSTEM] INFO: Processing table: subjects_q (100 rows)
+2026-05-02 23:09:03,985 [SYSTEM] INFO: Processing table: subjects_q (100 rows)
+2026-05-02 23:09:03,985 [SYSTEM] INFO: Processing table: subjects_q (100 rows)
+2026-05-02 23:09:04,097 [SYSTEM] INFO: Processing table: subjects_students_140 (1210 rows)
+2026-05-02 23:09:04,097 [SYSTEM] INFO: Processing table: subjects_students_140 (1210 rows)
+2026-05-02 23:09:04,097 [SYSTEM] INFO: Processing table: subjects_students_140 (1210 rows)
+2026-05-02 23:09:04,097 [SYSTEM] INFO: Processing table: subjects_students_140 (1210 rows)
+2026-05-02 23:09:04,240 [SYSTEM] INFO: Processing table: subjects_students_q (1719 rows)
+2026-05-02 23:09:04,240 [SYSTEM] INFO: Processing table: subjects_students_q (1719 rows)
+2026-05-02 23:09:04,240 [SYSTEM] INFO: Processing table: subjects_students_q (1719 rows)
+2026-05-02 23:09:04,240 [SYSTEM] INFO: Processing table: subjects_students_q (1719 rows)
+2026-05-02 23:09:04,271 [SYSTEM] INFO: Migration strictly complete.
+2026-05-02 23:09:04,271 [SYSTEM] INFO: Migration strictly complete.
+2026-05-02 23:09:04,271 [SYSTEM] INFO: Migration strictly complete.
+2026-05-02 23:09:04,271 [SYSTEM] INFO: Migration strictly complete.
+2026-05-02 23:09:04,272 [SYSTEM] INFO: Database migrated successfully using C:/Users/alhayat/Music/certificate_manager/CSIT_SQL_DATABASE2.sql
+2026-05-02 23:09:04,272 [SYSTEM] INFO: Database migrated successfully using C:/Users/alhayat/Music/certificate_manager/CSIT_SQL_DATABASE2.sql
+2026-05-02 23:09:41,336 [SYSTEM] INFO: Application closed normally.
+2026-05-02 23:09:41,336 [SYSTEM] INFO: Application closed normally.
+2026-05-02 23:12:28,496 [SYSTEM] INFO: Starting database replacement migration...
+2026-05-02 23:12:28,509 [SYSTEM] INFO: Processing table: admin (6 rows)
+2026-05-02 23:12:28,510 [SYSTEM] INFO: Processing table: department (2 rows)
+2026-05-02 23:12:28,510 [SYSTEM] INFO: Processing table: info_system (1 rows)
+2026-05-02 23:12:28,512 [SYSTEM] INFO: Processing table: order_university (63 rows)
+2026-05-02 23:12:28,513 [SYSTEM] INFO: Processing table: signatures (1 rows)
+2026-05-02 23:12:28,523 [SYSTEM] INFO: Processing table: students_140 (118 rows)
+2026-05-02 23:12:28,534 [SYSTEM] INFO: Processing table: students_140_backup_1775558661 (118 rows)
+2026-05-02 23:12:28,658 [SYSTEM] INFO: Processing table: students_q (1474 rows)
+2026-05-02 23:12:28,705 [SYSTEM] INFO: Processing table: subjects_140 (130 rows)
+2026-05-02 23:12:28,709 [SYSTEM] INFO: Processing table: subjects_q (100 rows)
+2026-05-02 23:12:28,781 [SYSTEM] INFO: Processing table: subjects_students_140 (1210 rows)
+2026-05-02 23:12:28,901 [SYSTEM] INFO: Processing table: subjects_students_q (1719 rows)
+2026-05-02 23:12:28,930 [SYSTEM] INFO: Migration strictly complete.
+2026-05-02 23:15:44,717 [SYSTEM] INFO: Application starting...
+2026-05-02 23:15:44,717 [SYSTEM] INFO: Application starting...
+2026-05-02 23:15:44,719 [SYSTEM] INFO: Initializing database at: C:\Users\alhayat\Music\certificate_manager\certificate_manager.db
+2026-05-02 23:15:44,719 [SYSTEM] INFO: Initializing database at: C:\Users\alhayat\Music\certificate_manager\certificate_manager.db
+2026-05-02 23:15:44,723 [SYSTEM] INFO: All tables created (or already exist).
+2026-05-02 23:15:44,723 [SYSTEM] INFO: All tables created (or already exist).
+2026-05-02 23:15:44,724 [SYSTEM] INFO: All indexes created (or already exist).
+2026-05-02 23:15:44,724 [SYSTEM] INFO: All indexes created (or already exist).
+2026-05-02 23:15:44,725 [SYSTEM] INFO: Study systems seeded (or already exist).
+2026-05-02 23:15:44,725 [SYSTEM] INFO: Study systems seeded (or already exist).
+2026-05-02 23:15:44,725 [SYSTEM] INFO: Governorates already seeded (18 rows). Skipping.
+2026-05-02 23:15:44,725 [SYSTEM] INFO: Governorates already seeded (18 rows). Skipping.
+2026-05-02 23:15:44,726 [SYSTEM] INFO: Countries already seeded (195 rows). Skipping.
+2026-05-02 23:15:44,726 [SYSTEM] INFO: Countries already seeded (195 rows). Skipping.
+2026-05-02 23:15:44,726 [SYSTEM] INFO: Database initialization complete.
+2026-05-02 23:15:44,726 [SYSTEM] INFO: Database initialization complete.
+2026-05-02 23:15:49,662 [SYSTEM] INFO: User '1' logged in successfully.
+2026-05-02 23:15:49,662 [SYSTEM] INFO: User '1' logged in successfully.
+2026-05-02 23:15:49,662 [SYSTEM] INFO: User '1' logged in successfully.
+2026-05-02 23:15:49,662 [SYSTEM] INFO: User '1' logged in successfully.
+2026-05-02 23:18:02,775 [SYSTEM] INFO: تم توليد وثيقة للطالب ID: 12 بواسطة المستخدم ID: 1
+2026-05-02 23:18:02,775 [SYSTEM] INFO: تم توليد وثيقة للطالب ID: 12 بواسطة المستخدم ID: 1
+2026-05-02 23:18:49,896 [SYSTEM] INFO: Application closed normally.
+2026-05-02 23:18:49,896 [SYSTEM] INFO: Application closed normally.
+2026-05-02 23:21:16,710 [SYSTEM] INFO: Application starting...
+2026-05-02 23:21:16,710 [SYSTEM] INFO: Application starting...
+2026-05-02 23:21:16,711 [SYSTEM] INFO: Initializing database at: C:\Users\alhayat\Music\certificate_manager\certificate_manager.db
+2026-05-02 23:21:16,711 [SYSTEM] INFO: Initializing database at: C:\Users\alhayat\Music\certificate_manager\certificate_manager.db
+2026-05-02 23:21:16,715 [SYSTEM] INFO: All tables created (or already exist).
+2026-05-02 23:21:16,715 [SYSTEM] INFO: All tables created (or already exist).
+2026-05-02 23:21:16,715 [SYSTEM] INFO: All indexes created (or already exist).
+2026-05-02 23:21:16,715 [SYSTEM] INFO: All indexes created (or already exist).
+2026-05-02 23:21:16,717 [SYSTEM] INFO: Study systems seeded (or already exist).
+2026-05-02 23:21:16,717 [SYSTEM] INFO: Study systems seeded (or already exist).
+2026-05-02 23:21:16,718 [SYSTEM] INFO: Governorates already seeded (18 rows). Skipping.
+2026-05-02 23:21:16,718 [SYSTEM] INFO: Governorates already seeded (18 rows). Skipping.
+2026-05-02 23:21:16,718 [SYSTEM] INFO: Countries already seeded (195 rows). Skipping.
+2026-05-02 23:21:16,718 [SYSTEM] INFO: Countries already seeded (195 rows). Skipping.
+2026-05-02 23:21:16,719 [SYSTEM] INFO: Database initialization complete.
+2026-05-02 23:21:16,719 [SYSTEM] INFO: Database initialization complete.
+2026-05-02 23:21:20,871 [SYSTEM] INFO: User '1' logged in successfully.
+2026-05-02 23:21:20,871 [SYSTEM] INFO: User '1' logged in successfully.
+2026-05-02 23:21:20,871 [SYSTEM] INFO: User '1' logged in successfully.
+2026-05-02 23:21:20,871 [SYSTEM] INFO: User '1' logged in successfully.
+2026-05-02 23:24:24,172 [SYSTEM] INFO: Application closed normally.
+2026-05-02 23:24:24,172 [SYSTEM] INFO: Application closed normally.
+2026-05-02 23:24:43,171 [SYSTEM] INFO: Application starting...
+2026-05-02 23:24:43,171 [SYSTEM] INFO: Application starting...
+2026-05-02 23:24:43,172 [SYSTEM] INFO: Initializing database at: C:\Users\alhayat\Music\certificate_manager\certificate_manager.db
+2026-05-02 23:24:43,172 [SYSTEM] INFO: Initializing database at: C:\Users\alhayat\Music\certificate_manager\certificate_manager.db
+2026-05-02 23:24:43,176 [SYSTEM] INFO: All tables created (or already exist).
+2026-05-02 23:24:43,176 [SYSTEM] INFO: All tables created (or already exist).
+2026-05-02 23:24:43,176 [SYSTEM] INFO: All indexes created (or already exist).
+2026-05-02 23:24:43,176 [SYSTEM] INFO: All indexes created (or already exist).
+2026-05-02 23:24:43,178 [SYSTEM] INFO: Study systems seeded (or already exist).
+2026-05-02 23:24:43,178 [SYSTEM] INFO: Study systems seeded (or already exist).
+2026-05-02 23:24:43,178 [SYSTEM] INFO: Governorates already seeded (18 rows). Skipping.
+2026-05-02 23:24:43,178 [SYSTEM] INFO: Governorates already seeded (18 rows). Skipping.
+2026-05-02 23:24:43,179 [SYSTEM] INFO: Countries already seeded (195 rows). Skipping.
+2026-05-02 23:24:43,179 [SYSTEM] INFO: Countries already seeded (195 rows). Skipping.
+2026-05-02 23:24:43,179 [SYSTEM] INFO: Database initialization complete.
+2026-05-02 23:24:43,179 [SYSTEM] INFO: Database initialization complete.
+2026-05-02 23:24:47,684 [SYSTEM] INFO: User '1' logged in successfully.
+2026-05-02 23:24:47,684 [SYSTEM] INFO: User '1' logged in successfully.
+2026-05-02 23:24:47,684 [SYSTEM] INFO: User '1' logged in successfully.
+2026-05-02 23:24:47,684 [SYSTEM] INFO: User '1' logged in successfully.
+2026-05-02 23:30:42,258 [SYSTEM] INFO: Application closed normally.
+2026-05-02 23:30:42,258 [SYSTEM] INFO: Application closed normally.
+2026-05-02 23:30:45,121 [SYSTEM] INFO: Application starting...
+2026-05-02 23:30:45,121 [SYSTEM] INFO: Application starting...
+2026-05-02 23:30:45,122 [SYSTEM] INFO: Initializing database at: C:\Users\alhayat\Music\certificate_manager\certificate_manager.db
+2026-05-02 23:30:45,122 [SYSTEM] INFO: Initializing database at: C:\Users\alhayat\Music\certificate_manager\certificate_manager.db
+2026-05-02 23:30:45,124 [SYSTEM] INFO: All tables created (or already exist).
+2026-05-02 23:30:45,124 [SYSTEM] INFO: All tables created (or already exist).
+2026-05-02 23:30:45,134 [SYSTEM] INFO: All indexes created (or already exist).
+2026-05-02 23:30:45,134 [SYSTEM] INFO: All indexes created (or already exist).
+2026-05-02 23:30:45,134 [SYSTEM] INFO: Study systems seeded (or already exist).
+2026-05-02 23:30:45,134 [SYSTEM] INFO: Study systems seeded (or already exist).
+2026-05-02 23:30:45,134 [SYSTEM] INFO: Governorates already seeded (18 rows). Skipping.
+2026-05-02 23:30:45,134 [SYSTEM] INFO: Governorates already seeded (18 rows). Skipping.
+2026-05-02 23:30:45,136 [SYSTEM] INFO: Countries already seeded (195 rows). Skipping.
+2026-05-02 23:30:45,136 [SYSTEM] INFO: Countries already seeded (195 rows). Skipping.
+2026-05-02 23:30:45,137 [SYSTEM] INFO: Database initialization complete.
+2026-05-02 23:30:45,137 [SYSTEM] INFO: Database initialization complete.
+2026-05-02 23:30:49,519 [SYSTEM] INFO: User '1' logged in successfully.
+2026-05-02 23:30:49,519 [SYSTEM] INFO: User '1' logged in successfully.
+2026-05-02 23:30:49,519 [SYSTEM] INFO: User '1' logged in successfully.
+2026-05-02 23:30:49,519 [SYSTEM] INFO: User '1' logged in successfully.
+2026-05-02 23:32:31,282 [SYSTEM] INFO: تم تعديل بيانات الكادر: أسراء فاضل عبد
+2026-05-02 23:32:31,282 [SYSTEM] INFO: تم تعديل بيانات الكادر: أسراء فاضل عبد
+2026-05-02 23:43:21,692 [SYSTEM] INFO: Application closed normally.
+2026-05-02 23:43:21,692 [SYSTEM] INFO: Application closed normally.
+2026-05-02 23:43:24,629 [SYSTEM] INFO: Application starting...
+2026-05-02 23:43:24,629 [SYSTEM] INFO: Application starting...
+2026-05-02 23:43:24,630 [SYSTEM] INFO: Initializing database at: C:\Users\alhayat\Music\certificate_manager\certificate_manager.db
+2026-05-02 23:43:24,630 [SYSTEM] INFO: Initializing database at: C:\Users\alhayat\Music\certificate_manager\certificate_manager.db
+2026-05-02 23:43:24,634 [SYSTEM] INFO: All tables created (or already exist).
+2026-05-02 23:43:24,634 [SYSTEM] INFO: All tables created (or already exist).
+2026-05-02 23:43:24,635 [SYSTEM] INFO: All indexes created (or already exist).
+2026-05-02 23:43:24,635 [SYSTEM] INFO: All indexes created (or already exist).
+2026-05-02 23:43:24,637 [SYSTEM] INFO: Study systems seeded (or already exist).
+2026-05-02 23:43:24,637 [SYSTEM] INFO: Study systems seeded (or already exist).
+2026-05-02 23:43:24,637 [SYSTEM] INFO: Governorates already seeded (18 rows). Skipping.
+2026-05-02 23:43:24,637 [SYSTEM] INFO: Governorates already seeded (18 rows). Skipping.
+2026-05-02 23:43:24,637 [SYSTEM] INFO: Countries already seeded (195 rows). Skipping.
+2026-05-02 23:43:24,637 [SYSTEM] INFO: Countries already seeded (195 rows). Skipping.
+2026-05-02 23:43:24,637 [SYSTEM] INFO: Database initialization complete.
+2026-05-02 23:43:24,637 [SYSTEM] INFO: Database initialization complete.
+2026-05-02 23:43:29,662 [SYSTEM] INFO: User '1' logged in successfully.
+2026-05-02 23:43:29,662 [SYSTEM] INFO: User '1' logged in successfully.
+2026-05-02 23:43:29,662 [SYSTEM] INFO: User '1' logged in successfully.
+2026-05-02 23:43:29,662 [SYSTEM] INFO: User '1' logged in successfully.
+2026-05-02 23:45:10,390 [SYSTEM] INFO: Application closed normally.
+2026-05-02 23:45:10,390 [SYSTEM] INFO: Application closed normally.
+2026-05-02 23:46:37,066 [SYSTEM] INFO: Application starting...
+2026-05-02 23:46:37,066 [SYSTEM] INFO: Application starting...
+2026-05-02 23:46:37,067 [SYSTEM] INFO: Initializing database at: C:\Users\alhayat\Music\certificate_manager\certificate_manager.db
+2026-05-02 23:46:37,067 [SYSTEM] INFO: Initializing database at: C:\Users\alhayat\Music\certificate_manager\certificate_manager.db
+2026-05-02 23:46:37,069 [SYSTEM] INFO: All tables created (or already exist).
+2026-05-02 23:46:37,069 [SYSTEM] INFO: All tables created (or already exist).
+2026-05-02 23:46:37,070 [SYSTEM] INFO: All indexes created (or already exist).
+2026-05-02 23:46:37,070 [SYSTEM] INFO: All indexes created (or already exist).
+2026-05-02 23:46:37,070 [SYSTEM] INFO: Study systems seeded (or already exist).
+2026-05-02 23:46:37,070 [SYSTEM] INFO: Study systems seeded (or already exist).
+2026-05-02 23:46:37,071 [SYSTEM] INFO: Governorates already seeded (18 rows). Skipping.
+2026-05-02 23:46:37,071 [SYSTEM] INFO: Governorates already seeded (18 rows). Skipping.
+2026-05-02 23:46:37,071 [SYSTEM] INFO: Countries already seeded (195 rows). Skipping.
+2026-05-02 23:46:37,071 [SYSTEM] INFO: Countries already seeded (195 rows). Skipping.
+2026-05-02 23:46:37,072 [SYSTEM] INFO: Database initialization complete.
+2026-05-02 23:46:37,072 [SYSTEM] INFO: Database initialization complete.
+2026-05-02 23:46:41,531 [SYSTEM] INFO: User '1' logged in successfully.
+2026-05-02 23:46:41,531 [SYSTEM] INFO: User '1' logged in successfully.
+2026-05-02 23:46:41,531 [SYSTEM] INFO: User '1' logged in successfully.
+2026-05-02 23:46:41,531 [SYSTEM] INFO: User '1' logged in successfully.
+2026-05-02 23:46:46,158 [SYSTEM] ERROR: Unhandled exception in Tkinter callback:
+Traceback (most recent call last):
+  File "C:\Users\alhayat\AppData\Local\Programs\Python\Python312\Lib\tkinter\__init__.py", line 1967, in __call__
+    return self.func(*args)
+           ^^^^^^^^^^^^^^^^
+  File "C:\Users\alhayat\AppData\Local\Programs\Python\Python312\Lib\site-packages\customtkinter\windows\widgets\ctk_button.py", line 554, in _clicked
+    self._command()
+  File "c:\Users\alhayat\Music\certificate_manager\main.py", line 134, in <lambda>
+    command=lambda key=item["key"]: self._on_navigate(key),
+                                    ^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\alhayat\Music\certificate_manager\main.py", line 330, in _show_screen
+    self._screens[key].refresh()
+  File "c:\Users\alhayat\Music\certificate_manager\screens\personnel_screen.py", line 210, in refresh
+    self._render_page()
+  File "c:\Users\alhayat\Music\certificate_manager\screens\personnel_screen.py", line 221, in _render_page
+    self._list.load(rows, cell_extractor=lambda r: [
+  File "c:\Users\alhayat\Music\certificate_manager\ui\record_list.py", line 123, in load
+    self._add_row(row_idx, row_data, cell_extractor(row_data))
+  File "c:\Users\alhayat\Music\certificate_manager\ui\record_list.py", line 198, in _add_row
+    add_btn("تعديل\nEdit", AppColors.COLOR_INFO, "#1565C0", self._on_edit, current_btn_col)
+  File "c:\Users\alhayat\Music\certificate_manager\ui\record_list.py", line 188, in add_btn
+    ).grid(row=0, column=col, padx=4, pady=4, sticky="center")
+      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\alhayat\AppData\Local\Programs\Python\Python312\Lib\site-packages\customtkinter\windows\widgets\core_widget_classes\ctk_base_class.py", line 321, in grid
+    return super().grid(**self._apply_argument_scaling(kwargs))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\alhayat\AppData\Local\Programs\Python\Python312\Lib\tkinter\__init__.py", line 2569, in grid_configure
+    self.tk.call(
+_tkinter.TclError: bad stickyness value "center": must be a string containing n, e, s, and/or w
+2026-05-02 23:46:46,158 [SYSTEM] ERROR: Unhandled exception in Tkinter callback:
+Traceback (most recent call last):
+  File "C:\Users\alhayat\AppData\Local\Programs\Python\Python312\Lib\tkinter\__init__.py", line 1967, in __call__
+    return self.func(*args)
+           ^^^^^^^^^^^^^^^^
+  File "C:\Users\alhayat\AppData\Local\Programs\Python\Python312\Lib\site-packages\customtkinter\windows\widgets\ctk_button.py", line 554, in _clicked
+    self._command()
+  File "c:\Users\alhayat\Music\certificate_manager\main.py", line 134, in <lambda>
+    command=lambda key=item["key"]: self._on_navigate(key),
+                                    ^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\alhayat\Music\certificate_manager\main.py", line 330, in _show_screen
+    self._screens[key].refresh()
+  File "c:\Users\alhayat\Music\certificate_manager\screens\personnel_screen.py", line 210, in refresh
+    self._render_page()
+  File "c:\Users\alhayat\Music\certificate_manager\screens\personnel_screen.py", line 221, in _render_page
+    self._list.load(rows, cell_extractor=lambda r: [
+  File "c:\Users\alhayat\Music\certificate_manager\ui\record_list.py", line 123, in load
+    self._add_row(row_idx, row_data, cell_extractor(row_data))
+  File "c:\Users\alhayat\Music\certificate_manager\ui\record_list.py", line 198, in _add_row
+    add_btn("تعديل\nEdit", AppColors.COLOR_INFO, "#1565C0", self._on_edit, current_btn_col)
+  File "c:\Users\alhayat\Music\certificate_manager\ui\record_list.py", line 188, in add_btn
+    ).grid(row=0, column=col, padx=4, pady=4, sticky="center")
+      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\alhayat\AppData\Local\Programs\Python\Python312\Lib\site-packages\customtkinter\windows\widgets\core_widget_classes\ctk_base_class.py", line 321, in grid
+    return super().grid(**self._apply_argument_scaling(kwargs))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\alhayat\AppData\Local\Programs\Python\Python312\Lib\tkinter\__init__.py", line 2569, in grid_configure
+    self.tk.call(
+_tkinter.TclError: bad stickyness value "center": must be a string containing n, e, s, and/or w
+2026-05-02 23:46:46,158 [SYSTEM] ERROR: Unhandled exception in Tkinter callback:
+Traceback (most recent call last):
+  File "C:\Users\alhayat\AppData\Local\Programs\Python\Python312\Lib\tkinter\__init__.py", line 1967, in __call__
+    return self.func(*args)
+           ^^^^^^^^^^^^^^^^
+  File "C:\Users\alhayat\AppData\Local\Programs\Python\Python312\Lib\site-packages\customtkinter\windows\widgets\ctk_button.py", line 554, in _clicked
+    self._command()
+  File "c:\Users\alhayat\Music\certificate_manager\main.py", line 134, in <lambda>
+    command=lambda key=item["key"]: self._on_navigate(key),
+                                    ^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\alhayat\Music\certificate_manager\main.py", line 330, in _show_screen
+    self._screens[key].refresh()
+  File "c:\Users\alhayat\Music\certificate_manager\screens\personnel_screen.py", line 210, in refresh
+    self._render_page()
+  File "c:\Users\alhayat\Music\certificate_manager\screens\personnel_screen.py", line 221, in _render_page
+    self._list.load(rows, cell_extractor=lambda r: [
+  File "c:\Users\alhayat\Music\certificate_manager\ui\record_list.py", line 123, in load
+    self._add_row(row_idx, row_data, cell_extractor(row_data))
+  File "c:\Users\alhayat\Music\certificate_manager\ui\record_list.py", line 198, in _add_row
+    add_btn("تعديل\nEdit", AppColors.COLOR_INFO, "#1565C0", self._on_edit, current_btn_col)
+  File "c:\Users\alhayat\Music\certificate_manager\ui\record_list.py", line 188, in add_btn
+    ).grid(row=0, column=col, padx=4, pady=4, sticky="center")
+      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\alhayat\AppData\Local\Programs\Python\Python312\Lib\site-packages\customtkinter\windows\widgets\core_widget_classes\ctk_base_class.py", line 321, in grid
+    return super().grid(**self._apply_argument_scaling(kwargs))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\alhayat\AppData\Local\Programs\Python\Python312\Lib\tkinter\__init__.py", line 2569, in grid_configure
+    self.tk.call(
+_tkinter.TclError: bad stickyness value "center": must be a string containing n, e, s, and/or w
+2026-05-02 23:46:46,158 [SYSTEM] ERROR: Unhandled exception in Tkinter callback:
+Traceback (most recent call last):
+  File "C:\Users\alhayat\AppData\Local\Programs\Python\Python312\Lib\tkinter\__init__.py", line 1967, in __call__
+    return self.func(*args)
+           ^^^^^^^^^^^^^^^^
+  File "C:\Users\alhayat\AppData\Local\Programs\Python\Python312\Lib\site-packages\customtkinter\windows\widgets\ctk_button.py", line 554, in _clicked
+    self._command()
+  File "c:\Users\alhayat\Music\certificate_manager\main.py", line 134, in <lambda>
+    command=lambda key=item["key"]: self._on_navigate(key),
+                                    ^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\alhayat\Music\certificate_manager\main.py", line 330, in _show_screen
+    self._screens[key].refresh()
+  File "c:\Users\alhayat\Music\certificate_manager\screens\personnel_screen.py", line 210, in refresh
+    self._render_page()
+  File "c:\Users\alhayat\Music\certificate_manager\screens\personnel_screen.py", line 221, in _render_page
+    self._list.load(rows, cell_extractor=lambda r: [
+  File "c:\Users\alhayat\Music\certificate_manager\ui\record_list.py", line 123, in load
+    self._add_row(row_idx, row_data, cell_extractor(row_data))
+  File "c:\Users\alhayat\Music\certificate_manager\ui\record_list.py", line 198, in _add_row
+    add_btn("تعديل\nEdit", AppColors.COLOR_INFO, "#1565C0", self._on_edit, current_btn_col)
+  File "c:\Users\alhayat\Music\certificate_manager\ui\record_list.py", line 188, in add_btn
+    ).grid(row=0, column=col, padx=4, pady=4, sticky="center")
+      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\alhayat\AppData\Local\Programs\Python\Python312\Lib\site-packages\customtkinter\windows\widgets\core_widget_classes\ctk_base_class.py", line 321, in grid
+    return super().grid(**self._apply_argument_scaling(kwargs))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\alhayat\AppData\Local\Programs\Python\Python312\Lib\tkinter\__init__.py", line 2569, in grid_configure
+    self.tk.call(
+_tkinter.TclError: bad stickyness value "center": must be a string containing n, e, s, and/or w
+2026-05-02 23:46:57,235 [SYSTEM] ERROR: Unhandled exception in Tkinter callback:
+Traceback (most recent call last):
+  File "C:\Users\alhayat\AppData\Local\Programs\Python\Python312\Lib\tkinter\__init__.py", line 1967, in __call__
+    return self.func(*args)
+           ^^^^^^^^^^^^^^^^
+  File "C:\Users\alhayat\AppData\Local\Programs\Python\Python312\Lib\site-packages\customtkinter\windows\widgets\ctk_button.py", line 554, in _clicked
+    self._command()
+  File "c:\Users\alhayat\Music\certificate_manager\main.py", line 134, in <lambda>
+    command=lambda key=item["key"]: self._on_navigate(key),
+                                    ^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\alhayat\Music\certificate_manager\main.py", line 330, in _show_screen
+    self._screens[key].refresh()
+  File "c:\Users\alhayat\Music\certificate_manager\screens\personnel_screen.py", line 210, in refresh
+    self._render_page()
+  File "c:\Users\alhayat\Music\certificate_manager\screens\personnel_screen.py", line 221, in _render_page
+    self._list.load(rows, cell_extractor=lambda r: [
+  File "c:\Users\alhayat\Music\certificate_manager\ui\record_list.py", line 123, in load
+    self._add_row(row_idx, row_data, cell_extractor(row_data))
+  File "c:\Users\alhayat\Music\certificate_manager\ui\record_list.py", line 198, in _add_row
+    add_btn("تعديل\nEdit", AppColors.COLOR_INFO, "#1565C0", self._on_edit, current_btn_col)
+  File "c:\Users\alhayat\Music\certificate_manager\ui\record_list.py", line 188, in add_btn
+    ).grid(row=0, column=col, padx=4, pady=4, sticky="center")
+      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\alhayat\AppData\Local\Programs\Python\Python312\Lib\site-packages\customtkinter\windows\widgets\core_widget_classes\ctk_base_class.py", line 321, in grid
+    return super().grid(**self._apply_argument_scaling(kwargs))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\alhayat\AppData\Local\Programs\Python\Python312\Lib\tkinter\__init__.py", line 2569, in grid_configure
+    self.tk.call(
+_tkinter.TclError: bad stickyness value "center": must be a string containing n, e, s, and/or w
+2026-05-02 23:46:57,235 [SYSTEM] ERROR: Unhandled exception in Tkinter callback:
+Traceback (most recent call last):
+  File "C:\Users\alhayat\AppData\Local\Programs\Python\Python312\Lib\tkinter\__init__.py", line 1967, in __call__
+    return self.func(*args)
+           ^^^^^^^^^^^^^^^^
+  File "C:\Users\alhayat\AppData\Local\Programs\Python\Python312\Lib\site-packages\customtkinter\windows\widgets\ctk_button.py", line 554, in _clicked
+    self._command()
+  File "c:\Users\alhayat\Music\certificate_manager\main.py", line 134, in <lambda>
+    command=lambda key=item["key"]: self._on_navigate(key),
+                                    ^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\alhayat\Music\certificate_manager\main.py", line 330, in _show_screen
+    self._screens[key].refresh()
+  File "c:\Users\alhayat\Music\certificate_manager\screens\personnel_screen.py", line 210, in refresh
+    self._render_page()
+  File "c:\Users\alhayat\Music\certificate_manager\screens\personnel_screen.py", line 221, in _render_page
+    self._list.load(rows, cell_extractor=lambda r: [
+  File "c:\Users\alhayat\Music\certificate_manager\ui\record_list.py", line 123, in load
+    self._add_row(row_idx, row_data, cell_extractor(row_data))
+  File "c:\Users\alhayat\Music\certificate_manager\ui\record_list.py", line 198, in _add_row
+    add_btn("تعديل\nEdit", AppColors.COLOR_INFO, "#1565C0", self._on_edit, current_btn_col)
+  File "c:\Users\alhayat\Music\certificate_manager\ui\record_list.py", line 188, in add_btn
+    ).grid(row=0, column=col, padx=4, pady=4, sticky="center")
+      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\alhayat\AppData\Local\Programs\Python\Python312\Lib\site-packages\customtkinter\windows\widgets\core_widget_classes\ctk_base_class.py", line 321, in grid
+    return super().grid(**self._apply_argument_scaling(kwargs))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\alhayat\AppData\Local\Programs\Python\Python312\Lib\tkinter\__init__.py", line 2569, in grid_configure
+    self.tk.call(
+_tkinter.TclError: bad stickyness value "center": must be a string containing n, e, s, and/or w
+2026-05-02 23:46:57,235 [SYSTEM] ERROR: Unhandled exception in Tkinter callback:
+Traceback (most recent call last):
+  File "C:\Users\alhayat\AppData\Local\Programs\Python\Python312\Lib\tkinter\__init__.py", line 1967, in __call__
+    return self.func(*args)
+           ^^^^^^^^^^^^^^^^
+  File "C:\Users\alhayat\AppData\Local\Programs\Python\Python312\Lib\site-packages\customtkinter\windows\widgets\ctk_button.py", line 554, in _clicked
+    self._command()
+  File "c:\Users\alhayat\Music\certificate_manager\main.py", line 134, in <lambda>
+    command=lambda key=item["key"]: self._on_navigate(key),
+                                    ^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\alhayat\Music\certificate_manager\main.py", line 330, in _show_screen
+    self._screens[key].refresh()
+  File "c:\Users\alhayat\Music\certificate_manager\screens\personnel_screen.py", line 210, in refresh
+    self._render_page()
+  File "c:\Users\alhayat\Music\certificate_manager\screens\personnel_screen.py", line 221, in _render_page
+    self._list.load(rows, cell_extractor=lambda r: [
+  File "c:\Users\alhayat\Music\certificate_manager\ui\record_list.py", line 123, in load
+    self._add_row(row_idx, row_data, cell_extractor(row_data))
+  File "c:\Users\alhayat\Music\certificate_manager\ui\record_list.py", line 198, in _add_row
+    add_btn("تعديل\nEdit", AppColors.COLOR_INFO, "#1565C0", self._on_edit, current_btn_col)
+  File "c:\Users\alhayat\Music\certificate_manager\ui\record_list.py", line 188, in add_btn
+    ).grid(row=0, column=col, padx=4, pady=4, sticky="center")
+      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\alhayat\AppData\Local\Programs\Python\Python312\Lib\site-packages\customtkinter\windows\widgets\core_widget_classes\ctk_base_class.py", line 321, in grid
+    return super().grid(**self._apply_argument_scaling(kwargs))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\alhayat\AppData\Local\Programs\Python\Python312\Lib\tkinter\__init__.py", line 2569, in grid_configure
+    self.tk.call(
+_tkinter.TclError: bad stickyness value "center": must be a string containing n, e, s, and/or w
+2026-05-02 23:46:57,235 [SYSTEM] ERROR: Unhandled exception in Tkinter callback:
+Traceback (most recent call last):
+  File "C:\Users\alhayat\AppData\Local\Programs\Python\Python312\Lib\tkinter\__init__.py", line 1967, in __call__
+    return self.func(*args)
+           ^^^^^^^^^^^^^^^^
+  File "C:\Users\alhayat\AppData\Local\Programs\Python\Python312\Lib\site-packages\customtkinter\windows\widgets\ctk_button.py", line 554, in _clicked
+    self._command()
+  File "c:\Users\alhayat\Music\certificate_manager\main.py", line 134, in <lambda>
+    command=lambda key=item["key"]: self._on_navigate(key),
+                                    ^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\alhayat\Music\certificate_manager\main.py", line 330, in _show_screen
+    self._screens[key].refresh()
+  File "c:\Users\alhayat\Music\certificate_manager\screens\personnel_screen.py", line 210, in refresh
+    self._render_page()
+  File "c:\Users\alhayat\Music\certificate_manager\screens\personnel_screen.py", line 221, in _render_page
+    self._list.load(rows, cell_extractor=lambda r: [
+  File "c:\Users\alhayat\Music\certificate_manager\ui\record_list.py", line 123, in load
+    self._add_row(row_idx, row_data, cell_extractor(row_data))
+  File "c:\Users\alhayat\Music\certificate_manager\ui\record_list.py", line 198, in _add_row
+    add_btn("تعديل\nEdit", AppColors.COLOR_INFO, "#1565C0", self._on_edit, current_btn_col)
+  File "c:\Users\alhayat\Music\certificate_manager\ui\record_list.py", line 188, in add_btn
+    ).grid(row=0, column=col, padx=4, pady=4, sticky="center")
+      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\alhayat\AppData\Local\Programs\Python\Python312\Lib\site-packages\customtkinter\windows\widgets\core_widget_classes\ctk_base_class.py", line 321, in grid
+    return super().grid(**self._apply_argument_scaling(kwargs))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\alhayat\AppData\Local\Programs\Python\Python312\Lib\tkinter\__init__.py", line 2569, in grid_configure
+    self.tk.call(
+_tkinter.TclError: bad stickyness value "center": must be a string containing n, e, s, and/or w
+2026-05-02 23:48:59,181 [SYSTEM] INFO: Application closed normally.
+2026-05-02 23:48:59,181 [SYSTEM] INFO: Application closed normally.
+2026-05-02 23:49:04,411 [SYSTEM] INFO: Application starting...
+2026-05-02 23:49:04,411 [SYSTEM] INFO: Application starting...
+2026-05-02 23:49:04,412 [SYSTEM] INFO: Initializing database at: C:\Users\alhayat\Music\certificate_manager\certificate_manager.db
+2026-05-02 23:49:04,412 [SYSTEM] INFO: Initializing database at: C:\Users\alhayat\Music\certificate_manager\certificate_manager.db
+2026-05-02 23:49:04,416 [SYSTEM] INFO: All tables created (or already exist).
+2026-05-02 23:49:04,416 [SYSTEM] INFO: All tables created (or already exist).
+2026-05-02 23:49:04,416 [SYSTEM] INFO: All indexes created (or already exist).
+2026-05-02 23:49:04,416 [SYSTEM] INFO: All indexes created (or already exist).
+2026-05-02 23:49:04,417 [SYSTEM] INFO: Study systems seeded (or already exist).
+2026-05-02 23:49:04,417 [SYSTEM] INFO: Study systems seeded (or already exist).
+2026-05-02 23:49:04,417 [SYSTEM] INFO: Governorates already seeded (18 rows). Skipping.
+2026-05-02 23:49:04,417 [SYSTEM] INFO: Governorates already seeded (18 rows). Skipping.
+2026-05-02 23:49:04,418 [SYSTEM] INFO: Countries already seeded (195 rows). Skipping.
+2026-05-02 23:49:04,418 [SYSTEM] INFO: Countries already seeded (195 rows). Skipping.
+2026-05-02 23:49:04,418 [SYSTEM] INFO: Database initialization complete.
+2026-05-02 23:49:04,418 [SYSTEM] INFO: Database initialization complete.
+2026-05-02 23:49:09,170 [SYSTEM] INFO: User '1' logged in successfully.
+2026-05-02 23:49:09,170 [SYSTEM] INFO: User '1' logged in successfully.
+2026-05-02 23:49:09,170 [SYSTEM] INFO: User '1' logged in successfully.
+2026-05-02 23:49:09,170 [SYSTEM] INFO: User '1' logged in successfully.
+2026-05-02 23:49:34,801 [SYSTEM] INFO: تم تعديل بيانات الكادر: رائدة سالم خضير
+2026-05-02 23:49:34,801 [SYSTEM] INFO: تم تعديل بيانات الكادر: رائدة سالم خضير
+2026-05-02 23:49:38,097 [SYSTEM] INFO: تم إلغاء تفعيل الكادر: رائدة سالم خضير
+2026-05-02 23:49:38,097 [SYSTEM] INFO: تم إلغاء تفعيل الكادر: رائدة سالم خضير
+2026-05-02 23:49:39,179 [SYSTEM] INFO: تم إعادة تفعيل الكادر: رائدة سالم خضير
+2026-05-02 23:49:39,179 [SYSTEM] INFO: تم إعادة تفعيل الكادر: رائدة سالم خضير
+2026-05-02 23:50:05,321 [SYSTEM] INFO: Application closed normally.
+2026-05-02 23:50:05,321 [SYSTEM] INFO: Application closed normally.

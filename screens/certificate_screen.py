@@ -6,7 +6,7 @@ import win32api
 from docxtpl import DocxTemplate
 from itertools import zip_longest
 from config import AppFonts, AppColors
-from data.queries import fuzzy_search_students, get_full_certificate_data
+from data.queries import fuzzy_search_students, get_full_certificate_data, log_certificate_generation
 from db import get_grade
 from ui.base_screen import BaseScreen
 from ui.widgets import make_section_header, make_primary_button
@@ -626,6 +626,15 @@ class CertificateScreen(BaseScreen):
             ctx = self._build_context()
             doc.render(ctx)
             doc.save(output_path)
+            
+            # Log generation attempt
+            if self._selected_student_id:
+                try:
+                    user_id = self.winfo_toplevel().current_user["id"]
+                    log_certificate_generation(self._selected_student_id, user_id)
+                except Exception as log_err:
+                    print(f"Warning: Failed to log certificate generation: {log_err}")
+
             return True
         except Exception as e:
             self.show_error(f"Error generating document:\n{e}")

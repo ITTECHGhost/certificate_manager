@@ -56,45 +56,53 @@ class AppFonts:
         cls.SIZE_SMALL      = int(base * 0.9)
         cls.SIZE_TINY       = int(base * 0.8)
 
-def refresh_config():
-    """Load settings from the database and update global configuration."""
+def refresh_config(user_id: int = None):
+    """Load settings and appearance. Apply user-specific theme if user_id provided."""
     try:
-        from data.queries import get_settings
+        from data.queries import get_user_appearance
         import customtkinter as ctk
         
-        settings = get_settings()
-        if settings:
-            # Update Fonts
-            AppFonts.FAMILY = settings.get("font_family", "Arial")
-            AppFonts.update_sizes(settings.get("font_size_base", 13))
-            
-            # Update Theme
-            ctk.set_appearance_mode(settings.get("theme", "System"))
-            
-            accent = settings.get("accent_color", "blue")
-            if accent in ["orange", "purple", "red"]:
-                import os, json
-                theme_path = os.path.join(os.getcwd(), "themes", f"{accent}.json")
-                if os.path.exists(theme_path):
-                    ctk.set_default_color_theme("blue")  # Load base first
-                    try:
-                        with open(theme_path, "r", encoding="utf-8") as f:
-                            custom = json.load(f)
-                        
-                        from customtkinter import ThemeManager
-                        def deep_update(d, u):
-                            for k, v in u.items():
-                                if isinstance(v, dict) and k in d and isinstance(d[k], dict):
-                                    deep_update(d[k], v)
-                                else:
-                                    d[k] = v
-                        deep_update(ThemeManager.theme, custom)
-                    except Exception as e:
-                        print(f"Error merging custom theme {accent}: {e}")
-                else:
-                    ctk.set_default_color_theme("blue")
+        if user_id is not None:
+            appearance = get_user_appearance(user_id)
+        else:
+            appearance = {
+                "theme": "System",
+                "accent_color": "blue",
+                "font_family": "Arial",
+                "font_size_base": 13
+            }
+        
+        # Update Fonts
+        AppFonts.FAMILY = appearance.get("font_family", "Arial")
+        AppFonts.update_sizes(appearance.get("font_size_base", 13))
+        
+        # Update Theme
+        ctk.set_appearance_mode(appearance.get("theme", "System"))
+        
+        accent = appearance.get("accent_color", "blue")
+        if accent in ["orange", "purple", "red"]:
+            import os, json
+            theme_path = os.path.join(os.getcwd(), "themes", f"{accent}.json")
+            if os.path.exists(theme_path):
+                ctk.set_default_color_theme("blue")  # Load base first
+                try:
+                    with open(theme_path, "r", encoding="utf-8") as f:
+                        custom = json.load(f)
+                    
+                    from customtkinter import ThemeManager
+                    def deep_update(d, u):
+                        for k, v in u.items():
+                            if isinstance(v, dict) and k in d and isinstance(d[k], dict):
+                                deep_update(d[k], v)
+                            else:
+                                d[k] = v
+                    deep_update(ThemeManager.theme, custom)
+                except Exception as e:
+                    print(f"Error merging custom theme {accent}: {e}")
             else:
-                ctk.set_default_color_theme(accent)
+                ctk.set_default_color_theme("blue")
+        else:
+            ctk.set_default_color_theme(accent)
     except Exception:
         # Fallback to defaults if DB not ready
         AppFonts.update_sizes(13)
@@ -135,7 +143,7 @@ NAV_ITEMS: list[dict] = [
     {"key": "orders",      "ar": "أوامر التخرج",    "en": "Graduation Orders","icon": "🎓"},
     {"key": "departments", "ar": "الأقسام",         "en": "Departments",      "icon": "🏫"},
     {"key": "courses",     "ar": "المواد الدراسية", "en": "Courses",          "icon": "📚"},
-    {"key": "personal",    "ar": "الكوادر",         "en": "Personal",         "icon": "👨‍💼"},
+    {"key": "personnel",   "ar": "الكوادر",         "en": "Personnel",        "icon": "👨‍💼"},
     {"key": "certificate", "ar": "إصدار الوثيقة",   "en": "Certificate",      "icon": "📜"},
     {"key": "history",     "ar": "سجل التغييرات",  "en": "History",          "icon": "📋"},
 ]
@@ -157,7 +165,7 @@ HOME_STAT_CARDS: list[dict] = [
      "icon": "🏫", "color": AppColors.ACCENT_GREEN},
     {"db_table": "courses",     "ar": "المواد",  "en": "Courses",
      "icon": "📚", "color": AppColors.ACCENT_ORANGE},
-    {"db_table": "personal",    "ar": "الكوادر", "en": "Personal",
+    {"db_table": "personnel",   "ar": "الكوادر", "en": "Personnel",
      "icon": "👨‍💼", "color": AppColors.ACCENT_PURPLE,
      "filter": "WHERE is_active = 1"},
 ]
