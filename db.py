@@ -83,6 +83,11 @@ def _migrate_db(conn: sqlite3.Connection) -> None:
         conn.execute("ALTER TABLE students ADD COLUMN sequence_number INTEGER")
     except sqlite3.OperationalError:
         pass
+        
+    try:
+        conn.execute("ALTER TABLE students ADD COLUMN postgraduation_no INTEGER")
+    except sqlite3.OperationalError:
+        pass
 
     # Ensure user_preferences exists for legacy setups
     conn.execute("""
@@ -120,7 +125,7 @@ def _create_tables(conn: sqlite3.Connection) -> None:
     CREATE TABLE IF NOT EXISTS governorates (id INTEGER PRIMARY KEY AUTOINCREMENT, name_ar TEXT, name_en TEXT);
     CREATE TABLE IF NOT EXISTS graduation_orders (id INTEGER PRIMARY KEY AUTOINCREMENT, order_number TEXT NOT NULL, order_date TEXT NOT NULL, department_id INTEGER NOT NULL, study_type TEXT DEFAULT 'morning', admission_year INTEGER NOT NULL, graduation_semester TEXT NOT NULL, num_students INTEGER, notes TEXT, UNIQUE(order_number, department_id, study_type, admission_year));
     CREATE TABLE IF NOT EXISTS courses (id INTEGER PRIMARY KEY AUTOINCREMENT, name_ar TEXT NOT NULL, name_en TEXT NOT NULL, credit_hours INTEGER NOT NULL, department_id INTEGER, stage_number INTEGER NOT NULL, study_system_id INTEGER NOT NULL, is_shared INTEGER DEFAULT 0, UNIQUE(name_ar, department_id, study_system_id));
-    CREATE TABLE IF NOT EXISTS students (id INTEGER PRIMARY KEY AUTOINCREMENT, full_name_ar TEXT NOT NULL, full_name_en TEXT NOT NULL, gender TEXT NOT NULL DEFAULT 'M' CHECK(gender IN ('M', 'F')), sequence_number INTEGER, date_of_birth TEXT NOT NULL, birthplace_id INTEGER, birthplace_other TEXT, nationality_id INTEGER NOT NULL, department_id INTEGER NOT NULL, study_system_id INTEGER NOT NULL, order_id INTEGER, admission_year INTEGER NOT NULL, study_type TEXT NOT NULL, graduation_date TEXT, graduation_semester TEXT, average REAL);
+    CREATE TABLE IF NOT EXISTS students (id INTEGER PRIMARY KEY AUTOINCREMENT, full_name_ar TEXT NOT NULL, full_name_en TEXT NOT NULL, gender TEXT NOT NULL DEFAULT 'M' CHECK(gender IN ('M', 'F')), sequence_number INTEGER, postgraduation_no INTEGER, date_of_birth TEXT NOT NULL, birthplace_id INTEGER, birthplace_other TEXT, nationality_id INTEGER NOT NULL, department_id INTEGER NOT NULL, study_system_id INTEGER NOT NULL, order_id INTEGER, admission_year INTEGER NOT NULL, study_type TEXT NOT NULL, graduation_date TEXT, graduation_semester TEXT, average REAL);
     CREATE TABLE IF NOT EXISTS academic_periods (id INTEGER PRIMARY KEY AUTOINCREMENT, student_id INTEGER NOT NULL, academic_year TEXT NOT NULL, study_system_id INTEGER NOT NULL, stage_number INTEGER NOT NULL, passed_round TEXT NOT NULL, UNIQUE(student_id, stage_number, academic_year));
     CREATE TABLE IF NOT EXISTS enrollments (id INTEGER PRIMARY KEY AUTOINCREMENT, period_id INTEGER NOT NULL, course_id INTEGER NOT NULL, score REAL NOT NULL, is_second_round INTEGER DEFAULT 0, UNIQUE(period_id, course_id));
 

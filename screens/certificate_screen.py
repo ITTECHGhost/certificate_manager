@@ -561,14 +561,14 @@ class CertificateScreen(BaseScreen):
             "Grade": grade_display,
             
             # Word's Conditional "If" Triggers
-            "sequence_ON": bool(data.get("rank")),
+            "sequence_ON": bool(self._opt_sequence.get()),
             "Failure_ON": bool(self._opt_postpone.get()),
             "Passed_ON": bool(self._opt_second_trial.get()),
             "Summer_ON": bool(self._opt_summer.get()),
 
-            "Sequence_of_Graduation": _localize(data.get("rank", "")),
-            "num_students": _localize(data.get("total_graduates", "")),
-            "Average_of_First_Student": _localize(data.get("top_average", "")),
+            "Sequence_of_Graduation": _localize(self._seq_rank_entry.get().strip() if self._opt_sequence.get() else ""),
+            "num_students": _localize(self._seq_total_entry.get().strip() if self._opt_sequence.get() else ""),
+            "Average_of_First_Student": _localize(self._seq_top_avg_entry.get().strip() if self._opt_sequence.get() else ""),
             
             "paired_semesters": paired_semesters,
             "paired_years": paired_semesters,  # Backward compatibility

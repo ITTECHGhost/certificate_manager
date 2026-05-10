@@ -148,16 +148,17 @@ class StudentFormPanel(SidePanel):
         self._adm_year = self._add_entry("سنة القبول", "Admission Year", placeholder="مثال: 2020", row=12, col=2)
         
         self._study_type = self._add_dropdown("نوع الدراسة", "Study Type", values=list(STUDY_TYPE_OPTIONS.keys()), row=14, col=0)
-        self._sequence_number = self._add_entry("رقم التسلسل", "Sequence Number", placeholder="مثال: 12", row=14, col=1)
+        self._sequence_number = self._add_entry("رقم التسلسل", "Sequence of Graduation", placeholder="مثال: 1", row=14, col=1)
+        self._postgraduation_no = self._add_entry("عدد الخريجين", "Postgraduation No.", placeholder="مثال: 86", row=14, col=2)
 
-        # -- ROW 14: Graduation Section --
-        self._add_section_label("التخرج", "Graduation (optional)", row=14, col=0, colspan=3)
+        # -- ROW 16: Graduation Section --
+        self._add_section_label("التخرج", "Graduation (optional)", row=16, col=0, colspan=3)
 
-        self._grad_date = self._add_entry("تاريخ التخرج", "Graduation Date", placeholder="اتركه فارغاً إن لم يتخرج بعد", row=16, col=0, justify="left")
-        self._grad_sem = self._add_combobox("فصل التخرج / الدور", "Graduation Semester / Role", values=["— لم يتخرج بعد / Not yet"] + list(SEMESTER_OPTIONS.keys()), row=16, col=1)
-        self._average = self._add_entry("المعدل العام", "Overall Average (50–100)", placeholder="مثال: 78", row=16, col=2)
+        self._grad_date = self._add_entry("تاريخ التخرج", "Graduation Date", placeholder="اتركه فارغاً إن لم يتخرج بعد", row=18, col=0, justify="left")
+        self._grad_sem = self._add_combobox("فصل التخرج / الدور", "Graduation Semester / Role", values=["— لم يتخرج بعد / Not yet"] + list(SEMESTER_OPTIONS.keys()), row=18, col=1)
+        self._average = self._add_entry("المعدل العام", "Overall Average (50–100)", placeholder="مثال: 78", row=18, col=2)
 
-        self._order = self._add_dropdown("الأمر الجامعي", "Graduation Order", values=["— بدون أمر / None"], row=18, col=0, colspan=2)
+        self._order = self._add_dropdown("الأمر الجامعي", "Graduation Order", values=["— بدون أمر / None"], row=20, col=0, colspan=2)
 
     def _reload_lookups(self) -> None:
         """Reload all dropdown data from the database."""
@@ -218,6 +219,7 @@ class StudentFormPanel(SidePanel):
         self._set_entry(self._grad_date,    data.get("graduation_date", "") or "")
         self._set_entry(self._average,      str(data.get("average", "") or ""))
         self._set_entry(self._sequence_number, str(data.get("sequence_number", "") or ""))
+        self._set_entry(self._postgraduation_no, str(data.get("postgraduation_no", "") or ""))
 
         # Gender
         self._set_dropdown(
@@ -354,6 +356,9 @@ class StudentFormPanel(SidePanel):
         
         seq_raw = self._sequence_number.get().strip()
         seq_val = int(seq_raw) if seq_raw.isdigit() else None
+
+        post_raw = self._postgraduation_no.get().strip()
+        post_val = int(post_raw) if post_raw.isdigit() else None
         
         gender_val = GENDER_OPTIONS[self._gender.get()]
 
@@ -373,6 +378,7 @@ class StudentFormPanel(SidePanel):
                 full_name_en        = self._name_en.get().strip(),
                 gender              = gender_val,
                 sequence_number     = seq_val,
+                postgraduation_no   = post_val,
                 date_of_birth       = self._dob.get().strip(),
                 birthplace_id       = bp_id,
                 birthplace_other    = bp_other,
@@ -392,6 +398,7 @@ class StudentFormPanel(SidePanel):
                 full_name_en        = self._name_en.get().strip(),
                 gender              = gender_val,
                 sequence_number     = seq_val,
+                postgraduation_no   = post_val,
                 date_of_birth       = self._dob.get().strip(),
                 birthplace_id       = bp_id,
                 birthplace_other    = bp_other,

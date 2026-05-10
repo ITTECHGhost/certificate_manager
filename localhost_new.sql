@@ -914,7 +914,8 @@ INSERT INTO
 		`sin_dean`,
 		`sin_dean_en`,
 		`pos_dean`,
-		`pos_dean_en` `reg`,
+		`pos_dean_en`,
+	        `reg`,
 		`reg_en`,
 		`sin_reg`,
 		`sin_reg_en`,
@@ -953,7 +954,8 @@ VALUES
 		'الأستاذ الدكتور',
 		'Prof. Dr.',
 		'العميد',
-		'The Dean' 'مرتجى علي ساري',
+		'The Dean',
+	  'مرتجى علي ساري',
 		'Mortaja A. Saary',
 		'المدرس الدكتور',
 		'Lecturer Dr.',
@@ -55688,8 +55690,6 @@ CREATE TABLE IF NOT EXISTS `students_140` (
 	SET
 		utf8mb3 COLLATE utf8mb3_general_ci DEFAULT NULL,
 		`applicating_year` varchar(10) CHARACTER
-	SET
-		utf8mb3 COLLATE utf8mb3_general_ci DEFAULT ((`graduation_year` - 4)),
 		PRIMARY KEY (`id`)
 ) ENGINE = InnoDB AUTO_INCREMENT = 125 DEFAULT CHARSET = utf8mb3;
 

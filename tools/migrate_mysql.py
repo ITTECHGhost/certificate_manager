@@ -336,6 +336,7 @@ class MigrationManager:
             sem = 'second' if 'ثاني' in sem_val else 'first'
             
             sequence = int(row[9]) if row[9] and str(row[9]).isdigit() else None
+            postgrad_no = int(row[10]) if row[10] and str(row[10]).isdigit() else None
             
             avg_str = row[8]
             avg = None
@@ -395,9 +396,9 @@ class MigrationManager:
 
             try:
                 self.cursor.execute(
-                    "INSERT OR IGNORE INTO students (id, full_name_ar, full_name_en, gender, sequence_number, date_of_birth, birthplace_id, nationality_id, department_id, study_system_id, order_id, admission_year, study_type, graduation_date, graduation_semester, average) "
-                    "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-                    (sid, full_name_ar, full_name_en, gender, sequence, dob, gov_id, country_id, dept_id, system_id, order_id, admission_year, study_type, grad_date, sem, avg)
+                    "INSERT OR IGNORE INTO students (id, full_name_ar, full_name_en, gender, sequence_number, postgraduation_no, date_of_birth, birthplace_id, nationality_id, department_id, study_system_id, order_id, admission_year, study_type, graduation_date, graduation_semester, average) "
+                    "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                    (sid, full_name_ar, full_name_en, gender, sequence, postgrad_no, dob, gov_id, country_id, dept_id, system_id, order_id, admission_year, study_type, grad_date, sem, avg)
                 )
             except sqlite3.Error as e:
                 system_logger.warning(f"Failed to import student {sid} '{full_name_ar}': {e}")

@@ -750,6 +750,7 @@ def insert_student(
     full_name_en: str,
     gender: str,
     sequence_number: int | None,
+    postgraduation_no: int | None,
     date_of_birth: str,
     birthplace_id: int | None,
     birthplace_other: str | None,
@@ -766,11 +767,11 @@ def insert_student(
     with get_connection() as conn:
         cursor = conn.execute(
             "INSERT INTO students "
-            "(full_name_ar, full_name_en, gender, sequence_number, date_of_birth, birthplace_id, "
+            "(full_name_ar, full_name_en, gender, sequence_number, postgraduation_no, date_of_birth, birthplace_id, "
             " birthplace_other, nationality_id, department_id, study_system_id, "
             " admission_year, study_type, graduation_date, graduation_semester, average) "
-            "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-            (full_name_ar, full_name_en, gender, sequence_number, date_of_birth, birthplace_id,
+            "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+            (full_name_ar, full_name_en, gender, sequence_number, postgraduation_no, date_of_birth, birthplace_id,
              birthplace_other, nationality_id, department_id, study_system_id,
              admission_year, study_type, graduation_date, graduation_semester, average)
         )
@@ -1574,8 +1575,11 @@ def get_full_certificate_data(student_id: int) -> dict | None:
         
         # 2. Ranks & Top Averages
         rank, total = get_graduate_rank(student_id)
-        data["rank"] = rank
-        data["total_graduates"] = total
+        
+        # Use stored values if available, otherwise fallback to calculated
+        data["rank"] = data.get("sequence_number") if data.get("sequence_number") is not None else rank
+        data["total_graduates"] = data.get("postgraduation_no") if data.get("postgraduation_no") is not None else total
+        
         data["top_average"] = get_top_graduate_average(data["department_id"], data["admission_year"])
         
         # 3. Academic periods & enrollments

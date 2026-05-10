@@ -1099,3 +1099,75 @@ _tkinter.TclError: bad stickyness value "center": must be a string containing n,
 2026-05-02 23:49:39,179 [SYSTEM] INFO: تم إعادة تفعيل الكادر: رائدة سالم خضير
 2026-05-02 23:50:05,321 [SYSTEM] INFO: Application closed normally.
 2026-05-02 23:50:05,321 [SYSTEM] INFO: Application closed normally.
+2026-05-03 09:09:20,111 [SYSTEM] INFO: Application starting...
+2026-05-03 09:09:20,111 [SYSTEM] INFO: Application starting...
+2026-05-03 09:09:20,112 [SYSTEM] INFO: Initializing database at: F:\CR_PY\certificate_manager\certificate_manager.db
+2026-05-03 09:09:20,112 [SYSTEM] INFO: Initializing database at: F:\CR_PY\certificate_manager\certificate_manager.db
+2026-05-03 09:09:20,123 [SYSTEM] INFO: All tables created (or already exist).
+2026-05-03 09:09:20,123 [SYSTEM] INFO: All tables created (or already exist).
+2026-05-03 09:09:20,123 [SYSTEM] INFO: All indexes created (or already exist).
+2026-05-03 09:09:20,123 [SYSTEM] INFO: All indexes created (or already exist).
+2026-05-03 09:09:20,124 [SYSTEM] INFO: Study systems seeded (or already exist).
+2026-05-03 09:09:20,124 [SYSTEM] INFO: Study systems seeded (or already exist).
+2026-05-03 09:09:20,124 [SYSTEM] INFO: Governorates already seeded (18 rows). Skipping.
+2026-05-03 09:09:20,124 [SYSTEM] INFO: Governorates already seeded (18 rows). Skipping.
+2026-05-03 09:09:20,124 [SYSTEM] INFO: Countries already seeded (195 rows). Skipping.
+2026-05-03 09:09:20,124 [SYSTEM] INFO: Countries already seeded (195 rows). Skipping.
+2026-05-03 09:09:20,124 [SYSTEM] INFO: Database initialization complete.
+2026-05-03 09:09:20,124 [SYSTEM] INFO: Database initialization complete.
+2026-05-03 09:09:27,007 [SYSTEM] INFO: User '1' logged in successfully.
+2026-05-03 09:09:27,007 [SYSTEM] INFO: User '1' logged in successfully.
+2026-05-03 09:09:27,007 [SYSTEM] INFO: User '1' logged in successfully.
+2026-05-03 09:09:27,007 [SYSTEM] INFO: User '1' logged in successfully.
+2026-05-03 09:10:00,335 [SYSTEM] INFO: تم حذف الكادر: صادق ابراهيم
+2026-05-03 09:10:00,335 [SYSTEM] INFO: تم حذف الكادر: صادق ابراهيم
+2026-05-03 09:10:05,286 [SYSTEM] INFO: تم حذف الكادر: قاسم باسل
+2026-05-03 09:10:05,286 [SYSTEM] INFO: تم حذف الكادر: قاسم باسل
+2026-05-03 09:10:09,106 [SYSTEM] INFO: تم حذف الكادر: علي شوقي
+2026-05-03 09:10:09,106 [SYSTEM] INFO: تم حذف الكادر: علي شوقي
+2026-05-03 09:10:13,483 [SYSTEM] INFO: تم حذف الكادر: زهراء عبدالكريم
+2026-05-03 09:10:13,483 [SYSTEM] INFO: تم حذف الكادر: زهراء عبدالكريم
+2026-05-03 09:11:54,203 [SYSTEM] INFO: تم تعديل بيانات الكادر: IT
+2026-05-03 09:11:54,203 [SYSTEM] INFO: تم تعديل بيانات الكادر: IT
+2026-05-03 09:12:34,726 [SYSTEM] INFO: تم تعديل بيانات الكادر: رائدة سالم خضير
+2026-05-03 09:12:34,726 [SYSTEM] INFO: تم تعديل بيانات الكادر: رائدة سالم خضير
+2026-05-03 09:12:56,401 [SYSTEM] INFO: تم تعديل بيانات الكادر: هشام كاظم هاشم
+2026-05-03 09:12:56,401 [SYSTEM] INFO: تم تعديل بيانات الكادر: هشام كاظم هاشم
+2026-05-03 09:13:50,854 [SYSTEM] INFO: تم تعديل بيانات الكادر: حيدر خزعل محبس
+2026-05-03 09:13:50,854 [SYSTEM] INFO: تم تعديل بيانات الكادر: حيدر خزعل محبس
+2026-05-03 09:14:17,864 [SYSTEM] INFO: تم تعديل بيانات الكادر: نغم باسل محمود
+2026-05-03 09:14:17,864 [SYSTEM] INFO: تم تعديل بيانات الكادر: نغم باسل محمود
+2026-05-03 09:14:22,009 [SYSTEM] INFO: تم تعديل بيانات الكادر: المدرس الدكتور
+2026-05-03 09:14:22,009 [SYSTEM] INFO: تم تعديل بيانات الكادر: المدرس الدكتور
+2026-05-03 09:14:45,393 [SYSTEM] INFO: تم تعديل بيانات الكادر: أسراء فاضل عبد
+2026-05-03 09:14:45,393 [SYSTEM] INFO: تم تعديل بيانات الكادر: أسراء فاضل عبد
+2026-05-03 09:15:32,553 [SYSTEM] INFO: تم تعديل بيانات الكادر: أسراء فاضل عبد
+2026-05-03 09:15:32,553 [SYSTEM] INFO: تم تعديل بيانات الكادر: أسراء فاضل عبد
+2026-05-03 09:16:18,861 [SYSTEM] INFO: تم توليد وثيقة للطالب ID: 12 بواسطة المستخدم ID: 1
+2026-05-03 09:16:18,861 [SYSTEM] INFO: تم توليد وثيقة للطالب ID: 12 بواسطة المستخدم ID: 1
+2026-05-03 09:25:22,399 [SYSTEM] INFO: تم توليد وثيقة للطالب ID: 12 بواسطة المستخدم ID: 1
+2026-05-03 09:25:22,399 [SYSTEM] INFO: تم توليد وثيقة للطالب ID: 12 بواسطة المستخدم ID: 1
+2026-05-03 09:56:06,477 [SYSTEM] INFO: Application closed normally.
+2026-05-03 09:56:06,477 [SYSTEM] INFO: Application closed normally.
+2026-05-03 09:57:25,280 [SYSTEM] INFO: Application starting...
+2026-05-03 09:57:25,280 [SYSTEM] INFO: Application starting...
+2026-05-03 09:57:25,281 [SYSTEM] INFO: Initializing database at: F:\CR_PY\certificate_manager\certificate_manager.db
+2026-05-03 09:57:25,281 [SYSTEM] INFO: Initializing database at: F:\CR_PY\certificate_manager\certificate_manager.db
+2026-05-03 09:57:25,289 [SYSTEM] INFO: All tables created (or already exist).
+2026-05-03 09:57:25,289 [SYSTEM] INFO: All tables created (or already exist).
+2026-05-03 09:57:25,295 [SYSTEM] INFO: All indexes created (or already exist).
+2026-05-03 09:57:25,295 [SYSTEM] INFO: All indexes created (or already exist).
+2026-05-03 09:57:25,295 [SYSTEM] INFO: Study systems seeded (or already exist).
+2026-05-03 09:57:25,295 [SYSTEM] INFO: Study systems seeded (or already exist).
+2026-05-03 09:57:25,296 [SYSTEM] INFO: Governorates already seeded (18 rows). Skipping.
+2026-05-03 09:57:25,296 [SYSTEM] INFO: Governorates already seeded (18 rows). Skipping.
+2026-05-03 09:57:25,296 [SYSTEM] INFO: Countries already seeded (195 rows). Skipping.
+2026-05-03 09:57:25,296 [SYSTEM] INFO: Countries already seeded (195 rows). Skipping.
+2026-05-03 09:57:25,297 [SYSTEM] INFO: Database initialization complete.
+2026-05-03 09:57:25,297 [SYSTEM] INFO: Database initialization complete.
+2026-05-03 09:57:31,748 [SYSTEM] INFO: User '1' logged in successfully.
+2026-05-03 09:57:31,748 [SYSTEM] INFO: User '1' logged in successfully.
+2026-05-03 09:57:31,748 [SYSTEM] INFO: User '1' logged in successfully.
+2026-05-03 09:57:31,748 [SYSTEM] INFO: User '1' logged in successfully.
+2026-05-03 10:02:43,923 [SYSTEM] INFO: Application closed normally.
+2026-05-03 10:02:43,923 [SYSTEM] INFO: Application closed normally.
