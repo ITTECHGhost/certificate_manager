@@ -11,6 +11,12 @@
 # =============================================================================
 
 
+class DBConfig:
+    DB_HOST = 'localhost'
+    DB_USER = 'root'
+    DB_PASSWORD = '12345678'
+    DB_NAME = 'certificate_manager'
+
 class AppColors:
     WINDOW_BG           = ("gray95",  "gray12")
     SIDEBAR_BG          = ("gray88",  "gray18")
@@ -59,11 +65,12 @@ class AppFonts:
 def refresh_config(user_id: int = None):
     """Load settings and appearance. Apply user-specific theme if user_id provided."""
     try:
-        from data.queries import get_user_appearance
+        from data.repositories import SettingsRepository
         import customtkinter as ctk
         
         if user_id is not None:
-            appearance = get_user_appearance(user_id)
+            repo = SettingsRepository()
+            appearance = repo.get_user_appearance(user_id)
         else:
             appearance = {
                 "theme": "System",

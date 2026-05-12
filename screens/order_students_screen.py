@@ -15,11 +15,7 @@
 import customtkinter as ctk
 
 from config import AppFonts, AppColors, AppSizes
-from data.queries import (
-    get_students_for_order, search_students_for_order,
-    link_students_to_order, unlink_student_from_order,
-    get_all_departments, update_student,
-)
+from data.repositories import StudentRepository, DepartmentRepository, GraduationOrderRepository
 from db import get_connection
 from ui.base_screen import BaseScreen
 from ui.widgets import make_section_header, make_primary_button
@@ -185,7 +181,7 @@ class OrderStudentsScreen(BaseScreen):
         )
 
     def _load_filter_options(self) -> None:
-        self._departments = get_all_departments()
+        self._departments = DepartmentRepository().get_all()
         dept_labels = ["كل الأقسام"] + [
             f"{d['name_ar']}  /  {d['name_en']}" for d in self._departments
         ]
@@ -212,7 +208,7 @@ class OrderStudentsScreen(BaseScreen):
         if not self._order:
             return
 
-        rows = get_students_for_order(self._order["id"])
+        rows = StudentRepository().get_by_order(self._order["id"])
         if not rows:
             ctk.CTkLabel(
                 self._linked_scroll,
@@ -271,7 +267,7 @@ class OrderStudentsScreen(BaseScreen):
         year = int(year_str) if year_str != "كل السنوات" and year_str.isdigit() else None
 
         name = self._search_var.get()
-        rows = search_students_for_order(
+        rows = StudentRepository().search_for_order(
             name_query=name,
             admission_year=year,
             department_id=dept_id,
@@ -329,24 +325,26 @@ class OrderStudentsScreen(BaseScreen):
     def _link_student(self, student_id: int) -> None:
         if not self._order:
             return
-        update_student(
+        StudentRepository().update(
             student_id,
-            order_id=self._order["id"],
-            graduation_date=self._order.get("order_date"),
-            graduation_semester=self._order.get("graduation_semester"),
+            data={
+                "order_id": self._order["id"],
+                "graduation_date": self._order.get("order_date"),
+                "graduation_semester": self._order.get("graduation_semester"),
+            }
         )
         self._render_linked()
         self._do_search()
 
     def _unlink_student(self, student_id: int) -> None:
-        unlink_student_from_order(student_id)
+        StudentRepository().unlink_from_order(student_id)
         self._render_linked()
         self._do_search()
 
     def _auto_link(self) -> None:
         if not self._order:
             return
-        linked = link_students_to_order(self._order["id"])
+        linked = StudentRepository().link_students_to_order(self._order["id"], self._order)
         self.show_error(
             f"تم ربط {linked} طالب تلقائياً بهذا الأمر.\n"
             f"Auto-linked {linked} students to this order."

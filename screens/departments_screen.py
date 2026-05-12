@@ -11,13 +11,10 @@
 # =============================================================================
 
 import customtkinter as ctk
-import sqlite3
+import mysql.connector
 
 from config import AppFonts
-from data.queries import (
-    get_all_departments, insert_department,
-    update_department,   delete_department,
-)
+from data.repositories import DepartmentRepository
 from ui.base_screen import BaseScreen
 from ui.side_panel import SidePanel
 from ui.record_list import RecordList
@@ -90,10 +87,11 @@ class DepartmentPanel(SidePanel):
             college_ar = self._college_ar.get().strip(),
             college_en = self._college_en.get().strip(),
         )
+        repo = DepartmentRepository()
         if existing:
-            update_department(dept_id=existing["id"], **kwargs)
+            repo.update(dept_id=existing["id"], **kwargs)
         else:
-            insert_department(**kwargs)
+            repo.insert(**kwargs)
 
 
 # =============================================================================
@@ -153,7 +151,8 @@ class DepartmentsScreen(BaseScreen):
         self._pager.grid(row=3, column=0, sticky="ew", pady=(6, 0))
 
     def refresh(self) -> None:
-        self._all_rows = get_all_departments()
+        repo = DepartmentRepository()
+        self._all_rows = repo.get_all()
         self._search_var.set("")
         self._pager.set_total(len(self._all_rows))
         self._render_page(self._all_rows)
@@ -194,8 +193,9 @@ class DepartmentsScreen(BaseScreen):
 
     def _delete(self, row: dict) -> None:
         try:
-            delete_department(row["id"])
+            repo = DepartmentRepository()
+            repo.delete(row["id"])
             self.refresh()
-        except sqlite3.IntegrityError:
+        except mysql.connector.Error:
             self.show_error("لا يمكن حذف هذا القسم لأن هناك طلاب أو مواد مرتبطة به.\n"
                             "Cannot delete: students or courses are linked.")

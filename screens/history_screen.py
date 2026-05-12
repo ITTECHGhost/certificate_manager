@@ -16,7 +16,7 @@
 import customtkinter as ctk
 
 from config import AppFonts, AppColors, AppSizes
-from data.queries import get_audit_log, count_audit_log
+from data.repositories import AuditRepository
 from ui.base_screen import BaseScreen
 from ui.pagination_bar import PaginationBar
 from ui.widgets import make_section_header
@@ -146,7 +146,7 @@ class HistoryScreen(BaseScreen):
     def refresh(self) -> None:
         self._table_filter  = self._resolve_table()
         self._action_filter = self._resolve_action()
-        total = count_audit_log(self._table_filter, self._action_filter)
+        total = AuditRepository().count_audit_log(self._table_filter, self._action_filter)
         self._pager.set_total(total)
         self._load_page()
 
@@ -161,7 +161,7 @@ class HistoryScreen(BaseScreen):
         for w in self._scroll.winfo_children():
             w.destroy()
 
-        rows = get_audit_log(
+        rows = AuditRepository().get_audit_log(
             table_filter  = self._table_filter,
             action_filter = self._action_filter,
             limit         = self._pager.page_size,

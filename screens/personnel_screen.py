@@ -1,10 +1,7 @@
 import customtkinter as ctk
 
 from config import AppFonts, AppColors, AppSizes
-from data.queries import (
-    get_all_personnel, insert_personnel, update_personnel, 
-    deactivate_personnel, activate_personnel, delete_personnel
-)
+from data.repositories import PersonnelRepository
 from ui.base_screen import BaseScreen
 from ui.side_panel import SidePanel
 from ui.record_list import RecordList
@@ -156,10 +153,11 @@ class PersonnelPanel(SidePanel):
             is_signature      = 1 if self._is_signature.get() else 0,
             template_appearance_id = existing.get("template_appearance_id") if existing else None,
         )
+        repo = PersonnelRepository()
         if existing:
-            update_personnel(person_id=existing["id"], **kwargs)
+            repo.update(person_id=existing["id"], data=kwargs)
         else:
-            insert_personnel(**kwargs)
+            repo.insert(data=kwargs)
 
 class PersonnelScreen(BaseScreen):
     COLUMNS = [
@@ -207,7 +205,8 @@ class PersonnelScreen(BaseScreen):
         self._pager.grid(row=3, column=0, sticky="ew", pady=(6, 0))
 
     def refresh(self) -> None:
-        self._all_rows = get_all_personnel()
+        repo = PersonnelRepository()
+        self._all_rows = repo.get_all()
         self._page = 1
         self._pager.set_total(len(self._all_rows))
         self._render_page()
@@ -234,26 +233,29 @@ class PersonnelScreen(BaseScreen):
     def _handle_cell_click(self, row: dict, col_idx: int) -> None:
         if col_idx == 5: # Is Signature
             new_val = 0 if row.get("is_signature") else 1
-            # If turning off signature, also clear order
-            update_personnel(
+            repo = PersonnelRepository()
+            repo.update(
                 person_id=row["id"],
-                name_ar=row["name_ar"], name_en=row["name_en"],
-                username=row["username"], password=row["password"],
-                role=row["role"], academic_title_ar=row["academic_title_ar"],
-                academic_title_en=row["academic_title_en"],
-                responsibility_ar=row["responsibility_ar"],
-                responsibility_en=row["responsibility_en"],
-                display_order=row["display_order"] if new_val else None,
-                page_location=row["page_location"] if new_val else None,
-                is_signature=new_val,
-                template_appearance_id=row.get("template_appearance_id")
+                data={
+                    "name_ar": row["name_ar"], "name_en": row["name_en"],
+                    "username": row["username"], "password": row["password"],
+                    "role": row["role"], "academic_title_ar": row["academic_title_ar"],
+                    "academic_title_en": row["academic_title_en"],
+                    "responsibility_ar": row["responsibility_ar"],
+                    "responsibility_en": row["responsibility_en"],
+                    "display_order": row["display_order"] if new_val else None,
+                    "page_location": row["page_location"] if new_val else None,
+                    "is_signature": new_val,
+                    "template_appearance_id": row.get("template_appearance_id")
+                }
             )
             self.refresh()
         elif col_idx == 6: # State
+            repo = PersonnelRepository()
             if row.get("is_active"):
-                deactivate_personnel(row["id"])
+                repo.toggle_active(row["id"], 0)
             else:
-                activate_personnel(row["id"])
+                repo.toggle_active(row["id"], 1)
             self.refresh()
 
     def _handle_delete_click(self, row: dict) -> None:
@@ -267,7 +269,8 @@ class PersonnelScreen(BaseScreen):
 
     def _delete(self, row: dict) -> None:
         try:
-            delete_personnel(row["id"])
+            repo = PersonnelRepository()
+            repo.delete(row["id"])
             self.refresh()
         except Exception as e:
             self.show_error(f"Cannot delete record. {e}")

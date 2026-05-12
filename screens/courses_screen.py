@@ -11,15 +11,10 @@
 # =============================================================================
 
 import customtkinter as ctk
-import sqlite3
+import mysql.connector
 
 from config import AppFonts, AppColors, AppSizes
-from data.queries import (
-    get_all_courses, get_all_departments,
-    get_active_study_systems,
-    insert_course, update_course, delete_course,
-    get_shared_dept_ids,
-)
+from data.repositories import CourseRepository, DepartmentRepository, StudySystemRepository
 from ui.base_screen import BaseScreen
 from ui.side_panel import SidePanel
 from ui.record_list import RecordList
@@ -131,12 +126,12 @@ class CoursePanel(SidePanel):
             self._dept_label.grid()
 
     def _reload_departments(self) -> None:
-        self._departments = get_all_departments()
+        self._departments = DepartmentRepository().get_all()
         labels = [f"{d['name_ar']}  /  {d['name_en']}" for d in self._departments] or ["—"]
         self._dept.configure(values=labels)
         self._dept.set(labels[0])
         # Reload study systems
-        self._study_systems = get_active_study_systems()
+        self._study_systems = StudySystemRepository().get_active()
         ss_labels = [f"{s['name_ar']}  /  {s['name_en']}" for s in self._study_systems] or ["—"]
         self._system.configure(values=ss_labels)
         if ss_labels:
@@ -192,7 +187,7 @@ class CoursePanel(SidePanel):
                 self._set_dropdown(self._system, f"{s['name_ar']}  /  {s['name_en']}")
                 break
         if data.get("is_shared"):
-            shared_ids = get_shared_dept_ids(data["id"])
+            shared_ids = CourseRepository().get_shared_dept_ids(data["id"])
             for var, did in self._dept_checks:
                 var.set(did in shared_ids)
         else:
@@ -238,10 +233,11 @@ class CoursePanel(SidePanel):
             study_system_id = ss_id,
             shared_dept_ids = shared_ids,
         )
+        repo = CourseRepository()
         if existing:
-            update_course(course_id=existing["id"], **kwargs)
+            repo.update(course_id=existing["id"], data=kwargs)
         else:
-            insert_course(**kwargs)
+            repo.insert(data=kwargs)
 
 
 # =============================================================================
@@ -317,8 +313,8 @@ class CoursesScreen(BaseScreen):
         self._pager.grid(row=3, column=0, sticky="ew", pady=(6, 0))
 
     def refresh(self) -> None:
-        self._all_rows = get_all_courses()
-        depts = get_all_departments()
+        self._all_rows = CourseRepository().get_all()
+        depts = DepartmentRepository().get_all()
         dept_labels = [self.ALL_DEPTS_LABEL] + [
             f"{d['name_ar']}  /  {d['name_en']}" for d in depts
         ]
@@ -334,11 +330,11 @@ class CoursesScreen(BaseScreen):
         rows  = self._all_rows
 
         if dept != self.ALL_DEPTS_LABEL:
-            rows = [r for r in rows if dept.split("  /  ")[0] in r.get("dept_name_ar", "")]
+            rows = [r for r in rows if dept.split("  /  ")[0] in (r.get("dept_name_ar") or "")]
 
         if term:
             rows = [r for r in rows
-                    if term in r["name_ar"].lower() or term in r["name_en"].lower()]
+                    if term in (r.get("name_ar") or "").lower() or term in (r.get("name_en") or "").lower()]
 
         self._pager.set_total(len(rows))
         self._render_page(rows)
@@ -351,12 +347,12 @@ class CoursesScreen(BaseScreen):
         off  = self._pager.offset
         rows = filtered[off: off + ps]
         self._list.load(rows, cell_extractor=lambda r: [
-            r["name_ar"],
-            r["name_en"],
-            r.get("dept_name_ar", "—"),
-            str(r["stage_number"]),
-            str(r["credit_hours"]),
-            r.get("study_system_name_ar", "—"),
+            r.get("name_ar") or "—",
+            r.get("name_en") or "—",
+            r.get("dept_name_ar") or "—",
+            str(r.get("stage_number", "—")),
+            str(r.get("credit_hours", "—")),
+            r.get("study_system_name_ar") or "—",
         ])
 
     def _confirm_delete(self, row: dict) -> None:
@@ -370,8 +366,8 @@ class CoursesScreen(BaseScreen):
 
     def _delete(self, row: dict) -> None:
         try:
-            delete_course(row["id"])
+            CourseRepository().delete(row["id"])
             self.refresh()
-        except sqlite3.IntegrityError:
+        except mysql.connector.Error:
             self.show_error("لا يمكن حذف هذه المادة لأن هناك طلاب مسجلون فيها.\n"
                             "Cannot delete: students are enrolled.")

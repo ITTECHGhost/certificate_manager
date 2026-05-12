@@ -3,31 +3,17 @@
 # =============================================================================
 
 import os
-import customtkinter as ctk
-from pathlib import Path
-from tkinter import filedialog
-from config import AppFonts, AppColors, AppSizes
-# =============================================================================
-# screens/settings_screen.py — Application Configuration Screen
-# =============================================================================
-
-import os
+import threading
 import customtkinter as ctk
 from pathlib import Path
 from tkinter import filedialog
 from config import AppFonts, AppColors, AppSizes
 from ui.base_screen import BaseScreen
 from ui.widgets import (
-    make_section_header, make_labeled_entry, make_primary_button, 
+    make_section_header, make_labeled_entry, make_primary_button,
     make_danger_button, make_divider
 )
-import threading
-from data.queries import (
-    get_settings, update_settings, clear_audit_logs,
-    get_all_study_systems, update_study_system, 
-    insert_study_system, delete_study_system,
-    get_user_appearance, update_user_appearance
-)
+from data.repositories import SettingsRepository, StudySystemRepository
 from db import backup_db, restore_db
 from tools.migrate_mysql import trigger_migration
 
@@ -160,22 +146,25 @@ class SettingsScreen(BaseScreen):
 
     def refresh(self) -> None:
         """Load settings from the database."""
-        settings = get_settings()
+        s_repo = SettingsRepository()
+        sys_repo = StudySystemRepository()
+        
+        settings = s_repo.get_settings()
         self._univ_ar.delete(0, "end")
-        self._univ_ar.insert(0, settings["univ_name_ar"])
+        self._univ_ar.insert(0, settings.get("univ_name_ar", ""))
         
         self._univ_en.delete(0, "end")
-        self._univ_en.insert(0, settings["univ_name_en"])
+        self._univ_en.insert(0, settings.get("univ_name_en", ""))
         
         self._college_ar.delete(0, "end")
-        self._college_ar.insert(0, settings["college_name_ar"])
+        self._college_ar.insert(0, settings.get("college_name_ar", ""))
         
         self._college_en.delete(0, "end")
-        self._college_en.insert(0, settings["college_name_en"])
+        self._college_en.insert(0, settings.get("college_name_en", ""))
 
         # Load user appearance preferences
         user_id = self.winfo_toplevel().current_user["id"]
-        appearance = get_user_appearance(user_id)
+        appearance = s_repo.get_user_appearance(user_id)
         
         self._theme.set(appearance.get("theme", "System"))
         self._accent.set(appearance.get("accent_color", "blue"))
@@ -193,64 +182,49 @@ class SettingsScreen(BaseScreen):
                 pass
         
         self._system_rows = []
-        systems = get_all_study_systems()
+        systems = sys_repo.get_all()
         for i, s in enumerate(systems):
             row_idx = i + 1
             
             ent_ar = ctk.CTkEntry(self._systems_card, font=ctk.CTkFont(family=AppFonts.FAMILY, size=AppFonts.SIZE_BODY), justify="right")
             ent_ar.insert(0, s["name_ar"])
-            ent_ar.grid(row=row_idx, column=7, padx=5, pady=5, sticky="ew")
+            ent_ar.grid(row=row_idx, column=5, padx=5, pady=5, sticky="ew")
             
             ent_en = ctk.CTkEntry(self._systems_card, font=ctk.CTkFont(family=AppFonts.FAMILY, size=AppFonts.SIZE_BODY), justify="left")
             ent_en.insert(0, s["name_en"])
-            ent_en.grid(row=row_idx, column=6, padx=5, pady=5, sticky="ew")
+            ent_en.grid(row=row_idx, column=4, padx=5, pady=5, sticky="ew")
 
-            ent_prefix = ctk.CTkEntry(self._systems_card, font=ctk.CTkFont(family=AppFonts.FAMILY, size=AppFonts.SIZE_BODY), width=60, placeholder_text="e.g. S")
-            ent_prefix.insert(0, s.get("prefix", "") or "")
-            ent_prefix.grid(row=row_idx, column=5, padx=5, pady=5, sticky="ew")
-
-            weight_type_menu = ctk.CTkOptionMenu(self._systems_card, values=["year_weight", "semester_weight", "none"], width=80,
-                                            font=ctk.CTkFont(family=AppFonts.FAMILY, size=AppFonts.SIZE_SMALL))
-            weight_type_menu.set(s.get("weight_type", "year_weight") or "year_weight")
-            weight_type_menu.grid(row=row_idx, column=4, padx=5, pady=5)
-
-            display_type_menu = ctk.CTkOptionMenu(self._systems_card, values=["year", "semester"], width=80,
-                                            font=ctk.CTkFont(family=AppFonts.FAMILY, size=AppFonts.SIZE_SMALL))
-            display_type_menu.set(s.get("display_type", "year") or "year")
-            display_type_menu.grid(row=row_idx, column=3, padx=5, pady=5)
-
-            ent_sem_w = ctk.CTkEntry(self._systems_card, font=ctk.CTkFont(family=AppFonts.FAMILY, size=AppFonts.SIZE_BODY), width=60)
-            ent_sem_w.insert(0, str(s.get("semester_weight", 50)))
-            ent_sem_w.grid(row=row_idx, column=1, padx=5, pady=5, sticky="ew")
-
-            ent_year_w = ctk.CTkEntry(self._systems_card, font=ctk.CTkFont(family=AppFonts.FAMILY, size=AppFonts.SIZE_BODY), width=60)
-            ent_year_w.insert(0, str(s.get("year_weight", 25)))
-            ent_year_w.grid(row=row_idx, column=2, padx=5, pady=5, sticky="ew")
-            
-            rule_menu = ctk.CTkOptionMenu(self._systems_card, values=["annual", "semester"], width=90, font=ctk.CTkFont(family=AppFonts.FAMILY, size=AppFonts.SIZE_SMALL))
+            rule_menu = ctk.CTkOptionMenu(self._systems_card, values=["annual", "semester"], width=100,
+                                          font=ctk.CTkFont(family=AppFonts.FAMILY, size=AppFonts.SIZE_SMALL))
             rule_menu.set(s["calculation_rule"])
-            rule_menu.grid(row=row_idx, column=0, padx=5, pady=5)
+            rule_menu.grid(row=row_idx, column=3, padx=5, pady=5)
+
+            period_display_menu = ctk.CTkOptionMenu(self._systems_card, values=["year", "semester"], width=100,
+                                                    font=ctk.CTkFont(family=AppFonts.FAMILY, size=AppFonts.SIZE_SMALL))
+            period_display_menu.set(s.get("period_display") or "year")
+            period_display_menu.grid(row=row_idx, column=2, padx=5, pady=5)
+
+            ent_weights = ctk.CTkEntry(self._systems_card, font=ctk.CTkFont(family=AppFonts.FAMILY, size=AppFonts.SIZE_BODY), width=120, placeholder_text="e.g. 10:20:30:40")
+            ent_weights.insert(0, s.get("calculation_weights") or "")
+            ent_weights.grid(row=row_idx, column=1, padx=5, pady=5, sticky="ew")
             
             sw_active = ctk.CTkSwitch(self._systems_card, text="", width=50)
             if s["is_active"]: sw_active.select()
             else: sw_active.deselect()
-            sw_active.grid(row=row_idx, column=8, padx=5, pady=5)
+            sw_active.grid(row=row_idx, column=0, padx=5, pady=5)
             
             # Delete button
             del_btn = ctk.CTkButton(self._systems_card, text="X", width=30, fg_color="transparent", text_color=AppColors.COLOR_ERROR, 
                                    command=lambda sid=s["id"]: self._delete_system(sid))
-            del_btn.grid(row=row_idx, column=9, padx=5, pady=5)
+            del_btn.grid(row=row_idx, column=6, padx=5, pady=5)
 
             self._system_rows.append({
                 "id": s["id"],
                 "ent_ar": ent_ar,
                 "ent_en": ent_en,
-                "ent_prefix": ent_prefix,
-                "ent_sem_w": ent_sem_w,
-                "ent_year_w": ent_year_w,
+                "ent_weights": ent_weights,
                 "rule_menu": rule_menu,
-                "display_type_menu": display_type_menu,
-                "weight_type_menu": weight_type_menu,
+                "period_display_menu": period_display_menu,
                 "sw": sw_active
             })
             
@@ -258,7 +232,8 @@ class SettingsScreen(BaseScreen):
 
     def _save_info(self) -> None:
         try:
-            update_settings(
+            repo = SettingsRepository()
+            repo.update_settings(
                 univ_ar=self._univ_ar.get(),
                 univ_en=self._univ_en.get(),
                 college_ar=self._college_ar.get(),
@@ -270,8 +245,9 @@ class SettingsScreen(BaseScreen):
 
     def _save_visuals(self) -> None:
         try:
+            repo = SettingsRepository()
             user_id = self.winfo_toplevel().current_user["id"]
-            update_user_appearance(
+            repo.update_user_appearance(
                 user_id=user_id,
                 theme=self._theme.get(),
                 accent=self._accent.get(),
@@ -286,19 +262,17 @@ class SettingsScreen(BaseScreen):
 
     def _save_systems(self) -> None:
         try:
+            repo = StudySystemRepository()
             for row in self._system_rows:
-                update_study_system(
-                    ss_id=row["id"],
+                repo.update(
+                    sys_id=row["id"],
                     name_ar=row["ent_ar"].get().strip(),
                     name_en=row["ent_en"].get().strip(),
-                    calculation_rule=row["rule_menu"].get(),
-                    semester_weight=int(row["ent_sem_w"].get() or 50),
-                    year_weight=int(row["ent_year_w"].get() or 25),
-                    is_active=1 if row["sw"].get() else 0,
-                    prefix=row["ent_prefix"].get().strip(),
-                    display_type=row["display_type_menu"].get(),
-                    weight_type=row["weight_type_menu"].get()
+                    calc_rule=row["rule_menu"].get(),
+                    period_display=row["period_display_menu"].get(),
+                    calculation_weights=row["ent_weights"].get().strip() or None,
                 )
+                repo.toggle(sys_id=row["id"], new_status=1 if row["sw"].get() else 0)
             self.show_success("تم حفظ أنظمة الدراسة بنجاح\nStudy systems saved successfully")
             self.refresh()
         except Exception as e:
@@ -307,15 +281,12 @@ class SettingsScreen(BaseScreen):
     def _add_system(self) -> None:
         """Adds a new study system with default values."""
         try:
-            insert_study_system(
+            repo = StudySystemRepository()
+            repo.insert(
                 name_ar="نظام جديد",
                 name_en="New System",
-                calculation_rule="semester",
-                semester_weight=50,
-                year_weight=25,
-                prefix="N",
-                display_type="year",
-                weight_type="year_weight"
+                calc_rule="semester",
+                period_display="year",
             )
             self.show_success("تم إضافة نظام دراسة جديد\nNew study system added")
             self.refresh()
@@ -331,21 +302,19 @@ class SettingsScreen(BaseScreen):
 
     def _do_delete_system(self, ss_id: int) -> None:
         try:
-            success = delete_study_system(ss_id)
-            if success:
-                self.show_success("تم الحذف بنجاح\nDeleted successfully")
-                self.refresh()
-            else:
-                self.show_error("لا يمكن حذف النظام لأنه مستخدم حالياً\nCannot delete: system is in use")
+            repo = StudySystemRepository()
+            repo.delete(ss_id)
+            self.show_success("تم الحذف بنجاح\nDeleted successfully")
+            self.refresh()
         except Exception as e:
-            self.show_error(f"Error deleting system: {e}")
+            self.show_error(f"لا يمكن حذف النظام لأنه مستخدم حالياً\nCannot delete: system is in use ({e})")
 
     def _handle_backup(self) -> None:
         try:
             file_path = filedialog.asksaveasfilename(
-                defaultextension=".db",
-                filetypes=[("SQLite Database", "*.db")],
-                initialfile="certificate_manager_backup.db"
+                defaultextension=".sql",
+                filetypes=[("MySQL SQL Dump", "*.sql"), ("All Files", "*.*")],
+                initialfile="certificate_manager_backup.sql"
             )
             if file_path:
                 backup_db(Path(file_path))
@@ -357,8 +326,8 @@ class SettingsScreen(BaseScreen):
         try:
             file_path = filedialog.askopenfilename(
                 title="اختر ملف نسخة احتياطية  /  Select Backup File",
-                defaultextension=".db",
-                filetypes=[("SQLite Database", "*.db")]
+                defaultextension=".sql",
+                filetypes=[("MySQL SQL Dump", "*.sql"), ("All Files", "*.*")]
             )
             if file_path:
                 self.show_confirm(
@@ -383,7 +352,8 @@ class SettingsScreen(BaseScreen):
 
     def _do_clear_logs(self) -> None:
         try:
-            clear_audit_logs()
+            repo = SettingsRepository()
+            repo.clear_audit_logs()
             self.show_success("تم مسح السجل بنجاح\nLogs cleared successfully")
         except Exception as e:
             self.show_error(f"Error clearing logs: {e}")

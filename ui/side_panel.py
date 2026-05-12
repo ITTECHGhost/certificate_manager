@@ -175,22 +175,23 @@ class SidePanel(ctk.CTkFrame, ABC):
     def _add_entry(
         self, label_ar: str, label_en: str, placeholder: str = "", 
         row: int = None, col: int = 0, colspan: int = 1,
-        justify: str = "right"
+        justify: str = "right", parent=None
     ) -> ctk.CTkEntry:
         """Add a labeled text entry field to the panel."""
+        target = parent if parent is not None else self._fields_frame
         if row is None:
             row = self._field_row
             self._field_row += 2
 
         ctk.CTkLabel(
-            self._fields_frame,
+            target,
             text=f"{label_ar}  /  {label_en}",
             font=ctk.CTkFont(family=AppFonts.FAMILY, size=AppFonts.SIZE_SMALL),
             anchor="e",
         ).grid(row=row, column=col, columnspan=colspan, sticky="e", pady=(8, 2), padx=10)
 
         entry = ctk.CTkEntry(
-            self._fields_frame,
+            target,
             placeholder_text=placeholder,
             font=ctk.CTkFont(family=AppFonts.FAMILY, size=AppFonts.SIZE_BODY),
             height=36,
@@ -207,22 +208,23 @@ class SidePanel(ctk.CTkFrame, ABC):
 
     def _add_dropdown(
         self, label_ar: str, label_en: str, values: list[str], 
-        row: int = None, col: int = 0, colspan: int = 1
+        row: int = None, col: int = 0, colspan: int = 1, parent=None
     ) -> ctk.CTkOptionMenu:
         """Add a labeled dropdown to the panel."""
+        target = parent if parent is not None else self._fields_frame
         if row is None:
             row = self._field_row
             self._field_row += 2
 
         ctk.CTkLabel(
-            self._fields_frame,
+            target,
             text=f"{label_ar}  /  {label_en}",
             font=ctk.CTkFont(family=AppFonts.FAMILY, size=AppFonts.SIZE_SMALL),
             anchor="e",
         ).grid(row=row, column=col, columnspan=colspan, sticky="e", pady=(8, 2), padx=10)
 
         dropdown = ctk.CTkOptionMenu(
-            self._fields_frame,
+            target,
             values=values,
             font=ctk.CTkFont(family=AppFonts.FAMILY, size=AppFonts.SIZE_BODY),
             height=36,
@@ -237,22 +239,23 @@ class SidePanel(ctk.CTkFrame, ABC):
 
     def _add_combobox(
         self, label_ar: str, label_en: str, values: list[str], 
-        row: int = None, col: int = 0, colspan: int = 1
+        row: int = None, col: int = 0, colspan: int = 1, parent=None
     ) -> ctk.CTkComboBox:
         """Add a labeled combobox (editable dropdown) to the panel."""
+        target = parent if parent is not None else self._fields_frame
         if row is None:
             row = self._field_row
             self._field_row += 2
 
         ctk.CTkLabel(
-            self._fields_frame,
+            target,
             text=f"{label_ar}  /  {label_en}",
             font=ctk.CTkFont(family=AppFonts.FAMILY, size=AppFonts.SIZE_SMALL),
             anchor="e",
         ).grid(row=row, column=col, columnspan=colspan, sticky="e", pady=(8, 2), padx=10)
 
         combo = ctk.CTkComboBox(
-            self._fields_frame,
+            target,
             values=values,
             font=ctk.CTkFont(family=AppFonts.FAMILY, size=AppFonts.SIZE_BODY),
             height=36,
@@ -264,20 +267,21 @@ class SidePanel(ctk.CTkFrame, ABC):
 
         return combo
 
-    def _add_section_label(self, text_ar: str, text_en: str, row: int = None, col: int = 0, colspan: int = 1) -> None:
+    def _add_section_label(self, text_ar: str, text_en: str, row: int = None, col: int = 0, colspan: int = 1, parent=None) -> None:
         """Add a visual section divider with a bilingual subheading."""
+        target = parent if parent is not None else self._fields_frame
         if row is None:
             row = self._field_row
             self._field_row += 2
 
         ctk.CTkFrame(
-            self._fields_frame,
+            target,
             height=1,
             fg_color=AppColors.DIVIDER,
         ).grid(row=row, column=col, columnspan=colspan, sticky="ew", pady=(18, 0), padx=10)
 
         ctk.CTkLabel(
-            self._fields_frame,
+            target,
             text=f"{text_ar}  —  {text_en}",
             font=ctk.CTkFont(family=AppFonts.FAMILY, size=AppFonts.SIZE_SMALL, weight="bold"),
             anchor="e",

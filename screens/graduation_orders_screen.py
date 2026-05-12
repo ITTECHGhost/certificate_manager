@@ -12,10 +12,7 @@
 import customtkinter as ctk
 
 from config import AppFonts, AppColors, AppSizes
-from data.queries import (
-    get_all_orders, insert_order, update_order, delete_order,
-    get_all_departments,
-)
+from data.repositories import GraduationOrderRepository, DepartmentRepository
 from ui.base_screen import BaseScreen
 from ui.side_panel import SidePanel
 from ui.record_list import RecordList
@@ -110,7 +107,7 @@ class GraduationOrderPanel(SidePanel):
     # ── Reload departments ────────────────────────────────────────────────────
 
     def _reload_departments(self) -> None:
-        self._departments = get_all_departments()
+        self._departments = DepartmentRepository().get_all()
         labels = [f"{d['name_ar']}  /  {d['name_en']}" for d in self._departments] or ["—"]
         self._dept.configure(values=labels)
         self._dept.set(labels[0])
@@ -189,10 +186,11 @@ class GraduationOrderPanel(SidePanel):
             num_students        = num_val,
             notes               = notes,
         )
+        repo = GraduationOrderRepository()
         if existing:
-            update_order(order_id=existing["id"], **kwargs)
+            repo.update(order_id=existing["id"], data=kwargs)
         else:
-            insert_order(**kwargs)
+            repo.insert(data=kwargs)
 
 
 # =============================================================================
@@ -271,7 +269,7 @@ class GraduationOrdersScreen(BaseScreen):
         self._pager.grid(row=3, column=0, sticky="ew", pady=(6, 0))
 
     def refresh(self) -> None:
-        self._all_rows = get_all_orders()
+        self._all_rows = GraduationOrderRepository().get_all()
         self._search_var.set("")
         self._pager.set_total(len(self._all_rows))
         self._render_page(self._all_rows)
@@ -283,10 +281,10 @@ class GraduationOrdersScreen(BaseScreen):
         else:
             filtered = [
                 r for r in self._all_rows
-                if term in r["order_number"].lower()
-                or term in r.get("dept_name_ar", "").lower()
-                or term in r.get("dept_name_en", "").lower()
-                or term in str(r.get("admission_year", ""))
+                if term in (r.get("order_number") or "").lower()
+                or term in (r.get("dept_name_ar") or "").lower()
+                or term in (r.get("dept_name_en") or "").lower()
+                or term in str(r.get("admission_year") or "")
             ]
         self._pager.set_total(len(filtered))
         self._render_page(filtered)
@@ -326,5 +324,5 @@ class GraduationOrdersScreen(BaseScreen):
         )
 
     def _delete(self, row: dict) -> None:
-        delete_order(row["id"])
+        GraduationOrderRepository().delete(row["id"])
         self.refresh()

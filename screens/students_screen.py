@@ -43,17 +43,11 @@ import customtkinter as ctk
 from db import get_grade
 
 from config import AppFonts, AppColors, AppSizes
-from data.queries import (
-    fuzzy_search_students, get_student_by_id,
-    insert_student, update_student, delete_student,
-    get_periods_for_student, insert_period, update_period, delete_period,
-    get_enrollments_for_period, insert_enrollment,
-    update_enrollment, delete_enrollment,
-    get_courses_for_dept_stage,
-    get_all_departments, get_all_governorates,
-    get_all_countries, get_all_orders,
-    get_active_study_systems,
-    get_connection,
+from data.repositories import (
+    StudentRepository, AcademicPeriodRepository, EnrollmentRepository,
+    CourseRepository, DepartmentRepository, GovernorateRepository,
+    CountryRepository, GraduationOrderRepository, StudySystemRepository,
+    PersonnelRepository, ThesisRepository, SupervisorRepository
 )
 from ui.base_screen import BaseScreen
 from ui.side_panel import SidePanel
@@ -66,6 +60,14 @@ from ui.widgets import (
 # =============================================================================
 # HELPER MAPS
 # =============================================================================
+
+DEGREE_LEVEL_OPTIONS = {
+    "دبلوم عالي  /  Higher Diploma": "Higher Diploma",
+    "ماجستير  /  Master": "Master",
+    "دكتوراه  /  PhD": "PhD",
+    "بكالوريوس  /  Bachelor": "Bachelor",
+}
+DEGREE_LEVEL_DISPLAY = {v: k for k, v in DEGREE_LEVEL_OPTIONS.items()}
 
 STUDY_TYPE_OPTIONS = {
     "صباحي  /  Morning": "morning",
@@ -147,8 +149,11 @@ class StudentFormPanel(SidePanel):
         self._adm_year = self._add_entry("سنة القبول", "Admission Year", placeholder="مثال: 2020", row=6, col=2)
         
         self._study_type = self._add_dropdown("نوع الدراسة", "Study Type", values=list(STUDY_TYPE_OPTIONS.keys()), row=8, col=0)
-        self._sequence_number = self._add_entry("رقم التسلسل", "Sequence of Graduation", placeholder="مثال: 1", row=8, col=1)
-        self._postgraduation_no = self._add_entry("عدد الخريجين", "Postgraduation No.", placeholder="مثال: 86", row=8, col=2)
+        self._degree_level = self._add_dropdown("الدرجة العلمية", "Degree Level", values=list(DEGREE_LEVEL_OPTIONS.keys()), row=8, col=1)
+        self._degree_level.configure(command=self._on_degree_change)
+        self._sequence_number = self._add_entry("رقم التسلسل", "Sequence of Graduation", placeholder="مثال: 1", row=8, col=2)
+        
+        self._postgraduation_no = self._add_entry("عدد الخريجين", "Postgraduation No.", placeholder="مثال: 86", row=9, col=0)
 
         # -- ROW 10: Graduation Section --
         self._add_section_label("التخرج", "Graduation", row=10, col=3)
@@ -159,13 +164,41 @@ class StudentFormPanel(SidePanel):
 
         self._order = self._add_dropdown("الأمر الجامعي", "Graduation Order", values=["— بدون أمر / None"], row=12, col=0, colspan=2)
 
+        # -- ROW 14: Thesis Section (Hidden by default) --
+        self._thesis_frame = ctk.CTkFrame(self._fields_frame, fg_color="transparent")
+        self._thesis_frame.grid(row=14, column=0, columnspan=4, sticky="ew")
+        self._thesis_frame.grid_columnconfigure((0,1,2,3), weight=1)
+        
+        self._add_section_label("الرسالة / الأطروحة", "Thesis / Dissertation", row=0, col=3, parent=self._thesis_frame)
+        self._thesis_title_ar = self._add_entry("العنوان بالعربية", "Arabic Title", placeholder="العنوان", row=0, col=1, parent=self._thesis_frame)
+        self._thesis_title_en = self._add_entry("العنوان بالإنكليزية", "English Title", placeholder="Title", row=0, col=0, parent=self._thesis_frame, justify="left")
+        
+        self._thesis_defense_date = self._add_entry("تاريخ المناقشة", "Defense Date", placeholder="YYYY-MM-DD", row=2, col=2, parent=self._thesis_frame)
+        self._thesis_decision = self._add_dropdown("قرار اللجنة", "Committee Decision", values=["—", "قبول بدون تعديل", "قبول بتعديلات طفيفة", "تعديلات جوهرية", "مرفوض"], row=2, col=1, parent=self._thesis_frame)
+        self._thesis_grade = self._add_entry("درجة المناقشة", "Final Grade", placeholder="مثال: 90", row=2, col=0, parent=self._thesis_frame)
+        
+        self._add_section_label("لجنة الإشراف", "Supervisors", row=4, col=3, parent=self._thesis_frame)
+        self._primary_supervisor = self._add_dropdown("المشرف الأول", "Primary Supervisor", values=["—"], row=4, col=1, parent=self._thesis_frame)
+        self._secondary_supervisor = self._add_dropdown("المشرف الثاني", "Secondary Supervisor", values=["—"], row=4, col=0, parent=self._thesis_frame)
+        
+        self._thesis_frame.grid_remove()  # hidden initially
+        
+    def _on_degree_change(self, value: str) -> None:
+        """Toggle thesis frame based on degree level"""
+        degree = DEGREE_LEVEL_OPTIONS.get(value, "Bachelor")
+        if degree in ["Master", "PhD", "Higher Diploma"]:
+            self._thesis_frame.grid()
+        else:
+            self._thesis_frame.grid_remove()
+
     def _reload_lookups(self) -> None:
         """Reload all dropdown data from the database."""
-        self._depts    = get_all_departments()
-        self._govs     = get_all_governorates()
-        self._countries = get_all_countries()
-        self._orders   = get_all_orders()
-        self._study_systems = get_active_study_systems()
+        self._depts    = DepartmentRepository().get_all()
+        self._govs     = GovernorateRepository().get_all()
+        self._countries = CountryRepository().get_all()
+        self._orders   = GraduationOrderRepository().get_all()
+        self._study_systems = StudySystemRepository().get_active()
+        self._personnel = PersonnelRepository().get_active()
 
         dept_labels = [f"{d['name_ar']}  /  {d['name_en']}" for d in self._depts] or ["—"]
         gov_labels  = ["—  أجنبي / Foreign"] + [
@@ -183,6 +216,11 @@ class StudentFormPanel(SidePanel):
         self._nationality.configure(values=nat_labels)
         self._order.configure(values=order_labels)
         self._study_system.configure(values=ss_labels)
+        
+        pers_labels = ["—"] + [f"{p['name_ar']}  /  {p['name_en']}" for p in self._personnel]
+        self._primary_supervisor.configure(values=pers_labels)
+        self._secondary_supervisor.configure(values=pers_labels)
+        
         if ss_labels:
             self._study_system.set(ss_labels[0])
 
@@ -256,6 +294,12 @@ class StudentFormPanel(SidePanel):
             self._study_type,
             STUDY_TYPE_DISPLAY.get(data.get("study_type", "morning"), "")
         )
+        
+        # Degree level
+        self._set_dropdown(
+            self._degree_level,
+            DEGREE_LEVEL_DISPLAY.get(data.get("degree_level", "Bachelor"), list(DEGREE_LEVEL_OPTIONS.keys())[-1])
+        )
 
         # Graduation semester / Role
         if data.get("graduation_semester"):
@@ -278,6 +322,31 @@ class StudentFormPanel(SidePanel):
                            f"{o.get('dept_name_ar','')}  |  {o['admission_year']}")
                     self._set_dropdown(self._order, lbl)
                     break
+
+        # Thesis and Supervisors
+        self._on_degree_change(DEGREE_LEVEL_DISPLAY.get(data.get("degree_level", "Bachelor"), "بكالوريوس  /  Bachelor"))
+        if data.get("degree_level") in ["Master", "PhD", "Higher Diploma"]:
+            thesis = ThesisRepository().get_by_student(data["id"])
+            if thesis:
+                self._set_entry(self._thesis_title_ar, thesis.get("title_ar", ""))
+                self._set_entry(self._thesis_title_en, thesis.get("title_en", ""))
+                self._set_entry(self._thesis_defense_date, thesis.get("defense_date", ""))
+                self._set_dropdown(self._thesis_decision, thesis.get("committee_decision", "—"))
+                self._set_entry(self._thesis_grade, str(thesis.get("final_grade", "") or ""))
+            
+            supervisors = SupervisorRepository().get_by_student(data["id"])
+            for sup in supervisors:
+                pers_lbl = None
+                for p in self._personnel:
+                    if p["id"] == sup["personnel_id"]:
+                        pers_lbl = f"{p['name_ar']}  /  {p['name_en']}"
+                        break
+                
+                if pers_lbl:
+                    if sup["supervision_role"] == "Primary":
+                        self._set_dropdown(self._primary_supervisor, pers_lbl)
+                    elif sup["supervision_role"] == "Secondary":
+                        self._set_dropdown(self._secondary_supervisor, pers_lbl)
 
     # ── Validation ────────────────────────────────────────────────────────────
 
@@ -371,45 +440,80 @@ class StudentFormPanel(SidePanel):
         order_id = self._get_order_id()
 
         if existing:
-            update_student(
-                existing["id"],
-                full_name_ar        = self._name_ar.get().strip(),
-                full_name_en        = self._name_en.get().strip(),
-                gender              = gender_val,
-                sequence_number     = seq_val,
-                postgraduation_no   = post_val,
-                date_of_birth       = self._dob.get().strip(),
-                birthplace_id       = bp_id,
-                birthplace_other    = bp_other,
-                nationality_id      = self._get_nationality_id(),
-                department_id       = self._get_dept_id(),
-                study_system_id     = self._get_study_system_id(),
-                admission_year      = int(self._adm_year.get().strip()),
-                study_type          = STUDY_TYPE_OPTIONS[self._study_type.get()],
-                graduation_date     = grad_date,
-                graduation_semester = grad_sem,
-                average             = avg_val,
-                order_id            = order_id,
+            student_id = existing["id"]
+            StudentRepository().update(
+                student_id,
+                {
+                    "full_name_ar": self._name_ar.get().strip(),
+                    "full_name_en": self._name_en.get().strip(),
+                    "gender": gender_val,
+                    "sequence_number": seq_val,
+                    "postgraduation_no": post_val,
+                    "date_of_birth": self._dob.get().strip(),
+                    "birthplace_id": bp_id,
+                    "birthplace_other": bp_other,
+                    "nationality_id": self._get_nationality_id(),
+                    "department_id": self._get_dept_id(),
+                    "study_system_id": self._get_study_system_id(),
+                    "admission_year": int(self._adm_year.get().strip()),
+                    "study_type": STUDY_TYPE_OPTIONS[self._study_type.get()],
+                    "degree_level": DEGREE_LEVEL_OPTIONS[self._degree_level.get()],
+                    "graduation_date": grad_date,
+                    "graduation_semester": grad_sem,
+                    "average": avg_val,
+                    "order_id": order_id,
+                }
             )
         else:
-            insert_student(
-                full_name_ar        = self._name_ar.get().strip(),
-                full_name_en        = self._name_en.get().strip(),
-                gender              = gender_val,
-                sequence_number     = seq_val,
-                postgraduation_no   = post_val,
-                date_of_birth       = self._dob.get().strip(),
-                birthplace_id       = bp_id,
-                birthplace_other    = bp_other,
-                nationality_id      = self._get_nationality_id(),
-                department_id       = self._get_dept_id(),
-                study_system_id     = self._get_study_system_id(),
-                admission_year      = int(self._adm_year.get().strip()),
-                study_type          = STUDY_TYPE_OPTIONS[self._study_type.get()],
-                graduation_date     = grad_date,
-                graduation_semester = grad_sem,
-                average             = avg_val,
+            student_id = StudentRepository().insert(
+                {
+                    "full_name_ar": self._name_ar.get().strip(),
+                    "full_name_en": self._name_en.get().strip(),
+                    "gender": gender_val,
+                    "sequence_number": seq_val,
+                    "postgraduation_no": post_val,
+                    "date_of_birth": self._dob.get().strip(),
+                    "birthplace_id": bp_id,
+                    "birthplace_other": bp_other,
+                    "nationality_id": self._get_nationality_id(),
+                    "department_id": self._get_dept_id(),
+                    "study_system_id": self._get_study_system_id(),
+                    "admission_year": int(self._adm_year.get().strip()),
+                    "study_type": STUDY_TYPE_OPTIONS[self._study_type.get()],
+                    "degree_level": DEGREE_LEVEL_OPTIONS[self._degree_level.get()],
+                    "graduation_date": grad_date,
+                    "graduation_semester": grad_sem,
+                    "average": avg_val,
+                }
             )
+            
+        degree = DEGREE_LEVEL_OPTIONS[self._degree_level.get()]
+        if degree in ["Master", "PhD", "Higher Diploma"]:
+            grade_raw = self._thesis_grade.get().strip()
+            grade_val = float(grade_raw) if grade_raw else None
+            ThesisRepository().save(
+                student_id=student_id,
+                title_ar=self._thesis_title_ar.get().strip() or "",
+                title_en=self._thesis_title_en.get().strip() or "",
+                defense_date=self._thesis_defense_date.get().strip() or None,
+                committee_decision=self._thesis_decision.get().replace("—", "") or None,
+                final_grade=grade_val
+            )
+            
+            SupervisorRepository().delete_by_student(student_id)
+            prim_lbl = self._primary_supervisor.get()
+            if "—" not in prim_lbl:
+                for p in self._personnel:
+                    if f"{p['name_ar']}  /  {p['name_en']}" == prim_lbl:
+                        SupervisorRepository().add(student_id, p["id"], "Primary")
+                        break
+            
+            sec_lbl = self._secondary_supervisor.get()
+            if "—" not in sec_lbl:
+                for p in self._personnel:
+                    if f"{p['name_ar']}  /  {p['name_en']}" == sec_lbl:
+                        SupervisorRepository().add(student_id, p["id"], "Secondary")
+                        break
 
 
 # =============================================================================
@@ -557,7 +661,7 @@ class EnrollmentPanel(ctk.CTkFrame):
         """Populate the course dropdown with courses for this stage."""
         if not self._period or not self._student:
             return
-        self._courses = get_courses_for_dept_stage(
+        self._courses = CourseRepository().get_by_dept_stage_system(
             self._student.get("department_id", 0),
             self._period["stage_number"],
             self._student.get("study_system_id", 1),
@@ -577,7 +681,7 @@ class EnrollmentPanel(ctk.CTkFrame):
         if not self._period:
             return
 
-        enrollments = get_enrollments_for_period(self._period["id"])
+        enrollments = EnrollmentRepository().get_by_period(self._period["id"])
 
         if not enrollments:
             ctk.CTkLabel(
@@ -677,10 +781,11 @@ class EnrollmentPanel(ctk.CTkFrame):
             return
 
         try:
-            insert_enrollment(
+            EnrollmentRepository().insert(
                 period_id=self._period["id"],
                 course_id=course_id,
                 score=score,
+                is_second=0,
             )
             self._score_entry.delete(0, "end")
             self._reload_list()
@@ -693,14 +798,14 @@ class EnrollmentPanel(ctk.CTkFrame):
             score = float(score_var.get().strip())
             if not (0 <= score <= 100):
                 raise ValueError
-            update_enrollment(enr["id"], score, enr["is_second_round"])
+            EnrollmentRepository().update(enr["id"], score, enr["is_second_round"])
             self._reload_list()
         except ValueError:
             pass    # silently ignore invalid score
 
     def _delete_enrollment(self, enr: dict) -> None:
         """Delete one enrollment row."""
-        delete_enrollment(enr["id"])
+        EnrollmentRepository().delete(enr["id"])
         self._reload_list()
 
 
@@ -794,7 +899,7 @@ class StudentsScreen(BaseScreen):
         """Called every time this screen becomes active."""
         # If a student was selected before, reload their data
         if self._selected_student:
-            refreshed = get_student_by_id(self._selected_student["id"])
+            refreshed = StudentRepository().get_by_id(self._selected_student["id"])
             if refreshed:
                 self._selected_student = refreshed
                 self._show_student_detail(refreshed)
@@ -807,11 +912,10 @@ class StudentsScreen(BaseScreen):
 
     def _reload_detail(self) -> None:
         """Reload the detail view after enrollment changes."""
-        if self._selected_student:
-            data = get_student_by_id(self._selected_student["id"])
-            if data:
-                self._selected_student = data
-                self._show_student_detail(data)
+        data = StudentRepository().get_by_id(self._selected_student["id"])
+        if data:
+            self._selected_student = data
+            self._show_student_detail(data)
 
     # ── Search + Fuzzy matching ───────────────────────────────────────────────
 
@@ -836,7 +940,7 @@ class StudentsScreen(BaseScreen):
         difflib.get_close_matches ranks Arabic names by character similarity,
         so partial or misspelled names still find the right student.
         """
-        candidates = fuzzy_search_students(query, limit=30)
+        candidates = StudentRepository().search(query, limit=30)
         if not candidates:
             self._hide_suggestions()
             return
@@ -846,9 +950,9 @@ class StudentsScreen(BaseScreen):
         names_en = [c["full_name_en"] for c in candidates]
 
         def similarity(row: dict) -> float:
-            ar_score = difflib.SequenceMatcher(None, query, row["full_name_ar"]).ratio()
+            ar_score = difflib.SequenceMatcher(None, query, row.get("full_name_ar") or "").ratio()
             en_score = difflib.SequenceMatcher(None, query.lower(),
-                                               row["full_name_en"].lower()).ratio()
+                                               (row.get("full_name_en") or "").lower()).ratio()
             return max(ar_score, en_score)
 
         ranked = sorted(candidates, key=similarity, reverse=True)[:8]
@@ -869,10 +973,10 @@ class StudentsScreen(BaseScreen):
         ).grid(row=0, column=0, sticky="e", padx=8, pady=(4, 2))
 
         for i, s in enumerate(students):
-            dept  = s.get("dept_name_ar", "")
-            year  = str(s.get("admission_year", ""))
+            dept  = s.get("dept_name_ar") or "—"
+            year  = str(s.get("admission_year") or "—")
             avg   = f"  |  معدل: {s['average']}" if s.get("average") else ""
-            label = f"  {s['full_name_ar']}  —  {dept}  |  دفعة {year}{avg}"
+            label = f"  {s.get('full_name_ar') or '—'}  —  {dept}  |  دفعة {year}{avg}"
 
             ctk.CTkButton(
                 self._suggestion_frame,
@@ -895,7 +999,7 @@ class StudentsScreen(BaseScreen):
         """Load the full student record and display it."""
         self._hide_suggestions()
         self._search_var.set("")
-        data = get_student_by_id(student_id)
+        data = StudentRepository().get_by_id(student_id)
         if data:
             self._selected_student = data
             self._show_student_detail(data)
@@ -1060,7 +1164,7 @@ class StudentsScreen(BaseScreen):
         ).grid(row=0, column=2)
 
         # Period cards
-        periods = get_periods_for_student(data["id"])
+        periods = AcademicPeriodRepository().get_by_student(data["id"])
         if not periods:
             ctk.CTkLabel(
                 frame,
@@ -1094,8 +1198,7 @@ class StudentsScreen(BaseScreen):
         ctk.CTkLabel(
             p_hdr,
             text=(f"  {'السنة' if student.get('study_system_id') == 1 else 'الفصل'} {period['stage_number']}  |  "
-                  f"{period['academic_year']}  |  "
-                  f"{ROUND_AR.get(period['passed_round'], period['passed_round'])}"),
+                  f"{period['academic_year']}"),
             font=ctk.CTkFont(family=AppFonts.FAMILY, size=AppFonts.SIZE_SMALL, weight="bold"),
             anchor="e",
         ).grid(row=0, column=0, sticky="e", padx=(0, 10), pady=6)
@@ -1120,7 +1223,7 @@ class StudentsScreen(BaseScreen):
         ).pack(side="left")
 
         # Enrollment summary (first 6 courses)
-        enrollments = get_enrollments_for_period(period["id"])
+        enrollments = EnrollmentRepository().get_by_period(period["id"])
         if enrollments:
             summary = ctk.CTkFrame(card, fg_color="transparent")
             summary.grid(row=1, column=0, sticky="ew", padx=10, pady=6)
@@ -1169,12 +1272,12 @@ class StudentsScreen(BaseScreen):
             return
 
         try:
-            insert_period(
+            AcademicPeriodRepository().insert(
                 student_id    = self._selected_student["id"],
-                academic_year = year_str,
-                study_system_id = self._selected_student.get("study_system_id", 1),
-                stage_number  = int(stage_str),
-                passed_round  = "first",
+                year          = year_str,
+                sys_id        = self._selected_student.get("study_system_id", 1),
+                stage         = int(stage_str),
+                round_val     = "first",
             )
             self._new_stage.delete(0, "end")
             self._new_year.delete(0, "end")
@@ -1194,7 +1297,7 @@ class StudentsScreen(BaseScreen):
         )
 
     def _do_delete_period(self, period: dict) -> None:
-        delete_period(period["id"])
+        AcademicPeriodRepository().delete(period["id"])
         self._reload_detail()
 
     def _confirm_delete(self) -> None:
@@ -1212,6 +1315,6 @@ class StudentsScreen(BaseScreen):
 
     def _do_delete_student(self) -> None:
         if self._selected_student:
-            delete_student(self._selected_student["id"])
+            StudentRepository().delete(self._selected_student["id"])
             self._selected_student = None
             self._show_empty_state()

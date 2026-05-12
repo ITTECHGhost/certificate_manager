@@ -10,7 +10,7 @@
 
 import customtkinter as ctk
 from config import AppFonts, AppColors, AppSizes, HOME_STAT_CARDS, HOME_QUICK_ACTIONS
-from data.queries import count_table_rows
+from data.repositories import BaseRepository
 from ui.base_screen import BaseScreen
 from ui.widgets import make_stat_card, make_quick_action_button
 
@@ -103,7 +103,8 @@ class HomeScreen(BaseScreen):
             if not label:
                 continue
             try:
-                count = count_table_rows(cfg["db_table"], cfg.get("filter", ""))
+                repo = BaseRepository()
+                count = repo.count_table_rows(cfg["db_table"], cfg.get("filter", ""))
                 label.configure(text=str(count))
             except Exception:
                 label.configure(text="!")

@@ -6,7 +6,7 @@ import win32api
 from docxtpl import DocxTemplate
 from itertools import zip_longest
 from config import AppFonts, AppColors
-from data.queries import fuzzy_search_students, get_full_certificate_data, log_certificate_generation
+from data.repositories import StudentRepository, CertificateRepository
 from db import get_grade
 from ui.base_screen import BaseScreen
 from ui.widgets import make_section_header, make_primary_button
@@ -241,7 +241,7 @@ class CertificateScreen(BaseScreen):
             self._show_suggestions_for(query)
 
     def _show_suggestions_for(self, query: str) -> None:
-        candidates = fuzzy_search_students(query, limit=15)
+        candidates = StudentRepository().search(query, limit=15)
         if not candidates:
             self._hide_suggestions()
             return
@@ -287,7 +287,7 @@ class CertificateScreen(BaseScreen):
         self._selected_student_id = student_id
         
         try:
-            data = get_full_certificate_data(student_id)
+            data = CertificateRepository().get_full_certificate_data(student_id)
             if not data:
                 self.show_error("تعذر تحميل بيانات الطالب.")
                 return
@@ -425,7 +425,7 @@ class CertificateScreen(BaseScreen):
     def _build_context(self) -> dict:
         if not self._selected_student_id:
             return {}
-        data = get_full_certificate_data(self._selected_student_id)
+        data = CertificateRepository().get_full_certificate_data(self._selected_student_id)
         if not data:
             return {}
 
@@ -648,7 +648,7 @@ class CertificateScreen(BaseScreen):
             if self._selected_student_id:
                 try:
                     user_id = self.winfo_toplevel().current_user["id"]
-                    log_certificate_generation(self._selected_student_id, user_id)
+                    CertificateRepository().log_certificate_generation(self._selected_student_id, user_id)
                 except Exception as log_err:
                     print(f"Warning: Failed to log certificate generation: {log_err}")
 

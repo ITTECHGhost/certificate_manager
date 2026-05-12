@@ -2,7 +2,7 @@ import os
 from PIL import Image
 import customtkinter as ctk
 from config import AppColors, AppFonts, AppSizes
-from data.queries import authenticate_user
+from data.repositories import PersonnelRepository
 
 class LoginScreen(ctk.CTkFrame):
     def __init__(self, parent: ctk.CTk, on_login_success):
@@ -149,7 +149,8 @@ class LoginScreen(ctk.CTkFrame):
             self._on_login_success(user_data)
             return
 
-        user_data = authenticate_user(username, password)
+        repo = PersonnelRepository()
+        user_data = repo.authenticate(username, password)
         if user_data:
             self._on_login_success(user_data)
         else:
