@@ -41,16 +41,26 @@ class DepartmentPanel(SidePanel):
         )
 
     def _build_fields(self) -> None:
-        self._add_section_label("معلومات القسم", "Department Info")
-        self._name_ar    = self._add_entry("اسم القسم بالعربية",    "Arabic Name",
-                                           placeholder="مثال: قسم علوم الحاسوب")
-        self._name_en    = self._add_entry("اسم القسم بالإنكليزية", "English Name",
-                                           placeholder="e.g. Computer Science", justify="left")
-        self._add_section_label("معلومات الكلية", "College Info")
-        self._college_ar = self._add_entry("اسم الكلية بالعربية",    "Arabic College Name",
-                                           placeholder="مثال: كلية التقنية المعلوماتية")
+        self._fields_frame.grid_columnconfigure((0, 1, 2, 3), weight=1)
+
+        self._add_section_label("معلومات القسم", "Department Info", row=0, col=3)
+        
+        self._name_ar = self._add_entry("اسم القسم بالعربية", "Arabic Name",
+                                       placeholder="مثال: قسم علوم الحاسوب", row=0, col=1)
+        self._name_en = self._add_entry("اسم القسم بالإنكليزية", "English Name",
+                                       placeholder="e.g. Computer Science", row=0, col=0, justify="left")
+        
+        self._college_ar = self._add_entry("اسم الكلية بالعربية", "Arabic College Name",
+                                          placeholder="مثال: كلية التقنية المعلوماتية", row=0, col=2)
+        # Note: We can't fit all 4 in one row if we want to keep col 3 for headers in some cases,
+        # but here we have space. Wait, if I put College EN in col 3, it overlaps with header.
+        # So I'll put it in row 2? No, I'll put College AR and EN in row 2.
+        
+        self._add_section_label("معلومات الكلية", "College Info", row=2, col=3)
         self._college_en = self._add_entry("اسم الكلية بالإنكليزية", "English College Name",
-                                           placeholder="e.g. College of Information Technology", justify="left")
+                                          placeholder="e.g. IT College", row=2, col=0, justify="left")
+        self._college_ar = self._add_entry("اسم الكلية بالعربية", "Arabic College Name",
+                                          placeholder="مثال: كلية التقنية", row=2, col=1)
 
     def _populate(self, data: dict) -> None:
         self._set_entry(self._name_ar,    data.get("name_ar",    ""))

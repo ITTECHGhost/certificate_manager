@@ -46,22 +46,24 @@ class CoursePanel(SidePanel):
         )
 
     def _build_fields(self) -> None:
-        self._add_section_label("اسم المادة", "Course Name")
-        self._name_ar    = self._add_entry("اسم المادة بالعربية",    "Arabic Course Name",
-                                           placeholder="مثال: هياكل البيانات")
-        self._name_en    = self._add_entry("اسم المادة بالإنكليزية", "English Course Name",
-                                           placeholder="e.g. Data Structures", justify="left")
+        self._fields_frame.grid_columnconfigure((0, 1, 2, 3), weight=1)
 
-        self._add_section_label("تفاصيل المادة", "Course Details")
-        self._credits    = self._add_dropdown("الوحدات الدراسية", "Credit Hours",
-                                               values=["1","2","3","4","5","6"])
-        self._stage      = self._add_dropdown("المرحلة / الفصل", "Stage / Semester",
-                                               values=["1","2","3","4","5","6","7","8"])
-        self._system     = self._add_dropdown("نظام الدراسة", "Study System",
-                                               values=["—"])
+        self._add_section_label("اسم المادة", "Course Name", row=0, col=3)
+        self._name_ar = self._add_entry("اسم المادة بالعربية", "Arabic Course Name",
+                                       placeholder="مثال: هياكل البيانات", row=0, col=1)
+        self._name_en = self._add_entry("اسم المادة بالإنكليزية", "English Course Name",
+                                       placeholder="e.g. Data Structures", row=0, col=0, justify="left")
 
-        # Shared toggle
-        self._add_section_label("نطاق المادة", "Course Scope")
+        self._add_section_label("تفاصيل المادة", "Course Details", row=2, col=3)
+        self._credits = self._add_dropdown("الوحدات الدراسية", "Credit Hours",
+                                         values=["1","2","3","4","5","6"], row=2, col=1)
+        self._stage = self._add_dropdown("المرحلة / الفصل", "Stage / Semester",
+                                        values=["1","2","3","4","5","6","7","8"], row=2, col=0)
+        
+        self._system = self._add_dropdown("نظام الدراسة", "Study System",
+                                         values=["—"], row=4, col=1)
+
+        self._add_section_label("نطاق المادة", "Course Scope", row=4, col=3)
         self._shared_var = ctk.BooleanVar(value=False)
         self._shared_chk = ctk.CTkCheckBox(
             self._fields_frame,
@@ -70,19 +72,16 @@ class CoursePanel(SidePanel):
             variable=self._shared_var,
             command=self._on_shared_toggle,
         )
-        self._shared_chk.grid(
-            row=self._field_row, column=0, sticky="e", pady=(6, 2)
-        )
-        self._field_row += 1
+        self._shared_chk.grid(row=4, column=0, sticky="e", pady=(32, 2)) # Adjusted pady to align with dropdown
 
         # Single-dept dropdown (shown when not shared)
-        ctk.CTkLabel(
+        self._dept_label = ctk.CTkLabel(
             self._fields_frame,
             text="القسم  /  Department",
             font=ctk.CTkFont(family=AppFonts.FAMILY, size=AppFonts.SIZE_SMALL),
             anchor="e",
-        ).grid(row=self._field_row, column=0, sticky="e", pady=(8, 2))
-        self._field_row += 1
+        )
+        self._dept_label.grid(row=6, column=1, sticky="e", pady=(8, 2))
 
         self._dept = ctk.CTkOptionMenu(
             self._fields_frame,
@@ -91,44 +90,45 @@ class CoursePanel(SidePanel):
             height=36,
             anchor="e",
         )
-        self._dept.grid(row=self._field_row, column=0, sticky="ew", pady=(0, 2))
-        self._dept_row = self._field_row
-        self._field_row += 1
-
-        # Multi-dept checklist (shown when shared) — hidden initially
-        ctk.CTkLabel(
+        self._dept.grid(row=7, column=1, sticky="ew", pady=(0, 2))
+        
+        # Multi-dept checklist (shown when shared)
+        self._checklist_label = ctk.CTkLabel(
             self._fields_frame,
             text="الأقسام المشتركة  /  Shared Departments",
             font=ctk.CTkFont(family=AppFonts.FAMILY, size=AppFonts.SIZE_SMALL),
             anchor="e",
-        ).grid(row=self._field_row, column=0, sticky="e", pady=(8, 2))
-        self._shared_label_row = self._field_row
-        self._field_row += 1
+        )
+        self._checklist_label.grid(row=6, column=1, sticky="e", pady=(8, 2))
 
         self._dept_checklist = ctk.CTkScrollableFrame(
             self._fields_frame,
             fg_color=("gray92", "gray18"),
             height=120,
         )
-        self._dept_checklist.grid(
-            row=self._field_row, column=0, sticky="ew", pady=(0, 2)
-        )
+        self._dept_checklist.grid(row=7, column=0, columnspan=2, sticky="ew", pady=(0, 2))
         self._dept_checklist.grid_columnconfigure(0, weight=1)
-        self._checklist_row = self._field_row
-        self._field_row += 1
+
+        # Track rows for hiding/showing
+        self._dept_row = 7
+        self._shared_label_row = 6
+        self._checklist_row = 7
 
         # Start with single-dept visible
         self._dept_checklist.grid_remove()
-        self._fields_frame.winfo_children()[self._shared_label_row].grid_remove() \
-            if False else None   # label stays; checklist hidden is enough
+        self._checklist_label.grid_remove()
 
     def _on_shared_toggle(self) -> None:
         if self._shared_var.get():
             self._dept.grid_remove()
+            self._dept_label.grid_remove()
             self._dept_checklist.grid()
+            self._checklist_label.grid()
         else:
             self._dept_checklist.grid_remove()
+            self._checklist_label.grid_remove()
             self._dept.grid()
+            self._dept_label.grid()
 
     def _reload_departments(self) -> None:
         self._departments = get_all_departments()

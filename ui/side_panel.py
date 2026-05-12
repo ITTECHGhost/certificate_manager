@@ -137,6 +137,7 @@ class SidePanel(ctk.CTkFrame, ABC):
             # forces it to calculate the window width automatically!
         )
         self._fields_frame.grid(row=0, column=0, sticky="nsew", padx=24, pady=(12, 0))
+        self._fields_frame.grid_columnconfigure(0, weight=1)
         
     def _build_buttons(self) -> None:
         """Save and Cancel buttons pinned to the bottom, centred."""

@@ -321,11 +321,17 @@ class CertificateScreen(BaseScreen):
             system_name = data.get("study_system_name_en", "")
             term = "Year" if "Annual" in system_name else "Semester"
 
+            # Detect language for live preview
+            selected_template = self._template_var.get().lower()
+            is_english = "en" in selected_template
+
             preview_lines = ["--- LIVE PREVIEW / معاينة ---", ""]
             for period in data.get("periods", []):
                 preview_lines.append(f"[{period['academic_year']} - {term} {period['stage_number']}]")
                 for enr in period.get("enrollments", []):
-                    preview_lines.append(f"  • {enr.get('name_en', '')[:30]:<30} | Mark: {enr.get('score', '')} | Unit: {enr.get('credit_hours', '')}")
+                    # Use the correct alias from the query
+                    cname = enr.get('course_name_en' if is_english else 'course_name_ar', '')
+                    preview_lines.append(f"  • {cname[:30]:<30} | Mark: {enr.get('score', '')} | Unit: {enr.get('credit_hours', '')}")
                 preview_lines.append("")
             
 
@@ -488,56 +494,67 @@ class CertificateScreen(BaseScreen):
         # Detect System
         is_annual = data.get("period_display") == "year"    
 
-        for i in range(0, len(periods), 2):
+        # Identify the split point for vertical column flow (e.g., P1, P2 on right; P3, P4 on left)
+        num_periods = len(periods)
+        half = 1 # (num_periods + 1) // 2
+        
+        for i in range(half):
+            # To get P1 on the Right, we put it in 'left_period' (respecting user's template swap)
             left_period = periods[i]
-            right_period = periods[i+1] if i + 1 < len(periods) else None
+            right_period = periods[i + half] if i + half < num_periods else None
+
+            # Calculate Stage Numbers based on position (since DB data is all '1')
+            left_stage_num = _localize(i + 1)
+            right_stage_num = _localize(i + half + 1) if right_period else ""
 
             # 1. Build Headers and Labels
-            if is_annual:
-                # Annual: Each side shows a whole year. Row year label is usually empty.
-                left_year = _localize(left_period['academic_year'])
-                left_label = f"Year: {left_year}" if is_english else f"العام: {left_year}"
+            left_label = ""
+            right_label = ""
+            
+            if left_period:
+                l_year = _localize(left_period['academic_year'])
+                left_label = f"{l_year} ({left_stage_num})"
+                year_s_l =  _localize(left_period['stage_number'])
+                    
+            if right_period:
+                r_year = _localize(right_period['academic_year'])
+                right_label = f"{r_year}"
+                year_s_r = _localize(right_period['stage_number'])
                 
-                right_label = ""
-                if right_period:
-                    right_year = _localize(right_period['academic_year'])
-                    right_label = f"Year: {right_year}" if is_english else f"العام: {right_year}"
-                
-                row_year_display = "" # Years vary across sides
-            else:
-                # Semester: One year per row, two semesters side-by-side.
-                left_label = f"Stage 1" if is_english else f"الفصل 1"
-                right_label = f"Stage 2" if is_english else f"الفصل 2" if right_period else ""
-                
-                row_year_display = _localize(left_period['academic_year'])
+
+            row_year_display = ""
 
             # 2. Extract Courses
-            left_courses = left_period.get("enrollments", [])
+            left_courses = left_period.get("enrollments", []) if left_period else []
             right_courses = right_period.get("enrollments", []) if right_period else []
 
             # 3. Zip courses row-by-row
             doc_rows = []
             blank_course = {} 
             for left, right in zip_longest(left_courses, right_courses, fillvalue=blank_course):
+                # Use aliases from the query
+                lname = left.get("course_name_en" if is_english else "course_name_ar", "")
+                rname = right.get("course_name_en" if is_english else "course_name_ar", "")
+                
                 doc_rows.append({
-                    "left_name": _localize(left.get("name_en" if is_english else "name_ar", "")),
+                    "left_name": lname,
+                    "left_subj": lname, # Restore for backward compatibility
                     "left_mark": _localize(left.get("score", "")),
                     "left_unit": _localize(left.get("credit_hours", "")),
                     
-                    "right_name": _localize(right.get("name_en" if is_english else "name_ar", "")),
+                    "right_name": rname,
+                    "right_subj": rname, # Restore for backward compatibility
                     "right_mark": _localize(right.get("score", "")),
                     "right_unit": _localize(right.get("credit_hours", "")),
-                    
-                    # Keep old keys for safety
-                    "left_subj": _localize(left.get("name_en" if is_english else "name_ar", "")),
-                    "right_subj": _localize(right.get("name_en" if is_english else "name_ar", "")),
                 })
 
             paired_semesters.append({
                 "left_label": left_label,
                 "right_label": right_label,
                 "year_label": row_year_display,
-                "rows": doc_rows
+                "rows": doc_rows,
+                "year_s_l": year_s_l,
+                "year_s_r": year_s_r
             })
 
         ctx = {

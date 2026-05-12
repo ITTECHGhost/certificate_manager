@@ -37,16 +37,15 @@ class PersonnelPanel(SidePanel):
         )
 
     def _build_fields(self) -> None:
-        self._fields_frame.grid_columnconfigure((0, 1, 2), weight=1)
+        self._fields_frame.grid_columnconfigure((0, 1, 2, 3), weight=1)
 
         # -- ROW 0: Account Details --
-        self._add_section_label("حساب الدخول", "Account Details", row=0, col=0, colspan=3)
+        self._add_section_label("حساب الدخول", "Account Details", row=0, col=3)
 
-        self._username = self._add_entry("اسم المستخدم", "Username", placeholder="e.g. admin", row=1, col=0, justify="left")
+        self._username = self._add_entry("اسم المستخدم", "Username", placeholder="e.g. admin", row=0, col=0, justify="left")
         
         # Manually build password field with eye button
-        self._field_row = max(self._field_row, 3)
-        row = 1
+        row = 0
         col = 1
         ctk.CTkLabel(
             self._fields_frame,
@@ -80,37 +79,37 @@ class PersonnelPanel(SidePanel):
         )
         self._eye_btn.grid(row=0, column=1, padx=(5, 0))
 
-        self._role = self._add_dropdown("الصلاحية", "Role", values=self.ROLE_OPTIONS, row=1, col=2)
+        self._role = self._add_dropdown("الصلاحية", "Role", values=self.ROLE_OPTIONS, row=0, col=2)
 
         # -- ROW 3: Personal Information --
-        self._add_section_label("المعلومات الشخصية", "Personal Information", row=3, col=0, colspan=3)
+        self._add_section_label("المعلومات الشخصية", "Personal Information", row=3, col=3)
 
-        self._name_ar  = self._add_entry("الاسم بالعربية", "Arabic Name", placeholder="مثال: رائدة سالم", row=4, col=0)
-        self._title_ar = self._add_entry("اللقب بالعربية", "Arabic Title", placeholder="مثال: أستاذ", row=4, col=1)
-        self._resp_ar  = self._add_entry("المنصب بالعربية", "Arabic Resp.", placeholder="معاون العميد", row=4, col=2)
+        self._name_ar  = self._add_entry("الاسم بالعربية", "Arabic Name", placeholder="مثال: رائدة سالم", row=3, col=1)
+        self._title_ar = self._add_entry("اللقب بالعربية", "Arabic Title", placeholder="مثال: أستاذ", row=3, col=2)
+        self._name_en  = self._add_entry("الاسم بالإنكليزية", "English Name", placeholder="e.g. Raeda Salem", row=3, col=0, justify="left")
 
-        self._name_en  = self._add_entry("الاسم بالإنكليزية", "English Name", placeholder="e.g. Raeda Salem", row=6, col=0, justify="left")
-        self._title_en = self._add_entry("اللقب بالإنكليزية", "English Title", placeholder="e.g. Prof. Dr.", row=6, col=1, justify="left")
-        self._resp_en  = self._add_entry("المنصب بالإنكليزية", "English Resp.", placeholder="Vice Dean", row=6, col=2, justify="left")
+        self._title_en = self._add_entry("اللقب بالإنكليزية", "English Title", placeholder="e.g. Prof. Dr.", row=5, col=0, justify="left")
+        self._resp_ar  = self._add_entry("المنصب بالعربية", "Arabic Resp.", placeholder="معاون العميد", row=5, col=1)
+        self._resp_en  = self._add_entry("المنصب بالإنكليزية", "English Resp.", placeholder="Vice Dean", row=5, col=2, justify="left")
 
         # -- ROW 8: Document Position Header --
-        self._add_section_label("الموقع في الوثيقة", "Document Position", row=8, col=0, colspan=3)
+        self._add_section_label("الموقع في الوثيقة", "Document Position", row=8, col=3)
 
         self._pos_dropdown = self._add_dropdown(
             "الموقع في الوثيقة", "Document Position", 
             values=list(self.ORDER_OPTIONS.keys()), 
-            row=9, col=0, colspan=1
+            row=8, col=0, colspan=1
         )
 
         # -- NEW FIELDS: Signature --
-        self._add_section_label("إعدادات الوثيقة", "Certificate Mapping", row=10, col=0, colspan=3)
+        self._add_section_label("إعدادات الوثيقة", "Certificate Mapping", row=11, col=3)
 
         self._is_signature = ctk.CTkCheckBox(
             self._fields_frame,
             text="يظهر كتوقيع في الوثيقة  /  Is Signature",
             font=ctk.CTkFont(family=AppFonts.FAMILY, size=AppFonts.SIZE_BODY),
         )
-        self._is_signature.grid(row=11, column=0, sticky="w", padx=10, pady=10)
+        self._is_signature.grid(row=12, column=0, sticky="w", padx=10, pady=10)
 
     def _toggle_password(self):
         self._show_pass = not self._show_pass

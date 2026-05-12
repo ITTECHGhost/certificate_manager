@@ -120,45 +120,44 @@ class StudentFormPanel(SidePanel):
     # ── Build ─────────────────────────────────────────────────────────────────
 
     def _build_fields(self) -> None:
-        # Force the form to split into 3 equal vertical columns
-        self._fields_frame.grid_columnconfigure((0, 1, 2), weight=1)
+        # Force the form to split into 4 columns (0, 1, 2 for fields, 3 for headers)
+        self._fields_frame.grid_columnconfigure((0, 1, 2, 3), weight=1)
 
         # -- ROW 0: Name Section --
-        self._add_section_label("الاسم", "Name", row=0, col=0, colspan=3)
+        self._add_section_label("الاسم", "Name", row=0, col=3)
 
-        self._name_ar = self._add_entry("الاسم الكامل بالعربية", "Full Arabic Name", placeholder="مثال: حسين علي خيرالله", row=2, col=0)
-        # Span English name across 2 columns to give it plenty of breathing room
-        self._name_en = self._add_entry("الاسم الكامل بالإنكليزية", "Full English Name", placeholder="e.g. Hussein Ali Khairallah", row=2, col=1, colspan=2, justify="left")
+        self._name_ar = self._add_entry("الاسم الكامل بالعربية", "Full Arabic Name", placeholder="مثال: حسين علي خيرالله", row=0, col=1)
+        self._name_en = self._add_entry("الاسم الكامل بالإنكليزية", "Full English Name", placeholder="e.g. Hussein Ali Khairallah", row=0, col=0, justify="left")
 
-        # -- ROW 4: Personal Details Section --
-        self._add_section_label("البيانات الشخصية", "Personal Details", row=4, col=0, colspan=3)
+        # -- ROW 2: Personal Details Section --
+        self._add_section_label("البيانات الشخصية", "Personal Details", row=2, col=3)
 
-        self._dob = self._add_entry("تاريخ الميلاد", "Date of Birth (YYYY-MM-DD)", placeholder="مثال: 2000-05-14", row=6, col=0)
-        self._nationality = self._add_dropdown("الجنسية", "Nationality", values=["—"], row=6, col=1)
-        self._birthplace_gov = self._add_dropdown("محل الولادة (محافظة عراقية)", "Birthplace (Iraqi governorate)", values=["—  أجنبي / Foreign"], row=6, col=2)
+        self._dob = self._add_entry("تاريخ الميلاد", "Date of Birth (YYYY-MM-DD)", placeholder="مثال: 2000-05-14", row=2, col=0)
+        self._nationality = self._add_dropdown("الجنسية", "Nationality", values=["—"], row=2, col=1)
+        self._gender = self._add_dropdown("الجنس", "Gender", values=list(GENDER_OPTIONS.keys()), row=2, col=2)
 
-        self._gender = self._add_dropdown("الجنس", "Gender", values=list(GENDER_OPTIONS.keys()), row=8, col=0)
-        self._birthplace_other = self._add_entry("محل الولادة (خارج العراق)", "Birthplace (outside Iraq)", placeholder="اتركه فارغاً إذا كان عراقي الولادة", row=8, col=1, colspan=2, justify="left")
+        self._birthplace_gov = self._add_dropdown("محل الولادة (محافظة عراقية)", "Birthplace (Iraqi governorate)", values=["—  أجنبي / Foreign"], row=4, col=1)
+        self._birthplace_other = self._add_entry("محل الولادة (خارج العراق)", "Birthplace (outside Iraq)", placeholder="اتركه فارغاً إذا كان عراقي الولادة", row=4, col=0, justify="left")
 
-        # -- ROW 10: Academic Section --
-        self._add_section_label("الدراسة", "Academic", row=10, col=0, colspan=3)
+        # -- ROW 6: Academic Section --
+        self._add_section_label("الدراسة", "Academic", row=6, col=3)
 
-        self._dept = self._add_dropdown("القسم", "Department", values=["—"], row=12, col=0)
-        self._study_system = self._add_dropdown("نظام الدراسة", "Study System", values=["—"], row=12, col=1)
-        self._adm_year = self._add_entry("سنة القبول", "Admission Year", placeholder="مثال: 2020", row=12, col=2)
+        self._dept = self._add_dropdown("القسم", "Department", values=["—"], row=6, col=1)
+        self._study_system = self._add_dropdown("نظام الدراسة", "Study System", values=["—"], row=6, col=0)
+        self._adm_year = self._add_entry("سنة القبول", "Admission Year", placeholder="مثال: 2020", row=6, col=2)
         
-        self._study_type = self._add_dropdown("نوع الدراسة", "Study Type", values=list(STUDY_TYPE_OPTIONS.keys()), row=14, col=0)
-        self._sequence_number = self._add_entry("رقم التسلسل", "Sequence of Graduation", placeholder="مثال: 1", row=14, col=1)
-        self._postgraduation_no = self._add_entry("عدد الخريجين", "Postgraduation No.", placeholder="مثال: 86", row=14, col=2)
+        self._study_type = self._add_dropdown("نوع الدراسة", "Study Type", values=list(STUDY_TYPE_OPTIONS.keys()), row=8, col=0)
+        self._sequence_number = self._add_entry("رقم التسلسل", "Sequence of Graduation", placeholder="مثال: 1", row=8, col=1)
+        self._postgraduation_no = self._add_entry("عدد الخريجين", "Postgraduation No.", placeholder="مثال: 86", row=8, col=2)
 
-        # -- ROW 16: Graduation Section --
-        self._add_section_label("التخرج", "Graduation (optional)", row=16, col=0, colspan=3)
+        # -- ROW 10: Graduation Section --
+        self._add_section_label("التخرج", "Graduation", row=10, col=3)
 
-        self._grad_date = self._add_entry("تاريخ التخرج", "Graduation Date", placeholder="اتركه فارغاً إن لم يتخرج بعد", row=18, col=0, justify="left")
-        self._grad_sem = self._add_combobox("فصل التخرج / الدور", "Graduation Semester / Role", values=["— لم يتخرج بعد / Not yet"] + list(SEMESTER_OPTIONS.keys()), row=18, col=1)
-        self._average = self._add_entry("المعدل العام", "Overall Average (50–100)", placeholder="مثال: 78", row=18, col=2)
+        self._grad_date = self._add_entry("تاريخ التخرج", "Graduation Date", placeholder="اتركه فارغاً إن لم يتخرج بعد", row=10, col=0, justify="left")
+        self._grad_sem = self._add_combobox("فصل التخرج / الدور", "Graduation Semester / Role", values=["— لم يتخرج بعد / Not yet"] + list(SEMESTER_OPTIONS.keys()), row=10, col=1)
+        self._average = self._add_entry("المعدل العام", "Overall Average (50–100)", placeholder="مثال: 78", row=10, col=2)
 
-        self._order = self._add_dropdown("الأمر الجامعي", "Graduation Order", values=["— بدون أمر / None"], row=20, col=0, colspan=2)
+        self._order = self._add_dropdown("الأمر الجامعي", "Graduation Order", values=["— بدون أمر / None"], row=12, col=0, colspan=2)
 
     def _reload_lookups(self) -> None:
         """Reload all dropdown data from the database."""
@@ -432,12 +431,9 @@ class EnrollmentPanel(ctk.CTkFrame):
     def __init__(self, parent_screen: ctk.CTkFrame, on_close) -> None:
         super().__init__(
             parent_screen,
-            width=self.PANEL_WIDTH,
             corner_radius=0,
-            border_width=1,
-            border_color=AppColors.BORDER,
+            fg_color="transparent",
         )
-        self.grid_propagate(False)
         self.grid_columnconfigure(0, weight=1)
         self.grid_rowconfigure(2, weight=1)
 
@@ -446,6 +442,7 @@ class EnrollmentPanel(ctk.CTkFrame):
         self._period:  dict | None = None
         self._student: dict | None = None
         self._courses: list[dict]  = []
+        self._hidden_siblings: list = []
 
         self._build()
 
@@ -526,7 +523,7 @@ class EnrollmentPanel(ctk.CTkFrame):
         self._period  = period
         self._student = student
         self._title_lbl.configure(
-            text=f"المرحلة {period['stage_number']}  —  {period['academic_year']}"
+            text=f"{student.get('full_name_ar', '')} — المرحلة {period['stage_number']}  —  {period['academic_year']}"
         )
         self._reload_course_picker()
         self._reload_list()
@@ -534,12 +531,25 @@ class EnrollmentPanel(ctk.CTkFrame):
 
     def close(self) -> None:
         self.grid_remove()
-        self._parent.grid_columnconfigure(1, minsize=0, weight=0)
+        # Restore siblings
+        for child in getattr(self, "_hidden_siblings", []):
+            child.grid()
+        self._hidden_siblings = []
         self._on_close()
 
     def _show(self) -> None:
-        self._parent.grid_columnconfigure(1, minsize=self.PANEL_WIDTH, weight=0)
-        self.grid(row=0, column=1, rowspan=10, sticky="nsew", padx=(10, 0))
+        # Hide siblings to take full page
+        self._hidden_siblings = []
+        for child in self._parent.winfo_children():
+            if child is self:
+                continue
+            if child.winfo_ismapped():
+                child.grid_remove()
+                self._hidden_siblings.append(child)
+        
+        # Grid as full page
+        self.grid(row=0, column=0, sticky="nsew", rowspan=20)
+        self.tkraise()
 
     # ── Data ─────────────────────────────────────────────────────────────────
 

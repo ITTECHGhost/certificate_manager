@@ -245,6 +245,9 @@ class CertificateManagerApp(ctk.CTk):
         self._login_screen = LoginScreen(self, on_login_success=self._on_login_success)
         self._login_screen.grid(row=0, column=0, sticky="nsew")
 
+        # Open in maximized state after a short delay to ensure it takes effect
+        self.after(100, lambda: self.state('zoomed'))
+
     def _on_login_success(self, user_data: dict) -> None:
         self.current_user = user_data
         system_logger.info(f"User '{user_data.get('username')}' logged in successfully.")

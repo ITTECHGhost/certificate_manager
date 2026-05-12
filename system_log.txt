@@ -1171,3 +1171,471 @@ _tkinter.TclError: bad stickyness value "center": must be a string containing n,
 2026-05-03 09:57:31,748 [SYSTEM] INFO: User '1' logged in successfully.
 2026-05-03 10:02:43,923 [SYSTEM] INFO: Application closed normally.
 2026-05-03 10:02:43,923 [SYSTEM] INFO: Application closed normally.
+2026-05-11 08:39:08,431 [SYSTEM] INFO: Application starting...
+2026-05-11 08:39:08,431 [SYSTEM] INFO: Application starting...
+2026-05-11 08:39:08,432 [SYSTEM] INFO: Initializing database at: F:\CR_PY\certificate_manager\certificate_manager.db
+2026-05-11 08:39:08,432 [SYSTEM] INFO: Initializing database at: F:\CR_PY\certificate_manager\certificate_manager.db
+2026-05-11 08:39:08,450 [SYSTEM] INFO: All tables created (or already exist).
+2026-05-11 08:39:08,450 [SYSTEM] INFO: All tables created (or already exist).
+2026-05-11 08:39:08,451 [SYSTEM] INFO: All indexes created (or already exist).
+2026-05-11 08:39:08,451 [SYSTEM] INFO: All indexes created (or already exist).
+2026-05-11 08:39:08,452 [SYSTEM] INFO: Study systems seeded (or already exist).
+2026-05-11 08:39:08,452 [SYSTEM] INFO: Study systems seeded (or already exist).
+2026-05-11 08:39:08,453 [SYSTEM] INFO: Governorates already seeded (18 rows). Skipping.
+2026-05-11 08:39:08,453 [SYSTEM] INFO: Governorates already seeded (18 rows). Skipping.
+2026-05-11 08:39:08,454 [SYSTEM] INFO: Countries already seeded (195 rows). Skipping.
+2026-05-11 08:39:08,454 [SYSTEM] INFO: Countries already seeded (195 rows). Skipping.
+2026-05-11 08:39:08,455 [SYSTEM] INFO: Database initialization complete.
+2026-05-11 08:39:08,455 [SYSTEM] INFO: Database initialization complete.
+2026-05-11 08:39:20,239 [SYSTEM] INFO: User '1' logged in successfully.
+2026-05-11 08:39:20,239 [SYSTEM] INFO: User '1' logged in successfully.
+2026-05-11 08:39:20,239 [SYSTEM] INFO: User '1' logged in successfully.
+2026-05-11 08:39:20,239 [SYSTEM] INFO: User '1' logged in successfully.
+2026-05-11 08:41:10,439 [SYSTEM] INFO: تم تعديل بيانات الطالب: ID: 1174
+2026-05-11 08:41:10,439 [SYSTEM] INFO: تم تعديل بيانات الطالب: ID: 1174
+2026-05-11 08:41:18,325 [SYSTEM] INFO: تم إلغاء ربط الطالب 1174 من الأمر الجامعي
+2026-05-11 08:41:18,325 [SYSTEM] INFO: تم إلغاء ربط الطالب 1174 من الأمر الجامعي
+2026-05-11 08:41:45,767 [SYSTEM] INFO: تم توليد وثيقة للطالب ID: 12 بواسطة المستخدم ID: 1
+2026-05-11 08:41:45,767 [SYSTEM] INFO: تم توليد وثيقة للطالب ID: 12 بواسطة المستخدم ID: 1
+2026-05-11 08:41:50,691 [SYSTEM] INFO: تم توليد وثيقة للطالب ID: 12 بواسطة المستخدم ID: 1
+2026-05-11 08:41:50,691 [SYSTEM] INFO: تم توليد وثيقة للطالب ID: 12 بواسطة المستخدم ID: 1
+2026-05-11 09:14:20,053 [SYSTEM] INFO: Application closed normally.
+2026-05-11 09:14:20,053 [SYSTEM] INFO: Application closed normally.
+2026-05-11 09:18:58,342 [SYSTEM] INFO: Application starting...
+2026-05-11 09:18:58,342 [SYSTEM] INFO: Application starting...
+2026-05-11 09:18:58,343 [SYSTEM] INFO: Initializing database at: F:\CR_PY\certificate_manager\certificate_manager.db
+2026-05-11 09:18:58,343 [SYSTEM] INFO: Initializing database at: F:\CR_PY\certificate_manager\certificate_manager.db
+2026-05-11 09:18:58,351 [SYSTEM] INFO: All tables created (or already exist).
+2026-05-11 09:18:58,351 [SYSTEM] INFO: All tables created (or already exist).
+2026-05-11 09:18:58,352 [SYSTEM] INFO: All indexes created (or already exist).
+2026-05-11 09:18:58,352 [SYSTEM] INFO: All indexes created (or already exist).
+2026-05-11 09:18:58,353 [SYSTEM] INFO: Study systems seeded (or already exist).
+2026-05-11 09:18:58,353 [SYSTEM] INFO: Study systems seeded (or already exist).
+2026-05-11 09:18:58,353 [SYSTEM] INFO: Governorates already seeded (18 rows). Skipping.
+2026-05-11 09:18:58,353 [SYSTEM] INFO: Governorates already seeded (18 rows). Skipping.
+2026-05-11 09:18:58,354 [SYSTEM] INFO: Countries already seeded (195 rows). Skipping.
+2026-05-11 09:18:58,354 [SYSTEM] INFO: Countries already seeded (195 rows). Skipping.
+2026-05-11 09:18:58,354 [SYSTEM] INFO: Database initialization complete.
+2026-05-11 09:18:58,354 [SYSTEM] INFO: Database initialization complete.
+2026-05-11 09:19:06,937 [SYSTEM] INFO: User '1' logged in successfully.
+2026-05-11 09:19:06,937 [SYSTEM] INFO: User '1' logged in successfully.
+2026-05-11 09:19:06,937 [SYSTEM] INFO: User '1' logged in successfully.
+2026-05-11 09:19:06,937 [SYSTEM] INFO: User '1' logged in successfully.
+2026-05-11 09:32:52,332 [SYSTEM] INFO: Application closed normally.
+2026-05-11 09:32:52,332 [SYSTEM] INFO: Application closed normally.
+2026-05-11 09:32:56,672 [SYSTEM] INFO: Application starting...
+2026-05-11 09:32:56,672 [SYSTEM] INFO: Application starting...
+2026-05-11 09:32:56,673 [SYSTEM] INFO: Initializing database at: F:\CR_PY\certificate_manager\certificate_manager.db
+2026-05-11 09:32:56,673 [SYSTEM] INFO: Initializing database at: F:\CR_PY\certificate_manager\certificate_manager.db
+2026-05-11 09:32:56,680 [SYSTEM] INFO: All tables created (or already exist).
+2026-05-11 09:32:56,680 [SYSTEM] INFO: All tables created (or already exist).
+2026-05-11 09:32:56,680 [SYSTEM] INFO: All indexes created (or already exist).
+2026-05-11 09:32:56,680 [SYSTEM] INFO: All indexes created (or already exist).
+2026-05-11 09:32:56,681 [SYSTEM] INFO: Study systems seeded (or already exist).
+2026-05-11 09:32:56,681 [SYSTEM] INFO: Study systems seeded (or already exist).
+2026-05-11 09:32:56,681 [SYSTEM] INFO: Governorates already seeded (18 rows). Skipping.
+2026-05-11 09:32:56,681 [SYSTEM] INFO: Governorates already seeded (18 rows). Skipping.
+2026-05-11 09:32:56,682 [SYSTEM] INFO: Countries already seeded (195 rows). Skipping.
+2026-05-11 09:32:56,682 [SYSTEM] INFO: Countries already seeded (195 rows). Skipping.
+2026-05-11 09:32:56,682 [SYSTEM] INFO: Database initialization complete.
+2026-05-11 09:32:56,682 [SYSTEM] INFO: Database initialization complete.
+2026-05-11 09:33:03,022 [SYSTEM] INFO: User '1' logged in successfully.
+2026-05-11 09:33:03,022 [SYSTEM] INFO: User '1' logged in successfully.
+2026-05-11 09:33:03,022 [SYSTEM] INFO: User '1' logged in successfully.
+2026-05-11 09:33:03,022 [SYSTEM] INFO: User '1' logged in successfully.
+2026-05-11 09:34:56,701 [SYSTEM] INFO: Application closed normally.
+2026-05-11 09:34:56,701 [SYSTEM] INFO: Application closed normally.
+2026-05-11 09:35:00,713 [SYSTEM] INFO: Application starting...
+2026-05-11 09:35:00,713 [SYSTEM] INFO: Application starting...
+2026-05-11 09:35:00,714 [SYSTEM] INFO: Initializing database at: F:\CR_PY\certificate_manager\certificate_manager.db
+2026-05-11 09:35:00,714 [SYSTEM] INFO: Initializing database at: F:\CR_PY\certificate_manager\certificate_manager.db
+2026-05-11 09:35:00,716 [SYSTEM] INFO: All tables created (or already exist).
+2026-05-11 09:35:00,716 [SYSTEM] INFO: All tables created (or already exist).
+2026-05-11 09:35:00,717 [SYSTEM] INFO: All indexes created (or already exist).
+2026-05-11 09:35:00,717 [SYSTEM] INFO: All indexes created (or already exist).
+2026-05-11 09:35:00,717 [SYSTEM] INFO: Study systems seeded (or already exist).
+2026-05-11 09:35:00,717 [SYSTEM] INFO: Study systems seeded (or already exist).
+2026-05-11 09:35:00,717 [SYSTEM] INFO: Governorates already seeded (18 rows). Skipping.
+2026-05-11 09:35:00,717 [SYSTEM] INFO: Governorates already seeded (18 rows). Skipping.
+2026-05-11 09:35:00,718 [SYSTEM] INFO: Countries already seeded (195 rows). Skipping.
+2026-05-11 09:35:00,718 [SYSTEM] INFO: Countries already seeded (195 rows). Skipping.
+2026-05-11 09:35:00,718 [SYSTEM] INFO: Database initialization complete.
+2026-05-11 09:35:00,718 [SYSTEM] INFO: Database initialization complete.
+2026-05-11 09:35:07,461 [SYSTEM] INFO: User '1' logged in successfully.
+2026-05-11 09:35:07,461 [SYSTEM] INFO: User '1' logged in successfully.
+2026-05-11 09:35:07,461 [SYSTEM] INFO: User '1' logged in successfully.
+2026-05-11 09:35:07,461 [SYSTEM] INFO: User '1' logged in successfully.
+2026-05-11 09:36:25,913 [SYSTEM] INFO: Application closed normally.
+2026-05-11 09:36:25,913 [SYSTEM] INFO: Application closed normally.
+2026-05-11 09:36:33,220 [SYSTEM] INFO: Application starting...
+2026-05-11 09:36:33,220 [SYSTEM] INFO: Application starting...
+2026-05-11 09:36:33,221 [SYSTEM] INFO: Initializing database at: F:\CR_PY\certificate_manager\certificate_manager.db
+2026-05-11 09:36:33,221 [SYSTEM] INFO: Initializing database at: F:\CR_PY\certificate_manager\certificate_manager.db
+2026-05-11 09:36:33,223 [SYSTEM] INFO: All tables created (or already exist).
+2026-05-11 09:36:33,223 [SYSTEM] INFO: All tables created (or already exist).
+2026-05-11 09:36:33,223 [SYSTEM] INFO: All indexes created (or already exist).
+2026-05-11 09:36:33,223 [SYSTEM] INFO: All indexes created (or already exist).
+2026-05-11 09:36:33,224 [SYSTEM] INFO: Study systems seeded (or already exist).
+2026-05-11 09:36:33,224 [SYSTEM] INFO: Study systems seeded (or already exist).
+2026-05-11 09:36:33,224 [SYSTEM] INFO: Governorates already seeded (18 rows). Skipping.
+2026-05-11 09:36:33,224 [SYSTEM] INFO: Governorates already seeded (18 rows). Skipping.
+2026-05-11 09:36:33,225 [SYSTEM] INFO: Countries already seeded (195 rows). Skipping.
+2026-05-11 09:36:33,225 [SYSTEM] INFO: Countries already seeded (195 rows). Skipping.
+2026-05-11 09:36:33,225 [SYSTEM] INFO: Database initialization complete.
+2026-05-11 09:36:33,225 [SYSTEM] INFO: Database initialization complete.
+2026-05-11 09:36:40,061 [SYSTEM] INFO: User '1' logged in successfully.
+2026-05-11 09:36:40,061 [SYSTEM] INFO: User '1' logged in successfully.
+2026-05-11 09:36:40,061 [SYSTEM] INFO: User '1' logged in successfully.
+2026-05-11 09:36:40,061 [SYSTEM] INFO: User '1' logged in successfully.
+2026-05-11 09:38:19,934 [SYSTEM] INFO: Application closed normally.
+2026-05-11 09:38:19,934 [SYSTEM] INFO: Application closed normally.
+2026-05-11 09:38:23,050 [SYSTEM] INFO: Application starting...
+2026-05-11 09:38:23,050 [SYSTEM] INFO: Application starting...
+2026-05-11 09:38:23,051 [SYSTEM] INFO: Initializing database at: F:\CR_PY\certificate_manager\certificate_manager.db
+2026-05-11 09:38:23,051 [SYSTEM] INFO: Initializing database at: F:\CR_PY\certificate_manager\certificate_manager.db
+2026-05-11 09:38:23,054 [SYSTEM] INFO: All tables created (or already exist).
+2026-05-11 09:38:23,054 [SYSTEM] INFO: All tables created (or already exist).
+2026-05-11 09:38:23,055 [SYSTEM] INFO: All indexes created (or already exist).
+2026-05-11 09:38:23,055 [SYSTEM] INFO: All indexes created (or already exist).
+2026-05-11 09:38:23,055 [SYSTEM] INFO: Study systems seeded (or already exist).
+2026-05-11 09:38:23,055 [SYSTEM] INFO: Study systems seeded (or already exist).
+2026-05-11 09:38:23,056 [SYSTEM] INFO: Governorates already seeded (18 rows). Skipping.
+2026-05-11 09:38:23,056 [SYSTEM] INFO: Governorates already seeded (18 rows). Skipping.
+2026-05-11 09:38:23,056 [SYSTEM] INFO: Countries already seeded (195 rows). Skipping.
+2026-05-11 09:38:23,056 [SYSTEM] INFO: Countries already seeded (195 rows). Skipping.
+2026-05-11 09:38:23,057 [SYSTEM] INFO: Database initialization complete.
+2026-05-11 09:38:23,057 [SYSTEM] INFO: Database initialization complete.
+2026-05-11 09:38:31,751 [SYSTEM] INFO: User '1' logged in successfully.
+2026-05-11 09:38:31,751 [SYSTEM] INFO: User '1' logged in successfully.
+2026-05-11 09:38:31,751 [SYSTEM] INFO: User '1' logged in successfully.
+2026-05-11 09:38:31,751 [SYSTEM] INFO: User '1' logged in successfully.
+2026-05-11 09:44:11,006 [SYSTEM] INFO: Application closed normally.
+2026-05-11 09:44:11,006 [SYSTEM] INFO: Application closed normally.
+2026-05-11 09:44:14,992 [SYSTEM] INFO: Application starting...
+2026-05-11 09:44:14,992 [SYSTEM] INFO: Application starting...
+2026-05-11 09:44:14,993 [SYSTEM] INFO: Initializing database at: F:\CR_PY\certificate_manager\certificate_manager.db
+2026-05-11 09:44:14,993 [SYSTEM] INFO: Initializing database at: F:\CR_PY\certificate_manager\certificate_manager.db
+2026-05-11 09:44:14,999 [SYSTEM] INFO: All tables created (or already exist).
+2026-05-11 09:44:14,999 [SYSTEM] INFO: All tables created (or already exist).
+2026-05-11 09:44:15,000 [SYSTEM] INFO: All indexes created (or already exist).
+2026-05-11 09:44:15,000 [SYSTEM] INFO: All indexes created (or already exist).
+2026-05-11 09:44:15,001 [SYSTEM] INFO: Study systems seeded (or already exist).
+2026-05-11 09:44:15,001 [SYSTEM] INFO: Study systems seeded (or already exist).
+2026-05-11 09:44:15,001 [SYSTEM] INFO: Governorates already seeded (18 rows). Skipping.
+2026-05-11 09:44:15,001 [SYSTEM] INFO: Governorates already seeded (18 rows). Skipping.
+2026-05-11 09:44:15,002 [SYSTEM] INFO: Countries already seeded (195 rows). Skipping.
+2026-05-11 09:44:15,002 [SYSTEM] INFO: Countries already seeded (195 rows). Skipping.
+2026-05-11 09:44:15,002 [SYSTEM] INFO: Database initialization complete.
+2026-05-11 09:44:15,002 [SYSTEM] INFO: Database initialization complete.
+2026-05-11 09:44:20,047 [SYSTEM] INFO: User '1' logged in successfully.
+2026-05-11 09:44:20,047 [SYSTEM] INFO: User '1' logged in successfully.
+2026-05-11 09:44:20,047 [SYSTEM] INFO: User '1' logged in successfully.
+2026-05-11 09:44:20,047 [SYSTEM] INFO: User '1' logged in successfully.
+2026-05-11 09:45:44,840 [SYSTEM] INFO: Application closed normally.
+2026-05-11 09:45:44,840 [SYSTEM] INFO: Application closed normally.
+2026-05-11 09:45:48,997 [SYSTEM] INFO: Application starting...
+2026-05-11 09:45:48,997 [SYSTEM] INFO: Application starting...
+2026-05-11 09:45:48,998 [SYSTEM] INFO: Initializing database at: F:\CR_PY\certificate_manager\certificate_manager.db
+2026-05-11 09:45:48,998 [SYSTEM] INFO: Initializing database at: F:\CR_PY\certificate_manager\certificate_manager.db
+2026-05-11 09:45:49,001 [SYSTEM] INFO: All tables created (or already exist).
+2026-05-11 09:45:49,001 [SYSTEM] INFO: All tables created (or already exist).
+2026-05-11 09:45:49,002 [SYSTEM] INFO: All indexes created (or already exist).
+2026-05-11 09:45:49,002 [SYSTEM] INFO: All indexes created (or already exist).
+2026-05-11 09:45:49,002 [SYSTEM] INFO: Study systems seeded (or already exist).
+2026-05-11 09:45:49,002 [SYSTEM] INFO: Study systems seeded (or already exist).
+2026-05-11 09:45:49,002 [SYSTEM] INFO: Governorates already seeded (18 rows). Skipping.
+2026-05-11 09:45:49,002 [SYSTEM] INFO: Governorates already seeded (18 rows). Skipping.
+2026-05-11 09:45:49,003 [SYSTEM] INFO: Countries already seeded (195 rows). Skipping.
+2026-05-11 09:45:49,003 [SYSTEM] INFO: Countries already seeded (195 rows). Skipping.
+2026-05-11 09:45:49,003 [SYSTEM] INFO: Database initialization complete.
+2026-05-11 09:45:49,003 [SYSTEM] INFO: Database initialization complete.
+2026-05-11 09:45:54,490 [SYSTEM] INFO: User '1' logged in successfully.
+2026-05-11 09:45:54,490 [SYSTEM] INFO: User '1' logged in successfully.
+2026-05-11 09:45:54,490 [SYSTEM] INFO: User '1' logged in successfully.
+2026-05-11 09:45:54,490 [SYSTEM] INFO: User '1' logged in successfully.
+2026-05-11 09:50:00,347 [SYSTEM] INFO: Application closed normally.
+2026-05-11 09:50:00,347 [SYSTEM] INFO: Application closed normally.
+2026-05-11 09:50:03,758 [SYSTEM] INFO: Application starting...
+2026-05-11 09:50:03,758 [SYSTEM] INFO: Application starting...
+2026-05-11 09:50:03,759 [SYSTEM] INFO: Initializing database at: F:\CR_PY\certificate_manager\certificate_manager.db
+2026-05-11 09:50:03,759 [SYSTEM] INFO: Initializing database at: F:\CR_PY\certificate_manager\certificate_manager.db
+2026-05-11 09:50:03,766 [SYSTEM] INFO: All tables created (or already exist).
+2026-05-11 09:50:03,766 [SYSTEM] INFO: All tables created (or already exist).
+2026-05-11 09:50:03,767 [SYSTEM] INFO: All indexes created (or already exist).
+2026-05-11 09:50:03,767 [SYSTEM] INFO: All indexes created (or already exist).
+2026-05-11 09:50:03,767 [SYSTEM] INFO: Study systems seeded (or already exist).
+2026-05-11 09:50:03,767 [SYSTEM] INFO: Study systems seeded (or already exist).
+2026-05-11 09:50:03,768 [SYSTEM] INFO: Governorates already seeded (18 rows). Skipping.
+2026-05-11 09:50:03,768 [SYSTEM] INFO: Governorates already seeded (18 rows). Skipping.
+2026-05-11 09:50:03,768 [SYSTEM] INFO: Countries already seeded (195 rows). Skipping.
+2026-05-11 09:50:03,768 [SYSTEM] INFO: Countries already seeded (195 rows). Skipping.
+2026-05-11 09:50:03,769 [SYSTEM] INFO: Database initialization complete.
+2026-05-11 09:50:03,769 [SYSTEM] INFO: Database initialization complete.
+2026-05-11 09:50:12,457 [SYSTEM] INFO: User '1' logged in successfully.
+2026-05-11 09:50:12,457 [SYSTEM] INFO: User '1' logged in successfully.
+2026-05-11 09:50:12,457 [SYSTEM] INFO: User '1' logged in successfully.
+2026-05-11 09:50:12,457 [SYSTEM] INFO: User '1' logged in successfully.
+2026-05-11 09:55:03,487 [SYSTEM] INFO: تم توليد وثيقة للطالب ID: 12 بواسطة المستخدم ID: 1
+2026-05-11 09:55:03,487 [SYSTEM] INFO: تم توليد وثيقة للطالب ID: 12 بواسطة المستخدم ID: 1
+2026-05-11 09:56:46,267 [SYSTEM] INFO: تم توليد وثيقة للطالب ID: 12 بواسطة المستخدم ID: 1
+2026-05-11 09:56:46,267 [SYSTEM] INFO: تم توليد وثيقة للطالب ID: 12 بواسطة المستخدم ID: 1
+2026-05-11 10:05:11,370 [SYSTEM] INFO: Application closed normally.
+2026-05-11 10:05:11,370 [SYSTEM] INFO: Application closed normally.
+2026-05-11 10:05:16,809 [SYSTEM] INFO: Application starting...
+2026-05-11 10:05:16,809 [SYSTEM] INFO: Application starting...
+2026-05-11 10:05:16,810 [SYSTEM] INFO: Initializing database at: F:\CR_PY\certificate_manager\certificate_manager.db
+2026-05-11 10:05:16,810 [SYSTEM] INFO: Initializing database at: F:\CR_PY\certificate_manager\certificate_manager.db
+2026-05-11 10:05:16,821 [SYSTEM] INFO: All tables created (or already exist).
+2026-05-11 10:05:16,821 [SYSTEM] INFO: All tables created (or already exist).
+2026-05-11 10:05:16,822 [SYSTEM] INFO: All indexes created (or already exist).
+2026-05-11 10:05:16,822 [SYSTEM] INFO: All indexes created (or already exist).
+2026-05-11 10:05:16,823 [SYSTEM] INFO: Study systems seeded (or already exist).
+2026-05-11 10:05:16,823 [SYSTEM] INFO: Study systems seeded (or already exist).
+2026-05-11 10:05:16,824 [SYSTEM] INFO: Governorates already seeded (18 rows). Skipping.
+2026-05-11 10:05:16,824 [SYSTEM] INFO: Governorates already seeded (18 rows). Skipping.
+2026-05-11 10:05:16,825 [SYSTEM] INFO: Countries already seeded (195 rows). Skipping.
+2026-05-11 10:05:16,825 [SYSTEM] INFO: Countries already seeded (195 rows). Skipping.
+2026-05-11 10:05:16,825 [SYSTEM] INFO: Database initialization complete.
+2026-05-11 10:05:16,825 [SYSTEM] INFO: Database initialization complete.
+2026-05-11 10:05:26,402 [SYSTEM] INFO: User '1' logged in successfully.
+2026-05-11 10:05:26,402 [SYSTEM] INFO: User '1' logged in successfully.
+2026-05-11 10:05:26,402 [SYSTEM] INFO: User '1' logged in successfully.
+2026-05-11 10:05:26,402 [SYSTEM] INFO: User '1' logged in successfully.
+2026-05-11 10:05:51,183 [SYSTEM] INFO: تم توليد وثيقة للطالب ID: 12 بواسطة المستخدم ID: 1
+2026-05-11 10:05:51,183 [SYSTEM] INFO: تم توليد وثيقة للطالب ID: 12 بواسطة المستخدم ID: 1
+2026-05-11 10:08:23,309 [SYSTEM] INFO: Application closed normally.
+2026-05-11 10:08:23,309 [SYSTEM] INFO: Application closed normally.
+2026-05-11 12:02:57,698 [SYSTEM] INFO: Application starting...
+2026-05-11 12:02:57,698 [SYSTEM] INFO: Application starting...
+2026-05-11 12:02:57,698 [SYSTEM] INFO: Initializing database at: F:\CR_PY\certificate_manager\certificate_manager.db
+2026-05-11 12:02:57,698 [SYSTEM] INFO: Initializing database at: F:\CR_PY\certificate_manager\certificate_manager.db
+2026-05-11 12:02:57,703 [SYSTEM] INFO: All tables created (or already exist).
+2026-05-11 12:02:57,703 [SYSTEM] INFO: All tables created (or already exist).
+2026-05-11 12:02:57,704 [SYSTEM] INFO: All indexes created (or already exist).
+2026-05-11 12:02:57,704 [SYSTEM] INFO: All indexes created (or already exist).
+2026-05-11 12:02:57,704 [SYSTEM] INFO: Study systems seeded (or already exist).
+2026-05-11 12:02:57,704 [SYSTEM] INFO: Study systems seeded (or already exist).
+2026-05-11 12:02:57,704 [SYSTEM] INFO: Governorates already seeded (18 rows). Skipping.
+2026-05-11 12:02:57,704 [SYSTEM] INFO: Governorates already seeded (18 rows). Skipping.
+2026-05-11 12:02:57,705 [SYSTEM] INFO: Countries already seeded (195 rows). Skipping.
+2026-05-11 12:02:57,705 [SYSTEM] INFO: Countries already seeded (195 rows). Skipping.
+2026-05-11 12:02:57,705 [SYSTEM] INFO: Database initialization complete.
+2026-05-11 12:02:57,705 [SYSTEM] INFO: Database initialization complete.
+2026-05-11 12:04:57,892 [SYSTEM] INFO: User '1' logged in successfully.
+2026-05-11 12:04:57,892 [SYSTEM] INFO: User '1' logged in successfully.
+2026-05-11 12:04:57,892 [SYSTEM] INFO: User '1' logged in successfully.
+2026-05-11 12:04:57,892 [SYSTEM] INFO: User '1' logged in successfully.
+2026-05-11 12:05:19,035 [SYSTEM] INFO: تم توليد وثيقة للطالب ID: 2010 بواسطة المستخدم ID: 1
+2026-05-11 12:05:19,035 [SYSTEM] INFO: تم توليد وثيقة للطالب ID: 2010 بواسطة المستخدم ID: 1
+2026-05-11 12:06:19,652 [SYSTEM] INFO: تم توليد وثيقة للطالب ID: 2010 بواسطة المستخدم ID: 1
+2026-05-11 12:06:19,652 [SYSTEM] INFO: تم توليد وثيقة للطالب ID: 2010 بواسطة المستخدم ID: 1
+2026-05-11 12:06:40,585 [SYSTEM] INFO: تم توليد وثيقة للطالب ID: 12 بواسطة المستخدم ID: 1
+2026-05-11 12:06:40,585 [SYSTEM] INFO: تم توليد وثيقة للطالب ID: 12 بواسطة المستخدم ID: 1
+2026-05-11 12:10:31,368 [SYSTEM] INFO: Application closed normally.
+2026-05-11 12:10:31,368 [SYSTEM] INFO: Application closed normally.
+2026-05-11 12:14:03,645 [SYSTEM] INFO: Application starting...
+2026-05-11 12:14:03,645 [SYSTEM] INFO: Application starting...
+2026-05-11 12:14:03,646 [SYSTEM] INFO: Initializing database at: F:\CR_PY\certificate_manager\certificate_manager.db
+2026-05-11 12:14:03,646 [SYSTEM] INFO: Initializing database at: F:\CR_PY\certificate_manager\certificate_manager.db
+2026-05-11 12:14:03,651 [SYSTEM] INFO: All tables created (or already exist).
+2026-05-11 12:14:03,651 [SYSTEM] INFO: All tables created (or already exist).
+2026-05-11 12:14:03,652 [SYSTEM] INFO: All indexes created (or already exist).
+2026-05-11 12:14:03,652 [SYSTEM] INFO: All indexes created (or already exist).
+2026-05-11 12:14:03,652 [SYSTEM] INFO: Study systems seeded (or already exist).
+2026-05-11 12:14:03,652 [SYSTEM] INFO: Study systems seeded (or already exist).
+2026-05-11 12:14:03,653 [SYSTEM] INFO: Governorates already seeded (18 rows). Skipping.
+2026-05-11 12:14:03,653 [SYSTEM] INFO: Governorates already seeded (18 rows). Skipping.
+2026-05-11 12:14:03,653 [SYSTEM] INFO: Countries already seeded (195 rows). Skipping.
+2026-05-11 12:14:03,653 [SYSTEM] INFO: Countries already seeded (195 rows). Skipping.
+2026-05-11 12:14:03,653 [SYSTEM] INFO: Database initialization complete.
+2026-05-11 12:14:03,653 [SYSTEM] INFO: Database initialization complete.
+2026-05-11 12:14:12,487 [SYSTEM] INFO: User '1' logged in successfully.
+2026-05-11 12:14:12,487 [SYSTEM] INFO: User '1' logged in successfully.
+2026-05-11 12:14:12,487 [SYSTEM] INFO: User '1' logged in successfully.
+2026-05-11 12:14:12,487 [SYSTEM] INFO: User '1' logged in successfully.
+2026-05-11 12:14:34,242 [SYSTEM] INFO: تم توليد وثيقة للطالب ID: 12 بواسطة المستخدم ID: 1
+2026-05-11 12:14:34,242 [SYSTEM] INFO: تم توليد وثيقة للطالب ID: 12 بواسطة المستخدم ID: 1
+2026-05-11 13:09:31,565 [SYSTEM] INFO: Application closed normally.
+2026-05-11 13:09:31,565 [SYSTEM] INFO: Application closed normally.
+2026-05-11 13:09:36,030 [SYSTEM] INFO: Application starting...
+2026-05-11 13:09:36,030 [SYSTEM] INFO: Application starting...
+2026-05-11 13:09:36,030 [SYSTEM] INFO: Initializing database at: F:\CR_PY\certificate_manager\certificate_manager.db
+2026-05-11 13:09:36,030 [SYSTEM] INFO: Initializing database at: F:\CR_PY\certificate_manager\certificate_manager.db
+2026-05-11 13:09:36,034 [SYSTEM] INFO: All tables created (or already exist).
+2026-05-11 13:09:36,034 [SYSTEM] INFO: All tables created (or already exist).
+2026-05-11 13:09:36,035 [SYSTEM] INFO: All indexes created (or already exist).
+2026-05-11 13:09:36,035 [SYSTEM] INFO: All indexes created (or already exist).
+2026-05-11 13:09:36,035 [SYSTEM] INFO: Study systems seeded (or already exist).
+2026-05-11 13:09:36,035 [SYSTEM] INFO: Study systems seeded (or already exist).
+2026-05-11 13:09:36,036 [SYSTEM] INFO: Governorates already seeded (18 rows). Skipping.
+2026-05-11 13:09:36,036 [SYSTEM] INFO: Governorates already seeded (18 rows). Skipping.
+2026-05-11 13:09:36,036 [SYSTEM] INFO: Countries already seeded (195 rows). Skipping.
+2026-05-11 13:09:36,036 [SYSTEM] INFO: Countries already seeded (195 rows). Skipping.
+2026-05-11 13:09:36,036 [SYSTEM] INFO: Database initialization complete.
+2026-05-11 13:09:36,036 [SYSTEM] INFO: Database initialization complete.
+2026-05-11 13:09:42,405 [SYSTEM] INFO: User '1' logged in successfully.
+2026-05-11 13:09:42,405 [SYSTEM] INFO: User '1' logged in successfully.
+2026-05-11 13:09:42,405 [SYSTEM] INFO: User '1' logged in successfully.
+2026-05-11 13:09:42,405 [SYSTEM] INFO: User '1' logged in successfully.
+2026-05-11 13:09:57,843 [SYSTEM] INFO: تم توليد وثيقة للطالب ID: 12 بواسطة المستخدم ID: 1
+2026-05-11 13:09:57,843 [SYSTEM] INFO: تم توليد وثيقة للطالب ID: 12 بواسطة المستخدم ID: 1
+2026-05-11 13:12:35,527 [SYSTEM] INFO: تم توليد وثيقة للطالب ID: 12 بواسطة المستخدم ID: 1
+2026-05-11 13:12:35,527 [SYSTEM] INFO: تم توليد وثيقة للطالب ID: 12 بواسطة المستخدم ID: 1
+2026-05-11 13:13:48,022 [SYSTEM] INFO: Application closed normally.
+2026-05-11 13:13:48,022 [SYSTEM] INFO: Application closed normally.
+2026-05-11 13:51:08,387 [SYSTEM] INFO: Application starting...
+2026-05-11 13:51:08,387 [SYSTEM] INFO: Application starting...
+2026-05-11 13:51:08,388 [SYSTEM] INFO: Initializing database at: F:\CR_PY\certificate_manager\certificate_manager.db
+2026-05-11 13:51:08,388 [SYSTEM] INFO: Initializing database at: F:\CR_PY\certificate_manager\certificate_manager.db
+2026-05-11 13:51:08,399 [SYSTEM] INFO: All tables created (or already exist).
+2026-05-11 13:51:08,399 [SYSTEM] INFO: All tables created (or already exist).
+2026-05-11 13:51:08,400 [SYSTEM] INFO: All indexes created (or already exist).
+2026-05-11 13:51:08,400 [SYSTEM] INFO: All indexes created (or already exist).
+2026-05-11 13:51:08,402 [SYSTEM] INFO: Study systems seeded (or already exist).
+2026-05-11 13:51:08,402 [SYSTEM] INFO: Study systems seeded (or already exist).
+2026-05-11 13:51:08,404 [SYSTEM] INFO: Governorates already seeded (18 rows). Skipping.
+2026-05-11 13:51:08,404 [SYSTEM] INFO: Governorates already seeded (18 rows). Skipping.
+2026-05-11 13:51:08,406 [SYSTEM] INFO: Countries already seeded (195 rows). Skipping.
+2026-05-11 13:51:08,406 [SYSTEM] INFO: Countries already seeded (195 rows). Skipping.
+2026-05-11 13:51:08,406 [SYSTEM] INFO: Database initialization complete.
+2026-05-11 13:51:08,406 [SYSTEM] INFO: Database initialization complete.
+2026-05-11 13:51:13,860 [SYSTEM] INFO: User '1' logged in successfully.
+2026-05-11 13:51:13,860 [SYSTEM] INFO: User '1' logged in successfully.
+2026-05-11 13:51:13,860 [SYSTEM] INFO: User '1' logged in successfully.
+2026-05-11 13:51:13,860 [SYSTEM] INFO: User '1' logged in successfully.
+2026-05-11 13:52:20,355 [SYSTEM] INFO: Application closed normally.
+2026-05-11 13:52:20,355 [SYSTEM] INFO: Application closed normally.
+2026-05-11 13:53:15,476 [SYSTEM] INFO: Application starting...
+2026-05-11 13:53:15,476 [SYSTEM] INFO: Application starting...
+2026-05-11 13:53:15,478 [SYSTEM] INFO: Initializing database at: F:\CR_PY\certificate_manager\certificate_manager.db
+2026-05-11 13:53:15,478 [SYSTEM] INFO: Initializing database at: F:\CR_PY\certificate_manager\certificate_manager.db
+2026-05-11 13:53:15,482 [SYSTEM] INFO: All tables created (or already exist).
+2026-05-11 13:53:15,482 [SYSTEM] INFO: All tables created (or already exist).
+2026-05-11 13:53:15,483 [SYSTEM] INFO: All indexes created (or already exist).
+2026-05-11 13:53:15,483 [SYSTEM] INFO: All indexes created (or already exist).
+2026-05-11 13:53:15,483 [SYSTEM] INFO: Study systems seeded (or already exist).
+2026-05-11 13:53:15,483 [SYSTEM] INFO: Study systems seeded (or already exist).
+2026-05-11 13:53:15,484 [SYSTEM] INFO: Governorates already seeded (18 rows). Skipping.
+2026-05-11 13:53:15,484 [SYSTEM] INFO: Governorates already seeded (18 rows). Skipping.
+2026-05-11 13:53:15,484 [SYSTEM] INFO: Countries already seeded (195 rows). Skipping.
+2026-05-11 13:53:15,484 [SYSTEM] INFO: Countries already seeded (195 rows). Skipping.
+2026-05-11 13:53:15,485 [SYSTEM] INFO: Database initialization complete.
+2026-05-11 13:53:15,485 [SYSTEM] INFO: Database initialization complete.
+2026-05-11 13:53:30,558 [SYSTEM] INFO: User '1' logged in successfully.
+2026-05-11 13:53:30,558 [SYSTEM] INFO: User '1' logged in successfully.
+2026-05-11 13:53:30,558 [SYSTEM] INFO: User '1' logged in successfully.
+2026-05-11 13:53:30,558 [SYSTEM] INFO: User '1' logged in successfully.
+2026-05-11 13:54:23,839 [SYSTEM] INFO: تم توليد وثيقة للطالب ID: 12 بواسطة المستخدم ID: 1
+2026-05-11 13:54:23,839 [SYSTEM] INFO: تم توليد وثيقة للطالب ID: 12 بواسطة المستخدم ID: 1
+2026-05-11 13:54:59,319 [SYSTEM] INFO: Application closed normally.
+2026-05-11 13:54:59,319 [SYSTEM] INFO: Application closed normally.
+2026-05-11 14:01:05,384 [SYSTEM] INFO: Application starting...
+2026-05-11 14:01:05,384 [SYSTEM] INFO: Application starting...
+2026-05-11 14:01:05,385 [SYSTEM] INFO: Initializing database at: F:\CR_PY\certificate_manager\certificate_manager.db
+2026-05-11 14:01:05,385 [SYSTEM] INFO: Initializing database at: F:\CR_PY\certificate_manager\certificate_manager.db
+2026-05-11 14:01:05,391 [SYSTEM] INFO: All tables created (or already exist).
+2026-05-11 14:01:05,391 [SYSTEM] INFO: All tables created (or already exist).
+2026-05-11 14:01:05,392 [SYSTEM] INFO: All indexes created (or already exist).
+2026-05-11 14:01:05,392 [SYSTEM] INFO: All indexes created (or already exist).
+2026-05-11 14:01:05,393 [SYSTEM] INFO: Study systems seeded (or already exist).
+2026-05-11 14:01:05,393 [SYSTEM] INFO: Study systems seeded (or already exist).
+2026-05-11 14:01:05,393 [SYSTEM] INFO: Governorates already seeded (18 rows). Skipping.
+2026-05-11 14:01:05,393 [SYSTEM] INFO: Governorates already seeded (18 rows). Skipping.
+2026-05-11 14:01:05,394 [SYSTEM] INFO: Countries already seeded (195 rows). Skipping.
+2026-05-11 14:01:05,394 [SYSTEM] INFO: Countries already seeded (195 rows). Skipping.
+2026-05-11 14:01:05,394 [SYSTEM] INFO: Database initialization complete.
+2026-05-11 14:01:05,394 [SYSTEM] INFO: Database initialization complete.
+2026-05-11 14:01:10,051 [SYSTEM] INFO: User '1' logged in successfully.
+2026-05-11 14:01:10,051 [SYSTEM] INFO: User '1' logged in successfully.
+2026-05-11 14:01:10,051 [SYSTEM] INFO: User '1' logged in successfully.
+2026-05-11 14:01:10,051 [SYSTEM] INFO: User '1' logged in successfully.
+2026-05-11 14:01:41,526 [SYSTEM] INFO: تم توليد وثيقة للطالب ID: 12 بواسطة المستخدم ID: 1
+2026-05-11 14:01:41,526 [SYSTEM] INFO: تم توليد وثيقة للطالب ID: 12 بواسطة المستخدم ID: 1
+2026-05-11 14:02:54,603 [SYSTEM] INFO: Application closed normally.
+2026-05-11 14:02:54,603 [SYSTEM] INFO: Application closed normally.
+2026-05-11 14:22:00,376 [SYSTEM] INFO: Application starting...
+2026-05-11 14:22:00,376 [SYSTEM] INFO: Application starting...
+2026-05-11 14:22:00,377 [SYSTEM] INFO: Initializing database at: F:\CR_PY\certificate_manager\certificate_manager.db
+2026-05-11 14:22:00,377 [SYSTEM] INFO: Initializing database at: F:\CR_PY\certificate_manager\certificate_manager.db
+2026-05-11 14:22:00,385 [SYSTEM] INFO: All tables created (or already exist).
+2026-05-11 14:22:00,385 [SYSTEM] INFO: All tables created (or already exist).
+2026-05-11 14:22:00,386 [SYSTEM] INFO: All indexes created (or already exist).
+2026-05-11 14:22:00,386 [SYSTEM] INFO: All indexes created (or already exist).
+2026-05-11 14:22:00,386 [SYSTEM] INFO: Study systems seeded (or already exist).
+2026-05-11 14:22:00,386 [SYSTEM] INFO: Study systems seeded (or already exist).
+2026-05-11 14:22:00,387 [SYSTEM] INFO: Governorates already seeded (18 rows). Skipping.
+2026-05-11 14:22:00,387 [SYSTEM] INFO: Governorates already seeded (18 rows). Skipping.
+2026-05-11 14:22:00,387 [SYSTEM] INFO: Countries already seeded (195 rows). Skipping.
+2026-05-11 14:22:00,387 [SYSTEM] INFO: Countries already seeded (195 rows). Skipping.
+2026-05-11 14:22:00,388 [SYSTEM] INFO: Database initialization complete.
+2026-05-11 14:22:00,388 [SYSTEM] INFO: Database initialization complete.
+2026-05-11 14:22:05,024 [SYSTEM] INFO: User '1' logged in successfully.
+2026-05-11 14:22:05,024 [SYSTEM] INFO: User '1' logged in successfully.
+2026-05-11 14:22:05,024 [SYSTEM] INFO: User '1' logged in successfully.
+2026-05-11 14:22:05,024 [SYSTEM] INFO: User '1' logged in successfully.
+2026-05-11 14:22:23,529 [SYSTEM] INFO: تم توليد وثيقة للطالب ID: 12 بواسطة المستخدم ID: 1
+2026-05-11 14:22:23,529 [SYSTEM] INFO: تم توليد وثيقة للطالب ID: 12 بواسطة المستخدم ID: 1
+2026-05-11 14:23:18,918 [SYSTEM] INFO: Application closed normally.
+2026-05-11 14:23:18,918 [SYSTEM] INFO: Application closed normally.
+2026-05-12 08:57:39,753 [SYSTEM] INFO: Application starting...
+2026-05-12 08:57:39,753 [SYSTEM] INFO: Application starting...
+2026-05-12 08:57:39,754 [SYSTEM] INFO: Initializing database at: F:\CR_PY\certificate_manager\certificate_manager.db
+2026-05-12 08:57:39,754 [SYSTEM] INFO: Initializing database at: F:\CR_PY\certificate_manager\certificate_manager.db
+2026-05-12 08:57:39,760 [SYSTEM] INFO: All tables created (or already exist).
+2026-05-12 08:57:39,760 [SYSTEM] INFO: All tables created (or already exist).
+2026-05-12 08:57:39,761 [SYSTEM] INFO: All indexes created (or already exist).
+2026-05-12 08:57:39,761 [SYSTEM] INFO: All indexes created (or already exist).
+2026-05-12 08:57:39,761 [SYSTEM] INFO: Study systems seeded (or already exist).
+2026-05-12 08:57:39,761 [SYSTEM] INFO: Study systems seeded (or already exist).
+2026-05-12 08:57:39,761 [SYSTEM] INFO: Governorates already seeded (18 rows). Skipping.
+2026-05-12 08:57:39,761 [SYSTEM] INFO: Governorates already seeded (18 rows). Skipping.
+2026-05-12 08:57:39,762 [SYSTEM] INFO: Countries already seeded (195 rows). Skipping.
+2026-05-12 08:57:39,762 [SYSTEM] INFO: Countries already seeded (195 rows). Skipping.
+2026-05-12 08:57:39,762 [SYSTEM] INFO: Database initialization complete.
+2026-05-12 08:57:39,762 [SYSTEM] INFO: Database initialization complete.
+2026-05-12 10:38:13,739 [SYSTEM] INFO: Application closed normally.
+2026-05-12 10:38:13,739 [SYSTEM] INFO: Application closed normally.
+2026-05-12 10:38:20,102 [SYSTEM] INFO: Application starting...
+2026-05-12 10:38:20,102 [SYSTEM] INFO: Application starting...
+2026-05-12 10:38:20,103 [SYSTEM] INFO: Initializing database at: F:\CR_PY\certificate_manager\certificate_manager.db
+2026-05-12 10:38:20,103 [SYSTEM] INFO: Initializing database at: F:\CR_PY\certificate_manager\certificate_manager.db
+2026-05-12 10:38:20,143 [SYSTEM] INFO: All tables created (or already exist).
+2026-05-12 10:38:20,143 [SYSTEM] INFO: All tables created (or already exist).
+2026-05-12 10:38:20,144 [SYSTEM] INFO: All indexes created (or already exist).
+2026-05-12 10:38:20,144 [SYSTEM] INFO: All indexes created (or already exist).
+2026-05-12 10:38:20,144 [SYSTEM] INFO: Study systems seeded (or already exist).
+2026-05-12 10:38:20,144 [SYSTEM] INFO: Study systems seeded (or already exist).
+2026-05-12 10:38:20,145 [SYSTEM] INFO: Governorates already seeded (18 rows). Skipping.
+2026-05-12 10:38:20,145 [SYSTEM] INFO: Governorates already seeded (18 rows). Skipping.
+2026-05-12 10:38:20,145 [SYSTEM] INFO: Countries already seeded (195 rows). Skipping.
+2026-05-12 10:38:20,145 [SYSTEM] INFO: Countries already seeded (195 rows). Skipping.
+2026-05-12 10:38:20,145 [SYSTEM] INFO: Database initialization complete.
+2026-05-12 10:38:20,145 [SYSTEM] INFO: Database initialization complete.
+2026-05-12 10:38:47,977 [SYSTEM] INFO: User '1' logged in successfully.
+2026-05-12 10:38:47,977 [SYSTEM] INFO: User '1' logged in successfully.
+2026-05-12 10:38:47,977 [SYSTEM] INFO: User '1' logged in successfully.
+2026-05-12 10:38:47,977 [SYSTEM] INFO: User '1' logged in successfully.
+2026-05-12 10:59:53,357 [SYSTEM] INFO: Application closed normally.
+2026-05-12 10:59:53,357 [SYSTEM] INFO: Application closed normally.
+2026-05-12 11:17:44,096 [SYSTEM] INFO: Application starting...
+2026-05-12 11:17:44,096 [SYSTEM] INFO: Application starting...
+2026-05-12 11:17:44,097 [SYSTEM] INFO: Initializing database at: F:\CR_PY\certificate_manager\certificate_manager.db
+2026-05-12 11:17:44,097 [SYSTEM] INFO: Initializing database at: F:\CR_PY\certificate_manager\certificate_manager.db
+2026-05-12 11:17:44,101 [SYSTEM] INFO: All tables created (or already exist).
+2026-05-12 11:17:44,101 [SYSTEM] INFO: All tables created (or already exist).
+2026-05-12 11:17:44,102 [SYSTEM] INFO: All indexes created (or already exist).
+2026-05-12 11:17:44,102 [SYSTEM] INFO: All indexes created (or already exist).
+2026-05-12 11:17:44,102 [SYSTEM] INFO: Study systems seeded (or already exist).
+2026-05-12 11:17:44,102 [SYSTEM] INFO: Study systems seeded (or already exist).
+2026-05-12 11:17:44,102 [SYSTEM] INFO: Governorates already seeded (18 rows). Skipping.
+2026-05-12 11:17:44,102 [SYSTEM] INFO: Governorates already seeded (18 rows). Skipping.
+2026-05-12 11:17:44,103 [SYSTEM] INFO: Countries already seeded (195 rows). Skipping.
+2026-05-12 11:17:44,103 [SYSTEM] INFO: Countries already seeded (195 rows). Skipping.
+2026-05-12 11:17:44,104 [SYSTEM] INFO: Database initialization complete.
+2026-05-12 11:17:44,104 [SYSTEM] INFO: Database initialization complete.
+2026-05-12 11:17:53,740 [SYSTEM] INFO: User '1' logged in successfully.
+2026-05-12 11:17:53,740 [SYSTEM] INFO: User '1' logged in successfully.
+2026-05-12 11:17:53,740 [SYSTEM] INFO: User '1' logged in successfully.
+2026-05-12 11:17:53,740 [SYSTEM] INFO: User '1' logged in successfully.
+2026-05-12 11:23:16,240 [SYSTEM] INFO: Application closed normally.
+2026-05-12 11:23:16,240 [SYSTEM] INFO: Application closed normally.

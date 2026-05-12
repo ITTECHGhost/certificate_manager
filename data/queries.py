@@ -1584,7 +1584,8 @@ def get_full_certificate_data(student_id: int) -> dict | None:
         
         # 3. Academic periods & enrollments
         periods = conn.execute(
-            "SELECT * FROM academic_periods WHERE student_id = ? ORDER BY stage_number",
+            "SELECT * FROM academic_periods WHERE student_id = ? "
+            "ORDER BY stage_number, academic_year",
             (student_id,)
         ).fetchall()
         
@@ -1592,7 +1593,10 @@ def get_full_certificate_data(student_id: int) -> dict | None:
         for p in periods:
             p_dict = _row_to_dict(p)
             enrolls = conn.execute(
-                "SELECT e.score, e.is_second_round, c.name_ar, c.name_en, c.credit_hours "
+                "SELECT e.score, e.is_second_round, "
+                "       c.name_ar AS course_name_ar, "
+                "       c.name_en AS course_name_en, "
+                "       c.credit_hours "
                 "FROM enrollments e "
                 "JOIN courses c ON e.course_id = c.id "
                 "WHERE e.period_id = ? "

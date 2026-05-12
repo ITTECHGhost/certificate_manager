@@ -59,43 +59,52 @@ class GraduationOrderPanel(SidePanel):
     # ── Build fields ──────────────────────────────────────────────────────────
 
     def _build_fields(self) -> None:
-        self._add_section_label("بيانات الأمر", "Order Details")
+        self._fields_frame.grid_columnconfigure((0, 1), weight=1)
+
+        self._add_section_label("بيانات الأمر", "Order Details", row=0, col=3, colspan=1) 
+        
         self._order_number = self._add_entry(
             "رقم الأمر", "Order Number",
             placeholder="مثال: 18515/13/2",
-            justify="left"
+            row=0, col=1, justify="left"
         )
         self._order_date = self._add_entry(
             "تاريخ الأمر", "Order Date (YYYY-MM-DD)",
             placeholder="مثال: 2024-06-15",
-            justify="left"
+            row=0, col=0, justify="left"
         )
 
-        self._add_section_label("البيانات الأكاديمية", "Academic Details")
-        self._dept = self._add_dropdown("القسم", "Department", values=["—"])
+        self._add_section_label("البيانات الأكاديمية", "Academic Details", row=3, col=3) #, colspan=2
+        
+        self._dept = self._add_dropdown("القسم", "Department", values=["—"], row=6, col=1)
         self._study_type = self._add_dropdown(
             "نوع الدراسة", "Study Type",
             values=list(STUDY_TYPE_OPTIONS.keys()),
+            row=6, col=0
         )
+        
         self._admission_year = self._add_entry(
             "سنة القبول (الدفعة)", "Admission Year",
             placeholder="مثال: 2018",
-            justify="left"
+            row=6, col=2, justify="left"
         )
         self._graduation_semester = self._add_dropdown(
             "فصل التخرج", "Graduation Semester",
             values=list(SEMESTER_OPTIONS.keys()),
+            row=6, col=3
         )
 
-        self._add_section_label("معلومات إضافية", "Additional Info")
+        self._add_section_label("معلومات إضافية", "Additional Info", row=8, col=3, colspan=1)
+        
         self._num_students = self._add_entry(
             "عدد الطلاب (حسب الوثيقة)", "Number of Students (from document)",
             placeholder="اختياري / Optional",
-            justify="left"
+            row=8, col=0, justify="left"
         )
         self._notes = self._add_entry(
             "ملاحظات", "Notes",
             placeholder="اختياري / Optional",
+            row=8, col=1
         )
 
     # ── Reload departments ────────────────────────────────────────────────────
