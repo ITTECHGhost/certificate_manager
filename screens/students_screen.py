@@ -112,6 +112,7 @@ class StudentFormPanel(SidePanel):
         self._countries: list[dict] = []
         self._orders: list[dict] = []
         self._study_systems: list[dict] = []
+        self._all_order_labels: list[str] = []
         super().__init__(
             parent_screen,
             title_ar_add="إضافة طالب جديد", title_en_add="Add New Student",
@@ -151,10 +152,7 @@ class StudentFormPanel(SidePanel):
         self._study_type = self._add_dropdown("نوع الدراسة", "Study Type", values=list(STUDY_TYPE_OPTIONS.keys()), row=8, col=0)
         self._degree_level = self._add_dropdown("الدرجة العلمية", "Degree Level", values=list(DEGREE_LEVEL_OPTIONS.keys()), row=8, col=1)
         self._degree_level.configure(command=self._on_degree_change)
-        self._sequence_number = self._add_entry("رقم التسلسل", "Sequence of Graduation", placeholder="مثال: 1", row=8, col=2)
         
-        self._postgraduation_no = self._add_entry("عدد الخريجين", "Postgraduation No.", placeholder="مثال: 86", row=9, col=0)
-
         # -- ROW 10: Graduation Section --
         self._add_section_label("التخرج", "Graduation", row=10, col=3)
 
@@ -162,11 +160,15 @@ class StudentFormPanel(SidePanel):
         self._grad_sem = self._add_combobox("فصل التخرج / الدور", "Graduation Semester / Role", values=["— لم يتخرج بعد / Not yet"] + list(SEMESTER_OPTIONS.keys()), row=10, col=1)
         self._average = self._add_entry("المعدل العام", "Overall Average (50–100)", placeholder="مثال: 78", row=10, col=2)
 
-        self._order = self._add_dropdown("الأمر الجامعي", "Graduation Order", values=["— بدون أمر / None"], row=12, col=0, colspan=2)
+        self._postgraduation_no = self._add_entry("عدد الخريجين", "Postgraduation No.", placeholder="مثال: 86", row=12, col=0)
+        self._sequence_number = self._add_entry("رقم التسلسل", "Sequence of Graduation", placeholder="مثال: 1", row=12, col=1)
 
-        # -- ROW 14: Thesis Section (Hidden by default) --
+        self._order = self._add_combobox("الأمر الجامعي", "Graduation Order", values=["— بدون أمر / None"], row=14, col=0, colspan=3)
+        self._order.bind("<KeyRelease>", self._filter_orders)
+
+        # -- ROW 16: Thesis Section (Hidden by default) --
         self._thesis_frame = ctk.CTkFrame(self._fields_frame, fg_color="transparent")
-        self._thesis_frame.grid(row=14, column=0, columnspan=4, sticky="ew")
+        self._thesis_frame.grid(row=16, column=0, columnspan=4, sticky="ew")
         self._thesis_frame.grid_columnconfigure((0,1,2,3), weight=1)
         
         self._add_section_label("الرسالة / الأطروحة", "Thesis / Dissertation", row=0, col=3, parent=self._thesis_frame)
@@ -191,6 +193,17 @@ class StudentFormPanel(SidePanel):
         else:
             self._thesis_frame.grid_remove()
 
+    def _filter_orders(self, event=None) -> None:
+        """Filter the graduation order combobox values based on typed text."""
+        typed = self._order.get().strip().lower()
+        if not typed:
+            self._order.configure(values=self._all_order_labels)
+        else:
+            filtered = [label for label in self._all_order_labels if typed in label.lower()]
+            if not filtered:
+                filtered = ["— لا توجد نتائج / No results"]
+            self._order.configure(values=filtered)
+
     def _reload_lookups(self) -> None:
         """Reload all dropdown data from the database."""
         self._depts    = DepartmentRepository().get_all()
@@ -200,13 +213,24 @@ class StudentFormPanel(SidePanel):
         self._study_systems = StudySystemRepository().get_active()
         self._personnel = PersonnelRepository().get_active()
 
+        # Sort graduation orders from last recent date (2026 and down)
+        def get_order_date_key(o):
+            dt = o.get("order_date")
+            if dt is None:
+                return ""
+            if isinstance(dt, str):
+                return dt
+            return dt.strftime("%Y-%m-%d")
+        self._orders = sorted(self._orders, key=get_order_date_key, reverse=True)
+
         dept_labels = [f"{d['name_ar']}  /  {d['name_en']}" for d in self._depts] or ["—"]
         gov_labels  = ["—  أجنبي / Foreign"] + [
             f"{g['name_ar']}  /  {g['name_en']}" for g in self._govs
         ]
         nat_labels  = [f"{c['name_ar']}  ({c['iso_code']})" for c in self._countries]
-        order_labels = ["— بدون أمر / None"] + [
-            f"{o['order_number']}  |  {o.get('dept_name_ar','')}  |  {o['admission_year']}"
+        
+        self._all_order_labels = ["— بدون أمر / None"] + [
+            f"{o['order_number']}  |  {o.get('dept_name_ar','')}  |  {o.get('admission_year','') or '—'}"
             for o in self._orders
         ]
         ss_labels = [f"{s['name_ar']}  /  {s['name_en']}" for s in self._study_systems] or ["—"]
@@ -214,7 +238,8 @@ class StudentFormPanel(SidePanel):
         self._dept.configure(values=dept_labels)
         self._birthplace_gov.configure(values=gov_labels)
         self._nationality.configure(values=nat_labels)
-        self._order.configure(values=order_labels)
+        self._order.configure(values=self._all_order_labels)
+        self._order.set(self._all_order_labels[0])
         self._study_system.configure(values=ss_labels)
         
         pers_labels = ["—"] + [f"{p['name_ar']}  /  {p['name_en']}" for p in self._personnel]
@@ -319,7 +344,7 @@ class StudentFormPanel(SidePanel):
             for o in self._orders:
                 if o["id"] == data["order_id"]:
                     lbl = (f"{o['order_number']}  |  "
-                           f"{o.get('dept_name_ar','')}  |  {o['admission_year']}")
+                           f"{o.get('dept_name_ar','')}  |  {o.get('admission_year','') or '—'}")
                     self._set_dropdown(self._order, lbl)
                     break
 
@@ -399,13 +424,13 @@ class StudentFormPanel(SidePanel):
         return (None, "غير محدد")
 
     def _get_order_id(self) -> int | None:
-        label = self._order.get()
-        if "بدون أمر" in label:
+        label = self._order.get().strip()
+        if not label or "بدون أمر" in label or "None" in label:
             return None
         for o in self._orders:
             lbl = (f"{o['order_number']}  |  "
-                   f"{o.get('dept_name_ar','')}  |  {o['admission_year']}")
-            if lbl == label:
+                   f"{o.get('dept_name_ar','')}  |  {o.get('admission_year','') or '—'}")
+            if lbl == label or o['order_number'] in label:
                 return o["id"]
         return None
 
@@ -484,6 +509,7 @@ class StudentFormPanel(SidePanel):
                     "graduation_date": grad_date,
                     "graduation_semester": grad_sem,
                     "average": avg_val,
+                    "order_id": order_id,
                 }
             )
             
@@ -1089,11 +1115,14 @@ class StudentsScreen(BaseScreen):
                 data.get("birthplace_ar") or data.get("birthplace_other", "—")),
             ("نوع الدراسة  /  Study Type",
                 "صباحي / Morning" if data.get("study_type") == "morning" else "مسائي / Evening"),
+            ("المعدل  /  Average",          f"{avg}  ({grade_ar} / {grade_en})" if avg else "—"),
+            ("أمر التخرج  /  Graduation Order", data.get("order_number", "—")),
             ("تاريخ التخرج  /  Graduation Date", data.get("graduation_date", "—")),
             ("فصل التخرج  /  Graduation Semester",
                 "الأول / First" if data.get("graduation_semester") == "first"
                 else ("الثاني / Second" if data.get("graduation_semester") == "second" else "—")),
-            ("المعدل  /  Average",          f"{avg}  ({grade_ar} / {grade_en})" if avg else "—"),
+            ("تسلسل وصادر التخرج  /  Grad. Seq & Postgrad No.",
+                f"{data.get('sequence_number', '—')}  /  {data.get('postgraduation_no', '—')}"),
         ]
 
         def draw_field(parent, label, value, row_idx, col_offset):

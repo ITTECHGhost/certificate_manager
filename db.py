@@ -25,14 +25,62 @@ def get_connection():
 
 
 def init_db() -> None:
-    """Check MySQL connection on startup."""
+    """Check MySQL connection on startup and ensure required tables and columns exist."""
     log.info("Checking MySQL database connection to %s@%s...", DBConfig.DB_USER, DBConfig.DB_HOST)
     try:
         conn = get_connection()
+        cursor = conn.cursor()
+        # Verify and create course_departments table if it does not exist
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS course_departments (
+                course_id     INT NOT NULL,
+                department_id INT NOT NULL,
+                PRIMARY KEY (course_id, department_id),
+                FOREIGN KEY (course_id) REFERENCES courses(id) ON UPDATE CASCADE ON DELETE CASCADE,
+                FOREIGN KEY (department_id) REFERENCES departments(id) ON UPDATE CASCADE ON DELETE CASCADE
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+        """)
+
+        # Verify and add missing columns to the students table for full compatibility
+        cursor.execute("DESCRIBE students")
+        student_cols = [row[0] for row in cursor.fetchall()]
+
+        if "graduation_date" not in student_cols:
+            log.info("Adding graduation_date column to students table...")
+            cursor.execute("ALTER TABLE students ADD COLUMN graduation_date DATE DEFAULT NULL")
+
+        if "graduation_semester" not in student_cols:
+            log.info("Adding graduation_semester column to students table...")
+            cursor.execute("ALTER TABLE students ADD COLUMN graduation_semester VARCHAR(50) DEFAULT NULL")
+
+        if "postgraduation_no" not in student_cols:
+            log.info("Adding postgraduation_no column to students table...")
+            cursor.execute("ALTER TABLE students ADD COLUMN postgraduation_no INT DEFAULT NULL")
+            if "postgraduation_number" in student_cols:
+                cursor.execute("UPDATE students SET postgraduation_no = postgraduation_number WHERE postgraduation_no IS NULL")
+
+        # Verify and add missing columns to the graduation_orders table for full compatibility
+        cursor.execute("DESCRIBE graduation_orders")
+        order_cols = [row[0] for row in cursor.fetchall()]
+
+        if "admission_year" not in order_cols:
+            log.info("Adding admission_year column to graduation_orders table...")
+            cursor.execute("ALTER TABLE graduation_orders ADD COLUMN admission_year INT DEFAULT NULL")
+
+        if "study_type" not in order_cols:
+            log.info("Adding study_type column to graduation_orders table...")
+            cursor.execute("ALTER TABLE graduation_orders ADD COLUMN study_type VARCHAR(50) DEFAULT NULL")
+
+        if "notes" not in order_cols:
+            log.info("Adding notes column to graduation_orders table...")
+            cursor.execute("ALTER TABLE graduation_orders ADD COLUMN notes VARCHAR(255) DEFAULT NULL")
+
+        conn.commit()
+        cursor.close()
         conn.close()
-        log.info("Database connection successful.")
+        log.info("Database connection successful, tables verified, and schemas reconciled.")
     except Exception as e:
-        log.error("Database connection failed: %s", e)
+        log.error("Database connection or schema verification failed: %s", e)
         raise
 
 

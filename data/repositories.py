@@ -135,18 +135,41 @@ class GovernorateRepository(BaseRepository):
 
 class DepartmentRepository(BaseRepository):
     def get_all(self) -> list[dict]:
-        return self._fetch_all("SELECT id, name_ar, name_en, college_ar, college_en, study_years FROM departments ORDER BY name_ar")
+        return self._fetch_all("""
+            SELECT d.id, d.name_ar, d.name_en, 
+                   u.college_name_ar AS college_ar, 
+                   u.college_name_en AS college_en, 
+                   4 AS study_years 
+            FROM departments d 
+            LEFT JOIN university_settings u ON d.university_settings_id = u.id 
+            ORDER BY d.name_ar
+        """)
         
     def get_by_id(self, dept_id: int) -> dict | None:
-        return self._fetch_one("SELECT * FROM departments WHERE id = %s", (dept_id,))
+        return self._fetch_one("""
+            SELECT d.id, d.name_ar, d.name_en, 
+                   u.college_name_ar AS college_ar, 
+                   u.college_name_en AS college_en, 
+                   4 AS study_years 
+            FROM departments d 
+            LEFT JOIN university_settings u ON d.university_settings_id = u.id 
+            WHERE d.id = %s
+        """, (dept_id,))
 
-    def insert(self, name_ar: str, name_en: str, study_years: int) -> int:
-        new_id = self._execute("INSERT INTO departments (name_ar, name_en, study_years) VALUES (%s, %s, %s)", (name_ar, name_en, study_years), commit=True)
+    def insert(self, name_ar: str, name_en: str, college_ar: str = None, college_en: str = None, **kwargs) -> int:
+        new_id = self._execute("""
+            INSERT INTO departments (name_ar, name_en, study_day_type, university_settings_id) 
+            VALUES (%s, %s, 'Morning', 1)
+        """, (name_ar, name_en), commit=True)
         log_activity(f"تم إضافة قسم جديد: {name_ar}")
         return new_id
 
-    def update(self, dept_id: int, name_ar: str, name_en: str, study_years: int) -> None:
-        self._execute("UPDATE departments SET name_ar=%s, name_en=%s, study_years=%s WHERE id=%s", (name_ar, name_en, study_years, dept_id), commit=True)
+    def update(self, dept_id: int, name_ar: str, name_en: str, college_ar: str = None, college_en: str = None, **kwargs) -> None:
+        self._execute("""
+            UPDATE departments 
+            SET name_ar=%s, name_en=%s 
+            WHERE id=%s
+        """, (name_ar, name_en, dept_id), commit=True)
         log_activity(f"تم تعديل القسم: {name_ar}")
 
     def delete(self, dept_id: int) -> None:
@@ -454,9 +477,13 @@ class StudentRepository(BaseRepository):
         
     def get_by_id(self, student_id: int) -> dict | None:
         return self._fetch_one(
-            "SELECT s.*, d.name_ar AS dept_name_ar, ss.name_ar AS study_system_name_ar, "
+            "SELECT s.*, o.order_number, "
+            "COALESCE(s.graduation_date, o.order_date) AS graduation_date, "
+            "COALESCE(s.graduation_semester, o.graduation_semester) AS graduation_semester, "
+            "d.name_ar AS dept_name_ar, ss.name_ar AS study_system_name_ar, "
             "c.name_ar AS nationality_ar, g.name_ar AS birthplace_ar "
             "FROM students s "
+            "LEFT JOIN graduation_orders o ON s.order_id = o.id "
             "LEFT JOIN departments d ON s.department_id = d.id "
             "LEFT JOIN study_systems ss ON s.study_system_id = ss.id "
             "LEFT JOIN countries c ON s.nationality_id = c.id "
