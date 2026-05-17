@@ -123,7 +123,10 @@ class PersonnelPanel(SidePanel):
         self._set_entry(self._resp_ar,  data.get("responsibility_ar", ""))
         self._set_entry(self._resp_en,  data.get("responsibility_en", ""))
         order = data.get("display_order")
-        page  = data.get("page_location")
+        # Infer page from display_order for UI mapping (1-4: front, 5-10: back)
+        page = None
+        if order:
+            page = "front" if order <= 4 else "back"
         display_str = self.ORDER_REVERSE.get((order, page), "بدون / None")
         self._set_dropdown(self._pos_dropdown, display_str)
         
@@ -149,7 +152,6 @@ class PersonnelPanel(SidePanel):
             responsibility_ar = self._resp_ar.get().strip(),
             responsibility_en = self._resp_en.get().strip(),
             display_order     = self.ORDER_OPTIONS[self._pos_dropdown.get()][0],
-            page_location     = self.ORDER_OPTIONS[self._pos_dropdown.get()][1],
             is_signature      = 1 if self._is_signature.get() else 0,
             template_appearance_id = existing.get("template_appearance_id") if existing else None,
         )
@@ -244,7 +246,6 @@ class PersonnelScreen(BaseScreen):
                     "responsibility_ar": row["responsibility_ar"],
                     "responsibility_en": row["responsibility_en"],
                     "display_order": row["display_order"] if new_val else None,
-                    "page_location": row["page_location"] if new_val else None,
                     "is_signature": new_val,
                     "template_appearance_id": row.get("template_appearance_id")
                 }

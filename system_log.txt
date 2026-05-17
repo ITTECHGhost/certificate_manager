@@ -15783,3 +15783,27 @@ Traceback (most recent call last):
 mysql.connector.errors.ProgrammingError: 1146 (42S02): Table 'certificate_manager.audit_log' doesn't exist
 2026-05-12 14:14:11,228 [SYSTEM] INFO: Application closed normally.
 2026-05-12 14:14:11,228 [SYSTEM] INFO: Application closed normally.
+2026-05-13 09:12:23,451 [SYSTEM] INFO: Application starting...
+2026-05-13 09:12:23,451 [SYSTEM] INFO: Application starting...
+2026-05-13 09:12:23,451 [SYSTEM] INFO: Checking MySQL database connection to root@localhost...
+2026-05-13 09:12:23,451 [SYSTEM] INFO: Checking MySQL database connection to root@localhost...
+2026-05-13 09:12:23,589 [SYSTEM] INFO: Database connection successful.
+2026-05-13 09:12:23,589 [SYSTEM] INFO: Database connection successful.
+2026-05-13 09:12:29,703 [SYSTEM] INFO: User '1' logged in successfully.
+2026-05-13 09:12:29,703 [SYSTEM] INFO: User '1' logged in successfully.
+2026-05-13 09:12:29,703 [SYSTEM] INFO: User '1' logged in successfully.
+2026-05-13 09:12:29,703 [SYSTEM] INFO: User '1' logged in successfully.
+2026-05-13 09:42:10,823 [SYSTEM] INFO: Application closed normally.
+2026-05-13 09:42:10,823 [SYSTEM] INFO: Application closed normally.
+2026-05-13 09:54:42,632 [SYSTEM] INFO: Application starting...
+2026-05-13 09:54:42,632 [SYSTEM] INFO: Application starting...
+2026-05-13 09:54:42,633 [SYSTEM] INFO: Checking MySQL database connection to root@localhost...
+2026-05-13 09:54:42,633 [SYSTEM] INFO: Checking MySQL database connection to root@localhost...
+2026-05-13 09:54:42,759 [SYSTEM] INFO: Database connection successful.
+2026-05-13 09:54:42,759 [SYSTEM] INFO: Database connection successful.
+2026-05-13 09:54:49,370 [SYSTEM] INFO: User '1' logged in successfully.
+2026-05-13 09:54:49,370 [SYSTEM] INFO: User '1' logged in successfully.
+2026-05-13 09:54:49,370 [SYSTEM] INFO: User '1' logged in successfully.
+2026-05-13 09:54:49,370 [SYSTEM] INFO: User '1' logged in successfully.
+2026-05-13 10:13:54,705 [SYSTEM] INFO: Application closed normally.
+2026-05-13 10:13:54,705 [SYSTEM] INFO: Application closed normally.

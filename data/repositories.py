@@ -665,8 +665,8 @@ class CertificateRepository(BaseRepository):
             p["enrollments"] = enrolls
             data["periods"].append(p)
             
-        data["front_signatories"] = self._fetch_all("SELECT * FROM personnel WHERE is_active = 1 AND page_location = 'front' ORDER BY display_order")
-        data["back_signatories"] = self._fetch_all("SELECT * FROM personnel WHERE is_active = 1 AND page_location = 'back' ORDER BY display_order")
+        data["front_signatories"] = self._fetch_all("SELECT * FROM personnel WHERE is_active = 1 AND display_order BETWEEN 1 AND 4 ORDER BY display_order")
+        data["back_signatories"] = self._fetch_all("SELECT * FROM personnel WHERE is_active = 1 AND display_order >= 5 ORDER BY display_order")
         
         settings = self._fetch_one("SELECT * FROM settings WHERE id = 1")
         if settings:
