@@ -15807,3 +15807,15 @@ mysql.connector.errors.ProgrammingError: 1146 (42S02): Table 'certificate_manage
 2026-05-13 09:54:49,370 [SYSTEM] INFO: User '1' logged in successfully.
 2026-05-13 10:13:54,705 [SYSTEM] INFO: Application closed normally.
 2026-05-13 10:13:54,705 [SYSTEM] INFO: Application closed normally.
+2026-05-17 09:04:06,697 [SYSTEM] INFO: Application starting...
+2026-05-17 09:04:06,697 [SYSTEM] INFO: Application starting...
+2026-05-17 09:04:06,698 [SYSTEM] INFO: Checking MySQL database connection to root@localhost...
+2026-05-17 09:04:06,698 [SYSTEM] INFO: Checking MySQL database connection to root@localhost...
+2026-05-17 09:04:06,814 [SYSTEM] INFO: Database connection successful.
+2026-05-17 09:04:06,814 [SYSTEM] INFO: Database connection successful.
+2026-05-17 09:04:13,164 [SYSTEM] INFO: User '1' logged in successfully.
+2026-05-17 09:04:13,164 [SYSTEM] INFO: User '1' logged in successfully.
+2026-05-17 09:04:13,164 [SYSTEM] INFO: User '1' logged in successfully.
+2026-05-17 09:04:13,164 [SYSTEM] INFO: User '1' logged in successfully.
+2026-05-17 10:20:43,619 [SYSTEM] INFO: Application closed normally.
+2026-05-17 10:20:43,619 [SYSTEM] INFO: Application closed normally.

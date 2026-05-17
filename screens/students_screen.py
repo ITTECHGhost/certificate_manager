@@ -667,7 +667,7 @@ class EnrollmentPanel(ctk.CTkFrame):
             self._student.get("study_system_id", 1),
         )
         labels = (
-            [f"{c['name_ar']}  ({c['credit_hours']} وحدة)" for c in self._courses]
+            [f"المرحلة {c['stage_number']} — {c['name_ar']}  ({c['credit_hours']} وحدة)" for c in self._courses]
             or ["— لا توجد مواد محددة لهذه المرحلة —"]
         )
         self._course_menu.configure(values=labels)
@@ -771,7 +771,7 @@ class EnrollmentPanel(ctk.CTkFrame):
         # Find course id from label
         course_id = None
         for c in self._courses:
-            label = f"{c['name_ar']}  ({c['credit_hours']} وحدة)"
+            label = f"المرحلة {c['stage_number']} — {c['name_ar']}  ({c['credit_hours']} وحدة)"
             if label == selected:
                 course_id = c["id"]
                 break

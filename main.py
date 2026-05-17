@@ -39,21 +39,36 @@ from screens.login_screen import LoginScreen
 # ---------------------------------------------------------------------------
 # Global Logging Setup (Text Files)
 # ---------------------------------------------------------------------------
+# Clear existing handlers to prevent duplicates if re-initialized
+logging.getLogger().handlers.clear()
+
 # 1. System Log: For structural errors, database warnings, and crashes
 system_logger = logging.getLogger("system")
 system_logger.setLevel(logging.INFO)
+system_logger.handlers.clear()
+system_logger.propagate = False  # Prevent propagation to avoid duplicate logs in root
+
 sys_handler = logging.FileHandler("system_log.txt", mode="a", encoding="utf-8")
 sys_handler.setFormatter(logging.Formatter('%(asctime)s [SYSTEM] %(levelname)s: %(message)s'))
 system_logger.addHandler(sys_handler)
-system_logger.addHandler(logging.StreamHandler(sys.stdout))
 
-# Reroute root logger to system_log to catch generic output
-logging.getLogger().handlers = system_logger.handlers
-logging.getLogger().setLevel(logging.INFO)
+stream_handler = logging.StreamHandler(sys.stdout)
+stream_handler.setFormatter(logging.Formatter('%(message)s'))
+system_logger.addHandler(stream_handler)
+
+# Reroute root logger to catch generic outputs securely
+root_logger = logging.getLogger()
+root_logger.setLevel(logging.INFO)
+root_logger.handlers.clear()
+root_logger.addHandler(sys_handler)
+root_logger.addHandler(stream_handler)
 
 # 2. Activity Log: For tracking user actions and certificate generation
 activity_logger = logging.getLogger("activity")
 activity_logger.setLevel(logging.INFO)
+activity_logger.handlers.clear()
+activity_logger.propagate = False
+
 act_handler = logging.FileHandler("activity_log.txt", mode="a", encoding="utf-8")
 act_handler.setFormatter(logging.Formatter('%(asctime)s [ACTIVITY] %(message)s'))
 activity_logger.addHandler(act_handler)

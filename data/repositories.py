@@ -256,9 +256,11 @@ class CourseRepository(BaseRepository):
 
     def get_by_dept_stage_system(self, dept_id: int, stage: int, system_id: int) -> list[dict]:
         return self._fetch_all(
-            "SELECT id, name_ar, name_en, credit_hours FROM courses "
-            "WHERE department_id=%s AND stage_number=%s AND study_system_id=%s ORDER BY name_ar",
-            (dept_id, stage, system_id)
+            "SELECT id, name_ar, name_en, credit_hours, stage_number FROM courses "
+            "WHERE (department_id = %s OR (is_shared = 1 AND id IN (SELECT course_id FROM course_departments WHERE department_id = %s))) "
+            "AND stage_number <= %s AND study_system_id = %s "
+            "ORDER BY stage_number, name_ar",
+            (dept_id, dept_id, stage, system_id)
         )
 
     def get_shared_dept_ids(self, course_id: int) -> list[int]:
