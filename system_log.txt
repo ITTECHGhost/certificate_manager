@@ -16322,3 +16322,8 @@ KeyError: 'admission_year'
 2026-05-17 14:21:21,785 [SYSTEM] INFO: Database connection successful, tables verified, and schemas reconciled.
 2026-05-17 14:21:28,964 [SYSTEM] INFO: User '1' logged in successfully.
 2026-05-17 14:22:45,544 [SYSTEM] INFO: Application closed normally.
+2026-05-18 10:22:44,869 [SYSTEM] INFO: Application starting...
+2026-05-18 10:22:44,870 [SYSTEM] INFO: Checking MySQL database connection to root@localhost...
+2026-05-18 10:22:45,079 [SYSTEM] INFO: Database connection successful, tables verified, and schemas reconciled.
+2026-05-18 10:22:51,217 [SYSTEM] INFO: User '1' logged in successfully.
+2026-05-18 14:14:30,247 [SYSTEM] INFO: Application closed normally.
