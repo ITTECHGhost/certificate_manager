@@ -15783,3 +15783,789 @@ Traceback (most recent call last):
 mysql.connector.errors.ProgrammingError: 1146 (42S02): Table 'certificate_manager.audit_log' doesn't exist
 2026-05-12 14:14:11,228 [SYSTEM] INFO: Application closed normally.
 2026-05-12 14:14:11,228 [SYSTEM] INFO: Application closed normally.
+2026-05-13 09:12:23,451 [SYSTEM] INFO: Application starting...
+2026-05-13 09:12:23,451 [SYSTEM] INFO: Application starting...
+2026-05-13 09:12:23,451 [SYSTEM] INFO: Checking MySQL database connection to root@localhost...
+2026-05-13 09:12:23,451 [SYSTEM] INFO: Checking MySQL database connection to root@localhost...
+2026-05-13 09:12:23,589 [SYSTEM] INFO: Database connection successful.
+2026-05-13 09:12:23,589 [SYSTEM] INFO: Database connection successful.
+2026-05-13 09:12:29,703 [SYSTEM] INFO: User '1' logged in successfully.
+2026-05-13 09:12:29,703 [SYSTEM] INFO: User '1' logged in successfully.
+2026-05-13 09:12:29,703 [SYSTEM] INFO: User '1' logged in successfully.
+2026-05-13 09:12:29,703 [SYSTEM] INFO: User '1' logged in successfully.
+2026-05-13 09:42:10,823 [SYSTEM] INFO: Application closed normally.
+2026-05-13 09:42:10,823 [SYSTEM] INFO: Application closed normally.
+2026-05-13 09:54:42,632 [SYSTEM] INFO: Application starting...
+2026-05-13 09:54:42,632 [SYSTEM] INFO: Application starting...
+2026-05-13 09:54:42,633 [SYSTEM] INFO: Checking MySQL database connection to root@localhost...
+2026-05-13 09:54:42,633 [SYSTEM] INFO: Checking MySQL database connection to root@localhost...
+2026-05-13 09:54:42,759 [SYSTEM] INFO: Database connection successful.
+2026-05-13 09:54:42,759 [SYSTEM] INFO: Database connection successful.
+2026-05-13 09:54:49,370 [SYSTEM] INFO: User '1' logged in successfully.
+2026-05-13 09:54:49,370 [SYSTEM] INFO: User '1' logged in successfully.
+2026-05-13 09:54:49,370 [SYSTEM] INFO: User '1' logged in successfully.
+2026-05-13 09:54:49,370 [SYSTEM] INFO: User '1' logged in successfully.
+2026-05-13 10:13:54,705 [SYSTEM] INFO: Application closed normally.
+2026-05-13 10:13:54,705 [SYSTEM] INFO: Application closed normally.
+2026-05-17 09:04:06,697 [SYSTEM] INFO: Application starting...
+2026-05-17 09:04:06,697 [SYSTEM] INFO: Application starting...
+2026-05-17 09:04:06,698 [SYSTEM] INFO: Checking MySQL database connection to root@localhost...
+2026-05-17 09:04:06,698 [SYSTEM] INFO: Checking MySQL database connection to root@localhost...
+2026-05-17 09:04:06,814 [SYSTEM] INFO: Database connection successful.
+2026-05-17 09:04:06,814 [SYSTEM] INFO: Database connection successful.
+2026-05-17 09:04:13,164 [SYSTEM] INFO: User '1' logged in successfully.
+2026-05-17 09:04:13,164 [SYSTEM] INFO: User '1' logged in successfully.
+2026-05-17 09:04:13,164 [SYSTEM] INFO: User '1' logged in successfully.
+2026-05-17 09:04:13,164 [SYSTEM] INFO: User '1' logged in successfully.
+2026-05-17 10:20:43,619 [SYSTEM] INFO: Application closed normally.
+2026-05-17 10:20:43,619 [SYSTEM] INFO: Application closed normally.
+2026-05-17 11:35:59,698 [SYSTEM] INFO: Application starting...
+2026-05-17 11:35:59,699 [SYSTEM] INFO: Checking MySQL database connection to root@localhost...
+2026-05-17 11:35:59,803 [SYSTEM] INFO: Database connection successful.
+2026-05-17 11:36:07,469 [SYSTEM] INFO: User '1' logged in successfully.
+2026-05-17 11:36:39,992 [SYSTEM] ERROR: Unhandled exception in Tkinter callback:
+Traceback (most recent call last):
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\mysql\connector\connection_cext.py", line 772, in cmd_query
+    self._cmysql.query(
+    ~~~~~~~~~~~~~~~~~~^
+        query,
+        ^^^^^^
+    ...<3 lines>...
+        query_attrs=self.query_attrs,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+_mysql_connector.MySQLInterfaceError: Table 'certificate_manager.course_departments' doesn't exist
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\tkinter\__init__.py", line 2093, in __call__
+    return self.func(*args)
+           ~~~~~~~~~^^^^^^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\customtkinter\windows\widgets\ctk_button.py", line 554, in _clicked
+    self._command()
+    ~~~~~~~~~~~~~^^
+  File "f:\CR_PY\certificate_manager\screens\students_screen.py", line 1214, in <lambda>
+    command=lambda p=period, s=student: self._enroll_panel.open(p, s),
+                                        ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "f:\CR_PY\certificate_manager\screens\students_screen.py", line 632, in open
+    self._reload_course_picker()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "f:\CR_PY\certificate_manager\screens\students_screen.py", line 664, in _reload_course_picker
+    self._courses = CourseRepository().get_by_dept_stage_system(
+                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        self._student.get("department_id", 0),
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        self._period["stage_number"],
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        self._student.get("study_system_id", 1),
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "f:\CR_PY\certificate_manager\data\repositories.py", line 258, in get_by_dept_stage_system
+    return self._fetch_all(
+           ~~~~~~~~~~~~~~~^
+        "SELECT id, name_ar, name_en, credit_hours, stage_number FROM courses "
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<3 lines>...
+        (dept_id, dept_id, stage, system_id)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "f:\CR_PY\certificate_manager\data\repositories.py", line 42, in _fetch_all
+    cur.execute(query, params or ())
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\mysql\connector\cursor_cext.py", line 353, in execute
+    self._connection.cmd_query(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        self._stmt_partition["mappable_stmt"],
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<2 lines>...
+        raw_as_string=self._raw_as_string,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\mysql\connector\opentelemetry\context_propagation.py", line 97, in wrapper
+    return method(cnx, *args, **kwargs)
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\mysql\connector\connection_cext.py", line 781, in cmd_query
+    raise get_mysql_exception(
+        err.errno, msg=err.msg, sqlstate=err.sqlstate
+    ) from err
+mysql.connector.errors.ProgrammingError: 1146 (42S02): Table 'certificate_manager.course_departments' doesn't exist
+2026-05-17 11:36:43,293 [SYSTEM] ERROR: Unhandled exception in Tkinter callback:
+Traceback (most recent call last):
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\mysql\connector\connection_cext.py", line 772, in cmd_query
+    self._cmysql.query(
+    ~~~~~~~~~~~~~~~~~~^
+        query,
+        ^^^^^^
+    ...<3 lines>...
+        query_attrs=self.query_attrs,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+_mysql_connector.MySQLInterfaceError: Table 'certificate_manager.course_departments' doesn't exist
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\tkinter\__init__.py", line 2093, in __call__
+    return self.func(*args)
+           ~~~~~~~~~^^^^^^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\customtkinter\windows\widgets\ctk_button.py", line 554, in _clicked
+    self._command()
+    ~~~~~~~~~~~~~^^
+  File "f:\CR_PY\certificate_manager\screens\students_screen.py", line 1214, in <lambda>
+    command=lambda p=period, s=student: self._enroll_panel.open(p, s),
+                                        ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "f:\CR_PY\certificate_manager\screens\students_screen.py", line 632, in open
+    self._reload_course_picker()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "f:\CR_PY\certificate_manager\screens\students_screen.py", line 664, in _reload_course_picker
+    self._courses = CourseRepository().get_by_dept_stage_system(
+                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        self._student.get("department_id", 0),
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        self._period["stage_number"],
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        self._student.get("study_system_id", 1),
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "f:\CR_PY\certificate_manager\data\repositories.py", line 258, in get_by_dept_stage_system
+    return self._fetch_all(
+           ~~~~~~~~~~~~~~~^
+        "SELECT id, name_ar, name_en, credit_hours, stage_number FROM courses "
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<3 lines>...
+        (dept_id, dept_id, stage, system_id)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "f:\CR_PY\certificate_manager\data\repositories.py", line 42, in _fetch_all
+    cur.execute(query, params or ())
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\mysql\connector\cursor_cext.py", line 353, in execute
+    self._connection.cmd_query(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        self._stmt_partition["mappable_stmt"],
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<2 lines>...
+        raw_as_string=self._raw_as_string,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\mysql\connector\opentelemetry\context_propagation.py", line 97, in wrapper
+    return method(cnx, *args, **kwargs)
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\mysql\connector\connection_cext.py", line 781, in cmd_query
+    raise get_mysql_exception(
+        err.errno, msg=err.msg, sqlstate=err.sqlstate
+    ) from err
+mysql.connector.errors.ProgrammingError: 1146 (42S02): Table 'certificate_manager.course_departments' doesn't exist
+2026-05-17 11:36:44,050 [SYSTEM] ERROR: Unhandled exception in Tkinter callback:
+Traceback (most recent call last):
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\mysql\connector\connection_cext.py", line 772, in cmd_query
+    self._cmysql.query(
+    ~~~~~~~~~~~~~~~~~~^
+        query,
+        ^^^^^^
+    ...<3 lines>...
+        query_attrs=self.query_attrs,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+_mysql_connector.MySQLInterfaceError: Table 'certificate_manager.course_departments' doesn't exist
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\tkinter\__init__.py", line 2093, in __call__
+    return self.func(*args)
+           ~~~~~~~~~^^^^^^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\customtkinter\windows\widgets\ctk_button.py", line 554, in _clicked
+    self._command()
+    ~~~~~~~~~~~~~^^
+  File "f:\CR_PY\certificate_manager\screens\students_screen.py", line 1214, in <lambda>
+    command=lambda p=period, s=student: self._enroll_panel.open(p, s),
+                                        ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "f:\CR_PY\certificate_manager\screens\students_screen.py", line 632, in open
+    self._reload_course_picker()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "f:\CR_PY\certificate_manager\screens\students_screen.py", line 664, in _reload_course_picker
+    self._courses = CourseRepository().get_by_dept_stage_system(
+                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        self._student.get("department_id", 0),
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        self._period["stage_number"],
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        self._student.get("study_system_id", 1),
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "f:\CR_PY\certificate_manager\data\repositories.py", line 258, in get_by_dept_stage_system
+    return self._fetch_all(
+           ~~~~~~~~~~~~~~~^
+        "SELECT id, name_ar, name_en, credit_hours, stage_number FROM courses "
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<3 lines>...
+        (dept_id, dept_id, stage, system_id)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "f:\CR_PY\certificate_manager\data\repositories.py", line 42, in _fetch_all
+    cur.execute(query, params or ())
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\mysql\connector\cursor_cext.py", line 353, in execute
+    self._connection.cmd_query(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        self._stmt_partition["mappable_stmt"],
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<2 lines>...
+        raw_as_string=self._raw_as_string,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\mysql\connector\opentelemetry\context_propagation.py", line 97, in wrapper
+    return method(cnx, *args, **kwargs)
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\mysql\connector\connection_cext.py", line 781, in cmd_query
+    raise get_mysql_exception(
+        err.errno, msg=err.msg, sqlstate=err.sqlstate
+    ) from err
+mysql.connector.errors.ProgrammingError: 1146 (42S02): Table 'certificate_manager.course_departments' doesn't exist
+2026-05-17 11:36:44,257 [SYSTEM] ERROR: Unhandled exception in Tkinter callback:
+Traceback (most recent call last):
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\mysql\connector\connection_cext.py", line 772, in cmd_query
+    self._cmysql.query(
+    ~~~~~~~~~~~~~~~~~~^
+        query,
+        ^^^^^^
+    ...<3 lines>...
+        query_attrs=self.query_attrs,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+_mysql_connector.MySQLInterfaceError: Table 'certificate_manager.course_departments' doesn't exist
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\tkinter\__init__.py", line 2093, in __call__
+    return self.func(*args)
+           ~~~~~~~~~^^^^^^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\customtkinter\windows\widgets\ctk_button.py", line 554, in _clicked
+    self._command()
+    ~~~~~~~~~~~~~^^
+  File "f:\CR_PY\certificate_manager\screens\students_screen.py", line 1214, in <lambda>
+    command=lambda p=period, s=student: self._enroll_panel.open(p, s),
+                                        ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "f:\CR_PY\certificate_manager\screens\students_screen.py", line 632, in open
+    self._reload_course_picker()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "f:\CR_PY\certificate_manager\screens\students_screen.py", line 664, in _reload_course_picker
+    self._courses = CourseRepository().get_by_dept_stage_system(
+                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        self._student.get("department_id", 0),
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        self._period["stage_number"],
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        self._student.get("study_system_id", 1),
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "f:\CR_PY\certificate_manager\data\repositories.py", line 258, in get_by_dept_stage_system
+    return self._fetch_all(
+           ~~~~~~~~~~~~~~~^
+        "SELECT id, name_ar, name_en, credit_hours, stage_number FROM courses "
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<3 lines>...
+        (dept_id, dept_id, stage, system_id)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "f:\CR_PY\certificate_manager\data\repositories.py", line 42, in _fetch_all
+    cur.execute(query, params or ())
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\mysql\connector\cursor_cext.py", line 353, in execute
+    self._connection.cmd_query(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        self._stmt_partition["mappable_stmt"],
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<2 lines>...
+        raw_as_string=self._raw_as_string,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\mysql\connector\opentelemetry\context_propagation.py", line 97, in wrapper
+    return method(cnx, *args, **kwargs)
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\mysql\connector\connection_cext.py", line 781, in cmd_query
+    raise get_mysql_exception(
+        err.errno, msg=err.msg, sqlstate=err.sqlstate
+    ) from err
+mysql.connector.errors.ProgrammingError: 1146 (42S02): Table 'certificate_manager.course_departments' doesn't exist
+2026-05-17 11:36:45,772 [SYSTEM] ERROR: Unhandled exception in Tkinter callback:
+Traceback (most recent call last):
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\mysql\connector\connection_cext.py", line 772, in cmd_query
+    self._cmysql.query(
+    ~~~~~~~~~~~~~~~~~~^
+        query,
+        ^^^^^^
+    ...<3 lines>...
+        query_attrs=self.query_attrs,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+_mysql_connector.MySQLInterfaceError: Table 'certificate_manager.course_departments' doesn't exist
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\tkinter\__init__.py", line 2093, in __call__
+    return self.func(*args)
+           ~~~~~~~~~^^^^^^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\customtkinter\windows\widgets\ctk_button.py", line 554, in _clicked
+    self._command()
+    ~~~~~~~~~~~~~^^
+  File "f:\CR_PY\certificate_manager\screens\students_screen.py", line 1214, in <lambda>
+    command=lambda p=period, s=student: self._enroll_panel.open(p, s),
+                                        ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "f:\CR_PY\certificate_manager\screens\students_screen.py", line 632, in open
+    self._reload_course_picker()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "f:\CR_PY\certificate_manager\screens\students_screen.py", line 664, in _reload_course_picker
+    self._courses = CourseRepository().get_by_dept_stage_system(
+                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        self._student.get("department_id", 0),
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        self._period["stage_number"],
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        self._student.get("study_system_id", 1),
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "f:\CR_PY\certificate_manager\data\repositories.py", line 258, in get_by_dept_stage_system
+    return self._fetch_all(
+           ~~~~~~~~~~~~~~~^
+        "SELECT id, name_ar, name_en, credit_hours, stage_number FROM courses "
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<3 lines>...
+        (dept_id, dept_id, stage, system_id)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "f:\CR_PY\certificate_manager\data\repositories.py", line 42, in _fetch_all
+    cur.execute(query, params or ())
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\mysql\connector\cursor_cext.py", line 353, in execute
+    self._connection.cmd_query(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        self._stmt_partition["mappable_stmt"],
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<2 lines>...
+        raw_as_string=self._raw_as_string,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\mysql\connector\opentelemetry\context_propagation.py", line 97, in wrapper
+    return method(cnx, *args, **kwargs)
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\mysql\connector\connection_cext.py", line 781, in cmd_query
+    raise get_mysql_exception(
+        err.errno, msg=err.msg, sqlstate=err.sqlstate
+    ) from err
+mysql.connector.errors.ProgrammingError: 1146 (42S02): Table 'certificate_manager.course_departments' doesn't exist
+2026-05-17 11:44:54,173 [SYSTEM] INFO: Application closed normally.
+2026-05-17 11:44:59,375 [SYSTEM] INFO: Application starting...
+2026-05-17 11:44:59,375 [SYSTEM] INFO: Checking MySQL database connection to root@localhost...
+2026-05-17 11:44:59,495 [SYSTEM] INFO: Database connection successful and course_departments table verified.
+2026-05-17 11:45:05,466 [SYSTEM] INFO: User '1' logged in successfully.
+2026-05-17 11:47:27,668 [SYSTEM] ERROR: Unhandled exception in Tkinter callback:
+Traceback (most recent call last):
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\mysql\connector\connection_cext.py", line 772, in cmd_query
+    self._cmysql.query(
+    ~~~~~~~~~~~~~~~~~~^
+        query,
+        ^^^^^^
+    ...<3 lines>...
+        query_attrs=self.query_attrs,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+_mysql_connector.MySQLInterfaceError: Unknown column 'college_ar' in 'field list'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\tkinter\__init__.py", line 2093, in __call__
+    return self.func(*args)
+           ~~~~~~~~~^^^^^^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\customtkinter\windows\widgets\ctk_button.py", line 554, in _clicked
+    self._command()
+    ~~~~~~~~~~~~~^^
+  File "f:\CR_PY\certificate_manager\screens\students_screen.py", line 1055, in <lambda>
+    command=lambda: self._form_panel.open_edit(self._selected_student),
+                    ~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+  File "f:\CR_PY\certificate_manager\screens\students_screen.py", line 246, in open_edit
+    self._reload_lookups()
+    ~~~~~~~~~~~~~~~~~~~~^^
+  File "f:\CR_PY\certificate_manager\screens\students_screen.py", line 196, in _reload_lookups
+    self._depts    = DepartmentRepository().get_all()
+                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "f:\CR_PY\certificate_manager\data\repositories.py", line 138, in get_all
+    return self._fetch_all("SELECT id, name_ar, name_en, college_ar, college_en, study_years FROM departments ORDER BY name_ar")
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "f:\CR_PY\certificate_manager\data\repositories.py", line 42, in _fetch_all
+    cur.execute(query, params or ())
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\mysql\connector\cursor_cext.py", line 353, in execute
+    self._connection.cmd_query(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        self._stmt_partition["mappable_stmt"],
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<2 lines>...
+        raw_as_string=self._raw_as_string,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\mysql\connector\opentelemetry\context_propagation.py", line 97, in wrapper
+    return method(cnx, *args, **kwargs)
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\mysql\connector\connection_cext.py", line 781, in cmd_query
+    raise get_mysql_exception(
+        err.errno, msg=err.msg, sqlstate=err.sqlstate
+    ) from err
+mysql.connector.errors.ProgrammingError: 1054 (42S22): Unknown column 'college_ar' in 'field list'
+2026-05-17 11:47:31,626 [SYSTEM] ERROR: Unhandled exception in Tkinter callback:
+Traceback (most recent call last):
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\mysql\connector\connection_cext.py", line 772, in cmd_query
+    self._cmysql.query(
+    ~~~~~~~~~~~~~~~~~~^
+        query,
+        ^^^^^^
+    ...<3 lines>...
+        query_attrs=self.query_attrs,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+_mysql_connector.MySQLInterfaceError: Unknown column 'college_ar' in 'field list'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\tkinter\__init__.py", line 2093, in __call__
+    return self.func(*args)
+           ~~~~~~~~~^^^^^^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\customtkinter\windows\widgets\ctk_button.py", line 554, in _clicked
+    self._command()
+    ~~~~~~~~~~~~~^^
+  File "f:\CR_PY\certificate_manager\screens\students_screen.py", line 1055, in <lambda>
+    command=lambda: self._form_panel.open_edit(self._selected_student),
+                    ~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+  File "f:\CR_PY\certificate_manager\screens\students_screen.py", line 246, in open_edit
+    self._reload_lookups()
+    ~~~~~~~~~~~~~~~~~~~~^^
+  File "f:\CR_PY\certificate_manager\screens\students_screen.py", line 196, in _reload_lookups
+    self._depts    = DepartmentRepository().get_all()
+                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "f:\CR_PY\certificate_manager\data\repositories.py", line 138, in get_all
+    return self._fetch_all("SELECT id, name_ar, name_en, college_ar, college_en, study_years FROM departments ORDER BY name_ar")
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "f:\CR_PY\certificate_manager\data\repositories.py", line 42, in _fetch_all
+    cur.execute(query, params or ())
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\mysql\connector\cursor_cext.py", line 353, in execute
+    self._connection.cmd_query(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        self._stmt_partition["mappable_stmt"],
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<2 lines>...
+        raw_as_string=self._raw_as_string,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\mysql\connector\opentelemetry\context_propagation.py", line 97, in wrapper
+    return method(cnx, *args, **kwargs)
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\mysql\connector\connection_cext.py", line 781, in cmd_query
+    raise get_mysql_exception(
+        err.errno, msg=err.msg, sqlstate=err.sqlstate
+    ) from err
+mysql.connector.errors.ProgrammingError: 1054 (42S22): Unknown column 'college_ar' in 'field list'
+2026-05-17 11:55:10,161 [SYSTEM] INFO: Application closed normally.
+2026-05-17 13:20:52,854 [SYSTEM] INFO: Application starting...
+2026-05-17 13:20:52,855 [SYSTEM] INFO: Checking MySQL database connection to root@localhost...
+2026-05-17 13:20:52,936 [SYSTEM] INFO: Database connection successful, course_departments table verified, and student schema reconciled.
+2026-05-17 13:20:57,817 [SYSTEM] INFO: User '1' logged in successfully.
+2026-05-17 13:21:21,400 [SYSTEM] ERROR: Unhandled exception in Tkinter callback:
+Traceback (most recent call last):
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\tkinter\__init__.py", line 2093, in __call__
+    return self.func(*args)
+           ~~~~~~~~~^^^^^^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\customtkinter\windows\widgets\ctk_button.py", line 554, in _clicked
+    self._command()
+    ~~~~~~~~~~~~~^^
+  File "f:\CR_PY\certificate_manager\screens\students_screen.py", line 1056, in <lambda>
+    command=lambda: self._form_panel.open_edit(self._selected_student),
+                    ~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+  File "f:\CR_PY\certificate_manager\screens\students_screen.py", line 246, in open_edit
+    self._reload_lookups()
+    ~~~~~~~~~~~~~~~~~~~~^^
+  File "f:\CR_PY\certificate_manager\screens\students_screen.py", line 209, in _reload_lookups
+    f"{o['order_number']}  |  {o.get('dept_name_ar','')}  |  {o['admission_year']}"
+                                                              ~^^^^^^^^^^^^^^^^^^
+KeyError: 'admission_year'
+2026-05-17 13:24:57,376 [SYSTEM] INFO: Application closed normally.
+2026-05-17 14:13:24,869 [SYSTEM] INFO: Application starting...
+2026-05-17 14:13:24,870 [SYSTEM] INFO: Checking MySQL database connection to root@localhost...
+2026-05-17 14:13:24,946 [SYSTEM] INFO: Database connection successful, tables verified, and schemas reconciled.
+2026-05-17 14:13:30,945 [SYSTEM] INFO: User '1' logged in successfully.
+2026-05-17 14:18:56,395 [SYSTEM] INFO: Application closed normally.
+2026-05-17 14:21:21,680 [SYSTEM] INFO: Application starting...
+2026-05-17 14:21:21,681 [SYSTEM] INFO: Checking MySQL database connection to root@localhost...
+2026-05-17 14:21:21,785 [SYSTEM] INFO: Database connection successful, tables verified, and schemas reconciled.
+2026-05-17 14:21:28,964 [SYSTEM] INFO: User '1' logged in successfully.
+2026-05-17 14:22:45,544 [SYSTEM] INFO: Application closed normally.
+2026-05-18 10:22:44,869 [SYSTEM] INFO: Application starting...
+2026-05-18 10:22:44,870 [SYSTEM] INFO: Checking MySQL database connection to root@localhost...
+2026-05-18 10:22:45,079 [SYSTEM] INFO: Database connection successful, tables verified, and schemas reconciled.
+2026-05-18 10:22:51,217 [SYSTEM] INFO: User '1' logged in successfully.
+2026-05-18 14:14:30,247 [SYSTEM] INFO: Application closed normally.
+2026-06-02 08:30:37,061 [SYSTEM] INFO: Application starting...
+2026-06-02 08:30:37,061 [SYSTEM] INFO: Checking MySQL database connection to root@localhost...
+2026-06-02 08:30:37,354 [SYSTEM] INFO: Adding postgraduation_no column to students table...
+2026-06-02 08:30:37,702 [SYSTEM] INFO: Adding study_type column to graduation_orders table...
+2026-06-02 08:30:37,833 [SYSTEM] INFO: Database connection successful, tables verified, and schemas reconciled.
+2026-06-02 08:30:52,637 [SYSTEM] INFO: User '1' logged in successfully.
+2026-06-02 08:31:47,927 [SYSTEM] INFO: Application closed normally.
+2026-06-02 08:48:07,496 [SYSTEM] INFO: Application starting...
+2026-06-02 08:48:07,497 [SYSTEM] INFO: Checking MySQL database connection to root@localhost...
+2026-06-02 08:48:07,661 [SYSTEM] INFO: Database connection successful, tables verified, and schemas reconciled.
+2026-06-02 08:48:15,712 [SYSTEM] INFO: User '1' logged in successfully.
+2026-06-02 08:48:44,948 [SYSTEM] INFO: Application closed normally.
+2026-06-02 08:58:55,566 [SYSTEM] INFO: Starting database replacement migration (MySQL target)...
+2026-06-02 08:58:55,948 [SYSTEM] INFO: Processing table: admin (6 rows)
+2026-06-02 08:58:55,973 [SYSTEM] WARNING: Failed to import user sadiq: 1062 (23000): Duplicate entry 'sadiq' for key 'username'
+2026-06-02 08:58:55,974 [SYSTEM] WARNING: Failed to import user qassim: 1062 (23000): Duplicate entry 'qassim' for key 'username'
+2026-06-02 08:58:55,976 [SYSTEM] WARNING: Failed to import user ali: 1062 (23000): Duplicate entry 'ali' for key 'username'
+2026-06-02 08:58:55,977 [SYSTEM] WARNING: Failed to import user exp: 1062 (23000): Duplicate entry 'exp' for key 'username'
+2026-06-02 08:58:55,978 [SYSTEM] WARNING: Failed to import user zahraa: 1062 (23000): Duplicate entry 'zahraa' for key 'username'
+2026-06-02 08:58:55,980 [SYSTEM] INFO: Processing table: department (2 rows)
+2026-06-02 08:58:55,980 [SYSTEM] INFO: Processing table: info_system (1 rows)
+2026-06-02 08:58:55,982 [SYSTEM] WARNING: Failed to update info_system: 1054 (42S22): Unknown column 'univ_name_ar' in 'field list'
+2026-06-02 08:58:55,990 [SYSTEM] INFO: Processing table: order_university (63 rows)
+2026-06-02 08:58:56,021 [SYSTEM] INFO: Processing table: signatures (1 rows)
+2026-06-02 08:58:56,025 [SYSTEM] WARNING: Failed to import signature: 1644 (45000): Operation Denied: This signatory slot is already assigned.
+2026-06-02 08:58:56,026 [SYSTEM] WARNING: Failed to import signature: 1644 (45000): Operation Denied: This signatory slot is already assigned.
+2026-06-02 08:58:56,027 [SYSTEM] WARNING: Failed to import signature: 1644 (45000): Operation Denied: This signatory slot is already assigned.
+2026-06-02 08:58:56,029 [SYSTEM] WARNING: Failed to import signature: 1644 (45000): Operation Denied: This signatory slot is already assigned.
+2026-06-02 08:58:56,030 [SYSTEM] WARNING: Failed to import signature: 1644 (45000): Operation Denied: This signatory slot is already assigned.
+2026-06-02 08:58:56,031 [SYSTEM] WARNING: Failed to import signature: 1644 (45000): Operation Denied: This signatory slot is already assigned.
+2026-06-02 08:58:56,049 [SYSTEM] INFO: Processing table: students_140 (118 rows)
+2026-06-02 08:58:56,057 [SYSTEM] WARNING: Failed to import student 2006 'أمير حسين عبد محمد': Unread result found
+2026-06-02 08:58:56,059 [SYSTEM] ERROR: Migration Failed: Unread result found
+Traceback (most recent call last):
+  File "F:\CR_PY\certificate_manager\tools\migrate_mysql.py", line 486, in trigger_migration
+    manager.run()
+    ~~~~~~~~~~~^^
+  File "F:\CR_PY\certificate_manager\tools\migrate_mysql.py", line 225, in run
+    self.migrate_students(rows, system_id, id_offset=offset)
+    ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "F:\CR_PY\certificate_manager\tools\migrate_mysql.py", line 374, in migrate_students
+    self.cursor.execute(
+    ~~~~~~~~~~~~~~~~~~~^
+        "SELECT id FROM graduation_orders WHERE order_number = %s AND department_id = %s AND study_type = %s",
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        (order_number, dept_id, study_type)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\mysql\connector\cursor_cext.py", line 315, in execute
+    self._connection.handle_unread_result()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\mysql\connector\connection_cext.py", line 1121, in handle_unread_result
+    raise InternalError("Unread result found")
+mysql.connector.errors.InternalError: Unread result found
+2026-06-02 08:59:24,398 [SYSTEM] INFO: Starting database replacement migration (MySQL target)...
+2026-06-02 08:59:24,434 [SYSTEM] INFO: Processing table: admin (6 rows)
+2026-06-02 08:59:24,443 [SYSTEM] WARNING: Failed to import user sadiq: 1062 (23000): Duplicate entry 'sadiq' for key 'username'
+2026-06-02 08:59:24,444 [SYSTEM] WARNING: Failed to import user qassim: 1062 (23000): Duplicate entry 'qassim' for key 'username'
+2026-06-02 08:59:24,444 [SYSTEM] WARNING: Failed to import user ali: 1062 (23000): Duplicate entry 'ali' for key 'username'
+2026-06-02 08:59:24,444 [SYSTEM] WARNING: Failed to import user exp: 1062 (23000): Duplicate entry 'exp' for key 'username'
+2026-06-02 08:59:24,445 [SYSTEM] WARNING: Failed to import user zahraa: 1062 (23000): Duplicate entry 'zahraa' for key 'username'
+2026-06-02 08:59:24,445 [SYSTEM] INFO: Processing table: department (2 rows)
+2026-06-02 08:59:24,446 [SYSTEM] INFO: Processing table: info_system (1 rows)
+2026-06-02 08:59:24,446 [SYSTEM] WARNING: Failed to update info_system: 1054 (42S22): Unknown column 'univ_name_ar' in 'field list'
+2026-06-02 08:59:24,450 [SYSTEM] INFO: Processing table: order_university (63 rows)
+2026-06-02 08:59:24,466 [SYSTEM] INFO: Processing table: signatures (1 rows)
+2026-06-02 08:59:24,469 [SYSTEM] WARNING: Failed to import signature: 1644 (45000): Operation Denied: This signatory slot is already assigned.
+2026-06-02 08:59:24,470 [SYSTEM] WARNING: Failed to import signature: 1644 (45000): Operation Denied: This signatory slot is already assigned.
+2026-06-02 08:59:24,470 [SYSTEM] WARNING: Failed to import signature: 1644 (45000): Operation Denied: This signatory slot is already assigned.
+2026-06-02 08:59:24,471 [SYSTEM] WARNING: Failed to import signature: 1644 (45000): Operation Denied: This signatory slot is already assigned.
+2026-06-02 08:59:24,472 [SYSTEM] WARNING: Failed to import signature: 1644 (45000): Operation Denied: This signatory slot is already assigned.
+2026-06-02 08:59:24,472 [SYSTEM] WARNING: Failed to import signature: 1644 (45000): Operation Denied: This signatory slot is already assigned.
+2026-06-02 08:59:24,488 [SYSTEM] INFO: Processing table: students_140 (118 rows)
+2026-06-02 08:59:24,585 [SYSTEM] INFO: Processing table: students_140_backup_1775558661 (118 rows)
+2026-06-02 08:59:24,722 [SYSTEM] INFO: Processing table: students_q (1474 rows)
+2026-06-02 08:59:25,468 [SYSTEM] INFO: Processing table: subjects_140 (130 rows)
+2026-06-02 08:59:25,473 [SYSTEM] INFO: Processing table: subjects_q (100 rows)
+2026-06-02 08:59:25,546 [SYSTEM] INFO: Processing table: subjects_students_140 (1210 rows)
+2026-06-02 08:59:25,547 [SYSTEM] ERROR: Migration Failed: 1054 (42S22): Unknown column 'study_system_id' in 'where clause'
+Traceback (most recent call last):
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\mysql\connector\connection_cext.py", line 772, in cmd_query
+    self._cmysql.query(
+    ~~~~~~~~~~~~~~~~~~^
+        query,
+        ^^^^^^
+    ...<3 lines>...
+        query_attrs=self.query_attrs,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+_mysql_connector.MySQLInterfaceError: Unknown column 'study_system_id' in 'where clause'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "F:\CR_PY\certificate_manager\tools\migrate_mysql.py", line 486, in trigger_migration
+    manager.run()
+    ~~~~~~~~~~~^^
+  File "F:\CR_PY\certificate_manager\tools\migrate_mysql.py", line 229, in run
+    self.migrate_enrollments(rows, system_id, id_offset=offset)
+    ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "F:\CR_PY\certificate_manager\tools\migrate_mysql.py", line 430, in migrate_enrollments
+    self.cursor.execute("SELECT id FROM courses WHERE name_ar = %s AND study_system_id = %s", (n_ar, system_id))
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\mysql\connector\cursor_cext.py", line 353, in execute
+    self._connection.cmd_query(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        self._stmt_partition["mappable_stmt"],
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<2 lines>...
+        raw_as_string=self._raw_as_string,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\mysql\connector\opentelemetry\context_propagation.py", line 97, in wrapper
+    return method(cnx, *args, **kwargs)
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\mysql\connector\connection_cext.py", line 781, in cmd_query
+    raise get_mysql_exception(
+        err.errno, msg=err.msg, sqlstate=err.sqlstate
+    ) from err
+mysql.connector.errors.ProgrammingError: 1054 (42S22): Unknown column 'study_system_id' in 'where clause'
+2026-06-02 09:00:14,124 [SYSTEM] INFO: Starting database replacement migration (MySQL target)...
+2026-06-02 09:00:14,154 [SYSTEM] INFO: Processing table: admin (6 rows)
+2026-06-02 09:00:14,160 [SYSTEM] WARNING: Failed to import user sadiq: 1062 (23000): Duplicate entry 'sadiq' for key 'username'
+2026-06-02 09:00:14,161 [SYSTEM] WARNING: Failed to import user qassim: 1062 (23000): Duplicate entry 'qassim' for key 'username'
+2026-06-02 09:00:14,161 [SYSTEM] WARNING: Failed to import user ali: 1062 (23000): Duplicate entry 'ali' for key 'username'
+2026-06-02 09:00:14,162 [SYSTEM] WARNING: Failed to import user exp: 1062 (23000): Duplicate entry 'exp' for key 'username'
+2026-06-02 09:00:14,162 [SYSTEM] WARNING: Failed to import user zahraa: 1062 (23000): Duplicate entry 'zahraa' for key 'username'
+2026-06-02 09:00:14,163 [SYSTEM] INFO: Processing table: department (2 rows)
+2026-06-02 09:00:14,163 [SYSTEM] INFO: Processing table: info_system (1 rows)
+2026-06-02 09:00:14,165 [SYSTEM] WARNING: Failed to update info_system: 1054 (42S22): Unknown column 'univ_name_ar' in 'field list'
+2026-06-02 09:00:14,169 [SYSTEM] INFO: Processing table: order_university (63 rows)
+2026-06-02 09:00:14,186 [SYSTEM] INFO: Processing table: signatures (1 rows)
+2026-06-02 09:00:14,187 [SYSTEM] WARNING: Failed to import signature: 1644 (45000): Operation Denied: This signatory slot is already assigned.
+2026-06-02 09:00:14,187 [SYSTEM] WARNING: Failed to import signature: 1644 (45000): Operation Denied: This signatory slot is already assigned.
+2026-06-02 09:00:14,188 [SYSTEM] WARNING: Failed to import signature: 1644 (45000): Operation Denied: This signatory slot is already assigned.
+2026-06-02 09:00:14,188 [SYSTEM] WARNING: Failed to import signature: 1644 (45000): Operation Denied: This signatory slot is already assigned.
+2026-06-02 09:00:14,188 [SYSTEM] WARNING: Failed to import signature: 1644 (45000): Operation Denied: This signatory slot is already assigned.
+2026-06-02 09:00:14,189 [SYSTEM] WARNING: Failed to import signature: 1644 (45000): Operation Denied: This signatory slot is already assigned.
+2026-06-02 09:00:14,199 [SYSTEM] INFO: Processing table: students_140 (118 rows)
+2026-06-02 09:00:14,261 [SYSTEM] INFO: Processing table: students_140_backup_1775558661 (118 rows)
+2026-06-02 09:00:14,390 [SYSTEM] INFO: Processing table: students_q (1474 rows)
+2026-06-02 09:00:15,124 [SYSTEM] INFO: Processing table: subjects_140 (130 rows)
+2026-06-02 09:00:15,128 [SYSTEM] INFO: Processing table: subjects_q (100 rows)
+2026-06-02 09:00:15,187 [SYSTEM] INFO: Processing table: subjects_students_140 (1210 rows)
+2026-06-02 09:00:15,533 [SYSTEM] INFO: Processing table: subjects_students_q (1719 rows)
+2026-06-02 09:00:15,539 [SYSTEM] ERROR: Migration Failed: 1062 (23000): Duplicate entry 'البرمجة 1-1' for key 'name_ar'
+Traceback (most recent call last):
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\mysql\connector\connection_cext.py", line 772, in cmd_query
+    self._cmysql.query(
+    ~~~~~~~~~~~~~~~~~~^
+        query,
+        ^^^^^^
+    ...<3 lines>...
+        query_attrs=self.query_attrs,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+_mysql_connector.MySQLInterfaceError: Duplicate entry 'البرمجة 1-1' for key 'name_ar'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "F:\CR_PY\certificate_manager\tools\migrate_mysql.py", line 486, in trigger_migration
+    manager.run()
+    ~~~~~~~~~~~^^
+  File "F:\CR_PY\certificate_manager\tools\migrate_mysql.py", line 229, in run
+    self.migrate_enrollments(rows, system_id, id_offset=offset)
+    ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "F:\CR_PY\certificate_manager\tools\migrate_mysql.py", line 435, in migrate_enrollments
+    self.cursor.execute(
+    ~~~~~~~~~~~~~~~~~~~^
+        "INSERT INTO courses (name_ar, name_en, credit_hours, department_id, stage_number, study_system_id) VALUES (%s, %s, %s, %s, %s, %s)",
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        (n_ar, str(n_en or ''), int(units) if str(units).isdigit() else 3, 1, 1, system_id)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\mysql\connector\cursor_cext.py", line 353, in execute
+    self._connection.cmd_query(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        self._stmt_partition["mappable_stmt"],
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<2 lines>...
+        raw_as_string=self._raw_as_string,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\mysql\connector\opentelemetry\context_propagation.py", line 97, in wrapper
+    return method(cnx, *args, **kwargs)
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\mysql\connector\connection_cext.py", line 781, in cmd_query
+    raise get_mysql_exception(
+        err.errno, msg=err.msg, sqlstate=err.sqlstate
+    ) from err
+mysql.connector.errors.IntegrityError: 1062 (23000): Duplicate entry 'البرمجة 1-1' for key 'name_ar'
+2026-06-02 09:00:54,376 [SYSTEM] INFO: Starting database replacement migration (MySQL target)...
+2026-06-02 09:00:54,407 [SYSTEM] INFO: Processing table: admin (6 rows)
+2026-06-02 09:00:54,412 [SYSTEM] WARNING: Failed to import user sadiq: 1062 (23000): Duplicate entry 'sadiq' for key 'username'
+2026-06-02 09:00:54,412 [SYSTEM] WARNING: Failed to import user qassim: 1062 (23000): Duplicate entry 'qassim' for key 'username'
+2026-06-02 09:00:54,413 [SYSTEM] WARNING: Failed to import user ali: 1062 (23000): Duplicate entry 'ali' for key 'username'
+2026-06-02 09:00:54,413 [SYSTEM] WARNING: Failed to import user exp: 1062 (23000): Duplicate entry 'exp' for key 'username'
+2026-06-02 09:00:54,414 [SYSTEM] WARNING: Failed to import user zahraa: 1062 (23000): Duplicate entry 'zahraa' for key 'username'
+2026-06-02 09:00:54,414 [SYSTEM] INFO: Processing table: department (2 rows)
+2026-06-02 09:00:54,414 [SYSTEM] INFO: Processing table: info_system (1 rows)
+2026-06-02 09:00:54,416 [SYSTEM] WARNING: Failed to update info_system: 1054 (42S22): Unknown column 'univ_name_ar' in 'field list'
+2026-06-02 09:00:54,419 [SYSTEM] INFO: Processing table: order_university (63 rows)
+2026-06-02 09:00:54,432 [SYSTEM] INFO: Processing table: signatures (1 rows)
+2026-06-02 09:00:54,432 [SYSTEM] WARNING: Failed to import signature: 1644 (45000): Operation Denied: This signatory slot is already assigned.
+2026-06-02 09:00:54,433 [SYSTEM] WARNING: Failed to import signature: 1644 (45000): Operation Denied: This signatory slot is already assigned.
+2026-06-02 09:00:54,434 [SYSTEM] WARNING: Failed to import signature: 1644 (45000): Operation Denied: This signatory slot is already assigned.
+2026-06-02 09:00:54,435 [SYSTEM] WARNING: Failed to import signature: 1644 (45000): Operation Denied: This signatory slot is already assigned.
+2026-06-02 09:00:54,436 [SYSTEM] WARNING: Failed to import signature: 1644 (45000): Operation Denied: This signatory slot is already assigned.
+2026-06-02 09:00:54,437 [SYSTEM] WARNING: Failed to import signature: 1644 (45000): Operation Denied: This signatory slot is already assigned.
+2026-06-02 09:00:54,448 [SYSTEM] INFO: Processing table: students_140 (118 rows)
+2026-06-02 09:00:54,512 [SYSTEM] INFO: Processing table: students_140_backup_1775558661 (118 rows)
+2026-06-02 09:00:54,637 [SYSTEM] INFO: Processing table: students_q (1474 rows)
+2026-06-02 09:00:55,261 [SYSTEM] INFO: Processing table: subjects_140 (130 rows)
+2026-06-02 09:00:55,266 [SYSTEM] INFO: Processing table: subjects_q (100 rows)
+2026-06-02 09:00:55,324 [SYSTEM] INFO: Processing table: subjects_students_140 (1210 rows)
+2026-06-02 09:00:55,643 [SYSTEM] INFO: Processing table: subjects_students_q (1719 rows)
+2026-06-02 09:00:55,962 [SYSTEM] INFO: Migration strictly complete.
+2026-06-02 09:05:28,553 [SYSTEM] INFO: Application starting...
+2026-06-02 09:05:28,553 [SYSTEM] INFO: Checking MySQL database connection to root@localhost...
+2026-06-02 09:05:28,660 [SYSTEM] INFO: Database connection successful, tables verified, and schemas reconciled.
+2026-06-02 09:05:34,338 [SYSTEM] INFO: User '1' logged in successfully.
+2026-06-02 09:23:39,170 [SYSTEM] INFO: Application closed normally.
+2026-06-02 10:53:34,557 [SYSTEM] INFO: Application starting...
+2026-06-02 10:53:34,558 [SYSTEM] INFO: Checking MySQL database connection to root@localhost...
+2026-06-02 10:53:34,677 [SYSTEM] INFO: Database connection successful, tables verified, and schemas reconciled.
+2026-06-02 10:53:40,277 [SYSTEM] INFO: User '1' logged in successfully.
+2026-06-02 11:18:43,223 [SYSTEM] INFO: Application closed normally.
+2026-06-02 11:18:47,261 [SYSTEM] INFO: Application starting...
+2026-06-02 11:18:47,261 [SYSTEM] INFO: Checking MySQL database connection to root@localhost...
+2026-06-02 11:18:47,445 [SYSTEM] INFO: Database connection successful, tables verified, and schemas reconciled.
+2026-06-02 11:18:56,289 [SYSTEM] INFO: User '1' logged in successfully.
+2026-06-02 11:25:54,273 [SYSTEM] INFO: Application closed normally.
+2026-06-02 11:36:50,729 [SYSTEM] INFO: Application starting...
+2026-06-02 11:36:50,730 [SYSTEM] INFO: Checking MySQL database connection to root@localhost...
+2026-06-02 11:36:50,817 [SYSTEM] INFO: Database connection successful, tables verified, and schemas reconciled.
+2026-06-02 11:36:57,677 [SYSTEM] INFO: User '1' logged in successfully.
+2026-06-02 13:56:19,584 [SYSTEM] INFO: Application closed normally.

@@ -1,0 +1,4 @@
+{'Field': 'id', 'Type': 'int(11)', 'Null': 'NO', 'Key': 'PRI', 'Default': None, 'Extra': 'auto_increment'}
+{'Field': 'name_ar', 'Type': 'varchar(100)', 'Null': 'NO', 'Key': '', 'Default': None, 'Extra': ''}
+{'Field': 'name_en', 'Type': 'varchar(100)', 'Null': 'NO', 'Key': '', 'Default': None, 'Extra': ''}
+{'Field': 'university_settings_id', 'Type': 'int(11)', 'Null': 'NO', 'Key': 'MUL', 'Default': None, 'Extra': ''}

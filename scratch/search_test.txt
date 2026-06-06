@@ -1,0 +1,6 @@
+Search results for 'علي' or 'Ali':
+{'id': 5, 'full_name_ar': 'هدى تحسين علي جعفر', 'full_name_en': ''}
+{'id': 10, 'full_name_ar': 'زهراء عبدعلي احمد طعمه', 'full_name_en': ''}
+{'id': 12, 'full_name_ar': 'بان علي فاضل حميد', 'full_name_en': ''}
+{'id': 21, 'full_name_ar': 'نور فائق رحيم ياسر', 'full_name_en': 'Noor Faeq Raheem Al-Maliki'}
+{'id': 38, 'full_name_ar': 'علي شوقي بدران جاسم', 'full_name_en': 'ALI SHAWQI BADRAN ALZAWAR'}

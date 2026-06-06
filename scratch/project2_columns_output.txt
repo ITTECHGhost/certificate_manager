@@ -1,0 +1,24 @@
+Table: subjects_students_140
+  id: int(255)
+  id_student: int(255)
+  code: varchar(10)
+  name_ar: varchar(100)
+  name_en: varchar(100)
+  requirment: varchar(100)
+  units: varchar(25)
+  degree: varchar(4)
+  yearr: varchar(25)
+  semester: varchar(25)
+  failed: varchar(25)
+  Sample row: {'id': 440, 'id_student': 10, 'code': 'CS101', 'name_ar': 'البرمجة 1', 'name_en': 'Programming I', 'requirment': 'اجباري-قسم', 'units': '4', 'degree': '56', 'yearr': '2015', 'semester': 'الاول', 'failed': 'اولى'}
+Table: subjects_students_q
+  id: int(100)
+  id_student: int(255)
+  name_ar: varchar(100)
+  name_en: varchar(100)
+  requirment: varchar(100)
+  degree: varchar(4)
+  units: varchar(25)
+  yearr: varchar(25)
+  role: varchar(25)
+  Sample row: {'id': 1, 'id_student': 12, 'name_ar': 'اخلاقيات الحاسوب', 'name_en': 'Computer Ethics', 'requirment': 'مرحلة ثالثة-كورس ثاني', 'degree': '58', 'units': '2', 'yearr': '2018', 'role': 'الاول'}

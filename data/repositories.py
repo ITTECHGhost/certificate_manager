@@ -135,18 +135,41 @@ class GovernorateRepository(BaseRepository):
 
 class DepartmentRepository(BaseRepository):
     def get_all(self) -> list[dict]:
-        return self._fetch_all("SELECT id, name_ar, name_en, college_ar, college_en, study_years FROM departments ORDER BY name_ar")
+        return self._fetch_all("""
+            SELECT d.id, d.name_ar, d.name_en, 
+                   u.college_name_ar AS college_ar, 
+                   u.college_name_en AS college_en, 
+                   4 AS study_years 
+            FROM departments d 
+            LEFT JOIN university_settings u ON d.university_settings_id = u.id 
+            ORDER BY d.name_ar
+        """)
         
     def get_by_id(self, dept_id: int) -> dict | None:
-        return self._fetch_one("SELECT * FROM departments WHERE id = %s", (dept_id,))
+        return self._fetch_one("""
+            SELECT d.id, d.name_ar, d.name_en, 
+                   u.college_name_ar AS college_ar, 
+                   u.college_name_en AS college_en, 
+                   4 AS study_years 
+            FROM departments d 
+            LEFT JOIN university_settings u ON d.university_settings_id = u.id 
+            WHERE d.id = %s
+        """, (dept_id,))
 
-    def insert(self, name_ar: str, name_en: str, study_years: int) -> int:
-        new_id = self._execute("INSERT INTO departments (name_ar, name_en, study_years) VALUES (%s, %s, %s)", (name_ar, name_en, study_years), commit=True)
+    def insert(self, name_ar: str, name_en: str, college_ar: str = None, college_en: str = None, **kwargs) -> int:
+        new_id = self._execute("""
+            INSERT INTO departments (name_ar, name_en, study_day_type, university_settings_id) 
+            VALUES (%s, %s, 'Morning', 1)
+        """, (name_ar, name_en), commit=True)
         log_activity(f"تم إضافة قسم جديد: {name_ar}")
         return new_id
 
-    def update(self, dept_id: int, name_ar: str, name_en: str, study_years: int) -> None:
-        self._execute("UPDATE departments SET name_ar=%s, name_en=%s, study_years=%s WHERE id=%s", (name_ar, name_en, study_years, dept_id), commit=True)
+    def update(self, dept_id: int, name_ar: str, name_en: str, college_ar: str = None, college_en: str = None, **kwargs) -> None:
+        self._execute("""
+            UPDATE departments 
+            SET name_ar=%s, name_en=%s 
+            WHERE id=%s
+        """, (name_ar, name_en, dept_id), commit=True)
         log_activity(f"تم تعديل القسم: {name_ar}")
 
     def delete(self, dept_id: int) -> None:
@@ -256,9 +279,11 @@ class CourseRepository(BaseRepository):
 
     def get_by_dept_stage_system(self, dept_id: int, stage: int, system_id: int) -> list[dict]:
         return self._fetch_all(
-            "SELECT id, name_ar, name_en, credit_hours FROM courses "
-            "WHERE department_id=%s AND stage_number=%s AND study_system_id=%s ORDER BY name_ar",
-            (dept_id, stage, system_id)
+            "SELECT id, name_ar, name_en, credit_hours, stage_number FROM courses "
+            "WHERE (department_id = %s OR (is_shared = 1 AND id IN (SELECT course_id FROM course_departments WHERE department_id = %s))) "
+            "AND stage_number <= %s AND study_system_id = %s "
+            "ORDER BY stage_number, name_ar",
+            (dept_id, dept_id, stage, system_id)
         )
 
     def get_shared_dept_ids(self, course_id: int) -> list[int]:
@@ -404,22 +429,25 @@ class AcademicPeriodRepository(BaseRepository):
 class EnrollmentRepository(BaseRepository):
     def get_by_period(self, period_id: int) -> list[dict]:
         return self._fetch_all(
-            "SELECT e.id, e.period_id, e.course_id, e.score, e.is_second_round, "
+            "SELECT e.id, e.period_id, e.course_id, e.score, "
+            "CASE WHEN e.passed_round != '1' THEN 1 ELSE 0 END AS is_second_round, "
             "c.name_ar AS course_name_ar, c.name_en AS course_name_en, c.credit_hours "
             "FROM enrollments e JOIN courses c ON e.course_id = c.id "
             "WHERE e.period_id = %s ORDER BY c.name_ar", (period_id,)
         )
 
     def insert(self, period_id: int, course_id: int, score: float, is_second: int) -> int:
+        passed_round = '2' if is_second else '1'
         return self._execute(
-            "INSERT INTO enrollments (period_id, course_id, score, is_second_round) VALUES (%s, %s, %s, %s)",
-            (period_id, course_id, score, is_second), commit=True
+            "INSERT INTO enrollments (period_id, course_id, score, passed_round) VALUES (%s, %s, %s, %s)",
+            (period_id, course_id, score, passed_round), commit=True
         )
 
     def update(self, enrollment_id: int, score: float, is_second: int) -> None:
+        passed_round = '2' if is_second else '1'
         self._execute(
-            "UPDATE enrollments SET score=%s, is_second_round=%s WHERE id=%s",
-            (score, is_second, enrollment_id), commit=True
+            "UPDATE enrollments SET score=%s, passed_round=%s WHERE id=%s",
+            (score, passed_round, enrollment_id), commit=True
         )
         
     def delete(self, enrollment_id: int) -> None:
@@ -452,9 +480,13 @@ class StudentRepository(BaseRepository):
         
     def get_by_id(self, student_id: int) -> dict | None:
         return self._fetch_one(
-            "SELECT s.*, d.name_ar AS dept_name_ar, ss.name_ar AS study_system_name_ar, "
+            "SELECT s.*, o.order_number, "
+            "COALESCE(s.graduation_date, o.order_date) AS graduation_date, "
+            "COALESCE(s.graduation_semester, o.graduation_semester) AS graduation_semester, "
+            "d.name_ar AS dept_name_ar, ss.name_ar AS study_system_name_ar, "
             "c.name_ar AS nationality_ar, g.name_ar AS birthplace_ar "
             "FROM students s "
+            "LEFT JOIN graduation_orders o ON s.order_id = o.id "
             "LEFT JOIN departments d ON s.department_id = d.id "
             "LEFT JOIN study_systems ss ON s.study_system_id = ss.id "
             "LEFT JOIN countries c ON s.nationality_id = c.id "
@@ -652,7 +684,8 @@ class CertificateRepository(BaseRepository):
         data["periods"] = []
         for p in periods:
             enrolls = self._fetch_all(
-                "SELECT e.score, e.is_second_round, "
+                "SELECT e.score, "
+                "       CASE WHEN e.passed_round != '1' THEN 1 ELSE 0 END AS is_second_round, "
                 "       c.name_ar AS course_name_ar, "
                 "       c.name_en AS course_name_en, "
                 "       c.credit_hours "
@@ -665,8 +698,8 @@ class CertificateRepository(BaseRepository):
             p["enrollments"] = enrolls
             data["periods"].append(p)
             
-        data["front_signatories"] = self._fetch_all("SELECT * FROM personnel WHERE is_active = 1 AND page_location = 'front' ORDER BY display_order")
-        data["back_signatories"] = self._fetch_all("SELECT * FROM personnel WHERE is_active = 1 AND page_location = 'back' ORDER BY display_order")
+        data["front_signatories"] = self._fetch_all("SELECT * FROM personnel WHERE is_active = 1 AND display_order BETWEEN 1 AND 4 ORDER BY display_order")
+        data["back_signatories"] = self._fetch_all("SELECT * FROM personnel WHERE is_active = 1 AND display_order >= 5 ORDER BY display_order")
         
         settings = self._fetch_one("SELECT * FROM settings WHERE id = 1")
         if settings:

@@ -2,6 +2,7 @@ import os
 import threading
 import difflib
 import customtkinter as ctk
+# pyrefly: ignore
 import win32api
 from docxtpl import DocxTemplate
 from itertools import zip_longest
@@ -375,8 +376,11 @@ class CertificateScreen(BaseScreen):
                 
                 if data.get("total_graduates"):
                     self._seq_total_entry.insert(0, str(data.get("total_graduates")))
-                if data.get("top_average"):
-                    self._seq_top_avg_entry.insert(0, str(data.get("top_average")))
+                if data.get("top_average") is not None:
+                    top_avg = data.get("top_average")
+                    if isinstance(top_avg, (float, int)):
+                        top_avg = round(float(top_avg), 3)
+                    self._seq_top_avg_entry.insert(0, str(top_avg))
             else:
                 self._opt_sequence.deselect()
 
@@ -491,71 +495,89 @@ class CertificateScreen(BaseScreen):
         paired_semesters = []
         periods = data.get("periods", [])
 
-        # Detect System
-        is_annual = data.get("period_display") == "year"    
-
-        # Identify the split point for vertical column flow (e.g., P1, P2 on right; P3, P4 on left)
+        is_annual = data.get("period_display") == "year"
         num_periods = len(periods)
-        half = 1 # (num_periods + 1) // 2
-        
-        for i in range(half):
-            # To get P1 on the Right, we put it in 'left_period' (respecting user's template swap)
-            left_period = periods[i]
-            right_period = periods[i + half] if i + half < num_periods else None
 
-            # Calculate Stage Numbers based on position (since DB data is all '1')
-            left_stage_num = _localize(i + 1)
-            right_stage_num = _localize(i + half + 1) if right_period else ""
+        if is_annual:
+            # Vertical column flow (e.g., Yr1, Yr2 on right; Yr3, Yr4 on left)
+            half = (num_periods + 1) // 2
+            for i in range(half):
+                left_period = periods[i]
+                right_period = periods[i + half] if i + half < num_periods else None
 
-            # 1. Build Headers and Labels
-            left_label = ""
-            right_label = ""
-            
-            if left_period:
-                l_year = _localize(left_period['academic_year'])
-                left_label = f"{l_year} ({left_stage_num})"
-                year_s_l =  _localize(left_period['stage_number'])
-                    
-            if right_period:
-                r_year = _localize(right_period['academic_year'])
-                right_label = f"{r_year}"
-                year_s_r = _localize(right_period['stage_number'])
-                
+                left_stage_num = i + 1
+                right_stage_num = i + half + 1
 
-            row_year_display = ""
+                left_label = ""
+                right_label = ""
+                year_s_l = ""
+                year_s_r = ""
 
-            # 2. Extract Courses
-            left_courses = left_period.get("enrollments", []) if left_period else []
-            right_courses = right_period.get("enrollments", []) if right_period else []
+                if left_period:
+                    l_year = _localize(left_period['academic_year'])
+                    left_label = f"{l_year} ({_localize(left_stage_num)})"
+                    year_s_l = _localize(left_stage_num)
+                if right_period:
+                    r_year = _localize(right_period['academic_year'])
+                    right_label = f"{r_year}"
+                    year_s_r = _localize(right_stage_num)
 
-            # 3. Zip courses row-by-row
-            doc_rows = []
-            blank_course = {} 
-            for left, right in zip_longest(left_courses, right_courses, fillvalue=blank_course):
-                # Use aliases from the query
-                lname = left.get("course_name_en" if is_english else "course_name_ar", "")
-                rname = right.get("course_name_en" if is_english else "course_name_ar", "")
-                
-                doc_rows.append({
-                    "left_name": lname,
-                    "left_subj": lname, # Restore for backward compatibility
-                    "left_mark": _localize(left.get("score", "")),
-                    "left_unit": _localize(left.get("credit_hours", "")),
-                    
-                    "right_name": rname,
-                    "right_subj": rname, # Restore for backward compatibility
-                    "right_mark": _localize(right.get("score", "")),
-                    "right_unit": _localize(right.get("credit_hours", "")),
+                left_courses = left_period.get("enrollments", []) if left_period else []
+                right_courses = right_period.get("enrollments", []) if right_period else []
+
+                doc_rows = []
+                for left, right in zip_longest(left_courses, right_courses, fillvalue={}):
+                    lname = left.get("course_name_en" if is_english else "course_name_ar", "")
+                    rname = right.get("course_name_en" if is_english else "course_name_ar", "")
+                    doc_rows.append({
+                        "left_name": lname, "left_subj": lname,
+                        "left_mark": _localize(left.get("score", "")), "left_unit": _localize(left.get("credit_hours", "")),
+                        "right_name": rname, "right_subj": rname,
+                        "right_mark": _localize(right.get("score", "")), "right_unit": _localize(right.get("credit_hours", "")),
+                    })
+
+                paired_semesters.append({
+                    "left_label": left_label, "right_label": right_label, "year_label": "",
+                    "rows": doc_rows, "year_s_l": year_s_l, "year_s_r": year_s_r
                 })
+        else:
+            # Sequential flow (Sem 1 + Sem 2 side-by-side per year)
+            for i in range(0, num_periods, 2):
+                left_period = periods[i]
+                right_period = periods[i + 1] if i + 1 < num_periods else None
 
-            paired_semesters.append({
-                "left_label": left_label,
-                "right_label": right_label,
-                "year_label": row_year_display,
-                "rows": doc_rows,
-                "year_s_l": year_s_l,
-                "year_s_r": year_s_r
-            })
+                stage_num = (i // 2) + 1
+                stage_str = _localize(stage_num)
+
+                row_year_display = ""
+                left_label = ""
+                right_label = ""
+
+                if left_period:
+                    l_year = _localize(left_period['academic_year'])
+                    row_year_display = f"{l_year} - المرحلة {stage_str}"
+                    left_label = "الفصل الأول" if not is_english else "First Semester"
+                if right_period:
+                    right_label = "الفصل الثاني" if not is_english else "Second Semester"
+
+                left_courses = left_period.get("enrollments", []) if left_period else []
+                right_courses = right_period.get("enrollments", []) if right_period else []
+
+                doc_rows = []
+                for left, right in zip_longest(left_courses, right_courses, fillvalue={}):
+                    lname = left.get("course_name_en" if is_english else "course_name_ar", "")
+                    rname = right.get("course_name_en" if is_english else "course_name_ar", "")
+                    doc_rows.append({
+                        "left_name": lname, "left_subj": lname,
+                        "left_mark": _localize(left.get("score", "")), "left_unit": _localize(left.get("credit_hours", "")),
+                        "right_name": rname, "right_subj": rname,
+                        "right_mark": _localize(right.get("score", "")), "right_unit": _localize(right.get("credit_hours", "")),
+                    })
+
+                paired_semesters.append({
+                    "left_label": left_label, "right_label": right_label, "year_label": row_year_display,
+                    "rows": doc_rows, "year_s_l": stage_str, "year_s_r": stage_str
+                })
 
         ctx = {
             "Title": self._title_entry.get().strip() or ("Whom it May Concern" if is_english else "من يهمه الأمر"),
@@ -695,6 +717,7 @@ class CertificateScreen(BaseScreen):
         
         if self._generate_docx(out_path):
             try:
+                # pyrefly: ignore
                 os.startfile(out_path)
             except Exception as e:
                 self.after(0, lambda: self.show_error(f"Could not open file: {e}"))
@@ -707,13 +730,14 @@ class CertificateScreen(BaseScreen):
 
     def _run_print(self):
         import os
+        # pyrefly: ignore
         import win32api
         # Ask for the dynamic path instead of a temp file
         out_path = self._get_save_path()
         
         if self._generate_docx(out_path):
             try:
-                win32api.ShellExecute(0, "print", out_path, None, ".", 0)
+                win32api.ShellExecute(0, "print", out_path, "", ".", 0)
             except Exception as e:
                 self.after(0, lambda: self.show_error(f"Could not print file: {e}"))
         self.after(0, self._enable_buttons)
