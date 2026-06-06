@@ -75,6 +75,32 @@ def init_db() -> None:
             log.info("Adding notes column to graduation_orders table...")
             cursor.execute("ALTER TABLE graduation_orders ADD COLUMN notes VARCHAR(255) DEFAULT NULL")
 
+        # Verify and add missing columns to the academic_periods table
+        cursor.execute("DESCRIBE academic_periods")
+        ap_cols = [row[0] for row in cursor.fetchall()]
+
+        if "study_system_id" not in ap_cols:
+            log.info("Adding study_system_id column to academic_periods table...")
+            cursor.execute(
+                "ALTER TABLE academic_periods ADD COLUMN study_system_id INT NOT NULL DEFAULT 1"
+            )
+
+        # Verify and add missing columns to the courses table
+        cursor.execute("DESCRIBE courses")
+        course_cols = [row[0] for row in cursor.fetchall()]
+
+        if "study_system_id" not in course_cols:
+            log.info("Adding study_system_id column to courses table...")
+            cursor.execute(
+                "ALTER TABLE courses ADD COLUMN study_system_id INT NOT NULL DEFAULT 1"
+            )
+
+        if "is_shared" not in course_cols:
+            log.info("Adding is_shared column to courses table...")
+            cursor.execute(
+                "ALTER TABLE courses ADD COLUMN is_shared TINYINT(1) NOT NULL DEFAULT 0"
+            )
+
         conn.commit()
         cursor.close()
         conn.close()

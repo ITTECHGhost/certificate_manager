@@ -1,0 +1,5 @@
+{'Field': 'id', 'Type': 'int(11)', 'Null': 'NO', 'Key': 'PRI', 'Default': None, 'Extra': 'auto_increment'}
+{'Field': 'student_id', 'Type': 'int(11)', 'Null': 'NO', 'Key': 'MUL', 'Default': None, 'Extra': ''}
+{'Field': 'academic_year', 'Type': 'varchar(9)', 'Null': 'NO', 'Key': '', 'Default': None, 'Extra': ''}
+{'Field': 'stage_number', 'Type': 'int(11)', 'Null': 'NO', 'Key': '', 'Default': None, 'Extra': ''}
+{'Field': 'semester_num', 'Type': 'int(5)', 'Null': 'NO', 'Key': '', 'Default': '1', 'Extra': ''}

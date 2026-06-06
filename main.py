@@ -16,6 +16,7 @@
 
 import sys
 import logging
+# pyrefly: ignore [missing-import]
 import customtkinter as ctk
 from db import init_db
 from config import (

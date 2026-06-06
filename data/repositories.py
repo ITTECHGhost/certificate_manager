@@ -429,22 +429,25 @@ class AcademicPeriodRepository(BaseRepository):
 class EnrollmentRepository(BaseRepository):
     def get_by_period(self, period_id: int) -> list[dict]:
         return self._fetch_all(
-            "SELECT e.id, e.period_id, e.course_id, e.score, e.is_second_round, "
+            "SELECT e.id, e.period_id, e.course_id, e.score, "
+            "CASE WHEN e.passed_round != '1' THEN 1 ELSE 0 END AS is_second_round, "
             "c.name_ar AS course_name_ar, c.name_en AS course_name_en, c.credit_hours "
             "FROM enrollments e JOIN courses c ON e.course_id = c.id "
             "WHERE e.period_id = %s ORDER BY c.name_ar", (period_id,)
         )
 
     def insert(self, period_id: int, course_id: int, score: float, is_second: int) -> int:
+        passed_round = '2' if is_second else '1'
         return self._execute(
-            "INSERT INTO enrollments (period_id, course_id, score, is_second_round) VALUES (%s, %s, %s, %s)",
-            (period_id, course_id, score, is_second), commit=True
+            "INSERT INTO enrollments (period_id, course_id, score, passed_round) VALUES (%s, %s, %s, %s)",
+            (period_id, course_id, score, passed_round), commit=True
         )
 
     def update(self, enrollment_id: int, score: float, is_second: int) -> None:
+        passed_round = '2' if is_second else '1'
         self._execute(
-            "UPDATE enrollments SET score=%s, is_second_round=%s WHERE id=%s",
-            (score, is_second, enrollment_id), commit=True
+            "UPDATE enrollments SET score=%s, passed_round=%s WHERE id=%s",
+            (score, passed_round, enrollment_id), commit=True
         )
         
     def delete(self, enrollment_id: int) -> None:
@@ -681,7 +684,8 @@ class CertificateRepository(BaseRepository):
         data["periods"] = []
         for p in periods:
             enrolls = self._fetch_all(
-                "SELECT e.score, e.is_second_round, "
+                "SELECT e.score, "
+                "       CASE WHEN e.passed_round != '1' THEN 1 ELSE 0 END AS is_second_round, "
                 "       c.name_ar AS course_name_ar, "
                 "       c.name_en AS course_name_en, "
                 "       c.credit_hours "
