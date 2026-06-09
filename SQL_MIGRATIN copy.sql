@@ -12,7 +12,6 @@ INSERT IGNORE INTO `certificate_manager`.`departments` (
     `id`,
     `name_ar`,
     `name_en`,
-    `study_day_type`,
     `university_settings_id`
 )
 VALUES
@@ -20,30 +19,9 @@ VALUES
         1,
         'نظم المعلومات الحاسوبية',
         'Computer Information Systems',
-        'Morning',
         1
     ),
-    (
-        2,
-        'علوم الحاسوب',
-        'Computer Science',
-        'Morning',
-        1
-    ),
-    (
-        3,
-        'نظم المعلومات الحاسوبية',
-        'Computer Information Systems',
-        'Evening',
-        1
-    ),
-    (
-        4,
-        'علوم الحاسوب',
-        'Computer Science',
-        'Evening',
-        1
-    );
+    (2, 'علوم الحاسوب', 'Computer Science', 1);
 
 -- =============================================================================
 -- 2. MIGRATE PERSONNEL
