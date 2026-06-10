@@ -16569,3 +16569,9 @@ mysql.connector.errors.IntegrityError: 1062 (23000): Duplicate entry 'البرم
 2026-06-02 11:36:50,817 [SYSTEM] INFO: Database connection successful, tables verified, and schemas reconciled.
 2026-06-02 11:36:57,677 [SYSTEM] INFO: User '1' logged in successfully.
 2026-06-02 13:56:19,584 [SYSTEM] INFO: Application closed normally.
+2026-06-09 09:21:34,950 [SYSTEM] INFO: Application starting...
+2026-06-09 09:21:34,950 [SYSTEM] INFO: Checking MySQL database connection to root@localhost...
+2026-06-09 09:21:35,154 [SYSTEM] INFO: Adding study_system_id column to academic_periods table...
+2026-06-09 09:21:35,351 [SYSTEM] INFO: Database connection successful, tables verified, and schemas reconciled.
+2026-06-09 09:21:41,291 [SYSTEM] INFO: User '1' logged in successfully.
+2026-06-09 14:06:15,817 [SYSTEM] INFO: Application closed normally.

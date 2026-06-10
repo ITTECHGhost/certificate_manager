@@ -485,8 +485,7 @@ SET
 START TRANSACTION;
 
 -- =============================================================================
--- STEP 1: WIPE THE SLATE CLEAN
--- Safely clears partial data from previous runs while respecting constraints
+-- WIPE AND RESET
 -- =============================================================================
 DELETE FROM `certificate_manager`.`enrollments`;
 
@@ -497,46 +496,50 @@ DELETE FROM `certificate_manager`.`academic_periods`;
 ALTER TABLE `certificate_manager`.`academic_periods` AUTO_INCREMENT = 1;
 
 -- =============================================================================
--- STEP 2: MIGRATE ACADEMIC PERIODS 
--- Flattened: Using the newly minted CM_STD_ID directly
+-- MIGRATE ACADEMIC PERIODS (Now fully schema-compliant)
 -- =============================================================================
-INSERT IGNORE INTO `certificate_manager`.`academic_periods` (
-    `student_id`,
-    `academic_year`,
-    `stage_number`,
-    `semester_num`
-)
+INSERT INTO
+    `certificate_manager`.`academic_periods` (
+        `student_id`,
+        `academic_year`,
+        `stage_number`,
+        `semester_num`
+    )
 SELECT DISTINCT
-    `CM_STD_ID`, -- The verified new system ID
+    `CM_STD_ID`,
     `year`,
     `Stage`,
     `semester`
 FROM
     `project2`.`big_table_enrrolment`
 WHERE
-    `CM_STD_ID` IS NOT NULL;
+    `CM_STD_ID` IS NOT NULL
+    AND `CM_STD_ID` > 0;
 
 -- =============================================================================
--- STEP 3: MIGRATE ENROLLMENTS
--- Flattened: Anchored entirely by CM_STD_ID
+-- MIGRATE ENROLLMENTS (With the Safety Translators)
 -- =============================================================================
-INSERT IGNORE INTO `certificate_manager`.`enrollments` (`period_id`, `course_id`, `score`, `passed_round`)
+INSERT INTO
+    `certificate_manager`.`enrollments` (`period_id`, `course_id`, `score`, `passed_round`)
 SELECT
     ap.`id` AS `period_id`,
-    c.`id` AS `course_id`,
+    bte.`CM_Course_ID` AS `course_id`,
     CAST(bte.`degree` AS DECIMAL(5, 1)) AS `score`,
-    bte.`Failed` AS `passed_round`
+    -- The safety net for the 35 rows with a '0'
+    CASE
+        WHEN bte.`Failed` = '2' THEN '2'
+        WHEN bte.`Failed` = '3' THEN '3'
+        ELSE '1'
+    END AS `passed_round`
 FROM
     `project2`.`big_table_enrrolment` AS bte
-    -- 1. Grab the new student profile to access their Department ID
-    INNER JOIN `certificate_manager`.`students` AS cms ON cms.`id` = bte.`CM_STD_ID`
-    -- 2. Bind to the precise Academic Period we just generated
     INNER JOIN `certificate_manager`.`academic_periods` AS ap ON ap.`student_id` = bte.`CM_STD_ID`
     AND ap.`academic_year` = bte.`year`
     AND ap.`stage_number` = bte.`Stage`
     AND ap.`semester_num` = bte.`semester`
-    -- 3. Lock onto the precise Course (Filtered by Name and the Student's Department)
-    INNER JOIN `certificate_manager`.`courses` AS c ON TRIM(c.`name_ar`) = TRIM(bte.`Name_ar`);
+WHERE
+    bte.`CM_Course_ID` IS NOT NULL
+    AND bte.`CM_Course_ID` > 0;
 
 COMMIT;
 
