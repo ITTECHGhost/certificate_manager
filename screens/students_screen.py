@@ -353,11 +353,14 @@ class StudentFormPanel(SidePanel):
         if data.get("degree_level") in ["Master", "PhD", "Higher Diploma"]:
             thesis = ThesisRepository().get_by_student(data["id"])
             if thesis:
-                self._set_entry(self._thesis_title_ar, thesis.get("title_ar", ""))
-                self._set_entry(self._thesis_title_en, thesis.get("title_en", ""))
-                self._set_entry(self._thesis_defense_date, thesis.get("defense_date", ""))
-                self._set_dropdown(self._thesis_decision, thesis.get("committee_decision", "—"))
-                self._set_entry(self._thesis_grade, str(thesis.get("final_grade", "") or ""))
+                if isinstance(thesis, list):
+                    thesis = thesis[0] if thesis else None
+                if thesis:
+                    self._set_entry(self._thesis_title_ar, thesis.get("title_ar", ""))
+                    self._set_entry(self._thesis_title_en, thesis.get("title_en", ""))
+                    self._set_entry(self._thesis_defense_date, thesis.get("defense_date", ""))
+                    self._set_dropdown(self._thesis_decision, thesis.get("committee_decision", "—"))
+                    self._set_entry(self._thesis_grade, str(thesis.get("final_grade", "") or ""))
             
             supervisors = SupervisorRepository().get_by_student(data["id"])
             for sup in supervisors:

@@ -16575,3 +16575,45 @@ mysql.connector.errors.IntegrityError: 1062 (23000): Duplicate entry 'البرم
 2026-06-09 09:21:35,351 [SYSTEM] INFO: Database connection successful, tables verified, and schemas reconciled.
 2026-06-09 09:21:41,291 [SYSTEM] INFO: User '1' logged in successfully.
 2026-06-09 14:06:15,817 [SYSTEM] INFO: Application closed normally.
+2026-06-10 10:39:16,734 [SYSTEM] INFO: Application starting...
+2026-06-10 10:39:16,736 [SYSTEM] INFO: Checking MySQL database connection to root@localhost...
+2026-06-10 10:39:16,961 [SYSTEM] INFO: Database connection successful, tables verified, and schemas reconciled.
+2026-06-10 10:39:28,213 [SYSTEM] INFO: User '1' logged in successfully.
+2026-06-10 11:50:18,095 [SYSTEM] INFO: Application closed normally.
+2026-06-11 12:00:45,213 [SYSTEM] INFO: Application starting...
+2026-06-11 12:00:45,214 [SYSTEM] INFO: Checking MySQL database connection to root@localhost...
+2026-06-11 12:00:45,301 [SYSTEM] INFO: Database connection successful, tables verified, and schemas reconciled.
+2026-06-11 12:07:00,463 [SYSTEM] INFO: Application starting...
+2026-06-11 12:07:00,464 [SYSTEM] INFO: Checking MySQL database connection to root@localhost...
+2026-06-11 12:07:00,519 [SYSTEM] INFO: Database connection successful, tables verified, and schemas reconciled.
+2026-06-11 12:10:17,318 [SYSTEM] INFO: Application starting...
+2026-06-11 12:10:17,319 [SYSTEM] INFO: Checking MySQL database connection to root@localhost...
+2026-06-11 12:10:17,422 [SYSTEM] INFO: Database connection successful, tables verified, and schemas reconciled.
+2026-06-11 12:10:22,366 [SYSTEM] INFO: User '1' logged in successfully.
+2026-06-11 12:10:38,260 [SYSTEM] ERROR: Unhandled exception in Tkinter callback:
+Traceback (most recent call last):
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\tkinter\__init__.py", line 2093, in __call__
+    return self.func(*args)
+           ~~~~~~~~~^^^^^^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\customtkinter\windows\widgets\ctk_button.py", line 554, in _clicked
+    self._command()
+    ~~~~~~~~~~~~~^^
+  File "f:\CR_PY\certificate_manager\screens\students_screen.py", line 1019, in <lambda>
+    command=lambda sid=s["id"]: self._select_student(sid),
+                                ~~~~~~~~~~~~~~~~~~~~^^^^^
+  File "f:\CR_PY\certificate_manager\screens\students_screen.py", line 1034, in _select_student
+    self._show_student_detail(data)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "f:\CR_PY\certificate_manager\screens\students_screen.py", line 1210, in _show_student_detail
+    self._render_period_card(frame, period, data, row)
+    ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "f:\CR_PY\certificate_manager\screens\students_screen.py", line 1232, in _render_period_card
+    text=(f"  {'السنة' if student.get('study_system_id') == 1 else 'الفصل'} {period['stage_number']}  |  "
+                                                                             ~~~~~~^^^^^^^^^^^^^^^^
+KeyError: 'stage_number'
+2026-06-11 12:11:34,680 [SYSTEM] INFO: Application closed normally.
+2026-06-11 12:52:13,797 [SYSTEM] INFO: Application starting...
+2026-06-11 12:52:13,798 [SYSTEM] INFO: Checking MySQL database connection to root@localhost...
+2026-06-11 12:52:13,946 [SYSTEM] INFO: Database connection successful, tables verified, and schemas reconciled.
+2026-06-11 12:52:19,098 [SYSTEM] INFO: User '1' logged in successfully.
+2026-06-11 13:22:21,028 [SYSTEM] INFO: Application closed normally.
