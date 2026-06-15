@@ -34,6 +34,7 @@
 #
 # =============================================================================
 
+import hashlib
 import json
 import logging
 import sqlite3
@@ -41,6 +42,47 @@ from datetime import date, datetime
 from pathlib import Path
 
 log = logging.getLogger(__name__)
+
+# ---------------------------------------------------------------------------
+# Network Status — cached flag + pinger
+# ---------------------------------------------------------------------------
+
+_is_online: bool = True   # assume online until first check
+
+
+def is_online() -> bool:
+    """Return the cached network status flag (no I/O)."""
+    return _is_online
+
+
+def set_online(status: bool) -> None:
+    """Update the cached network status flag (called by the polling loop)."""
+    global _is_online
+    _is_online = status
+
+
+def check_network_status() -> bool:
+    """
+    Attempt a fast, low-timeout connection to the MySQL host.
+
+    Returns True if MySQL is reachable, False otherwise.
+    This function is called every ~8 seconds from the UI polling loop.
+    It does NOT update the cached flag — the caller must call set_online().
+    """
+    try:
+        import mysql.connector
+        from config import DBConfig
+        conn = mysql.connector.connect(
+            host=DBConfig.DB_HOST,
+            user=DBConfig.DB_USER,
+            password=DBConfig.DB_PASSWORD,
+            database=DBConfig.DB_NAME,
+            connection_timeout=2,
+        )
+        conn.close()
+        return True
+    except Exception:
+        return False
 
 # ---------------------------------------------------------------------------
 # Constants
@@ -132,7 +174,7 @@ class _SafeEncoder(json.JSONEncoder):
         return super().default(o)
 
 
-def _json_dumps(payload: dict) -> str:
+def _json_dumps(payload) -> str:
     return json.dumps(payload, cls=_SafeEncoder, ensure_ascii=False)
 
 
@@ -233,8 +275,76 @@ def init_local_db() -> None:
             )
         """)
 
+        # -- Read cache: transparent SP result cache for offline reads -------
+        cur.execute("""
+            CREATE TABLE IF NOT EXISTS read_cache (
+                cache_key   TEXT PRIMARY KEY,
+                result_json TEXT NOT NULL,
+                cached_at   TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        """)
+
         conn.commit()
         log.info("Local SQLite cache initialised at %s", _LOCAL_DB_PATH)
+    finally:
+        conn.close()
+
+
+# ---------------------------------------------------------------------------
+# Read Cache — transparent SP result caching for offline browsing
+# ---------------------------------------------------------------------------
+
+def _make_cache_key(proc_name: str, args: tuple) -> str:
+    """Build a deterministic cache key from a procedure name and its args."""
+    raw = f"{proc_name}:{_json_dumps_for_key(args)}"
+    return hashlib.sha256(raw.encode("utf-8")).hexdigest()
+
+
+def _json_dumps_for_key(obj) -> str:
+    """Serialize args tuple to a stable JSON string for hashing."""
+    return json.dumps(obj, cls=_SafeEncoder, ensure_ascii=False, sort_keys=True)
+
+
+def cache_read_result(proc_name: str, args: tuple, result: list[dict]) -> None:
+    """
+    Store a MySQL SP read result in the local SQLite cache.
+
+    Called transparently after every successful online read so that
+    the data is available for offline browsing.
+    """
+    key = _make_cache_key(proc_name, args)
+    conn = _get_local_conn()
+    try:
+        conn.execute(
+            "INSERT OR REPLACE INTO read_cache (cache_key, result_json, cached_at) "
+            "VALUES (?, ?, CURRENT_TIMESTAMP)",
+            (key, _json_dumps(result)),
+        )
+        conn.commit()
+    except Exception as exc:
+        log.debug("Failed to cache read result for %s: %s", proc_name, exc)
+    finally:
+        conn.close()
+
+
+def get_cached_read(proc_name: str, args: tuple) -> list[dict] | None:
+    """
+    Retrieve a previously cached SP result from SQLite.
+
+    Returns the deserialized list of dicts, or None if no cache entry exists.
+    """
+    key = _make_cache_key(proc_name, args)
+    conn = _get_local_conn()
+    try:
+        row = conn.execute(
+            "SELECT result_json FROM read_cache WHERE cache_key = ?", (key,)
+        ).fetchone()
+        if row:
+            return json.loads(row["result_json"])
+        return None
+    except Exception as exc:
+        log.debug("Failed to read cache for %s: %s", proc_name, exc)
+        return None
     finally:
         conn.close()
 

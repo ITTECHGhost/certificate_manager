@@ -19,6 +19,10 @@ import logging
 # pyrefly: ignore [missing-import]
 import customtkinter as ctk
 from db import init_db
+from sync_engine import (
+    init_local_db, check_network_status, set_online, is_online,
+    sync_offline_queue_to_mysql, get_queue_status,
+)
 from config import (
     AppColors, AppFonts, AppSizes,
     NAV_ITEMS, SETTINGS_ITEM, SCREEN_HEADERS,
@@ -83,6 +87,7 @@ logger.info("Application starting...")
 # Global appearance — must be set before any CTk widget is created
 # ---------------------------------------------------------------------------
 init_db()
+init_local_db()
 refresh_config(None)
 
 
@@ -199,7 +204,7 @@ class Sidebar(ctk.CTkFrame):
 # ===========================================================================
 
 class HeaderBar(ctk.CTkFrame):
-    """Top header bar displaying active screen titles."""
+    """Top header bar displaying active screen titles and network status."""
 
     def __init__(self, parent: ctk.CTkFrame) -> None:
         super().__init__(
@@ -234,10 +239,33 @@ class HeaderBar(ctk.CTkFrame):
         )
         self._label_en.grid(row=0, column=0, sticky="w", padx=(20, 0), pady=12)
 
+        # Network status indicator (left-aligned, next to English title)
+        self._net_label = ctk.CTkLabel(
+            self,
+            text="",
+            font=ctk.CTkFont(family=AppFonts.FAMILY, size=AppFonts.SIZE_SMALL),
+            anchor="w",
+        )
+        self._net_label.grid(row=0, column=1, sticky="w", padx=(4, 16), pady=12)
+        self.update_network_status(True)  # assume online initially
+
     def set_screen(self, screen_key: str) -> None:
         ar, en = SCREEN_HEADERS.get(screen_key, ("", ""))
         self._label_ar.configure(text=ar)
         self._label_en.configure(text=en)
+
+    def update_network_status(self, online: bool) -> None:
+        """Update the network indicator label."""
+        if online:
+            self._net_label.configure(
+                text="\U0001f7e2 \u0645\u062a\u0635\u0644 (Online)",
+                text_color=AppColors.COLOR_SUCCESS,
+            )
+        else:
+            self._net_label.configure(
+                text="\U0001f534 \u0648\u0636\u0639 \u0639\u062f\u0645 \u0627\u0644\u0627\u062a\u0635\u0627\u0644 (Offline Mode)",
+                text_color=AppColors.COLOR_ERROR,
+            )
 
 
 # ===========================================================================
@@ -278,6 +306,10 @@ class CertificateManagerApp(ctk.CTk):
         self._build_layout()
         self._build_screens()
         self._show_screen("home")
+
+        # Start network polling loop
+        self._prev_online = True
+        self._poll_network()
 
     def _on_tkinter_error(self, exc, val, tb):
         system_logger.error("Unhandled exception in Tkinter callback:", exc_info=(exc, val, tb))
@@ -355,6 +387,42 @@ class CertificateManagerApp(ctk.CTk):
         sub: OrderStudentsScreen = self._screens["order_students"]
         sub.set_order(order, back_callback=lambda: self._show_screen("orders"))
         self._show_screen("order_students")
+
+    # -- Network polling loop -----------------------------------------------
+
+    def _poll_network(self) -> None:
+        """Check MySQL reachability every 8 seconds and update UI + sync engine."""
+        try:
+            now_online = check_network_status()
+            was_online = getattr(self, '_prev_online', True)
+            set_online(now_online)
+
+            # Update header indicator
+            if hasattr(self, '_header'):
+                self._header.update_network_status(now_online)
+
+            # Transition: offline -> online => auto-sync
+            if now_online and not was_online:
+                system_logger.info("Network restored. Triggering offline queue sync...")
+                try:
+                    from db import get_connection
+                    conn = get_connection()
+                    summary = sync_offline_queue_to_mysql(conn)
+                    conn.close()
+                    if summary["synced"] > 0:
+                        system_logger.info(
+                            "Auto-sync complete: %d synced, %d failed.",
+                            summary["synced"], summary["failed"]
+                        )
+                except Exception as exc:
+                    system_logger.error("Auto-sync failed: %s", exc)
+
+            self._prev_online = now_online
+        except Exception as exc:
+            system_logger.error("Network poll error: %s", exc)
+
+        # Reschedule
+        self.after(8000, self._poll_network)
 
 
 # ===========================================================================

@@ -4,6 +4,10 @@
 
 import logging
 from db import get_connection
+from sync_engine import (
+    is_online, log_offline_insert,
+    cache_read_result, get_cached_read,
+)
 
 activity_logger = logging.getLogger("activity")
 
@@ -11,14 +15,29 @@ def log_activity(summary: str) -> None:
     activity_logger.info(summary)
 
 
+class OfflineModeError(Exception):
+    """Raised when a destructive operation (UPDATE/DELETE) is attempted offline."""
+    def __init__(self, msg: str | None = None):
+        super().__init__(
+            msg or
+            "\u0644\u0627 \u064a\u0645\u0643\u0646 \u0627\u0644\u062a\u0639\u062f\u064a\u0644 \u0623\u0648 \u0627\u0644\u062d\u0630\u0641 \u0641\u064a \u0648\u0636\u0639 \u0639\u062f\u0645 \u0627\u0644\u0627\u062a\u0635\u0627\u0644\n"
+            "Cannot edit or delete records in Offline Mode."
+        )
+
+
 class BaseRepository:
-    """Base repository with utilities for MySQL Stored Procedure execution."""
+    """Base repository with online/offline routing for MySQL SPs."""
     
     def __init__(self):
         pass
         
     def _call_write(self, proc_name: str, args: tuple = ()) -> int | None:
-        """Execute a write procedure (INSERT/UPDATE/DELETE) and commit."""
+        """Execute a write procedure (INSERT/UPDATE/DELETE) and commit.
+        
+        Raises OfflineModeError if the system is offline.
+        """
+        if not is_online():
+            raise OfflineModeError()
         conn = get_connection()
         try:
             cur = conn.cursor(dictionary=True)
@@ -36,33 +55,50 @@ class BaseRepository:
             conn.close()
 
     def _call_read_all(self, proc_name: str, args: tuple = ()) -> list[dict]:
-        """Execute a read procedure and return all rows from the first dataset."""
+        """Execute a read procedure and return all rows. Caches results for offline use."""
+        if not is_online():
+            cached = get_cached_read(proc_name, args)
+            return cached if cached is not None else []
         conn = get_connection()
         try:
             cur = conn.cursor(dictionary=True)
             cur.callproc(proc_name, args)
             for result in cur.stored_results():
-                return result.fetchall()
+                rows = result.fetchall()
+                cache_read_result(proc_name, args, rows)
+                return rows
             return []
         finally:
             if 'cur' in locals(): cur.close()
             conn.close()
 
     def _call_read_one(self, proc_name: str, args: tuple = ()) -> dict | None:
-        """Execute a read procedure and return a single row."""
+        """Execute a read procedure and return a single row. Caches results for offline use."""
+        if not is_online():
+            cached = get_cached_read(proc_name, args)
+            if cached and len(cached) > 0:
+                return cached[0]
+            return None
         conn = get_connection()
         try:
             cur = conn.cursor(dictionary=True)
             cur.callproc(proc_name, args)
             for result in cur.stored_results():
-                return result.fetchone()
+                row = result.fetchone()
+                # Cache as a single-element list so get_cached_read returns consistently
+                cache_read_result(proc_name, args, [row] if row else [])
+                return row
             return None
         finally:
             if 'cur' in locals(): cur.close()
             conn.close()
 
     def _call_read_multi(self, proc_name: str, args: tuple = ()) -> list[list[dict]]:
-        """Execute a procedure and return a pipeline of multiple datasets."""
+        """Execute a procedure returning multiple datasets. Caches the first for offline use."""
+        if not is_online():
+            # Multi-dataset cache is complex; return cached first dataset or empty
+            cached = get_cached_read(proc_name, args)
+            return [cached] if cached else []
         conn = get_connection()
         try:
             cur = conn.cursor(dictionary=True)
@@ -70,6 +106,9 @@ class BaseRepository:
             datasets = []
             for result in cur.stored_results():
                 datasets.append(result.fetchall())
+            # Cache all datasets as a nested list
+            if datasets:
+                cache_read_result(proc_name, args, datasets)
             return datasets
         finally:
             if 'cur' in locals(): cur.close()
@@ -77,6 +116,8 @@ class BaseRepository:
 
     def count_table_rows(self, table: str, filter_clause: str = "") -> int:
         """Count rows in a table securely using an inline query."""
+        if not is_online():
+            return 0
         allowed_tables = ["students", "departments", "courses", "personnel", "graduation_orders", "study_systems"]
         if table not in allowed_tables:
             return 0
@@ -389,6 +430,9 @@ class StudentRepository(BaseRepository):
         return row['total_count'] if row else 0
 
     def insert(self, data: dict) -> int:
+        if not is_online():
+            # Route to offline sync engine
+            return log_offline_insert("students", dict(data))
         # Schema-aligned payload mapping
         args = (
             data.get('full_name_ar'), data.get('full_name_en'), data.get('gender', 'M'),
@@ -399,7 +443,7 @@ class StudentRepository(BaseRepository):
             data.get('average'), data.get('graduation_date'), data.get('graduation_semester')
         )
         new_id = self._call_write("InsertStudent", args)
-        log_activity(f"تم إضافة طالب جديد: {data.get('full_name_ar')}")
+        log_activity(f"\u062a\u0645 \u0625\u0636\u0627\u0641\u0629 \u0637\u0627\u0644\u0628 \u062c\u062f\u064a\u062f: {data.get('full_name_ar')}")
         return new_id
         
     def update(self, student_id: int, data: dict) -> None:
@@ -413,11 +457,11 @@ class StudentRepository(BaseRepository):
             data.get('average'), data.get('graduation_date'), data.get('graduation_semester')
         )
         self._call_write("UpdateStudent", args)
-        log_activity(f"تم تعديل بيانات الطالب ID: {student_id}")
+        log_activity(f"\u062a\u0645 \u062a\u0639\u062f\u064a\u0644 \u0628\u064a\u0627\u0646\u0627\u062a \u0627\u0644\u0637\u0627\u0644\u0628 ID: {student_id}")
 
     def delete(self, student_id: int) -> None:
         self._call_write("DeleteStudent", (student_id,))
-        log_activity(f"تم حذف الطالب ID: {student_id}")
+        log_activity(f"\u062a\u0645 \u062d\u0630\u0641 \u0627\u0644\u0637\u0627\u0644\u0628 ID: {student_id}")
 
 # ---------------------------------------------------------------------------
 # Module 7: Timelines & Enrollments
@@ -428,6 +472,14 @@ class AcademicPeriodRepository(BaseRepository):
         return self._call_read_all("GetAcademicPeriodsByStudent", (student_id,))
 
     def insert(self, student_id: int, year: str, sys_id: int, stage: int, round_val: str = None) -> int:
+        if not is_online():
+            return log_offline_insert("academic_periods", {
+                "student_id": student_id,
+                "academic_year": year,
+                "study_system_id": sys_id,
+                "stage_number": stage,
+                "semester_num": 1,
+            })
         conn = get_connection()
         try:
             cur = conn.cursor()
@@ -442,6 +494,8 @@ class AcademicPeriodRepository(BaseRepository):
             conn.close()
             
     def delete(self, period_id: int) -> None:
+        if not is_online():
+            raise OfflineModeError()
         conn = get_connection()
         try:
             cur = conn.cursor()
@@ -456,6 +510,14 @@ class EnrollmentRepository(BaseRepository):
         return self._call_read_all("GetEnrollmentsByPeriod", (period_id,))
 
     def insert(self, period_id: int, course_id: int, score: float, is_second: int) -> int:
+        if not is_online():
+            passed_round = '2' if is_second else '1'
+            return log_offline_insert("enrollments", {
+                "period_id": period_id,
+                "course_id": course_id,
+                "score": score,
+                "passed_round": passed_round,
+            })
         passed_round = '2' if is_second else '1'
         conn = get_connection()
         try:
@@ -471,6 +533,8 @@ class EnrollmentRepository(BaseRepository):
             conn.close()
 
     def update(self, enrollment_id: int, score: float, is_second: int) -> None:
+        if not is_online():
+            raise OfflineModeError()
         passed_round = '2' if is_second else '1'
         conn = get_connection()
         try:
@@ -485,6 +549,8 @@ class EnrollmentRepository(BaseRepository):
             conn.close()
 
     def delete(self, enrollment_id: int) -> None:
+        if not is_online():
+            raise OfflineModeError()
         conn = get_connection()
         try:
             cur = conn.cursor()
