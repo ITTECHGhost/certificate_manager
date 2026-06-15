@@ -169,6 +169,7 @@ def backup_db(dest_path: Path) -> None:
 
     cmd = [
         mysqldump,
+        "--no-defaults",
         f"--host={DBConfig.DB_HOST}",
         f"--user={DBConfig.DB_USER}",
         "--single-transaction",

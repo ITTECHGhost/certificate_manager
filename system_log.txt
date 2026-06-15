@@ -16617,3 +16617,129 @@ KeyError: 'stage_number'
 2026-06-11 12:52:13,946 [SYSTEM] INFO: Database connection successful, tables verified, and schemas reconciled.
 2026-06-11 12:52:19,098 [SYSTEM] INFO: User '1' logged in successfully.
 2026-06-11 13:22:21,028 [SYSTEM] INFO: Application closed normally.
+2026-06-14 09:06:22,391 [SYSTEM] INFO: Application starting...
+2026-06-14 09:06:22,392 [SYSTEM] INFO: Checking MySQL database connection to root@localhost...
+2026-06-14 09:06:22,680 [SYSTEM] INFO: Database connection successful, tables verified, and schemas reconciled.
+2026-06-14 09:06:28,454 [SYSTEM] INFO: User '1' logged in successfully.
+2026-06-14 11:42:29,317 [SYSTEM] INFO: Application closed normally.
+2026-06-14 12:36:44,571 [SYSTEM] INFO: Application starting...
+2026-06-14 12:36:44,571 [SYSTEM] INFO: Checking MySQL database connection to root@localhost...
+2026-06-14 12:36:44,678 [SYSTEM] INFO: Database connection successful, tables verified, and schemas reconciled.
+2026-06-14 12:36:49,703 [SYSTEM] INFO: User '1' logged in successfully.
+2026-06-14 12:48:19,237 [SYSTEM] INFO: Application closed normally.
+2026-06-14 12:55:45,017 [SYSTEM] INFO: Application starting...
+2026-06-14 12:55:45,017 [SYSTEM] INFO: Checking MySQL database connection to root@localhost...
+2026-06-14 12:55:45,108 [SYSTEM] INFO: Database connection successful, tables verified, and schemas reconciled.
+2026-06-14 12:55:50,046 [SYSTEM] INFO: User '1' logged in successfully.
+2026-06-14 13:03:07,533 [SYSTEM] INFO: Application closed normally.
+2026-06-14 13:07:21,240 [SYSTEM] INFO: Application starting...
+2026-06-14 13:07:21,241 [SYSTEM] INFO: Checking MySQL database connection to root@localhost...
+2026-06-14 13:07:21,350 [SYSTEM] INFO: Database connection successful, tables verified, and schemas reconciled.
+2026-06-14 13:07:26,204 [SYSTEM] INFO: User '1' logged in successfully.
+2026-06-14 13:15:31,261 [SYSTEM] INFO: Application closed normally.
+2026-06-14 13:21:39,693 [SYSTEM] INFO: Application starting...
+2026-06-14 13:21:39,694 [SYSTEM] INFO: Checking MySQL database connection to root@localhost...
+2026-06-14 13:21:39,720 [SYSTEM] INFO: Database connection successful, tables verified, and schemas reconciled.
+2026-06-14 13:21:46,644 [SYSTEM] INFO: User '1' logged in successfully.
+2026-06-14 13:41:44,184 [SYSTEM] INFO: Application closed normally.
+2026-06-14 13:41:48,544 [SYSTEM] INFO: Application starting...
+2026-06-14 13:41:48,544 [SYSTEM] INFO: Checking MySQL database connection to root@localhost...
+2026-06-14 13:41:48,684 [SYSTEM] INFO: Database connection successful, tables verified, and schemas reconciled.
+2026-06-14 13:41:53,378 [SYSTEM] INFO: User '1' logged in successfully.
+2026-06-14 13:44:55,463 [SYSTEM] ERROR: Unhandled exception in Tkinter callback:
+Traceback (most recent call last):
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\tkinter\__init__.py", line 2093, in __call__
+    return self.func(*args)
+           ~~~~~~~~~^^^^^^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\customtkinter\windows\widgets\ctk_button.py", line 554, in _clicked
+    self._command()
+    ~~~~~~~~~~~~~^^
+  File "f:\CR_PY\certificate_manager\ui\record_list.py", line 139, in <lambda>
+    lambda d=row_data: self._on_extra(d)).grid(row=0, column=curr_col, padx=2)
+                       ~~~~~~~~~~~~~~^^^
+  File "f:\CR_PY\certificate_manager\screens\graduation_orders_screen.py", line 313, in _view_students
+    self._on_view_students(row)
+    ~~~~~~~~~~~~~~~~~~~~~~^^^^^
+  File "f:\CR_PY\certificate_manager\main.py", line 357, in _open_order_students
+    self._show_screen("order_students")
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "f:\CR_PY\certificate_manager\main.py", line 349, in _show_screen
+    self._screens[key].refresh()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "f:\CR_PY\certificate_manager\screens\order_students_screen.py", line 168, in refresh
+    self._load_filter_options()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "f:\CR_PY\certificate_manager\screens\order_students_screen.py", line 193, in _load_filter_options
+    rows = conn.execute(
+           ^^^^^^^^^^^^
+AttributeError: 'CMySQLConnection' object has no attribute 'execute'
+2026-06-14 13:45:09,895 [SYSTEM] ERROR: Unhandled exception in Tkinter callback:
+Traceback (most recent call last):
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\tkinter\__init__.py", line 2093, in __call__
+    return self.func(*args)
+           ~~~~~~~~~^^^^^^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\customtkinter\windows\widgets\ctk_button.py", line 554, in _clicked
+    self._command()
+    ~~~~~~~~~~~~~^^
+  File "f:\CR_PY\certificate_manager\ui\record_list.py", line 139, in <lambda>
+    lambda d=row_data: self._on_extra(d)).grid(row=0, column=curr_col, padx=2)
+                       ~~~~~~~~~~~~~~^^^
+  File "f:\CR_PY\certificate_manager\screens\graduation_orders_screen.py", line 313, in _view_students
+    self._on_view_students(row)
+    ~~~~~~~~~~~~~~~~~~~~~~^^^^^
+  File "f:\CR_PY\certificate_manager\main.py", line 357, in _open_order_students
+    self._show_screen("order_students")
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "f:\CR_PY\certificate_manager\main.py", line 349, in _show_screen
+    self._screens[key].refresh()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "f:\CR_PY\certificate_manager\screens\order_students_screen.py", line 168, in refresh
+    self._load_filter_options()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "f:\CR_PY\certificate_manager\screens\order_students_screen.py", line 193, in _load_filter_options
+    rows = conn.execute(
+           ^^^^^^^^^^^^
+AttributeError: 'CMySQLConnection' object has no attribute 'execute'
+2026-06-14 13:45:14,542 [SYSTEM] ERROR: Unhandled exception in Tkinter callback:
+Traceback (most recent call last):
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\tkinter\__init__.py", line 2093, in __call__
+    return self.func(*args)
+           ~~~~~~~~~^^^^^^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\customtkinter\windows\widgets\core_widget_classes\dropdown_menu.py", line 101, in <lambda>
+    command=lambda v=value: self._button_callback(v),
+                            ~~~~~~~~~~~~~~~~~~~~~^^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\customtkinter\windows\widgets\core_widget_classes\dropdown_menu.py", line 106, in _button_callback
+    self._command(value)
+    ~~~~~~~~~~~~~^^^^^^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\customtkinter\windows\widgets\ctk_optionmenu.py", line 385, in _dropdown_callback
+    self._command(self._current_value)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "f:\CR_PY\certificate_manager\screens\order_students_screen.py", line 121, in <lambda>
+    command=lambda _: self._do_search(),
+                      ~~~~~~~~~~~~~~~^^
+  File "f:\CR_PY\certificate_manager\screens\order_students_screen.py", line 270, in _do_search
+    rows = StudentRepository().search_for_order(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'StudentRepository' object has no attribute 'search_for_order'
+2026-06-14 13:45:16,768 [SYSTEM] ERROR: Unhandled exception in Tkinter callback:
+Traceback (most recent call last):
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\tkinter\__init__.py", line 2093, in __call__
+    return self.func(*args)
+           ~~~~~~~~~^^^^^^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\customtkinter\windows\widgets\core_widget_classes\dropdown_menu.py", line 101, in <lambda>
+    command=lambda v=value: self._button_callback(v),
+                            ~~~~~~~~~~~~~~~~~~~~~^^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\customtkinter\windows\widgets\core_widget_classes\dropdown_menu.py", line 106, in _button_callback
+    self._command(value)
+    ~~~~~~~~~~~~~^^^^^^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\customtkinter\windows\widgets\ctk_optionmenu.py", line 385, in _dropdown_callback
+    self._command(self._current_value)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "f:\CR_PY\certificate_manager\screens\order_students_screen.py", line 134, in <lambda>
+    command=lambda _: self._do_search(),
+                      ~~~~~~~~~~~~~~~^^
+  File "f:\CR_PY\certificate_manager\screens\order_students_screen.py", line 270, in _do_search
+    rows = StudentRepository().search_for_order(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'StudentRepository' object has no attribute 'search_for_order'
+2026-06-15 08:49:09,846 [SYSTEM] INFO: Application closed normally.
