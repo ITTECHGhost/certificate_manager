@@ -33,8 +33,8 @@ class OfflineModeError(Exception):
 class BaseRepository:
     """Base repository with online/offline routing for MySQL SPs."""
     
-    def __init__(self):
-        pass
+    def __init__(self, api_url: str = "http://127.0.0.1:8000"):
+        self.api_url = api_url
         
     def _call_write(self, proc_name: str, args: tuple = ()) -> int | None:
         """Execute a write procedure (INSERT/UPDATE/DELETE) and commit.
@@ -151,43 +151,83 @@ class SettingsRepository(BaseRepository):
         if not is_online():
             row = sqlite_read_one("SELECT * FROM university_settings WHERE id = 1")
             return row if row else {}
-        conn = get_connection()
         try:
-            cur = conn.cursor(dictionary=True)
-            cur.execute("SELECT * FROM university_settings WHERE id = 1")
-            row = cur.fetchone()
-            return row or {}
-        finally:
-            if 'cur' in locals(): cur.close()
-            conn.close()
+            resp = requests.get(f"{self.api_url}/settings", timeout=5.0)
+            if resp.status_code == 200:
+                return resp.json()
+            return {}
+        except Exception as e:
+            print(f"API request failed: {e}")
+            return {}
 
     def update_settings(self, univ_ar: str, univ_en: str, college_ar: str, college_en: str) -> None:
         if not is_online():
             raise OfflineModeError()
-        conn = get_connection()
         try:
-            cur = conn.cursor()
-            cur.execute(
-                "UPDATE university_settings SET univ_name_ar=%s, univ_name_en=%s, college_name_ar=%s, college_name_en=%s WHERE id=1",
-                (univ_ar, univ_en, college_ar, college_en)
-            )
-            conn.commit()
-            log_activity("\u062a\u0645 \u062a\u062d\u062f\u064a\u062b \u0625\u0639\u062f\u0627\u062f\u0627\u062a \u0627\u0644\u0646\u0638\u0627\u0645")
-        finally:
-            if 'cur' in locals(): cur.close()
-            conn.close()
+            payload = {
+                "univ_name_ar": univ_ar,
+                "univ_name_en": univ_en,
+                "college_name_ar": college_ar,
+                "college_name_en": college_en
+            }
+            resp = requests.put(f"{self.api_url}/settings", json=payload, timeout=5.0)
+            if resp.status_code == 200:
+                log_activity("تم تحديث إعدادات النظام")
+            else:
+                raise RuntimeError(f"API update failed: {resp.text}")
+        except Exception as e:
+            print(f"API request failed: {e}")
+            raise
 
     def get_user_appearance(self, user_id: int) -> dict:
-        row = self._call_read_one("GetUserPreferences", (user_id,))
-        return row if row else {"theme": "System", "accent_color": "blue", "font_family": "Arial", "font_size_base": 13}
+        if not is_online():
+            row = self._call_read_one("GetUserPreferences", (user_id,))
+            return row if row else {"theme": "System", "accent_color": "blue", "font_family": "Arial", "font_size_base": 13}
+        try:
+            resp = requests.get(f"{self.api_url}/settings/appearance/{user_id}", timeout=5.0)
+            if resp.status_code == 200:
+                return resp.json()
+            return {"theme": "System", "accent_color": "blue", "font_family": "Arial", "font_size_base": 13}
+        except Exception as e:
+            print(f"API request failed: {e}")
+            return {"theme": "System", "accent_color": "blue", "font_family": "Arial", "font_size_base": 13}
 
     def update_user_appearance(self, user_id: int, theme: str, accent: str, font: str, size: int, rtl: int = 1) -> None:
-        self._call_write("UpdateUserPreferences", (user_id, theme, accent, font, size, rtl))
-        log_activity(f"تم تحديث المظهر للمستخدم ID: {user_id}")
+        if not is_online():
+            self._call_write("UpdateUserPreferences", (user_id, theme, accent, font, size, rtl))
+            log_activity(f"تم تحديث المظهر للمستخدم ID: {user_id}")
+            return
+        try:
+            payload = {
+                "theme": theme,
+                "accent_color": accent,
+                "font_family": font,
+                "font_size_base": size,
+                "rtl": rtl
+            }
+            resp = requests.put(f"{self.api_url}/settings/appearance/{user_id}", json=payload, timeout=5.0)
+            if resp.status_code == 200:
+                log_activity(f"تم تحديث المظهر للمستخدم ID: {user_id}")
+            else:
+                raise RuntimeError(f"API update failed: {resp.text}")
+        except Exception as e:
+            print(f"API request failed: {e}")
+            raise
 
     def clear_audit_logs(self) -> None:
-        self._call_write("ClearAuditLogs")
-        log_activity("تم مسح سجل التغييرات بالكامل")
+        if not is_online():
+            self._call_write("ClearAuditLogs")
+            log_activity("تم مسح سجل التغييرات بالكامل")
+            return
+        try:
+            resp = requests.post(f"{self.api_url}/settings/clear-logs", timeout=5.0)
+            if resp.status_code == 200:
+                log_activity("تم مسح سجل التغييرات بالكامل")
+            else:
+                raise RuntimeError(f"API clear logs failed: {resp.text}")
+        except Exception as e:
+            print(f"API request failed: {e}")
+            raise
 
 # ---------------------------------------------------------------------------
 # Module 2: Relational Lookups
@@ -197,13 +237,27 @@ class CountryRepository(BaseRepository):
     def get_all(self) -> list[dict]:
         if not is_online():
             return sqlite_read_all("SELECT id, name_ar, name_en, iso_code FROM countries ORDER BY name_en")
-        return self._call_read_all("GetAllCountries")
+        try:
+            resp = requests.get(f"{self.api_url}/lookups/countries", timeout=5.0)
+            if resp.status_code == 200:
+                return resp.json()
+            return []
+        except Exception as e:
+            print(f"API request failed: {e}")
+            return []
 
 class GovernorateRepository(BaseRepository):
     def get_all(self) -> list[dict]:
         if not is_online():
             return sqlite_read_all("SELECT id, name_ar, name_en FROM governorates ORDER BY id")
-        return self._call_read_all("GetAllGovernorates")
+        try:
+            resp = requests.get(f"{self.api_url}/lookups/governorates", timeout=5.0)
+            if resp.status_code == 200:
+                return resp.json()
+            return []
+        except Exception as e:
+            print(f"API request failed: {e}")
+            return []
 
 class DepartmentRepository(BaseRepository):
     def get_all(self) -> list[dict]:
@@ -219,7 +273,14 @@ class DepartmentRepository(BaseRepository):
                 "LEFT JOIN university_settings u ON d.university_settings_id = u.id "
                 "ORDER BY d.name_ar"
             )
-        return self._call_read_all("GetAllDepartments")
+        try:
+            resp = requests.get(f"{self.api_url}/departments", timeout=5.0)
+            if resp.status_code == 200:
+                return resp.json()
+            return []
+        except Exception as e:
+            print(f"API request failed: {e}")
+            return []
         
     def get_by_id(self, dept_id: int) -> dict | None:
         if not is_online():
@@ -235,20 +296,69 @@ class DepartmentRepository(BaseRepository):
                 "WHERE d.id = ?",
                 (dept_id,)
             )
-        return self._call_read_one("GetDepartmentByID", (dept_id,))
+        try:
+            resp = requests.get(f"{self.api_url}/departments/{dept_id}", timeout=5.0)
+            if resp.status_code == 200:
+                return resp.json()
+            return None
+        except Exception as e:
+            print(f"API request failed: {e}")
+            return None
 
     def insert(self, name_ar: str, name_en: str, uni_settings_id: int = 1, **_ignored) -> int:
-        new_id = self._call_write("InsertDepartment", (name_ar, name_en, uni_settings_id))
-        log_activity(f"تم إضافة قسم جديد: {name_ar}")
-        return new_id
+        if not is_online():
+            return self._call_write("InsertDepartment", (name_ar, name_en, uni_settings_id))
+        try:
+            payload = {
+                "name_ar": name_ar,
+                "name_en": name_en,
+                "university_settings_id": uni_settings_id
+            }
+            resp = requests.post(f"{self.api_url}/departments", json=payload, timeout=5.0)
+            if resp.status_code == 200:
+                new_id = resp.json()["new_id"]
+                log_activity(f"تم إضافة قسم جديد: {name_ar}")
+                return new_id
+            else:
+                raise RuntimeError(f"API insert failed: {resp.text}")
+        except Exception as e:
+            print(f"API request failed: {e}")
+            raise
 
     def update(self, dept_id: int, name_ar: str, name_en: str, uni_settings_id: int = 1, **_ignored) -> None:
-        self._call_write("UpdateDepartment", (dept_id, name_ar, name_en, uni_settings_id))
-        log_activity(f"تم تعديل القسم: {name_ar}")
+        if not is_online():
+            self._call_write("UpdateDepartment", (dept_id, name_ar, name_en, uni_settings_id))
+            log_activity(f"تم تعديل القسم: {name_ar}")
+            return
+        try:
+            payload = {
+                "name_ar": name_ar,
+                "name_en": name_en,
+                "university_settings_id": uni_settings_id
+            }
+            resp = requests.put(f"{self.api_url}/departments/{dept_id}", json=payload, timeout=5.0)
+            if resp.status_code == 200:
+                log_activity(f"تم تعديل القسم: {name_ar}")
+            else:
+                raise RuntimeError(f"API update failed: {resp.text}")
+        except Exception as e:
+            print(f"API request failed: {e}")
+            raise
 
     def delete(self, dept_id: int) -> None:
-        self._call_write("DeleteDepartment", (dept_id,))
-        log_activity(f"تم حذف القسم ID: {dept_id}")
+        if not is_online():
+            self._call_write("DeleteDepartment", (dept_id,))
+            log_activity(f"تم حذف القسم ID: {dept_id}")
+            return
+        try:
+            resp = requests.delete(f"{self.api_url}/departments/{dept_id}", timeout=5.0)
+            if resp.status_code == 200:
+                log_activity(f"تم حذف القسم ID: {dept_id}")
+            else:
+                raise RuntimeError(f"API delete failed: {resp.text}")
+        except Exception as e:
+            print(f"API request failed: {e}")
+            raise
 
 # ---------------------------------------------------------------------------
 # Module 3: Study Systems
@@ -258,45 +368,115 @@ class StudySystemRepository(BaseRepository):
     def get_all(self) -> list[dict]:
         if not is_online():
             return sqlite_read_all("SELECT * FROM study_systems ORDER BY id")
-        return self._call_read_all("GetAllStudySystems")
+        try:
+            resp = requests.get(f"{self.api_url}/study-systems", timeout=5.0)
+            if resp.status_code == 200:
+                return resp.json()
+            return []
+        except Exception as e:
+            print(f"API request failed: {e}")
+            return []
         
     def get_active(self) -> list[dict]:
         if not is_online():
             return sqlite_read_all("SELECT * FROM study_systems WHERE is_active = 1 ORDER BY id")
-        return self._call_read_all("GetActiveStudySystems")
+        try:
+            resp = requests.get(f"{self.api_url}/study-systems/active", timeout=5.0)
+            if resp.status_code == 200:
+                return resp.json()
+            return []
+        except Exception as e:
+            print(f"API request failed: {e}")
+            return []
         
     def get_by_id(self, system_id: int) -> dict | None:
         if not is_online():
             return sqlite_read_one("SELECT * FROM study_systems WHERE id = ?", (system_id,))
-        return self._call_read_one("GetStudySystemByID", (system_id,))
+        try:
+            resp = requests.get(f"{self.api_url}/study-systems/{system_id}", timeout=5.0)
+            if resp.status_code == 200:
+                return resp.json()
+            return None
+        except Exception as e:
+            print(f"API request failed: {e}")
+            return None
 
     def insert(self, name_ar: str, name_en: str, calc_rule: str, period_display: str = 'year', calculation_weights: str = None) -> int:
-        new_id = self._call_write("InsertStudySystem", (name_ar, name_en, "Morning", calc_rule, calculation_weights, period_display, 1))
-        log_activity(f"تم إضافة نظام دراسي جديد: {name_ar}")
-        return new_id
+        if not is_online():
+            return self._call_write("InsertStudySystem", (name_ar, name_en, "Morning", calc_rule, calculation_weights, period_display, 1))
+        try:
+            payload = {
+                "name_ar": name_ar,
+                "name_en": name_en,
+                "calculation_rule": calc_rule,
+                "calculation_weights": calculation_weights,
+                "period_display": period_display,
+                "is_active": 1
+            }
+            resp = requests.post(f"{self.api_url}/study-systems", json=payload, timeout=5.0)
+            if resp.status_code == 200:
+                new_id = resp.json()["new_id"]
+                log_activity(f"تم إضافة نظام دراسي جديد: {name_ar}")
+                return new_id
+            else:
+                raise RuntimeError(f"API insert failed: {resp.text}")
+        except Exception as e:
+            print(f"API request failed: {e}")
+            raise
 
     def update(self, sys_id: int, name_ar: str, name_en: str, calc_rule: str, period_display: str = 'year', calculation_weights: str = None, **_ignored) -> None:
-        existing = self.get_by_id(sys_id)
-        day_type = existing.get("study_day_type", "Morning") if existing else "Morning"
-        is_active = existing.get("is_active", 1) if existing else 1
-        self._call_write("UpdateStudySystem", (sys_id, name_ar, name_en, day_type, calc_rule, calculation_weights, period_display, is_active))
-        log_activity(f"تم تعديل النظام الدراسي: {name_ar}")
+        if not is_online():
+            existing = self.get_by_id(sys_id)
+            day_type = existing.get("study_day_type", "Morning") if existing else "Morning"
+            is_active = existing.get("is_active", 1) if existing else 1
+            self._call_write("UpdateStudySystem", (sys_id, name_ar, name_en, day_type, calc_rule, calculation_weights, period_display, is_active))
+            log_activity(f"تم تعديل النظام الدراسي: {name_ar}")
+            return
+        try:
+            existing = self.get_by_id(sys_id)
+            is_active = existing.get("is_active", 1) if existing else 1
+            payload = {
+                "name_ar": name_ar,
+                "name_en": name_en,
+                "calculation_rule": calc_rule,
+                "calculation_weights": calculation_weights,
+                "period_display": period_display,
+                "is_active": is_active
+            }
+            resp = requests.put(f"{self.api_url}/study-systems/{sys_id}", json=payload, timeout=5.0)
+            if resp.status_code == 200:
+                log_activity(f"تم تعديل النظام الدراسي: {name_ar}")
+            else:
+                raise RuntimeError(f"API update failed: {resp.text}")
+        except Exception as e:
+            print(f"API request failed: {e}")
+            raise
 
     def toggle(self, sys_id: int, new_status: int) -> None:
         if not is_online():
             raise OfflineModeError()
-        conn = get_connection()
         try:
-            cur = conn.cursor()
-            cur.execute("UPDATE study_systems SET is_active = %s WHERE id = %s", (new_status, sys_id))
-            conn.commit()
-        finally:
-            if 'cur' in locals(): cur.close()
-            conn.close()
+            resp = requests.post(f"{self.api_url}/study-systems/{sys_id}/toggle", params={"is_active": new_status}, timeout=5.0)
+            if resp.status_code != 200:
+                raise RuntimeError(f"API toggle failed: {resp.text}")
+        except Exception as e:
+            print(f"API request failed: {e}")
+            raise
 
     def delete(self, sys_id: int) -> None:
-        self._call_write("DeleteStudySystem", (sys_id,))
-        log_activity(f"تم حذف النظام الدراسي ID: {sys_id}")
+        if not is_online():
+            self._call_write("DeleteStudySystem", (sys_id,))
+            log_activity(f"تم حذف النظام الدراسي ID: {sys_id}")
+            return
+        try:
+            resp = requests.delete(f"{self.api_url}/study-systems/{sys_id}", timeout=5.0)
+            if resp.status_code == 200:
+                log_activity(f"تم حذف النظام الدراسي ID: {sys_id}")
+            else:
+                raise RuntimeError(f"API delete failed: {resp.text}")
+        except Exception as e:
+            print(f"API request failed: {e}")
+            raise
 
 # ---------------------------------------------------------------------------
 # Module 4: Personnel Management & Authentication
@@ -306,12 +486,26 @@ class PersonnelRepository(BaseRepository):
     def get_all(self) -> list[dict]:
         if not is_online():
             return sqlite_read_all("SELECT * FROM personnel")
-        return self._call_read_all("GetAllPersonnel")
+        try:
+            resp = requests.get(f"{self.api_url}/personnel", timeout=5.0)
+            if resp.status_code == 200:
+                return resp.json()
+            return []
+        except Exception as e:
+            print(f"API request failed: {e}")
+            return []
         
     def get_active(self) -> list[dict]:
         if not is_online():
             return sqlite_read_all("SELECT * FROM personnel WHERE is_active = 1")
-        return self._call_read_all("GetActivePersonnel")
+        try:
+            resp = requests.get(f"{self.api_url}/personnel/active", timeout=5.0)
+            if resp.status_code == 200:
+                return resp.json()
+            return []
+        except Exception as e:
+            print(f"API request failed: {e}")
+            return []
 
     def authenticate(self, username: str, password_hash: str) -> dict | None:
         """Authenticate a user. Online: check MySQL + trigger background pull.
@@ -322,73 +516,101 @@ class PersonnelRepository(BaseRepository):
                 "SELECT * FROM personnel WHERE username = ? AND password_hash = ? AND is_active = 1",
                 (username, password_hash),
             )
-        # Online: use MySQL SP
-        result = self._call_read_one("AuthenticateUser", (username, password_hash))
-        if result:
-            # Successful login — refresh local cache in background
-            pull_mysql_to_sqlite_background()
-        return result
+        try:
+            payload = {"username": username, "password_hash": password_hash}
+            resp = requests.post(f"{self.api_url}/personnel/login", json=payload, timeout=5.0)
+            if resp.status_code == 200:
+                result = resp.json()
+                pull_mysql_to_sqlite_background()
+                return result
+            return None
+        except Exception as e:
+            print(f"API request failed: {e}")
+            return None
 
     def insert(self, data: dict) -> int:
         if not is_online():
             raise OfflineModeError()
-        conn = get_connection()
         try:
-            fields = list(data.keys())
-            placeholders = ", ".join(["%s"] * len(fields))
-            columns = ", ".join(fields)
-            values = tuple(data[f] for f in fields)
-            cur = conn.cursor()
-            cur.execute(f"INSERT INTO personnel ({columns}) VALUES ({placeholders})", values)
-            conn.commit()
-            new_id = cur.lastrowid
-            log_activity(f"تم إضافة كادر جديد: {data.get('name_ar')}")
-            return new_id
-        finally:
-            if 'cur' in locals(): cur.close()
-            conn.close()
+            payload = {
+                "name_ar": data.get("name_ar"),
+                "name_en": data.get("name_en"),
+                "academic_title_ar": data.get("academic_title_ar"),
+                "academic_title_en": data.get("academic_title_en"),
+                "responsibility_ar": data.get("responsibility_ar"),
+                "responsibility_en": data.get("responsibility_en"),
+                "display_order": int(data.get("display_order", 0)) if data.get("display_order") is not None else 0,
+                "username": data.get("username"),
+                "password_hash": data.get("password_hash"),
+                "personnel_role": data.get("personnel_role", "user"),
+                "settings_id": int(data.get("settings_id", 1)) if data.get("settings_id") is not None else 1,
+                "university_settings_id": int(data.get("university_settings_id", 1)) if data.get("university_settings_id") is not None else 1,
+                "page_location": data.get("page_location", "front"),
+                "is_active": int(data.get("is_active", 1)) if data.get("is_active") is not None else 1
+            }
+            resp = requests.post(f"{self.api_url}/personnel", json=payload, timeout=5.0)
+            if resp.status_code == 200:
+                new_id = resp.json()["new_id"]
+                log_activity(f"تم إضافة كادر جديد: {data.get('name_ar')}")
+                return new_id
+            else:
+                raise RuntimeError(f"API insert failed: {resp.text}")
+        except Exception as e:
+            print(f"API request failed: {e}")
+            raise
         
     def update(self, person_id: int, data: dict) -> None:
         if not is_online():
             raise OfflineModeError()
-        conn = get_connection()
         try:
-            fields = list(data.keys())
-            set_clause = ", ".join([f"{f}=%s" for f in fields])
-            values = tuple(data[f] for f in fields) + (person_id,)
-            cur = conn.cursor()
-            cur.execute(f"UPDATE personnel SET {set_clause} WHERE id=%s", values)
-            conn.commit()
-            log_activity(f"تم تعديل بيانات الكادر ID: {person_id}")
-        finally:
-            if 'cur' in locals(): cur.close()
-            conn.close()
-
+            payload = {
+                "name_ar": data.get("name_ar"),
+                "name_en": data.get("name_en"),
+                "academic_title_ar": data.get("academic_title_ar"),
+                "academic_title_en": data.get("academic_title_en"),
+                "responsibility_ar": data.get("responsibility_ar"),
+                "responsibility_en": data.get("responsibility_en"),
+                "display_order": int(data.get("display_order", 0)) if data.get("display_order") is not None else 0,
+                "username": data.get("username"),
+                "password_hash": data.get("password_hash"),
+                "personnel_role": data.get("personnel_role", "user"),
+                "settings_id": int(data.get("settings_id", 1)) if data.get("settings_id") is not None else 1,
+                "university_settings_id": int(data.get("university_settings_id", 1)) if data.get("university_settings_id") is not None else 1,
+                "page_location": data.get("page_location", "front"),
+                "is_active": int(data.get("is_active", 1)) if data.get("is_active") is not None else 1
+            }
+            resp = requests.put(f"{self.api_url}/personnel/{person_id}", json=payload, timeout=5.0)
+            if resp.status_code == 200:
+                log_activity(f"تم تعديل بيانات الكادر ID: {person_id}")
+            else:
+                raise RuntimeError(f"API update failed: {resp.text}")
+        except Exception as e:
+            print(f"API request failed: {e}")
+            raise
 
     def toggle_active(self, person_id: int, is_active: int) -> None:
         if not is_online():
             raise OfflineModeError()
-        conn = get_connection()
         try:
-            cur = conn.cursor()
-            cur.execute("UPDATE personnel SET is_active = %s WHERE id = %s", (is_active, person_id))
-            conn.commit()
-        finally:
-            if 'cur' in locals(): cur.close()
-            conn.close()
+            resp = requests.post(f"{self.api_url}/personnel/{person_id}/toggle", params={"is_active": is_active}, timeout=5.0)
+            if resp.status_code != 200:
+                raise RuntimeError(f"API toggle failed: {resp.text}")
+        except Exception as e:
+            print(f"API request failed: {e}")
+            raise
         
     def delete(self, person_id: int) -> None:
         if not is_online():
             raise OfflineModeError()
-        conn = get_connection()
         try:
-            cur = conn.cursor()
-            cur.execute("DELETE FROM personnel WHERE id = %s", (person_id,))
-            conn.commit()
-            log_activity(f"\u062a\u0645 \u062d\u0630\u0641 \u0627\u0644\u0643\u0627\u062f\u0631 ID: {person_id}")
-        finally:
-            if 'cur' in locals(): cur.close()
-            conn.close()
+            resp = requests.delete(f"{self.api_url}/personnel/{person_id}", timeout=5.0)
+            if resp.status_code == 200:
+                log_activity(f"تم حذف الكادر ID: {person_id}")
+            else:
+                raise RuntimeError(f"API delete failed: {resp.text}")
+        except Exception as e:
+            print(f"API request failed: {e}")
+            raise
 
 # ---------------------------------------------------------------------------
 # Module 5: Course Catalog
@@ -405,7 +627,14 @@ class CourseRepository(BaseRepository):
                 "LEFT JOIN study_systems s ON c.study_system_id = s.id "
                 "ORDER BY c.name_ar ASC"
             )
-        return self._call_read_all("GetAllCourses")
+        try:
+            resp = requests.get(f"{self.api_url}/courses", timeout=5.0)
+            if resp.status_code == 200:
+                return resp.json()
+            return []
+        except Exception as e:
+            print(f"API request failed: {e}")
+            return []
         
     def get_by_department(self, dept_id: int) -> list[dict]:
         if not is_online():
@@ -417,7 +646,14 @@ class CourseRepository(BaseRepository):
                 "ORDER BY c.name_ar ASC",
                 (dept_id, dept_id)
             )
-        return self._call_read_all("GetCoursesByDepartment", (dept_id,))
+        try:
+            resp = requests.get(f"{self.api_url}/courses/by-dept/{dept_id}", timeout=5.0)
+            if resp.status_code == 200:
+                return resp.json()
+            return []
+        except Exception as e:
+            print(f"API request failed: {e}")
+            return []
 
     def get_by_dept_stage_system(self, dept_id: int, stage: int, system_id: int) -> list[dict]:
         if not is_online():
@@ -428,20 +664,18 @@ class CourseRepository(BaseRepository):
                 "ORDER BY stage_number, name_ar",
                 (dept_id, dept_id, stage, system_id),
             )
-        conn = get_connection()
         try:
-            cur = conn.cursor(dictionary=True)
-            cur.execute(
-                "SELECT id, name_ar, name_en, credit_hours, stage_number FROM courses "
-                "WHERE (department_id = %s OR (is_shared = 1 AND id IN (SELECT course_id FROM course_departments WHERE department_id = %s))) "
-                "AND stage_number <= %s AND study_system_id = %s "
-                "ORDER BY stage_number, name_ar",
-                (dept_id, dept_id, stage, system_id)
+            resp = requests.get(
+                f"{self.api_url}/courses/by-dept-stage-system",
+                params={"dept_id": dept_id, "stage": stage, "system_id": system_id},
+                timeout=5.0
             )
-            return cur.fetchall()
-        finally:
-            if 'cur' in locals(): cur.close()
-            conn.close()
+            if resp.status_code == 200:
+                return resp.json()
+            return []
+        except Exception as e:
+            print(f"API request failed: {e}")
+            return []
 
     def get_shared_dept_ids(self, course_id: int) -> list[int]:
         if not is_online():
@@ -450,88 +684,74 @@ class CourseRepository(BaseRepository):
                 (course_id,),
             )
             return [r["department_id"] for r in rows]
-        conn = get_connection()
         try:
-            cur = conn.cursor(dictionary=True)
-            cur.execute("SELECT department_id FROM course_departments WHERE course_id = %s", (course_id,))
-            rows = cur.fetchall()
-            return [r["department_id"] for r in rows]
-        finally:
-            if 'cur' in locals(): cur.close()
-            conn.close()
+            resp = requests.get(f"{self.api_url}/courses/{course_id}/shared-depts", timeout=5.0)
+            if resp.status_code == 200:
+                return resp.json()
+            return []
+        except Exception as e:
+            print(f"API request failed: {e}")
+            return []
 
     def insert(self, data: dict) -> int:
         if not is_online():
             raise OfflineModeError()
-        shared_ids = data.pop("shared_dept_ids", None)
-        
-        conn = get_connection()
         try:
-            fields = list(data.keys())
-            placeholders = ", ".join(["%s"] * len(fields))
-            columns = ", ".join(fields)
-            values = tuple(data[f] for f in fields)
-            cur = conn.cursor()
-            cur.execute(f"INSERT INTO courses ({columns}) VALUES ({placeholders})", values)
-            conn.commit()
-            new_id = cur.lastrowid
-            log_activity(f"تم إضافة مادة دراسية جديدة: {data.get('name_ar')}")
+            payload = dict(data)
+            payload["credit_hours"] = int(payload["credit_hours"])
+            payload["stage_number"] = int(payload["stage_number"])
+            payload["study_system_id"] = int(payload["study_system_id"])
+            if "is_shared" in payload:
+                payload["is_shared"] = int(payload["is_shared"])
             
-            if shared_ids:
-                cur.execute("UPDATE courses SET is_shared=1 WHERE id=%s", (new_id,))
-                for did in shared_ids:
-                    cur.execute("INSERT INTO course_departments (course_id, department_id) VALUES (%s, %s)", (new_id, did))
-                conn.commit()
-                
-            return new_id
-        finally:
-            if 'cur' in locals(): cur.close()
-            conn.close()
+            resp = requests.post(f"{self.api_url}/courses", json=payload, timeout=5.0)
+            if resp.status_code == 200:
+                new_id = resp.json()["new_id"]
+                log_activity(f"تم إضافة مادة دراسية جديدة: {data.get('name_ar')}")
+                return new_id
+            else:
+                raise RuntimeError(f"API insert failed: {resp.text}")
+        except Exception as e:
+            print(f"API request failed: {e}")
+            raise
 
     def update(self, course_id: int, data: dict) -> None:
         if not is_online():
             raise OfflineModeError()
-        shared_ids = data.pop("shared_dept_ids", None)
-        
-        conn = get_connection()
         try:
-            fields = list(data.keys())
-            set_clause = ", ".join([f"{f}=%s" for f in fields])
-            values = tuple(data[f] for f in fields) + (course_id,)
-            cur = conn.cursor()
-            cur.execute(f"UPDATE courses SET {set_clause} WHERE id=%s", values)
-            
-            cur.execute("DELETE FROM course_departments WHERE course_id=%s", (course_id,))
-            if shared_ids:
-                cur.execute("UPDATE courses SET is_shared=1, department_id=NULL WHERE id=%s", (course_id,))
-                for did in shared_ids:
-                    cur.execute("INSERT INTO course_departments (course_id, department_id) VALUES (%s, %s)", (course_id, did))
+            payload = dict(data)
+            payload["credit_hours"] = int(payload["credit_hours"])
+            payload["stage_number"] = int(payload["stage_number"])
+            payload["study_system_id"] = int(payload["study_system_id"])
+            if "is_shared" in payload:
+                payload["is_shared"] = int(payload["is_shared"])
+                
+            resp = requests.put(f"{self.api_url}/courses/{course_id}", json=payload, timeout=5.0)
+            if resp.status_code == 200:
+                log_activity(f"تم تعديل بيانات المادة الدراسية ID: {course_id}")
             else:
-                cur.execute("UPDATE courses SET is_shared=0 WHERE id=%s", (course_id,))
-            conn.commit()
-            log_activity(f"تم تعديل بيانات المادة الدراسية ID: {course_id}")
-        finally:
-            if 'cur' in locals(): cur.close()
-            conn.close()
+                raise RuntimeError(f"API update failed: {resp.text}")
+        except Exception as e:
+            print(f"API request failed: {e}")
+            raise
 
     def delete(self, course_id: int) -> None:
         if not is_online():
             raise OfflineModeError()
-        conn = get_connection()
         try:
-            cur = conn.cursor()
-            cur.execute("DELETE FROM courses WHERE id=%s", (course_id,))
-            conn.commit()
-            log_activity(f"تم حذف المادة الدراسية ID: {course_id}")
-        finally:
-            if 'cur' in locals(): cur.close()
-            conn.close()
+            resp = requests.delete(f"{self.api_url}/courses/{course_id}", timeout=5.0)
+            if resp.status_code == 200:
+                log_activity(f"تم حذف المادة الدراسية ID: {course_id}")
+            else:
+                raise RuntimeError(f"API delete failed: {resp.text}")
+        except Exception as e:
+            print(f"API request failed: {e}")
+            raise
 
 
 class StudentRepository(BaseRepository):
     def __init__(self, api_url: str = "http://127.0.0.1:8000"):
-        super().__init__()
-        self.api_url = api_url
+        super().__init__(api_url)
 
     def _inject_missing_graduation_numbers(self, students_list: list[dict]) -> list[dict]:
         """Supplemental fetch for columns omitted by legacy Stored Procedures."""
@@ -905,7 +1125,14 @@ class AcademicPeriodRepository(BaseRepository):
                 ") WHERE student_id = ? ORDER BY stage_number",
                 (student_id,)
             )
-        return self._call_read_all("GetAcademicPeriodsByStudent", (student_id,))
+        try:
+            resp = requests.get(f"{self.api_url}/academic-periods/by-student/{student_id}", timeout=5.0)
+            if resp.status_code == 200:
+                return resp.json()
+            return []
+        except Exception as e:
+            print(f"API request failed: {e}")
+            return []
 
     def insert(self, student_id: int, year: str, sys_id: int, stage: int, semester_num: int = 1) -> int:
         if not is_online():
@@ -916,31 +1143,33 @@ class AcademicPeriodRepository(BaseRepository):
                 "stage_number": stage,
                 "semester_num": semester_num,
             })
-        conn = get_connection()
         try:
-            cur = conn.cursor()
-            cur.execute(
-                "INSERT INTO academic_periods (student_id, academic_year, study_system_id, stage_number, semester_num) "
-                "VALUES (%s, %s, %s, %s, %s)", (student_id, year, sys_id, stage, semester_num)
-            )
-            conn.commit()
-            return cur.lastrowid
-        finally:
-            if 'cur' in locals(): cur.close()
-            conn.close()
+            payload = {
+                "student_id": student_id,
+                "academic_year": str(year),
+                "study_system_id": sys_id,
+                "stage_number": stage,
+                "semester_num": semester_num
+            }
+            resp = requests.post(f"{self.api_url}/academic-periods", json=payload, timeout=5.0)
+            if resp.status_code == 200:
+                return resp.json()["new_id"]
+            else:
+                raise RuntimeError(f"API insert failed: {resp.text}")
+        except Exception as e:
+            print(f"API request failed: {e}")
+            raise
 
-            
     def delete(self, period_id: int) -> None:
         if not is_online():
             raise OfflineModeError()
-        conn = get_connection()
         try:
-            cur = conn.cursor()
-            cur.execute("DELETE FROM academic_periods WHERE id=%s", (period_id,))
-            conn.commit()
-        finally:
-            if 'cur' in locals(): cur.close()
-            conn.close()
+            resp = requests.delete(f"{self.api_url}/academic-periods/{period_id}", timeout=5.0)
+            if resp.status_code != 200:
+                raise RuntimeError(f"API delete failed: {resp.text}")
+        except Exception as e:
+            print(f"API request failed: {e}")
+            raise
 
 class EnrollmentRepository(BaseRepository):
     def get_by_period(self, period_id: int) -> list[dict]:
@@ -959,7 +1188,14 @@ class EnrollmentRepository(BaseRepository):
                 "ORDER BY c.name_ar",
                 (period_id,)
             )
-        return self._call_read_all("GetEnrollmentsByPeriod", (period_id,))
+        try:
+            resp = requests.get(f"{self.api_url}/enrollments/by-period/{period_id}", timeout=5.0)
+            if resp.status_code == 200:
+                return resp.json()
+            return []
+        except Exception as e:
+            print(f"API request failed: {e}")
+            return []
 
 
     def insert(self, period_id: int, course_id: int, score: float, is_second: int) -> int:
@@ -971,47 +1207,47 @@ class EnrollmentRepository(BaseRepository):
                 "score": score,
                 "passed_round": passed_round,
             })
-        passed_round = '2' if is_second else '1'
-        conn = get_connection()
         try:
-            cur = conn.cursor()
-            cur.execute(
-                "INSERT INTO enrollments (period_id, course_id, score, passed_round) VALUES (%s, %s, %s, %s)",
-                (period_id, course_id, score, passed_round)
-            )
-            conn.commit()
-            return cur.lastrowid
-        finally:
-            if 'cur' in locals(): cur.close()
-            conn.close()
+            payload = {
+                "period_id": period_id,
+                "course_id": course_id,
+                "score": float(score),
+                "is_second": int(is_second)
+            }
+            resp = requests.post(f"{self.api_url}/enrollments", json=payload, timeout=5.0)
+            if resp.status_code == 200:
+                return resp.json()["new_id"]
+            else:
+                raise RuntimeError(f"API insert failed: {resp.text}")
+        except Exception as e:
+            print(f"API request failed: {e}")
+            raise
 
     def update(self, enrollment_id: int, score: float, is_second: int) -> None:
         if not is_online():
             raise OfflineModeError()
-        passed_round = '2' if is_second else '1'
-        conn = get_connection()
         try:
-            cur = conn.cursor()
-            cur.execute(
-                "UPDATE enrollments SET score=%s, passed_round=%s WHERE id=%s",
-                (score, passed_round, enrollment_id)
+            resp = requests.put(
+                f"{self.api_url}/enrollments/{enrollment_id}",
+                params={"score": float(score), "is_second": int(is_second)},
+                timeout=5.0
             )
-            conn.commit()
-        finally:
-            if 'cur' in locals(): cur.close()
-            conn.close()
+            if resp.status_code != 200:
+                raise RuntimeError(f"API update failed: {resp.text}")
+        except Exception as e:
+            print(f"API request failed: {e}")
+            raise
 
     def delete(self, enrollment_id: int) -> None:
         if not is_online():
             raise OfflineModeError()
-        conn = get_connection()
         try:
-            cur = conn.cursor()
-            cur.execute("DELETE FROM enrollments WHERE id=%s", (enrollment_id,))
-            conn.commit()
-        finally:
-            if 'cur' in locals(): cur.close()
-            conn.close()
+            resp = requests.delete(f"{self.api_url}/enrollments/{enrollment_id}", timeout=5.0)
+            if resp.status_code != 200:
+                raise RuntimeError(f"API delete failed: {resp.text}")
+        except Exception as e:
+            print(f"API request failed: {e}")
+            raise
 
 # ---------------------------------------------------------------------------
 # Module 8: Integrated Report Engine Pipeline
@@ -1140,7 +1376,15 @@ class CertificateRepository(BaseRepository):
                     data["supervisors"] = []
             return data
 
-        rowsets = self._call_read_multi("GetFullCertificateData", (student_id,))
+        try:
+            resp = requests.get(f"{self.api_url}/certificates/{student_id}", timeout=5.0)
+            if resp.status_code == 200:
+                rowsets = resp.json()
+            else:
+                return None
+        except Exception as e:
+            print(f"API request failed: {e}")
+            return None
         
         if not rowsets or not rowsets[0]:
             return None
@@ -1177,8 +1421,8 @@ class CertificateRepository(BaseRepository):
         
         degree_level = data.get("degree_level", "Bachelor")
         if degree_level in ["Master", "PhD"]:
-            thesis_repo = ThesisRepository()
-            supervisor_repo = StudentSupervisorRepository()
+            thesis_repo = ThesisRepository(self.api_url)
+            supervisor_repo = StudentSupervisorRepository(self.api_url)
             
             thesis_records = thesis_repo.get_by_student(student_id)
             if thesis_records:
@@ -1203,7 +1447,14 @@ class GraduationOrderRepository(BaseRepository):
                 "LEFT JOIN departments d ON o.department_id = d.id "
                 "ORDER BY o.order_date DESC, o.id DESC"
             )
-        return self._call_read_all("GetAllGraduationOrders")
+        try:
+            resp = requests.get(f"{self.api_url}/orders", timeout=5.0)
+            if resp.status_code == 200:
+                return resp.json()
+            return []
+        except Exception as e:
+            print(f"API request failed: {e}")
+            return []
 
     def get_by_id(self, order_id: int) -> dict | None:
         if not is_online():
@@ -1214,43 +1465,106 @@ class GraduationOrderRepository(BaseRepository):
                 "WHERE o.id = ?",
                 (order_id,)
             )
-        return self._call_read_one("GetGraduationOrderByID", (order_id,))
+        try:
+            resp = requests.get(f"{self.api_url}/orders/{order_id}", timeout=5.0)
+            if resp.status_code == 200:
+                return resp.json()
+            return None
+        except Exception as e:
+            print(f"API request failed: {e}")
+            return None
 
     def insert(self, data: dict) -> int:
-        args = (
-            data.get('order_number'),
-            data.get('order_date'),
-            data.get('department_id'),
-            data.get('study_type'),
-            data.get('admission_year'),
-            data.get('graduation_semester'),
-            data.get('num_students'),
-            data.get('notes'),
-            data.get('study_system_id', 1)
-        )
-        new_id = self._call_write("InsertGraduationOrder", args)
-        log_activity(f"تم إضافة أمر جامعي جديد: {data.get('order_number')}")
-        return new_id
+        if not is_online():
+            args = (
+                data.get('order_number'),
+                data.get('order_date'),
+                data.get('department_id'),
+                data.get('study_type'),
+                data.get('admission_year'),
+                data.get('graduation_semester'),
+                data.get('num_students'),
+                data.get('notes'),
+                data.get('study_system_id', 1)
+            )
+            new_id = self._call_write("InsertGraduationOrder", args)
+            log_activity(f"تم إضافة أمر جامعي جديد: {data.get('order_number')}")
+            return new_id
+        try:
+            payload = {
+                "order_number": data.get('order_number'),
+                "order_date": str(data.get('order_date')),
+                "department_id": int(data.get('department_id')),
+                "study_type": data.get('study_type'),
+                "admission_year": int(data.get('admission_year')),
+                "graduation_semester": data.get('graduation_semester'),
+                "num_students": int(data.get('num_students')),
+                "notes": data.get('notes'),
+                "study_system_id": int(data.get('study_system_id', 1))
+            }
+            resp = requests.post(f"{self.api_url}/orders", json=payload, timeout=5.0)
+            if resp.status_code == 200:
+                new_id = resp.json()["new_id"]
+                log_activity(f"تم إضافة أمر جامعي جديد: {data.get('order_number')}")
+                return new_id
+            else:
+                raise RuntimeError(f"API insert failed: {resp.text}")
+        except Exception as e:
+            print(f"API request failed: {e}")
+            raise
 
     def update(self, order_id: int, data: dict) -> None:
-        args = (
-            order_id,
-            data.get('order_number'),
-            data.get('order_date'),
-            data.get('department_id'),
-            data.get('study_type'),
-            data.get('admission_year'),
-            data.get('graduation_semester'),
-            data.get('num_students'),
-            data.get('notes'),
-            data.get('study_system_id', 1)
-        )
-        self._call_write("UpdateGraduationOrder", args)
-        log_activity(f"تم تعديل بيانات الأمر الجامعي: {data.get('order_number')}")
+        if not is_online():
+            args = (
+                order_id,
+                data.get('order_number'),
+                data.get('order_date'),
+                data.get('department_id'),
+                data.get('study_type'),
+                data.get('admission_year'),
+                data.get('graduation_semester'),
+                data.get('num_students'),
+                data.get('notes'),
+                data.get('study_system_id', 1)
+            )
+            self._call_write("UpdateGraduationOrder", args)
+            log_activity(f"تم تعديل بيانات الأمر الجامعي: {data.get('order_number')}")
+            return
+        try:
+            payload = {
+                "order_number": data.get('order_number'),
+                "order_date": str(data.get('order_date')),
+                "department_id": int(data.get('department_id')),
+                "study_type": data.get('study_type'),
+                "admission_year": int(data.get('admission_year')),
+                "graduation_semester": data.get('graduation_semester'),
+                "num_students": int(data.get('num_students')),
+                "notes": data.get('notes'),
+                "study_system_id": int(data.get('study_system_id', 1))
+            }
+            resp = requests.put(f"{self.api_url}/orders/{order_id}", json=payload, timeout=5.0)
+            if resp.status_code == 200:
+                log_activity(f"تم تعديل بيانات الأمر الجامعي: {data.get('order_number')}")
+            else:
+                raise RuntimeError(f"API update failed: {resp.text}")
+        except Exception as e:
+            print(f"API request failed: {e}")
+            raise
 
     def delete(self, order_id: int) -> None:
-        self._call_write("DeleteGraduationOrder", (order_id,))
-        log_activity(f"تم حذف الأمر الجامعي ID: {order_id}")
+        if not is_online():
+            self._call_write("DeleteGraduationOrder", (order_id,))
+            log_activity(f"تم حذف الأمر الجامعي ID: {order_id}")
+            return
+        try:
+            resp = requests.delete(f"{self.api_url}/orders/{order_id}", timeout=5.0)
+            if resp.status_code == 200:
+                log_activity(f"تم حذف الأمر الجامعي ID: {order_id}")
+            else:
+                raise RuntimeError(f"API delete failed: {resp.text}")
+        except Exception as e:
+            print(f"API request failed: {e}")
+            raise
 
     def get_students_for_order(self, order_id: int) -> list[dict]:
         if not is_online():
@@ -1262,40 +1576,130 @@ class GraduationOrderRepository(BaseRepository):
                 "WHERE s.order_id = ?",
                 (order_id,)
             )
-        return self._call_read_all("GetStudentsByOrder", (order_id,))
+        try:
+            resp = requests.get(f"{self.api_url}/students/by-order/{order_id}", timeout=5.0)
+            if resp.status_code == 200:
+                return resp.json()
+            return []
+        except Exception as e:
+            print(f"API request failed: {e}")
+            return []
 
     def link_students(self, order_id: int) -> int:
-        row = self._call_read_one("LinkStudentsToOrder", (order_id,))
-        count = row['affected_rows'] if row and 'affected_rows' in row else 0
-        if count > 0:
-            log_activity(f"تم ربط {count} طالب بالأمر الجامعي ID: {order_id}")
-        return count
+        if not is_online():
+            row = self._call_read_one("LinkStudentsToOrder", (order_id,))
+            count = row['affected_rows'] if row and 'affected_rows' in row else 0
+            if count > 0:
+                log_activity(f"تم ربط {count} طالب بالأمر الجامعي ID: {order_id}")
+            return count
+        try:
+            resp = requests.post(f"{self.api_url}/students/link-order/{order_id}", timeout=5.0)
+            if resp.status_code == 200:
+                row = resp.json()
+                count = row.get('affected_rows', 0)
+                if count > 0:
+                    log_activity(f"تم ربط {count} طالب بالأمر الجامعي ID: {order_id}")
+                return count
+            return 0
+        except Exception as e:
+            print(f"API request failed: {e}")
+            return 0
 
     def unlink_student(self, student_id: int) -> None:
-        self._call_write("UnlinkStudentFromOrder", (student_id,))
-        log_activity(f"تم فك ارتباط الطالب ID: {student_id} بالأمر الجامعي")
+        if not is_online():
+            self._call_write("UnlinkStudentFromOrder", (student_id,))
+            log_activity(f"تم فك ارتباط الطالب ID: {student_id} بالأمر الجامعي")
+            return
+        try:
+            resp = requests.post(f"{self.api_url}/students/{student_id}/unlink-order", timeout=5.0)
+            if resp.status_code == 200:
+                log_activity(f"تم فك ارتباط الطالب ID: {student_id} بالأمر الجامعي")
+            else:
+                raise RuntimeError(f"API unlink failed: {resp.text}")
+        except Exception as e:
+            print(f"API request failed: {e}")
+            raise
 
 # ---------------------------------------------------------------------------
 # Module 10: Thesis Records
 # ---------------------------------------------------------------------------
 class ThesisRepository(BaseRepository):
     def get_by_student(self, student_id: int) -> list[dict]:
-        return self._call_read_all("GetThesisByStudent", (student_id,))
+        if not is_online():
+            return self._call_read_all("GetThesisByStudent", (student_id,))
+        try:
+            resp = requests.get(f"{self.api_url}/thesis/by-student/{student_id}", timeout=5.0)
+            if resp.status_code == 200:
+                return resp.json()
+            return []
+        except Exception as e:
+            print(f"API request failed: {e}")
+            return []
 
     def insert(self, student_id: int, title_ar: str, title_en: str, defense_date: str = None, committee_decision: str = None, final_grade: float = None) -> int:
-        args = (student_id, title_ar, title_en, defense_date, committee_decision, final_grade)
-        new_id = self._call_write("InsertThesis", args)
-        log_activity(f"تم إضافة سجل أطروحة للطالب ID: {student_id}")
-        return new_id
+        if not is_online():
+            args = (student_id, title_ar, title_en, defense_date, committee_decision, final_grade)
+            new_id = self._call_write("InsertThesis", args)
+            log_activity(f"تم إضافة سجل أطروحة للطالب ID: {student_id}")
+            return new_id
+        try:
+            payload = {
+                "student_id": student_id,
+                "title_ar": title_ar,
+                "title_en": title_en,
+                "defense_date": str(defense_date) if defense_date else None,
+                "committee_decision": committee_decision,
+                "final_grade": float(final_grade) if final_grade is not None else None
+            }
+            resp = requests.post(f"{self.api_url}/thesis", json=payload, timeout=5.0)
+            if resp.status_code == 200:
+                new_id = resp.json()["new_id"]
+                log_activity(f"تم إضافة سجل أطروحة للطالب ID: {student_id}")
+                return new_id
+            else:
+                raise RuntimeError(f"API insert failed: {resp.text}")
+        except Exception as e:
+            print(f"API request failed: {e}")
+            raise
 
     def update(self, thesis_id: int, title_ar: str, title_en: str, defense_date: str = None, committee_decision: str = None, final_grade: float = None) -> None:
-        args = (thesis_id, title_ar, title_en, defense_date, committee_decision, final_grade)
-        self._call_write("UpdateThesis", args)
-        log_activity(f"تم تعديل سجل الأطروحة ID: {thesis_id}")
+        if not is_online():
+            args = (thesis_id, title_ar, title_en, defense_date, committee_decision, final_grade)
+            self._call_write("UpdateThesis", args)
+            log_activity(f"تم تعديل سجل الأطروحة ID: {thesis_id}")
+            return
+        try:
+            payload = {
+                "student_id": 0,
+                "title_ar": title_ar,
+                "title_en": title_en,
+                "defense_date": str(defense_date) if defense_date else None,
+                "committee_decision": committee_decision,
+                "final_grade": float(final_grade) if final_grade is not None else None
+            }
+            resp = requests.put(f"{self.api_url}/thesis/{thesis_id}", json=payload, timeout=5.0)
+            if resp.status_code == 200:
+                log_activity(f"تم تعديل سجل الأطروحة ID: {thesis_id}")
+            else:
+                raise RuntimeError(f"API update failed: {resp.text}")
+        except Exception as e:
+            print(f"API request failed: {e}")
+            raise
 
     def delete(self, thesis_id: int) -> None:
-        self._call_write("DeleteThesis", (thesis_id,))
-        log_activity(f"تم حذف سجل الأطروحة ID: {thesis_id}")
+        if not is_online():
+            self._call_write("DeleteThesis", (thesis_id,))
+            log_activity(f"تم حذف سجل الأطروحة ID: {thesis_id}")
+            return
+        try:
+            resp = requests.delete(f"{self.api_url}/thesis/{thesis_id}", timeout=5.0)
+            if resp.status_code == 200:
+                log_activity(f"تم حذف سجل الأطروحة ID: {thesis_id}")
+            else:
+                raise RuntimeError(f"API delete failed: {resp.text}")
+        except Exception as e:
+            print(f"API request failed: {e}")
+            raise
 
     def save(self, student_id: int, title_ar: str, title_en: str, defense_date: str = None, committee_decision: str = None, final_grade: float = None) -> None:
         existing = self.get_by_student(student_id)
@@ -1310,36 +1714,89 @@ class ThesisRepository(BaseRepository):
 # ---------------------------------------------------------------------------
 class StudentSupervisorRepository(BaseRepository):
     def get_by_student(self, student_id: int) -> list[dict]:
-        return self._call_read_all("GetSupervisorsByStudent", (student_id,))
+        if not is_online():
+            return self._call_read_all("GetSupervisorsByStudent", (student_id,))
+        try:
+            resp = requests.get(f"{self.api_url}/supervisors/by-student/{student_id}", timeout=5.0)
+            if resp.status_code == 200:
+                return resp.json()
+            return []
+        except Exception as e:
+            print(f"API request failed: {e}")
+            return []
 
     def insert(self, student_id: int, personnel_id: int, supervision_role: str) -> int:
-        new_id = self._call_write("InsertStudentSupervisor", (student_id, personnel_id, supervision_role))
-        log_activity(f"تم إضافة مشرف جديد للطالب ID: {student_id}")
-        return new_id
+        if not is_online():
+            new_id = self._call_write("InsertStudentSupervisor", (student_id, personnel_id, supervision_role))
+            log_activity(f"تم إضافة مشرف جديد للطالب ID: {student_id}")
+            return new_id
+        try:
+            payload = {
+                "student_id": student_id,
+                "personnel_id": personnel_id,
+                "supervision_role": supervision_role
+            }
+            resp = requests.post(f"{self.api_url}/supervisors", json=payload, timeout=5.0)
+            if resp.status_code == 200:
+                new_id = resp.json()["new_id"]
+                log_activity(f"تم إضافة مشرف جديد للطالب ID: {student_id}")
+                return new_id
+            else:
+                raise RuntimeError(f"API insert failed: {resp.text}")
+        except Exception as e:
+            print(f"API request failed: {e}")
+            raise
 
     def update(self, record_id: int, personnel_id: int, supervision_role: str) -> None:
-        self._call_write("UpdateStudentSupervisor", (record_id, personnel_id, supervision_role))
-        log_activity(f"تم تعديل بيانات الإشراف ID: {record_id}")
+        if not is_online():
+            self._call_write("UpdateStudentSupervisor", (record_id, personnel_id, supervision_role))
+            log_activity(f"تم تعديل بيانات الإشراف ID: {record_id}")
+            return
+        try:
+            payload = {
+                "student_id": 0,
+                "personnel_id": personnel_id,
+                "supervision_role": supervision_role
+            }
+            resp = requests.put(f"{self.api_url}/supervisors/{record_id}", json=payload, timeout=5.0)
+            if resp.status_code == 200:
+                log_activity(f"تم تعديل بيانات الإشراف ID: {record_id}")
+            else:
+                raise RuntimeError(f"API update failed: {resp.text}")
+        except Exception as e:
+            print(f"API request failed: {e}")
+            raise
 
     def delete(self, record_id: int) -> None:
-        self._call_write("DeleteStudentSupervisor", (record_id,))
-        log_activity(f"تم حذف سجل الإشراف ID: {record_id}")
+        if not is_online():
+            self._call_write("DeleteStudentSupervisor", (record_id,))
+            log_activity(f"تم حذف سجل الإشراف ID: {record_id}")
+            return
+        try:
+            resp = requests.delete(f"{self.api_url}/supervisors/{record_id}", timeout=5.0)
+            if resp.status_code == 200:
+                log_activity(f"تم حذف سجل الإشراف ID: {record_id}")
+            else:
+                raise RuntimeError(f"API delete failed: {resp.text}")
+        except Exception as e:
+            print(f"API request failed: {e}")
+            raise
 
 # ---------------------------------------------------------------------------
 # Compatibility wrapper for students_screen.py
 # ---------------------------------------------------------------------------
 class SupervisorRepository(BaseRepository):
     def get_by_student(self, student_id: int) -> list[dict]:
-        return StudentSupervisorRepository().get_by_student(student_id)
+        return StudentSupervisorRepository(self.api_url).get_by_student(student_id)
 
     def add(self, student_id: int, personnel_id: int, role: str) -> None:
-        StudentSupervisorRepository().insert(student_id, personnel_id, role)
+        StudentSupervisorRepository(self.api_url).insert(student_id, personnel_id, role)
 
     def delete_by_student(self, student_id: int) -> None:
         records = self.get_by_student(student_id)
         for r in records:
             if 'id' in r:
-                StudentSupervisorRepository().delete(r['id'])
+                StudentSupervisorRepository(self.api_url).delete(r['id'])
 
 # ---------------------------------------------------------------------------
 # Audit Logs (Fallback)

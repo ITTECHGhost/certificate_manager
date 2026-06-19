@@ -17734,3 +17734,10 @@ _tkinter.TclError: bad window path name ".!loginscreen.!ctkframe2.!ctkframe.!ctk
 2026-06-19 12:34:14,797 [SYSTEM] INFO: User '1' logged in successfully.
 2026-06-19 12:34:18,168 [SYSTEM] INFO: Database snapshot backup complete.
 2026-06-19 12:40:56,102 [SYSTEM] INFO: Application closed normally.
+2026-06-19 13:56:58,096 [SYSTEM] INFO: Application starting...
+2026-06-19 13:56:58,097 [SYSTEM] INFO: Checking MySQL database connection to root@localhost...
+2026-06-19 13:56:58,138 [SYSTEM] INFO: Database connection successful, tables verified, and schemas reconciled.
+2026-06-19 13:56:58,151 [SYSTEM] INFO: Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-06-19 13:57:10,342 [SYSTEM] INFO: User '1' logged in successfully.
+2026-06-19 13:57:13,866 [SYSTEM] INFO: Database snapshot backup complete.
+2026-06-19 13:57:39,237 [SYSTEM] INFO: Application closed normally.
