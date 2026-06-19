@@ -38,8 +38,10 @@ import hashlib
 import json
 import logging
 import sqlite3
+import threading
 from datetime import date, datetime
 from pathlib import Path
+import requests
 
 log = logging.getLogger(__name__)
 
@@ -63,25 +65,16 @@ def set_online(status: bool) -> None:
 
 def check_network_status() -> bool:
     """
-    Attempt a fast, low-timeout connection to the MySQL host.
+    Attempt a fast, low-timeout HTTP GET request to the FastAPI server ping endpoint.
 
-    Returns True if MySQL is reachable, False otherwise.
+    Returns True if FastAPI is reachable, False otherwise.
     This function is called every ~8 seconds from the UI polling loop.
     It does NOT update the cached flag — the caller must call set_online().
     """
     try:
-        import mysql.connector
-        from config import DBConfig
-        conn = mysql.connector.connect(
-            host=DBConfig.DB_HOST,
-            user=DBConfig.DB_USER,
-            password=DBConfig.DB_PASSWORD,
-            database=DBConfig.DB_NAME,
-            connection_timeout=2,
-        )
-        conn.close()
-        return True
-    except Exception:
+        response = requests.get("http://127.0.0.1:8000/ping", timeout=2.0)
+        return response.status_code == 200
+    except requests.RequestException:
         return False
 
 # ---------------------------------------------------------------------------
@@ -195,6 +188,41 @@ def _get_local_conn() -> sqlite3.Connection:
     return conn
 
 
+def get_local_connection() -> sqlite3.Connection:
+    """Public access to a local SQLite connection for offline reads.
+
+    Returns a connection with row_factory=sqlite3.Row so that rows
+    can be accessed by column name.  Callers MUST close the connection.
+    """
+    return _get_local_conn()
+
+
+def sqlite_read_all(query: str, params: tuple = ()) -> list[dict]:
+    """Execute a SELECT on the local SQLite replica and return all rows as dicts."""
+    conn = _get_local_conn()
+    try:
+        rows = conn.execute(query, params).fetchall()
+        return [dict(r) for r in rows]
+    except Exception as exc:
+        log.debug("sqlite_read_all failed: %s | %s", query, exc)
+        return []
+    finally:
+        conn.close()
+
+
+def sqlite_read_one(query: str, params: tuple = ()) -> dict | None:
+    """Execute a SELECT on the local SQLite replica and return one row as dict."""
+    conn = _get_local_conn()
+    try:
+        row = conn.execute(query, params).fetchone()
+        return dict(row) if row else None
+    except Exception as exc:
+        log.debug("sqlite_read_one failed: %s | %s", query, exc)
+        return None
+    finally:
+        conn.close()
+
+
 def init_local_db() -> None:
     """
     Create the local SQLite tables if they do not already exist.
@@ -284,10 +312,382 @@ def init_local_db() -> None:
             )
         """)
 
+        # -- Replica tables: full read-only mirrors of MySQL tables ----------
+        # These are populated by pull_mysql_to_sqlite() whenever the app
+        # is online, so that offline reads can query structured data.
+
+        cur.execute("""
+            CREATE TABLE IF NOT EXISTS personnel (
+                id                    INTEGER PRIMARY KEY,
+                name_ar               TEXT,
+                name_en               TEXT,
+                academic_title_ar     TEXT,
+                academic_title_en     TEXT,
+                responsibility_ar     TEXT,
+                responsibility_en     TEXT,
+                display_order         INTEGER DEFAULT 0,
+                username              TEXT,
+                password_hash         TEXT,
+                personnel_role        TEXT DEFAULT 'user',
+                settings_id           INTEGER DEFAULT 1,
+                university_settings_id INTEGER DEFAULT 1,
+                page_location         TEXT DEFAULT 'front',
+                is_active             INTEGER DEFAULT 1,
+                created_at            TEXT
+            )
+        """)
+
+        cur.execute("""
+            CREATE TABLE IF NOT EXISTS students (
+                id                    INTEGER PRIMARY KEY,
+                full_name_ar          TEXT,
+                full_name_en          TEXT,
+                gender                TEXT DEFAULT 'M',
+                sequence_number       INTEGER,
+                postgraduation_no     INTEGER,
+                postgraduation_number INTEGER,
+                date_of_birth         TEXT,
+                birthplace_id         INTEGER,
+                birthplace_other      TEXT,
+                nationality_id        INTEGER DEFAULT 1,
+                department_id         INTEGER,
+                study_system_id       INTEGER,
+                degree_level          TEXT DEFAULT 'Bachelor',
+                order_id              INTEGER,
+                admission_year        TEXT,
+                summer_training_data  TEXT,
+                average               REAL,
+                graduation_date       TEXT,
+                graduation_semester   TEXT
+            )
+        """)
+
+        cur.execute("""
+            CREATE TABLE IF NOT EXISTS academic_periods (
+                id              INTEGER PRIMARY KEY,
+                student_id      INTEGER NOT NULL,
+                academic_year   TEXT,
+                study_system_id INTEGER,
+                stage_number    INTEGER,
+                semester_num    INTEGER DEFAULT 1
+            )
+        """)
+        try:
+            cur.execute("ALTER TABLE academic_periods ADD COLUMN semester_num INTEGER DEFAULT 1;")
+        except sqlite3.OperationalError:
+            pass
+
+
+        cur.execute("""
+            CREATE TABLE IF NOT EXISTS enrollments (
+                id              INTEGER PRIMARY KEY,
+                period_id       INTEGER NOT NULL,
+                course_id       INTEGER NOT NULL,
+                score           REAL,
+                is_second_round INTEGER DEFAULT 0,
+                passed_round    TEXT DEFAULT '1'
+            )
+        """)
+
+        cur.execute("""
+            CREATE TABLE IF NOT EXISTS courses (
+                id              INTEGER PRIMARY KEY,
+                name_ar         TEXT,
+                name_en         TEXT,
+                credit_hours    INTEGER,
+                department_id   INTEGER,
+                stage_number    INTEGER,
+                study_system_id INTEGER,
+                is_shared       INTEGER DEFAULT 0
+            )
+        """)
+
+        cur.execute("""
+            CREATE TABLE IF NOT EXISTS departments (
+                id                    INTEGER PRIMARY KEY,
+                name_ar               TEXT,
+                name_en               TEXT,
+                study_day_type        TEXT DEFAULT 'Morning',
+                university_settings_id INTEGER DEFAULT 1
+            )
+        """)
+
+        cur.execute("""
+            CREATE TABLE IF NOT EXISTS study_systems (
+                id                  INTEGER PRIMARY KEY,
+                name_ar             TEXT,
+                name_en             TEXT,
+                calculation_rule    TEXT DEFAULT 'annual',
+                calculation_weights TEXT DEFAULT '10:20:30:40',
+                period_display      TEXT DEFAULT 'semester',
+                is_active           INTEGER DEFAULT 1,
+                created_at          TEXT
+            )
+        """)
+
+        cur.execute("""
+            CREATE TABLE IF NOT EXISTS graduation_orders (
+                id                  INTEGER PRIMARY KEY,
+                order_number        TEXT,
+                order_date          TEXT,
+                department_id       INTEGER,
+                study_type          TEXT,
+                admission_year      INTEGER,
+                graduation_semester TEXT,
+                num_students        INTEGER,
+                notes               TEXT,
+                study_system_id     INTEGER DEFAULT 1
+            )
+        """)
+
+        cur.execute("""
+            CREATE TABLE IF NOT EXISTS university_settings (
+                id              INTEGER PRIMARY KEY,
+                univ_name_ar    TEXT,
+                univ_name_en    TEXT,
+                college_name_ar TEXT,
+                college_name_en TEXT
+            )
+        """)
+
+        cur.execute("""
+            CREATE TABLE IF NOT EXISTS countries (
+                id       INTEGER PRIMARY KEY,
+                name_ar  TEXT,
+                name_en  TEXT,
+                iso_code TEXT
+            )
+        """)
+
+        cur.execute("""
+            CREATE TABLE IF NOT EXISTS governorates (
+                id      INTEGER PRIMARY KEY,
+                name_ar TEXT,
+                name_en TEXT
+            )
+        """)
+
+        cur.execute("""
+            CREATE TABLE IF NOT EXISTS course_departments (
+                course_id     INTEGER NOT NULL,
+                department_id INTEGER NOT NULL,
+                PRIMARY KEY (course_id, department_id)
+            )
+        """)
+
+        cur.execute("""
+            CREATE TABLE IF NOT EXISTS user_preferences (
+                id              INTEGER PRIMARY KEY,
+                personnel_id    INTEGER,
+                theme           TEXT DEFAULT 'System',
+                accent_color    TEXT DEFAULT 'blue',
+                font_family     TEXT DEFAULT 'Arial',
+                font_size_base  INTEGER DEFAULT 13,
+                rtl             INTEGER DEFAULT 1
+            )
+        """)
+
         conn.commit()
         log.info("Local SQLite cache initialised at %s", _LOCAL_DB_PATH)
     finally:
         conn.close()
+
+
+# ---------------------------------------------------------------------------
+# Inbound Sync — pull full MySQL tables into SQLite replica
+# ---------------------------------------------------------------------------
+
+# Tables to replicate and their SELECT queries.
+# Order matters: parent tables first so FK references are valid.
+_REPLICA_TABLES: list[tuple[str, str]] = [
+    ("university_settings", "SELECT * FROM university_settings"),
+    ("countries",           "SELECT * FROM countries"),
+    ("governorates",        "SELECT * FROM governorates"),
+    ("departments",         "SELECT * FROM departments"),
+    ("study_systems",       "SELECT * FROM study_systems"),
+    ("personnel",           "SELECT * FROM personnel"),
+    ("courses",             "SELECT * FROM courses"),
+    ("course_departments",  "SELECT * FROM course_departments"),
+    ("graduation_orders",   "SELECT * FROM graduation_orders"),
+    ("students",            "SELECT * FROM students"),
+    ("academic_periods",    "SELECT * FROM academic_periods"),
+    ("enrollments",         "SELECT * FROM enrollments"),
+]
+
+
+def pull_mysql_to_sqlite(mysql_conn, sqlite_conn=None) -> dict:
+    """
+    Download a full read-only replica of essential MySQL tables into SQLite.
+
+    Strategy (safe for <100k rows):
+        1. DELETE FROM local_table
+        2. SELECT * FROM mysql_table
+        3. INSERT INTO local_table (all fetched rows)
+
+    Args:
+        mysql_conn: An open mysql.connector connection.
+        sqlite_conn: Optional pre-opened SQLite connection.
+                     If None, one is created internally.
+
+    Returns:
+        {"tables_synced": int, "total_rows": int, "errors": list[str]}
+    """
+    own_sqlite = sqlite_conn is None
+    if own_sqlite:
+        sqlite_conn = _get_local_conn()
+
+    tables_synced = 0
+    total_rows = 0
+    errors: list[str] = []
+
+    try:
+        my_cur = mysql_conn.cursor(dictionary=True)
+
+        for table_name, select_sql in _REPLICA_TABLES:
+            try:
+                # Fetch from MySQL
+                my_cur.execute(select_sql)
+                rows = my_cur.fetchall()
+
+                if not rows:
+                    # Still clear local data even if MySQL table is empty
+                    sqlite_conn.execute(f"DELETE FROM {table_name}")
+                    sqlite_conn.commit()
+                    tables_synced += 1
+                    continue
+
+                # Determine columns from the first row
+                columns = list(rows[0].keys())
+                col_clause = ", ".join(columns)
+                placeholders = ", ".join(["?"] * len(columns))
+
+                # Clear + insert
+                sqlite_conn.execute(f"DELETE FROM {table_name}")
+                for row in rows:
+                    values = tuple(
+                        str(v) if isinstance(v, (date, datetime)) else v
+                        for v in (row.get(c) for c in columns)
+                    )
+                    sqlite_conn.execute(
+                        f"INSERT OR REPLACE INTO {table_name} ({col_clause}) VALUES ({placeholders})",
+                        values,
+                    )
+
+                sqlite_conn.commit()
+                tables_synced += 1
+                total_rows += len(rows)
+                log.debug("Replicated %s: %d rows", table_name, len(rows))
+
+            except Exception as exc:
+                log.error("Failed to replicate table %s: %s", table_name, exc)
+                errors.append(f"{table_name}: {exc}")
+
+        my_cur.close()
+
+    finally:
+        if own_sqlite:
+            sqlite_conn.close()
+
+    summary = {"tables_synced": tables_synced, "total_rows": total_rows, "errors": errors}
+    log.info("Inbound sync complete: %s", summary)
+    return summary
+
+
+def download_mysql_snapshot(mysql_conn, sqlite_conn):
+    """
+    Perform a fast, safe replication of core data from MySQL to SQLite.
+    Optimized to dynamically drop and recreate the SQLite cache tables to
+    match the MySQL schema perfectly.
+    """
+    tables = ['departments', 'courses', 'study_systems', 'students', 'academic_periods', 'enrollments', 'settings', 'personnel', 'graduation_orders']
+    my_cursor = mysql_conn.cursor(dictionary=True)
+    sq_cursor = sqlite_conn.cursor()
+    
+    def safe_cast(val):
+        if val is None: return None
+        if isinstance(val, (int, float)): return val 
+        if isinstance(val, (bytearray, bytes)):
+            try:
+                return val.decode('utf-8')
+            except UnicodeDecodeError:
+                return str(val)
+        return str(val)
+        
+    for table in tables:
+        src_table = table
+        dest_table = table
+        if table == 'settings':
+            dest_table = 'university_settings'
+            try:
+                my_cursor.execute("SELECT * FROM university_settings LIMIT 1;")
+                my_cursor.fetchall()
+                src_table = 'university_settings'
+            except Exception:
+                src_table = 'settings'
+                
+        try:
+            # 1. Fetch fresh rows from MySQL
+            my_cursor.execute(f"SELECT * FROM {src_table};")
+            rows = my_cursor.fetchall()
+            if not rows: continue
+            
+            columns = list(rows[0].keys())
+            
+            # 2. Build optimized column definitions
+            cols_def_parts = []
+            for col in columns:
+                if col.lower() == 'id':
+                    cols_def_parts.append(f"{col} INTEGER PRIMARY KEY")
+                else:
+                    cols_def_parts.append(f"{col}")
+            cols_def = ", ".join(cols_def_parts)
+            
+            # 3. Drop and Recreate
+            sq_cursor.execute(f"DROP TABLE IF EXISTS {dest_table};")
+            sq_cursor.execute(f"CREATE TABLE {dest_table} ({cols_def});")
+            
+            # 4. Insert Data
+            placeholders = ", ".join(["?"] * len(columns))
+            sql_insert = f"INSERT INTO {dest_table} ({', '.join(columns)}) VALUES ({placeholders});"
+            insert_data = [tuple(safe_cast(row[col]) for col in columns) for row in rows]
+            sq_cursor.executemany(sql_insert, insert_data)
+            
+            # 5. Generate Performance Indexes for Foreign Keys
+            for col in columns:
+                if col.lower().endswith('_id'):
+                    idx_name = f"idx_{dest_table}_{col}"
+                    sq_cursor.execute(f"CREATE INDEX IF NOT EXISTS {idx_name} ON {dest_table}({col});")
+        except Exception as e:
+            print(f"Error syncing table {table}: {e}")
+            
+    sqlite_conn.commit()
+
+
+def pull_mysql_to_sqlite_background() -> None:
+    """
+    Run pull_mysql_to_sqlite in a background thread.
+
+    Safe to call from the UI thread — spawns a daemon thread that
+    opens its own MySQL and SQLite connections.
+    """
+    def _worker():
+        try:
+            import mysql.connector
+            from config import DBConfig
+            my_conn = mysql.connector.connect(
+                host=DBConfig.DB_HOST,
+                user=DBConfig.DB_USER,
+                password=DBConfig.DB_PASSWORD,
+                database=DBConfig.DB_NAME,
+                connection_timeout=5,
+            )
+            pull_mysql_to_sqlite(my_conn)
+            my_conn.close()
+        except Exception as exc:
+            log.error("Background inbound sync failed: %s", exc)
+
+    t = threading.Thread(target=_worker, daemon=True, name="inbound-sync")
+    t.start()
 
 
 # ---------------------------------------------------------------------------
@@ -553,20 +953,19 @@ def _execute_mysql_insert(mysql_conn, table_name: str, payload: dict) -> int:
         cur.close()
 
 
-def sync_offline_queue_to_mysql(mysql_conn) -> dict:
+def sync_offline_queue_to_mysql(mysql_conn=None) -> dict:
     """
-    Flush the offline sync queue into MySQL and resolve all temp IDs.
+    Flush the offline sync queue via FastAPI HTTP sync endpoint and resolve all temp IDs.
 
-    Called when the application detects that the MySQL connection is
-    available again.  Processes rows in FIFO order (``id ASC``) so that
+    Called when the application detects that the network connection is
+    available again. Processes rows in FIFO order (id ASC) so that
     parent records (students) are synced before children (enrollments).
 
     Args:
-        mysql_conn: An open ``mysql.connector`` connection object.
+        mysql_conn: Deprecated connection object, kept for signature compatibility.
 
     Returns:
-        A summary dict::
-
+        A summary dict:
             {
                 "synced":  4,       # rows successfully pushed
                 "failed":  0,       # rows that errored (left in queue)
@@ -595,51 +994,67 @@ def sync_offline_queue_to_mysql(mysql_conn) -> dict:
 
         log.info("Starting sync: %d queued operations.", len(queue_rows))
 
+        # 1. Build the payload for the FastAPI sync endpoint
+        actions = []
+        for row in queue_rows:
+            actions.append({
+                "id": row["id"],
+                "table_name": row["table_name"],
+                "operation": row["operation"],
+                "temp_id": row["temp_id"],
+                "payload": _json_loads(row["payload"])
+            })
+
+        payload = {"actions": actions}
+
+        # 2. POST the payload to the API
+        try:
+            response = requests.post("http://127.0.0.1:8000/sync", json=payload, timeout=10.0)
+            if response.status_code != 200:
+                log.error("API sync request failed with status %d: %s", response.status_code, response.text)
+                return {"synced": 0, "failed": len(queue_rows), "id_map": {}}
+            
+            resp_data = response.json()
+            # Convert JSON string keys to integers
+            api_id_map = {int(k): int(v) for k, v in resp_data.get("id_map", {}).items()}
+        except Exception as exc:
+            log.error("Failed to connect or communicate with FastAPI sync endpoint: %s", exc)
+            return {"synced": 0, "failed": len(queue_rows), "id_map": {}}
+
+        # 3. Process the resolved IDs in FIFO order
         for row in queue_rows:
             queue_id = row["id"]
             table_name = row["table_name"]
-            operation = row["operation"]
             temp_id = row["temp_id"]
-            payload = _json_loads(row["payload"])
 
-            # Strip the synthetic 'id' — MySQL will assign a real one
-            payload.pop("id", None)
+            if temp_id in api_id_map:
+                real_id = api_id_map[temp_id]
+                try:
+                    # Resolve: cascade the real ID through local tables & queue
+                    _resolve_temp_id(sqlite_conn, table_name, temp_id, real_id)
+                    id_map[temp_id] = real_id
 
-            if operation != "INSERT":
+                    # Remove the successfully synced entry
+                    sqlite_conn.execute(
+                        "DELETE FROM sync_queue WHERE id = ?", (queue_id,)
+                    )
+                    sqlite_conn.commit()
+                    synced += 1
+                    log.info(
+                        "Synced %s: temp_id=%d → real_id=%d", table_name, temp_id, real_id
+                    )
+                except Exception as exc:
+                    log.error(
+                        "Failed to resolve local DB for queue id=%d (%s temp_id=%d): %s",
+                        queue_id, table_name, temp_id, exc
+                    )
+                    failed += 1
+            else:
                 log.warning(
-                    "Skipping unsupported operation '%s' (queue id=%d)",
-                    operation, queue_id,
+                    "Queue id=%d (%s temp_id=%d) was not returned in API id_map.",
+                    queue_id, table_name, temp_id
                 )
                 failed += 1
-                continue
-
-            try:
-                real_id = _execute_mysql_insert(mysql_conn, table_name, payload)
-
-                # Resolve: cascade the real ID through local tables & queue
-                _resolve_temp_id(sqlite_conn, table_name, temp_id, real_id)
-                id_map[temp_id] = real_id
-
-                # Remove the successfully synced entry
-                sqlite_conn.execute(
-                    "DELETE FROM sync_queue WHERE id = ?", (queue_id,)
-                )
-                sqlite_conn.commit()
-                synced += 1
-                log.info(
-                    "Synced %s: temp_id=%d → real_id=%d", table_name, temp_id, real_id
-                )
-
-            except Exception as exc:
-                log.error(
-                    "Failed to sync queue id=%d (%s temp_id=%d): %s",
-                    queue_id, table_name, temp_id, exc,
-                )
-                failed += 1
-                # Do NOT delete — leave in queue for retry
-
-        # Clean up resolved local mirror rows (optional: keep for cache)
-        # For now we leave them so local reads still work.
 
     finally:
         sqlite_conn.close()

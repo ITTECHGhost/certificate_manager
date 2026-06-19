@@ -729,31 +729,10 @@ class EnrollmentPanel(ctk.CTkFrame):
         if not self._period or not self._student:
             return
         
-        # Raw SQL query to pull and display ALL courses belonging to the student's department,
-        # regardless of what stage is recorded on the individual course records.
-        try:
-            from db import get_connection
-            conn = get_connection()
-            cur = conn.cursor(dictionary=True)
-            dept_id = self._student.get("department_id", 0)
-            system_id = self._student.get("study_system_id", 1)
-            cur.execute(
-                "SELECT id, name_ar, name_en, credit_hours, stage_number FROM courses "
-                "WHERE (department_id = %s OR (is_shared = 1 AND id IN (SELECT course_id FROM course_departments WHERE department_id = %s))) "
-                "AND study_system_id = %s "
-                "ORDER BY stage_number, name_ar",
-                (dept_id, dept_id, system_id)
-            )
-            self._courses = cur.fetchall()  # type: ignore
-            cur.close()
-            conn.close()
-        except Exception as e:
-            # Fallback to repository if connection fails
-            self._courses = CourseRepository().get_by_dept_stage_system(
-                self._student.get("department_id", 0),
-                12,  # pass maximum stage to fetch more courses
-                self._student.get("study_system_id", 1),
-            )
+        dept_id = self._student.get("department_id", 0)
+        system_id = self._student.get("study_system_id", 1)
+        self._courses = CourseRepository().get_by_dept_stage_system(dept_id, 12, system_id)
+
 
         self._selected_course = None
         self._course_search_entry.delete(0, "end")
@@ -1230,6 +1209,12 @@ class StudentsScreen(BaseScreen):
         else:
             sem_display = "—"
 
+        seq_num = data.get('sequence_number')
+        post_num = data.get('postgraduation_number') or data.get('postgraduation_no')
+        seq_str = str(seq_num) if seq_num is not None and str(seq_num).strip().lower() != 'none' else "—"
+        post_str = str(post_num) if post_num is not None and str(post_num).strip().lower() != 'none' else "—"
+        grad_seq_display = f"{seq_str}  /  {post_str}"
+
         fields = [
             ("القسم  /  Department",        data.get("dept_name_ar", "—")),
             ("نظام الدراسة  /  Study System", data.get("study_system_name_ar", "—")),
@@ -1244,8 +1229,7 @@ class StudentsScreen(BaseScreen):
             ("أمر التخرج  /  Graduation Order", data.get("order_number", "—")),
             ("تاريخ التخرج  /  Graduation Date", grad_date_str),
             ("فصل التخرج  /  Graduation Semester", sem_display),
-            ("تسلسل وصادر التخرج  /  Grad. Seq & Postgrad No.",
-                f"{data.get('sequence_number', '—')}  /  {data.get('postgraduation_no', '—')}"),
+            ("تسلسل وصادر التخرج  /  Grad. Seq & Postgrad No.", grad_seq_display),
         ]
 
         def draw_field(parent, label, value, row_idx, col_offset):
@@ -1577,17 +1561,14 @@ class StudentsScreen(BaseScreen):
                 semester_val = 1
 
         try:
-            from db import get_connection
-            conn = get_connection()
-            cur = conn.cursor()
-            cur.execute(
-                "INSERT INTO academic_periods (student_id, academic_year, study_system_id, stage_number, semester_num) "
-                "VALUES (%s, %s, %s, %s, %s)",
-                (self._selected_student["id"], db_year, ss_id, stage_val, semester_val)
+            AcademicPeriodRepository().insert(
+                student_id=self._selected_student["id"],
+                year=db_year,
+                sys_id=ss_id,
+                stage=stage_val,
+                semester_num=semester_val
             )
-            conn.commit()
-            cur.close()
-            conn.close()
+
 
             # Clean up inputs
             if isinstance(self._new_stage, ctk.CTkOptionMenu):

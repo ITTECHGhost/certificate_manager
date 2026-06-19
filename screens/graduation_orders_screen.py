@@ -230,7 +230,7 @@ class GraduationOrdersScreen(BaseScreen):
 
         # Header row
         top = ctk.CTkFrame(self, fg_color="transparent")
-        top.grid(row=0, column=0, sticky="ew", pady=(0, 10))
+        top.grid(row=0, column=0, sticky="ew", pady=(0, 5))
         top.grid_columnconfigure(0, weight=1)
         make_section_header(top, "أوامر التخرج", "Graduation Orders").grid(
             row=0, column=0, sticky="e"
@@ -240,17 +240,21 @@ class GraduationOrdersScreen(BaseScreen):
             command=self._panel.open_add,
         ).grid(row=0, column=1, padx=(10, 0))
 
-        # Search bar
+        # Search bar (standardized with pady=5, padx=20)
+        search_frame = ctk.CTkFrame(self, fg_color="transparent")
+        search_frame.grid(row=1, column=0, sticky="ew", pady=5, padx=20)
+        search_frame.grid_columnconfigure(0, weight=1)
+
         self._search_var = ctk.StringVar()
         self._search_var.trace_add("write", self._on_search)
         ctk.CTkEntry(
-            self,
+            search_frame,
             textvariable=self._search_var,
             placeholder_text="بحث برقم الأمر أو القسم  —  Search by order number or department...",
             font=ctk.CTkFont(family=AppFonts.FAMILY, size=AppFonts.SIZE_BODY),
             height=36,
             justify="right",
-        ).grid(row=1, column=0, sticky="ew", pady=(0, 10))
+        ).grid(row=0, column=0, sticky="ew")
 
         # Record list — extra "View" button per row
         self._list = RecordList(

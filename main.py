@@ -22,6 +22,8 @@ from db import init_db
 from sync_engine import (
     init_local_db, check_network_status, set_online, is_online,
     sync_offline_queue_to_mysql, get_queue_status,
+    pull_mysql_to_sqlite_background, download_mysql_snapshot,
+    get_local_connection,
 )
 from config import (
     AppColors, AppFonts, AppSizes,
@@ -86,7 +88,11 @@ logger.info("Application starting...")
 # ---------------------------------------------------------------------------
 # Global appearance — must be set before any CTk widget is created
 # ---------------------------------------------------------------------------
-init_db()
+try:
+    init_db()
+except Exception as _init_err:
+    system_logger.warning("MySQL unavailable at startup: %s — starting in offline mode.", _init_err)
+    set_online(False)
 init_local_db()
 refresh_config(None)
 
@@ -103,6 +109,8 @@ class Sidebar(ctk.CTkFrame):
             parent,
             width=AppSizes.SIDEBAR_WIDTH,
             corner_radius=0,
+            fg_color=("gray98", "gray10"),
+            border_width=0,
         )
         self._on_navigate = on_navigate
         self._buttons: dict[str, ctk.CTkButton] = {}
@@ -119,25 +127,18 @@ class Sidebar(ctk.CTkFrame):
     def _build_title(self) -> None:
         ctk.CTkLabel(
             self,
-            text="إدارة الشهادات",
+            text="الإدارة  —  Management",
             font=ctk.CTkFont(
                 family=AppFonts.FAMILY,
                 size=AppFonts.SIZE_HEADING,
                 weight="bold",
             ),
+            text_color="white",
             anchor="center",
-        ).grid(row=0, column=0, padx=16, pady=(22, 2), sticky="ew")
+        ).grid(row=0, column=0, padx=16, pady=(22, 10), sticky="ew")
 
-        ctk.CTkLabel(
-            self,
-            text="Certificate Manager",
-            font=ctk.CTkFont(family=AppFonts.FAMILY, size=AppFonts.SIZE_TINY),
-            text_color=AppColors.TEXT_MUTED,
-            anchor="center",
-        ).grid(row=1, column=0, padx=16, pady=(0, 10), sticky="ew")
-
-        ctk.CTkFrame(self, height=1, fg_color=AppColors.DIVIDER).grid(
-            row=2, column=0, sticky="ew", padx=14, pady=(0, 8)
+        ctk.CTkFrame(self, height=1, fg_color="#2D3748").grid(
+            row=1, column=0, sticky="ew", padx=14, pady=(0, 8)
         )
 
     def _build_nav_buttons(self) -> None:
@@ -148,21 +149,21 @@ class Sidebar(ctk.CTkFrame):
                 font=ctk.CTkFont(family=AppFonts.FAMILY, size=AppFonts.SIZE_HEADING),
                 anchor="e",
                 height=AppSizes.NAV_BUTTON_HEIGHT,
-                corner_radius=AppSizes.CORNER_RADIUS_BTN,
-                fg_color=AppColors.NAV_DEFAULT_BG,
-                text_color=AppColors.NAV_TEXT,
-                hover_color=AppColors.NAV_HOVER_BG,
+                corner_radius=8,
+                fg_color="transparent",
+                text_color="gray80",
+                hover_color="#2A4365",
                 command=lambda key=item["key"]: self._on_navigate(key),
             )
-            btn.grid(row=row_offset + 3, column=0, padx=10, pady=2, sticky="ew")
+            btn.grid(row=row_offset + 2, column=0, padx=10, pady=2, sticky="ew")
             self._buttons[item["key"]] = btn
 
-        self.grid_rowconfigure(len(NAV_ITEMS) + 3, weight=1)
+        self.grid_rowconfigure(len(NAV_ITEMS) + 2, weight=1)
 
     def _build_settings_and_toggle(self) -> None:
-        base_row = len(NAV_ITEMS) + 4
+        base_row = len(NAV_ITEMS) + 3
 
-        ctk.CTkFrame(self, height=1, fg_color=AppColors.DIVIDER).grid(
+        ctk.CTkFrame(self, height=1, fg_color="#2D3748").grid(
             row=base_row, column=0, sticky="ew", padx=14, pady=(0, 4)
         )
 
@@ -172,10 +173,10 @@ class Sidebar(ctk.CTkFrame):
             font=ctk.CTkFont(family=AppFonts.FAMILY, size=AppFonts.SIZE_HEADING),
             anchor="e",
             height=AppSizes.SETTINGS_BTN_HEIGHT,
-            corner_radius=AppSizes.CORNER_RADIUS_BTN,
-            fg_color=AppColors.NAV_DEFAULT_BG,
-            text_color=AppColors.NAV_TEXT,
-            hover_color=AppColors.NAV_HOVER_BG,
+            corner_radius=8,
+            fg_color="transparent",
+            text_color="gray80",
+            hover_color="#2A4365",
             command=lambda: self._on_navigate(SETTINGS_ITEM["key"]),
         )
         settings_btn.grid(
@@ -183,20 +184,13 @@ class Sidebar(ctk.CTkFrame):
         )
         self._buttons[SETTINGS_ITEM["key"]] = settings_btn
 
-        ctk.CTkOptionMenu(
-            self,
-            values=["Light", "Dark", "System"],
-            variable=ctk.StringVar(value="System"),
-            font=ctk.CTkFont(family=AppFonts.FAMILY, size=AppFonts.SIZE_HEADING),
-            command=lambda mode: ctk.set_appearance_mode(mode),
-        ).grid(row=base_row + 2, column=0, padx=14, pady=(6, 18), sticky="ew")
 
     def set_active(self, active_key: str) -> None:
         for key, btn in self._buttons.items():
             if key == active_key:
-                btn.configure(fg_color=AppColors.NAV_ACTIVE_BG)
+                btn.configure(fg_color="#2A4365", text_color="white")
             else:
-                btn.configure(fg_color=AppColors.NAV_DEFAULT_BG)
+                btn.configure(fg_color="transparent", text_color="gray80")
 
 
 # ===========================================================================
@@ -248,6 +242,23 @@ class HeaderBar(ctk.CTkFrame):
         )
         self._net_label.grid(row=0, column=1, sticky="w", padx=(4, 16), pady=12)
         self.update_network_status(True)  # assume online initially
+
+        # User details label (packed/gridded next to network status indicator)
+        self.user_label = ctk.CTkLabel(
+            self,
+            text="",
+            font=ctk.CTkFont(family=AppFonts.FAMILY, size=AppFonts.SIZE_SMALL, weight="bold"),
+            anchor="w",
+        )
+        self.user_label.grid(row=0, column=2, sticky="w", padx=(16, 20), pady=12)
+
+    def set_user(self, user_data: dict) -> None:
+        if user_data:
+            name = user_data.get('name_ar') or user_data.get('username') or "مستخدم"
+            role = user_data.get('role', '')
+            self.user_label.configure(text=f"👤 {name} - {role}")
+        else:
+            self.user_label.configure(text="")
 
     def set_screen(self, screen_key: str) -> None:
         ar, en = SCREEN_HEADERS.get(screen_key, ("", ""))
@@ -304,12 +315,34 @@ class CertificateManagerApp(ctk.CTk):
         
         # Build main layout
         self._build_layout()
+        if hasattr(self, '_header'):
+            self._header.set_user(user_data)
+        elif hasattr(self, 'header'):
+            self.header.set_user(user_data)
         self._build_screens()
         self._show_screen("home")
 
         # Start network polling loop
         self._prev_online = True
         self._poll_network()
+
+        # Trigger DB backup snapshot immediately if online
+        if is_online():
+            import threading
+            from db import get_connection
+            def _snapshot_worker():
+                try:
+                    my_conn = get_connection()
+                    sqlite_conn = get_local_connection()
+                    try:
+                        download_mysql_snapshot(my_conn, sqlite_conn)
+                        system_logger.info("Database snapshot backup complete.")
+                    finally:
+                        my_conn.close()
+                        sqlite_conn.close()
+                except Exception as e:
+                    system_logger.error(f"Snapshot backup failed: {e}")
+            threading.Thread(target=_snapshot_worker, daemon=True, name="login-snapshot").start()
 
     def _on_tkinter_error(self, exc, val, tb):
         system_logger.error("Unhandled exception in Tkinter callback:", exc_info=(exc, val, tb))
@@ -327,7 +360,7 @@ class CertificateManagerApp(ctk.CTk):
         self._sidebar = Sidebar(self, on_navigate=self._show_screen)
         self._sidebar.grid(row=0, column=1, sticky="nsew")
 
-        content_frame = ctk.CTkFrame(self, corner_radius=0, fg_color="transparent")
+        content_frame = ctk.CTkFrame(self, corner_radius=0, fg_color=("gray90", "gray13"))
         content_frame.grid(row=0, column=0, sticky="nsew")
         content_frame.grid_columnconfigure(0, weight=1)
         content_frame.grid_rowconfigure(1, weight=1)
@@ -416,6 +449,9 @@ class CertificateManagerApp(ctk.CTk):
                         )
                 except Exception as exc:
                     system_logger.error("Auto-sync failed: %s", exc)
+
+                # Refresh local SQLite replica with latest MySQL data
+                pull_mysql_to_sqlite_background()
 
             self._prev_online = now_online
         except Exception as exc:

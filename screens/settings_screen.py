@@ -42,17 +42,17 @@ class SettingsScreen(BaseScreen):
         info_card.grid(row=1, column=0, sticky="ew", padx=5, pady=(0, 30))
         info_card.grid_columnconfigure((0, 1), weight=1)
 
-        self._univ_ar = make_labeled_entry(info_card, "اسم الجامعة بالعربية", "Univ. Name (AR)")
-        self._univ_ar.container.grid(row=0, column=1, padx=20, pady=20, sticky="ew")
+        self._univ_ar = make_labeled_entry(info_card, "اسم الجامعة بالعربية", "Univ. Name (AR)", width=250)
+        self._univ_ar.container.grid(row=0, column=1, padx=20, pady=10, sticky="ew")
 
-        self._univ_en = make_labeled_entry(info_card, "اسم الجامعة بالإنكليزية", "Univ. Name (EN)")
-        self._univ_en.container.grid(row=0, column=0, padx=20, pady=20, sticky="ew")
+        self._univ_en = make_labeled_entry(info_card, "اسم الجامعة بالإنكليزية", "Univ. Name (EN)", width=250)
+        self._univ_en.container.grid(row=0, column=0, padx=20, pady=10, sticky="ew")
 
-        self._college_ar = make_labeled_entry(info_card, "اسم الكلية بالعربية", "College Name (AR)")
-        self._college_ar.container.grid(row=1, column=1, padx=20, pady=(0, 20), sticky="ew")
+        self._college_ar = make_labeled_entry(info_card, "اسم الكلية بالعربية", "College Name (AR)", width=250)
+        self._college_ar.container.grid(row=1, column=1, padx=20, pady=(0, 10), sticky="ew")
 
-        self._college_en = make_labeled_entry(info_card, "اسم الكلية بالإنكليزية", "College Name (EN)")
-        self._college_en.container.grid(row=1, column=0, padx=20, pady=(0, 20), sticky="ew")
+        self._college_en = make_labeled_entry(info_card, "اسم الكلية بالإنكليزية", "College Name (EN)", width=250)
+        self._college_en.container.grid(row=1, column=0, padx=20, pady=(0, 10), sticky="ew")
 
         make_primary_button(info_card, "حفظ الإعدادات", "Save Settings", command=self._save_info).grid(row=2, column=0, columnspan=2, pady=(0, 20))
 
@@ -89,19 +89,19 @@ class SettingsScreen(BaseScreen):
 
         from ui.widgets import make_labeled_dropdown
         
-        self._theme = make_labeled_dropdown(theme_card, "الوضع (فاتح/داكن)", "Theme Mode", values=["System", "Light", "Dark"])
-        self._theme.container.grid(row=0, column=1, padx=20, pady=20, sticky="ew")
+        self._theme = make_labeled_dropdown(theme_card, "الوضع (فاتح/داكن)", "Theme Mode", values=["System", "Light", "Dark"], width=250)
+        self._theme.container.grid(row=0, column=1, padx=20, pady=10, sticky="ew")
 
-        self._accent = make_labeled_dropdown(theme_card, "اللون الأساسي", "Accent Color", values=["blue", "green", "dark-blue", "orange", "purple", "red"])
-        self._accent.container.grid(row=0, column=0, padx=20, pady=20, sticky="ew")
+        self._accent = make_labeled_dropdown(theme_card, "اللون الأساسي", "Accent Color", values=["blue", "green", "dark-blue", "orange", "purple", "red"], width=250)
+        self._accent.container.grid(row=0, column=0, padx=20, pady=10, sticky="ew")
 
-        self._font = make_labeled_dropdown(theme_card, "نوع الخط", "Font Family", values=["Arial", "Segoe UI", "Roboto", "Cairo", "Tahoma"])
-        self._font.container.grid(row=1, column=1, padx=20, pady=(0, 20), sticky="ew")
+        self._font = make_labeled_dropdown(theme_card, "نوع الخط", "Font Family", values=["Arial", "Segoe UI", "Roboto", "Cairo", "Tahoma"], width=250)
+        self._font.container.grid(row=1, column=1, padx=20, pady=(0, 10), sticky="ew")
 
-        self._font_size = make_labeled_entry(theme_card, "حجم الخط الأساسي", "Base Font Size")
-        self._font_size.container.grid(row=1, column=0, padx=20, pady=(0, 20), sticky="ew")
+        self._font_size = make_labeled_entry(theme_card, "حجم الخط الأساسي", "Base Font Size", width=250)
+        self._font_size.container.grid(row=1, column=0, padx=20, pady=(0, 10), sticky="ew")
 
-        make_primary_button(theme_card, "حفظ وتطبيق المظهر", "Save & Apply Theme", command=self._save_visuals).grid(row=2, column=0, columnspan=2, pady=(0, 20))
+        make_primary_button(theme_card, "حفظ وتطبيق المظهر", "Save & Apply Theme", command=self._save_visuals).grid(row=2, column=0, columnspan=2, pady=(10, 20))
 
         # --- Section 4: Database Maintenance ---
         make_section_header(self._scroll_frame, "صيانة قاعدة البيانات", "Database Maintenance").grid(row=6, column=0, sticky="e", pady=(10, 20))
@@ -254,9 +254,10 @@ class SettingsScreen(BaseScreen):
                 font=self._font.get(),
                 size=int(self._font_size.get() or 13)
             )
-            self.show_success("تم تطبيق المظهر الجديد بنجاح (قد يتطلب إعادة تشغيل لبعض العناصر)\nTheme applied successfully (some elements may need restart)")
-            from config import refresh_config
-            refresh_config(user_id)
+            # Programmatically restart the application instantly to apply theme
+            import sys
+            import os
+            os.execl(sys.executable, sys.executable, *sys.argv)
         except Exception as e:
             self.show_error(f"Error saving visuals: {e}")
 

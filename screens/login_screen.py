@@ -6,7 +6,7 @@ from data.repositories import PersonnelRepository
 
 class LoginScreen(ctk.CTkFrame):
     def __init__(self, parent: ctk.CTk, on_login_success):
-        super().__init__(parent, fg_color=AppColors.WINDOW_BG, corner_radius=0)
+        super().__init__(parent, corner_radius=0)
         self.grid_propagate(False)
         self._on_login_success = on_login_success
         self._show_password = False
@@ -19,7 +19,7 @@ class LoginScreen(ctk.CTkFrame):
         self.grid_rowconfigure(0, weight=1)
 
         # --- LEFT SIDE: Logo Area ---
-        left_frame = ctk.CTkFrame(self, fg_color=AppColors.WINDOW_BG, corner_radius=0)
+        left_frame = ctk.CTkFrame(self, corner_radius=0)
         left_frame.grid(row=0, column=0, sticky="nsew")
         left_frame.grid_columnconfigure(0, weight=1)
         left_frame.grid_rowconfigure(0, weight=1)
@@ -44,12 +44,12 @@ class LoginScreen(ctk.CTkFrame):
             ).grid(row=0, column=0)
 
         # --- RIGHT SIDE: Login Card ---
-        right_frame = ctk.CTkFrame(self, fg_color=AppColors.HEADER_BG, corner_radius=0)
+        right_frame = ctk.CTkFrame(self, corner_radius=0)
         right_frame.grid(row=0, column=1, sticky="nsew")
         right_frame.grid_columnconfigure(0, weight=1)
         right_frame.grid_rowconfigure(0, weight=1)
 
-        card = ctk.CTkFrame(right_frame, fg_color=AppColors.CARD_BG, corner_radius=AppSizes.CORNER_RADIUS_CARD, width=400)
+        card = ctk.CTkFrame(right_frame, corner_radius=AppSizes.CORNER_RADIUS_CARD, width=400)
         card.grid(row=0, column=0, padx=40, pady=40)
         card.grid_columnconfigure(0, weight=1)
 
@@ -58,7 +58,6 @@ class LoginScreen(ctk.CTkFrame):
             card,
             text="تسجيل الدخول  /  Login",
             font=ctk.CTkFont(family=AppFonts.FAMILY, size=AppFonts.SIZE_HEADING, weight="bold"),
-            text_color=AppColors.NAV_TEXT
         )
         title_label.grid(row=0, column=0, pady=(40, 30), padx=30)
 
@@ -125,6 +124,13 @@ class LoginScreen(ctk.CTkFrame):
         # Bind enter key
         self.password_entry.bind("<Return>", lambda e: self._attempt_login())
         self.username_entry.bind("<Return>", lambda e: self._attempt_login())
+
+        # Safely set focus to username entry when screen opens
+        self.after(200, self._set_focus_safe)
+
+    def _set_focus_safe(self):
+        if hasattr(self, 'username_entry') and self.username_entry.winfo_exists():
+            self.username_entry.focus_set()
 
     def _toggle_password(self):
         self._show_password = not self._show_password

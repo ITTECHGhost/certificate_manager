@@ -56,8 +56,9 @@ def init_db() -> None:
         if "postgraduation_no" not in student_cols:
             log.info("Adding postgraduation_no column to students table...")
             cursor.execute("ALTER TABLE students ADD COLUMN postgraduation_no INT DEFAULT NULL")
-            if "postgraduation_number" in student_cols:
-                cursor.execute("UPDATE students SET postgraduation_no = postgraduation_number WHERE postgraduation_no IS NULL")
+
+        if "postgraduation_number" in student_cols:
+            cursor.execute("UPDATE students SET postgraduation_no = postgraduation_number WHERE postgraduation_no IS NULL")
 
         # Verify and add missing columns to the graduation_orders table for full compatibility
         cursor.execute("DESCRIBE graduation_orders")
@@ -114,14 +115,19 @@ def init_db() -> None:
 # Grade Helper
 # ---------------------------------------------------------------------------
 
-def get_grade(average: int) -> tuple[str, str]:
-    if average >= 90:
+def get_grade(average) -> tuple[str, str]:
+    try:
+        avg_val = float(average)
+    except (ValueError, TypeError):
+        return ("—", "—")
+        
+    if avg_val >= 90:
         return ("امتياز",   "Excellent")
-    elif average >= 80:
+    elif avg_val >= 80:
         return ("جيد جداً", "Very Good")
-    elif average >= 70:
+    elif avg_val >= 70:
         return ("جيد",      "Good")
-    elif average >= 60:
+    elif avg_val >= 60:
         return ("متوسط",    "Medium")
     else:
         return ("مقبول",    "Accepted")

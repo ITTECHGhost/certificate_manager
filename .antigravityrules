@@ -1,1 +1,17 @@
 Before suggesting code or modifying files, you MUST read .ai/cerebrum.md to understand project conventions and past bugs. If you identify and fix a new bug during our session, you MUST append a brief summary of the fix to the Bug Ledger in .ai/cerebrum.md. Use .ai/anatomy.md to locate files instead of searching blindly.
+
+## Offline Sync Architecture
+- The app has a full offline sync engine in `sync_engine.py`. Do NOT duplicate its logic.
+- Network status is managed via `is_online()` / `set_online()` in `sync_engine.py`. All repository methods in `data/repositories.py` route through this flag.
+- Reads: When online, MySQL SPs execute + results are cached in `read_cache` (JSON blobs keyed by proc+args hash) AND full table replicas are maintained in SQLite. When offline, reads fall back to SQLite replica tables first, then the SP result cache.
+- Writes: INSERTs on students/academic_periods/enrollments route to `log_offline_insert()` and return negative temp IDs. UPDATE/DELETE raise `OfflineModeError`.
+- Inbound sync: `pull_mysql_to_sqlite()` downloads all essential MySQL tables into SQLite replicas. It runs automatically (a) after successful online login, and (b) on offline-to-online reconnection.
+- Outbound sync: `sync_offline_queue_to_mysql()` pushes queued offline INSERTs to MySQL with FK cascading (temp ID resolution). Triggered automatically on reconnection.
+- `main.py` polls network status every 8 seconds via `_poll_network()`. The header bar shows a live online/offline indicator.
+- `init_db()` in `main.py` is wrapped in try/except so the app boots in offline mode when MySQL is unavailable.
+
+## Repository Conventions
+- All new read methods MUST include offline routing: check `is_online()`, fall back to `sqlite_read_all()` / `sqlite_read_one()` for raw SQL, or `get_cached_read()` for SP-based reads.
+- All new write methods that use raw SQL (not via `_call_write`) MUST include `if not is_online(): raise OfflineModeError()` guards.
+- INSERT methods that should work offline MUST route to `log_offline_insert()` and return the temp negative ID.
+- When adding a new MySQL table that needs offline access, you MUST: (1) add a matching CREATE TABLE in `init_local_db()`, (2) add it to `_REPLICA_TABLES` in `sync_engine.py`.
