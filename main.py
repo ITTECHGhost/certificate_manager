@@ -16,6 +16,7 @@
 
 import sys
 import logging
+from typing import Any
 # pyrefly: ignore [missing-import]
 import customtkinter as ctk
 from db import init_db
@@ -380,7 +381,7 @@ class CertificateManagerApp(ctk.CTk):
         self._screen_slot.grid_rowconfigure(0, weight=1)
 
     def _build_screens(self) -> None:
-        self._screens: dict[str, ctk.CTkFrame] = {
+        self._screens: dict[str, Any] = {
             "home": HomeScreen(self._screen_slot, switch_callback=self._show_screen),
             "students": StudentsScreen(self._screen_slot, self._show_screen),
             "orders": GraduationOrdersScreen(self._screen_slot, self._show_screen),
