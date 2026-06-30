@@ -62,54 +62,81 @@ class AppFonts:
         cls.SIZE_SMALL      = int(base * 0.9)
         cls.SIZE_TINY       = int(base * 0.8)
 
-def refresh_config(user_id: int = None):
+def refresh_config(user_id: int | None = None):
     """Load settings and appearance. Apply user-specific theme if user_id provided."""
     try:
         from data.repositories import SettingsRepository
         import customtkinter as ctk
         
+        repo = SettingsRepository()
         if user_id is not None:
-            repo = SettingsRepository()
             appearance = repo.get_user_appearance(user_id)
         else:
-            appearance = {
-                "theme": "System",
-                "accent_color": "blue",
-                "font_family": "Arial",
-                "font_size_base": 13
-            }
+            appearance = repo.get_settings()
+            if not appearance:
+                appearance = {
+                    "theme": "System",
+                    "accent_color": "blue",
+                    "font_family": "Arial",
+                    "font_size_base": 13
+                }
         
         # Update Fonts
         AppFonts.FAMILY = appearance.get("font_family", "Arial")
         AppFonts.update_sizes(appearance.get("font_size_base", 13))
         
         # Update Theme
-        ctk.set_appearance_mode(appearance.get("theme", "System"))
+        ctk.set_appearance_mode(str(appearance.get("theme", "System")).lower())
         
         accent = appearance.get("accent_color", "blue")
-        if accent in ["orange", "purple", "red"]:
-            import os, json
-            theme_path = os.path.join(os.getcwd(), "themes", f"{accent}.json")
-            if os.path.exists(theme_path):
-                ctk.set_default_color_theme("blue")  # Load base first
-                try:
-                    with open(theme_path, "r", encoding="utf-8") as f:
-                        custom = json.load(f)
-                    
-                    from customtkinter import ThemeManager
-                    def deep_update(d, u):
-                        for k, v in u.items():
-                            if isinstance(v, dict) and k in d and isinstance(d[k], dict):
-                                deep_update(d[k], v)
-                            else:
-                                d[k] = v
-                    deep_update(ThemeManager.theme, custom)
-                except Exception as e:
-                    print(f"Error merging custom theme {accent}: {e}")
-            else:
+        import os
+        theme_path = os.path.join(os.getcwd(), "themes", f"{accent}.json")
+        if os.path.exists(theme_path):
+            try:
+                # 1. Load default base theme to ensure all required widget keys exist
+                ctk.set_default_color_theme("blue")
+                
+                # 2. Read custom theme
+                import json
+                with open(theme_path, "r", encoding="utf-8") as f:
+                    custom_theme = json.load(f)
+                
+                # 3. Recursively merge custom theme on top of standard theme
+                def merge_dict(target, source):
+                    for k, v in source.items():
+                        if k in target and isinstance(target[k], dict) and isinstance(v, dict):
+                            merge_dict(target[k], v)
+                        else:
+                            target[k] = v
+                
+                # Fix name inconsistencies in the custom theme JSON
+                if "CTkCheckbox" in custom_theme:
+                    custom_theme["CTkCheckBox"] = custom_theme.pop("CTkCheckbox")
+                if "CTkRadiobutton" in custom_theme:
+                    custom_theme["CTkRadioButton"] = custom_theme.pop("CTkRadiobutton")
+                
+                merge_dict(ctk.ThemeManager.theme, custom_theme)
+                
+                # 4. Filter theme values for platform
+                import sys
+                for key in list(ctk.ThemeManager.theme.keys()):
+                    if isinstance(ctk.ThemeManager.theme[key], dict) and "macOS" in ctk.ThemeManager.theme[key]:
+                        if sys.platform == "darwin":
+                            ctk.ThemeManager.theme[key] = ctk.ThemeManager.theme[key]["macOS"]
+                        elif sys.platform.startswith("win"):
+                            ctk.ThemeManager.theme[key] = ctk.ThemeManager.theme[key]["Windows"]
+                        else:
+                            ctk.ThemeManager.theme[key] = ctk.ThemeManager.theme[key]["Linux"]
+                
+                ctk.ThemeManager._currently_loaded_theme = theme_path
+            except Exception:
+                # Fallback to standard theme if parsing fails
                 ctk.set_default_color_theme("blue")
         else:
-            ctk.set_default_color_theme(accent)
+            try:
+                ctk.set_default_color_theme(accent)
+            except Exception:
+                ctk.set_default_color_theme("blue")
     except Exception:
         # Fallback to defaults if DB not ready
         AppFonts.update_sizes(13)

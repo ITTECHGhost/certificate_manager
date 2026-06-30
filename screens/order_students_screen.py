@@ -16,7 +16,6 @@ import customtkinter as ctk
 
 from config import AppFonts, AppColors, AppSizes
 from data.repositories import StudentRepository, DepartmentRepository, GraduationOrderRepository
-from db import get_connection
 from ui.base_screen import BaseScreen
 from ui.widgets import make_section_header, make_primary_button
 
@@ -189,11 +188,8 @@ class OrderStudentsScreen(BaseScreen):
         self._dept_var.set("كل الأقسام")
 
         # Collect distinct years from students
-        with get_connection() as conn:
-            rows = conn.execute(
-                "SELECT DISTINCT admission_year FROM students ORDER BY admission_year DESC"
-            ).fetchall()
-        year_labels = ["كل السنوات"] + [str(r["admission_year"]) for r in rows]
+        years = StudentRepository().get_distinct_admission_years()
+        year_labels = ["كل السنوات"] + years
         self._year_entry.configure(values=year_labels)
         self._year_var.set("كل السنوات")
 

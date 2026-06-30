@@ -64,9 +64,10 @@ def get_new_student(cursor: MySQLCursorDict, search_term: str) -> dict:
     cursor.execute("""
         SELECT s.id, s.full_name_ar AS name_ar, s.full_name_en AS name_en, 
                CAST(s.average AS DECIMAL(5,2)) AS average, d.name_ar AS department, 
-               d.study_day_type AS study, s.study_system_id
+               ss.study_day_type AS study, s.study_system_id
         FROM certificate_manager.students s
         JOIN certificate_manager.departments d ON s.department_id = d.id
+        JOIN certificate_manager.study_systems ss ON s.study_system_id = ss.id
         WHERE s.full_name_ar LIKE %s OR s.full_name_en LIKE %s LIMIT 1
     """, (search_query, search_query))
     

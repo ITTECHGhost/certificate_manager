@@ -273,15 +273,15 @@ class CoursesScreen(BaseScreen):
 
         # Header row
         top = ctk.CTkFrame(self, fg_color="transparent")
-        top.grid(row=0, column=0, sticky="ew", pady=(0, 10))
+        top.grid(row=0, column=0, sticky="ew", pady=(0, 5))
         top.grid_columnconfigure(0, weight=1)
         make_section_header(top, "المواد الدراسية", "Courses").grid(row=0, column=0, sticky="e")
         make_primary_button(top, "+ إضافة مادة", "Add Course",
                             command=self._panel.open_add).grid(row=0, column=1, padx=(10, 0))
 
-        # Filter row: dept dropdown + search
+        # Filter row (standardized with pady=5, padx=20)
         filter_row = ctk.CTkFrame(self, fg_color="transparent")
-        filter_row.grid(row=1, column=0, sticky="ew", pady=(0, 10))
+        filter_row.grid(row=1, column=0, sticky="ew", pady=5, padx=20)
         filter_row.grid_columnconfigure(1, weight=1)
 
         self._dept_var = ctk.StringVar(value=self.ALL_DEPTS_LABEL)

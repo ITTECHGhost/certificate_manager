@@ -62,8 +62,9 @@ class DepartmentPanel(SidePanel):
     def _populate(self, data: dict) -> None:
         self._set_entry(self._name_ar,    data.get("name_ar",    ""))
         self._set_entry(self._name_en,    data.get("name_en",    ""))
-        self._set_entry(self._college_ar, data.get("college_ar", ""))
-        self._set_entry(self._college_en, data.get("college_en", ""))
+        self._set_entry(self._college_ar, data.get("college_name_ar") or data.get("college_ar") or "")
+        self._set_entry(self._college_en, data.get("college_name_en") or data.get("college_en") or "")
+
 
     def _validate(self) -> str | None:
         if not self._name_ar.get().strip():
@@ -125,20 +126,24 @@ class DepartmentsScreen(BaseScreen):
 
         # Header row
         top = ctk.CTkFrame(self, fg_color="transparent")
-        top.grid(row=0, column=0, sticky="ew", pady=(0, 10))
+        top.grid(row=0, column=0, sticky="ew", pady=(0, 5))
         top.grid_columnconfigure(0, weight=1)
         make_section_header(top, "الأقسام", "Departments").grid(row=0, column=0, sticky="e")
         make_primary_button(top, "+ إضافة قسم", "Add Department",
                             command=self._panel.open_add).grid(row=0, column=1, padx=(10, 0))
 
-        # Search bar
+        # Search bar (standardized with pady=5, padx=20)
+        search_frame = ctk.CTkFrame(self, fg_color="transparent")
+        search_frame.grid(row=1, column=0, sticky="ew", pady=5, padx=20)
+        search_frame.grid_columnconfigure(0, weight=1)
+
         self._search_var = ctk.StringVar()
         self._search_var.trace_add("write", self._on_search)
-        ctk.CTkEntry(self, textvariable=self._search_var,
+        ctk.CTkEntry(search_frame, textvariable=self._search_var,
                      placeholder_text="بحث بالاسم  —  Search by name...",
                      font=ctk.CTkFont(family=AppFonts.FAMILY, size=AppFonts.SIZE_BODY),
                      height=36, justify="right"
-                     ).grid(row=1, column=0, sticky="ew", pady=(0, 10))
+                     ).grid(row=0, column=0, sticky="ew")
 
         # Record list
         self._list = RecordList(self, columns=self.COLUMNS,
@@ -165,7 +170,9 @@ class DepartmentsScreen(BaseScreen):
         off  = self._pager.offset
         rows = filtered[off: off + ps]
         self._list.load(rows, cell_extractor=lambda r: [
-            r["name_ar"], r["name_en"], r["college_ar"]
+            r.get("name_ar") or "",
+            r.get("name_en") or "",
+            r.get("college_name_ar") or r.get("college_ar") or ""
         ])
 
     def _render_list(self, rows: list[dict]) -> None:
@@ -175,10 +182,11 @@ class DepartmentsScreen(BaseScreen):
         term = self._search_var.get().strip().lower()
         filtered = self._all_rows if not term else [
             r for r in self._all_rows
-            if term in r["name_ar"].lower()
-            or term in r["name_en"].lower()
-            or term in r["college_ar"].lower()
+            if term in (r.get("name_ar") or "").lower()
+            or term in (r.get("name_en") or "").lower()
+            or term in (r.get("college_name_ar") or r.get("college_ar") or "").lower()
         ]
+
         self._pager.set_total(len(filtered))
         self._render_page(filtered)
 

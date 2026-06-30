@@ -69,7 +69,7 @@ class HistoryScreen(BaseScreen):
 
         # Header row
         top = ctk.CTkFrame(self, fg_color="transparent")
-        top.grid(row=0, column=0, sticky="ew", pady=(0, 10))
+        top.grid(row=0, column=0, sticky="ew", pady=(0, 5))
         top.grid_columnconfigure(1, weight=1)
 
         make_section_header(top, "سجل التغييرات", "Change History").grid(
@@ -78,7 +78,7 @@ class HistoryScreen(BaseScreen):
 
         # Filter row
         filter_row = ctk.CTkFrame(self, fg_color="transparent")
-        filter_row.grid(row=1, column=0, sticky="ew", pady=(0, 10))
+        filter_row.grid(row=1, column=0, sticky="ew", pady=(0, 5))
         filter_row.grid_columnconfigure(2, weight=1)
 
         # Table filter

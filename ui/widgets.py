@@ -102,9 +102,10 @@ def make_stat_card(
     """
     card = ctk.CTkFrame(
         parent,
-        corner_radius=AppSizes.CORNER_RADIUS_CARD,
+        corner_radius=12,
         border_width=1,
-        border_color=AppColors.BORDER,
+        border_color="#4A5568",
+        fg_color=("gray98", "gray16"),
     )
     card.grid_columnconfigure(0, weight=1)
 
@@ -124,7 +125,7 @@ def make_stat_card(
             size=AppSizes.STAT_CARD_COUNT_SIZE,
             weight="bold",
         ),
-        text_color=accent_color,
+        text_color=("gray10", "gray90"),
     )
     count_label.grid(row=1, column=0)
 
@@ -133,7 +134,7 @@ def make_stat_card(
         card,
         text=f"{label_ar}  /  {label_en}",
         font=ctk.CTkFont(family=AppFonts.FAMILY, size=AppFonts.SIZE_TINY),
-        text_color=AppColors.TEXT_MUTED,
+        text_color=("gray10", "gray90"),
     ).grid(row=2, column=0, pady=(2, 14))
 
     # Attach the count label as an attribute so callers can update it

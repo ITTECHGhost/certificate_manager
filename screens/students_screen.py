@@ -62,10 +62,10 @@ from ui.widgets import (
 # =============================================================================
 
 DEGREE_LEVEL_OPTIONS = {
-    "دبلوم عالي  /  Higher Diploma": "Higher Diploma",
-    "ماجستير  /  Master": "Master",
-    "دكتوراه  /  PhD": "PhD",
-    "بكالوريوس  /  Bachelor": "Bachelor",
+    "بكالوريوس  /  Bachelor": 1,
+    "دبلوم عالي  /  Higher Diploma": 2,
+    "ماجستير  /  Master": 3,
+    "دكتوراه  /  PhD": 4,
 }
 DEGREE_LEVEL_DISPLAY = {v: k for k, v in DEGREE_LEVEL_OPTIONS.items()}
 
@@ -78,6 +78,7 @@ STUDY_TYPE_DISPLAY = {v: k for k, v in STUDY_TYPE_OPTIONS.items()}
 SEMESTER_OPTIONS = {
     "الفصل الأول  /  First":  "first",
     "الفصل الثاني  /  Second": "second",
+    "الفصل الصيفي  /  Summer": "summer",
 }
 SEMESTER_DISPLAY = {v: k for k, v in SEMESTER_OPTIONS.items()}
 
@@ -88,10 +89,34 @@ ROUND_OPTIONS = {
 ROUND_DISPLAY = {v: k for k, v in ROUND_OPTIONS.items()}
 
 GENDER_OPTIONS = {
-    "ذكر  /  Male": "M",
-    "أنثى  /  Female": "F",
+    "ذكر  /  Male": 1,
+    "أنثى  /  Female": 2,
 }
 GENDER_DISPLAY = {v: k for k, v in GENDER_OPTIONS.items()}
+
+
+# =============================================================================
+# HELPER FUNCTIONS
+# =============================================================================
+
+def normalize_year(year_str: str) -> str:
+    """Normalize 'YYYY' to 'YYYY-YYYY+1' so grouping keys always match."""
+    year_str = str(year_str).strip()
+    if len(year_str) == 4 and year_str.isdigit():
+        next_year = int(year_str) + 1
+        return f"{year_str}-{next_year}"
+    return year_str
+
+
+def format_score(score) -> str:
+    if score is None:
+        return "—"
+    try:
+        raw_score = float(score)
+        display_score = f"{int(raw_score)}" if raw_score.is_integer() else f"{raw_score:.1f}"
+        return display_score
+    except Exception:
+        return str(score)
 
 
 # =============================================================================
@@ -146,7 +171,7 @@ class StudentFormPanel(SidePanel):
         self._add_section_label("الدراسة", "Academic", row=6, col=3)
 
         self._dept = self._add_dropdown("القسم", "Department", values=["—"], row=6, col=1)
-        self._study_system = self._add_dropdown("نظام الدراسة", "Study System", values=["—"], row=6, col=0)
+        self._study_system = self._add_dropdown("نظام الدراسة", "Study System", values=["سنوي  /  Annual", "مقررات  /  Semester"], row=6, col=0)
         self._adm_year = self._add_entry("سنة القبول", "Admission Year", placeholder="مثال: 2020", row=6, col=2)
         
         self._study_type = self._add_dropdown("نوع الدراسة", "Study Type", values=list(STUDY_TYPE_OPTIONS.keys()), row=8, col=0)
@@ -160,7 +185,7 @@ class StudentFormPanel(SidePanel):
         self._grad_sem = self._add_combobox("فصل التخرج / الدور", "Graduation Semester / Role", values=["— لم يتخرج بعد / Not yet"] + list(SEMESTER_OPTIONS.keys()), row=10, col=1)
         self._average = self._add_entry("المعدل العام", "Overall Average (50–100)", placeholder="مثال: 78", row=10, col=2)
 
-        self._postgraduation_no = self._add_entry("عدد الخريجين", "Postgraduation No.", placeholder="مثال: 86", row=12, col=0)
+        self._postgraduation_number = self._add_entry("عدد الخريجين", "Postgraduation No.", placeholder="مثال: 86", row=12, col=0)
         self._sequence_number = self._add_entry("رقم التسلسل", "Sequence of Graduation", placeholder="مثال: 1", row=12, col=1)
 
         self._order = self._add_combobox("الأمر الجامعي", "Graduation Order", values=["— بدون أمر / None"], row=14, col=0, colspan=3)
@@ -187,8 +212,8 @@ class StudentFormPanel(SidePanel):
         
     def _on_degree_change(self, value: str) -> None:
         """Toggle thesis frame based on degree level"""
-        degree = DEGREE_LEVEL_OPTIONS.get(value, "Bachelor")
-        if degree in ["Master", "PhD", "Higher Diploma"]:
+        degree = DEGREE_LEVEL_OPTIONS.get(value, 1)
+        if degree in [2, 3, 4, "Higher Diploma", "Master", "PhD"]:
             self._thesis_frame.grid()
         else:
             self._thesis_frame.grid_remove()
@@ -233,21 +258,23 @@ class StudentFormPanel(SidePanel):
             f"{o['order_number']}  |  {o.get('dept_name_ar','')}  |  {o.get('admission_year','') or '—'}"
             for o in self._orders
         ]
-        ss_labels = [f"{s['name_ar']}  /  {s['name_en']}" for s in self._study_systems] or ["—"]
+        ss_labels = ["سنوي  /  Annual", "مقررات  /  Semester"]
 
         self._dept.configure(values=dept_labels)
         self._birthplace_gov.configure(values=gov_labels)
         self._nationality.configure(values=nat_labels)
         self._order.configure(values=self._all_order_labels)
         self._order.set(self._all_order_labels[0])
-        self._study_system.configure(values=ss_labels)
+        # self._study_system.configure(values=ss_labels)
         
         pers_labels = ["—"] + [f"{p['name_ar']}  /  {p['name_en']}" for p in self._personnel]
         self._primary_supervisor.configure(values=pers_labels)
         self._secondary_supervisor.configure(values=pers_labels)
         
         if ss_labels:
-            self._study_system.set(ss_labels[0])
+            self._study_system.set("سنوي  /  Annual")
+        if hasattr(self, '_study_type') and self._study_type:
+            self._study_type.set("صباحي  /  Morning")
 
         # Default nationality to Iraq
         iraq_label = next(
@@ -278,16 +305,21 @@ class StudentFormPanel(SidePanel):
         self._set_entry(self._name_en,      data.get("full_name_en",   ""))
         self._set_entry(self._dob,          data.get("date_of_birth",  ""))
         self._set_entry(self._adm_year,     str(data.get("admission_year", "")))
-        self._set_entry(self._grad_date,    data.get("graduation_date", "") or "")
+        # Graduation details fallback logic
+        grad_date = data.get("graduation_date") or data.get("order_date")
+        self._set_entry(self._grad_date,    str(grad_date) if grad_date else "")
         self._set_entry(self._average,      str(data.get("average", "") or ""))
         self._set_entry(self._sequence_number, str(data.get("sequence_number", "") or ""))
-        self._set_entry(self._postgraduation_no, str(data.get("postgraduation_no", "") or ""))
+        self._set_entry(self._postgraduation_number, str(data.get("postgraduation_number", "") or ""))
 
         # Gender
-        self._set_dropdown(
-            self._gender,
-            GENDER_DISPLAY.get(data.get("gender", "M"), list(GENDER_OPTIONS.keys())[0])
-        )
+        gender_val = data.get("gender")
+        if gender_val in [1, "1", "M"]:
+            self._set_dropdown(self._gender, "ذكر  /  Male")
+        elif gender_val in [2, "2", "F"]:
+            self._set_dropdown(self._gender, "أنثى  /  Female")
+        else:
+            self._set_dropdown(self._gender, GENDER_DISPLAY.get(gender_val, list(GENDER_OPTIONS.keys())[0]))
 
         # Department
         for d in self._depts:
@@ -321,23 +353,43 @@ class StudentFormPanel(SidePanel):
         )
         
         # Degree level
-        self._set_dropdown(
-            self._degree_level,
-            DEGREE_LEVEL_DISPLAY.get(data.get("degree_level", "Bachelor"), list(DEGREE_LEVEL_OPTIONS.keys())[-1])
-        )
+        degree_val = data.get("degree_level")
+        if degree_val in [1, "1", "Bachelor"]:
+            self._set_dropdown(self._degree_level, "بكالوريوس  /  Bachelor")
+        elif degree_val in [2, "2", "Higher Diploma"]:
+            self._set_dropdown(self._degree_level, "دبلوم عالي  /  Higher Diploma")
+        elif degree_val in [3, "3", "Master"]:
+            self._set_dropdown(self._degree_level, "ماجستير  /  Master")
+        elif degree_val in [4, "4", "PhD"]:
+            self._set_dropdown(self._degree_level, "دكتوراه  /  PhD")
+        else:
+            self._set_dropdown(self._degree_level, DEGREE_LEVEL_DISPLAY.get(degree_val, list(DEGREE_LEVEL_OPTIONS.keys())[-1]))
 
         # Graduation semester / Role
-        if data.get("graduation_semester"):
-            val = SEMESTER_DISPLAY.get(data["graduation_semester"], data["graduation_semester"])
+        grad_sem = data.get("graduation_semester") or data.get("order_graduation_semester")
+        if grad_sem:
+            val = SEMESTER_DISPLAY.get(grad_sem, grad_sem)
             self._grad_sem.set(val)
         else:
             self._grad_sem.set("— لم يتخرج بعد / Not yet")
 
-        # Study System
-        for s in self._study_systems:
-            if s["id"] == data.get("study_system_id"):
-                self._set_dropdown(self._study_system, f"{s['name_ar']}  /  {s['name_en']}")
-                break
+        # Populate study system and type based on study_system_id
+        sys_id = data.get("study_system_id")
+        if sys_id == 1:
+            self._set_dropdown(self._study_system, "سنوي  /  Annual")
+            self._set_dropdown(self._study_type, "صباحي  /  Morning")
+        elif sys_id == 2:
+            self._set_dropdown(self._study_system, "مقررات  /  Semester")
+            self._set_dropdown(self._study_type, "صباحي  /  Morning")
+        elif sys_id == 3:
+            self._set_dropdown(self._study_system, "سنوي  /  Annual")
+            self._set_dropdown(self._study_type, "مسائي  /  Evening")
+        elif sys_id == 4:
+            self._set_dropdown(self._study_system, "مقررات  /  Semester")
+            self._set_dropdown(self._study_type, "مسائي  /  Evening")
+        else:
+            self._set_dropdown(self._study_system, "سنوي  /  Annual")
+            self._set_dropdown(self._study_type, "صباحي  /  Morning")
 
         # Order
         if data.get("order_id"):
@@ -349,15 +401,26 @@ class StudentFormPanel(SidePanel):
                     break
 
         # Thesis and Supervisors
-        self._on_degree_change(DEGREE_LEVEL_DISPLAY.get(data.get("degree_level", "Bachelor"), "بكالوريوس  /  Bachelor"))
-        if data.get("degree_level") in ["Master", "PhD", "Higher Diploma"]:
+        deg_lvl = data.get("degree_level")
+        deg_disp = "بكالوريوس  /  Bachelor"
+        if deg_lvl in [2, "Higher Diploma"]:
+            deg_disp = "دبلوم عالي  /  Higher Diploma"
+        elif deg_lvl in [3, "Master"]:
+            deg_disp = "ماجستير  /  Master"
+        elif deg_lvl in [4, "PhD"]:
+            deg_disp = "دكتوراه  /  PhD"
+        self._on_degree_change(deg_disp)
+        if deg_lvl in [2, 3, 4, "Higher Diploma", "Master", "PhD"]:
             thesis = ThesisRepository().get_by_student(data["id"])
             if thesis:
-                self._set_entry(self._thesis_title_ar, thesis.get("title_ar", ""))
-                self._set_entry(self._thesis_title_en, thesis.get("title_en", ""))
-                self._set_entry(self._thesis_defense_date, thesis.get("defense_date", ""))
-                self._set_dropdown(self._thesis_decision, thesis.get("committee_decision", "—"))
-                self._set_entry(self._thesis_grade, str(thesis.get("final_grade", "") or ""))
+                if isinstance(thesis, list):
+                    thesis = thesis[0] if thesis else None
+                if thesis:
+                    self._set_entry(self._thesis_title_ar, thesis.get("title_ar", ""))
+                    self._set_entry(self._thesis_title_en, thesis.get("title_en", ""))
+                    self._set_entry(self._thesis_defense_date, thesis.get("defense_date", ""))
+                    self._set_dropdown(self._thesis_decision, thesis.get("committee_decision", "—"))
+                    self._set_entry(self._thesis_grade, str(thesis.get("final_grade", "") or ""))
             
             supervisors = SupervisorRepository().get_by_student(data["id"])
             for sup in supervisors:
@@ -435,12 +498,20 @@ class StudentFormPanel(SidePanel):
         return None
 
     def _get_study_system_id(self) -> int:
-        label = self._study_system.get()
-        for s in self._study_systems:
-            if f"{s['name_ar']}  /  {s['name_en']}" == label:
-                return s["id"]
-        # fallback: first active system (annual = id 1)
-        return self._study_systems[0]["id"] if self._study_systems else 1
+        system = self._study_system.get()
+        study_type = self._study_type.get()
+        
+        is_semester = "Semester" in system or "مقررات" in system
+        is_evening = "Evening" in study_type or "مسائي" in study_type
+        
+        if not is_semester and not is_evening:
+            return 1
+        elif is_semester and not is_evening:
+            return 2
+        elif not is_semester and is_evening:
+            return 3
+        else: # is_semester and is_evening
+            return 4
 
     def _on_save(self, existing: dict | None) -> None:
         bp_id, bp_other = self._get_birthplace()
@@ -450,7 +521,7 @@ class StudentFormPanel(SidePanel):
         seq_raw = self._sequence_number.get().strip()
         seq_val = int(seq_raw) if seq_raw.isdigit() else None
 
-        post_raw = self._postgraduation_no.get().strip()
+        post_raw = self._postgraduation_number.get().strip()
         post_val = int(post_raw) if post_raw.isdigit() else None
         
         gender_val = GENDER_OPTIONS[self._gender.get()]
@@ -473,7 +544,7 @@ class StudentFormPanel(SidePanel):
                     "full_name_en": self._name_en.get().strip(),
                     "gender": gender_val,
                     "sequence_number": seq_val,
-                    "postgraduation_no": post_val,
+                    "postgraduation_number": post_val,
                     "date_of_birth": self._dob.get().strip(),
                     "birthplace_id": bp_id,
                     "birthplace_other": bp_other,
@@ -496,7 +567,7 @@ class StudentFormPanel(SidePanel):
                     "full_name_en": self._name_en.get().strip(),
                     "gender": gender_val,
                     "sequence_number": seq_val,
-                    "postgraduation_no": post_val,
+                    "postgraduation_number": post_val,
                     "date_of_birth": self._dob.get().strip(),
                     "birthplace_id": bp_id,
                     "birthplace_other": bp_other,
@@ -514,7 +585,7 @@ class StudentFormPanel(SidePanel):
             )
             
         degree = DEGREE_LEVEL_OPTIONS[self._degree_level.get()]
-        if degree in ["Master", "PhD", "Higher Diploma"]:
+        if degree in [2, 3, 4, "Higher Diploma", "Master", "PhD"]:
             grade_raw = self._thesis_grade.get().strip()
             grade_val = float(grade_raw) if grade_raw else None
             ThesisRepository().save(
@@ -618,11 +689,17 @@ class EnrollmentPanel(ctk.CTkFrame):
             anchor="e",
         ).grid(row=0, column=0, columnspan=3, sticky="e", padx=10, pady=(8, 4))
 
-        self._course_menu = ctk.CTkOptionMenu(
-            add_frame, values=["—"],
+        self._selected_course = None
+
+        self._course_search_entry = ctk.CTkEntry(
+            add_frame,
+            placeholder_text="ابحث عن مادة... / Search course...",
             font=ctk.CTkFont(family=AppFonts.FAMILY, size=10), height=30,
         )
-        self._course_menu.grid(row=1, column=0, sticky="ew", padx=(10, 4), pady=4)
+        self._course_search_entry.grid(row=1, column=0, sticky="ew", padx=(10, 4), pady=4)
+        self._course_search_entry.bind("<KeyRelease>", self._on_course_search_key)
+        self._course_search_entry.bind("<FocusIn>", lambda e: self._course_list_frame.grid(row=2, column=0, columnspan=3, sticky="ew", padx=10, pady=(0, 4)))
+        self._course_search_entry.bind("<Escape>", lambda e: self._course_list_frame.grid_remove())
 
         self._score_entry = ctk.CTkEntry(
             add_frame,
@@ -639,12 +716,17 @@ class EnrollmentPanel(ctk.CTkFrame):
             command=self._add_enrollment,
         ).grid(row=1, column=2, padx=(0, 10), pady=4)
 
+        self._course_list_frame = ctk.CTkScrollableFrame(
+            add_frame, height=120, fg_color=("gray95", "gray18")
+        )
+        # Hidden initially, gridded dynamically during search or focus
+
         self._add_error = ctk.CTkLabel(
             add_frame, text="",
             font=ctk.CTkFont(family=AppFonts.FAMILY, size=10),
             text_color=AppColors.COLOR_ERROR, anchor="e",
         )
-        self._add_error.grid(row=2, column=0, columnspan=3, sticky="e", padx=10, pady=(0, 6))
+        self._add_error.grid(row=4, column=0, columnspan=3, sticky="e", padx=10, pady=(0, 6))
 
     # ── Open / Close ──────────────────────────────────────────────────────────
 
@@ -653,7 +735,7 @@ class EnrollmentPanel(ctk.CTkFrame):
         self._period  = period
         self._student = student
         self._title_lbl.configure(
-            text=f"{student.get('full_name_ar', '')} — المرحلة {period['stage_number']}  —  {period['academic_year']}"
+            text=f"{student.get('full_name_ar', '')} — {period['academic_year']}"
         )
         self._reload_course_picker()
         self._reload_list()
@@ -684,20 +766,68 @@ class EnrollmentPanel(ctk.CTkFrame):
     # ── Data ─────────────────────────────────────────────────────────────────
 
     def _reload_course_picker(self) -> None:
-        """Populate the course dropdown with courses for this stage."""
+        """Populate the course catalog and prepare the search filter list."""
         if not self._period or not self._student:
             return
-        self._courses = CourseRepository().get_by_dept_stage_system(
-            self._student.get("department_id", 0),
-            self._period["stage_number"],
-            self._student.get("study_system_id", 1),
-        )
-        labels = (
-            [f"المرحلة {c['stage_number']} — {c['name_ar']}  ({c['credit_hours']} وحدة)" for c in self._courses]
-            or ["— لا توجد مواد محددة لهذه المرحلة —"]
-        )
-        self._course_menu.configure(values=labels)
-        self._course_menu.set(labels[0])
+        
+        dept_id = self._student.get("department_id", 0)
+        system_id = self._student.get("study_system_id", 1)
+        self._courses = CourseRepository().get_by_dept_stage_system(dept_id, 12, system_id)
+
+
+        self._selected_course = None
+        self._course_search_entry.delete(0, "end")
+        self._course_list_frame.grid_remove()
+        self._filter_courses_in_list("")
+        self._course_list_frame.grid_remove()
+
+    def _on_course_search_key(self, event=None) -> None:
+        query = self._course_search_entry.get().strip().lower()
+        self._filter_courses_in_list(query)
+
+    def _filter_courses_in_list(self, query: str = "") -> None:
+        """Filter and render matching courses in the scrollable list frame."""
+        for w in self._course_list_frame.winfo_children():
+            w.destroy()
+
+        filtered = []
+        for c in self._courses:
+            lbl = f"المرحلة {c['stage_number']} — {c['name_ar']}  /  {c['name_en']}  ({c['credit_hours']} وحدة)"
+            if not query or query in lbl.lower():
+                filtered.append((c, lbl))
+
+        if not filtered:
+            lbl_no = ctk.CTkLabel(
+                self._course_list_frame,
+                text="لا توجد نتائج  /  No results",
+                font=ctk.CTkFont(family=AppFonts.FAMILY, size=10),
+                text_color=AppColors.TEXT_MUTED,
+            )
+            lbl_no.pack(pady=4)
+            self._course_list_frame.grid(row=2, column=0, columnspan=3, sticky="ew", padx=10, pady=(0, 4))
+            return
+
+        for c, lbl in filtered:
+            btn = ctk.CTkButton(
+                self._course_list_frame,
+                text=lbl,
+                font=ctk.CTkFont(family=AppFonts.FAMILY, size=10),
+                height=26, anchor="e",
+                fg_color="transparent",
+                hover_color=AppColors.NAV_HOVER_BG,
+                text_color=AppColors.NAV_TEXT,
+                corner_radius=4,
+                command=lambda course=c, label=lbl: self._select_course(course, label),
+            )
+            btn.pack(fill="x", pady=1)
+
+        self._course_list_frame.grid(row=2, column=0, columnspan=3, sticky="ew", padx=10, pady=(0, 4))
+
+    def _select_course(self, course: dict, label: str) -> None:
+        self._selected_course = course
+        self._course_search_entry.delete(0, "end")
+        self._course_search_entry.insert(0, f"المرحلة {course['stage_number']} — {course['name_ar']}")
+        self._course_list_frame.grid_remove()
 
     def _reload_list(self) -> None:
         """Reload the enrollment list for the current period."""
@@ -746,7 +876,12 @@ class EnrollmentPanel(ctk.CTkFrame):
             ).grid(row=0, column=0, padx=4, pady=4)
 
             # Score (editable inline entry)
-            score_var = ctk.StringVar(value=str(enr["score"]))
+            if enr["score"] is not None:
+                raw_score = float(enr['score'])
+                display_score = f"{int(raw_score)}" if raw_score.is_integer() else f"{raw_score:.1f}"
+            else:
+                display_score = "—"
+            score_var = ctk.StringVar(value=display_score)
             score_entry = ctk.CTkEntry(
                 row_f, textvariable=score_var,
                 width=60, height=26, justify="center",
@@ -780,9 +915,8 @@ class EnrollmentPanel(ctk.CTkFrame):
         """Add the selected course with the entered score to this period."""
         self._add_error.configure(text="")
 
-        selected = self._course_menu.get()
-        if "لا توجد" in selected or not self._courses:
-            self._add_error.configure(text="⚠️  لا توجد مواد — أضف مواد للقسم أولاً")
+        if not getattr(self, "_selected_course", None) or not self._courses:
+            self._add_error.configure(text="⚠️  الرجاء اختيار مادة من القائمة")
             return
 
         score_str = self._score_entry.get().strip()
@@ -794,17 +928,7 @@ class EnrollmentPanel(ctk.CTkFrame):
             self._add_error.configure(text="⚠️  الدرجة يجب أن تكون بين 0 و100")
             return
 
-        # Find course id from label
-        course_id = None
-        for c in self._courses:
-            label = f"المرحلة {c['stage_number']} — {c['name_ar']}  ({c['credit_hours']} وحدة)"
-            if label == selected:
-                course_id = c["id"]
-                break
-
-        if not course_id:
-            self._add_error.configure(text="⚠️  تعذر تحديد المادة")
-            return
+        course_id = self._selected_course["id"]
 
         try:
             EnrollmentRepository().insert(
@@ -814,6 +938,9 @@ class EnrollmentPanel(ctk.CTkFrame):
                 is_second=0,
             )
             self._score_entry.delete(0, "end")
+            self._selected_course = None
+            self._course_search_entry.delete(0, "end")
+            self._course_list_frame.grid_remove()
             self._reload_list()
         except Exception as e:
             self._add_error.configure(text=f"⚠️  {e}")
@@ -821,10 +948,11 @@ class EnrollmentPanel(ctk.CTkFrame):
     def _save_score(self, enr: dict, score_var: ctk.StringVar) -> None:
         """Save an edited score inline."""
         try:
-            score = float(score_var.get().strip())
-            if not (0 <= score <= 100):
+            score_val = float(score_var.get().strip())
+            if not (0 <= score_val <= 100):
                 raise ValueError
-            EnrollmentRepository().update(enr["id"], score, enr["is_second_round"])
+            EnrollmentRepository().update(enr["id"], score_val, enr["is_second_round"])
+            score_var.set(format_score(score_val))
             self._reload_list()
         except ValueError:
             pass    # silently ignore invalid score
@@ -857,19 +985,20 @@ class StudentsScreen(BaseScreen):
     def _build(self) -> None:
         self.grid_columnconfigure(0, weight=1)
         self.grid_columnconfigure(1, weight=0)
+        self.grid_rowconfigure((0, 1, 2), weight=0)
         self.grid_rowconfigure(3, weight=1)
 
         # Side panels — created once
         self._form_panel = StudentFormPanel(
             self, on_save_callback=self._after_save
         )
-        self._enroll_panel = EnrollmentPanel(
+        self._academic_panel = AcademicRecordPanel(
             self, on_close=self._reload_detail
         )
 
         # ── Top bar: title + Add button ───────────────────────────────────────
         top = ctk.CTkFrame(self, fg_color="transparent")
-        top.grid(row=0, column=0, sticky="ew", pady=(0, 10))
+        top.grid(row=0, column=0, sticky="ew", pady=(0, 2))
         top.grid_columnconfigure(0, weight=1)
         make_section_header(top, "الطلاب", "Students").grid(row=0, column=0, sticky="e")
         make_primary_button(
@@ -879,7 +1008,7 @@ class StudentsScreen(BaseScreen):
 
         # ── Search bar ────────────────────────────────────────────────────────
         search_frame = ctk.CTkFrame(self, fg_color="transparent")
-        search_frame.grid(row=1, column=0, sticky="ew", pady=(0, 4))
+        search_frame.grid(row=1, column=0, sticky="ew", pady=(0, 2))
         search_frame.grid_columnconfigure(0, weight=1)
 
         self._search_var = ctk.StringVar()
@@ -890,7 +1019,7 @@ class StudentsScreen(BaseScreen):
             textvariable=self._search_var,
             placeholder_text="ابحث باسم الطالب (عربي أو إنكليزي)  —  Search student name...",
             font=ctk.CTkFont(family=AppFonts.FAMILY, size=AppFonts.SIZE_BODY),
-            height=40, justify="right",
+            height=32, justify="right",
         )
         self._search_entry.grid(row=0, column=0, sticky="ew")
 
@@ -898,7 +1027,7 @@ class StudentsScreen(BaseScreen):
             search_frame,
             text="بحث\nSearch",
             font=ctk.CTkFont(family=AppFonts.FAMILY, size=AppFonts.SIZE_TINY),
-            width=70, height=40, corner_radius=8,
+            width=70, height=32, corner_radius=8,
             command=self._do_search,
         ).grid(row=0, column=1, padx=(6, 0))
 
@@ -989,7 +1118,7 @@ class StudentsScreen(BaseScreen):
         for w in self._suggestion_frame.winfo_children():
             w.destroy()
 
-        self._suggestion_frame.grid(row=2, column=0, sticky="ew", pady=(0, 8))
+        self._suggestion_frame.grid(row=2, column=0, sticky="ew", pady=(0, 2))
 
         ctk.CTkLabel(
             self._suggestion_frame,
@@ -1030,7 +1159,7 @@ class StudentsScreen(BaseScreen):
             self._selected_student = data
             self._show_student_detail(data)
             self._form_panel.close()
-            self._enroll_panel.close()
+            self._academic_panel.close()
 
     # ── Detail view ───────────────────────────────────────────────────────────
 
@@ -1056,12 +1185,13 @@ class StudentsScreen(BaseScreen):
 
         frame = self._detail_frame
         frame.grid_columnconfigure(0, weight=1)
+        frame.grid_rowconfigure(0, weight=1)
         row = 0
 
         # ── Identity card ─────────────────────────────────────────────────────
         card = ctk.CTkFrame(frame, corner_radius=12, border_width=1,
                             border_color=AppColors.BORDER, fg_color=("gray98", "gray14"))
-        card.grid(row=row, column=0, sticky="ew", pady=(0, 20), padx=10)
+        card.grid(row=row, column=0, sticky="nsew", pady=(0, 10), padx=10)
         card.grid_columnconfigure(0, weight=1)
         row += 1
 
@@ -1072,13 +1202,20 @@ class StudentsScreen(BaseScreen):
 
         # Action Buttons (Left side)
         btn_row = ctk.CTkFrame(card_hdr, fg_color="transparent")
-        btn_row.grid(row=0, column=0, sticky="w", padx=15, pady=10)
+        btn_row.grid(row=0, column=0, sticky="w", padx=15, pady=4)
 
         ctk.CTkButton(
             btn_row, text="تعديل  /  Edit", height=32, width=100,
             font=ctk.CTkFont(family=AppFonts.FAMILY, size=12),
             corner_radius=6,
             command=lambda: self._form_panel.open_edit(self._selected_student),
+        ).pack(side="left", padx=(0, 8))
+
+        ctk.CTkButton(
+            btn_row, text="السجل الأكاديمي  /  Academic Record", height=32,
+            font=ctk.CTkFont(family=AppFonts.FAMILY, size=12),
+            corner_radius=6,
+            command=lambda: self._academic_panel.open(self._selected_student),
         ).pack(side="left", padx=(0, 8))
 
         ctk.CTkButton(
@@ -1094,16 +1231,38 @@ class StudentsScreen(BaseScreen):
             text=f"{data['full_name_ar']}  —  {data['full_name_en']}",
             font=ctk.CTkFont(family=AppFonts.FAMILY, size=AppFonts.SIZE_SUBHEADING, weight="bold"),
             anchor="e",
-        ).grid(row=0, column=1, sticky="e", padx=20, pady=10)
+        ).grid(row=0, column=1, sticky="e", padx=20, pady=4)
 
         # ── Info Fields Grid (2 Columns) ──────────────────────────────────────
         info_container = ctk.CTkFrame(card, fg_color="transparent")
-        info_container.grid(row=1, column=0, sticky="ew", padx=15, pady=15)
+        info_container.grid(row=1, column=0, sticky="ew", padx=15, pady=4)
         # 4 internal columns: [Label L] [Value L] [Label R] [Value R]
         info_container.grid_columnconfigure((0, 1, 2, 3), weight=1)
 
         avg   = data.get("average")
         grade_ar, grade_en = get_grade(avg) if avg else ("—", "—")
+
+        # Graduation details fallback logic
+        grad_date = data.get("graduation_date") or data.get("order_date")
+        grad_date_str = str(grad_date) if grad_date else "—"
+
+        grad_sem = data.get("graduation_semester") or data.get("order_graduation_semester")
+        if grad_sem == "first":
+            sem_display = "الأول / First"
+        elif grad_sem == "second":
+            sem_display = "الثاني / Second"
+        elif grad_sem == "summer":
+            sem_display = "الصيفي / Summer"
+        elif grad_sem:
+            sem_display = str(grad_sem)
+        else:
+            sem_display = "—"
+
+        seq_num = data.get('sequence_number')
+        post_num = data.get('postgraduation_number') or data.get('postgraduation_no')
+        seq_str = str(seq_num) if seq_num is not None and str(seq_num).strip().lower() != 'none' else "—"
+        post_str = str(post_num) if post_num is not None and str(post_num).strip().lower() != 'none' else "—"
+        grad_seq_display = f"{seq_str}  /  {post_str}"
 
         fields = [
             ("القسم  /  Department",        data.get("dept_name_ar", "—")),
@@ -1117,12 +1276,9 @@ class StudentsScreen(BaseScreen):
                 "صباحي / Morning" if data.get("study_type") == "morning" else "مسائي / Evening"),
             ("المعدل  /  Average",          f"{avg}  ({grade_ar} / {grade_en})" if avg else "—"),
             ("أمر التخرج  /  Graduation Order", data.get("order_number", "—")),
-            ("تاريخ التخرج  /  Graduation Date", data.get("graduation_date", "—")),
-            ("فصل التخرج  /  Graduation Semester",
-                "الأول / First" if data.get("graduation_semester") == "first"
-                else ("الثاني / Second" if data.get("graduation_semester") == "second" else "—")),
-            ("تسلسل وصادر التخرج  /  Grad. Seq & Postgrad No.",
-                f"{data.get('sequence_number', '—')}  /  {data.get('postgraduation_no', '—')}"),
+            ("تاريخ التخرج  /  Graduation Date", grad_date_str),
+            ("فصل التخرج  /  Graduation Semester", sem_display),
+            ("تسلسل وصادر التخرج  /  Grad. Seq & Postgrad No.", grad_seq_display),
         ]
 
         def draw_field(parent, label, value, row_idx, col_offset):
@@ -1131,16 +1287,16 @@ class StudentsScreen(BaseScreen):
                 parent, text=label,
                 font=ctk.CTkFont(family=AppFonts.FAMILY, size=11),
                 text_color=AppColors.TEXT_MUTED, anchor="e",
-            ).grid(row=row_idx, column=col_offset, sticky="e", padx=(10, 15), pady=8)
+            ).grid(row=row_idx, column=col_offset, sticky="e", padx=(10, 15), pady=3)
             
             # Data Value Box (Badge styling)
             val_box = ctk.CTkFrame(parent, fg_color=("gray90", "gray20"), corner_radius=6)
-            val_box.grid(row=row_idx, column=col_offset + 1, sticky="we", padx=(0, 20), pady=6)
+            val_box.grid(row=row_idx, column=col_offset + 1, sticky="we", padx=(0, 20), pady=3)
             ctk.CTkLabel(
                 val_box, text=str(value) if value else "—",
                 font=ctk.CTkFont(family=AppFonts.FAMILY, size=12, weight="bold"),
                 anchor="w",
-            ).pack(fill="x", padx=12, pady=5)
+            ).pack(fill="x", padx=12, pady=3)
 
         # Distribute fields across 2 columns (RTL logical flow)
         for idx, (lbl, val) in enumerate(fields):
@@ -1149,185 +1305,18 @@ class StudentsScreen(BaseScreen):
             c_offset = 2 if idx % 2 == 0 else 0 
             draw_field(info_container, lbl, val, r_idx, c_offset)
 
-        # ── Academic Periods ──────────────────────────────────────────────────
-        ctk.CTkLabel(
-            frame,
-            text="المراحل الدراسية والدرجات  —  Academic Periods & Grades",
-            font=ctk.CTkFont(family=AppFonts.FAMILY, size=AppFonts.SIZE_BODY, weight="bold"),
-            anchor="e",
-        ).grid(row=row, column=0, sticky="e", pady=(0, 8))
-        row += 1
 
-        # Add period button
-        add_period_frame = ctk.CTkFrame(frame, fg_color="transparent")
-        add_period_frame.grid(row=row, column=0, sticky="ew", pady=(0, 10))
-        add_period_frame.grid_columnconfigure(0, weight=1)
-        row += 1
 
-        # Stage placeholder based on system
-        ss_id = data.get("study_system_id", 1)
-        stage_placeholder = "رقم السنة  /  Year No. (1-4)" if ss_id == 1 else "رقم الفصل  /  Sem No. (1-8)"
-        
-        self._new_stage = ctk.CTkEntry(
-            add_period_frame,
-            placeholder_text=stage_placeholder,
-            font=ctk.CTkFont(family=AppFonts.FAMILY, size=AppFonts.SIZE_SMALL),
-            width=200, height=34, justify="center",
-        )
-        self._new_stage.grid(row=0, column=0, sticky="w")
 
-        self._new_year = ctk.CTkEntry(
-            add_period_frame,
-            placeholder_text="السنة الدراسية  2024-2025",
-            font=ctk.CTkFont(family=AppFonts.FAMILY, size=AppFonts.SIZE_SMALL),
-            width=160, height=34, justify="center",
-        )
-        self._new_year.grid(row=0, column=1, padx=6, sticky="w")
 
-        ctk.CTkButton(
-            add_period_frame,
-            text="+ إضافة مرحلة  /  Add Period",
-            font=ctk.CTkFont(family=AppFonts.FAMILY, size=AppFonts.SIZE_SMALL),
-            height=34, corner_radius=8,
-            command=self._add_period,
-        ).grid(row=0, column=2)
-
-        # Period cards
-        periods = AcademicPeriodRepository().get_by_student(data["id"])
-        if not periods:
-            ctk.CTkLabel(
-                frame,
-                text="لا توجد مراحل دراسية مسجلة بعد.\nNo academic periods recorded yet.",
-                font=ctk.CTkFont(family=AppFonts.FAMILY, size=AppFonts.SIZE_SMALL),
-                text_color=AppColors.TEXT_MUTED, justify="center",
-            ).grid(row=row, column=0, pady=20)
-            row += 1
-        else:
-            for period in periods:
-                self._render_period_card(frame, period, data, row)
-                row += 1
-
-    def _render_period_card(
-        self, parent, period: dict, student: dict, row: int
-    ) -> None:
-        """Render one period summary card with its enrollment preview."""
-        ROUND_AR = {"first": "الدور الأول", "second": "الدور الثاني"}
-
-        card = ctk.CTkFrame(
-            parent, corner_radius=8, border_width=1, border_color=AppColors.BORDER
-        )
-        card.grid(row=row, column=0, sticky="ew", pady=(0, 8))
-        card.grid_columnconfigure(0, weight=1)
-
-        # Period header
-        p_hdr = ctk.CTkFrame(card, fg_color=("gray88", "gray22"), corner_radius=0)
-        p_hdr.grid(row=0, column=0, sticky="ew")
-        p_hdr.grid_columnconfigure(0, weight=1)
-
-        ctk.CTkLabel(
-            p_hdr,
-            text=(f"  {'السنة' if student.get('study_system_id') == 1 else 'الفصل'} {period['stage_number']}  |  "
-                  f"{period['academic_year']}"),
-            font=ctk.CTkFont(family=AppFonts.FAMILY, size=AppFonts.SIZE_SMALL, weight="bold"),
-            anchor="e",
-        ).grid(row=0, column=0, sticky="e", padx=(0, 10), pady=6)
-
-        # Action buttons
-        pb = ctk.CTkFrame(p_hdr, fg_color="transparent")
-        pb.grid(row=0, column=0, sticky="w", padx=6, pady=4)
-
-        ctk.CTkButton(
-            pb, text="📝 الدرجات\nGrades",
-            font=ctk.CTkFont(family=AppFonts.FAMILY, size=9),
-            width=70, height=28, corner_radius=6,
-            command=lambda p=period, s=student: self._enroll_panel.open(p, s),
-        ).pack(side="left", padx=(0, 3))
-
-        ctk.CTkButton(
-            pb, text="🗑 حذف\nDelete",
-            font=ctk.CTkFont(family=AppFonts.FAMILY, size=9),
-            width=60, height=28, corner_radius=6,
-            fg_color=AppColors.COLOR_ERROR, hover_color="#B71C1C",
-            command=lambda p=period: self._delete_period(p),
-        ).pack(side="left")
-
-        # Enrollment summary (first 6 courses)
-        enrollments = EnrollmentRepository().get_by_period(period["id"])
-        if enrollments:
-            summary = ctk.CTkFrame(card, fg_color="transparent")
-            summary.grid(row=1, column=0, sticky="ew", padx=10, pady=6)
-
-            for ci, enr in enumerate(enrollments[:6]):
-                ctk.CTkLabel(
-                    summary,
-                    text=f"  {enr['course_name_ar'][:22]}…  {enr['score']:.0f}",
-                    font=ctk.CTkFont(family=AppFonts.FAMILY, size=9),
-                    text_color=AppColors.TEXT_MUTED, anchor="e",
-                ).grid(row=ci // 2, column=ci % 2, sticky="e", padx=4, pady=1)
-
-            if len(enrollments) > 6:
-                ctk.CTkLabel(
-                    summary,
-                    text=f"  + {len(enrollments) - 6} مادة أخرى  /  more courses...",
-                    font=ctk.CTkFont(family=AppFonts.FAMILY, size=9),
-                    text_color=AppColors.TEXT_MUTED, anchor="e",
-                ).grid(row=3, column=0, columnspan=2, sticky="e", padx=4)
 
     # ── Actions ───────────────────────────────────────────────────────────────
 
     def _open_add(self) -> None:
-        self._enroll_panel.close()
+        self._academic_panel.close()
         self._form_panel.open_add()
 
-    def _add_period(self) -> None:
-        """Add a new academic period for the selected student."""
-        if not self._selected_student:
-            return
 
-        stage_str = self._new_stage.get().strip()
-        year_str  = self._new_year.get().strip()
-
-        ss_id = self._selected_student.get("study_system_id", 1)
-        max_stage = 4 if ss_id == 1 else 12 # some systems have up to 12 semesters (medicine)
-        
-        if not stage_str.isdigit() or not (1 <= int(stage_str) <= max_stage):
-            self.show_error(f"رقم المرحلة يجب أن يكون بين 1 و {max_stage}.")
-            return
-        if len(year_str) != 9 or "-" not in year_str:
-            self.show_error(
-                "السنة الدراسية يجب أن تكون بصيغة YYYY-YYYY\n"
-                "مثال: 2023-2024"
-            )
-            return
-
-        try:
-            AcademicPeriodRepository().insert(
-                student_id    = self._selected_student["id"],
-                year          = year_str,
-                sys_id        = self._selected_student.get("study_system_id", 1),
-                stage         = int(stage_str),
-                round_val     = "first",
-            )
-            self._new_stage.delete(0, "end")
-            self._new_year.delete(0, "end")
-            self._reload_detail()
-        except Exception as e:
-            self.show_error(f"خطأ في إضافة المرحلة:\n{e}")
-
-    def _delete_period(self, period: dict) -> None:
-        self.show_confirm(
-            message=(
-                f"هل تريد حذف المرحلة {period['stage_number']} "
-                f"({period['academic_year']})؟\n\n"
-                "سيتم حذف جميع الدرجات المرتبطة بها.\n"
-                "All grades in this period will also be deleted."
-            ),
-            on_confirm=lambda: self._do_delete_period(period),
-        )
-
-    def _do_delete_period(self, period: dict) -> None:
-        AcademicPeriodRepository().delete(period["id"])
-        self._reload_detail()
 
     def _confirm_delete(self) -> None:
         if not self._selected_student:
@@ -1347,3 +1336,499 @@ class StudentsScreen(BaseScreen):
             StudentRepository().delete(self._selected_student["id"])
             self._selected_student = None
             self._show_empty_state()
+
+
+# =============================================================================
+# ACADEMIC RECORD PANEL
+# =============================================================================
+
+class AcademicRecordPanel(ctk.CTkFrame):
+    """
+    Full-screen overlay panel showing student's academic record, grades,
+    thesis details, and supervisors.
+    """
+
+    def __init__(self, parent_screen: ctk.CTkFrame, on_close) -> None:
+        super().__init__(
+            parent_screen,
+            corner_radius=0,
+            fg_color="transparent",
+        )
+        self.grid_columnconfigure(0, weight=1)
+        self.grid_rowconfigure(1, weight=1)
+
+        self._parent = parent_screen
+        self._on_close = on_close
+        self._student: dict | None = None
+        self._hidden_siblings: list = []
+
+        self._build()
+
+    def _build(self) -> None:
+        # Header
+        header = ctk.CTkFrame(self, height=52, corner_radius=0, fg_color=AppColors.HEADER_BG)
+        header.grid(row=0, column=0, sticky="ew")
+        header.grid_columnconfigure(1, weight=1)
+        header.grid_propagate(False)
+
+        # Back button
+        ctk.CTkButton(
+            header, text="←  رجوع  /  Back",
+            font=ctk.CTkFont(family=AppFonts.FAMILY, size=AppFonts.SIZE_BODY),
+            width=130, height=36, corner_radius=AppSizes.CORNER_RADIUS_BTN,
+            fg_color="transparent", hover_color=AppColors.NAV_HOVER_BG,
+            text_color=AppColors.NAV_TEXT, anchor="w",
+            command=self.close,
+        ).grid(row=0, column=0, padx=8, pady=8, sticky="w")
+
+        # Title
+        self._title_lbl = ctk.CTkLabel(
+            header, text="",
+            font=ctk.CTkFont(family=AppFonts.FAMILY, size=AppFonts.SIZE_BODY, weight="bold"),
+            anchor="e",
+        )
+        self._title_lbl.grid(row=0, column=1, sticky="e", padx=(0, 14), pady=12)
+
+        # Content Frame
+        self.scroll_area = ctk.CTkScrollableFrame(self, fg_color="transparent")
+        self.scroll_area.grid(row=1, column=0, sticky="nsew", padx=10, pady=4)
+        self.scroll_area.grid_columnconfigure(0, weight=1)
+
+        # Secondary Side Panel for Enrollments (inside this panel)
+        self._enroll_panel = EnrollmentPanel(self, on_close=self.load_data)
+
+    def open(self, student: dict) -> None:
+        self._student = student
+        if self._student:
+            self._title_lbl.configure(
+                text=f"السجل الأكاديمي  —  {student.get('full_name_ar', '')}"
+            )
+        self.load_data()
+        self._show()
+
+    def close(self) -> None:
+        if not self.winfo_ismapped():
+            return
+        self._enroll_panel.close()
+        self.grid_remove()
+        for child in self._hidden_siblings:
+            if child.winfo_exists():
+                child.grid()
+        self._hidden_siblings = []
+        self._on_close()
+
+    def _show(self) -> None:
+        self._hidden_siblings = []
+        for child in self._parent.winfo_children():
+            if child is self:
+                continue
+            if child.winfo_ismapped():
+                child.grid_remove()
+                self._hidden_siblings.append(child)
+
+        self._parent.grid_columnconfigure(0, weight=1)
+        self.grid(row=0, column=0, sticky="nsew", rowspan=20)
+
+    def load_data(self) -> None:
+        """Reload and render timeline + thesis sections."""
+        if not self._student:
+            return
+
+        # Clear old widgets in scroll_area
+        for w in self.scroll_area.winfo_children():
+            if w is not self._enroll_panel:
+                w.destroy()
+
+        frame = self.scroll_area
+        row = 0
+
+        # Stage placeholder based on system
+        ss_id = self._student.get("study_system_id", 1)
+        year_placeholder = "السنة الدراسية  2024" if ss_id in [1, 3] else "السنة الدراسية  2024-2025"
+
+        # ── Add period form ──
+        add_period_frame = ctk.CTkFrame(frame, fg_color="transparent")
+        add_period_frame.grid(row=row, column=0, sticky="ew", pady=(10, 10))
+        add_period_frame.grid_columnconfigure(0, weight=1)
+        row += 1
+
+        self._new_stage = ctk.CTkOptionMenu(
+            add_period_frame,
+            values=["1", "2", "3"],
+            font=ctk.CTkFont(family=AppFonts.FAMILY, size=AppFonts.SIZE_SMALL),
+            width=200, height=34,
+        )
+        self._new_stage.set("1")
+
+        self._new_stage.grid(row=0, column=0, sticky="w")
+
+        self._new_year = ctk.CTkEntry(
+            add_period_frame,
+            placeholder_text=year_placeholder,
+            font=ctk.CTkFont(family=AppFonts.FAMILY, size=AppFonts.SIZE_SMALL),
+            width=160, height=34, justify="center",
+        )
+        self._new_year.grid(row=0, column=1, padx=6, sticky="w")
+
+        ctk.CTkButton(
+            add_period_frame,
+            text="+ إضافة سنة دراسية  /  Add Academic Year",
+            font=ctk.CTkFont(family=AppFonts.FAMILY, size=AppFonts.SIZE_SMALL),
+            height=34, corner_radius=8,
+            command=self._add_period,
+        ).grid(row=0, column=2)
+
+        # ── Render Timeline ──
+        periods = AcademicPeriodRepository().get_by_student(self._student["id"])
+        if not periods:
+            ctk.CTkLabel(
+                frame,
+                text="لا توجد فترات دراسية مسجلة بعد.\nNo academic periods recorded yet.",
+                font=ctk.CTkFont(family=AppFonts.FAMILY, size=AppFonts.SIZE_SMALL),
+                text_color=AppColors.TEXT_MUTED, justify="center",
+            ).grid(row=row, column=0, pady=20)
+            row += 1
+        else:
+            enrollments_list = []
+            for period in periods:
+                enrollments = EnrollmentRepository().get_by_period(period["id"])
+                norm_year = normalize_year(period["academic_year"])
+                for enr in enrollments:
+                    enr["semester_num"] = period["semester_num"]
+                    enr["academic_year"] = norm_year
+                    enr["period"] = period
+                    enrollments_list.append(enr)
+
+            distinct_years = sorted(list(set(normalize_year(p["academic_year"]) for p in periods)))
+            clean_academic_timeline = {}
+            for year in distinct_years:
+                clean_academic_timeline[year] = {
+                    "sem_1_list": [e for e in enrollments_list if e["academic_year"] == year and e["semester_num"] == 1],
+                    "sem_2_list": [e for e in enrollments_list if e["academic_year"] == year and e["semester_num"] == 2],
+                    "sem_3_list": [e for e in enrollments_list if e["academic_year"] == year and e["semester_num"] == 3],
+                    "periods": [p for p in periods if normalize_year(p["academic_year"]) == year]
+                }
+
+            for year, timeline_data in clean_academic_timeline.items():
+                self._render_academic_year_card(frame, year, timeline_data, self._student, row)
+                row += 1
+
+        # ── Postgraduate Thesis / Supervisors ──
+        degree = self._student.get("degree_level", 1)
+        if degree in [2, 3, 4, "Higher Diploma", "Master", "PhD"]:
+            self._render_thesis_and_supervisors(frame, row)
+            row += 1
+
+    def _render_academic_year_card(
+        self, parent, academic_year: str, timeline_data: dict, student: dict, row: int
+    ) -> None:
+        card = ctk.CTkFrame(
+            parent, corner_radius=8, border_width=1, border_color=AppColors.BORDER
+        )
+        card.grid(row=row, column=0, sticky="ew", pady=(0, 8))
+        card.grid_columnconfigure(0, weight=1)
+
+        p_hdr = ctk.CTkFrame(card, fg_color=("gray88", "gray22"), corner_radius=0)
+        p_hdr.grid(row=0, column=0, sticky="ew")
+        p_hdr.grid_columnconfigure(0, weight=1)
+
+        ctk.CTkLabel(
+            p_hdr,
+            text=f"العام الدراسي  |  Academic Year: {academic_year}",
+            font=ctk.CTkFont(family=AppFonts.FAMILY, size=AppFonts.SIZE_SMALL, weight="bold"),
+            anchor="e",
+        ).grid(row=0, column=0, sticky="e", padx=(0, 10), pady=6)
+
+        cols_frame = ctk.CTkFrame(card, fg_color="transparent")
+        cols_frame.grid(row=1, column=0, sticky="ew", padx=10, pady=10)
+        cols_frame.grid_columnconfigure((0, 1, 2), weight=1)
+
+        col1_frame = ctk.CTkFrame(cols_frame, fg_color="transparent")
+        col1_frame.grid(row=0, column=0, sticky="nsew", padx=5, pady=5)
+        col1_frame.grid_columnconfigure(0, weight=1)
+
+        col2_frame = ctk.CTkFrame(cols_frame, fg_color="transparent")
+        col2_frame.grid(row=0, column=1, sticky="nsew", padx=5, pady=5)
+        col2_frame.grid_columnconfigure(0, weight=1)
+
+        col3_frame = ctk.CTkFrame(cols_frame, fg_color="transparent")
+        col3_frame.grid(row=0, column=2, sticky="nsew", padx=5, pady=5)
+        col3_frame.grid_columnconfigure(0, weight=1)
+
+        is_annual = (student.get("study_system_id") in [1, 3])
+        sem1_hdr = "الفصل الأول / Term 1" if is_annual else "الفصل الأول / Semester 1"
+        sem2_hdr = "الفصل الثاني / Term 2" if is_annual else "الفصل الثاني / Semester 2"
+        sem3_hdr = "الفصل الصيفي / Summer Term" if is_annual else "الفصل الصيفي / Summer Semester"
+
+        # Semester 1
+        h1 = ctk.CTkFrame(col1_frame, fg_color=("gray90", "gray20"), corner_radius=6)
+        h1.grid(row=0, column=0, sticky="ew", pady=(0, 8))
+        h1.grid_columnconfigure(0, weight=1)
+        ctk.CTkLabel(h1, text=sem1_hdr, font=ctk.CTkFont(family=AppFonts.FAMILY, size=AppFonts.SIZE_SMALL, weight="bold"), anchor="e").grid(row=0, column=0, sticky="e", padx=10, pady=6)
+        
+        p_sem1 = next((p for p in timeline_data["periods"] if p["semester_num"] == 1), None)
+        if p_sem1:
+            pb1 = ctk.CTkFrame(h1, fg_color="transparent")
+            pb1.grid(row=0, column=0, sticky="w", padx=6, pady=4)
+            ctk.CTkButton(pb1, text="📝 الدرجات\nGrades", font=ctk.CTkFont(family=AppFonts.FAMILY, size=9), width=70, height=28, corner_radius=6, command=lambda p=p_sem1, s=student: self._enroll_panel.open(p, s)).pack(side="left", padx=(0, 3))
+            ctk.CTkButton(pb1, text="🗑 حذف\nDelete", font=ctk.CTkFont(family=AppFonts.FAMILY, size=9), width=60, height=28, corner_radius=6, fg_color=AppColors.COLOR_ERROR, hover_color="#B71C1C", command=lambda p=p_sem1: self._delete_period(p)).pack(side="left")
+
+        sem1_list = timeline_data["sem_1_list"]
+        if sem1_list:
+            for idx, enr in enumerate(sem1_list):
+                raw_score = float(enr['score']) if enr.get('score') is not None else None
+                display_score = f"{int(raw_score)}" if raw_score is not None and raw_score.is_integer() else (f"{raw_score:.1f}" if raw_score is not None else "—")
+                lbl_text = f"{enr['course_name_ar']} : {display_score}"
+                ctk.CTkLabel(col1_frame, text=lbl_text, font=ctk.CTkFont(family=AppFonts.FAMILY, size=AppFonts.SIZE_SMALL), anchor="e").grid(row=idx + 1, column=0, sticky="e", padx=10, pady=2)
+        else:
+            ctk.CTkLabel(col1_frame, text="لا توجد مواد  /  No courses", font=ctk.CTkFont(family=AppFonts.FAMILY, size=AppFonts.SIZE_SMALL), text_color=AppColors.TEXT_MUTED, anchor="center").grid(row=1, column=0, pady=10)
+
+        # Semester 2
+        h2 = ctk.CTkFrame(col2_frame, fg_color=("gray90", "gray20"), corner_radius=6)
+        h2.grid(row=0, column=0, sticky="ew", pady=(0, 8))
+        h2.grid_columnconfigure(0, weight=1)
+        ctk.CTkLabel(h2, text=sem2_hdr, font=ctk.CTkFont(family=AppFonts.FAMILY, size=AppFonts.SIZE_SMALL, weight="bold"), anchor="e").grid(row=0, column=0, sticky="e", padx=10, pady=6)
+
+        p_sem2 = next((p for p in timeline_data["periods"] if p["semester_num"] == 2), None)
+        if p_sem2:
+            pb2 = ctk.CTkFrame(h2, fg_color="transparent")
+            pb2.grid(row=0, column=0, sticky="w", padx=6, pady=4)
+            ctk.CTkButton(pb2, text="📝 الدرجات\nGrades", font=ctk.CTkFont(family=AppFonts.FAMILY, size=9), width=70, height=28, corner_radius=6, command=lambda p=p_sem2, s=student: self._enroll_panel.open(p, s)).pack(side="left", padx=(0, 3))
+            ctk.CTkButton(pb2, text="🗑 حذف\nDelete", font=ctk.CTkFont(family=AppFonts.FAMILY, size=9), width=60, height=28, corner_radius=6, fg_color=AppColors.COLOR_ERROR, hover_color="#B71C1C", command=lambda p=p_sem2: self._delete_period(p)).pack(side="left")
+
+        sem2_list = timeline_data["sem_2_list"]
+        if sem2_list:
+            for idx, enr in enumerate(sem2_list):
+                raw_score = float(enr['score']) if enr.get('score') is not None else None
+                display_score = f"{int(raw_score)}" if raw_score is not None and raw_score.is_integer() else (f"{raw_score:.1f}" if raw_score is not None else "—")
+                lbl_text = f"{enr['course_name_ar']} : {display_score}"
+                ctk.CTkLabel(col2_frame, text=lbl_text, font=ctk.CTkFont(family=AppFonts.FAMILY, size=AppFonts.SIZE_SMALL), anchor="e").grid(row=idx + 1, column=0, sticky="e", padx=10, pady=2)
+        else:
+            ctk.CTkLabel(col2_frame, text="لا توجد مواد  /  No courses", font=ctk.CTkFont(family=AppFonts.FAMILY, size=AppFonts.SIZE_SMALL), text_color=AppColors.TEXT_MUTED, anchor="center").grid(row=1, column=0, pady=10)
+
+        # Semester 3 (Summer)
+        h3 = ctk.CTkFrame(col3_frame, fg_color=("gray90", "gray20"), corner_radius=6)
+        h3.grid(row=0, column=0, sticky="ew", pady=(0, 8))
+        h3.grid_columnconfigure(0, weight=1)
+        ctk.CTkLabel(h3, text=sem3_hdr, font=ctk.CTkFont(family=AppFonts.FAMILY, size=AppFonts.SIZE_SMALL, weight="bold"), anchor="e").grid(row=0, column=0, sticky="e", padx=10, pady=6)
+
+        p_sem3 = next((p for p in timeline_data["periods"] if p["semester_num"] == 3), None)
+        if p_sem3:
+            pb3 = ctk.CTkFrame(h3, fg_color="transparent")
+            pb3.grid(row=0, column=0, sticky="w", padx=6, pady=4)
+            ctk.CTkButton(pb3, text="📝 الدرجات\nGrades", font=ctk.CTkFont(family=AppFonts.FAMILY, size=9), width=70, height=28, corner_radius=6, command=lambda p=p_sem3, s=student: self._enroll_panel.open(p, s)).pack(side="left", padx=(0, 3))
+            ctk.CTkButton(pb3, text="🗑 حذف\nDelete", font=ctk.CTkFont(family=AppFonts.FAMILY, size=9), width=60, height=28, corner_radius=6, fg_color=AppColors.COLOR_ERROR, hover_color="#B71C1C", command=lambda p=p_sem3: self._delete_period(p)).pack(side="left")
+
+        sem3_list = timeline_data["sem_3_list"]
+        if sem3_list:
+            for idx, enr in enumerate(sem3_list):
+                raw_score = float(enr['score']) if enr.get('score') is not None else None
+                display_score = f"{int(raw_score)}" if raw_score is not None and raw_score.is_integer() else (f"{raw_score:.1f}" if raw_score is not None else "—")
+                lbl_text = f"{enr['course_name_ar']} : {display_score}"
+                ctk.CTkLabel(col3_frame, text=lbl_text, font=ctk.CTkFont(family=AppFonts.FAMILY, size=AppFonts.SIZE_SMALL), anchor="e").grid(row=idx + 1, column=0, sticky="e", padx=10, pady=2)
+        else:
+            ctk.CTkLabel(col3_frame, text="لا توجد مواد  /  No courses", font=ctk.CTkFont(family=AppFonts.FAMILY, size=AppFonts.SIZE_SMALL), text_color=AppColors.TEXT_MUTED, anchor="center").grid(row=1, column=0, pady=10)
+
+    def _add_period(self) -> None:
+        if not self._student:
+            return
+
+        stage_str = self._new_stage.get().strip()
+        year_str  = self._new_year.get().strip()
+
+        ss_id = self._student.get("study_system_id", 1)
+        
+        import re
+        is_valid = bool(re.match(r"^\d{4}$", year_str) or re.match(r"^\d{4}-\d{4}$", year_str))
+        if not is_valid:
+            return
+
+        db_year = normalize_year(year_str)
+
+        try:
+            if "-" in db_year:
+                year_start = int(db_year.split("-")[0])
+            else:
+                year_start = int(db_year)
+            adm_year = self._student.get("admission_year", year_start)
+            if isinstance(adm_year, str) and "-" in adm_year:
+                adm_year = int(adm_year.split("-")[0])
+            else:
+                adm_year = int(adm_year)
+            diff = year_start - adm_year
+            calculated_stage = max(1, diff + 1)
+        except Exception:
+            calculated_stage = 1
+
+        if ss_id in [1, 3]:
+            try:
+                semester_num = int(stage_str)
+            except ValueError:
+                semester_num = 1
+        else:
+            if "Semester 1" in stage_str:
+                semester_num = 1
+            elif "Semester 2" in stage_str:
+                semester_num = 2
+            else:
+                semester_num = 3
+
+        try:
+            AcademicPeriodRepository().insert(
+                student_id=self._student["id"],
+                year=db_year,
+                sys_id=ss_id,
+                stage=calculated_stage,
+                semester_num=semester_num,
+            )
+            self._new_year.delete(0, "end")
+            self.load_data()
+        except Exception as e:
+            print(f"Failed to add period: {e}")
+
+    def _delete_period(self, period: dict) -> None:
+        from tkinter import messagebox
+        if messagebox.askyesno("تأكيد الحذف", "هل أنت متأكد من حذف هذه الفترة الدراسية وكل الدرجات المرتبطة بها؟"):
+            self._do_delete_period(period)
+
+    def _do_delete_period(self, period: dict) -> None:
+        try:
+            AcademicPeriodRepository().delete(period["id"])
+            self.load_data()
+        except Exception as e:
+            print(f"Failed to delete period: {e}")
+
+    def _render_thesis_and_supervisors(self, parent, row: int) -> None:
+        card = ctk.CTkFrame(parent, corner_radius=8, border_width=1, border_color=AppColors.BORDER)
+        card.grid(row=row, column=0, sticky="ew", pady=(10, 8))
+        card.grid_columnconfigure(0, weight=1)
+
+        # Header
+        t_hdr = ctk.CTkFrame(card, fg_color=("gray88", "gray22"), corner_radius=0)
+        t_hdr.grid(row=0, column=0, sticky="ew")
+        t_hdr.grid_columnconfigure(0, weight=1)
+
+        ctk.CTkLabel(
+            t_hdr, text="بيانات الرسالة والمشرفين  |  Thesis & Supervisors",
+            font=ctk.CTkFont(family=AppFonts.FAMILY, size=AppFonts.SIZE_SMALL, weight="bold"),
+            anchor="e"
+        ).grid(row=0, column=0, sticky="e", padx=(0, 10), pady=6)
+
+        # Inner Content Frame
+        t_content = ctk.CTkFrame(card, fg_color="transparent")
+        t_content.grid(row=1, column=0, sticky="ew", padx=10, pady=10)
+        t_content.grid_columnconfigure((0, 1), weight=1)
+
+        # Thesis Details Column (Col 1)
+        t_col1 = ctk.CTkFrame(t_content, fg_color="transparent")
+        t_col1.grid(row=0, column=1, sticky="nsew", padx=5, pady=5)
+        t_col1.grid_columnconfigure(0, weight=1)
+
+        ctk.CTkLabel(t_col1, text="تفاصيل الأطروحة / Thesis Details", font=ctk.CTkFont(family=AppFonts.FAMILY, size=11, weight="bold"), anchor="e").grid(row=0, column=0, sticky="e", pady=(0, 6))
+
+        # Fetch Thesis Details from DB
+        thesis_list = ThesisRepository().get_by_student(self._student["id"])
+        if thesis_list:
+            thesis = thesis_list[0]
+            ctk.CTkLabel(t_col1, text=f"العنوان (عربي): {thesis.get('title_ar') or '—'}", font=ctk.CTkFont(family=AppFonts.FAMILY, size=10), anchor="e", justify="right").grid(row=1, column=0, sticky="e", pady=2)
+            ctk.CTkLabel(t_col1, text=f"Title (English): {thesis.get('title_en') or '—'}", font=ctk.CTkFont(family=AppFonts.FAMILY, size=10), anchor="e", justify="left").grid(row=2, column=0, sticky="e", pady=2)
+            ctk.CTkLabel(t_col1, text=f"تاريخ المناقشة: {thesis.get('defense_date') or '—'}", font=ctk.CTkFont(family=AppFonts.FAMILY, size=10), anchor="e").grid(row=3, column=0, sticky="e", pady=2)
+            
+            dec = thesis.get('committee_decision', '') or '—'
+            dec_label = f"قرار اللجنة: {dec}"
+            ctk.CTkLabel(t_col1, text=dec_label, font=ctk.CTkFont(family=AppFonts.FAMILY, size=10), anchor="e").grid(row=4, column=0, sticky="e", pady=2)
+            
+            grade_raw = thesis.get('final_grade')
+            grade_val = float(grade_raw) if grade_raw is not None else None
+            grade_str = f"{int(grade_val)}" if grade_val is not None and grade_val.is_integer() else (f"{grade_val:.1f}" if grade_val is not None else "—")
+            ctk.CTkLabel(t_col1, text=f"الدرجة النهائية: {grade_str}", font=ctk.CTkFont(family=AppFonts.FAMILY, size=10), anchor="e").grid(row=5, column=0, sticky="e", pady=2)
+        else:
+            ctk.CTkLabel(t_col1, text="لم يتم إدخال بيانات الأطروحة بعد.\nNo thesis details recorded.", font=ctk.CTkFont(family=AppFonts.FAMILY, size=10), text_color=AppColors.TEXT_MUTED, anchor="center").grid(row=1, column=0, pady=10)
+
+        # Supervisors Column (Col 0)
+        t_col0 = ctk.CTkFrame(t_content, fg_color="transparent")
+        t_col0.grid(row=0, column=0, sticky="nsew", padx=5, pady=5)
+        t_col0.grid_columnconfigure(0, weight=1)
+
+        ctk.CTkLabel(t_col0, text="المشرفون / Supervisors", font=ctk.CTkFont(family=AppFonts.FAMILY, size=11, weight="bold"), anchor="e").grid(row=0, column=0, sticky="e", pady=(0, 6))
+
+        # Add Supervisor Widget (Dropdown + Button)
+        add_sup_frame = ctk.CTkFrame(t_col0, fg_color="transparent")
+        add_sup_frame.grid(row=1, column=0, sticky="ew", pady=(0, 6))
+        add_sup_frame.grid_columnconfigure(0, weight=1)
+
+        personnel = PersonnelRepository().get_active()
+        pers_labels = ["—"] + [f"{p['name_ar']}  /  {p['name_en']}" for p in personnel]
+        self._new_supervisor_menu = ctk.CTkOptionMenu(
+            add_sup_frame, values=pers_labels,
+            font=ctk.CTkFont(family=AppFonts.FAMILY, size=9),
+            height=28
+        )
+        self._new_supervisor_menu.set("—")
+        self._new_supervisor_menu.grid(row=0, column=0, sticky="ew", padx=(0, 4))
+
+        ctk.CTkButton(
+            add_sup_frame, text="إضافة مشرف\nAdd Supervisor",
+            font=ctk.CTkFont(family=AppFonts.FAMILY, size=8),
+            width=80, height=28, corner_radius=6,
+            command=self._add_supervisor
+        ).grid(row=0, column=1)
+
+        # List of Supervisors
+        supervisors = SupervisorRepository().get_by_student(self._student["id"])
+        if supervisors:
+            for idx, sup in enumerate(supervisors):
+                sup_row = ctk.CTkFrame(t_col0, fg_color="transparent")
+                sup_row.grid(row=2 + idx, column=0, sticky="ew", pady=1)
+                sup_row.grid_columnconfigure(0, weight=1)
+
+                name = sup.get('personnel_name_ar') or sup.get('name_ar') or ''
+                ctk.CTkLabel(sup_row, text=f"• {name}", font=ctk.CTkFont(family=AppFonts.FAMILY, size=10), anchor="e").grid(row=0, column=1, sticky="e", padx=(4, 0))
+                
+                ctk.CTkButton(
+                    sup_row, text="✕", width=20, height=20, corner_radius=4,
+                    fg_color=AppColors.COLOR_ERROR, hover_color="#B71C1C",
+                    font=ctk.CTkFont(size=8),
+                    command=lambda s=sup: self._delete_supervisor(s)
+                ).grid(row=0, column=0, sticky="w")
+        else:
+            ctk.CTkLabel(t_col0, text="لا يوجد مشرفون معينون بعد.\nNo supervisors assigned yet.", font=ctk.CTkFont(family=AppFonts.FAMILY, size=10), text_color=AppColors.TEXT_MUTED, anchor="center").grid(row=2, column=0, pady=10)
+
+    def _add_supervisor(self) -> None:
+        if not self._student:
+            return
+
+        label = self._new_supervisor_menu.get()
+        if label == "—":
+            return
+
+        # Find personnel ID
+        personnel = PersonnelRepository().get_active()
+        personnel_id = None
+        for p in personnel:
+            if f"{p['name_ar']}  /  {p['name_en']}" == label:
+                personnel_id = p["id"]
+                break
+
+        if personnel_id:
+            try:
+                SupervisorRepository().add(self._student["id"], personnel_id, "Supervisor")
+                self._new_supervisor_menu.set("—")
+                self.load_data()
+            except Exception as e:
+                print(f"Failed to add supervisor: {e}")
+
+    def _delete_supervisor(self, supervisor: dict) -> None:
+        from tkinter import messagebox
+        if messagebox.askyesno("تأكيد الحذف", "هل أنت متأكد من إزالة هذا المشرف؟"):
+            self._do_delete_supervisor(supervisor)
+
+    def _do_delete_supervisor(self, supervisor: dict) -> None:
+        try:
+            # supervisor dict has id
+            from data.repositories import StudentSupervisorRepository
+            StudentSupervisorRepository(SupervisorRepository().api_url).delete(supervisor["id"])
+            self.load_data()
+        except Exception as e:
+            print(f"Failed to delete supervisor: {e}")
+

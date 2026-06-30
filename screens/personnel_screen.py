@@ -185,16 +185,15 @@ class PersonnelScreen(BaseScreen):
         self._panel = PersonnelPanel(self, on_save_callback=self.refresh)
 
         top = ctk.CTkFrame(self, fg_color="transparent")
-        top.grid(row=0, column=0, sticky="ew", pady=(0, 15))
-        top.grid_columnconfigure(0, weight=1) # Allow space between Add button and Title
-
-        make_primary_button(top, "+ إضافة كادر", "Add Personnel",
-                            command=self._panel.open_add
-                            ).grid(row=0, column=0, sticky="w")
+        top.grid(row=0, column=0, sticky="ew", pady=(0, 10))
+        top.grid_columnconfigure(0, weight=1)
 
         make_section_header(top, "المستخدمون والكوادر", "Personnel Management").grid(
-            row=0, column=1, sticky="e", padx=(10, 0)
+            row=0, column=0, sticky="e"
         )
+        make_primary_button(top, "+ إضافة كادر", "Add Personnel",
+                            command=self._panel.open_add
+                            ).grid(row=0, column=1, padx=(10, 0))
 
         self._list = RecordList(self, columns=self.COLUMNS,
                                 on_edit=self._panel.open_edit,

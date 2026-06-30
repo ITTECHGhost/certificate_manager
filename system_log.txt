@@ -16569,3 +16569,1338 @@ mysql.connector.errors.IntegrityError: 1062 (23000): Duplicate entry 'البرم
 2026-06-02 11:36:50,817 [SYSTEM] INFO: Database connection successful, tables verified, and schemas reconciled.
 2026-06-02 11:36:57,677 [SYSTEM] INFO: User '1' logged in successfully.
 2026-06-02 13:56:19,584 [SYSTEM] INFO: Application closed normally.
+2026-06-09 09:21:34,950 [SYSTEM] INFO: Application starting...
+2026-06-09 09:21:34,950 [SYSTEM] INFO: Checking MySQL database connection to root@localhost...
+2026-06-09 09:21:35,154 [SYSTEM] INFO: Adding study_system_id column to academic_periods table...
+2026-06-09 09:21:35,351 [SYSTEM] INFO: Database connection successful, tables verified, and schemas reconciled.
+2026-06-09 09:21:41,291 [SYSTEM] INFO: User '1' logged in successfully.
+2026-06-09 14:06:15,817 [SYSTEM] INFO: Application closed normally.
+2026-06-10 10:39:16,734 [SYSTEM] INFO: Application starting...
+2026-06-10 10:39:16,736 [SYSTEM] INFO: Checking MySQL database connection to root@localhost...
+2026-06-10 10:39:16,961 [SYSTEM] INFO: Database connection successful, tables verified, and schemas reconciled.
+2026-06-10 10:39:28,213 [SYSTEM] INFO: User '1' logged in successfully.
+2026-06-10 11:50:18,095 [SYSTEM] INFO: Application closed normally.
+2026-06-11 12:00:45,213 [SYSTEM] INFO: Application starting...
+2026-06-11 12:00:45,214 [SYSTEM] INFO: Checking MySQL database connection to root@localhost...
+2026-06-11 12:00:45,301 [SYSTEM] INFO: Database connection successful, tables verified, and schemas reconciled.
+2026-06-11 12:07:00,463 [SYSTEM] INFO: Application starting...
+2026-06-11 12:07:00,464 [SYSTEM] INFO: Checking MySQL database connection to root@localhost...
+2026-06-11 12:07:00,519 [SYSTEM] INFO: Database connection successful, tables verified, and schemas reconciled.
+2026-06-11 12:10:17,318 [SYSTEM] INFO: Application starting...
+2026-06-11 12:10:17,319 [SYSTEM] INFO: Checking MySQL database connection to root@localhost...
+2026-06-11 12:10:17,422 [SYSTEM] INFO: Database connection successful, tables verified, and schemas reconciled.
+2026-06-11 12:10:22,366 [SYSTEM] INFO: User '1' logged in successfully.
+2026-06-11 12:10:38,260 [SYSTEM] ERROR: Unhandled exception in Tkinter callback:
+Traceback (most recent call last):
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\tkinter\__init__.py", line 2093, in __call__
+    return self.func(*args)
+           ~~~~~~~~~^^^^^^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\customtkinter\windows\widgets\ctk_button.py", line 554, in _clicked
+    self._command()
+    ~~~~~~~~~~~~~^^
+  File "f:\CR_PY\certificate_manager\screens\students_screen.py", line 1019, in <lambda>
+    command=lambda sid=s["id"]: self._select_student(sid),
+                                ~~~~~~~~~~~~~~~~~~~~^^^^^
+  File "f:\CR_PY\certificate_manager\screens\students_screen.py", line 1034, in _select_student
+    self._show_student_detail(data)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "f:\CR_PY\certificate_manager\screens\students_screen.py", line 1210, in _show_student_detail
+    self._render_period_card(frame, period, data, row)
+    ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "f:\CR_PY\certificate_manager\screens\students_screen.py", line 1232, in _render_period_card
+    text=(f"  {'السنة' if student.get('study_system_id') == 1 else 'الفصل'} {period['stage_number']}  |  "
+                                                                             ~~~~~~^^^^^^^^^^^^^^^^
+KeyError: 'stage_number'
+2026-06-11 12:11:34,680 [SYSTEM] INFO: Application closed normally.
+2026-06-11 12:52:13,797 [SYSTEM] INFO: Application starting...
+2026-06-11 12:52:13,798 [SYSTEM] INFO: Checking MySQL database connection to root@localhost...
+2026-06-11 12:52:13,946 [SYSTEM] INFO: Database connection successful, tables verified, and schemas reconciled.
+2026-06-11 12:52:19,098 [SYSTEM] INFO: User '1' logged in successfully.
+2026-06-11 13:22:21,028 [SYSTEM] INFO: Application closed normally.
+2026-06-14 09:06:22,391 [SYSTEM] INFO: Application starting...
+2026-06-14 09:06:22,392 [SYSTEM] INFO: Checking MySQL database connection to root@localhost...
+2026-06-14 09:06:22,680 [SYSTEM] INFO: Database connection successful, tables verified, and schemas reconciled.
+2026-06-14 09:06:28,454 [SYSTEM] INFO: User '1' logged in successfully.
+2026-06-14 11:42:29,317 [SYSTEM] INFO: Application closed normally.
+2026-06-14 12:36:44,571 [SYSTEM] INFO: Application starting...
+2026-06-14 12:36:44,571 [SYSTEM] INFO: Checking MySQL database connection to root@localhost...
+2026-06-14 12:36:44,678 [SYSTEM] INFO: Database connection successful, tables verified, and schemas reconciled.
+2026-06-14 12:36:49,703 [SYSTEM] INFO: User '1' logged in successfully.
+2026-06-14 12:48:19,237 [SYSTEM] INFO: Application closed normally.
+2026-06-14 12:55:45,017 [SYSTEM] INFO: Application starting...
+2026-06-14 12:55:45,017 [SYSTEM] INFO: Checking MySQL database connection to root@localhost...
+2026-06-14 12:55:45,108 [SYSTEM] INFO: Database connection successful, tables verified, and schemas reconciled.
+2026-06-14 12:55:50,046 [SYSTEM] INFO: User '1' logged in successfully.
+2026-06-14 13:03:07,533 [SYSTEM] INFO: Application closed normally.
+2026-06-14 13:07:21,240 [SYSTEM] INFO: Application starting...
+2026-06-14 13:07:21,241 [SYSTEM] INFO: Checking MySQL database connection to root@localhost...
+2026-06-14 13:07:21,350 [SYSTEM] INFO: Database connection successful, tables verified, and schemas reconciled.
+2026-06-14 13:07:26,204 [SYSTEM] INFO: User '1' logged in successfully.
+2026-06-14 13:15:31,261 [SYSTEM] INFO: Application closed normally.
+2026-06-14 13:21:39,693 [SYSTEM] INFO: Application starting...
+2026-06-14 13:21:39,694 [SYSTEM] INFO: Checking MySQL database connection to root@localhost...
+2026-06-14 13:21:39,720 [SYSTEM] INFO: Database connection successful, tables verified, and schemas reconciled.
+2026-06-14 13:21:46,644 [SYSTEM] INFO: User '1' logged in successfully.
+2026-06-14 13:41:44,184 [SYSTEM] INFO: Application closed normally.
+2026-06-14 13:41:48,544 [SYSTEM] INFO: Application starting...
+2026-06-14 13:41:48,544 [SYSTEM] INFO: Checking MySQL database connection to root@localhost...
+2026-06-14 13:41:48,684 [SYSTEM] INFO: Database connection successful, tables verified, and schemas reconciled.
+2026-06-14 13:41:53,378 [SYSTEM] INFO: User '1' logged in successfully.
+2026-06-14 13:44:55,463 [SYSTEM] ERROR: Unhandled exception in Tkinter callback:
+Traceback (most recent call last):
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\tkinter\__init__.py", line 2093, in __call__
+    return self.func(*args)
+           ~~~~~~~~~^^^^^^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\customtkinter\windows\widgets\ctk_button.py", line 554, in _clicked
+    self._command()
+    ~~~~~~~~~~~~~^^
+  File "f:\CR_PY\certificate_manager\ui\record_list.py", line 139, in <lambda>
+    lambda d=row_data: self._on_extra(d)).grid(row=0, column=curr_col, padx=2)
+                       ~~~~~~~~~~~~~~^^^
+  File "f:\CR_PY\certificate_manager\screens\graduation_orders_screen.py", line 313, in _view_students
+    self._on_view_students(row)
+    ~~~~~~~~~~~~~~~~~~~~~~^^^^^
+  File "f:\CR_PY\certificate_manager\main.py", line 357, in _open_order_students
+    self._show_screen("order_students")
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "f:\CR_PY\certificate_manager\main.py", line 349, in _show_screen
+    self._screens[key].refresh()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "f:\CR_PY\certificate_manager\screens\order_students_screen.py", line 168, in refresh
+    self._load_filter_options()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "f:\CR_PY\certificate_manager\screens\order_students_screen.py", line 193, in _load_filter_options
+    rows = conn.execute(
+           ^^^^^^^^^^^^
+AttributeError: 'CMySQLConnection' object has no attribute 'execute'
+2026-06-14 13:45:09,895 [SYSTEM] ERROR: Unhandled exception in Tkinter callback:
+Traceback (most recent call last):
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\tkinter\__init__.py", line 2093, in __call__
+    return self.func(*args)
+           ~~~~~~~~~^^^^^^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\customtkinter\windows\widgets\ctk_button.py", line 554, in _clicked
+    self._command()
+    ~~~~~~~~~~~~~^^
+  File "f:\CR_PY\certificate_manager\ui\record_list.py", line 139, in <lambda>
+    lambda d=row_data: self._on_extra(d)).grid(row=0, column=curr_col, padx=2)
+                       ~~~~~~~~~~~~~~^^^
+  File "f:\CR_PY\certificate_manager\screens\graduation_orders_screen.py", line 313, in _view_students
+    self._on_view_students(row)
+    ~~~~~~~~~~~~~~~~~~~~~~^^^^^
+  File "f:\CR_PY\certificate_manager\main.py", line 357, in _open_order_students
+    self._show_screen("order_students")
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "f:\CR_PY\certificate_manager\main.py", line 349, in _show_screen
+    self._screens[key].refresh()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "f:\CR_PY\certificate_manager\screens\order_students_screen.py", line 168, in refresh
+    self._load_filter_options()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "f:\CR_PY\certificate_manager\screens\order_students_screen.py", line 193, in _load_filter_options
+    rows = conn.execute(
+           ^^^^^^^^^^^^
+AttributeError: 'CMySQLConnection' object has no attribute 'execute'
+2026-06-14 13:45:14,542 [SYSTEM] ERROR: Unhandled exception in Tkinter callback:
+Traceback (most recent call last):
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\tkinter\__init__.py", line 2093, in __call__
+    return self.func(*args)
+           ~~~~~~~~~^^^^^^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\customtkinter\windows\widgets\core_widget_classes\dropdown_menu.py", line 101, in <lambda>
+    command=lambda v=value: self._button_callback(v),
+                            ~~~~~~~~~~~~~~~~~~~~~^^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\customtkinter\windows\widgets\core_widget_classes\dropdown_menu.py", line 106, in _button_callback
+    self._command(value)
+    ~~~~~~~~~~~~~^^^^^^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\customtkinter\windows\widgets\ctk_optionmenu.py", line 385, in _dropdown_callback
+    self._command(self._current_value)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "f:\CR_PY\certificate_manager\screens\order_students_screen.py", line 121, in <lambda>
+    command=lambda _: self._do_search(),
+                      ~~~~~~~~~~~~~~~^^
+  File "f:\CR_PY\certificate_manager\screens\order_students_screen.py", line 270, in _do_search
+    rows = StudentRepository().search_for_order(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'StudentRepository' object has no attribute 'search_for_order'
+2026-06-14 13:45:16,768 [SYSTEM] ERROR: Unhandled exception in Tkinter callback:
+Traceback (most recent call last):
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\tkinter\__init__.py", line 2093, in __call__
+    return self.func(*args)
+           ~~~~~~~~~^^^^^^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\customtkinter\windows\widgets\core_widget_classes\dropdown_menu.py", line 101, in <lambda>
+    command=lambda v=value: self._button_callback(v),
+                            ~~~~~~~~~~~~~~~~~~~~~^^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\customtkinter\windows\widgets\core_widget_classes\dropdown_menu.py", line 106, in _button_callback
+    self._command(value)
+    ~~~~~~~~~~~~~^^^^^^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\customtkinter\windows\widgets\ctk_optionmenu.py", line 385, in _dropdown_callback
+    self._command(self._current_value)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "f:\CR_PY\certificate_manager\screens\order_students_screen.py", line 134, in <lambda>
+    command=lambda _: self._do_search(),
+                      ~~~~~~~~~~~~~~~^^
+  File "f:\CR_PY\certificate_manager\screens\order_students_screen.py", line 270, in _do_search
+    rows = StudentRepository().search_for_order(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'StudentRepository' object has no attribute 'search_for_order'
+2026-06-15 08:49:09,846 [SYSTEM] INFO: Application closed normally.
+2026-06-15 11:05:10,560 [SYSTEM] INFO: Application starting...
+2026-06-15 11:05:10,562 [SYSTEM] INFO: Checking MySQL database connection to root@localhost...
+2026-06-15 11:05:10,716 [SYSTEM] INFO: Database connection successful, tables verified, and schemas reconciled.
+2026-06-15 11:05:10,743 [SYSTEM] INFO: Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-06-15 11:05:17,202 [SYSTEM] INFO: User '1' logged in successfully.
+2026-06-15 12:04:41,621 [SYSTEM] ERROR: Unhandled exception in Tkinter callback:
+Traceback (most recent call last):
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\tkinter\__init__.py", line 2093, in __call__
+    return self.func(*args)
+           ~~~~~~~~~^^^^^^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\customtkinter\windows\widgets\ctk_button.py", line 554, in _clicked
+    self._command()
+    ~~~~~~~~~~~~~^^
+  File "f:\CR_PY\certificate_manager\ui\record_list.py", line 139, in <lambda>
+    lambda d=row_data: self._on_extra(d)).grid(row=0, column=curr_col, padx=2)
+                       ~~~~~~~~~~~~~~^^^
+  File "f:\CR_PY\certificate_manager\screens\graduation_orders_screen.py", line 313, in _view_students
+    self._on_view_students(row)
+    ~~~~~~~~~~~~~~~~~~~~~~^^^^^
+  File "f:\CR_PY\certificate_manager\main.py", line 389, in _open_order_students
+    self._show_screen("order_students")
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "f:\CR_PY\certificate_manager\main.py", line 381, in _show_screen
+    self._screens[key].refresh()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "f:\CR_PY\certificate_manager\screens\order_students_screen.py", line 168, in refresh
+    self._load_filter_options()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "f:\CR_PY\certificate_manager\screens\order_students_screen.py", line 193, in _load_filter_options
+    rows = conn.execute(
+           ^^^^^^^^^^^^
+AttributeError: 'CMySQLConnection' object has no attribute 'execute'
+2026-06-15 12:05:57,757 [SYSTEM] INFO: Application closed normally.
+2026-06-15 12:47:11,385 [SYSTEM] INFO: Application starting...
+2026-06-15 12:47:11,386 [SYSTEM] INFO: Checking MySQL database connection to root@localhost...
+2026-06-15 12:47:11,543 [SYSTEM] INFO: Database connection successful, tables verified, and schemas reconciled.
+2026-06-15 12:47:11,558 [SYSTEM] INFO: Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-06-15 12:47:21,101 [SYSTEM] INFO: User '1' logged in successfully.
+2026-06-15 12:48:43,458 [SYSTEM] ERROR: Unhandled exception in Tkinter callback:
+Traceback (most recent call last):
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\tkinter\__init__.py", line 2093, in __call__
+    return self.func(*args)
+           ~~~~~~~~~^^^^^^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\customtkinter\windows\widgets\ctk_button.py", line 554, in _clicked
+    self._command()
+    ~~~~~~~~~~~~~^^
+  File "f:\CR_PY\certificate_manager\ui\record_list.py", line 139, in <lambda>
+    lambda d=row_data: self._on_extra(d)).grid(row=0, column=curr_col, padx=2)
+                       ~~~~~~~~~~~~~~^^^
+  File "f:\CR_PY\certificate_manager\screens\graduation_orders_screen.py", line 313, in _view_students
+    self._on_view_students(row)
+    ~~~~~~~~~~~~~~~~~~~~~~^^^^^
+  File "f:\CR_PY\certificate_manager\main.py", line 389, in _open_order_students
+    self._show_screen("order_students")
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "f:\CR_PY\certificate_manager\main.py", line 381, in _show_screen
+    self._screens[key].refresh()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "f:\CR_PY\certificate_manager\screens\order_students_screen.py", line 168, in refresh
+    self._load_filter_options()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "f:\CR_PY\certificate_manager\screens\order_students_screen.py", line 193, in _load_filter_options
+    rows = conn.execute(
+           ^^^^^^^^^^^^
+AttributeError: 'CMySQLConnection' object has no attribute 'execute'
+2026-06-15 12:48:54,562 [SYSTEM] ERROR: Unhandled exception in Tkinter callback:
+Traceback (most recent call last):
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\mysql\connector\connection_cext.py", line 772, in cmd_query
+    self._cmysql.query(
+    ~~~~~~~~~~~~~~~~~~^
+        query,
+        ^^^^^^
+    ...<3 lines>...
+        query_attrs=self.query_attrs,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+_mysql_connector.MySQLInterfaceError: Table 'certificate_manager.audit_log' doesn't exist
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\tkinter\__init__.py", line 2093, in __call__
+    return self.func(*args)
+           ~~~~~~~~~^^^^^^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\customtkinter\windows\widgets\ctk_button.py", line 554, in _clicked
+    self._command()
+    ~~~~~~~~~~~~~^^
+  File "f:\CR_PY\certificate_manager\main.py", line 155, in <lambda>
+    command=lambda key=item["key"]: self._on_navigate(key),
+                                    ~~~~~~~~~~~~~~~~~^^^^^
+  File "f:\CR_PY\certificate_manager\main.py", line 381, in _show_screen
+    self._screens[key].refresh()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "f:\CR_PY\certificate_manager\screens\history_screen.py", line 149, in refresh
+    total = AuditRepository().count_audit_log(self._table_filter, self._action_filter)
+  File "f:\CR_PY\certificate_manager\data\repositories.py", line 786, in count_audit_log
+    cur.execute(f"SELECT COUNT(*) FROM audit_log {where}", tuple(params))
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\mysql\connector\cursor_cext.py", line 353, in execute
+    self._connection.cmd_query(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        self._stmt_partition["mappable_stmt"],
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<2 lines>...
+        raw_as_string=self._raw_as_string,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\mysql\connector\opentelemetry\context_propagation.py", line 97, in wrapper
+    return method(cnx, *args, **kwargs)
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\mysql\connector\connection_cext.py", line 781, in cmd_query
+    raise get_mysql_exception(
+        err.errno, msg=err.msg, sqlstate=err.sqlstate
+    ) from err
+mysql.connector.errors.ProgrammingError: 1146 (42S02): Table 'certificate_manager.audit_log' doesn't exist
+2026-06-15 14:08:33,886 [SYSTEM] ERROR: Unhandled exception in Tkinter callback:
+Traceback (most recent call last):
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\mysql\connector\connection_cext.py", line 354, in _open_connection
+    self._cmysql.connect(**cnx_kwargs)
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^
+_mysql_connector.MySQLInterfaceError: Can't connect to MySQL server on 'localhost:3306' (10061)
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\tkinter\__init__.py", line 2093, in __call__
+    return self.func(*args)
+           ~~~~~~~~~^^^^^^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\customtkinter\windows\widgets\ctk_button.py", line 554, in _clicked
+    self._command()
+    ~~~~~~~~~~~~~^^
+  File "f:\CR_PY\certificate_manager\main.py", line 155, in <lambda>
+    command=lambda key=item["key"]: self._on_navigate(key),
+                                    ~~~~~~~~~~~~~~~~~^^^^^
+  File "f:\CR_PY\certificate_manager\main.py", line 381, in _show_screen
+    self._screens[key].refresh()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "f:\CR_PY\certificate_manager\screens\history_screen.py", line 149, in refresh
+    total = AuditRepository().count_audit_log(self._table_filter, self._action_filter)
+  File "f:\CR_PY\certificate_manager\data\repositories.py", line 783, in count_audit_log
+    conn = get_connection()
+  File "f:\CR_PY\certificate_manager\db.py", line 17, in get_connection
+    return mysql.connector.connect(
+           ~~~~~~~~~~~~~~~~~~~~~~~^
+        host=DBConfig.DB_HOST,
+        ^^^^^^^^^^^^^^^^^^^^^^
+    ...<4 lines>...
+        collation='utf8mb4_unicode_ci'
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\mysql\connector\pooling.py", line 322, in connect
+    return CMySQLConnection(*args, **kwargs)
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\mysql\connector\connection_cext.py", line 142, in __init__
+    self.connect(**kwargs)
+    ~~~~~~~~~~~~^^^^^^^^^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\mysql\connector\abstracts.py", line 1604, in connect
+    self._open_connection()
+    ~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\mysql\connector\connection_cext.py", line 360, in _open_connection
+    raise get_mysql_exception(
+        err.errno, msg=err.msg, sqlstate=err.sqlstate
+    ) from err
+mysql.connector.errors.DatabaseError: 2003 (HY000): Can't connect to MySQL server on 'localhost:3306' (10061)
+2026-06-15 14:15:00,434 [SYSTEM] INFO: Application closed normally.
+2026-06-17 09:16:15,310 [SYSTEM] INFO: Application starting...
+2026-06-17 09:16:15,311 [SYSTEM] INFO: Checking MySQL database connection to root@localhost...
+2026-06-17 09:16:19,446 [SYSTEM] ERROR: Database connection or schema verification failed: 2003 (HY000): Can't connect to MySQL server on 'localhost:3306' (10061)
+2026-06-17 09:16:19,453 [SYSTEM] WARNING: MySQL unavailable at startup: 2003 (HY000): Can't connect to MySQL server on 'localhost:3306' (10061) — starting in offline mode.
+2026-06-17 09:16:19,494 [SYSTEM] INFO: Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-06-17 09:16:27,909 [SYSTEM] INFO: User '1' logged in successfully.
+2026-06-17 09:19:42,861 [SYSTEM] INFO: Network restored. Triggering offline queue sync...
+2026-06-17 09:19:42,921 [SYSTEM] INFO: Sync queue is empty — nothing to do.
+2026-06-17 09:19:43,070 [SYSTEM] ERROR: Failed to replicate table study_systems: table study_systems has no column named study_day_type
+2026-06-17 09:19:43,250 [SYSTEM] ERROR: Failed to replicate table academic_periods: table academic_periods has no column named semester_num
+2026-06-17 09:19:43,300 [SYSTEM] INFO: Inbound sync complete: {'tables_synced': 10, 'total_rows': 5022, 'errors': ['study_systems: table study_systems has no column named study_day_type', 'academic_periods: table academic_periods has no column named semester_num']}
+2026-06-17 09:20:05,770 [SYSTEM] INFO: Application closed normally.
+2026-06-17 09:20:11,989 [SYSTEM] INFO: Application starting...
+2026-06-17 09:20:11,990 [SYSTEM] INFO: Checking MySQL database connection to root@localhost...
+2026-06-17 09:20:12,065 [SYSTEM] INFO: Database connection successful, tables verified, and schemas reconciled.
+2026-06-17 09:20:12,082 [SYSTEM] INFO: Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-06-17 09:20:17,358 [SYSTEM] INFO: User '1' logged in successfully.
+2026-06-17 09:20:53,276 [SYSTEM] ERROR: Unhandled exception in Tkinter callback:
+Traceback (most recent call last):
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\tkinter\__init__.py", line 2093, in __call__
+    return self.func(*args)
+           ~~~~~~~~~^^^^^^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\customtkinter\windows\widgets\ctk_button.py", line 554, in _clicked
+    self._command()
+    ~~~~~~~~~~~~~^^
+  File "f:\CR_PY\certificate_manager\ui\record_list.py", line 139, in <lambda>
+    lambda d=row_data: self._on_extra(d)).grid(row=0, column=curr_col, padx=2)
+                       ~~~~~~~~~~~~~~^^^
+  File "f:\CR_PY\certificate_manager\screens\graduation_orders_screen.py", line 313, in _view_students
+    self._on_view_students(row)
+    ~~~~~~~~~~~~~~~~~~~~~~^^^^^
+  File "f:\CR_PY\certificate_manager\main.py", line 394, in _open_order_students
+    self._show_screen("order_students")
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "f:\CR_PY\certificate_manager\main.py", line 386, in _show_screen
+    self._screens[key].refresh()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "f:\CR_PY\certificate_manager\screens\order_students_screen.py", line 168, in refresh
+    self._load_filter_options()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "f:\CR_PY\certificate_manager\screens\order_students_screen.py", line 193, in _load_filter_options
+    rows = conn.execute(
+           ^^^^^^^^^^^^
+AttributeError: 'CMySQLConnection' object has no attribute 'execute'
+2026-06-17 09:20:58,588 [SYSTEM] ERROR: Unhandled exception in Tkinter callback:
+Traceback (most recent call last):
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\tkinter\__init__.py", line 2093, in __call__
+    return self.func(*args)
+           ~~~~~~~~~^^^^^^^
+  File "f:\CR_PY\certificate_manager\screens\order_students_screen.py", line 140, in <lambda>
+    self._search_var.trace_add("write", lambda *_: self._do_search())
+                                                   ~~~~~~~~~~~~~~~^^
+  File "f:\CR_PY\certificate_manager\screens\order_students_screen.py", line 270, in _do_search
+    rows = StudentRepository().search_for_order(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'StudentRepository' object has no attribute 'search_for_order'
+2026-06-17 09:20:58,739 [SYSTEM] ERROR: Unhandled exception in Tkinter callback:
+Traceback (most recent call last):
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\tkinter\__init__.py", line 2093, in __call__
+    return self.func(*args)
+           ~~~~~~~~~^^^^^^^
+  File "f:\CR_PY\certificate_manager\screens\order_students_screen.py", line 140, in <lambda>
+    self._search_var.trace_add("write", lambda *_: self._do_search())
+                                                   ~~~~~~~~~~~~~~~^^
+  File "f:\CR_PY\certificate_manager\screens\order_students_screen.py", line 270, in _do_search
+    rows = StudentRepository().search_for_order(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'StudentRepository' object has no attribute 'search_for_order'
+2026-06-17 10:00:29,639 [SYSTEM] INFO: Network restored. Triggering offline queue sync...
+2026-06-17 10:00:29,717 [SYSTEM] INFO: Sync queue is empty — nothing to do.
+2026-06-17 10:00:29,921 [SYSTEM] ERROR: Failed to replicate table study_systems: table study_systems has no column named study_day_type
+2026-06-17 10:00:30,227 [SYSTEM] ERROR: Failed to replicate table academic_periods: table academic_periods has no column named semester_num
+2026-06-17 10:00:30,372 [SYSTEM] INFO: Inbound sync complete: {'tables_synced': 10, 'total_rows': 5022, 'errors': ['study_systems: table study_systems has no column named study_day_type', 'academic_periods: table academic_periods has no column named semester_num']}
+2026-06-17 10:14:10,952 [SYSTEM] INFO: Application closed normally.
+2026-06-17 10:29:37,059 [SYSTEM] INFO: Application starting...
+2026-06-17 10:29:37,059 [SYSTEM] INFO: Checking MySQL database connection to root@localhost...
+2026-06-17 10:29:37,333 [SYSTEM] INFO: Database connection successful, tables verified, and schemas reconciled.
+2026-06-17 10:29:37,360 [SYSTEM] INFO: Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-06-17 10:29:42,514 [SYSTEM] INFO: User '1' logged in successfully.
+2026-06-17 10:30:25,705 [SYSTEM] ERROR: Unhandled exception in Tkinter callback:
+Traceback (most recent call last):
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\tkinter\__init__.py", line 2093, in __call__
+    return self.func(*args)
+           ~~~~~~~~~^^^^^^^
+  File "f:\CR_PY\certificate_manager\screens\departments_screen.py", line 183, in _on_search
+    self._render_page(filtered)
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^
+  File "f:\CR_PY\certificate_manager\screens\departments_screen.py", line 167, in _render_page
+    self._list.load(rows, cell_extractor=lambda r: [
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        r["name_ar"], r["name_en"], r["college_ar"]
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ])
+    ^^
+  File "f:\CR_PY\certificate_manager\ui\record_list.py", line 96, in load
+    self._add_row(idx, row_data, cell_extractor(row_data))
+                                 ~~~~~~~~~~~~~~^^^^^^^^^^
+  File "f:\CR_PY\certificate_manager\screens\departments_screen.py", line 168, in <lambda>
+    r["name_ar"], r["name_en"], r["college_ar"]
+                                ~^^^^^^^^^^^^^^
+KeyError: 'college_ar'
+2026-06-17 10:30:25,721 [SYSTEM] ERROR: Unhandled exception in Tkinter callback:
+Traceback (most recent call last):
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\tkinter\__init__.py", line 2093, in __call__
+    return self.func(*args)
+           ~~~~~~~~~^^^^^^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\customtkinter\windows\widgets\ctk_button.py", line 554, in _clicked
+    self._command()
+    ~~~~~~~~~~~~~^^
+  File "f:\CR_PY\certificate_manager\main.py", line 160, in <lambda>
+    command=lambda key=item["key"]: self._on_navigate(key),
+                                    ~~~~~~~~~~~~~~~~~^^^^^
+  File "f:\CR_PY\certificate_manager\main.py", line 386, in _show_screen
+    self._screens[key].refresh()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "f:\CR_PY\certificate_manager\screens\departments_screen.py", line 158, in refresh
+    self._render_page(self._all_rows)
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^
+  File "f:\CR_PY\certificate_manager\screens\departments_screen.py", line 167, in _render_page
+    self._list.load(rows, cell_extractor=lambda r: [
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        r["name_ar"], r["name_en"], r["college_ar"]
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ])
+    ^^
+  File "f:\CR_PY\certificate_manager\ui\record_list.py", line 96, in load
+    self._add_row(idx, row_data, cell_extractor(row_data))
+                                 ~~~~~~~~~~~~~~^^^^^^^^^^
+  File "f:\CR_PY\certificate_manager\screens\departments_screen.py", line 168, in <lambda>
+    r["name_ar"], r["name_en"], r["college_ar"]
+                                ~^^^^^^^^^^^^^^
+KeyError: 'college_ar'
+2026-06-17 10:30:34,958 [SYSTEM] ERROR: Unhandled exception in Tkinter callback:
+Traceback (most recent call last):
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\tkinter\__init__.py", line 2093, in __call__
+    return self.func(*args)
+           ~~~~~~~~~^^^^^^^
+  File "f:\CR_PY\certificate_manager\screens\departments_screen.py", line 183, in _on_search
+    self._render_page(filtered)
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^
+  File "f:\CR_PY\certificate_manager\screens\departments_screen.py", line 167, in _render_page
+    self._list.load(rows, cell_extractor=lambda r: [
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        r["name_ar"], r["name_en"], r["college_ar"]
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ])
+    ^^
+  File "f:\CR_PY\certificate_manager\ui\record_list.py", line 96, in load
+    self._add_row(idx, row_data, cell_extractor(row_data))
+                                 ~~~~~~~~~~~~~~^^^^^^^^^^
+  File "f:\CR_PY\certificate_manager\screens\departments_screen.py", line 168, in <lambda>
+    r["name_ar"], r["name_en"], r["college_ar"]
+                                ~^^^^^^^^^^^^^^
+KeyError: 'college_ar'
+2026-06-17 10:30:34,966 [SYSTEM] ERROR: Unhandled exception in Tkinter callback:
+Traceback (most recent call last):
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\tkinter\__init__.py", line 2093, in __call__
+    return self.func(*args)
+           ~~~~~~~~~^^^^^^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\customtkinter\windows\widgets\ctk_button.py", line 554, in _clicked
+    self._command()
+    ~~~~~~~~~~~~~^^
+  File "f:\CR_PY\certificate_manager\main.py", line 160, in <lambda>
+    command=lambda key=item["key"]: self._on_navigate(key),
+                                    ~~~~~~~~~~~~~~~~~^^^^^
+  File "f:\CR_PY\certificate_manager\main.py", line 386, in _show_screen
+    self._screens[key].refresh()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "f:\CR_PY\certificate_manager\screens\departments_screen.py", line 158, in refresh
+    self._render_page(self._all_rows)
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^
+  File "f:\CR_PY\certificate_manager\screens\departments_screen.py", line 167, in _render_page
+    self._list.load(rows, cell_extractor=lambda r: [
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        r["name_ar"], r["name_en"], r["college_ar"]
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ])
+    ^^
+  File "f:\CR_PY\certificate_manager\ui\record_list.py", line 96, in load
+    self._add_row(idx, row_data, cell_extractor(row_data))
+                                 ~~~~~~~~~~~~~~^^^^^^^^^^
+  File "f:\CR_PY\certificate_manager\screens\departments_screen.py", line 168, in <lambda>
+    r["name_ar"], r["name_en"], r["college_ar"]
+                                ~^^^^^^^^^^^^^^
+KeyError: 'college_ar'
+2026-06-17 10:35:02,198 [SYSTEM] ERROR: Unhandled exception in Tkinter callback:
+Traceback (most recent call last):
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\mysql\connector\connection_cext.py", line 772, in cmd_query
+    self._cmysql.query(
+    ~~~~~~~~~~~~~~~~~~^
+        query,
+        ^^^^^^
+    ...<3 lines>...
+        query_attrs=self.query_attrs,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+_mysql_connector.MySQLInterfaceError: Table 'certificate_manager.audit_log' doesn't exist
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\tkinter\__init__.py", line 2093, in __call__
+    return self.func(*args)
+           ~~~~~~~~~^^^^^^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\customtkinter\windows\widgets\ctk_button.py", line 554, in _clicked
+    self._command()
+    ~~~~~~~~~~~~~^^
+  File "f:\CR_PY\certificate_manager\main.py", line 160, in <lambda>
+    command=lambda key=item["key"]: self._on_navigate(key),
+                                    ~~~~~~~~~~~~~~~~~^^^^^
+  File "f:\CR_PY\certificate_manager\main.py", line 386, in _show_screen
+    self._screens[key].refresh()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "f:\CR_PY\certificate_manager\screens\history_screen.py", line 149, in refresh
+    total = AuditRepository().count_audit_log(self._table_filter, self._action_filter)
+  File "f:\CR_PY\certificate_manager\data\repositories.py", line 970, in count_audit_log
+    cur.execute(f"SELECT COUNT(*) FROM audit_log {where}", tuple(params))
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\mysql\connector\cursor_cext.py", line 353, in execute
+    self._connection.cmd_query(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        self._stmt_partition["mappable_stmt"],
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<2 lines>...
+        raw_as_string=self._raw_as_string,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\mysql\connector\opentelemetry\context_propagation.py", line 97, in wrapper
+    return method(cnx, *args, **kwargs)
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\mysql\connector\connection_cext.py", line 781, in cmd_query
+    raise get_mysql_exception(
+        err.errno, msg=err.msg, sqlstate=err.sqlstate
+    ) from err
+mysql.connector.errors.ProgrammingError: 1146 (42S02): Table 'certificate_manager.audit_log' doesn't exist
+2026-06-17 10:39:44,277 [SYSTEM] INFO: Application closed normally.
+2026-06-17 10:39:50,985 [SYSTEM] INFO: Application starting...
+2026-06-17 10:39:50,985 [SYSTEM] INFO: Checking MySQL database connection to root@localhost...
+2026-06-17 10:39:55,063 [SYSTEM] ERROR: Database connection or schema verification failed: 2003 (HY000): Can't connect to MySQL server on 'localhost:3306' (10061)
+2026-06-17 10:39:55,064 [SYSTEM] WARNING: MySQL unavailable at startup: 2003 (HY000): Can't connect to MySQL server on 'localhost:3306' (10061) — starting in offline mode.
+2026-06-17 10:39:55,083 [SYSTEM] INFO: Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-06-17 10:40:23,032 [SYSTEM] INFO: User '1' logged in successfully.
+2026-06-17 10:42:31,888 [SYSTEM] INFO: Application closed normally.
+2026-06-17 11:12:19,695 [SYSTEM] INFO: Application starting...
+2026-06-17 11:12:19,696 [SYSTEM] INFO: Checking MySQL database connection to root@localhost...
+2026-06-17 11:12:19,903 [SYSTEM] INFO: Database connection successful, tables verified, and schemas reconciled.
+2026-06-17 11:12:19,914 [SYSTEM] INFO: Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-06-17 11:12:24,971 [SYSTEM] INFO: User '1' logged in successfully.
+2026-06-17 11:12:27,523 [SYSTEM] ERROR: Snapshot backup failed: table study_systems has no column named study_day_type
+2026-06-17 11:12:54,367 [SYSTEM] ERROR: Unhandled exception in Tkinter callback:
+Traceback (most recent call last):
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\tkinter\__init__.py", line 2093, in __call__
+    return self.func(*args)
+           ~~~~~~~~~^^^^^^^
+  File "f:\CR_PY\certificate_manager\screens\departments_screen.py", line 183, in _on_search
+    self._render_page(filtered)
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^
+  File "f:\CR_PY\certificate_manager\screens\departments_screen.py", line 167, in _render_page
+    self._list.load(rows, cell_extractor=lambda r: [
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        r["name_ar"], r["name_en"], r["college_ar"]
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ])
+    ^^
+  File "f:\CR_PY\certificate_manager\ui\record_list.py", line 96, in load
+    self._add_row(idx, row_data, cell_extractor(row_data))
+                                 ~~~~~~~~~~~~~~^^^^^^^^^^
+  File "f:\CR_PY\certificate_manager\screens\departments_screen.py", line 168, in <lambda>
+    r["name_ar"], r["name_en"], r["college_ar"]
+                                ~^^^^^^^^^^^^^^
+KeyError: 'college_ar'
+2026-06-17 11:12:54,390 [SYSTEM] ERROR: Unhandled exception in Tkinter callback:
+Traceback (most recent call last):
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\tkinter\__init__.py", line 2093, in __call__
+    return self.func(*args)
+           ~~~~~~~~~^^^^^^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\customtkinter\windows\widgets\ctk_button.py", line 554, in _clicked
+    self._command()
+    ~~~~~~~~~~~~~^^
+  File "f:\CR_PY\certificate_manager\main.py", line 161, in <lambda>
+    command=lambda key=item["key"]: self._on_navigate(key),
+                                    ~~~~~~~~~~~~~~~~~^^^^^
+  File "f:\CR_PY\certificate_manager\main.py", line 405, in _show_screen
+    self._screens[key].refresh()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "f:\CR_PY\certificate_manager\screens\departments_screen.py", line 158, in refresh
+    self._render_page(self._all_rows)
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^
+  File "f:\CR_PY\certificate_manager\screens\departments_screen.py", line 167, in _render_page
+    self._list.load(rows, cell_extractor=lambda r: [
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        r["name_ar"], r["name_en"], r["college_ar"]
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ])
+    ^^
+  File "f:\CR_PY\certificate_manager\ui\record_list.py", line 96, in load
+    self._add_row(idx, row_data, cell_extractor(row_data))
+                                 ~~~~~~~~~~~~~~^^^^^^^^^^
+  File "f:\CR_PY\certificate_manager\screens\departments_screen.py", line 168, in <lambda>
+    r["name_ar"], r["name_en"], r["college_ar"]
+                                ~^^^^^^^^^^^^^^
+KeyError: 'college_ar'
+2026-06-17 11:13:01,594 [SYSTEM] ERROR: Unhandled exception in Tkinter callback:
+Traceback (most recent call last):
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\tkinter\__init__.py", line 2093, in __call__
+    return self.func(*args)
+           ~~~~~~~~~^^^^^^^
+  File "f:\CR_PY\certificate_manager\screens\departments_screen.py", line 183, in _on_search
+    self._render_page(filtered)
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^
+  File "f:\CR_PY\certificate_manager\screens\departments_screen.py", line 167, in _render_page
+    self._list.load(rows, cell_extractor=lambda r: [
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        r["name_ar"], r["name_en"], r["college_ar"]
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ])
+    ^^
+  File "f:\CR_PY\certificate_manager\ui\record_list.py", line 96, in load
+    self._add_row(idx, row_data, cell_extractor(row_data))
+                                 ~~~~~~~~~~~~~~^^^^^^^^^^
+  File "f:\CR_PY\certificate_manager\screens\departments_screen.py", line 168, in <lambda>
+    r["name_ar"], r["name_en"], r["college_ar"]
+                                ~^^^^^^^^^^^^^^
+KeyError: 'college_ar'
+2026-06-17 11:13:03,183 [SYSTEM] ERROR: Unhandled exception in Tkinter callback:
+Traceback (most recent call last):
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\tkinter\__init__.py", line 2093, in __call__
+    return self.func(*args)
+           ~~~~~~~~~^^^^^^^
+  File "f:\CR_PY\certificate_manager\screens\departments_screen.py", line 183, in _on_search
+    self._render_page(filtered)
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^
+  File "f:\CR_PY\certificate_manager\screens\departments_screen.py", line 167, in _render_page
+    self._list.load(rows, cell_extractor=lambda r: [
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        r["name_ar"], r["name_en"], r["college_ar"]
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ])
+    ^^
+  File "f:\CR_PY\certificate_manager\ui\record_list.py", line 96, in load
+    self._add_row(idx, row_data, cell_extractor(row_data))
+                                 ~~~~~~~~~~~~~~^^^^^^^^^^
+  File "f:\CR_PY\certificate_manager\screens\departments_screen.py", line 168, in <lambda>
+    r["name_ar"], r["name_en"], r["college_ar"]
+                                ~^^^^^^^^^^^^^^
+KeyError: 'college_ar'
+2026-06-17 11:13:11,923 [SYSTEM] ERROR: Unhandled exception in Tkinter callback:
+Traceback (most recent call last):
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\mysql\connector\connection_cext.py", line 772, in cmd_query
+    self._cmysql.query(
+    ~~~~~~~~~~~~~~~~~~^
+        query,
+        ^^^^^^
+    ...<3 lines>...
+        query_attrs=self.query_attrs,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+_mysql_connector.MySQLInterfaceError: Table 'certificate_manager.audit_log' doesn't exist
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\tkinter\__init__.py", line 2093, in __call__
+    return self.func(*args)
+           ~~~~~~~~~^^^^^^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\customtkinter\windows\widgets\ctk_button.py", line 554, in _clicked
+    self._command()
+    ~~~~~~~~~~~~~^^
+  File "f:\CR_PY\certificate_manager\main.py", line 161, in <lambda>
+    command=lambda key=item["key"]: self._on_navigate(key),
+                                    ~~~~~~~~~~~~~~~~~^^^^^
+  File "f:\CR_PY\certificate_manager\main.py", line 405, in _show_screen
+    self._screens[key].refresh()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "f:\CR_PY\certificate_manager\screens\history_screen.py", line 149, in refresh
+    total = AuditRepository().count_audit_log(self._table_filter, self._action_filter)
+  File "f:\CR_PY\certificate_manager\data\repositories.py", line 1207, in count_audit_log
+    cur.execute(f"SELECT COUNT(*) FROM audit_log {where}", tuple(params))
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\mysql\connector\cursor_cext.py", line 353, in execute
+    self._connection.cmd_query(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        self._stmt_partition["mappable_stmt"],
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<2 lines>...
+        raw_as_string=self._raw_as_string,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\mysql\connector\opentelemetry\context_propagation.py", line 97, in wrapper
+    return method(cnx, *args, **kwargs)
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\mysql\connector\connection_cext.py", line 781, in cmd_query
+    raise get_mysql_exception(
+        err.errno, msg=err.msg, sqlstate=err.sqlstate
+    ) from err
+mysql.connector.errors.ProgrammingError: 1146 (42S02): Table 'certificate_manager.audit_log' doesn't exist
+2026-06-17 11:13:15,389 [SYSTEM] ERROR: Unhandled exception in Tkinter callback:
+Traceback (most recent call last):
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\tkinter\__init__.py", line 2093, in __call__
+    return self.func(*args)
+           ~~~~~~~~~^^^^^^^
+  File "f:\CR_PY\certificate_manager\screens\departments_screen.py", line 183, in _on_search
+    self._render_page(filtered)
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^
+  File "f:\CR_PY\certificate_manager\screens\departments_screen.py", line 167, in _render_page
+    self._list.load(rows, cell_extractor=lambda r: [
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        r["name_ar"], r["name_en"], r["college_ar"]
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ])
+    ^^
+  File "f:\CR_PY\certificate_manager\ui\record_list.py", line 96, in load
+    self._add_row(idx, row_data, cell_extractor(row_data))
+                                 ~~~~~~~~~~~~~~^^^^^^^^^^
+  File "f:\CR_PY\certificate_manager\screens\departments_screen.py", line 168, in <lambda>
+    r["name_ar"], r["name_en"], r["college_ar"]
+                                ~^^^^^^^^^^^^^^
+KeyError: 'college_ar'
+2026-06-17 11:13:15,397 [SYSTEM] ERROR: Unhandled exception in Tkinter callback:
+Traceback (most recent call last):
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\tkinter\__init__.py", line 2093, in __call__
+    return self.func(*args)
+           ~~~~~~~~~^^^^^^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\customtkinter\windows\widgets\ctk_button.py", line 554, in _clicked
+    self._command()
+    ~~~~~~~~~~~~~^^
+  File "f:\CR_PY\certificate_manager\main.py", line 161, in <lambda>
+    command=lambda key=item["key"]: self._on_navigate(key),
+                                    ~~~~~~~~~~~~~~~~~^^^^^
+  File "f:\CR_PY\certificate_manager\main.py", line 405, in _show_screen
+    self._screens[key].refresh()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "f:\CR_PY\certificate_manager\screens\departments_screen.py", line 158, in refresh
+    self._render_page(self._all_rows)
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^
+  File "f:\CR_PY\certificate_manager\screens\departments_screen.py", line 167, in _render_page
+    self._list.load(rows, cell_extractor=lambda r: [
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        r["name_ar"], r["name_en"], r["college_ar"]
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ])
+    ^^
+  File "f:\CR_PY\certificate_manager\ui\record_list.py", line 96, in load
+    self._add_row(idx, row_data, cell_extractor(row_data))
+                                 ~~~~~~~~~~~~~~^^^^^^^^^^
+  File "f:\CR_PY\certificate_manager\screens\departments_screen.py", line 168, in <lambda>
+    r["name_ar"], r["name_en"], r["college_ar"]
+                                ~^^^^^^^^^^^^^^
+KeyError: 'college_ar'
+2026-06-17 11:17:16,787 [SYSTEM] INFO: Network restored. Triggering offline queue sync...
+2026-06-17 11:17:16,868 [SYSTEM] INFO: Sync queue is empty — nothing to do.
+2026-06-17 11:17:17,046 [SYSTEM] ERROR: Failed to replicate table study_systems: table study_systems has no column named study_day_type
+2026-06-17 11:17:17,445 [SYSTEM] INFO: Inbound sync complete: {'tables_synced': 11, 'total_rows': 5720, 'errors': ['study_systems: table study_systems has no column named study_day_type']}
+2026-06-17 11:17:44,115 [SYSTEM] INFO: Application closed normally.
+2026-06-17 12:41:29,833 [SYSTEM] INFO: Application starting...
+2026-06-17 12:41:29,834 [SYSTEM] INFO: Checking MySQL database connection to root@localhost...
+2026-06-17 12:41:29,935 [SYSTEM] INFO: Database connection successful, tables verified, and schemas reconciled.
+2026-06-17 12:41:29,947 [SYSTEM] INFO: Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-06-17 12:41:34,983 [SYSTEM] INFO: User '1' logged in successfully.
+2026-06-17 12:41:37,898 [SYSTEM] INFO: Database snapshot backup complete.
+2026-06-17 12:54:29,946 [SYSTEM] ERROR: Unhandled exception in Tkinter callback:
+Traceback (most recent call last):
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\mysql\connector\connection_cext.py", line 772, in cmd_query
+    self._cmysql.query(
+    ~~~~~~~~~~~~~~~~~~^
+        query,
+        ^^^^^^
+    ...<3 lines>...
+        query_attrs=self.query_attrs,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+_mysql_connector.MySQLInterfaceError: Table 'certificate_manager.audit_log' doesn't exist
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\tkinter\__init__.py", line 2093, in __call__
+    return self.func(*args)
+           ~~~~~~~~~^^^^^^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\customtkinter\windows\widgets\ctk_button.py", line 554, in _clicked
+    self._command()
+    ~~~~~~~~~~~~~^^
+  File "f:\CR_PY\certificate_manager\main.py", line 161, in <lambda>
+    command=lambda key=item["key"]: self._on_navigate(key),
+                                    ~~~~~~~~~~~~~~~~~^^^^^
+  File "f:\CR_PY\certificate_manager\main.py", line 405, in _show_screen
+    self._screens[key].refresh()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "f:\CR_PY\certificate_manager\screens\history_screen.py", line 149, in refresh
+    total = AuditRepository().count_audit_log(self._table_filter, self._action_filter)
+  File "f:\CR_PY\certificate_manager\data\repositories.py", line 1211, in count_audit_log
+    cur.execute(f"SELECT COUNT(*) FROM audit_log {where}", tuple(params))
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\mysql\connector\cursor_cext.py", line 353, in execute
+    self._connection.cmd_query(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        self._stmt_partition["mappable_stmt"],
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<2 lines>...
+        raw_as_string=self._raw_as_string,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\mysql\connector\opentelemetry\context_propagation.py", line 97, in wrapper
+    return method(cnx, *args, **kwargs)
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\mysql\connector\connection_cext.py", line 781, in cmd_query
+    raise get_mysql_exception(
+        err.errno, msg=err.msg, sqlstate=err.sqlstate
+    ) from err
+mysql.connector.errors.ProgrammingError: 1146 (42S02): Table 'certificate_manager.audit_log' doesn't exist
+2026-06-17 12:55:05,453 [SYSTEM] ERROR: Unhandled exception in Tkinter callback:
+Traceback (most recent call last):
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\tkinter\__init__.py", line 2093, in __call__
+    return self.func(*args)
+           ~~~~~~~~~^^^^^^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\customtkinter\windows\widgets\ctk_button.py", line 554, in _clicked
+    self._command()
+    ~~~~~~~~~~~~~^^
+  File "f:\CR_PY\certificate_manager\screens\students_screen.py", line 1104, in <lambda>
+    command=lambda sid=s["id"]: self._select_student(sid),
+                                ~~~~~~~~~~~~~~~~~~~~^^^^^
+  File "f:\CR_PY\certificate_manager\screens\students_screen.py", line 1119, in _select_student
+    self._show_student_detail(data)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "f:\CR_PY\certificate_manager\screens\students_screen.py", line 1194, in _show_student_detail
+    grade_ar, grade_en = get_grade(avg) if avg else ("—", "—")
+                         ~~~~~~~~~^^^^^
+  File "f:\CR_PY\certificate_manager\db.py", line 118, in get_grade
+    if average >= 90:
+       ^^^^^^^^^^^^^
+TypeError: '>=' not supported between instances of 'str' and 'int'
+2026-06-17 12:56:32,006 [SYSTEM] ERROR: Unhandled exception in Tkinter callback:
+Traceback (most recent call last):
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\tkinter\__init__.py", line 2093, in __call__
+    return self.func(*args)
+           ~~~~~~~~~^^^^^^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\customtkinter\windows\widgets\ctk_button.py", line 554, in _clicked
+    self._command()
+    ~~~~~~~~~~~~~^^
+  File "f:\CR_PY\certificate_manager\main.py", line 161, in <lambda>
+    command=lambda key=item["key"]: self._on_navigate(key),
+                                    ~~~~~~~~~~~~~~~~~^^^^^
+  File "f:\CR_PY\certificate_manager\main.py", line 405, in _show_screen
+    self._screens[key].refresh()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "f:\CR_PY\certificate_manager\screens\students_screen.py", line 1019, in refresh
+    self._show_student_detail(refreshed)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^
+  File "f:\CR_PY\certificate_manager\screens\students_screen.py", line 1194, in _show_student_detail
+    grade_ar, grade_en = get_grade(avg) if avg else ("—", "—")
+                         ~~~~~~~~~^^^^^
+  File "f:\CR_PY\certificate_manager\db.py", line 118, in get_grade
+    if average >= 90:
+       ^^^^^^^^^^^^^
+TypeError: '>=' not supported between instances of 'str' and 'int'
+2026-06-17 12:56:54,733 [SYSTEM] INFO: Application closed normally.
+2026-06-17 13:06:19,088 [SYSTEM] INFO: Application starting...
+2026-06-17 13:06:19,089 [SYSTEM] INFO: Checking MySQL database connection to root@localhost...
+2026-06-17 13:06:23,195 [SYSTEM] ERROR: Database connection or schema verification failed: 2003 (HY000): Can't connect to MySQL server on 'localhost:3306' (10061)
+2026-06-17 13:06:23,197 [SYSTEM] WARNING: MySQL unavailable at startup: 2003 (HY000): Can't connect to MySQL server on 'localhost:3306' (10061) — starting in offline mode.
+2026-06-17 13:06:23,221 [SYSTEM] INFO: Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-06-17 13:06:29,371 [SYSTEM] INFO: User '1' logged in successfully.
+2026-06-17 13:10:08,545 [SYSTEM] INFO: Application closed normally.
+2026-06-17 13:19:42,953 [SYSTEM] INFO: Application starting...
+2026-06-17 13:19:42,954 [SYSTEM] INFO: Checking MySQL database connection to root@localhost...
+2026-06-17 13:19:47,037 [SYSTEM] ERROR: Database connection or schema verification failed: 2003 (HY000): Can't connect to MySQL server on 'localhost:3306' (10061)
+2026-06-17 13:19:47,037 [SYSTEM] WARNING: MySQL unavailable at startup: 2003 (HY000): Can't connect to MySQL server on 'localhost:3306' (10061) — starting in offline mode.
+2026-06-17 13:19:47,047 [SYSTEM] INFO: Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-06-17 13:19:53,318 [SYSTEM] INFO: User '1' logged in successfully.
+2026-06-17 13:38:10,335 [SYSTEM] INFO: Network restored. Triggering offline queue sync...
+2026-06-17 13:38:10,369 [SYSTEM] INFO: Sync queue is empty — nothing to do.
+2026-06-17 13:38:10,713 [SYSTEM] INFO: Inbound sync complete: {'tables_synced': 12, 'total_rows': 5724, 'errors': []}
+2026-06-17 13:41:17,024 [SYSTEM] INFO: Application closed normally.
+2026-06-17 13:50:11,761 [SYSTEM] INFO: Application starting...
+2026-06-17 13:50:11,761 [SYSTEM] INFO: Checking MySQL database connection to root@localhost...
+2026-06-17 13:50:11,928 [SYSTEM] INFO: Database connection successful, tables verified, and schemas reconciled.
+2026-06-17 13:50:11,951 [SYSTEM] INFO: Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-06-17 13:50:23,790 [SYSTEM] INFO: User '1' logged in successfully.
+2026-06-17 13:50:26,483 [SYSTEM] INFO: Database snapshot backup complete.
+2026-06-17 13:53:26,981 [SYSTEM] INFO: Network restored. Triggering offline queue sync...
+2026-06-17 13:53:27,029 [SYSTEM] INFO: Sync queue is empty — nothing to do.
+2026-06-17 13:53:27,357 [SYSTEM] INFO: Inbound sync complete: {'tables_synced': 12, 'total_rows': 5724, 'errors': []}
+2026-06-17 14:09:59,702 [SYSTEM] INFO: Application closed normally.
+2026-06-17 14:20:25,602 [SYSTEM] INFO: Application starting...
+2026-06-17 14:20:25,603 [SYSTEM] INFO: Checking MySQL database connection to root@localhost...
+2026-06-17 14:20:25,794 [SYSTEM] INFO: Database connection successful, tables verified, and schemas reconciled.
+2026-06-17 14:20:25,826 [SYSTEM] INFO: Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-06-17 14:20:32,610 [SYSTEM] INFO: User '1' logged in successfully.
+2026-06-17 14:20:35,505 [SYSTEM] INFO: Database snapshot backup complete.
+2026-06-18 09:21:48,244 [SYSTEM] INFO: Application starting...
+2026-06-18 09:21:48,245 [SYSTEM] INFO: Checking MySQL database connection to root@localhost...
+2026-06-18 09:21:48,476 [SYSTEM] INFO: Database connection successful, tables verified, and schemas reconciled.
+2026-06-18 09:21:48,489 [SYSTEM] INFO: Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-06-18 09:21:56,728 [SYSTEM] INFO: User '1' logged in successfully.
+2026-06-18 09:21:59,475 [SYSTEM] INFO: Database snapshot backup complete.
+2026-06-18 09:55:59,754 [SYSTEM] INFO: Application closed normally.
+2026-06-18 10:09:58,164 [SYSTEM] INFO: Application starting...
+2026-06-18 10:09:58,165 [SYSTEM] INFO: Checking MySQL database connection to root@localhost...
+2026-06-18 10:09:58,275 [SYSTEM] INFO: Database connection successful, tables verified, and schemas reconciled.
+2026-06-18 10:09:58,290 [SYSTEM] INFO: Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-06-18 10:10:04,681 [SYSTEM] INFO: User '1' logged in successfully.
+2026-06-18 10:10:07,325 [SYSTEM] INFO: Database snapshot backup complete.
+2026-06-18 10:20:05,946 [SYSTEM] INFO: Application closed normally.
+2026-06-18 10:26:41,413 [SYSTEM] INFO: Application starting...
+2026-06-18 10:26:41,413 [SYSTEM] INFO: Checking MySQL database connection to root@localhost...
+2026-06-18 10:26:41,559 [SYSTEM] INFO: Database connection successful, tables verified, and schemas reconciled.
+2026-06-18 10:26:41,572 [SYSTEM] INFO: Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-06-18 10:26:46,179 [SYSTEM] INFO: User '1' logged in successfully.
+2026-06-18 10:26:48,892 [SYSTEM] INFO: Database snapshot backup complete.
+2026-06-18 10:43:14,194 [SYSTEM] INFO: Application starting...
+2026-06-18 10:43:14,196 [SYSTEM] INFO: Checking MySQL database connection to root@localhost...
+2026-06-18 10:43:14,344 [SYSTEM] INFO: Database connection successful, tables verified, and schemas reconciled.
+2026-06-18 10:43:14,357 [SYSTEM] INFO: Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-06-18 10:43:23,864 [SYSTEM] INFO: User '1' logged in successfully.
+2026-06-18 10:43:26,616 [SYSTEM] INFO: Database snapshot backup complete.
+2026-06-18 12:30:25,259 [SYSTEM] INFO: Application starting...
+2026-06-18 12:30:25,260 [SYSTEM] INFO: Checking MySQL database connection to root@localhost...
+2026-06-18 12:30:25,460 [SYSTEM] INFO: Database connection successful, tables verified, and schemas reconciled.
+2026-06-18 12:30:25,481 [SYSTEM] INFO: Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-06-18 12:30:32,136 [SYSTEM] INFO: User '1' logged in successfully.
+2026-06-18 12:30:32,233 [SYSTEM] ERROR: Unhandled exception in Tkinter callback:
+Traceback (most recent call last):
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\tkinter\__init__.py", line 2093, in __call__
+    return self.func(*args)
+           ~~~~~~~~~^^^^^^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\customtkinter\windows\widgets\ctk_button.py", line 554, in _clicked
+    self._command()
+    ~~~~~~~~~~~~~^^
+  File "f:\CR_PY\certificate_manager\screens\login_screen.py", line 149, in _attempt_login
+    self._on_login_success(user_data)
+    ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^
+  File "f:\CR_PY\certificate_manager\main.py", line 317, in _on_login_success
+    self._build_layout()
+    ~~~~~~~~~~~~~~~~~~^^
+  File "f:\CR_PY\certificate_manager\main.py", line 360, in _build_layout
+    self._sidebar = Sidebar(self, on_navigate=self._show_screen)
+                    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "f:\CR_PY\certificate_manager\main.py", line 120, in __init__
+    self._build()
+    ~~~~~~~~~~~^^
+  File "f:\CR_PY\certificate_manager\main.py", line 123, in _build
+    self._build_title()
+    ~~~~~~~~~~~~~~~~~^^
+  File "f:\CR_PY\certificate_manager\main.py", line 128, in _build_title
+    ctk.CTkLabel(
+    ~~~~~~~~~~~~^
+        self,
+        ^^^^^
+    ...<7 lines>...
+        anchor="center",
+        ^^^^^^^^^^^^^^^^
+    ).grid(row=0, column=0, padx=16, pady=(22, 10), sticky="ew")
+    ^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\customtkinter\windows\widgets\ctk_label.py", line 60, in __init__
+    self._corner_radius = ThemeManager.theme["CTkLabel"]["corner_radius"] if corner_radius is None else corner_radius
+                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+KeyError: 'corner_radius'
+2026-06-18 12:36:42,033 [SYSTEM] ERROR: Unhandled exception in Tkinter callback:
+Traceback (most recent call last):
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\tkinter\__init__.py", line 2093, in __call__
+    return self.func(*args)
+           ~~~~~~~~~^^^^^^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\customtkinter\windows\ctk_tk.py", line 87, in destroy
+    tkinter.Tk.destroy(self)
+    ~~~~~~~~~~~~~~~~~~^^^^^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\tkinter\__init__.py", line 2527, in destroy
+    for c in list(self.children.values()): c.destroy()
+                                           ~~~~~~~~~^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\customtkinter\windows\widgets\core_widget_classes\ctk_base_class.py", line 98, in destroy
+    tkinter.Frame.destroy(self)
+    ~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\tkinter\__init__.py", line 2812, in destroy
+    for c in list(self.children.values()): c.destroy()
+                                           ~~~~~~~~~^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\customtkinter\windows\widgets\ctk_label.py", line 147, in destroy
+    if isinstance(self._font, CTkFont):
+                  ^^^^^^^^^^
+AttributeError: 'CTkLabel' object has no attribute '_font'. Did you mean: '_root'?
+2026-06-18 12:36:44,340 [SYSTEM] ERROR: Unhandled exception in Tkinter callback:
+Traceback (most recent call last):
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\tkinter\__init__.py", line 2093, in __call__
+    return self.func(*args)
+           ~~~~~~~~~^^^^^^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\customtkinter\windows\ctk_tk.py", line 87, in destroy
+    tkinter.Tk.destroy(self)
+    ~~~~~~~~~~~~~~~~~~^^^^^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\tkinter\__init__.py", line 2527, in destroy
+    for c in list(self.children.values()): c.destroy()
+                                           ~~~~~~~~~^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\customtkinter\windows\widgets\core_widget_classes\ctk_base_class.py", line 98, in destroy
+    tkinter.Frame.destroy(self)
+    ~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\tkinter\__init__.py", line 2812, in destroy
+    for c in list(self.children.values()): c.destroy()
+                                           ~~~~~~~~~^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\customtkinter\windows\widgets\ctk_label.py", line 147, in destroy
+    if isinstance(self._font, CTkFont):
+                  ^^^^^^^^^^
+AttributeError: 'CTkLabel' object has no attribute '_font'. Did you mean: '_root'?
+2026-06-18 12:36:54,407 [SYSTEM] INFO: Application starting...
+2026-06-18 12:36:54,408 [SYSTEM] INFO: Checking MySQL database connection to root@localhost...
+2026-06-18 12:36:54,744 [SYSTEM] INFO: Database connection successful, tables verified, and schemas reconciled.
+2026-06-18 12:36:54,759 [SYSTEM] INFO: Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-06-18 12:38:48,843 [SYSTEM] INFO: Application starting...
+2026-06-18 12:38:48,845 [SYSTEM] INFO: Checking MySQL database connection to root@localhost...
+2026-06-18 12:38:49,033 [SYSTEM] INFO: Database connection successful, tables verified, and schemas reconciled.
+2026-06-18 12:38:49,059 [SYSTEM] INFO: Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-06-18 12:38:53,927 [SYSTEM] INFO: User '1' logged in successfully.
+2026-06-18 12:38:56,758 [SYSTEM] INFO: Database snapshot backup complete.
+2026-06-18 12:39:37,637 [SYSTEM] INFO: Application closed normally.
+2026-06-18 12:39:42,327 [SYSTEM] INFO: Application starting...
+2026-06-18 12:39:42,328 [SYSTEM] INFO: Checking MySQL database connection to root@localhost...
+2026-06-18 12:39:42,392 [SYSTEM] INFO: Database connection successful, tables verified, and schemas reconciled.
+2026-06-18 12:39:42,404 [SYSTEM] INFO: Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-06-18 12:39:46,975 [SYSTEM] INFO: User '1' logged in successfully.
+2026-06-18 12:39:49,775 [SYSTEM] ERROR: Unhandled exception in Tkinter callback:
+Traceback (most recent call last):
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\tkinter\__init__.py", line 2093, in __call__
+    return self.func(*args)
+           ~~~~~~~~~^^^^^^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\tkinter\__init__.py", line 876, in callit
+    func(*args, **kw)
+    ~~~~^^^^^^^^^^^^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\tkinter\__init__.py", line 802, in focus_set
+    self.tk.call('focus', self._w)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+_tkinter.TclError: bad window path name ".!loginscreen.!ctkframe2.!ctkframe.!ctkframe.!ctkentry.!entry"
+2026-06-18 12:39:49,911 [SYSTEM] INFO: Database snapshot backup complete.
+2026-06-18 12:41:08,963 [SYSTEM] INFO: Application closed normally.
+2026-06-18 12:41:37,618 [SYSTEM] INFO: Application starting...
+2026-06-18 12:41:37,618 [SYSTEM] INFO: Checking MySQL database connection to root@localhost...
+2026-06-18 12:41:37,689 [SYSTEM] INFO: Database connection successful, tables verified, and schemas reconciled.
+2026-06-18 12:41:37,712 [SYSTEM] INFO: Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-06-18 12:41:50,027 [SYSTEM] INFO: User '1' logged in successfully.
+2026-06-18 12:41:53,005 [SYSTEM] ERROR: Unhandled exception in Tkinter callback:
+Traceback (most recent call last):
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\tkinter\__init__.py", line 2093, in __call__
+    return self.func(*args)
+           ~~~~~~~~~^^^^^^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\tkinter\__init__.py", line 876, in callit
+    func(*args, **kw)
+    ~~~~^^^^^^^^^^^^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\tkinter\__init__.py", line 802, in focus_set
+    self.tk.call('focus', self._w)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+_tkinter.TclError: bad window path name ".!loginscreen.!ctkframe2.!ctkframe.!ctkframe.!ctkentry.!entry"
+2026-06-18 12:41:53,148 [SYSTEM] INFO: Database snapshot backup complete.
+2026-06-18 12:43:16,103 [SYSTEM] INFO: Application closed normally.
+2026-06-18 12:46:04,530 [SYSTEM] INFO: Application starting...
+2026-06-18 12:46:04,532 [SYSTEM] INFO: Checking MySQL database connection to root@localhost...
+2026-06-18 12:46:04,785 [SYSTEM] INFO: Database connection successful, tables verified, and schemas reconciled.
+2026-06-18 12:46:04,817 [SYSTEM] INFO: Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-06-18 12:46:09,387 [SYSTEM] INFO: User '1' logged in successfully.
+2026-06-18 12:46:11,964 [SYSTEM] INFO: Database snapshot backup complete.
+2026-06-18 12:46:55,671 [SYSTEM] INFO: Application closed normally.
+2026-06-18 12:47:08,187 [SYSTEM] INFO: Application starting...
+2026-06-18 12:47:08,187 [SYSTEM] INFO: Checking MySQL database connection to root@localhost...
+2026-06-18 12:47:08,214 [SYSTEM] INFO: Database connection successful, tables verified, and schemas reconciled.
+2026-06-18 12:47:08,218 [SYSTEM] INFO: Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-06-18 12:47:12,227 [SYSTEM] INFO: User '1' logged in successfully.
+2026-06-18 12:47:14,800 [SYSTEM] ERROR: Unhandled exception in Tkinter callback:
+Traceback (most recent call last):
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\tkinter\__init__.py", line 2093, in __call__
+    return self.func(*args)
+           ~~~~~~~~~^^^^^^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\tkinter\__init__.py", line 876, in callit
+    func(*args, **kw)
+    ~~~~^^^^^^^^^^^^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\tkinter\__init__.py", line 802, in focus_set
+    self.tk.call('focus', self._w)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+_tkinter.TclError: bad window path name ".!loginscreen.!ctkframe2.!ctkframe.!ctkentry.!entry"
+2026-06-18 12:47:14,921 [SYSTEM] INFO: Database snapshot backup complete.
+2026-06-18 12:59:32,805 [SYSTEM] INFO: Application closed normally.
+2026-06-18 13:11:28,788 [SYSTEM] INFO: Application starting...
+2026-06-18 13:11:28,788 [SYSTEM] INFO: Checking MySQL database connection to root@localhost...
+2026-06-18 13:11:28,951 [SYSTEM] INFO: Database connection successful, tables verified, and schemas reconciled.
+2026-06-18 13:11:28,964 [SYSTEM] INFO: Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-06-18 13:12:47,790 [SYSTEM] INFO: Application starting...
+2026-06-18 13:12:47,790 [SYSTEM] INFO: Checking MySQL database connection to root@localhost...
+2026-06-18 13:12:47,875 [SYSTEM] INFO: Database connection successful, tables verified, and schemas reconciled.
+2026-06-18 13:12:47,892 [SYSTEM] INFO: Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-06-18 13:12:54,172 [SYSTEM] INFO: User '1' logged in successfully.
+2026-06-18 13:12:56,844 [SYSTEM] ERROR: Unhandled exception in Tkinter callback:
+Traceback (most recent call last):
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\tkinter\__init__.py", line 2093, in __call__
+    return self.func(*args)
+           ~~~~~~~~~^^^^^^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\tkinter\__init__.py", line 876, in callit
+    func(*args, **kw)
+    ~~~~^^^^^^^^^^^^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\tkinter\__init__.py", line 802, in focus_set
+    self.tk.call('focus', self._w)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+_tkinter.TclError: bad window path name ".!loginscreen.!ctkframe2.!ctkframe.!ctkframe.!ctkentry.!entry"
+2026-06-18 13:12:56,971 [SYSTEM] INFO: Database snapshot backup complete.
+2026-06-18 13:13:13,332 [SYSTEM] INFO: Application closed normally.
+2026-06-19 12:32:50,788 [SYSTEM] INFO: Application starting...
+2026-06-19 12:32:50,789 [SYSTEM] INFO: Checking MySQL database connection to root@localhost...
+2026-06-19 12:32:51,142 [SYSTEM] INFO: Database connection successful, tables verified, and schemas reconciled.
+2026-06-19 12:32:51,160 [SYSTEM] INFO: Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-06-19 12:33:42,480 [SYSTEM] INFO: User '1' logged in successfully.
+2026-06-19 12:33:46,037 [SYSTEM] ERROR: Unhandled exception in Tkinter callback:
+Traceback (most recent call last):
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\tkinter\__init__.py", line 2093, in __call__
+    return self.func(*args)
+           ~~~~~~~~~^^^^^^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\tkinter\__init__.py", line 876, in callit
+    func(*args, **kw)
+    ~~~~^^^^^^^^^^^^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\tkinter\__init__.py", line 802, in focus_set
+    self.tk.call('focus', self._w)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+_tkinter.TclError: bad window path name ".!loginscreen.!ctkframe2.!ctkframe.!ctkframe.!ctkentry.!entry"
+2026-06-19 12:33:46,165 [SYSTEM] INFO: Database snapshot backup complete.
+2026-06-19 12:34:07,590 [SYSTEM] INFO: Application starting...
+2026-06-19 12:34:07,590 [SYSTEM] INFO: Checking MySQL database connection to root@localhost...
+2026-06-19 12:34:07,707 [SYSTEM] INFO: Database connection successful, tables verified, and schemas reconciled.
+2026-06-19 12:34:07,721 [SYSTEM] INFO: Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-06-19 12:34:14,797 [SYSTEM] INFO: User '1' logged in successfully.
+2026-06-19 12:34:18,168 [SYSTEM] INFO: Database snapshot backup complete.
+2026-06-19 12:40:56,102 [SYSTEM] INFO: Application closed normally.
+2026-06-19 13:56:58,096 [SYSTEM] INFO: Application starting...
+2026-06-19 13:56:58,097 [SYSTEM] INFO: Checking MySQL database connection to root@localhost...
+2026-06-19 13:56:58,138 [SYSTEM] INFO: Database connection successful, tables verified, and schemas reconciled.
+2026-06-19 13:56:58,151 [SYSTEM] INFO: Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-06-19 13:57:10,342 [SYSTEM] INFO: User '1' logged in successfully.
+2026-06-19 13:57:13,866 [SYSTEM] INFO: Database snapshot backup complete.
+2026-06-19 13:57:39,237 [SYSTEM] INFO: Application closed normally.
+2026-06-19 14:11:16,635 [SYSTEM] INFO: Application starting...
+2026-06-19 14:11:16,636 [SYSTEM] INFO: Checking MySQL database connection to root@localhost...
+2026-06-19 14:11:16,848 [SYSTEM] INFO: Database connection successful, tables verified, and schemas reconciled.
+2026-06-19 14:11:16,856 [SYSTEM] INFO: Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-06-19 14:11:32,541 [SYSTEM] INFO: User '1' logged in successfully.
+2026-06-19 14:11:35,477 [SYSTEM] INFO: Database snapshot backup complete.
+2026-06-19 14:28:53,576 [SYSTEM] INFO: Application closed normally.
+2026-06-19 14:57:02,540 [SYSTEM] INFO: Application starting...
+2026-06-19 14:57:02,541 [SYSTEM] INFO: Checking MySQL database connection to root@localhost...
+2026-06-19 14:57:02,789 [SYSTEM] INFO: Database connection successful, tables verified, and schemas reconciled.
+2026-06-19 14:57:02,811 [SYSTEM] INFO: Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-06-19 14:57:07,852 [SYSTEM] INFO: User '1' logged in successfully.
+2026-06-19 14:57:11,940 [SYSTEM] INFO: Database snapshot backup complete.
+2026-06-19 14:57:51,929 [SYSTEM] INFO: Application closed normally.
+2026-06-19 15:00:08,088 [SYSTEM] INFO: Application starting...
+2026-06-19 15:00:08,090 [SYSTEM] INFO: Checking MySQL database connection to root@localhost...
+2026-06-19 15:00:08,400 [SYSTEM] INFO: Database connection successful, tables verified, and schemas reconciled.
+2026-06-19 15:00:08,426 [SYSTEM] INFO: Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-06-19 15:00:14,867 [SYSTEM] INFO: User '1' logged in successfully.
+2026-06-19 15:00:19,442 [SYSTEM] INFO: Database snapshot backup complete.
+2026-06-19 15:00:24,507 [SYSTEM] INFO: Application closed normally.
+2026-06-19 15:19:40,541 [SYSTEM] INFO: Application starting...
+2026-06-19 15:19:40,542 [SYSTEM] INFO: Checking MySQL database connection to root@localhost...
+2026-06-19 15:19:40,770 [SYSTEM] INFO: Database connection successful, tables verified, and schemas reconciled.
+2026-06-19 15:19:40,800 [SYSTEM] INFO: Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-06-19 15:20:01,459 [SYSTEM] INFO: User '1' logged in successfully.
+2026-06-19 15:22:20,965 [SYSTEM] INFO: Application closed normally.
+2026-06-19 15:24:06,262 [SYSTEM] INFO: Application starting...
+2026-06-19 15:24:06,263 [SYSTEM] INFO: Checking MySQL database connection to root@localhost...
+2026-06-19 15:24:06,550 [SYSTEM] INFO: Database connection successful, tables verified, and schemas reconciled.
+2026-06-19 15:24:06,570 [SYSTEM] INFO: Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-06-19 15:24:13,811 [SYSTEM] INFO: User '1' logged in successfully.
+2026-06-19 15:24:16,732 [SYSTEM] INFO: Database snapshot backup complete.
+2026-06-19 15:24:38,396 [SYSTEM] INFO: Application closed normally.
+2026-06-29 10:15:18,169 [SYSTEM] INFO: Application starting...
+2026-06-29 10:15:18,170 [SYSTEM] INFO: Checking MySQL database connection to root@localhost...
+2026-06-29 10:15:18,487 [SYSTEM] INFO: Database connection successful, tables verified, and schemas reconciled.
+2026-06-29 10:15:18,490 [SYSTEM] INFO: Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-06-29 10:15:27,771 [SYSTEM] INFO: User '1' logged in successfully.
+2026-06-29 10:31:51,654 [SYSTEM] INFO: Application closed normally.
+2026-06-29 11:12:30,172 [SYSTEM] INFO: Application starting...
+2026-06-29 11:12:30,173 [SYSTEM] INFO: Checking MySQL database connection to root@localhost...
+2026-06-29 11:12:30,324 [SYSTEM] INFO: Database connection successful, tables verified, and schemas reconciled.
+2026-06-29 11:12:30,327 [SYSTEM] INFO: Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-06-29 11:12:35,879 [SYSTEM] INFO: User '1' logged in successfully.
+2026-06-29 11:12:38,339 [SYSTEM] INFO: Database snapshot backup complete.
+2026-06-29 11:12:43,544 [SYSTEM] ERROR: Unhandled exception in Tkinter callback:
+Traceback (most recent call last):
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\tkinter\__init__.py", line 2093, in __call__
+    return self.func(*args)
+           ~~~~~~~~~^^^^^^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\customtkinter\windows\widgets\ctk_button.py", line 554, in _clicked
+    self._command()
+    ~~~~~~~~~~~~~^^
+  File "f:\CR_PY\certificate_manager\screens\students_screen.py", line 1510, in _open_add
+    self._enroll_panel.close()
+    ~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "f:\CR_PY\certificate_manager\screens\students_screen.py", line 709, in close
+    self._on_close()
+    ~~~~~~~~~~~~~~^^
+  File "f:\CR_PY\certificate_manager\screens\students_screen.py", line 1029, in _reload_detail
+    data = StudentRepository().get_by_id(self._selected_student["id"])
+                                         ~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+TypeError: 'NoneType' object is not subscriptable
+2026-06-29 11:12:46,785 [SYSTEM] ERROR: Unhandled exception in Tkinter callback:
+Traceback (most recent call last):
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\tkinter\__init__.py", line 2093, in __call__
+    return self.func(*args)
+           ~~~~~~~~~^^^^^^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\customtkinter\windows\widgets\ctk_button.py", line 554, in _clicked
+    self._command()
+    ~~~~~~~~~~~~~^^
+  File "f:\CR_PY\certificate_manager\screens\students_screen.py", line 1510, in _open_add
+    self._enroll_panel.close()
+    ~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "f:\CR_PY\certificate_manager\screens\students_screen.py", line 709, in close
+    self._on_close()
+    ~~~~~~~~~~~~~~^^
+  File "f:\CR_PY\certificate_manager\screens\students_screen.py", line 1029, in _reload_detail
+    data = StudentRepository().get_by_id(self._selected_student["id"])
+                                         ~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+TypeError: 'NoneType' object is not subscriptable
+2026-06-29 11:12:48,609 [SYSTEM] ERROR: Unhandled exception in Tkinter callback:
+Traceback (most recent call last):
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\tkinter\__init__.py", line 2093, in __call__
+    return self.func(*args)
+           ~~~~~~~~~^^^^^^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\customtkinter\windows\widgets\ctk_button.py", line 554, in _clicked
+    self._command()
+    ~~~~~~~~~~~~~^^
+  File "f:\CR_PY\certificate_manager\screens\students_screen.py", line 1510, in _open_add
+    self._enroll_panel.close()
+    ~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "f:\CR_PY\certificate_manager\screens\students_screen.py", line 709, in close
+    self._on_close()
+    ~~~~~~~~~~~~~~^^
+  File "f:\CR_PY\certificate_manager\screens\students_screen.py", line 1029, in _reload_detail
+    data = StudentRepository().get_by_id(self._selected_student["id"])
+                                         ~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+TypeError: 'NoneType' object is not subscriptable
+2026-06-29 11:44:46,749 [SYSTEM] INFO: Application closed normally.
+2026-06-30 08:38:55,252 [SYSTEM] INFO: Application starting...
+2026-06-30 08:38:55,253 [SYSTEM] INFO: Checking MySQL database connection to root@localhost...
+2026-06-30 08:38:55,477 [SYSTEM] INFO: Adding postgraduation_no column to students table...
+2026-06-30 08:38:55,916 [SYSTEM] INFO: Database connection successful, tables verified, and schemas reconciled.
+2026-06-30 08:38:55,933 [SYSTEM] INFO: Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-06-30 08:39:03,925 [SYSTEM] INFO: User '1' logged in successfully.
+2026-06-30 08:39:06,429 [SYSTEM] INFO: Database snapshot backup complete.
+2026-06-30 09:20:27,353 [SYSTEM] INFO: Application closed normally.
+2026-06-30 09:40:53,044 [SYSTEM] INFO: Application starting...
+2026-06-30 09:40:53,045 [SYSTEM] INFO: Checking MySQL database connection to root@localhost...
+2026-06-30 09:40:53,212 [SYSTEM] INFO: Database connection successful, tables verified, and schemas reconciled.
+2026-06-30 09:40:53,225 [SYSTEM] INFO: Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-06-30 09:40:59,148 [SYSTEM] INFO: User '1' logged in successfully.
+2026-06-30 09:41:01,617 [SYSTEM] INFO: Database snapshot backup complete.
+2026-06-30 10:29:29,874 [SYSTEM] INFO: Application closed normally.
+2026-06-30 10:29:38,324 [SYSTEM] INFO: Application starting...
+2026-06-30 10:29:38,324 [SYSTEM] INFO: Checking MySQL database connection to root@localhost...
+2026-06-30 10:29:38,402 [SYSTEM] INFO: Database connection successful, tables verified, and schemas reconciled.
+2026-06-30 10:29:38,420 [SYSTEM] INFO: Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-06-30 10:29:44,463 [SYSTEM] INFO: User '1' logged in successfully.
+2026-06-30 10:29:46,999 [SYSTEM] INFO: Database snapshot backup complete.
+2026-06-30 10:29:57,629 [SYSTEM] ERROR: Unhandled exception in Tkinter callback:
+Traceback (most recent call last):
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\tkinter\__init__.py", line 2093, in __call__
+    return self.func(*args)
+           ~~~~~~~~~^^^^^^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\customtkinter\windows\widgets\ctk_button.py", line 554, in _clicked
+    self._command()
+    ~~~~~~~~~~~~~^^
+  File "f:\CR_PY\certificate_manager\screens\students_screen.py", line 1510, in _open_add
+    self._enroll_panel.close()
+    ~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "f:\CR_PY\certificate_manager\screens\students_screen.py", line 709, in close
+    self._on_close()
+    ~~~~~~~~~~~~~~^^
+  File "f:\CR_PY\certificate_manager\screens\students_screen.py", line 1029, in _reload_detail
+    data = StudentRepository().get_by_id(self._selected_student["id"])
+                                         ~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+TypeError: 'NoneType' object is not subscriptable
+2026-06-30 12:51:58,979 [SYSTEM] INFO: Application closed normally.
+2026-06-30 13:23:48,441 [SYSTEM] INFO: Application starting...
+2026-06-30 13:23:48,442 [SYSTEM] INFO: Checking MySQL database connection to root@localhost...
+2026-06-30 13:23:48,597 [SYSTEM] INFO: Adding postgraduation_no column to students table...
+2026-06-30 13:23:49,019 [SYSTEM] INFO: Database connection successful, tables verified, and schemas reconciled.
+2026-06-30 13:23:49,037 [SYSTEM] INFO: Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-06-30 13:23:54,285 [SYSTEM] INFO: User '1' logged in successfully.
+2026-06-30 13:23:56,763 [SYSTEM] INFO: Database snapshot backup complete.
+2026-06-30 13:40:48,494 [SYSTEM] INFO: Application closed normally.
+2026-06-30 13:40:54,215 [SYSTEM] INFO: Application starting...
+2026-06-30 13:40:54,215 [SYSTEM] INFO: Checking MySQL database connection to root@localhost...
+2026-06-30 13:40:54,290 [SYSTEM] INFO: Database connection successful, tables verified, and schemas reconciled.
+2026-06-30 13:40:54,315 [SYSTEM] INFO: Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-06-30 13:41:00,836 [SYSTEM] INFO: User '1' logged in successfully.
+2026-06-30 13:41:03,506 [SYSTEM] INFO: Database snapshot backup complete.
+2026-06-30 14:07:29,506 [SYSTEM] INFO: Application closed normally.
+2026-06-30 14:07:59,342 [SYSTEM] INFO: Application starting...
+2026-06-30 14:07:59,343 [SYSTEM] INFO: Checking MySQL database connection to root@localhost...
+2026-06-30 14:07:59,479 [SYSTEM] INFO: Database connection successful, tables verified, and schemas reconciled.
+2026-06-30 14:07:59,491 [SYSTEM] INFO: Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-06-30 14:08:05,118 [SYSTEM] INFO: User '1' logged in successfully.
+2026-06-30 14:08:07,647 [SYSTEM] INFO: Database snapshot backup complete.
+2026-06-30 14:11:48,254 [SYSTEM] INFO: Application closed normally.
