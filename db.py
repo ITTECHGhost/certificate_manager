@@ -53,12 +53,9 @@ def init_db() -> None:
             log.info("Adding graduation_semester column to students table...")
             cursor.execute("ALTER TABLE students ADD COLUMN graduation_semester VARCHAR(50) DEFAULT NULL")
 
-        if "postgraduation_no" not in student_cols:
-            log.info("Adding postgraduation_no column to students table...")
-            cursor.execute("ALTER TABLE students ADD COLUMN postgraduation_no INT DEFAULT NULL")
-
-        if "postgraduation_number" in student_cols:
-            cursor.execute("UPDATE students SET postgraduation_no = postgraduation_number WHERE postgraduation_no IS NULL")
+        if "postgraduation_number" not in student_cols:
+            log.info("Adding postgraduation_number column to students table...")
+            cursor.execute("ALTER TABLE students ADD COLUMN postgraduation_number INT DEFAULT NULL")
 
         # Verify and add missing columns to the graduation_orders table for full compatibility
         cursor.execute("DESCRIBE graduation_orders")

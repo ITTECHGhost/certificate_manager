@@ -17882,3 +17882,25 @@ Traceback (most recent call last):
                                          ~~~~~~~~~~~~~~~~~~~~~~^^^^^^
 TypeError: 'NoneType' object is not subscriptable
 2026-06-30 12:51:58,979 [SYSTEM] INFO: Application closed normally.
+2026-06-30 13:23:48,441 [SYSTEM] INFO: Application starting...
+2026-06-30 13:23:48,442 [SYSTEM] INFO: Checking MySQL database connection to root@localhost...
+2026-06-30 13:23:48,597 [SYSTEM] INFO: Adding postgraduation_no column to students table...
+2026-06-30 13:23:49,019 [SYSTEM] INFO: Database connection successful, tables verified, and schemas reconciled.
+2026-06-30 13:23:49,037 [SYSTEM] INFO: Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-06-30 13:23:54,285 [SYSTEM] INFO: User '1' logged in successfully.
+2026-06-30 13:23:56,763 [SYSTEM] INFO: Database snapshot backup complete.
+2026-06-30 13:40:48,494 [SYSTEM] INFO: Application closed normally.
+2026-06-30 13:40:54,215 [SYSTEM] INFO: Application starting...
+2026-06-30 13:40:54,215 [SYSTEM] INFO: Checking MySQL database connection to root@localhost...
+2026-06-30 13:40:54,290 [SYSTEM] INFO: Database connection successful, tables verified, and schemas reconciled.
+2026-06-30 13:40:54,315 [SYSTEM] INFO: Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-06-30 13:41:00,836 [SYSTEM] INFO: User '1' logged in successfully.
+2026-06-30 13:41:03,506 [SYSTEM] INFO: Database snapshot backup complete.
+2026-06-30 14:07:29,506 [SYSTEM] INFO: Application closed normally.
+2026-06-30 14:07:59,342 [SYSTEM] INFO: Application starting...
+2026-06-30 14:07:59,343 [SYSTEM] INFO: Checking MySQL database connection to root@localhost...
+2026-06-30 14:07:59,479 [SYSTEM] INFO: Database connection successful, tables verified, and schemas reconciled.
+2026-06-30 14:07:59,491 [SYSTEM] INFO: Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-06-30 14:08:05,118 [SYSTEM] INFO: User '1' logged in successfully.
+2026-06-30 14:08:07,647 [SYSTEM] INFO: Database snapshot backup complete.
+2026-06-30 14:11:48,254 [SYSTEM] INFO: Application closed normally.

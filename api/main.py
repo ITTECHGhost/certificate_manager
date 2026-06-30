@@ -23,7 +23,7 @@ TABLE_REGISTRY: Dict[str, Dict[str, Any]] = {
         "sp_name": "InsertStudent",
         "sp_args": [
             "full_name_ar", "full_name_en", "gender",
-            "sequence_number", "postgraduation_no", "date_of_birth",
+            "sequence_number", "postgraduation_number", "date_of_birth",
             "birthplace_id", "birthplace_other", "nationality_id",
             "department_id", "study_system_id", "degree_level",
             "order_id", "admission_year", "summer_training_data",
@@ -176,16 +176,16 @@ def sync_offline_queue(payload: SyncPayload, conn=Depends(get_db)):
 class StudentPayload(BaseModel):
     full_name_ar: str
     full_name_en: str
-    gender: Optional[str] = "M"
+    gender: Optional[int] = 1
     sequence_number: Optional[int] = None
-    postgraduation_no: Optional[int] = None
+    postgraduation_number: Optional[int] = None
     date_of_birth: Optional[str] = None
     birthplace_id: Optional[int] = None
     birthplace_other: Optional[str] = None
     nationality_id: Optional[int] = 1
     department_id: Optional[int] = None
     study_system_id: Optional[int] = None
-    degree_level: Optional[str] = "Bachelor"
+    degree_level: Optional[int] = 1
     order_id: Optional[int] = None
     admission_year: Optional[str] = None
     summer_training_data: Optional[str] = None
@@ -314,7 +314,7 @@ def insert_student(payload: StudentPayload, conn = Depends(get_db)):
     try:
         args = (
             payload.full_name_ar, payload.full_name_en, payload.gender,
-            payload.sequence_number, payload.postgraduation_no, payload.date_of_birth,
+            payload.sequence_number, payload.postgraduation_number, payload.date_of_birth,
             payload.birthplace_id, payload.birthplace_other, payload.nationality_id,
             payload.department_id, payload.study_system_id, payload.degree_level,
             payload.order_id, payload.admission_year, payload.summer_training_data,
@@ -348,7 +348,7 @@ def update_student(student_id: int, payload: StudentPayload, conn = Depends(get_
         args = (
             student_id,
             payload.full_name_ar, payload.full_name_en, payload.gender,
-            payload.sequence_number, payload.postgraduation_no, payload.date_of_birth,
+            payload.sequence_number, payload.postgraduation_number, payload.date_of_birth,
             payload.birthplace_id, payload.birthplace_other, payload.nationality_id,
             payload.department_id, payload.study_system_id, payload.degree_level,
             payload.order_id, payload.admission_year, payload.summer_training_data,

@@ -777,7 +777,7 @@ class StudentRepository(BaseRepository):
                                 supp_data[sid] = {
                                     "id": sid,
                                     "sequence_number": sdata.get("sequence_number"),
-                                    "postgraduation_number": sdata.get("postgraduation_no")
+                                    "postgraduation_number": sdata.get("postgraduation_number")
                                 }
                         except Exception as e:
                             print(f"API supplemental fetch failed for {sid}: {e}")
@@ -785,7 +785,7 @@ class StudentRepository(BaseRepository):
                     conn = get_local_connection()
                     cursor = conn.cursor()
                     format_strings = ','.join(['?'] * len(student_ids))
-                    query = f"SELECT id, sequence_number, postgraduation_no AS postgraduation_number FROM students WHERE id IN ({format_strings})"
+                    query = f"SELECT id, sequence_number, postgraduation_number FROM students WHERE id IN ({format_strings})"
                     cursor.execute(query, tuple(student_ids))
                     supp_data = {row["id"]: dict(row) for row in cursor.fetchall()}
                     cursor.close()
@@ -796,7 +796,7 @@ class StudentRepository(BaseRepository):
                     sid = s.get("id")
                     if sid in supp_data:
                         s["sequence_number"] = supp_data[sid].get("sequence_number")
-                        s["postgraduation_no"] = supp_data[sid].get("postgraduation_number")
+                        s["postgraduation_number"] = supp_data[sid].get("postgraduation_number")
                         s["postgraduation_number"] = supp_data[sid].get("postgraduation_number")
                         
             except Exception as e:
@@ -1045,7 +1045,7 @@ class StudentRepository(BaseRepository):
             payload = {
                 "full_name_ar": data.get('full_name_ar'),
                 "full_name_en": data.get('full_name_en'),
-                "gender": data.get('gender', 'M'),
+                "gender": data.get('gender', 1),
                 "sequence_number": data.get('sequence_number'),
                 "postgraduation_no": data.get('postgraduation_no'),
                 "date_of_birth": str(data.get('date_of_birth')) if data.get('date_of_birth') else None,
@@ -1054,7 +1054,7 @@ class StudentRepository(BaseRepository):
                 "nationality_id": data.get('nationality_id', 1),
                 "department_id": data.get('department_id'),
                 "study_system_id": data.get('study_system_id'),
-                "degree_level": data.get('degree_level', 'Bachelor'),
+                "degree_level": data.get('degree_level', 1),
                 "order_id": data.get('order_id'),
                 "admission_year": str(data.get('admission_year')) if data.get('admission_year') else None,
                 "summer_training_data": data.get('summer_training_data'),
@@ -1080,7 +1080,7 @@ class StudentRepository(BaseRepository):
             payload = {
                 "full_name_ar": data.get('full_name_ar'),
                 "full_name_en": data.get('full_name_en'),
-                "gender": data.get('gender', 'M'),
+                "gender": data.get('gender', 1),
                 "sequence_number": data.get('sequence_number'),
                 "postgraduation_no": data.get('postgraduation_no'),
                 "date_of_birth": str(data.get('date_of_birth')) if data.get('date_of_birth') else None,
@@ -1089,7 +1089,7 @@ class StudentRepository(BaseRepository):
                 "nationality_id": data.get('nationality_id', 1),
                 "department_id": data.get('department_id'),
                 "study_system_id": data.get('study_system_id'),
-                "degree_level": data.get('degree_level', 'Bachelor'),
+                "degree_level": data.get('degree_level', 1),
                 "order_id": data.get('order_id'),
                 "admission_year": str(data.get('admission_year')) if data.get('admission_year') else None,
                 "summer_training_data": data.get('summer_training_data'),
@@ -1301,7 +1301,7 @@ class CertificateRepository(BaseRepository):
                 (data.get("department_id"), data.get("admission_year"))
             )
             data["rank"] = data.get("sequence_number") or (rank_row["rank"] if rank_row else 1)
-            data["total_graduates"] = data.get("postgraduation_no") or (total_row["total"] if total_row else 1)
+            data["total_graduates"] = data.get("postgraduation_number") or (total_row["total"] if total_row else 1)
             
             # Top Average
             top_row = sqlite_read_one(
@@ -1358,8 +1358,8 @@ class CertificateRepository(BaseRepository):
             # Postgraduate isolation
             data["thesis"] = None
             data["supervisors"] = []
-            degree_level = data.get("degree_level", "Bachelor")
-            if degree_level in ["Master", "PhD"]:
+            degree_level = data.get("degree_level", 1)
+            if degree_level in [3, 4, "Master", "PhD"]:
                 try:
                     data["thesis"] = sqlite_read_all("SELECT * FROM thesis_records WHERE student_id = ?", (student_id,))
                 except Exception:
@@ -1394,7 +1394,7 @@ class CertificateRepository(BaseRepository):
         if len(rowsets) > 1 and rowsets[1]:
             analytics = rowsets[1][0]
             data["rank"] = data.get("sequence_number") or analytics.get("class_rank", 1)
-            data["total_graduates"] = data.get("postgraduation_no") or analytics.get("total_graduates", 1)
+            data["total_graduates"] = data.get("postgraduation_number") or analytics.get("total_graduates", 1)
             data["top_average"] = analytics.get("top_average")
             
         data["periods"] = []
@@ -1419,8 +1419,8 @@ class CertificateRepository(BaseRepository):
         data["thesis"] = None
         data["supervisors"] = []
         
-        degree_level = data.get("degree_level", "Bachelor")
-        if degree_level in ["Master", "PhD"]:
+        degree_level = data.get("degree_level", 1)
+        if degree_level in [3, 4, "Master", "PhD"]:
             thesis_repo = ThesisRepository(self.api_url)
             supervisor_repo = StudentSupervisorRepository(self.api_url)
             

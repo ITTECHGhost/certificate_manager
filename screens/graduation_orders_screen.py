@@ -33,6 +33,7 @@ STUDY_TYPE_DISPLAY = {v: k for k, v in STUDY_TYPE_OPTIONS.items()}
 SEMESTER_OPTIONS = {
     "الفصل الأول  /  First":  "first",
     "الفصل الثاني  /  Second": "second",
+    "الفصل الصيفي  /  Summer": "summer",
 }
 SEMESTER_DISPLAY = {v: k for k, v in SEMESTER_OPTIONS.items()}
 
