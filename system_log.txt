@@ -17748,3 +17748,137 @@ _tkinter.TclError: bad window path name ".!loginscreen.!ctkframe2.!ctkframe.!ctk
 2026-06-19 14:11:32,541 [SYSTEM] INFO: User '1' logged in successfully.
 2026-06-19 14:11:35,477 [SYSTEM] INFO: Database snapshot backup complete.
 2026-06-19 14:28:53,576 [SYSTEM] INFO: Application closed normally.
+2026-06-19 14:57:02,540 [SYSTEM] INFO: Application starting...
+2026-06-19 14:57:02,541 [SYSTEM] INFO: Checking MySQL database connection to root@localhost...
+2026-06-19 14:57:02,789 [SYSTEM] INFO: Database connection successful, tables verified, and schemas reconciled.
+2026-06-19 14:57:02,811 [SYSTEM] INFO: Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-06-19 14:57:07,852 [SYSTEM] INFO: User '1' logged in successfully.
+2026-06-19 14:57:11,940 [SYSTEM] INFO: Database snapshot backup complete.
+2026-06-19 14:57:51,929 [SYSTEM] INFO: Application closed normally.
+2026-06-19 15:00:08,088 [SYSTEM] INFO: Application starting...
+2026-06-19 15:00:08,090 [SYSTEM] INFO: Checking MySQL database connection to root@localhost...
+2026-06-19 15:00:08,400 [SYSTEM] INFO: Database connection successful, tables verified, and schemas reconciled.
+2026-06-19 15:00:08,426 [SYSTEM] INFO: Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-06-19 15:00:14,867 [SYSTEM] INFO: User '1' logged in successfully.
+2026-06-19 15:00:19,442 [SYSTEM] INFO: Database snapshot backup complete.
+2026-06-19 15:00:24,507 [SYSTEM] INFO: Application closed normally.
+2026-06-19 15:19:40,541 [SYSTEM] INFO: Application starting...
+2026-06-19 15:19:40,542 [SYSTEM] INFO: Checking MySQL database connection to root@localhost...
+2026-06-19 15:19:40,770 [SYSTEM] INFO: Database connection successful, tables verified, and schemas reconciled.
+2026-06-19 15:19:40,800 [SYSTEM] INFO: Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-06-19 15:20:01,459 [SYSTEM] INFO: User '1' logged in successfully.
+2026-06-19 15:22:20,965 [SYSTEM] INFO: Application closed normally.
+2026-06-19 15:24:06,262 [SYSTEM] INFO: Application starting...
+2026-06-19 15:24:06,263 [SYSTEM] INFO: Checking MySQL database connection to root@localhost...
+2026-06-19 15:24:06,550 [SYSTEM] INFO: Database connection successful, tables verified, and schemas reconciled.
+2026-06-19 15:24:06,570 [SYSTEM] INFO: Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-06-19 15:24:13,811 [SYSTEM] INFO: User '1' logged in successfully.
+2026-06-19 15:24:16,732 [SYSTEM] INFO: Database snapshot backup complete.
+2026-06-19 15:24:38,396 [SYSTEM] INFO: Application closed normally.
+2026-06-29 10:15:18,169 [SYSTEM] INFO: Application starting...
+2026-06-29 10:15:18,170 [SYSTEM] INFO: Checking MySQL database connection to root@localhost...
+2026-06-29 10:15:18,487 [SYSTEM] INFO: Database connection successful, tables verified, and schemas reconciled.
+2026-06-29 10:15:18,490 [SYSTEM] INFO: Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-06-29 10:15:27,771 [SYSTEM] INFO: User '1' logged in successfully.
+2026-06-29 10:31:51,654 [SYSTEM] INFO: Application closed normally.
+2026-06-29 11:12:30,172 [SYSTEM] INFO: Application starting...
+2026-06-29 11:12:30,173 [SYSTEM] INFO: Checking MySQL database connection to root@localhost...
+2026-06-29 11:12:30,324 [SYSTEM] INFO: Database connection successful, tables verified, and schemas reconciled.
+2026-06-29 11:12:30,327 [SYSTEM] INFO: Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-06-29 11:12:35,879 [SYSTEM] INFO: User '1' logged in successfully.
+2026-06-29 11:12:38,339 [SYSTEM] INFO: Database snapshot backup complete.
+2026-06-29 11:12:43,544 [SYSTEM] ERROR: Unhandled exception in Tkinter callback:
+Traceback (most recent call last):
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\tkinter\__init__.py", line 2093, in __call__
+    return self.func(*args)
+           ~~~~~~~~~^^^^^^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\customtkinter\windows\widgets\ctk_button.py", line 554, in _clicked
+    self._command()
+    ~~~~~~~~~~~~~^^
+  File "f:\CR_PY\certificate_manager\screens\students_screen.py", line 1510, in _open_add
+    self._enroll_panel.close()
+    ~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "f:\CR_PY\certificate_manager\screens\students_screen.py", line 709, in close
+    self._on_close()
+    ~~~~~~~~~~~~~~^^
+  File "f:\CR_PY\certificate_manager\screens\students_screen.py", line 1029, in _reload_detail
+    data = StudentRepository().get_by_id(self._selected_student["id"])
+                                         ~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+TypeError: 'NoneType' object is not subscriptable
+2026-06-29 11:12:46,785 [SYSTEM] ERROR: Unhandled exception in Tkinter callback:
+Traceback (most recent call last):
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\tkinter\__init__.py", line 2093, in __call__
+    return self.func(*args)
+           ~~~~~~~~~^^^^^^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\customtkinter\windows\widgets\ctk_button.py", line 554, in _clicked
+    self._command()
+    ~~~~~~~~~~~~~^^
+  File "f:\CR_PY\certificate_manager\screens\students_screen.py", line 1510, in _open_add
+    self._enroll_panel.close()
+    ~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "f:\CR_PY\certificate_manager\screens\students_screen.py", line 709, in close
+    self._on_close()
+    ~~~~~~~~~~~~~~^^
+  File "f:\CR_PY\certificate_manager\screens\students_screen.py", line 1029, in _reload_detail
+    data = StudentRepository().get_by_id(self._selected_student["id"])
+                                         ~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+TypeError: 'NoneType' object is not subscriptable
+2026-06-29 11:12:48,609 [SYSTEM] ERROR: Unhandled exception in Tkinter callback:
+Traceback (most recent call last):
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\tkinter\__init__.py", line 2093, in __call__
+    return self.func(*args)
+           ~~~~~~~~~^^^^^^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\customtkinter\windows\widgets\ctk_button.py", line 554, in _clicked
+    self._command()
+    ~~~~~~~~~~~~~^^
+  File "f:\CR_PY\certificate_manager\screens\students_screen.py", line 1510, in _open_add
+    self._enroll_panel.close()
+    ~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "f:\CR_PY\certificate_manager\screens\students_screen.py", line 709, in close
+    self._on_close()
+    ~~~~~~~~~~~~~~^^
+  File "f:\CR_PY\certificate_manager\screens\students_screen.py", line 1029, in _reload_detail
+    data = StudentRepository().get_by_id(self._selected_student["id"])
+                                         ~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+TypeError: 'NoneType' object is not subscriptable
+2026-06-29 11:44:46,749 [SYSTEM] INFO: Application closed normally.
+2026-06-30 08:38:55,252 [SYSTEM] INFO: Application starting...
+2026-06-30 08:38:55,253 [SYSTEM] INFO: Checking MySQL database connection to root@localhost...
+2026-06-30 08:38:55,477 [SYSTEM] INFO: Adding postgraduation_no column to students table...
+2026-06-30 08:38:55,916 [SYSTEM] INFO: Database connection successful, tables verified, and schemas reconciled.
+2026-06-30 08:38:55,933 [SYSTEM] INFO: Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-06-30 08:39:03,925 [SYSTEM] INFO: User '1' logged in successfully.
+2026-06-30 08:39:06,429 [SYSTEM] INFO: Database snapshot backup complete.
+2026-06-30 09:20:27,353 [SYSTEM] INFO: Application closed normally.
+2026-06-30 09:40:53,044 [SYSTEM] INFO: Application starting...
+2026-06-30 09:40:53,045 [SYSTEM] INFO: Checking MySQL database connection to root@localhost...
+2026-06-30 09:40:53,212 [SYSTEM] INFO: Database connection successful, tables verified, and schemas reconciled.
+2026-06-30 09:40:53,225 [SYSTEM] INFO: Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-06-30 09:40:59,148 [SYSTEM] INFO: User '1' logged in successfully.
+2026-06-30 09:41:01,617 [SYSTEM] INFO: Database snapshot backup complete.
+2026-06-30 10:29:29,874 [SYSTEM] INFO: Application closed normally.
+2026-06-30 10:29:38,324 [SYSTEM] INFO: Application starting...
+2026-06-30 10:29:38,324 [SYSTEM] INFO: Checking MySQL database connection to root@localhost...
+2026-06-30 10:29:38,402 [SYSTEM] INFO: Database connection successful, tables verified, and schemas reconciled.
+2026-06-30 10:29:38,420 [SYSTEM] INFO: Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-06-30 10:29:44,463 [SYSTEM] INFO: User '1' logged in successfully.
+2026-06-30 10:29:46,999 [SYSTEM] INFO: Database snapshot backup complete.
+2026-06-30 10:29:57,629 [SYSTEM] ERROR: Unhandled exception in Tkinter callback:
+Traceback (most recent call last):
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\tkinter\__init__.py", line 2093, in __call__
+    return self.func(*args)
+           ~~~~~~~~~^^^^^^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\customtkinter\windows\widgets\ctk_button.py", line 554, in _clicked
+    self._command()
+    ~~~~~~~~~~~~~^^
+  File "f:\CR_PY\certificate_manager\screens\students_screen.py", line 1510, in _open_add
+    self._enroll_panel.close()
+    ~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "f:\CR_PY\certificate_manager\screens\students_screen.py", line 709, in close
+    self._on_close()
+    ~~~~~~~~~~~~~~^^
+  File "f:\CR_PY\certificate_manager\screens\students_screen.py", line 1029, in _reload_detail
+    data = StudentRepository().get_by_id(self._selected_student["id"])
+                                         ~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+TypeError: 'NoneType' object is not subscriptable
+2026-06-30 12:51:58,979 [SYSTEM] INFO: Application closed normally.
