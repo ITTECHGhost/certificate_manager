@@ -233,7 +233,7 @@ class SidePanel(ctk.CTkFrame, ABC):
         dropdown.grid(row=row+1, column=col, columnspan=colspan, sticky="ew", pady=(0, 2), padx=10)
 
         if values:
-            dropdown.set(values)
+            dropdown.set(values[0])
 
         return dropdown
 
@@ -379,7 +379,7 @@ class SidePanel(ctk.CTkFrame, ABC):
             self._show_error(f"خطأ في الحفظ  —  Save error:\n{e}")
 
     def _show_error(self, message: str) -> None:
-        """Display an error message inline at the bottom of the fields area."""
+        """Display an error message inline at the bottom of the fields area and show a pop-up alert."""
         self._clear_error()
         self._error_label = ctk.CTkLabel(
             self._fields_frame,
@@ -392,6 +392,10 @@ class SidePanel(ctk.CTkFrame, ABC):
         )
         # We use row 1000 to guarantee it always drops to the very bottom of the grid
         self._error_label.grid(row=1000, column=0, columnspan=3, sticky="e", pady=(15, 0), padx=10)
+        
+        # Pop-up alert so the user doesn't miss it
+        from ui.widgets import show_modern_alert
+        show_modern_alert(self, message)
 
     def _clear_error(self) -> None:
         """Remove the inline error label if one exists."""

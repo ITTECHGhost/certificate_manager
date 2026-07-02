@@ -124,24 +124,31 @@ class GraduationOrderPanel(SidePanel):
     # ── Populate (Edit mode) ──────────────────────────────────────────────────
 
     def _populate(self, data: dict) -> None:
-        self._set_entry(self._order_number,    data.get("order_number", ""))
-        self._set_entry(self._order_date,      data.get("order_date", ""))
-        self._set_entry(self._admission_year,  str(data.get("admission_year", "")))
-        self._set_entry(self._num_students,    str(data.get("num_students", "") or ""))
-        self._set_entry(self._notes,           data.get("notes", "") or "")
+        self._set_entry(self._order_number,    data.get("order_number") or "")
+        self._set_entry(self._order_date,      data.get("order_date") or "")
+        
+        adm_yr = data.get("admission_year")
+        self._set_entry(self._admission_year,  str(adm_yr) if adm_yr is not None else "")
+        
+        num_stud = data.get("num_students")
+        self._set_entry(self._num_students,    str(num_stud) if num_stud is not None else "")
+        
+        self._set_entry(self._notes,           data.get("notes") or "")
 
         for d in self._departments:
             if d["id"] == data.get("department_id"):
                 self._set_dropdown(self._dept, f"{d['name_ar']}  /  {d['name_en']}")
                 break
 
+        st = data.get("study_type") or "morning"
         self._set_dropdown(
             self._study_type,
-            STUDY_TYPE_DISPLAY.get(data.get("study_type", "morning"), ""),
+            STUDY_TYPE_DISPLAY.get(str(st).lower(), ""),
         )
+        gs = data.get("graduation_semester") or "first"
         self._set_dropdown(
             self._graduation_semester,
-            SEMESTER_DISPLAY.get(data.get("graduation_semester", "first"), ""),
+            SEMESTER_DISPLAY.get(str(gs).lower(), ""),
         )
 
     # ── Validation ────────────────────────────────────────────────────────────
@@ -149,8 +156,13 @@ class GraduationOrderPanel(SidePanel):
     def _validate(self) -> str | None:
         if not self._order_number.get().strip():
             return "رقم الأمر مطلوب  —  Order number is required"
-        date = self._order_date.get().strip()
-        if not date or len(date) != 10:
+        
+        from ui.widgets import normalize_date_format
+        date_raw = self._order_date.get().strip()
+        normalized = normalize_date_format(date_raw)
+        self._set_entry(self._order_date, normalized)
+        
+        if not normalized or len(normalized) != 10 or "-" not in normalized:
             return "تاريخ الأمر مطلوب بصيغة YYYY-MM-DD"
         if not self._departments:
             return "يجب إضافة قسم أولاً  —  Add a department first"
@@ -307,8 +319,8 @@ class GraduationOrdersScreen(BaseScreen):
             r["order_date"],
             r.get("dept_name_ar", "—"),
             str(r.get("admission_year", "—")),
-            STUDY_TYPE_DISPLAY.get(r.get("study_type", ""), r.get("study_type", "—")),
-            SEMESTER_DISPLAY.get(r.get("graduation_semester", ""), r.get("graduation_semester", "—")),
+            STUDY_TYPE_DISPLAY.get(str(r.get("study_type") or "").lower(), r.get("study_type") or "—"),
+            SEMESTER_DISPLAY.get(str(r.get("graduation_semester") or "").lower(), r.get("graduation_semester") or "—"),
             str(r.get("linked_count", 0)),
         ])
 

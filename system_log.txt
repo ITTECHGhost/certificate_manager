@@ -17904,3 +17904,37 @@ TypeError: 'NoneType' object is not subscriptable
 2026-06-30 14:08:05,118 [SYSTEM] INFO: User '1' logged in successfully.
 2026-06-30 14:08:07,647 [SYSTEM] INFO: Database snapshot backup complete.
 2026-06-30 14:11:48,254 [SYSTEM] INFO: Application closed normally.
+2026-07-01 08:31:04,217 [SYSTEM] INFO: Application starting...
+2026-07-01 08:31:04,218 [SYSTEM] INFO: Checking MySQL database connection to root@localhost...
+2026-07-01 08:31:04,352 [SYSTEM] INFO: Database connection successful, tables verified, and schemas reconciled.
+2026-07-01 08:31:04,356 [SYSTEM] INFO: Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-07-01 08:31:12,145 [SYSTEM] INFO: User '1' logged in successfully.
+2026-07-01 09:20:41,680 [SYSTEM] INFO: Network restored. Triggering offline queue sync...
+2026-07-01 09:20:41,840 [SYSTEM] INFO: Sync queue is empty — nothing to do.
+2026-07-01 09:20:42,097 [SYSTEM] INFO: Inbound sync complete: {'tables_synced': 12, 'total_rows': 5728, 'errors': []}
+2026-07-01 10:03:24,649 [SYSTEM] INFO: Network restored. Triggering offline queue sync...
+2026-07-01 10:03:24,737 [SYSTEM] INFO: Sync queue is empty — nothing to do.
+2026-07-01 10:03:25,233 [SYSTEM] INFO: Inbound sync complete: {'tables_synced': 12, 'total_rows': 5728, 'errors': []}
+2026-07-01 10:06:22,618 [SYSTEM] INFO: Application closed normally.
+2026-07-01 10:07:05,626 [SYSTEM] INFO: Application starting...
+2026-07-01 10:07:05,690 [SYSTEM] INFO: Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-07-01 10:07:13,556 [SYSTEM] INFO: User '1' logged in successfully.
+2026-07-01 10:07:37,970 [SYSTEM] INFO: Network restored. Triggering offline queue sync...
+2026-07-01 10:07:37,992 [SYSTEM] INFO: Sync queue is empty — nothing to do.
+2026-07-01 10:07:38,367 [SYSTEM] INFO: Inbound sync complete: {'tables_synced': 12, 'total_rows': 5728, 'errors': []}
+2026-07-01 11:04:58,405 [SYSTEM] INFO: Application closed normally.
+2026-07-01 11:06:18,053 [SYSTEM] INFO: Application starting...
+2026-07-01 11:06:18,092 [SYSTEM] INFO: Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-07-01 11:06:22,938 [SYSTEM] INFO: User '1' logged in successfully.
+2026-07-01 11:06:25,656 [SYSTEM] INFO: Database snapshot backup complete.
+2026-07-01 11:22:15,136 [SYSTEM] INFO: Application closed normally.
+2026-07-01 11:48:09,313 [SYSTEM] INFO: Application starting...
+2026-07-01 11:48:09,471 [SYSTEM] INFO: Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-07-01 11:48:14,980 [SYSTEM] INFO: User '1' logged in successfully.
+2026-07-01 11:48:17,633 [SYSTEM] INFO: Database snapshot backup complete.
+2026-07-01 13:37:03,763 [SYSTEM] INFO: Application closed normally.
+2026-07-01 14:06:07,799 [SYSTEM] INFO: Application starting...
+2026-07-01 14:06:07,915 [SYSTEM] INFO: Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-07-01 14:06:12,597 [SYSTEM] INFO: User '1' logged in successfully.
+2026-07-01 14:06:15,078 [SYSTEM] INFO: Database snapshot backup complete.
+2026-07-02 10:14:27,735 [SYSTEM] INFO: Application closed normally.

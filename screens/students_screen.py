@@ -119,6 +119,9 @@ def format_score(score) -> str:
         return str(score)
 
 
+from ui.widgets import normalize_date_format as format_to_standard_date
+
+
 # =============================================================================
 # STUDENT FORM PANEL  (Add / Edit student information)
 # =============================================================================
@@ -310,7 +313,8 @@ class StudentFormPanel(SidePanel):
         self._set_entry(self._grad_date,    str(grad_date) if grad_date else "")
         self._set_entry(self._average,      str(data.get("average", "") or ""))
         self._set_entry(self._sequence_number, str(data.get("sequence_number", "") or ""))
-        self._set_entry(self._postgraduation_number, str(data.get("postgraduation_number", "") or ""))
+        post_num = data.get("postgraduation_number") or data.get("postgraduation_no")
+        self._set_entry(self._postgraduation_number, str(post_num) if post_num is not None else "")
 
         # Gender
         gender_val = data.get("gender")
@@ -439,20 +443,58 @@ class StudentFormPanel(SidePanel):
     # ── Validation ────────────────────────────────────────────────────────────
 
     def _validate(self) -> str | None:
+        # 1. Normalize dates and update input fields
+        dob_raw = self._dob.get().strip()
+        if dob_raw:
+            dob_norm = format_to_standard_date(dob_raw)
+            if dob_norm != dob_raw:
+                self._dob.delete(0, "end")
+                self._dob.insert(0, dob_norm)
+                dob_raw = dob_norm
+
+        grad_raw = self._grad_date.get().strip()
+        if grad_raw:
+            grad_norm = format_to_standard_date(grad_raw)
+            if grad_norm != grad_raw:
+                self._grad_date.delete(0, "end")
+                self._grad_date.insert(0, grad_norm)
+                grad_raw = grad_norm
+
+        thesis_raw = self._thesis_defense_date.get().strip()
+        if thesis_raw:
+            thesis_norm = format_to_standard_date(thesis_raw)
+            if thesis_norm != thesis_raw:
+                self._thesis_defense_date.delete(0, "end")
+                self._thesis_defense_date.insert(0, thesis_norm)
+                thesis_raw = thesis_norm
+
+        # 2. Check required fields and formats
         if not self._name_ar.get().strip():
             return "الاسم بالعربية مطلوب  —  Arabic name is required"
         if not self._name_en.get().strip():
             return "الاسم بالإنكليزية مطلوب  —  English name is required"
-        dob = self._dob.get().strip()
-        if not dob or len(dob) != 10:
+        if not dob_raw or len(dob_raw) != 10:
             return "تاريخ الميلاد مطلوب بصيغة YYYY-MM-DD"
+        if grad_raw and len(grad_raw) != 10:
+            return "تاريخ التخرج يجب أن يكون بصيغة YYYY-MM-DD"
+        if thesis_raw and len(thesis_raw) != 10:
+            return "تاريخ المناقشة يجب أن يكون بصيغة YYYY-MM-DD"
+
         if not self._adm_year.get().strip().isdigit():
             return "سنة القبول يجب أن تكون رقماً  —  Admission year must be a number"
         if not self._depts:
             return "يجب إضافة قسم أولاً  —  Add a department first"
+
+        # 3. Allow float/decimal averages
         avg = self._average.get().strip()
-        if avg and not (avg.isdigit() and 50 <= int(avg) <= 100):
-            return "المعدل يجب أن يكون بين 50 و100  —  Average must be 50–100"
+        if avg:
+            try:
+                avg_float = float(avg)
+                if not (50.0 <= avg_float <= 100.0):
+                    return "المعدل يجب أن يكون بين 50 و100  —  Average must be 50–100"
+            except ValueError:
+                return "المعدل يجب أن يكون رقماً  —  Average must be a number"
+
         # Birthplace consistency
         is_foreign = "أجنبي" in self._birthplace_gov.get()
         foreign_txt = self._birthplace_other.get().strip()
@@ -516,7 +558,12 @@ class StudentFormPanel(SidePanel):
     def _on_save(self, existing: dict | None) -> None:
         bp_id, bp_other = self._get_birthplace()
         avg_raw = self._average.get().strip()
-        avg_val = int(avg_raw) if avg_raw.isdigit() else None
+        avg_val = None
+        if avg_raw:
+            try:
+                avg_val = float(avg_raw)
+            except ValueError:
+                pass
         
         seq_raw = self._sequence_number.get().strip()
         seq_val = int(seq_raw) if seq_raw.isdigit() else None
@@ -698,7 +745,7 @@ class EnrollmentPanel(ctk.CTkFrame):
         )
         self._course_search_entry.grid(row=1, column=0, sticky="ew", padx=(10, 4), pady=4)
         self._course_search_entry.bind("<KeyRelease>", self._on_course_search_key)
-        self._course_search_entry.bind("<FocusIn>", lambda e: self._course_list_frame.grid(row=2, column=0, columnspan=3, sticky="ew", padx=10, pady=(0, 4)))
+        self._course_search_entry.bind("<FocusIn>", lambda e: self._course_list_frame.grid(row=2, column=0, columnspan=4, sticky="ew", padx=10, pady=(0, 4)))
         self._course_search_entry.bind("<Escape>", lambda e: self._course_list_frame.grid_remove())
 
         self._score_entry = ctk.CTkEntry(
@@ -709,12 +756,21 @@ class EnrollmentPanel(ctk.CTkFrame):
         )
         self._score_entry.grid(row=1, column=1, padx=(0, 4), pady=4)
 
+        self._round_option = ctk.CTkOptionMenu(
+            add_frame,
+            values=["1", "2", "3"],
+            font=ctk.CTkFont(family=AppFonts.FAMILY, size=10),
+            width=60, height=30,
+        )
+        self._round_option.set("1")
+        self._round_option.grid(row=1, column=2, padx=(0, 4), pady=4)
+
         ctk.CTkButton(
             add_frame, text="إضافة\nAdd", width=60, height=30,
             font=ctk.CTkFont(family=AppFonts.FAMILY, size=9),
             corner_radius=6,
             command=self._add_enrollment,
-        ).grid(row=1, column=2, padx=(0, 10), pady=4)
+        ).grid(row=1, column=3, padx=(0, 10), pady=4)
 
         self._course_list_frame = ctk.CTkScrollableFrame(
             add_frame, height=120, fg_color=("gray95", "gray18")
@@ -870,9 +926,9 @@ class EnrollmentPanel(ctk.CTkFrame):
             # Course name (truncated)
             name = enr.get("course_name_ar", "")
             ctk.CTkLabel(
-                row_f, text=name[:28] + ("…" if len(name) > 28 else ""),
+                row_f, text=name[:24] + ("…" if len(name) > 24 else ""),
                 font=ctk.CTkFont(family=AppFonts.FAMILY, size=10),
-                width=180, anchor="e",
+                width=160, anchor="e",
             ).grid(row=0, column=0, padx=4, pady=4)
 
             # Score (editable inline entry)
@@ -884,21 +940,32 @@ class EnrollmentPanel(ctk.CTkFrame):
             score_var = ctk.StringVar(value=display_score)
             score_entry = ctk.CTkEntry(
                 row_f, textvariable=score_var,
-                width=60, height=26, justify="center",
+                width=50, height=26, justify="center",
                 font=ctk.CTkFont(family=AppFonts.FAMILY, size=10),
             )
             score_entry.grid(row=0, column=1, padx=4, pady=4)
 
+            # Round selection combobox (direct editing)
+            round_val_str = str(enr.get("passed_round") or "1")
+            round_var = ctk.StringVar(value=round_val_str)
+            round_menu = ctk.CTkOptionMenu(
+                row_f, variable=round_var,
+                values=["1", "2", "3"],
+                width=50, height=26,
+                font=ctk.CTkFont(family=AppFonts.FAMILY, size=10),
+            )
+            round_menu.grid(row=0, column=2, padx=4, pady=4)
+
             # Action buttons
             btn_frame = ctk.CTkFrame(row_f, fg_color="transparent")
-            btn_frame.grid(row=0, column=2, padx=4, pady=4)
+            btn_frame.grid(row=0, column=3, padx=4, pady=4)
 
             # Save score button
             ctk.CTkButton(
                 btn_frame, text="💾", width=32, height=26,
                 font=ctk.CTkFont(size=12), corner_radius=4,
                 fg_color=AppColors.COLOR_INFO, hover_color="#1565C0",
-                command=lambda e=enr, sv=score_var: self._save_score(e, sv),
+                command=lambda e=enr, sv=score_var, rv=round_var: self._save_score(e, sv, rv),
             ).pack(side="left", padx=(0, 2))
 
             # Delete button
@@ -914,9 +981,12 @@ class EnrollmentPanel(ctk.CTkFrame):
     def _add_enrollment(self) -> None:
         """Add the selected course with the entered score to this period."""
         self._add_error.configure(text="")
+        from ui.widgets import show_modern_alert
 
         if not getattr(self, "_selected_course", None) or not self._courses:
-            self._add_error.configure(text="⚠️  الرجاء اختيار مادة من القائمة")
+            msg = "الرجاء اختيار مادة من القائمة\nPlease select a course from the list"
+            self._add_error.configure(text=f"⚠️  {msg}")
+            show_modern_alert(self, msg)
             return
 
         score_str = self._score_entry.get().strip()
@@ -925,17 +995,38 @@ class EnrollmentPanel(ctk.CTkFrame):
             if not (0 <= score <= 100):
                 raise ValueError
         except ValueError:
-            self._add_error.configure(text="⚠️  الدرجة يجب أن تكون بين 0 و100")
+            msg = "الدرجة يجب أن تكون بين 0 و100\nScore must be between 0 and 100"
+            self._add_error.configure(text=f"⚠️  {msg}")
+            show_modern_alert(self, msg)
             return
 
         course_id = self._selected_course["id"]
+
+        try:
+            periods = []
+            student = getattr(self, "_student", None)
+            if student:
+                student_id = student["id"]
+                periods = AcademicPeriodRepository().get_by_student(student_id)
+            for p in periods:
+                enrollments = EnrollmentRepository().get_by_period(p["id"])
+                for enr in enrollments:
+                    if enr["course_id"] == course_id and enr.get("score") is not None and float(enr["score"]) >= 50.0:
+                        msg = "هذا الطالب قد نجح في هذه المادة سابقاً!\nThis student has already passed this course!"
+                        self._add_error.configure(text=f"⚠️  {msg}")
+                        show_modern_alert(self, msg)
+                        return
+        except Exception as e:
+            print(f"Error checking duplicate passed courses: {e}")
+
+        round_val = int(self._round_option.get())
 
         try:
             EnrollmentRepository().insert(
                 period_id=self._period["id"],
                 course_id=course_id,
                 score=score,
-                is_second=0,
+                is_second=round_val,
             )
             self._score_entry.delete(0, "end")
             self._selected_course = None
@@ -944,18 +1035,21 @@ class EnrollmentPanel(ctk.CTkFrame):
             self._reload_list()
         except Exception as e:
             self._add_error.configure(text=f"⚠️  {e}")
+            show_modern_alert(self, f"⚠️  {e}")
 
-    def _save_score(self, enr: dict, score_var: ctk.StringVar) -> None:
-        """Save an edited score inline."""
+    def _save_score(self, enr: dict, score_var: ctk.StringVar, round_var: ctk.StringVar) -> None:
+        """Save an edited score and round inline."""
+        from ui.widgets import show_modern_alert
         try:
             score_val = float(score_var.get().strip())
             if not (0 <= score_val <= 100):
                 raise ValueError
-            EnrollmentRepository().update(enr["id"], score_val, enr["is_second_round"])
+            round_val = int(round_var.get())
+            EnrollmentRepository().update(enr["id"], score_val, round_val)
             score_var.set(format_score(score_val))
             self._reload_list()
         except ValueError:
-            pass    # silently ignore invalid score
+            show_modern_alert(self, "الدرجة يجب أن تكون بين 0 و100\nScore must be between 0 and 100")
 
     def _delete_enrollment(self, enr: dict) -> None:
         """Delete one enrollment row."""
@@ -1452,23 +1546,13 @@ class AcademicRecordPanel(ctk.CTkFrame):
         add_period_frame.grid_columnconfigure(0, weight=1)
         row += 1
 
-        self._new_stage = ctk.CTkOptionMenu(
-            add_period_frame,
-            values=["1", "2", "3"],
-            font=ctk.CTkFont(family=AppFonts.FAMILY, size=AppFonts.SIZE_SMALL),
-            width=200, height=34,
-        )
-        self._new_stage.set("1")
-
-        self._new_stage.grid(row=0, column=0, sticky="w")
-
         self._new_year = ctk.CTkEntry(
             add_period_frame,
             placeholder_text=year_placeholder,
             font=ctk.CTkFont(family=AppFonts.FAMILY, size=AppFonts.SIZE_SMALL),
-            width=160, height=34, justify="center",
+            width=200, height=34, justify="center",
         )
-        self._new_year.grid(row=0, column=1, padx=6, sticky="w")
+        self._new_year.grid(row=0, column=0, sticky="w")
 
         ctk.CTkButton(
             add_period_frame,
@@ -1476,7 +1560,7 @@ class AcademicRecordPanel(ctk.CTkFrame):
             font=ctk.CTkFont(family=AppFonts.FAMILY, size=AppFonts.SIZE_SMALL),
             height=34, corner_radius=8,
             command=self._add_period,
-        ).grid(row=0, column=2)
+        ).grid(row=0, column=1, padx=8, sticky="w")
 
         # ── Render Timeline ──
         periods = AcademicPeriodRepository().get_by_student(self._student["id"])
@@ -1567,11 +1651,13 @@ class AcademicRecordPanel(ctk.CTkFrame):
         ctk.CTkLabel(h1, text=sem1_hdr, font=ctk.CTkFont(family=AppFonts.FAMILY, size=AppFonts.SIZE_SMALL, weight="bold"), anchor="e").grid(row=0, column=0, sticky="e", padx=10, pady=6)
         
         p_sem1 = next((p for p in timeline_data["periods"] if p["semester_num"] == 1), None)
+        pb1 = ctk.CTkFrame(h1, fg_color="transparent")
+        pb1.grid(row=0, column=0, sticky="w", padx=6, pady=4)
         if p_sem1:
-            pb1 = ctk.CTkFrame(h1, fg_color="transparent")
-            pb1.grid(row=0, column=0, sticky="w", padx=6, pady=4)
             ctk.CTkButton(pb1, text="📝 الدرجات\nGrades", font=ctk.CTkFont(family=AppFonts.FAMILY, size=9), width=70, height=28, corner_radius=6, command=lambda p=p_sem1, s=student: self._enroll_panel.open(p, s)).pack(side="left", padx=(0, 3))
             ctk.CTkButton(pb1, text="🗑 حذف\nDelete", font=ctk.CTkFont(family=AppFonts.FAMILY, size=9), width=60, height=28, corner_radius=6, fg_color=AppColors.COLOR_ERROR, hover_color="#B71C1C", command=lambda p=p_sem1: self._delete_period(p)).pack(side="left")
+        else:
+            ctk.CTkButton(pb1, text="+ إضافة مواد\n+ Add Courses", font=ctk.CTkFont(family=AppFonts.FAMILY, size=9), width=90, height=28, corner_radius=6, command=lambda sem=1, yr=academic_year: self._add_period_and_open(sem, yr)).pack(side="left")
 
         sem1_list = timeline_data["sem_1_list"]
         if sem1_list:
@@ -1590,11 +1676,13 @@ class AcademicRecordPanel(ctk.CTkFrame):
         ctk.CTkLabel(h2, text=sem2_hdr, font=ctk.CTkFont(family=AppFonts.FAMILY, size=AppFonts.SIZE_SMALL, weight="bold"), anchor="e").grid(row=0, column=0, sticky="e", padx=10, pady=6)
 
         p_sem2 = next((p for p in timeline_data["periods"] if p["semester_num"] == 2), None)
+        pb2 = ctk.CTkFrame(h2, fg_color="transparent")
+        pb2.grid(row=0, column=0, sticky="w", padx=6, pady=4)
         if p_sem2:
-            pb2 = ctk.CTkFrame(h2, fg_color="transparent")
-            pb2.grid(row=0, column=0, sticky="w", padx=6, pady=4)
             ctk.CTkButton(pb2, text="📝 الدرجات\nGrades", font=ctk.CTkFont(family=AppFonts.FAMILY, size=9), width=70, height=28, corner_radius=6, command=lambda p=p_sem2, s=student: self._enroll_panel.open(p, s)).pack(side="left", padx=(0, 3))
             ctk.CTkButton(pb2, text="🗑 حذف\nDelete", font=ctk.CTkFont(family=AppFonts.FAMILY, size=9), width=60, height=28, corner_radius=6, fg_color=AppColors.COLOR_ERROR, hover_color="#B71C1C", command=lambda p=p_sem2: self._delete_period(p)).pack(side="left")
+        else:
+            ctk.CTkButton(pb2, text="+ إضافة مواد\n+ Add Courses", font=ctk.CTkFont(family=AppFonts.FAMILY, size=9), width=90, height=28, corner_radius=6, command=lambda sem=2, yr=academic_year: self._add_period_and_open(sem, yr)).pack(side="left")
 
         sem2_list = timeline_data["sem_2_list"]
         if sem2_list:
@@ -1613,11 +1701,13 @@ class AcademicRecordPanel(ctk.CTkFrame):
         ctk.CTkLabel(h3, text=sem3_hdr, font=ctk.CTkFont(family=AppFonts.FAMILY, size=AppFonts.SIZE_SMALL, weight="bold"), anchor="e").grid(row=0, column=0, sticky="e", padx=10, pady=6)
 
         p_sem3 = next((p for p in timeline_data["periods"] if p["semester_num"] == 3), None)
+        pb3 = ctk.CTkFrame(h3, fg_color="transparent")
+        pb3.grid(row=0, column=0, sticky="w", padx=6, pady=4)
         if p_sem3:
-            pb3 = ctk.CTkFrame(h3, fg_color="transparent")
-            pb3.grid(row=0, column=0, sticky="w", padx=6, pady=4)
             ctk.CTkButton(pb3, text="📝 الدرجات\nGrades", font=ctk.CTkFont(family=AppFonts.FAMILY, size=9), width=70, height=28, corner_radius=6, command=lambda p=p_sem3, s=student: self._enroll_panel.open(p, s)).pack(side="left", padx=(0, 3))
             ctk.CTkButton(pb3, text="🗑 حذف\nDelete", font=ctk.CTkFont(family=AppFonts.FAMILY, size=9), width=60, height=28, corner_radius=6, fg_color=AppColors.COLOR_ERROR, hover_color="#B71C1C", command=lambda p=p_sem3: self._delete_period(p)).pack(side="left")
+        else:
+            ctk.CTkButton(pb3, text="+ إضافة مواد\n+ Add Courses", font=ctk.CTkFont(family=AppFonts.FAMILY, size=9), width=90, height=28, corner_radius=6, command=lambda sem=3, yr=academic_year: self._add_period_and_open(sem, yr)).pack(side="left")
 
         sem3_list = timeline_data["sem_3_list"]
         if sem3_list:
@@ -1633,14 +1723,14 @@ class AcademicRecordPanel(ctk.CTkFrame):
         if not self._student:
             return
 
-        stage_str = self._new_stage.get().strip()
         year_str  = self._new_year.get().strip()
-
         ss_id = self._student.get("study_system_id", 1)
         
         import re
         is_valid = bool(re.match(r"^\d{4}$", year_str) or re.match(r"^\d{4}-\d{4}$", year_str))
         if not is_valid:
+            from ui.widgets import show_modern_alert
+            show_modern_alert(self, "صيغة السنة الدراسية غير صالحة!\nInvalid Academic Year format! Use YYYY or YYYY-YYYY.")
             return
 
         db_year = normalize_year(year_str)
@@ -1660,31 +1750,55 @@ class AcademicRecordPanel(ctk.CTkFrame):
         except Exception:
             calculated_stage = 1
 
-        if ss_id in [1, 3]:
-            try:
-                semester_num = int(stage_str)
-            except ValueError:
-                semester_num = 1
-        else:
-            if "Semester 1" in stage_str:
-                semester_num = 1
-            elif "Semester 2" in stage_str:
-                semester_num = 2
-            else:
-                semester_num = 3
-
         try:
             AcademicPeriodRepository().insert(
                 student_id=self._student["id"],
                 year=db_year,
                 sys_id=ss_id,
                 stage=calculated_stage,
-                semester_num=semester_num,
+                semester_num=1,
             )
             self._new_year.delete(0, "end")
             self.load_data()
         except Exception as e:
             print(f"Failed to add period: {e}")
+
+    def _add_period_and_open(self, semester_num: int, year_str: str) -> None:
+        if not self._student:
+            return
+        db_year = normalize_year(year_str)
+        ss_id = self._student.get("study_system_id", 1)
+        
+        try:
+            if "-" in db_year:
+                year_start = int(db_year.split("-")[0])
+            else:
+                year_start = int(db_year)
+            adm_year = self._student.get("admission_year", year_start)
+            if isinstance(adm_year, str) and "-" in adm_year:
+                adm_year = int(adm_year.split("-")[0])
+            else:
+                adm_year = int(adm_year)
+            diff = year_start - adm_year
+            calculated_stage = max(1, diff + 1)
+        except Exception:
+            calculated_stage = 1
+
+        try:
+            new_period_id = AcademicPeriodRepository().insert(
+                student_id=self._student["id"],
+                year=db_year,
+                sys_id=ss_id,
+                stage=calculated_stage,
+                semester_num=semester_num,
+            )
+            self.load_data()
+            periods = AcademicPeriodRepository().get_by_student(self._student["id"])
+            p_new = next((p for p in periods if p["id"] == new_period_id or (p["semester_num"] == semester_num and normalize_year(p["academic_year"]) == db_year)), None)
+            if p_new:
+                self._enroll_panel.open(p_new, self._student)
+        except Exception as e:
+            print(f"Failed to add and open period: {e}")
 
     def _delete_period(self, period: dict) -> None:
         from tkinter import messagebox

@@ -42,6 +42,7 @@ import threading
 from datetime import date, datetime
 from pathlib import Path
 import requests
+from api_config import API_URL
 
 log = logging.getLogger(__name__)
 
@@ -72,7 +73,7 @@ def check_network_status() -> bool:
     It does NOT update the cached flag — the caller must call set_online().
     """
     try:
-        response = requests.get("http://127.0.0.1:8000/ping", timeout=2.0)
+        response = requests.get(f"{API_URL}/ping", timeout=2.0)
         return response.status_code == 200
     except requests.RequestException:
         return False
@@ -1009,7 +1010,7 @@ def sync_offline_queue_to_mysql(mysql_conn=None) -> dict:
 
         # 2. POST the payload to the API
         try:
-            response = requests.post("http://127.0.0.1:8000/sync", json=payload, timeout=10.0)
+            response = requests.post(f"{API_URL}/sync", json=payload, timeout=10.0)
             if response.status_code != 200:
                 log.error("API sync request failed with status %d: %s", response.status_code, response.text)
                 return {"synced": 0, "failed": len(queue_rows), "id_map": {}}

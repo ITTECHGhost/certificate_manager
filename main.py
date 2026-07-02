@@ -19,7 +19,7 @@ import logging
 from typing import Any
 # pyrefly: ignore [missing-import]
 import customtkinter as ctk
-from db import init_db
+from db import get_connection
 from sync_engine import (
     init_local_db, check_network_status, set_online, is_online,
     sync_offline_queue_to_mysql, get_queue_status,
@@ -90,7 +90,8 @@ logger.info("Application starting...")
 # Global appearance — must be set before any CTk widget is created
 # ---------------------------------------------------------------------------
 try:
-    init_db()
+    conn = get_connection()
+    conn.close()
 except Exception as _init_err:
     system_logger.warning("MySQL unavailable at startup: %s — starting in offline mode.", _init_err)
     set_online(False)

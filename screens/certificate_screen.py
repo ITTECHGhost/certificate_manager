@@ -495,6 +495,69 @@ class CertificateScreen(BaseScreen):
         paired_semesters = []
         periods = data.get("periods", [])
 
+        # ---> Filter out failed courses and calculate attempts <---
+        all_enrs = []
+        for p in periods:
+            for enr in p.get("enrollments", []):
+                enr["_period_ref"] = p
+                all_enrs.append(enr)
+
+        from collections import defaultdict
+        course_groups = defaultdict(list)
+        for enr in all_enrs:
+            course_groups[enr["course_id"]].append(enr)
+
+        # Calculate attempts and decorate passed enrollments
+        for course_id, group in course_groups.items():
+            total_attempts = 0
+            for e in group:
+                pr = str(e.get("passed_round", "1"))
+                isr = e.get("is_second_round", 0)
+                if pr == '2' or isr == 1:
+                    total_attempts += 2
+                elif pr == '3':
+                    total_attempts += 3
+                else:
+                    total_attempts += 1
+
+            # Find passing enrollment (score >= 50)
+            passing_candidates = [e for e in group if e.get("score") is not None and float(e["score"]) >= 50.0]
+            if passing_candidates:
+                # Take the latest attempt (highest stage_number)
+                passing_candidates.sort(key=lambda x: x["_period_ref"]["stage_number"], reverse=True)
+                passing_enr = passing_candidates[0]
+                
+                score_val = passing_enr["score"]
+                # Format score with attempts if attempts > 1
+                if total_attempts > 1:
+                    score_str = f"{int(score_val)}" if float(score_val).is_integer() else f"{score_val:.1f}"
+                    passing_enr["score"] = f"{score_str} ({total_attempts})"
+                else:
+                    score_str = f"{int(score_val)}" if float(score_val).is_integer() else f"{score_val:.1f}"
+                    passing_enr["score"] = score_str
+            else:
+                # If they never passed, we do not show this course on the certificate at all!
+                pass
+
+        # Clear enrollments of all periods
+        for p in periods:
+            p["enrollments"] = []
+
+        # Put only passing enrollments back in their original periods
+        for course_id, group in course_groups.items():
+            # Find the passing enrollment we marked
+            passing_candidates = [e for e in group if e.get("score") is not None and (
+                isinstance(e["score"], str) or (isinstance(e["score"], (int, float)) and float(e["score"]) >= 50.0)
+            )]
+            if passing_candidates:
+                passing_candidates.sort(key=lambda x: x["_period_ref"]["stage_number"], reverse=True)
+                passing_enr = passing_candidates[0]
+                passing_enr["_period_ref"]["enrollments"].append(passing_enr)
+
+        # Re-sort to maintain clean order in each period
+        for p in periods:
+            p["enrollments"].sort(key=lambda x: x.get("course_name_en" if is_english else "course_name_ar", ""))
+
         is_annual = data.get("period_display") == "year"
         num_periods = len(periods)
 

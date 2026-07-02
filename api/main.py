@@ -4,12 +4,27 @@ from typing import List, Dict, Any, Optional
 import mysql.connector
 import os
 import logging
+from contextlib import asynccontextmanager
 
 # Configure logger
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("api")
 
-app = FastAPI(title="Certificate Manager API")
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    logger.info("Initializing database on server startup...")
+    try:
+        import sys
+        sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+        from db import init_db
+        init_db()
+        logger.info("Database initialization successful.")
+    except Exception as e:
+        logger.error(f"Failed to initialize database on startup: {e}")
+    yield
+
+app = FastAPI(title="Certificate Manager API", lifespan=lifespan)
+
 
 # Database Configuration (supports overrides from environment variables)
 DB_HOST = os.environ.get("DB_HOST", "localhost")
@@ -1361,5 +1376,10 @@ def delete_supervisor(record_id: int, conn = Depends(get_db)):
         raise HTTPException(status_code=500, detail=str(exc))
     finally:
         cur.close()
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="127.0.0.1", port=8000)
+
 
 
