@@ -258,7 +258,7 @@ class StudentFormPanel(SidePanel):
         nat_labels  = [f"{c['name_ar']}  ({c['iso_code']})" for c in self._countries]
         
         self._all_order_labels = ["— بدون أمر / None"] + [
-            f"{o['order_number']}  |  {o.get('dept_name_ar','')}  |  {o.get('admission_year','') or '—'}"
+            f"{o['order_number']}  |  {o.get('dept_name_ar','')}  |  {o.get('graduation_year','') or '—'}"
             for o in self._orders
         ]
         ss_labels = ["سنوي  /  Annual", "مقررات  /  Semester"]
@@ -350,12 +350,6 @@ class StudentFormPanel(SidePanel):
             self._set_dropdown(self._birthplace_gov, "—  أجنبي / Foreign")
             self._set_entry(self._birthplace_other, data.get("birthplace_other", "") or "")
 
-        # Study type
-        self._set_dropdown(
-            self._study_type,
-            STUDY_TYPE_DISPLAY.get(data.get("study_type", "morning"), "")
-        )
-        
         # Degree level
         degree_val = data.get("degree_level")
         if degree_val in [1, "1", "Bachelor"]:
@@ -379,6 +373,11 @@ class StudentFormPanel(SidePanel):
 
         # Populate study system and type based on study_system_id
         sys_id = data.get("study_system_id")
+        try:
+            sys_id = int(sys_id) if sys_id is not None else None
+        except (ValueError, TypeError):
+            sys_id = None
+
         if sys_id == 1:
             self._set_dropdown(self._study_system, "سنوي  /  Annual")
             self._set_dropdown(self._study_type, "صباحي  /  Morning")
@@ -400,7 +399,7 @@ class StudentFormPanel(SidePanel):
             for o in self._orders:
                 if o["id"] == data["order_id"]:
                     lbl = (f"{o['order_number']}  |  "
-                           f"{o.get('dept_name_ar','')}  |  {o.get('admission_year','') or '—'}")
+                           f"{o.get('dept_name_ar','')}  |  {o.get('graduation_year','') or '—'}")
                     self._set_dropdown(self._order, lbl)
                     break
 
@@ -534,7 +533,7 @@ class StudentFormPanel(SidePanel):
             return None
         for o in self._orders:
             lbl = (f"{o['order_number']}  |  "
-                   f"{o.get('dept_name_ar','')}  |  {o.get('admission_year','') or '—'}")
+                   f"{o.get('dept_name_ar','')}  |  {o.get('graduation_year','') or '—'}")
             if lbl == label or o['order_number'] in label:
                 return o["id"]
         return None
@@ -1367,7 +1366,7 @@ class StudentsScreen(BaseScreen):
             ("محل الولادة  /  Birthplace",
                 data.get("birthplace_ar") or data.get("birthplace_other", "—")),
             ("نوع الدراسة  /  Study Type",
-                "صباحي / Morning" if data.get("study_type") == "morning" else "مسائي / Evening"),
+                "صباحي / Morning" if str(data.get("study_type") or "").strip().lower() == "morning" else "مسائي / Evening"),
             ("المعدل  /  Average",          f"{avg}  ({grade_ar} / {grade_en})" if avg else "—"),
             ("أمر التخرج  /  Graduation Order", data.get("order_number", "—")),
             ("تاريخ التخرج  /  Graduation Date", grad_date_str),

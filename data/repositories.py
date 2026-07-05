@@ -860,7 +860,7 @@ class StudentRepository(BaseRepository):
                 "SELECT s.*, o.order_number, "
                 "COALESCE(s.graduation_date, o.order_date) AS graduation_date, "
                 "COALESCE(s.graduation_semester, o.graduation_semester) AS graduation_semester, "
-                "d.name_ar AS dept_name_ar, ss.name_ar AS study_system_name_ar, "
+                "d.name_ar AS dept_name_ar, ss.name_ar AS study_system_name_ar, ss.study_day_type AS study_type, "
                 "c.name_ar AS nationality_ar, g.name_ar AS birthplace_ar "
                 "FROM (SELECT id, full_name_ar, full_name_en, gender, sequence_number, postgraduation_number, date_of_birth, "
                 "             birthplace_id, birthplace_other, nationality_id, department_id, study_system_id, degree_level, "
@@ -1267,7 +1267,7 @@ class CertificateRepository(BaseRepository):
                 "SELECT s.*, "
                 "       d.name_ar AS dept_name_ar, d.name_en AS dept_name_en, "
                 "       ss.name_ar AS study_system_name_ar, ss.name_en AS study_system_name_en, "
-                "       ss.calculation_rule, ss.calculation_weights, ss.period_display, "
+                "       ss.calculation_rule, ss.calculation_weights, ss.period_display, ss.study_day_type AS study_type, "
                 "       c.name_ar AS nationality_ar, c.name_en AS nationality_en, "
                 "       g.name_ar AS birthplace_ar, g.name_en AS birthplace_en, "
                 "       o.order_number, o.order_date "
@@ -1445,17 +1445,18 @@ class CertificateRepository(BaseRepository):
 
 class GraduationOrderRepository(BaseRepository):
     
-    def get_all(self) -> list[dict]:
+    def get_all(self, limit: int = 25, offset: int = 0) -> list[dict]:
         if not is_online():
             return sqlite_read_all(
                 "SELECT o.*, d.name_ar AS dept_name_ar, d.name_en AS dept_name_en, "
                 "(SELECT COUNT(*) FROM students s WHERE s.order_id = o.id) AS linked_count "
                 "FROM graduation_orders o "
                 "LEFT JOIN departments d ON o.department_id = d.id "
-                "ORDER BY o.order_date DESC, o.id DESC"
+                "ORDER BY o.id DESC LIMIT ? OFFSET ?",
+                (limit, offset)
             )
         try:
-            resp = requests.get(f"{self.api_url}/orders", timeout=5.0)
+            resp = requests.get(f"{self.api_url}/graduation-orders", params={"limit": limit, "offset": offset}, timeout=5.0)
             if resp.status_code == 200:
                 return resp.json()
             return []
@@ -1473,7 +1474,7 @@ class GraduationOrderRepository(BaseRepository):
                 (order_id,)
             )
         try:
-            resp = requests.get(f"{self.api_url}/orders/{order_id}", timeout=5.0)
+            resp = requests.get(f"{self.api_url}/graduation-orders/{order_id}", timeout=5.0)
             if resp.status_code == 200:
                 return resp.json()
             return None
@@ -1488,7 +1489,7 @@ class GraduationOrderRepository(BaseRepository):
                 data.get('order_date'),
                 data.get('department_id'),
                 data.get('study_type'),
-                data.get('admission_year'),
+                data.get('graduation_year'),
                 data.get('graduation_semester'),
                 data.get('num_students'),
                 data.get('notes'),
@@ -1503,13 +1504,13 @@ class GraduationOrderRepository(BaseRepository):
                 "order_date": str(data.get('order_date')),
                 "department_id": int(data.get('department_id')),
                 "study_type": data.get('study_type'),
-                "admission_year": int(data.get('admission_year')),
+                "graduation_year": int(data.get('graduation_year')),
                 "graduation_semester": data.get('graduation_semester'),
                 "num_students": int(data.get('num_students')),
                 "notes": data.get('notes'),
                 "study_system_id": int(data.get('study_system_id', 1))
             }
-            resp = requests.post(f"{self.api_url}/orders", json=payload, timeout=5.0)
+            resp = requests.post(f"{self.api_url}/graduation-orders", json=payload, timeout=5.0)
             if resp.status_code == 200:
                 new_id = resp.json()["new_id"]
                 log_activity(f"تم إضافة أمر جامعي جديد: {data.get('order_number')}")
@@ -1528,7 +1529,7 @@ class GraduationOrderRepository(BaseRepository):
                 data.get('order_date'),
                 data.get('department_id'),
                 data.get('study_type'),
-                data.get('admission_year'),
+                data.get('graduation_year'),
                 data.get('graduation_semester'),
                 data.get('num_students'),
                 data.get('notes'),
@@ -1543,13 +1544,13 @@ class GraduationOrderRepository(BaseRepository):
                 "order_date": str(data.get('order_date')),
                 "department_id": int(data.get('department_id')),
                 "study_type": data.get('study_type'),
-                "admission_year": int(data.get('admission_year')),
+                "graduation_year": int(data.get('graduation_year')),
                 "graduation_semester": data.get('graduation_semester'),
                 "num_students": int(data.get('num_students')),
                 "notes": data.get('notes'),
                 "study_system_id": int(data.get('study_system_id', 1))
             }
-            resp = requests.put(f"{self.api_url}/orders/{order_id}", json=payload, timeout=5.0)
+            resp = requests.put(f"{self.api_url}/graduation-orders/{order_id}", json=payload, timeout=5.0)
             if resp.status_code == 200:
                 log_activity(f"تم تعديل بيانات الأمر الجامعي: {data.get('order_number')}")
             else:
@@ -1564,7 +1565,7 @@ class GraduationOrderRepository(BaseRepository):
             log_activity(f"تم حذف الأمر الجامعي ID: {order_id}")
             return
         try:
-            resp = requests.delete(f"{self.api_url}/orders/{order_id}", timeout=5.0)
+            resp = requests.delete(f"{self.api_url}/graduation-orders/{order_id}", timeout=5.0)
             if resp.status_code == 200:
                 log_activity(f"تم حذف الأمر الجامعي ID: {order_id}")
             else:

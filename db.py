@@ -7,26 +7,51 @@ import shutil
 import subprocess
 from pathlib import Path
 import mysql.connector
+from mysql.connector import pooling
 from config import DBConfig
 
 log = logging.getLogger(__name__)
 
 
+# Global connection pool placeholder
+_connection_pool = None
+
+
 def get_connection():
-    """Returns a MySQL connection with dictionary cursor support by default (via repository)."""
-    return mysql.connector.connect(
-        host=DBConfig.DB_HOST,
-        user=DBConfig.DB_USER,
-        password=DBConfig.DB_PASSWORD,
-        database=DBConfig.DB_NAME,
-        charset='utf8mb4',
-        collation='utf8mb4_unicode_ci'
-    )
+    """Returns a MySQL connection from a connection pool (dictionary cursor support by default via repository)."""
+    global _connection_pool
+    if _connection_pool is None:
+        try:
+            # Initialize connection pool lazily
+            _connection_pool = pooling.MySQLConnectionPool(
+                pool_name="cert_mgr_pool",
+                pool_size=10,
+                host=DBConfig.DB_HOST,
+                user=DBConfig.DB_USER,
+                password=DBConfig.DB_PASSWORD,
+                database=DBConfig.DB_NAME,
+                charset='utf8mb4',
+                collation='utf8mb4_unicode_ci'
+            )
+        except Exception as err:
+            log.warning("Could not initialize MySQL Connection Pool: %s. Falling back to direct connections.", err)
+            # Fallback to direct connections if pool creation fails (e.g. MySQL server not available yet)
+            return mysql.connector.connect(
+                host=DBConfig.DB_HOST,
+                user=DBConfig.DB_USER,
+                password=DBConfig.DB_PASSWORD,
+                database=DBConfig.DB_NAME,
+                charset='utf8mb4',
+                collation='utf8mb4_unicode_ci'
+            )
+    return _connection_pool.get_connection()
 
 
 def init_db() -> None:
     """Check MySQL connection on startup and ensure required tables and columns exist."""
     log.info("Checking MySQL database connection to %s@%s...", DBConfig.DB_USER, DBConfig.DB_HOST)
+    conn = None
+    cursor = None
     try:
         conn = get_connection()
         cursor = conn.cursor()
@@ -43,7 +68,8 @@ def init_db() -> None:
 
         # Verify and add missing columns to the students table for full compatibility
         cursor.execute("DESCRIBE students")
-        student_cols = [row[0] for row in cursor.fetchall()]
+        raw_student_rows = cursor.fetchall()
+        student_cols = [row[0] for row in raw_student_rows]  # type: ignore
 
         if "graduation_date" not in student_cols:
             log.info("Adding graduation_date column to students table...")
@@ -59,11 +85,15 @@ def init_db() -> None:
 
         # Verify and add missing columns to the graduation_orders table for full compatibility
         cursor.execute("DESCRIBE graduation_orders")
-        order_cols = [row[0] for row in cursor.fetchall()]
+        raw_order_rows = cursor.fetchall()
+        order_cols = [row[0] for row in raw_order_rows]  # type: ignore
 
-        if "admission_year" not in order_cols:
-            log.info("Adding admission_year column to graduation_orders table...")
-            cursor.execute("ALTER TABLE graduation_orders ADD COLUMN admission_year INT DEFAULT NULL")
+        if "admission_year" in order_cols and "graduation_year" not in order_cols:
+            log.info("Renaming admission_year to graduation_year in graduation_orders table...")
+            cursor.execute("ALTER TABLE graduation_orders RENAME COLUMN admission_year TO graduation_year")
+        elif "graduation_year" not in order_cols:
+            log.info("Adding graduation_year column to graduation_orders table...")
+            cursor.execute("ALTER TABLE graduation_orders ADD COLUMN graduation_year VARCHAR(50) DEFAULT NULL")
 
         if "study_type" not in order_cols:
             log.info("Adding study_type column to graduation_orders table...")
@@ -75,7 +105,8 @@ def init_db() -> None:
 
         # Verify and add missing columns to the academic_periods table
         cursor.execute("DESCRIBE academic_periods")
-        ap_cols = [row[0] for row in cursor.fetchall()]
+        raw_ap_rows = cursor.fetchall()
+        ap_cols = [row[0] for row in raw_ap_rows]  # type: ignore
 
         if "study_system_id" not in ap_cols:
             log.info("Adding study_system_id column to academic_periods table...")
@@ -85,7 +116,8 @@ def init_db() -> None:
 
         # Verify and add missing columns to the courses table
         cursor.execute("DESCRIBE courses")
-        course_cols = [row[0] for row in cursor.fetchall()]
+        raw_course_rows = cursor.fetchall()
+        course_cols = [row[0] for row in raw_course_rows]  # type: ignore
 
         if "study_system_id" not in course_cols:
             log.info("Adding study_system_id column to courses table...")
@@ -100,12 +132,21 @@ def init_db() -> None:
             )
 
         conn.commit()
-        cursor.close()
-        conn.close()
         log.info("Database connection successful, tables verified, and schemas reconciled.")
     except Exception as e:
         log.error("Database connection or schema verification failed: %s", e)
         raise
+    finally:
+        if cursor:
+            try:
+                cursor.close()
+            except Exception:
+                pass
+        if conn:
+            try:
+                conn.close()
+            except Exception:
+                pass
 
 
 # ---------------------------------------------------------------------------

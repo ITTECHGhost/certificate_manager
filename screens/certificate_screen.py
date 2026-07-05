@@ -513,10 +513,10 @@ class CertificateScreen(BaseScreen):
             for e in group:
                 pr = str(e.get("passed_round", "1"))
                 isr = e.get("is_second_round", 0)
-                if pr == '2' or isr == 1:
-                    total_attempts += 2
-                elif pr == '3':
+                if pr == '3':
                     total_attempts += 3
+                elif pr == '2' or isr == 1:
+                    total_attempts += 2
                 else:
                     total_attempts += 1
 

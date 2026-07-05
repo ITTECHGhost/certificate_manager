@@ -1,7 +1,8 @@
 from fastapi import FastAPI, HTTPException, Depends
 from pydantic import BaseModel
-from typing import List, Dict, Any, Optional
+from typing import List, Dict, Any, Optional, Union
 import mysql.connector
+from mysql.connector import pooling
 import os
 import logging
 from contextlib import asynccontextmanager
@@ -31,6 +32,9 @@ DB_HOST = os.environ.get("DB_HOST", "localhost")
 DB_USER = os.environ.get("DB_USER", "root")
 DB_PASSWORD = os.environ.get("DB_PASSWORD", "12345678")
 DB_NAME = os.environ.get("DB_NAME", "certificate_manager")
+
+# Global API Connection Pool
+_api_connection_pool = None
 
 # Table metadata matching sync_engine.py
 TABLE_REGISTRY: Dict[str, Dict[str, Any]] = {
@@ -82,15 +86,20 @@ class SyncPayload(BaseModel):
     actions: List[SyncAction]
 
 def get_db():
-    """Dependency to retrieve a MySQL database connection."""
-    conn = mysql.connector.connect(
-        host=DB_HOST,
-        user=DB_USER,
-        password=DB_PASSWORD,
-        database=DB_NAME,
-        charset="utf8mb4",
-        collation="utf8mb4_unicode_ci",
-    )
+    """Dependency to retrieve a MySQL database connection from the connection pool."""
+    global _api_connection_pool
+    if _api_connection_pool is None:
+        _api_connection_pool = pooling.MySQLConnectionPool(
+            pool_name="api_pool",
+            pool_size=15,
+            host=DB_HOST,
+            user=DB_USER,
+            password=DB_PASSWORD,
+            database=DB_NAME,
+            charset="utf8mb4",
+            collation="utf8mb4_unicode_ci",
+        )
+    conn = _api_connection_pool.get_connection()
     try:
         yield conn
     finally:
@@ -836,7 +845,7 @@ def authenticate_personnel(payload: LoginPayload, conn = Depends(get_db)):
 def insert_personnel(payload: PersonnelPayload, conn = Depends(get_db)):
     cur = conn.cursor()
     try:
-        fields = payload.dict()
+        fields = payload.model_dump()
         columns = ", ".join(fields.keys())
         placeholders = ", ".join(["%s"] * len(fields))
         values = tuple(fields.values())
@@ -854,7 +863,7 @@ def insert_personnel(payload: PersonnelPayload, conn = Depends(get_db)):
 def update_personnel(person_id: int, payload: PersonnelPayload, conn = Depends(get_db)):
     cur = conn.cursor()
     try:
-        fields = payload.dict()
+        fields = payload.model_dump()
         set_clause = ", ".join([f"{f}=%s" for f in fields.keys()])
         values = tuple(fields.values()) + (person_id,)
         query = f"UPDATE personnel SET {set_clause} WHERE id=%s"
@@ -970,7 +979,13 @@ def get_enrollments_by_period(period_id: int, conn = Depends(get_db)):
 def insert_enrollment(payload: EnrollmentPayload, conn = Depends(get_db)):
     cur = conn.cursor()
     try:
-        passed_round = '2' if payload.is_second else '1'
+        val = payload.is_second
+        if val == 2:
+            passed_round = '2'
+        elif val == 3:
+            passed_round = '3'
+        else:
+            passed_round = '1'
         query = "INSERT INTO enrollments (period_id, course_id, score, passed_round) VALUES (%s, %s, %s, %s)"
         cur.execute(query, (payload.period_id, payload.course_id, payload.score, passed_round))
         conn.commit()
@@ -985,7 +1000,13 @@ def insert_enrollment(payload: EnrollmentPayload, conn = Depends(get_db)):
 def update_enrollment(enrollment_id: int, score: float, is_second: int, conn = Depends(get_db)):
     cur = conn.cursor()
     try:
-        passed_round = '2' if is_second else '1'
+        val = is_second
+        if val == 2:
+            passed_round = '2'
+        elif val == 3:
+            passed_round = '3'
+        else:
+            passed_round = '1'
         query = "UPDATE enrollments SET score=%s, passed_round=%s WHERE id=%s"
         cur.execute(query, (score, passed_round, enrollment_id))
         conn.commit()
@@ -1015,17 +1036,18 @@ class GraduationOrderPayload(BaseModel):
     order_date: str
     department_id: int
     study_type: str
-    admission_year: int
+    graduation_year: Union[int, str]
     graduation_semester: str
     num_students: int
     notes: Optional[str] = None
     study_system_id: Optional[int] = 1
 
+@app.get("/graduation-orders")
 @app.get("/orders")
-def get_graduation_orders(conn = Depends(get_db)):
+def get_graduation_orders(limit: int = 25, offset: int = 0, conn = Depends(get_db)):
     cur = conn.cursor(dictionary=True)
     try:
-        cur.callproc("GetAllGraduationOrders")
+        cur.callproc("GetAllGraduationOrders", (limit, offset))
         rows = []
         for result in cur.stored_results():
             rows.extend(result.fetchall())
@@ -1035,6 +1057,7 @@ def get_graduation_orders(conn = Depends(get_db)):
     finally:
         cur.close()
 
+@app.get("/graduation-orders/{order_id}")
 @app.get("/orders/{order_id}")
 def get_graduation_order(order_id: int, conn = Depends(get_db)):
     cur = conn.cursor(dictionary=True)
@@ -1054,13 +1077,14 @@ def get_graduation_order(order_id: int, conn = Depends(get_db)):
     finally:
         cur.close()
 
+@app.post("/graduation-orders")
 @app.post("/orders")
 def insert_graduation_order(payload: GraduationOrderPayload, conn = Depends(get_db)):
     cur = conn.cursor(dictionary=True)
     try:
         args = (
             payload.order_number, payload.order_date, payload.department_id,
-            payload.study_type, payload.admission_year, payload.graduation_semester,
+            payload.study_type, payload.graduation_year, payload.graduation_semester,
             payload.num_students, payload.notes, payload.study_system_id
         )
         cur.callproc("InsertGraduationOrder", args)
@@ -1081,13 +1105,14 @@ def insert_graduation_order(payload: GraduationOrderPayload, conn = Depends(get_
     finally:
         cur.close()
 
+@app.put("/graduation-orders/{order_id}")
 @app.put("/orders/{order_id}")
 def update_graduation_order(order_id: int, payload: GraduationOrderPayload, conn = Depends(get_db)):
     cur = conn.cursor(dictionary=True)
     try:
         args = (
             order_id, payload.order_number, payload.order_date, payload.department_id,
-            payload.study_type, payload.admission_year, payload.graduation_semester,
+            payload.study_type, payload.graduation_year, payload.graduation_semester,
             payload.num_students, payload.notes, payload.study_system_id
         )
         cur.callproc("UpdateGraduationOrder", args)
@@ -1099,6 +1124,7 @@ def update_graduation_order(order_id: int, payload: GraduationOrderPayload, conn
     finally:
         cur.close()
 
+@app.delete("/graduation-orders/{order_id}")
 @app.delete("/orders/{order_id}")
 def delete_graduation_order(order_id: int, conn = Depends(get_db)):
     cur = conn.cursor(dictionary=True)

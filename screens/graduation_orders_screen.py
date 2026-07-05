@@ -16,7 +16,6 @@ from data.repositories import GraduationOrderRepository, DepartmentRepository
 from ui.base_screen import BaseScreen
 from ui.side_panel import SidePanel
 from ui.record_list import RecordList
-from ui.pagination_bar import PaginationBar
 from ui.widgets import make_section_header, make_primary_button
 
 
@@ -81,9 +80,9 @@ class GraduationOrderPanel(SidePanel):
             row=6, col=0
         )
         
-        self._admission_year = self._add_entry(
-            "سنة القبول (الدفعة)", "Admission Year",
-            placeholder="مثال: 2018",
+        self._graduation_year = self._add_entry(
+            "سنة التخرج (الدفعة)", "Graduation Year",
+            placeholder="مثال: 2022",
             row=6, col=2, justify="left"
         )
         self._graduation_semester = self._add_dropdown(
@@ -127,8 +126,8 @@ class GraduationOrderPanel(SidePanel):
         self._set_entry(self._order_number,    data.get("order_number") or "")
         self._set_entry(self._order_date,      data.get("order_date") or "")
         
-        adm_yr = data.get("admission_year")
-        self._set_entry(self._admission_year,  str(adm_yr) if adm_yr is not None else "")
+        grad_yr = data.get("graduation_year")
+        self._set_entry(self._graduation_year,  str(grad_yr) if grad_yr is not None else "")
         
         num_stud = data.get("num_students")
         self._set_entry(self._num_students,    str(num_stud) if num_stud is not None else "")
@@ -166,8 +165,8 @@ class GraduationOrderPanel(SidePanel):
             return "تاريخ الأمر مطلوب بصيغة YYYY-MM-DD"
         if not self._departments:
             return "يجب إضافة قسم أولاً  —  Add a department first"
-        if not self._admission_year.get().strip().isdigit():
-            return "سنة القبول يجب أن تكون رقماً  —  Admission year must be a number"
+        if not self._graduation_year.get().strip():
+            return "سنة التخرج مطلوبة  —  Graduation year is required"
         num = self._num_students.get().strip()
         if num and not num.isdigit():
             return "عدد الطلاب يجب أن يكون رقماً  —  Number of students must be a number"
@@ -189,12 +188,18 @@ class GraduationOrderPanel(SidePanel):
         num_val = int(num_raw) if num_raw.isdigit() else None
         notes   = self._notes.get().strip() or None
 
+        grad_yr_raw = self._graduation_year.get().strip()
+        try:
+            grad_yr_val = int(grad_yr_raw)
+        except ValueError:
+            grad_yr_val = grad_yr_raw
+
         kwargs = dict(
             order_number        = self._order_number.get().strip(),
             order_date          = self._order_date.get().strip(),
             department_id       = self._get_dept_id(),
             study_type          = STUDY_TYPE_OPTIONS[self._study_type.get()],
-            admission_year      = int(self._admission_year.get().strip()),
+            graduation_year     = grad_yr_val,
             graduation_semester = SEMESTER_OPTIONS[self._graduation_semester.get()],
             num_students        = num_val,
             notes               = notes,
@@ -228,6 +233,7 @@ class GraduationOrdersScreen(BaseScreen):
     def __init__(self, parent, switch_callback) -> None:
         self._all_rows: list[dict] = []
         self._on_view_students = None   # set by main after screen registration
+        self.current_offset = 0
         super().__init__(parent, switch_callback)
 
     def set_view_students_callback(self, cb) -> None:
@@ -281,14 +287,107 @@ class GraduationOrdersScreen(BaseScreen):
         )
         self._list.grid(row=2, column=0, sticky="nsew")
 
-        # Pagination bar
-        self._pager = PaginationBar(self, on_change=self._on_page_change)
-        self._pager.grid(row=3, column=0, sticky="ew", pady=(6, 0))
+        # Pagination controls
+        self._pagination_frame = ctk.CTkFrame(self, fg_color="transparent")
+        self._pagination_frame.grid(row=3, column=0, sticky="ew", pady=(6, 0))
+        self._pagination_frame.grid_columnconfigure(1, weight=1)
+
+        # Left side: Limit picker
+        limit_frame = ctk.CTkFrame(self._pagination_frame, fg_color="transparent")
+        limit_frame.grid(row=0, column=0, sticky="w", padx=(20, 8))
+
+        ctk.CTkLabel(
+            limit_frame,
+            text="عرض  /  Show:",
+            font=ctk.CTkFont(family=AppFonts.FAMILY, size=AppFonts.SIZE_SMALL),
+        ).grid(row=0, column=0, padx=(0, 4))
+
+        self._limit_var = ctk.StringVar(value="25")
+        self._limit_menu = ctk.CTkOptionMenu(
+            limit_frame,
+            variable=self._limit_var,
+            values=["25", "50", "75", "100"],
+            font=ctk.CTkFont(family=AppFonts.FAMILY, size=AppFonts.SIZE_SMALL),
+            width=70,
+            height=30,
+            command=self._on_limit_change,
+        )
+        self._limit_menu.grid(row=0, column=1)
+
+        # Centre: Nav buttons and label
+        nav = ctk.CTkFrame(self._pagination_frame, fg_color="transparent")
+        nav.grid(row=0, column=1)
+
+        self._btn_prev = ctk.CTkButton(
+            nav,
+            text="◄  السابق",
+            font=ctk.CTkFont(family=AppFonts.FAMILY, size=AppFonts.SIZE_SMALL),
+            width=90,
+            height=30,
+            corner_radius=AppSizes.CORNER_RADIUS_BTN,
+            command=self._go_prev,
+        )
+        self._btn_prev.grid(row=0, column=0, padx=(0, 8))
+
+        self._status_label = ctk.CTkLabel(
+            nav,
+            text="—",
+            font=ctk.CTkFont(family=AppFonts.FAMILY, size=AppFonts.SIZE_SMALL),
+            width=150,
+        )
+        self._status_label.grid(row=0, column=1, padx=4)
+
+        self._btn_next = ctk.CTkButton(
+            nav,
+            text="التالي  ►",
+            font=ctk.CTkFont(family=AppFonts.FAMILY, size=AppFonts.SIZE_SMALL),
+            width=90,
+            height=30,
+            corner_radius=AppSizes.CORNER_RADIUS_BTN,
+            command=self._go_next,
+        )
+        self._btn_next.grid(row=0, column=2, padx=(8, 0))
+
+    def _on_limit_change(self, *_) -> None:
+        self.current_offset = 0
+        self.refresh_data()
+
+    def _go_prev(self) -> None:
+        limit = int(self._limit_var.get())
+        self.current_offset = max(0, self.current_offset - limit)
+        self.refresh_data()
+
+    def _go_next(self) -> None:
+        limit = int(self._limit_var.get())
+        self.current_offset += limit
+        self.refresh_data()
 
     def refresh(self) -> None:
-        self._all_rows = GraduationOrderRepository().get_all()
+        self.current_offset = 0
+        self.refresh_data()
+
+    def refresh_data(self) -> None:
+        limit = int(self._limit_var.get())
+        self._all_rows = GraduationOrderRepository().get_all(limit=limit, offset=self.current_offset)
         self._search_var.set("")
-        self._pager.set_total(len(self._all_rows))
+        
+        # Update status labels
+        start_idx = self.current_offset + 1 if self._all_rows else 0
+        end_idx = self.current_offset + len(self._all_rows)
+        self._status_label.configure(text=f"السجلات {start_idx} - {end_idx}\nRecords {start_idx} - {end_idx}")
+
+        # Guard Next button if we got fewer rows than limit
+        if len(self._all_rows) < limit:
+            self._btn_next.configure(state="disabled")
+        else:
+            self._btn_next.configure(state="normal")
+
+        # Guard Prev button if offset is 0
+        if self.current_offset == 0:
+            self._btn_prev.configure(state="disabled")
+        else:
+            self._btn_prev.configure(state="normal")
+
         self._render_page(self._all_rows)
 
     def _on_search(self, *_) -> None:
@@ -301,24 +400,18 @@ class GraduationOrdersScreen(BaseScreen):
                 if term in (r.get("order_number") or "").lower()
                 or term in (r.get("dept_name_ar") or "").lower()
                 or term in (r.get("dept_name_en") or "").lower()
-                or term in str(r.get("admission_year") or "")
+                or term in str(r.get("graduation_year") or "")
             ]
-        self._pager.set_total(len(filtered))
         self._render_page(filtered)
 
-    def _on_page_change(self, page: int, page_size: int) -> None:
-        # Re-apply search filter and re-render
-        self._on_search()
-
-    def _render_page(self, filtered_rows: list[dict]) -> None:
-        ps   = self._pager.page_size
-        off  = self._pager.offset
-        rows = filtered_rows[off: off + ps]
+    def _render_page(self, rows: list[dict]) -> None:
+        if not self._list.winfo_exists():
+            return
         self._list.load(rows, cell_extractor=lambda r: [
             r["order_number"],
             r["order_date"],
             r.get("dept_name_ar", "—"),
-            str(r.get("admission_year", "—")),
+            str(r.get("graduation_year", "—")),
             STUDY_TYPE_DISPLAY.get(str(r.get("study_type") or "").lower(), r.get("study_type") or "—"),
             SEMESTER_DISPLAY.get(str(r.get("graduation_semester") or "").lower(), r.get("graduation_semester") or "—"),
             str(r.get("linked_count", 0)),

@@ -288,14 +288,41 @@ class MigrationManager:
             dept_id = self.get_or_create_dept(row[1])
             study_type = 'evening' if row[2] and 'مسائي' in str(row[2]) else 'morning'
             
-            # Extract admission year robustly
-            admission_year = 2018
+            # Extract graduation year robustly
+            graduation_year = None
             if row[3]:
                 if str(row[3]).isdigit():
-                    admission_year = int(row[3])
+                    graduation_year = int(row[3])
                 else:
                     match = re.search(r'\d{4}', str(row[3]))
-                    if match: admission_year = int(match.group())
+                    if match: graduation_year = int(match.group())
+
+            # When importing legacy data, map year_study field directly into graduation_year if it evaluates to NULL
+            if graduation_year is None:
+                graduation_year = row[3]
+
+            # Determine base study system: 2 = semester, 1 = annual
+            year_val = 0
+            if row[3]:
+                match_yr = re.search(r'\d{4}', str(row[3]))
+                if match_yr:
+                    try:
+                        year_val = int(match_yr.group())
+                    except Exception:
+                        pass
+            base_system = 2 if year_val > 2020 else 1
+
+            # study_system_id Mapping Constraints
+            legacy_study = str(row[2] or '')
+            if 'مسائية' in legacy_study:
+                study_system_id = 3 if base_system == 1 else 4
+            elif 'صباحية' in legacy_study:
+                study_system_id = 1 if base_system == 1 else 2
+            else:
+                if 'مسائي' in legacy_study:
+                    study_system_id = 3 if base_system == 1 else 4
+                else:
+                    study_system_id = base_system
 
             # Resolve Arabic semester string safely
             sem_val = str(row[4] or '') + ' ' + str(row[5] if len(row)>5 else '')
@@ -313,9 +340,9 @@ class MigrationManager:
                 
             try:
                 self.cursor.execute(
-                    "INSERT IGNORE INTO graduation_orders (order_number, order_date, department_id, study_type, admission_year, graduation_semester, num_students) "
-                    "VALUES (%s, %s, %s, %s, %s, %s, %s)",
-                    (order_num, order_date, dept_id, study_type, admission_year, sem, num_st)
+                    "INSERT IGNORE INTO graduation_orders (order_number, order_date, department_id, study_type, graduation_year, graduation_semester, num_students, study_system_id) "
+                    "VALUES (%s, %s, %s, %s, %s, %s, %s, %s)",
+                    (order_num, order_date, dept_id, study_type, graduation_year, sem, num_st, study_system_id)
                 )
             except Exception as e:
                 system_logger.warning(f"Failed to import order {order_num}: {e}")

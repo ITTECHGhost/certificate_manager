@@ -17938,3 +17938,69 @@ TypeError: 'NoneType' object is not subscriptable
 2026-07-01 14:06:12,597 [SYSTEM] INFO: User '1' logged in successfully.
 2026-07-01 14:06:15,078 [SYSTEM] INFO: Database snapshot backup complete.
 2026-07-02 10:14:27,735 [SYSTEM] INFO: Application closed normally.
+2026-07-02 10:18:58,859 [SYSTEM] INFO: Application starting...
+2026-07-02 10:18:59,015 [SYSTEM] INFO: Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-07-02 10:19:05,059 [SYSTEM] INFO: User '1' logged in successfully.
+2026-07-02 10:19:07,582 [SYSTEM] INFO: Database snapshot backup complete.
+2026-07-02 10:22:11,493 [SYSTEM] INFO: Application closed normally.
+2026-07-02 11:27:15,423 [SYSTEM] INFO: Application starting...
+2026-07-02 11:27:15,512 [SYSTEM] INFO: Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-07-02 11:27:21,608 [SYSTEM] INFO: User '1' logged in successfully.
+2026-07-02 11:27:24,029 [SYSTEM] INFO: Database snapshot backup complete.
+2026-07-02 11:29:53,956 [SYSTEM] INFO: Application closed normally.
+2026-07-02 11:29:58,080 [SYSTEM] INFO: Application starting...
+2026-07-02 11:29:58,154 [SYSTEM] INFO: Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-07-02 11:30:07,575 [SYSTEM] INFO: User '1' logged in successfully.
+2026-07-02 11:30:10,006 [SYSTEM] INFO: Database snapshot backup complete.
+2026-07-02 11:45:46,441 [SYSTEM] INFO: Application closed normally.
+2026-07-02 11:45:50,155 [SYSTEM] INFO: Application starting...
+2026-07-02 11:45:50,273 [SYSTEM] INFO: Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-07-02 11:45:55,600 [SYSTEM] INFO: User '1' logged in successfully.
+2026-07-02 11:45:58,051 [SYSTEM] INFO: Database snapshot backup complete.
+2026-07-02 11:59:44,844 [SYSTEM] INFO: Application closed normally.
+2026-07-02 12:26:16,086 [SYSTEM] INFO: Application starting...
+2026-07-02 12:26:19,766 [SYSTEM] INFO: Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-07-02 12:26:25,744 [SYSTEM] INFO: User '1' logged in successfully.
+2026-07-02 12:26:28,419 [SYSTEM] INFO: Database snapshot backup complete.
+2026-07-02 12:26:53,385 [SYSTEM] INFO: Application closed normally.
+2026-07-05 08:48:13,326 [SYSTEM] INFO: Application starting...
+2026-07-05 08:48:13,532 [SYSTEM] INFO: Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-07-05 08:48:13,698 [SYSTEM] INFO: Restarting FastAPI Windows Service asynchronously...
+2026-07-05 08:48:14,841 [SYSTEM] INFO: FastAPI Windows Service restart sequence completed.
+2026-07-05 08:48:19,417 [SYSTEM] INFO: User '1' logged in successfully.
+2026-07-05 08:48:22,167 [SYSTEM] INFO: Database snapshot backup complete.
+2026-07-05 09:53:49,884 [SYSTEM] INFO: Application closed normally.
+2026-07-05 10:23:23,646 [SYSTEM] INFO: Starting database replacement migration (MySQL target)...
+2026-07-05 10:23:24,099 [SYSTEM] INFO: Processing table: admin (6 rows)
+2026-07-05 10:23:24,146 [SYSTEM] WARNING: Failed to import user sadiq: 1062 (23000): Duplicate entry 'sadiq' for key 'username'
+2026-07-05 10:23:24,147 [SYSTEM] WARNING: Failed to import user qassim: 1062 (23000): Duplicate entry 'qassim' for key 'username'
+2026-07-05 10:23:24,148 [SYSTEM] WARNING: Failed to import user ali: 1062 (23000): Duplicate entry 'ali' for key 'username'
+2026-07-05 10:23:24,148 [SYSTEM] WARNING: Failed to import user exp: 1062 (23000): Duplicate entry 'exp' for key 'username'
+2026-07-05 10:23:24,149 [SYSTEM] WARNING: Failed to import user zahraa: 1062 (23000): Duplicate entry 'zahraa' for key 'username'
+2026-07-05 10:23:24,150 [SYSTEM] WARNING: Failed to import user IT: 1062 (23000): Duplicate entry 'IT' for key 'username'
+2026-07-05 10:23:24,150 [SYSTEM] INFO: Processing table: department (2 rows)
+2026-07-05 10:23:24,150 [SYSTEM] INFO: Processing table: info_system (1 rows)
+2026-07-05 10:23:24,152 [SYSTEM] WARNING: Failed to update info_system: 1054 (42S22): Unknown column 'univ_name_ar' in 'field list'
+2026-07-05 10:23:24,156 [SYSTEM] INFO: Processing table: order_university (63 rows)
+2026-07-05 10:23:24,171 [SYSTEM] INFO: Processing table: signatures (1 rows)
+2026-07-05 10:23:24,174 [SYSTEM] WARNING: Failed to import signature: 1644 (45000): Operation Denied: This signatory slot is already assigned.
+2026-07-05 10:23:24,174 [SYSTEM] WARNING: Failed to import signature: 1644 (45000): Operation Denied: This signatory slot is already assigned.
+2026-07-05 10:23:24,175 [SYSTEM] WARNING: Failed to import signature: 1644 (45000): Operation Denied: This signatory slot is already assigned.
+2026-07-05 10:23:24,176 [SYSTEM] WARNING: Failed to import signature: 1644 (45000): Operation Denied: This signatory slot is already assigned.
+2026-07-05 10:23:24,176 [SYSTEM] WARNING: Failed to import signature: 1644 (45000): Operation Denied: This signatory slot is already assigned.
+2026-07-05 10:23:24,177 [SYSTEM] WARNING: Failed to import signature: 1644 (45000): Operation Denied: This signatory slot is already assigned.
+2026-07-05 10:23:24,188 [SYSTEM] INFO: Processing table: students_140 (118 rows)
+2026-07-05 10:23:24,258 [SYSTEM] INFO: Processing table: students_140_backup_1775558661 (118 rows)
+2026-07-05 10:23:24,380 [SYSTEM] INFO: Processing table: students_q (1474 rows)
+2026-07-05 10:23:25,051 [SYSTEM] INFO: Processing table: subjects_140 (130 rows)
+2026-07-05 10:23:25,056 [SYSTEM] INFO: Processing table: subjects_q (100 rows)
+2026-07-05 10:23:25,114 [SYSTEM] INFO: Processing table: subjects_students_140 (1210 rows)
+2026-07-05 10:23:25,457 [SYSTEM] INFO: Processing table: subjects_students_q (1719 rows)
+2026-07-05 10:23:25,767 [SYSTEM] INFO: Migration strictly complete.
+2026-07-05 10:34:05,160 [SYSTEM] INFO: Application starting...
+2026-07-05 10:34:05,247 [SYSTEM] INFO: Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-07-05 10:34:05,354 [SYSTEM] INFO: Restarting FastAPI Windows Service asynchronously...
+2026-07-05 10:34:05,698 [SYSTEM] INFO: FastAPI Windows Service restart sequence completed.
+2026-07-05 10:34:10,030 [SYSTEM] INFO: User '1' logged in successfully.
+2026-07-05 10:34:12,539 [SYSTEM] INFO: Database snapshot backup complete.
+2026-07-05 10:42:00,225 [SYSTEM] INFO: Application closed normally.

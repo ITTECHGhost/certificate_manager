@@ -86,6 +86,8 @@ logging.captureWarnings(True)
 
 logger.info("Application starting...")
 
+# Note: FastAPI Windows Service is restarted asynchronously at main execution entry.
+
 # ---------------------------------------------------------------------------
 # Global appearance — must be set before any CTk widget is created
 # ---------------------------------------------------------------------------
@@ -111,7 +113,7 @@ class Sidebar(ctk.CTkFrame):
             parent,
             width=AppSizes.SIDEBAR_WIDTH,
             corner_radius=0,
-            fg_color=("gray98", "gray10"),
+            fg_color=AppColors.SIDEBAR_BG,
             border_width=0,
         )
         self._on_navigate = on_navigate
@@ -139,7 +141,7 @@ class Sidebar(ctk.CTkFrame):
             anchor="center",
         ).grid(row=0, column=0, padx=16, pady=(22, 10), sticky="ew")
 
-        ctk.CTkFrame(self, height=1, fg_color="#2D3748").grid(
+        ctk.CTkFrame(self, height=1, fg_color=AppColors.DIVIDER).grid(
             row=1, column=0, sticky="ew", padx=14, pady=(0, 8)
         )
 
@@ -152,9 +154,9 @@ class Sidebar(ctk.CTkFrame):
                 anchor="e",
                 height=AppSizes.NAV_BUTTON_HEIGHT,
                 corner_radius=8,
-                fg_color="transparent",
-                text_color="gray80",
-                hover_color="#2A4365",
+                fg_color=AppColors.NAV_DEFAULT_BG,
+                text_color=AppColors.NAV_TEXT,
+                hover_color=AppColors.NAV_HOVER_BG,
                 command=lambda key=item["key"]: self._on_navigate(key),
             )
             btn.grid(row=row_offset + 2, column=0, padx=10, pady=2, sticky="ew")
@@ -165,7 +167,7 @@ class Sidebar(ctk.CTkFrame):
     def _build_settings_and_toggle(self) -> None:
         base_row = len(NAV_ITEMS) + 3
 
-        ctk.CTkFrame(self, height=1, fg_color="#2D3748").grid(
+        ctk.CTkFrame(self, height=1, fg_color=AppColors.DIVIDER).grid(
             row=base_row, column=0, sticky="ew", padx=14, pady=(0, 4)
         )
 
@@ -176,9 +178,9 @@ class Sidebar(ctk.CTkFrame):
             anchor="e",
             height=AppSizes.SETTINGS_BTN_HEIGHT,
             corner_radius=8,
-            fg_color="transparent",
-            text_color="gray80",
-            hover_color="#2A4365",
+            fg_color=AppColors.NAV_DEFAULT_BG,
+            text_color=AppColors.NAV_TEXT,
+            hover_color=AppColors.NAV_HOVER_BG,
             command=lambda: self._on_navigate(SETTINGS_ITEM["key"]),
         )
         settings_btn.grid(
@@ -190,9 +192,9 @@ class Sidebar(ctk.CTkFrame):
     def set_active(self, active_key: str) -> None:
         for key, btn in self._buttons.items():
             if key == active_key:
-                btn.configure(fg_color="#2A4365", text_color="white")
+                btn.configure(fg_color=AppColors.NAV_ACTIVE_BG, text_color="white")
             else:
-                btn.configure(fg_color="transparent", text_color="gray80")
+                btn.configure(fg_color=AppColors.NAV_DEFAULT_BG, text_color=AppColors.NAV_TEXT)
 
 
 # ===========================================================================
@@ -326,7 +328,7 @@ class CertificateManagerApp(ctk.CTk):
 
         # Start network polling loop
         self._prev_online = True
-        self._poll_network()
+        self._start_network_poller()
 
         # Trigger DB backup snapshot immediately if online
         if is_online():
@@ -423,12 +425,26 @@ class CertificateManagerApp(ctk.CTk):
         sub.set_order(order, back_callback=lambda: self._show_screen("orders"))
         self._show_screen("order_students")
 
-    # -- Network polling loop -----------------------------------------------
+    # -- Background network poller and status updater -----------------------
 
-    def _poll_network(self) -> None:
-        """Check MySQL reachability every 8 seconds and update UI + sync engine."""
+    def _start_network_poller(self) -> None:
+        """Start a persistent background thread to check network status periodically."""
+        def poller_loop():
+            import time
+            while True:
+                try:
+                    now_online = check_network_status()
+                    self.after(0, lambda online=now_online: self._handle_network_status_update(online))
+                except Exception as exc:
+                    system_logger.error("Network check exception: %s", exc)
+                time.sleep(8)
+
+        import threading
+        threading.Thread(target=poller_loop, daemon=True, name="NetworkPoller").start()
+
+    def _handle_network_status_update(self, now_online: bool) -> None:
+        """Process network changes and trigger background queue auto-sync on recovery."""
         try:
-            now_online = check_network_status()
             was_online = getattr(self, '_prev_online', True)
             set_online(now_online)
 
@@ -439,36 +455,58 @@ class CertificateManagerApp(ctk.CTk):
             # Transition: offline -> online => auto-sync
             if now_online and not was_online:
                 system_logger.info("Network restored. Triggering offline queue sync...")
-                try:
-                    from db import get_connection
-                    conn = get_connection()
-                    summary = sync_offline_queue_to_mysql(conn)
-                    conn.close()
-                    if summary["synced"] > 0:
-                        system_logger.info(
-                            "Auto-sync complete: %d synced, %d failed.",
-                            summary["synced"], summary["failed"]
-                        )
-                except Exception as exc:
-                    system_logger.error("Auto-sync failed: %s", exc)
+                
+                def _sync_worker():
+                    try:
+                        from db import get_connection
+                        conn = get_connection()
+                        summary = sync_offline_queue_to_mysql(conn)
+                        conn.close()
+                        if summary["synced"] > 0:
+                            system_logger.info(
+                                "Auto-sync complete: %d synced, %d failed.",
+                                summary["synced"], summary["failed"]
+                            )
+                    except Exception as exc:
+                        system_logger.error("Auto-sync failed: %s", exc)
 
-                # Refresh local SQLite replica with latest MySQL data
-                pull_mysql_to_sqlite_background()
+                    # Refresh local SQLite replica with latest MySQL data
+                    pull_mysql_to_sqlite_background()
+
+                import threading
+                threading.Thread(target=_sync_worker, daemon=True, name="AutoSyncWorker").start()
 
             self._prev_online = now_online
         except Exception as exc:
-            system_logger.error("Network poll error: %s", exc)
-
-        # Reschedule
-        self.after(8000, self._poll_network)
+            system_logger.error("Network poll update error: %s", exc)
 
 
 # ===========================================================================
 # Entry Point
 # ===========================================================================
 
+def _restart_fastapi_service_async() -> None:
+    """Restarts the FastAPI Windows Service asynchronously in a background thread."""
+    def run_restart():
+        try:
+            import subprocess
+            system_logger.info("Restarting FastAPI Windows Service asynchronously...")
+            subprocess.run(
+                ["cmd", "/c", "net stop FastAPICertificateManager && net start FastAPICertificateManager"],
+                capture_output=True,
+                shell=True
+            )
+            system_logger.info("FastAPI Windows Service restart sequence completed.")
+        except Exception as exc:
+            system_logger.warning("Could not restart FastAPI service automatically: %s", exc)
+
+    import threading
+    threading.Thread(target=run_restart, daemon=True, name="ServiceRestarter").start()
+
+
 if __name__ == "__main__":
     try:
+        _restart_fastapi_service_async()
         app = CertificateManagerApp()
         app.mainloop()
         logger.info("Application closed normally.")

@@ -183,7 +183,6 @@ def _json_loads(text: str) -> dict:
 def _get_local_conn() -> sqlite3.Connection:
     """Return a connection to the local SQLite cache database."""
     conn = sqlite3.connect(str(_LOCAL_DB_PATH))
-    conn.execute("PRAGMA journal_mode=WAL")      # safer for concurrent reads
     conn.execute("PRAGMA foreign_keys=ON")
     conn.row_factory = sqlite3.Row
     return conn
@@ -232,6 +231,7 @@ def init_local_db() -> None:
     """
     conn = _get_local_conn()
     try:
+        conn.execute("PRAGMA journal_mode=WAL")
         cur = conn.cursor()
 
         # -- Sync queue: ordered log of pending offline writes ----------------
@@ -345,7 +345,6 @@ def init_local_db() -> None:
                 full_name_en          TEXT,
                 gender                INTEGER DEFAULT 1,
                 sequence_number       INTEGER,
-                postgraduation_number     INTEGER,
                 postgraduation_number INTEGER,
                 date_of_birth         TEXT,
                 birthplace_id         INTEGER,
@@ -433,7 +432,7 @@ def init_local_db() -> None:
                 order_date          TEXT,
                 department_id       INTEGER,
                 study_type          TEXT,
-                admission_year      INTEGER,
+                graduation_year     INTEGER,
                 graduation_semester TEXT,
                 num_students        INTEGER,
                 notes               TEXT,
@@ -564,16 +563,17 @@ def pull_mysql_to_sqlite(mysql_conn, sqlite_conn=None) -> dict:
 
                 # Clear + insert
                 sqlite_conn.execute(f"DELETE FROM {table_name}")
-                for row in rows:
-                    values = tuple(
+                insert_data = [
+                    tuple(
                         str(v) if isinstance(v, (date, datetime)) else v
                         for v in (row.get(c) for c in columns)
                     )
-                    sqlite_conn.execute(
-                        f"INSERT OR REPLACE INTO {table_name} ({col_clause}) VALUES ({placeholders})",
-                        values,
-                    )
-
+                    for row in rows
+                ]
+                sqlite_conn.executemany(
+                    f"INSERT OR REPLACE INTO {table_name} ({col_clause}) VALUES ({placeholders})",
+                    insert_data,
+                )
                 sqlite_conn.commit()
                 tables_synced += 1
                 total_rows += len(rows)
@@ -603,65 +603,74 @@ def download_mysql_snapshot(mysql_conn, sqlite_conn):
     tables = ['departments', 'courses', 'study_systems', 'students', 'academic_periods', 'enrollments', 'settings', 'personnel', 'graduation_orders']
     my_cursor = mysql_conn.cursor(dictionary=True)
     sq_cursor = sqlite_conn.cursor()
-    
-    def safe_cast(val):
-        if val is None: return None
-        if isinstance(val, (int, float)): return val 
-        if isinstance(val, (bytearray, bytes)):
+    try:
+        def safe_cast(val):
+            if val is None: return None
+            if isinstance(val, (int, float)): return val 
+            if isinstance(val, (bytearray, bytes)):
+                try:
+                    return val.decode('utf-8')
+                except UnicodeDecodeError:
+                    return str(val)
+            return str(val)
+            
+        for table in tables:
+            src_table = table
+            dest_table = table
+            if table == 'settings':
+                dest_table = 'university_settings'
+                try:
+                    my_cursor.execute("SELECT * FROM university_settings LIMIT 1;")
+                    my_cursor.fetchall()
+                    src_table = 'university_settings'
+                except Exception:
+                    src_table = 'settings'
+                    
             try:
-                return val.decode('utf-8')
-            except UnicodeDecodeError:
-                return str(val)
-        return str(val)
-        
-    for table in tables:
-        src_table = table
-        dest_table = table
-        if table == 'settings':
-            dest_table = 'university_settings'
-            try:
-                my_cursor.execute("SELECT * FROM university_settings LIMIT 1;")
-                my_cursor.fetchall()
-                src_table = 'university_settings'
-            except Exception:
-                src_table = 'settings'
+                # 1. Fetch fresh rows from MySQL
+                my_cursor.execute(f"SELECT * FROM {src_table};")
+                rows = my_cursor.fetchall()
+                if not rows: continue
                 
+                columns = list(rows[0].keys())
+                
+                # 2. Build optimized column definitions
+                cols_def_parts = []
+                for col in columns:
+                    if col.lower() == 'id':
+                        cols_def_parts.append(f"{col} INTEGER PRIMARY KEY")
+                    else:
+                        cols_def_parts.append(f"{col}")
+                cols_def = ", ".join(cols_def_parts)
+                
+                # 3. Drop and Recreate
+                sq_cursor.execute(f"DROP TABLE IF EXISTS {dest_table};")
+                sq_cursor.execute(f"CREATE TABLE {dest_table} ({cols_def});")
+                
+                # 4. Insert Data
+                placeholders = ", ".join(["?"] * len(columns))
+                sql_insert = f"INSERT INTO {dest_table} ({', '.join(columns)}) VALUES ({placeholders});"
+                insert_data = [tuple(safe_cast(row[col]) for col in columns) for row in rows]
+                sq_cursor.executemany(sql_insert, insert_data)
+                
+                # 5. Generate Performance Indexes for Foreign Keys
+                for col in columns:
+                    if col.lower().endswith('_id'):
+                        idx_name = f"idx_{dest_table}_{col}"
+                        sq_cursor.execute(f"CREATE INDEX IF NOT EXISTS {idx_name} ON {dest_table}({col});")
+            except Exception as e:
+                print(f"Error syncing table {table}: {e}")
+                
+        sqlite_conn.commit()
+    finally:
         try:
-            # 1. Fetch fresh rows from MySQL
-            my_cursor.execute(f"SELECT * FROM {src_table};")
-            rows = my_cursor.fetchall()
-            if not rows: continue
-            
-            columns = list(rows[0].keys())
-            
-            # 2. Build optimized column definitions
-            cols_def_parts = []
-            for col in columns:
-                if col.lower() == 'id':
-                    cols_def_parts.append(f"{col} INTEGER PRIMARY KEY")
-                else:
-                    cols_def_parts.append(f"{col}")
-            cols_def = ", ".join(cols_def_parts)
-            
-            # 3. Drop and Recreate
-            sq_cursor.execute(f"DROP TABLE IF EXISTS {dest_table};")
-            sq_cursor.execute(f"CREATE TABLE {dest_table} ({cols_def});")
-            
-            # 4. Insert Data
-            placeholders = ", ".join(["?"] * len(columns))
-            sql_insert = f"INSERT INTO {dest_table} ({', '.join(columns)}) VALUES ({placeholders});"
-            insert_data = [tuple(safe_cast(row[col]) for col in columns) for row in rows]
-            sq_cursor.executemany(sql_insert, insert_data)
-            
-            # 5. Generate Performance Indexes for Foreign Keys
-            for col in columns:
-                if col.lower().endswith('_id'):
-                    idx_name = f"idx_{dest_table}_{col}"
-                    sq_cursor.execute(f"CREATE INDEX IF NOT EXISTS {idx_name} ON {dest_table}({col});")
-        except Exception as e:
-            print(f"Error syncing table {table}: {e}")
-            
-    sqlite_conn.commit()
+            my_cursor.close()
+        except Exception:
+            pass
+        try:
+            sq_cursor.close()
+        except Exception:
+            pass
 
 
 def pull_mysql_to_sqlite_background() -> None:
