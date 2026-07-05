@@ -5,6 +5,7 @@
 import os
 import logging
 import requests
+from api_config import API_URL
 from db import get_connection
 from sync_engine import (
     is_online, log_offline_insert,
@@ -33,7 +34,7 @@ class OfflineModeError(Exception):
 class BaseRepository:
     """Base repository with online/offline routing for MySQL SPs."""
     
-    def __init__(self, api_url: str = "http://127.0.0.1:8000"):
+    def __init__(self, api_url: str = API_URL):
         self.api_url = api_url
         
     def _call_write(self, proc_name: str, args: tuple = ()) -> int | None:
@@ -750,7 +751,7 @@ class CourseRepository(BaseRepository):
 
 
 class StudentRepository(BaseRepository):
-    def __init__(self, api_url: str = "http://127.0.0.1:8000"):
+    def __init__(self, api_url: str = API_URL):
         super().__init__(api_url)
 
     def _inject_missing_graduation_numbers(self, students_list: list[dict]) -> list[dict]:
@@ -859,14 +860,14 @@ class StudentRepository(BaseRepository):
                 "SELECT s.*, o.order_number, "
                 "COALESCE(s.graduation_date, o.order_date) AS graduation_date, "
                 "COALESCE(s.graduation_semester, o.graduation_semester) AS graduation_semester, "
-                "d.name_ar AS dept_name_ar, ss.name_ar AS study_system_name_ar, "
+                "d.name_ar AS dept_name_ar, ss.name_ar AS study_system_name_ar, ss.study_day_type AS study_type, "
                 "c.name_ar AS nationality_ar, g.name_ar AS birthplace_ar "
-                "FROM (SELECT id, full_name_ar, full_name_en, gender, sequence_number, postgraduation_no, date_of_birth, "
+                "FROM (SELECT id, full_name_ar, full_name_en, gender, sequence_number, postgraduation_number, date_of_birth, "
                 "             birthplace_id, birthplace_other, nationality_id, department_id, study_system_id, degree_level, "
                 "             order_id, CAST(admission_year AS TEXT) AS admission_year, summer_training_data, average, graduation_date, graduation_semester "
                 "      FROM students "
                 "      UNION ALL "
-                "      SELECT id, full_name_ar, full_name_en, gender, sequence_number, postgraduation_no, date_of_birth, "
+                "      SELECT id, full_name_ar, full_name_en, gender, sequence_number, postgraduation_number, date_of_birth, "
                 "             birthplace_id, birthplace_other, nationality_id, department_id, study_system_id, degree_level, "
                 "             order_id, CAST(admission_year AS TEXT) AS admission_year, summer_training_data, average, graduation_date, graduation_semester "
                 "      FROM local_students) s "
@@ -1047,7 +1048,7 @@ class StudentRepository(BaseRepository):
                 "full_name_en": data.get('full_name_en'),
                 "gender": data.get('gender', 1),
                 "sequence_number": data.get('sequence_number'),
-                "postgraduation_no": data.get('postgraduation_no'),
+                "postgraduation_number": data.get('postgraduation_number'),
                 "date_of_birth": str(data.get('date_of_birth')) if data.get('date_of_birth') else None,
                 "birthplace_id": data.get('birthplace_id'),
                 "birthplace_other": data.get('birthplace_other'),
@@ -1082,7 +1083,7 @@ class StudentRepository(BaseRepository):
                 "full_name_en": data.get('full_name_en'),
                 "gender": data.get('gender', 1),
                 "sequence_number": data.get('sequence_number'),
-                "postgraduation_no": data.get('postgraduation_no'),
+                "postgraduation_number": data.get('postgraduation_number'),
                 "date_of_birth": str(data.get('date_of_birth')) if data.get('date_of_birth') else None,
                 "birthplace_id": data.get('birthplace_id'),
                 "birthplace_other": data.get('birthplace_other'),
@@ -1200,7 +1201,13 @@ class EnrollmentRepository(BaseRepository):
 
     def insert(self, period_id: int, course_id: int, score: float, is_second: int) -> int:
         if not is_online():
-            passed_round = '2' if is_second else '1'
+            val = is_second
+            if val == 2:
+                passed_round = '2'
+            elif val == 3:
+                passed_round = '3'
+            else:
+                passed_round = '1'
             return log_offline_insert("enrollments", {
                 "period_id": period_id,
                 "course_id": course_id,
@@ -1260,17 +1267,17 @@ class CertificateRepository(BaseRepository):
                 "SELECT s.*, "
                 "       d.name_ar AS dept_name_ar, d.name_en AS dept_name_en, "
                 "       ss.name_ar AS study_system_name_ar, ss.name_en AS study_system_name_en, "
-                "       ss.calculation_rule, ss.calculation_weights, ss.period_display, "
+                "       ss.calculation_rule, ss.calculation_weights, ss.period_display, ss.study_day_type AS study_type, "
                 "       c.name_ar AS nationality_ar, c.name_en AS nationality_en, "
                 "       g.name_ar AS birthplace_ar, g.name_en AS birthplace_en, "
                 "       o.order_number, o.order_date "
                 "FROM ("
-                "  SELECT id, full_name_ar, full_name_en, gender, sequence_number, postgraduation_no, date_of_birth, "
+                "  SELECT id, full_name_ar, full_name_en, gender, sequence_number, postgraduation_number, date_of_birth, "
                 "         birthplace_id, birthplace_other, nationality_id, department_id, study_system_id, degree_level, "
                 "         order_id, CAST(admission_year AS TEXT) AS admission_year, summer_training_data, average, graduation_date, graduation_semester "
                 "  FROM students "
                 "  UNION ALL "
-                "  SELECT id, full_name_ar, full_name_en, gender, sequence_number, postgraduation_no, date_of_birth, "
+                "  SELECT id, full_name_ar, full_name_en, gender, sequence_number, postgraduation_number, date_of_birth, "
                 "         birthplace_id, birthplace_other, nationality_id, department_id, study_system_id, degree_level, "
                 "         order_id, CAST(admission_year AS TEXT) AS admission_year, summer_training_data, average, graduation_date, graduation_semester "
                 "  FROM local_students"
@@ -1323,7 +1330,7 @@ class CertificateRepository(BaseRepository):
             data["periods"] = []
             for p in periods:
                 enrollments = sqlite_read_all(
-                    "SELECT e.score, "
+                    "SELECT e.score, e.passed_round, "
                     "       CASE WHEN e.passed_round != '1' THEN 1 ELSE 0 END AS is_second_round, "
                     "       c.name_ar AS course_name_ar, c.name_en AS course_name_en, c.credit_hours "
                     "FROM ("
@@ -1438,17 +1445,18 @@ class CertificateRepository(BaseRepository):
 
 class GraduationOrderRepository(BaseRepository):
     
-    def get_all(self) -> list[dict]:
+    def get_all(self, limit: int = 25, offset: int = 0) -> list[dict]:
         if not is_online():
             return sqlite_read_all(
                 "SELECT o.*, d.name_ar AS dept_name_ar, d.name_en AS dept_name_en, "
                 "(SELECT COUNT(*) FROM students s WHERE s.order_id = o.id) AS linked_count "
                 "FROM graduation_orders o "
                 "LEFT JOIN departments d ON o.department_id = d.id "
-                "ORDER BY o.order_date DESC, o.id DESC"
+                "ORDER BY o.id DESC LIMIT ? OFFSET ?",
+                (limit, offset)
             )
         try:
-            resp = requests.get(f"{self.api_url}/orders", timeout=5.0)
+            resp = requests.get(f"{self.api_url}/graduation-orders", params={"limit": limit, "offset": offset}, timeout=5.0)
             if resp.status_code == 200:
                 return resp.json()
             return []
@@ -1466,7 +1474,7 @@ class GraduationOrderRepository(BaseRepository):
                 (order_id,)
             )
         try:
-            resp = requests.get(f"{self.api_url}/orders/{order_id}", timeout=5.0)
+            resp = requests.get(f"{self.api_url}/graduation-orders/{order_id}", timeout=5.0)
             if resp.status_code == 200:
                 return resp.json()
             return None
@@ -1481,7 +1489,7 @@ class GraduationOrderRepository(BaseRepository):
                 data.get('order_date'),
                 data.get('department_id'),
                 data.get('study_type'),
-                data.get('admission_year'),
+                data.get('graduation_year'),
                 data.get('graduation_semester'),
                 data.get('num_students'),
                 data.get('notes'),
@@ -1496,13 +1504,13 @@ class GraduationOrderRepository(BaseRepository):
                 "order_date": str(data.get('order_date')),
                 "department_id": int(data.get('department_id')),
                 "study_type": data.get('study_type'),
-                "admission_year": int(data.get('admission_year')),
+                "graduation_year": int(data.get('graduation_year')),
                 "graduation_semester": data.get('graduation_semester'),
                 "num_students": int(data.get('num_students')),
                 "notes": data.get('notes'),
                 "study_system_id": int(data.get('study_system_id', 1))
             }
-            resp = requests.post(f"{self.api_url}/orders", json=payload, timeout=5.0)
+            resp = requests.post(f"{self.api_url}/graduation-orders", json=payload, timeout=5.0)
             if resp.status_code == 200:
                 new_id = resp.json()["new_id"]
                 log_activity(f"تم إضافة أمر جامعي جديد: {data.get('order_number')}")
@@ -1521,7 +1529,7 @@ class GraduationOrderRepository(BaseRepository):
                 data.get('order_date'),
                 data.get('department_id'),
                 data.get('study_type'),
-                data.get('admission_year'),
+                data.get('graduation_year'),
                 data.get('graduation_semester'),
                 data.get('num_students'),
                 data.get('notes'),
@@ -1536,13 +1544,13 @@ class GraduationOrderRepository(BaseRepository):
                 "order_date": str(data.get('order_date')),
                 "department_id": int(data.get('department_id')),
                 "study_type": data.get('study_type'),
-                "admission_year": int(data.get('admission_year')),
+                "graduation_year": int(data.get('graduation_year')),
                 "graduation_semester": data.get('graduation_semester'),
                 "num_students": int(data.get('num_students')),
                 "notes": data.get('notes'),
                 "study_system_id": int(data.get('study_system_id', 1))
             }
-            resp = requests.put(f"{self.api_url}/orders/{order_id}", json=payload, timeout=5.0)
+            resp = requests.put(f"{self.api_url}/graduation-orders/{order_id}", json=payload, timeout=5.0)
             if resp.status_code == 200:
                 log_activity(f"تم تعديل بيانات الأمر الجامعي: {data.get('order_number')}")
             else:
@@ -1557,7 +1565,7 @@ class GraduationOrderRepository(BaseRepository):
             log_activity(f"تم حذف الأمر الجامعي ID: {order_id}")
             return
         try:
-            resp = requests.delete(f"{self.api_url}/orders/{order_id}", timeout=5.0)
+            resp = requests.delete(f"{self.api_url}/graduation-orders/{order_id}", timeout=5.0)
             if resp.status_code == 200:
                 log_activity(f"تم حذف الأمر الجامعي ID: {order_id}")
             else:

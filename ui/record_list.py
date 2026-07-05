@@ -128,23 +128,26 @@ class RecordList(ctk.CTkFrame):
             )
             lbl.grid(row=0, column=col_idx, padx=5, sticky="nsew")
             if self._on_cell_click:
-                lbl.bind("<Button-1>", lambda e, d=row_data, idx=i: self._on_cell_click(d, idx))
+                lbl.bind("<Button-1>", lambda e, d=row_data, idx=i, w=lbl: self._on_cell_click(d, idx) if w.winfo_exists() else None)
 
         # Action Buttons
         btn_start = 0 if self._is_rtl else len(self._columns)
         curr_col = btn_start
         
         if self._on_extra:
-            self._make_btn(row_frame, self._extra_label, self._extra_color, 
-                          lambda d=row_data: self._on_extra(d)).grid(row=0, column=curr_col, padx=2)
+            btn_extra = self._make_btn(row_frame, self._extra_label, self._extra_color, None)
+            btn_extra.configure(command=lambda d=row_data, w=btn_extra: self._on_extra(d) if w.winfo_exists() else None)
+            btn_extra.grid(row=0, column=curr_col, padx=2)
             curr_col += 1
             
-        self._make_btn(row_frame, "تعديل\nEdit", AppColors.COLOR_INFO, 
-                      lambda d=row_data: self._on_edit(d)).grid(row=0, column=curr_col, padx=2)
+        btn_edit = self._make_btn(row_frame, "تعديل\nEdit", AppColors.COLOR_INFO, None)
+        btn_edit.configure(command=lambda d=row_data, w=btn_edit: self._on_edit(d) if w.winfo_exists() else None)
+        btn_edit.grid(row=0, column=curr_col, padx=2)
         curr_col += 1
         
-        self._make_btn(row_frame, "حذف\nDelete", AppColors.COLOR_ERROR, 
-                      lambda d=row_data: self._on_delete(d)).grid(row=0, column=curr_col, padx=2)
+        btn_del = self._make_btn(row_frame, "حذف\nDelete", AppColors.COLOR_ERROR, None)
+        btn_del.configure(command=lambda d=row_data, w=btn_del: self._on_delete(d) if w.winfo_exists() else None)
+        btn_del.grid(row=0, column=curr_col, padx=2)
 
     def _make_btn(self, parent, text, color, command):
         return ctk.CTkButton(

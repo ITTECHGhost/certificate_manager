@@ -435,3 +435,65 @@ def make_table_row(
             child.bind("<Button-1>", lambda e: on_click())
 
     return row_frame
+
+
+def normalize_date_format(date_str: str) -> str:
+    """
+    Attempts to normalize any date input (e.g., 'YYYY/M/D', 'YYYY-M-D', 'YYYY/MM/DD', 'YYYY-MM-DD')
+    into standard ISO 'YYYY-MM-DD' format. Returns the original string if parsing fails.
+    """
+    if not date_str:
+        return date_str
+    
+    cleaned = date_str.strip().replace("/", "-")
+    parts = cleaned.split("-")
+    if len(parts) == 3:
+        year, month, day = parts[0], parts[1], parts[2]
+        if year.isdigit() and month.isdigit() and day.isdigit() and len(year) == 4:
+            return f"{year}-{int(month):02d}-{int(day):02d}"
+            
+    return date_str
+
+
+def show_modern_alert(parent, message: str, is_error: bool = True, title: str | None = None) -> None:
+    """
+    Display a modern modal custom alert dialog styled like the rest of the application.
+    """
+    if title is None:
+        title = "تنبيه  /  Warning"
+        
+    dialog = ctk.CTkToplevel(parent)
+    dialog.title(title)
+    dialog.geometry("420x220")
+    dialog.resizable(False, False)
+    
+    # Position relative to parent if parent is mapped, otherwise center on screen
+    try:
+        dialog.transient(parent.winfo_toplevel())
+        dialog.grab_set()
+    except Exception:
+        pass
+        
+    dialog.grid_columnconfigure(0, weight=1)
+
+    icon = "❌" if is_error else "✅"
+    ctk.CTkLabel(
+        dialog,
+        text=icon,
+        font=ctk.CTkFont(size=32),
+    ).grid(row=0, column=0, pady=(20, 6))
+
+    ctk.CTkLabel(
+        dialog,
+        text=message,
+        font=ctk.CTkFont(family=AppFonts.FAMILY, size=13),
+        wraplength=360,
+        justify="center",
+    ).grid(row=1, column=0, padx=20)
+
+    ctk.CTkButton(
+        dialog,
+        text="حسناً  /  OK",
+        width=120,
+        command=dialog.destroy,
+    ).grid(row=2, column=0, pady=16)

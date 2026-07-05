@@ -176,7 +176,7 @@ class OrderStudentsScreen(BaseScreen):
         self._banner_label.configure(
             text=(f"أمر: {o['order_number']}  |  "
                   f"{o.get('dept_name_ar', '—')}  |  "
-                  f"دفعة {o.get('admission_year', '—')}")
+                  f"دفعة {o.get('graduation_year', '—')}")
         )
 
     def _load_filter_options(self) -> None:
