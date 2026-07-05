@@ -4,13 +4,13 @@
 #
 # HOW TO USE (Run Command Prompt as Administrator):
 #   Install service:
-#       C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\python.exe fastapi_service.py install
+#       python fastapi_service.py install
 #   Start service:
-#       C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\python.exe fastapi_service.py start
+#       python fastapi_service.py start
 #   Stop service:
-#       C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\python.exe fastapi_service.py stop
+#       python fastapi_service.py stop
 #   Uninstall service:
-#       C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\python.exe fastapi_service.py remove
+#       python fastapi_service.py remove
 #
 # =============================================================================
 
@@ -59,8 +59,10 @@ class FastAPIWindowsService(win32serviceutil.ServiceFramework):
         self.main()
 
     def main(self):
-        python_exe = r"C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\python.exe"
-        server_dir = r"C:\AppServ\www\certificate_manager_api"
+        # Dynamically locate python.exe based on sys.prefix
+        python_exe = os.path.join(sys.prefix, "python.exe")
+        # Dynamically locate the directory where this service script lives
+        server_dir = os.path.dirname(os.path.abspath(__file__))
         
         # Start the FastAPI server using Uvicorn
         process = subprocess.Popen(
