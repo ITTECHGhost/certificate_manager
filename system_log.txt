@@ -18004,3 +18004,16 @@ TypeError: 'NoneType' object is not subscriptable
 2026-07-05 10:34:10,030 [SYSTEM] INFO: User '1' logged in successfully.
 2026-07-05 10:34:12,539 [SYSTEM] INFO: Database snapshot backup complete.
 2026-07-05 10:42:00,225 [SYSTEM] INFO: Application closed normally.
+2026-07-05 11:13:16,260 [SYSTEM] INFO: Application starting...
+2026-07-05 11:13:16,416 [SYSTEM] INFO: Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-07-05 11:13:18,454 [SYSTEM] INFO: Restarting FastAPI Windows Service asynchronously...
+2026-07-05 11:13:18,813 [SYSTEM] INFO: FastAPI Windows Service restart sequence completed.
+2026-07-05 11:13:22,752 [SYSTEM] INFO: User '1' logged in successfully.
+2026-07-05 11:13:27,184 [SYSTEM] INFO: Database snapshot backup complete.
+2026-07-05 11:14:07,201 [SYSTEM] INFO: Network restored. Triggering offline queue sync...
+2026-07-05 11:14:07,205 [SYSTEM] INFO: Sync queue is empty — nothing to do.
+2026-07-05 11:14:07,389 [SYSTEM] INFO: Inbound sync complete: {'tables_synced': 12, 'total_rows': 5224, 'errors': []}
+2026-07-05 11:28:31,997 [SYSTEM] INFO: Network restored. Triggering offline queue sync...
+2026-07-05 11:28:32,059 [SYSTEM] INFO: Sync queue is empty — nothing to do.
+2026-07-05 11:28:32,410 [SYSTEM] INFO: Inbound sync complete: {'tables_synced': 12, 'total_rows': 5224, 'errors': []}
+2026-07-05 11:34:26,585 [SYSTEM] INFO: Application closed normally.
