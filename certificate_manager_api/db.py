@@ -1,0 +1,295 @@
+# =============================================================================
+# db.py — Certificate Manager: Database Initialization & Utilities
+# =============================================================================
+
+import logging
+import shutil
+import subprocess
+from pathlib import Path
+import mysql.connector
+from mysql.connector import pooling
+from config import DBConfig
+
+log = logging.getLogger(__name__)
+
+
+# Global connection pool placeholder
+_connection_pool = None
+
+
+def get_connection():
+    """Returns a MySQL connection from a connection pool (dictionary cursor support by default via repository)."""
+    global _connection_pool
+    if _connection_pool is None:
+        try:
+            # Initialize connection pool lazily
+            _connection_pool = pooling.MySQLConnectionPool(
+                pool_name="cert_mgr_pool",
+                pool_size=10,
+                host=DBConfig.DB_HOST,
+                user=DBConfig.DB_USER,
+                password=DBConfig.DB_PASSWORD,
+                database=DBConfig.DB_NAME,
+                charset='utf8mb4',
+                collation='utf8mb4_unicode_ci'
+            )
+        except Exception as err:
+            log.warning("Could not initialize MySQL Connection Pool: %s. Falling back to direct connections.", err)
+            # Fallback to direct connections if pool creation fails (e.g. MySQL server not available yet)
+            return mysql.connector.connect(
+                host=DBConfig.DB_HOST,
+                user=DBConfig.DB_USER,
+                password=DBConfig.DB_PASSWORD,
+                database=DBConfig.DB_NAME,
+                charset='utf8mb4',
+                collation='utf8mb4_unicode_ci'
+            )
+    return _connection_pool.get_connection()
+
+
+def init_db() -> None:
+    """Check MySQL connection on startup and ensure required tables and columns exist."""
+    log.info("Checking MySQL database connection to %s@%s...", DBConfig.DB_USER, DBConfig.DB_HOST)
+    conn = None
+    cursor = None
+    try:
+        conn = get_connection()
+        cursor = conn.cursor()
+        # Verify and create course_departments table if it does not exist
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS course_departments (
+                course_id     INT NOT NULL,
+                department_id INT NOT NULL,
+                PRIMARY KEY (course_id, department_id),
+                FOREIGN KEY (course_id) REFERENCES courses(id) ON UPDATE CASCADE ON DELETE CASCADE,
+                FOREIGN KEY (department_id) REFERENCES departments(id) ON UPDATE CASCADE ON DELETE CASCADE
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+        """)
+
+        # Verify and add missing columns to the students table for full compatibility
+        cursor.execute("DESCRIBE students")
+        raw_student_rows = cursor.fetchall()
+        student_cols = [row[0] for row in raw_student_rows]  # type: ignore
+
+        if "graduation_date" not in student_cols:
+            log.info("Adding graduation_date column to students table...")
+            cursor.execute("ALTER TABLE students ADD COLUMN graduation_date DATE DEFAULT NULL")
+
+        if "graduation_semester" not in student_cols:
+            log.info("Adding graduation_semester column to students table...")
+            cursor.execute("ALTER TABLE students ADD COLUMN graduation_semester VARCHAR(50) DEFAULT NULL")
+
+        if "postgraduation_number" not in student_cols:
+            log.info("Adding postgraduation_number column to students table...")
+            cursor.execute("ALTER TABLE students ADD COLUMN postgraduation_number INT DEFAULT NULL")
+
+        # Verify and add missing columns to the graduation_orders table for full compatibility
+        cursor.execute("DESCRIBE graduation_orders")
+        raw_order_rows = cursor.fetchall()
+        order_cols = [row[0] for row in raw_order_rows]  # type: ignore
+
+        if "admission_year" in order_cols and "graduation_year" not in order_cols:
+            log.info("Renaming admission_year to graduation_year in graduation_orders table...")
+            cursor.execute("ALTER TABLE graduation_orders RENAME COLUMN admission_year TO graduation_year")
+        elif "graduation_year" not in order_cols:
+            log.info("Adding graduation_year column to graduation_orders table...")
+            cursor.execute("ALTER TABLE graduation_orders ADD COLUMN graduation_year VARCHAR(50) DEFAULT NULL")
+
+        if "study_type" not in order_cols:
+            log.info("Adding study_type column to graduation_orders table...")
+            cursor.execute("ALTER TABLE graduation_orders ADD COLUMN study_type VARCHAR(50) DEFAULT NULL")
+
+        if "notes" not in order_cols:
+            log.info("Adding notes column to graduation_orders table...")
+            cursor.execute("ALTER TABLE graduation_orders ADD COLUMN notes VARCHAR(255) DEFAULT NULL")
+
+        # Verify and add missing columns to the academic_periods table
+        cursor.execute("DESCRIBE academic_periods")
+        raw_ap_rows = cursor.fetchall()
+        ap_cols = [row[0] for row in raw_ap_rows]  # type: ignore
+
+        if "study_system_id" not in ap_cols:
+            log.info("Adding study_system_id column to academic_periods table...")
+            cursor.execute(
+                "ALTER TABLE academic_periods ADD COLUMN study_system_id INT NOT NULL DEFAULT 1"
+            )
+
+        # Verify and add missing columns to the courses table
+        cursor.execute("DESCRIBE courses")
+        raw_course_rows = cursor.fetchall()
+        course_cols = [row[0] for row in raw_course_rows]  # type: ignore
+
+        if "study_system_id" not in course_cols:
+            log.info("Adding study_system_id column to courses table...")
+            cursor.execute(
+                "ALTER TABLE courses ADD COLUMN study_system_id INT NOT NULL DEFAULT 1"
+            )
+
+        if "is_shared" not in course_cols:
+            log.info("Adding is_shared column to courses table...")
+            cursor.execute(
+                "ALTER TABLE courses ADD COLUMN is_shared TINYINT(1) NOT NULL DEFAULT 0"
+            )
+
+        conn.commit()
+        log.info("Database connection successful, tables verified, and schemas reconciled.")
+    except Exception as e:
+        log.error("Database connection or schema verification failed: %s", e)
+        raise
+    finally:
+        if cursor:
+            try:
+                cursor.close()
+            except Exception:
+                pass
+        if conn:
+            try:
+                conn.close()
+            except Exception:
+                pass
+
+
+# ---------------------------------------------------------------------------
+# Grade Helper
+# ---------------------------------------------------------------------------
+
+def get_grade(average) -> tuple[str, str]:
+    try:
+        avg_val = float(average)
+    except (ValueError, TypeError):
+        return ("—", "—")
+        
+    if avg_val >= 90:
+        return ("امتياز",   "Excellent")
+    elif avg_val >= 80:
+        return ("جيد جداً", "Very Good")
+    elif avg_val >= 70:
+        return ("جيد",      "Good")
+    elif avg_val >= 60:
+        return ("متوسط",    "Medium")
+    else:
+        return ("مقبول",    "Accepted")
+
+
+# ---------------------------------------------------------------------------
+# Backup & Restore  (MySQL — uses mysqldump / mysql CLI)
+# ---------------------------------------------------------------------------
+
+def _mysql_env() -> dict:
+    """
+    Build an environment dict with MYSQL_PWD set so the password is never
+    exposed on the command line (visible in process lists).
+    """
+    import os
+    env = os.environ.copy()
+    env["MYSQL_PWD"] = DBConfig.DB_PASSWORD
+    return env
+
+
+def backup_db(dest_path: Path) -> None:
+    """
+    Dump the certificate_manager database to *dest_path* (a .sql file).
+
+    Requires **mysqldump** to be installed and available on PATH.
+    If it is missing a descriptive RuntimeError is raised so the UI can
+    surface a friendly message — the application never crashes on import.
+
+    Args:
+        dest_path: Destination file path (e.g. Path("backup_2026.sql")).
+
+    Raises:
+        RuntimeError: mysqldump not found, or the dump process exits non-zero.
+    """
+    mysqldump = shutil.which("mysqldump")
+    if not mysqldump:
+        raise RuntimeError(
+            "mysqldump غير موجود في PATH.\n"
+            "mysqldump not found on PATH. "
+            "Please install MySQL client tools and make sure mysqldump is accessible."
+        )
+
+    dest_path = Path(dest_path)
+    dest_path.parent.mkdir(parents=True, exist_ok=True)
+
+    cmd = [
+        mysqldump,
+        "--no-defaults",
+        f"--host={DBConfig.DB_HOST}",
+        f"--user={DBConfig.DB_USER}",
+        "--single-transaction",
+        "--routines",
+        "--triggers",
+        DBConfig.DB_NAME,
+    ]
+
+    log.info("Starting backup: %s → %s", " ".join(cmd), dest_path)
+
+    with dest_path.open("wb") as out_file:
+        result = subprocess.run(
+            cmd,
+            stdout=out_file,
+            stderr=subprocess.PIPE,
+            env=_mysql_env(),
+        )
+
+    if result.returncode != 0:
+        stderr_msg = result.stderr.decode(errors="replace")
+        raise RuntimeError(f"mysqldump failed (exit {result.returncode}):\n{stderr_msg}")
+
+    log.info("Backup completed: %s", dest_path)
+
+
+def restore_db(src_path: Path) -> None:
+    """
+    Restore the database from a .sql dump file at *src_path*.
+
+    Requires the **mysql** CLI client to be installed and on PATH.
+
+    ⚠ WARNING: This replaces all current data in the database.
+
+    Args:
+        src_path: Path to the .sql dump file to restore from.
+
+    Raises:
+        FileNotFoundError: *src_path* does not exist.
+        RuntimeError: mysql CLI not found, or the restore process exits non-zero.
+    """
+    mysql_cli = shutil.which("mysql")
+    if not mysql_cli:
+        raise RuntimeError(
+            "mysql CLI غير موجود في PATH.\n"
+            "mysql not found on PATH. "
+            "Please install MySQL client tools and make sure mysql is accessible."
+        )
+
+    src_path = Path(src_path)
+    if not src_path.exists():
+        raise FileNotFoundError(f"Backup file not found: {src_path}")
+
+    cmd = [
+        mysql_cli,
+        f"--host={DBConfig.DB_HOST}",
+        f"--user={DBConfig.DB_USER}",
+        DBConfig.DB_NAME,
+    ]
+
+    log.info("Starting restore from: %s", src_path)
+
+    with src_path.open("rb") as in_file:
+        result = subprocess.run(
+            cmd,
+            stdin=in_file,
+            stderr=subprocess.PIPE,
+            env=_mysql_env(),
+        )
+
+    if result.returncode != 0:
+        stderr_msg = result.stderr.decode(errors="replace")
+        raise RuntimeError(f"mysql restore failed (exit {result.returncode}):\n{stderr_msg}")
+
+    log.info("Restore completed from: %s", src_path)
+
+
+if __name__ == "__main__":
+    init_db()
+    print("db.py is working correctly.\n")
