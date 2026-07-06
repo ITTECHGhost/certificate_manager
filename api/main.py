@@ -240,6 +240,24 @@ def get_students_paginated(
     finally:
         cur.close()
 
+@app.get("/students/search/basic")
+def search_students_basic(query: str, limit: int = 50, db = Depends(get_db)):
+    cursor = db.cursor(dictionary=True)
+    try:
+        # Execute the Stored Procedure
+        cursor.callproc("SearchStudentsBasic", (query, limit))
+        
+        # Fetch the results from the procedure's output
+        results = []
+        for result_set in cursor.stored_results():
+            results.extend(result_set.fetchall())
+            
+        return results
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+    finally:
+        cursor.close()
+
 @app.get("/students/{student_id}")
 def get_student_by_id(student_id: int, conn = Depends(get_db)):
     """Call GetStudentDossierByID SP on the database."""

@@ -83,17 +83,26 @@ def init_db() -> None:
             log.info("Adding postgraduation_number column to students table...")
             cursor.execute("ALTER TABLE students ADD COLUMN postgraduation_number INT DEFAULT NULL")
 
+        if "admission_year" not in student_cols:
+            log.info("Adding admission_year column to students table...")
+            cursor.execute("ALTER TABLE students ADD COLUMN admission_year VARCHAR(9) DEFAULT NULL")
+
+        if "graduation_year" not in student_cols:
+            log.info("Adding graduation_year column to students table...")
+            cursor.execute("ALTER TABLE students ADD COLUMN graduation_year VARCHAR(9) DEFAULT NULL")
+
         # Verify and add missing columns to the graduation_orders table for full compatibility
         cursor.execute("DESCRIBE graduation_orders")
         raw_order_rows = cursor.fetchall()
         order_cols = [row[0] for row in raw_order_rows]  # type: ignore
 
-        if "admission_year" in order_cols and "graduation_year" not in order_cols:
-            log.info("Renaming admission_year to graduation_year in graduation_orders table...")
-            cursor.execute("ALTER TABLE graduation_orders RENAME COLUMN admission_year TO graduation_year")
-        elif "graduation_year" not in order_cols:
+        if "graduation_year" not in order_cols:
             log.info("Adding graduation_year column to graduation_orders table...")
-            cursor.execute("ALTER TABLE graduation_orders ADD COLUMN graduation_year VARCHAR(50) DEFAULT NULL")
+            cursor.execute("ALTER TABLE graduation_orders ADD COLUMN graduation_year INT DEFAULT NULL")
+
+        if "admission_year" not in order_cols:
+            log.info("Adding admission_year column to graduation_orders table...")
+            cursor.execute("ALTER TABLE graduation_orders ADD COLUMN admission_year INT DEFAULT NULL")
 
         if "study_type" not in order_cols:
             log.info("Adding study_type column to graduation_orders table...")

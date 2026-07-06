@@ -18017,18 +18017,3 @@ TypeError: 'NoneType' object is not subscriptable
 2026-07-05 11:28:32,059 [SYSTEM] INFO: Sync queue is empty — nothing to do.
 2026-07-05 11:28:32,410 [SYSTEM] INFO: Inbound sync complete: {'tables_synced': 12, 'total_rows': 5224, 'errors': []}
 2026-07-05 11:34:26,585 [SYSTEM] INFO: Application closed normally.
-2026-07-05 20:30:53,209 [SYSTEM] INFO: Application starting...
-2026-07-05 20:30:53,235 [SYSTEM] WARNING: Could not initialize MySQL Connection Pool: 1045 (28000): Access denied for user 'root'@'localhost' (using password: YES). Falling back to direct connections.
-2026-07-05 20:30:53,236 [SYSTEM] WARNING: MySQL unavailable at startup: 1045 (28000): Access denied for user 'root'@'localhost' (using password: YES) — starting in offline mode.
-2026-07-05 20:30:53,269 [SYSTEM] INFO: Local SQLite cache initialised at C:\Users\alhayat\Music\certificate_manager\local_cache.db
-2026-07-05 20:30:53,274 [SYSTEM] INFO: Restarting FastAPI Windows Service asynchronously...
-2026-07-05 20:30:53,398 [SYSTEM] INFO: FastAPI Windows Service restart sequence completed.
-2026-07-05 20:30:59,119 [SYSTEM] INFO: User '1' logged in successfully.
-2026-07-05 20:41:21,691 [SYSTEM] INFO: Application closed normally.
-2026-07-05 20:42:01,371 [SYSTEM] INFO: Application starting...
-2026-07-05 20:42:01,380 [SYSTEM] WARNING: Could not initialize MySQL Connection Pool: 1045 (28000): Access denied for user 'root'@'localhost' (using password: YES). Falling back to direct connections.
-2026-07-05 20:42:01,381 [SYSTEM] WARNING: MySQL unavailable at startup: 1045 (28000): Access denied for user 'root'@'localhost' (using password: YES) — starting in offline mode.
-2026-07-05 20:42:01,385 [SYSTEM] INFO: Local SQLite cache initialised at C:\Users\alhayat\Music\certificate_manager\local_cache.db
-2026-07-05 20:42:01,389 [SYSTEM] INFO: Restarting FastAPI Windows Service asynchronously...
-2026-07-05 20:42:01,488 [SYSTEM] INFO: FastAPI Windows Service restart sequence completed.
-2026-07-05 20:42:24,234 [SYSTEM] INFO: User '1' logged in successfully.
