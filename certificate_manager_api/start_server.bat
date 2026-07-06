@@ -1,8 +1,5 @@
 @echo off
-set PYTHON_PATH="C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\python.exe"
-if not exist %PYTHON_PATH% (
-    set PYTHON_PATH=python
-)
+set PYTHON_PATH=python
 
 echo Starting FastAPI Uvicorn Server on port 8000...
 cd /d "%~dp0"

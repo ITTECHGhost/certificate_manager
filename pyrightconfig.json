@@ -1,10 +1,6 @@
 {
-  "venvPath": "C:\\Users\\IT_TECK\\AppData\\Local\\Python",
-  "venv": "pythoncore-3.14-64",
-  "extraPaths": [
-    "C:\\Users\\IT_TECK\\AppData\\Local\\Python\\pythoncore-3.14-64\\Lib\\site-packages",
-    "C:\\Users\\IT_TECK\\AppData\\Local\\Python\\pythoncore-3.14-64\\Lib\\site-packages\\win32",
-    "C:\\Users\\IT_TECK\\AppData\\Local\\Python\\pythoncore-3.14-64\\Lib\\site-packages\\win32\\lib",
-    "C:\\Users\\IT_TECK\\AppData\\Local\\Python\\pythoncore-3.14-64\\Lib\\site-packages\\Pythonwin"
+  "exclude": [
+    "**/node_modules",
+    "**/__pycache__"
   ]
 }

@@ -1,6 +1,3 @@
 {
-    "python.pythonPath": "C:\\Users\\IT_TECK\\AppData\\Local\\Python\\pythoncore-3.14-64\\python.exe",
-    "python.analysis.extraPaths": [
-        "C:\\Users\\IT_TECK\\AppData\\Local\\Python\\pythoncore-3.14-64\\Lib\\site-packages"
-    ]
+    "python.defaultInterpreterPath": "C:\\Users\\alhayat\\AppData\\Local\\Programs\\Python\\Python312\\python.exe"
 }
