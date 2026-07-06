@@ -276,6 +276,7 @@ def init_local_db() -> None:
                 degree_level        INTEGER DEFAULT 1,
                 order_id            INTEGER,
                 admission_year      INTEGER,
+                graduation_year     INTEGER,
                 summer_training_data TEXT,
                 average             REAL,
                 graduation_date     TEXT,
@@ -355,6 +356,7 @@ def init_local_db() -> None:
                 degree_level          INTEGER DEFAULT 1,
                 order_id              INTEGER,
                 admission_year        TEXT,
+                graduation_year       TEXT,
                 summer_training_data  TEXT,
                 average               REAL,
                 graduation_date       TEXT,
@@ -433,6 +435,7 @@ def init_local_db() -> None:
                 department_id       INTEGER,
                 study_type          TEXT,
                 graduation_year     INTEGER,
+                admission_year      INTEGER,
                 graduation_semester TEXT,
                 num_students        INTEGER,
                 notes               TEXT,
@@ -486,6 +489,37 @@ def init_local_db() -> None:
                 rtl             INTEGER DEFAULT 1
             )
         """)
+
+        # Self-healing migrations for existing local databases
+        try:
+            cur.execute("ALTER TABLE local_students ADD COLUMN graduation_year INTEGER DEFAULT NULL;")
+        except sqlite3.OperationalError:
+            pass
+
+        try:
+            cur.execute("ALTER TABLE local_students ADD COLUMN admission_year INTEGER DEFAULT NULL;")
+        except sqlite3.OperationalError:
+            pass
+
+        try:
+            cur.execute("ALTER TABLE students ADD COLUMN graduation_year TEXT DEFAULT NULL;")
+        except sqlite3.OperationalError:
+            pass
+
+        try:
+            cur.execute("ALTER TABLE students ADD COLUMN admission_year TEXT DEFAULT NULL;")
+        except sqlite3.OperationalError:
+            pass
+
+        try:
+            cur.execute("ALTER TABLE graduation_orders ADD COLUMN admission_year INTEGER DEFAULT NULL;")
+        except sqlite3.OperationalError:
+            pass
+
+        try:
+            cur.execute("ALTER TABLE graduation_orders ADD COLUMN graduation_year INTEGER DEFAULT NULL;")
+        except sqlite3.OperationalError:
+            pass
 
         conn.commit()
         log.info("Local SQLite cache initialised at %s", _LOCAL_DB_PATH)

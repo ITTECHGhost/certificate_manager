@@ -913,7 +913,17 @@ class StudentRepository(BaseRepository):
                     timeout=5.0
                 )
                 if resp.status_code == 200:
-                    res = resp.json()
+                    res = []
+                    for row in resp.json():
+                        res.append({
+                            "id": row.get("student_id") if "student_id" in row else row.get("id"),
+                            "full_name_ar": row.get("name_ar") if "name_ar" in row else row.get("full_name_ar"),
+                            "full_name_en": row.get("name_en") if "name_en" in row else row.get("full_name_en"),
+                            "dept_name_ar": row.get("dept_name_ar"),
+                            "admission_year": row.get("graduation_year") if "graduation_year" in row else row.get("admission_year"),
+                            "graduation_year": row.get("graduation_year") if "graduation_year" in row else row.get("admission_year"),
+                            "average": row.get("average")
+                        })
                 else:
                     res = []
             except Exception as e:

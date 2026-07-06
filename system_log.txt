@@ -18017,3 +18017,19 @@ TypeError: 'NoneType' object is not subscriptable
 2026-07-05 11:28:32,059 [SYSTEM] INFO: Sync queue is empty — nothing to do.
 2026-07-05 11:28:32,410 [SYSTEM] INFO: Inbound sync complete: {'tables_synced': 12, 'total_rows': 5224, 'errors': []}
 2026-07-05 11:34:26,585 [SYSTEM] INFO: Application closed normally.
+2026-07-06 12:10:24,690 [SYSTEM] INFO: Application starting...
+2026-07-06 12:10:24,996 [SYSTEM] INFO: Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-07-06 12:10:27,060 [SYSTEM] INFO: Restarting FastAPI Windows Service asynchronously...
+2026-07-06 12:10:28,109 [SYSTEM] INFO: FastAPI Windows Service restart sequence completed.
+2026-07-06 12:10:32,262 [SYSTEM] INFO: User '1' logged in successfully.
+2026-07-06 12:10:36,654 [SYSTEM] INFO: Database snapshot backup complete.
+2026-07-06 13:28:03,773 [SYSTEM] INFO: Network restored. Triggering offline queue sync...
+2026-07-06 13:28:03,845 [SYSTEM] INFO: Sync queue is empty — nothing to do.
+2026-07-06 13:28:04,079 [SYSTEM] INFO: Inbound sync complete: {'tables_synced': 12, 'total_rows': 5224, 'errors': []}
+2026-07-06 13:28:44,390 [SYSTEM] INFO: Application closed normally.
+2026-07-06 13:28:48,395 [SYSTEM] INFO: Application starting...
+2026-07-06 13:28:48,476 [SYSTEM] INFO: Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-07-06 13:28:48,492 [SYSTEM] INFO: Restarting FastAPI Windows Service asynchronously...
+2026-07-06 13:28:48,849 [SYSTEM] INFO: FastAPI Windows Service restart sequence completed.
+2026-07-06 13:28:53,012 [SYSTEM] INFO: User '1' logged in successfully.
+2026-07-06 13:28:55,458 [SYSTEM] INFO: Database snapshot backup complete.
