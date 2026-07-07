@@ -18033,3 +18033,83 @@ TypeError: 'NoneType' object is not subscriptable
 2026-07-06 13:28:48,849 [SYSTEM] INFO: FastAPI Windows Service restart sequence completed.
 2026-07-06 13:28:53,012 [SYSTEM] INFO: User '1' logged in successfully.
 2026-07-06 13:28:55,458 [SYSTEM] INFO: Database snapshot backup complete.
+2026-07-06 14:15:23,574 [SYSTEM] INFO: Application closed normally.
+2026-07-07 09:51:51,441 [SYSTEM] INFO: Application starting...
+2026-07-07 09:51:51,548 [SYSTEM] INFO: Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-07-07 09:51:53,605 [SYSTEM] INFO: Restarting FastAPI Windows Service asynchronously...
+2026-07-07 09:51:54,623 [SYSTEM] INFO: FastAPI Windows Service restart sequence completed.
+2026-07-07 09:55:36,343 [SYSTEM] INFO: User '1' logged in successfully.
+2026-07-07 09:55:40,809 [SYSTEM] INFO: Database snapshot backup complete.
+2026-07-07 10:11:02,027 [SYSTEM] INFO: Network restored. Triggering offline queue sync...
+2026-07-07 10:11:02,066 [SYSTEM] INFO: Sync queue is empty — nothing to do.
+2026-07-07 10:11:02,268 [SYSTEM] INFO: Inbound sync complete: {'tables_synced': 12, 'total_rows': 5224, 'errors': []}
+2026-07-07 10:47:59,925 [SYSTEM] INFO: Application closed normally.
+2026-07-07 10:48:11,022 [SYSTEM] INFO: Application starting...
+2026-07-07 10:48:11,157 [SYSTEM] INFO: Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-07-07 10:48:11,242 [SYSTEM] INFO: Restarting FastAPI Windows Service asynchronously...
+2026-07-07 10:48:11,629 [SYSTEM] INFO: FastAPI Windows Service restart sequence completed.
+2026-07-07 10:48:16,866 [SYSTEM] INFO: User '1' logged in successfully.
+2026-07-07 10:48:19,490 [SYSTEM] INFO: Database snapshot backup complete.
+2026-07-07 11:36:52,336 [SYSTEM] INFO: Application closed normally.
+2026-07-07 11:37:01,878 [SYSTEM] INFO: Application starting...
+2026-07-07 11:37:01,967 [SYSTEM] INFO: Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-07-07 11:37:02,038 [SYSTEM] INFO: Restarting FastAPI Windows Service asynchronously...
+2026-07-07 11:37:02,407 [SYSTEM] INFO: FastAPI Windows Service restart sequence completed.
+2026-07-07 11:37:06,807 [SYSTEM] INFO: User '1' logged in successfully.
+2026-07-07 11:37:09,309 [SYSTEM] INFO: Database snapshot backup complete.
+2026-07-07 11:42:19,029 [SYSTEM] INFO: Application closed normally.
+2026-07-07 11:43:49,412 [SYSTEM] INFO: Application starting...
+2026-07-07 11:43:49,699 [SYSTEM] INFO: Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-07-07 11:43:49,759 [SYSTEM] INFO: Restarting FastAPI Windows Service asynchronously...
+2026-07-07 11:43:50,174 [SYSTEM] INFO: FastAPI Windows Service restart sequence completed.
+2026-07-07 11:43:58,292 [SYSTEM] INFO: User '1' logged in successfully.
+2026-07-07 11:44:00,763 [SYSTEM] INFO: Database snapshot backup complete.
+2026-07-07 12:05:18,980 [SYSTEM] ERROR: Unhandled exception in Tkinter callback:
+Traceback (most recent call last):
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\tkinter\__init__.py", line 2093, in __call__
+    return self.func(*args)
+           ~~~~~~~~~^^^^^^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\customtkinter\windows\widgets\ctk_button.py", line 554, in _clicked
+    self._command()
+    ~~~~~~~~~~~~~^^
+  File "f:\CR_PY\certificate_manager\screens\order_students_screen.py", line 314, in <lambda>
+    command=lambda sid=row["id"]: self._link_student(sid),
+                                  ~~~~~~~~~~~~~~~~~~^^^^^
+  File "f:\CR_PY\certificate_manager\screens\order_students_screen.py", line 324, in _link_student
+    StudentRepository().update(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        student_id,
+        ^^^^^^^^^^^
+    ...<4 lines>...
+        }
+        ^
+    )
+    ^
+  File "f:\CR_PY\certificate_manager\data\repositories.py", line 1116, in update
+    raise RuntimeError(f"API update failed: {resp.text}")
+RuntimeError: API update failed: {"detail":[{"type":"string_type","loc":["body","full_name_ar"],"msg":"Input should be a valid string","input":null},{"type":"string_type","loc":["body","full_name_en"],"msg":"Input should be a valid string","input":null}]}
+2026-07-07 12:05:42,743 [SYSTEM] ERROR: Unhandled exception in Tkinter callback:
+Traceback (most recent call last):
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\tkinter\__init__.py", line 2093, in __call__
+    return self.func(*args)
+           ~~~~~~~~~^^^^^^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\customtkinter\windows\widgets\ctk_button.py", line 554, in _clicked
+    self._command()
+    ~~~~~~~~~~~~~^^
+  File "f:\CR_PY\certificate_manager\screens\order_students_screen.py", line 314, in <lambda>
+    command=lambda sid=row["id"]: self._link_student(sid),
+                                  ~~~~~~~~~~~~~~~~~~^^^^^
+  File "f:\CR_PY\certificate_manager\screens\order_students_screen.py", line 324, in _link_student
+    StudentRepository().update(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        student_id,
+        ^^^^^^^^^^^
+    ...<4 lines>...
+        }
+        ^
+    )
+    ^
+  File "f:\CR_PY\certificate_manager\data\repositories.py", line 1116, in update
+    raise RuntimeError(f"API update failed: {resp.text}")
+RuntimeError: API update failed: {"detail":[{"type":"string_type","loc":["body","full_name_ar"],"msg":"Input should be a valid string","input":null},{"type":"string_type","loc":["body","full_name_en"],"msg":"Input should be a valid string","input":null}]}
+2026-07-07 12:21:35,771 [SYSTEM] INFO: Application closed normally.

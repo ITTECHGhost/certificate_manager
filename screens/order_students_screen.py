@@ -291,7 +291,7 @@ class OrderStudentsScreen(BaseScreen):
         already_linked = row.get("order_id") == (self._order["id"] if self._order else None)
         status = "✅" if already_linked else ""
         dept_text = row.get("dept_name_ar", "—")
-        info = f"{row['full_name_ar']}  ({dept_text}، {row.get('admission_year', '—')}) {status}"
+        info = f"{row['full_name_ar']}  ({dept_text}، {row.get('graduation_year') or row.get('admission_year', '—')}) {status}"
 
         ctk.CTkLabel(
             f,
@@ -321,14 +321,7 @@ class OrderStudentsScreen(BaseScreen):
     def _link_student(self, student_id: int) -> None:
         if not self._order:
             return
-        StudentRepository().update(
-            student_id,
-            data={
-                "order_id": self._order["id"],
-                "graduation_date": self._order.get("order_date"),
-                "graduation_semester": self._order.get("graduation_semester"),
-            }
-        )
+        StudentRepository().link_to_order(student_id, self._order["id"])
         self._render_linked()
         self._do_search()
 

@@ -240,6 +240,24 @@ def get_students_paginated(
     finally:
         cur.close()
 
+@app.get("/students/search/basic")
+def search_students_basic(query: str, limit: int = 50, db = Depends(get_db)):
+    cursor = db.cursor(dictionary=True)
+    try:
+        # Execute the Stored Procedure
+        cursor.callproc("SearchStudentsBasic", (query, limit))
+        
+        # Fetch the results from the procedure's output
+        results = []
+        for result_set in cursor.stored_results():
+            results.extend(result_set.fetchall())
+            
+        return results
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+    finally:
+        cursor.close()
+
 @app.get("/students/{student_id}")
 def get_student_by_id(student_id: int, conn = Depends(get_db)):
     """Call GetStudentDossierByID SP on the database."""
@@ -319,12 +337,12 @@ def get_students_by_order(order_id: int, conn = Depends(get_db)):
 
 @app.get("/students/distinct/years")
 def get_distinct_admission_years(conn = Depends(get_db)):
-    """Select distinct admission years from the students table."""
+    """Select distinct graduation years (extracted from graduation_date) from the students table."""
     cur = conn.cursor(dictionary=True)
     try:
-        cur.execute("SELECT DISTINCT admission_year FROM students ORDER BY admission_year DESC")
+        cur.execute("SELECT DISTINCT YEAR(graduation_date) AS graduation_year FROM students WHERE graduation_date IS NOT NULL ORDER BY graduation_year DESC")
         rows = cur.fetchall()
-        return [str(r["admission_year"]) for r in rows if r["admission_year"] is not None]
+        return [str(r["graduation_year"]) for r in rows if r["graduation_year"] is not None]
     except Exception as exc:
         logger.error(f"Error getting distinct years: {exc}")
         raise HTTPException(status_code=500, detail=str(exc))
@@ -434,6 +452,34 @@ def link_students_to_order(order_id: int, conn = Depends(get_db)):
     except Exception as exc:
         conn.rollback()
         logger.error(f"Error linking students to order: {exc}")
+        raise HTTPException(status_code=500, detail=str(exc))
+    finally:
+        cur.close()
+
+@app.post("/students/{student_id}/link-order/{order_id}")
+def link_student_to_order(student_id: int, order_id: int, conn = Depends(get_db)):
+    """Link a single student to a graduation order."""
+    cur = conn.cursor(dictionary=True)
+    try:
+        cur.execute(
+            "SELECT order_date, graduation_semester FROM graduation_orders WHERE id = %s",
+            (order_id,)
+        )
+        order = cur.fetchone()
+        if not order:
+            raise HTTPException(status_code=404, detail="Graduation order not found")
+        
+        cur.execute(
+            "UPDATE students SET order_id = %s, graduation_date = %s, graduation_semester = %s WHERE id = %s",
+            (order_id, order["order_date"], order["graduation_semester"], student_id)
+        )
+        conn.commit()
+        return {"status": "success"}
+    except HTTPException:
+        raise
+    except Exception as exc:
+        conn.rollback()
+        logger.error(f"Error linking student to order: {exc}")
         raise HTTPException(status_code=500, detail=str(exc))
     finally:
         cur.close()

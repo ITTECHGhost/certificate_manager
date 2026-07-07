@@ -276,7 +276,6 @@ def init_local_db() -> None:
                 degree_level        INTEGER DEFAULT 1,
                 order_id            INTEGER,
                 admission_year      INTEGER,
-                graduation_year     INTEGER,
                 summer_training_data TEXT,
                 average             REAL,
                 graduation_date     TEXT,
@@ -356,7 +355,6 @@ def init_local_db() -> None:
                 degree_level          INTEGER DEFAULT 1,
                 order_id              INTEGER,
                 admission_year        TEXT,
-                graduation_year       TEXT,
                 summer_training_data  TEXT,
                 average               REAL,
                 graduation_date       TEXT,
@@ -492,17 +490,7 @@ def init_local_db() -> None:
 
         # Self-healing migrations for existing local databases
         try:
-            cur.execute("ALTER TABLE local_students ADD COLUMN graduation_year INTEGER DEFAULT NULL;")
-        except sqlite3.OperationalError:
-            pass
-
-        try:
             cur.execute("ALTER TABLE local_students ADD COLUMN admission_year INTEGER DEFAULT NULL;")
-        except sqlite3.OperationalError:
-            pass
-
-        try:
-            cur.execute("ALTER TABLE students ADD COLUMN graduation_year TEXT DEFAULT NULL;")
         except sqlite3.OperationalError:
             pass
 

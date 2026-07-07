@@ -264,7 +264,7 @@ class CertificateScreen(BaseScreen):
 
         for i, s in enumerate(students):
             dept  = s.get("dept_name_ar", "")
-            year  = str(s.get("admission_year", ""))
+            year  = str(s.get("graduation_year") or s.get("admission_year", ""))
             label = f"  {s['full_name_ar']}  —  {dept}  |  دفعة {year}"
 
             ctk.CTkButton(
@@ -401,11 +401,18 @@ class CertificateScreen(BaseScreen):
                 except (ValueError, IndexError):
                     pass
             
-            if not grad_year and data.get("admission_year"):
-                try:
-                    grad_year = int(data.get("admission_year")) + 4
-                except (ValueError, TypeError):
-                    pass
+            if not grad_year:
+                year_val = data.get("graduation_year")
+                if year_val:
+                    try:
+                        grad_year = int(year_val)
+                    except (ValueError, TypeError):
+                        pass
+                elif data.get("admission_year"):
+                    try:
+                        grad_year = int(data.get("admission_year")) + 4
+                    except (ValueError, TypeError):
+                        pass
             
             if grad_year:
                 self._summer_entry.insert(0, str(grad_year - 1))
@@ -651,7 +658,8 @@ class CertificateScreen(BaseScreen):
             
             "Birthplace": data.get("birthplace_en" if is_english else "birthplace_ar", "") or data.get("birthplace_other", ""),
             "Nationality": data.get("nationality_en" if is_english else "nationality_ar", ""),
-            "admission_year": _localize(data.get("admission_year", "")),
+            "admission_year": _localize(data.get("admission_year") or ""),
+            "graduation_year": _localize(data.get("graduation_year") or ""),
             "department_id": dept_display,
             "study_type": study_type_display,
             

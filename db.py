@@ -87,9 +87,7 @@ def init_db() -> None:
             log.info("Adding admission_year column to students table...")
             cursor.execute("ALTER TABLE students ADD COLUMN admission_year VARCHAR(9) DEFAULT NULL")
 
-        if "graduation_year" not in student_cols:
-            log.info("Adding graduation_year column to students table...")
-            cursor.execute("ALTER TABLE students ADD COLUMN graduation_year VARCHAR(9) DEFAULT NULL")
+
 
         # Verify and add missing columns to the graduation_orders table for full compatibility
         cursor.execute("DESCRIBE graduation_orders")

@@ -9,7 +9,7 @@ if hasattr(sys.stdout, 'reconfigure'):
 import requests
 import json
 
-API_URL = "http://127.0.0.1:8000"
+API_URL = "http://127.0.0.1:8080"
 
 def test_endpoints():
     # 1. Test /ping
@@ -33,35 +33,37 @@ def test_endpoints():
     print(r.status_code)
     students = r.json()
     print(f"Fetched {len(students)} students.")
+    student_data = {}
     if students:
         print("First student:", students[0]["full_name_ar"])
         first_id = students[0]["id"]
         
         # 5. Test detail
-        print(f"\n--- Test GET /students/{{student_id}} for id={first_id} ---")
+        print(f"\n--- Test GET /students/{first_id} for id={first_id} ---")
         r = requests.get(f"{API_URL}/students/{first_id}")
-        print(r.status_code, r.json().get("full_name_ar"))
+        student_data = r.json()
+        print(r.status_code, student_data.get("full_name_ar"))
         
-    # 6. Test search
+    # 6. Test GET /students/search/all
     print("\n--- Test GET /students/search/all ---")
     r = requests.get(f"{API_URL}/students/search/all", params={"query": "طالب", "limit": 3})
-    print(r.status_code, [s.get("full_name_ar") for s in r.json()])
+    print(r.status_code, r.json())
 
     # 7. Test Student CRUD cycle (POST -> PUT -> DELETE)
     print("\n--- Test Student CRUD Cycle ---")
     student_payload = {
         "full_name_ar": "طالب اختبار كرود",
         "full_name_en": "CRUD Test Student",
-        "gender": "M",
+        "gender": 1,
         "sequence_number": 1234,
-        "postgraduation_no": 5678,
+        "postgraduation_number": 5678,
         "date_of_birth": "1999-12-31",
-        "birthplace_id": 1,
+        "birthplace_id": student_data.get("birthplace_id", 1) if students else 1,
         "birthplace_other": "",
-        "nationality_id": 274,
-        "department_id": 1,
-        "study_system_id": 1,
-        "degree_level": "Bachelor",
+        "nationality_id": student_data.get("nationality_id", 274) if students else 274,
+        "department_id": student_data.get("department_id", 1) if students else 1,
+        "study_system_id": student_data.get("study_system_id", 1) if students else 1,
+        "degree_level": 1,
         "order_id": None,
         "admission_year": "2021",
         "summer_training_data": None,
