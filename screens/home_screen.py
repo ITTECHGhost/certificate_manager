@@ -100,13 +100,22 @@ class HomeScreen(BaseScreen):
             btn.grid(row=0, column=col, padx=10, sticky="ew")
 
     def refresh(self) -> None:
-        for cfg in HOME_STAT_CARDS:
-            label = self._stat_labels.get(cfg["db_table"])
-            if not label:
-                continue
-            try:
-                repo = BaseRepository()
-                count = repo.count_table_rows(cfg["db_table"], cfg.get("filter", ""))
-                label.configure(text=str(count))
-            except Exception:
-                label.configure(text="!")
+        try:
+            from data.repositories import DashboardRepository
+            counts = DashboardRepository().get_counts()
+            for cfg in HOME_STAT_CARDS:
+                label = self._stat_labels.get(cfg["db_table"])
+                if label:
+                    key = f"total_{cfg['db_table']}"
+                    label.configure(text=str(counts.get(key, 0)))
+        except Exception:
+            for cfg in HOME_STAT_CARDS:
+                label = self._stat_labels.get(cfg["db_table"])
+                if not label:
+                    continue
+                try:
+                    repo = BaseRepository()
+                    count = repo.count_table_rows(cfg["db_table"], cfg.get("filter", ""))
+                    label.configure(text=str(count))
+                except Exception:
+                    label.configure(text="!")

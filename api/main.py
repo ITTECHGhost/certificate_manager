@@ -695,19 +695,23 @@ class CoursePayload(BaseModel):
     credit_hours: int
     department_id: Optional[int] = None
     stage_number: int
-    study_system_id: int
-    is_shared: Optional[int] = 0
+    study_system_id: Optional[int] = None
+    is_shared: Optional[int] = None
     shared_dept_ids: Optional[List[int]] = None
 
 @app.get("/courses")
 def get_courses(conn = Depends(get_db)):
     cur = conn.cursor(dictionary=True)
     try:
-        cur.callproc("GetAllCourses")
-        rows = []
-        for result in cur.stored_results():
-            rows.extend(result.fetchall())
-        return rows
+        query = (
+            "SELECT c.id, c.name_ar, c.name_en, c.credit_hours, c.stage_number, "
+            "       c.department_id, d.name_ar AS dept_name_ar, d.name_en AS dept_name_en "
+            "FROM courses c "
+            "LEFT JOIN departments d ON c.department_id = d.id "
+            "ORDER BY c.name_ar ASC"
+        )
+        cur.execute(query)
+        return cur.fetchall()
     except Exception as exc:
         raise HTTPException(status_code=500, detail=str(exc))
     finally:
@@ -717,11 +721,14 @@ def get_courses(conn = Depends(get_db)):
 def get_courses_by_dept(dept_id: int, conn = Depends(get_db)):
     cur = conn.cursor(dictionary=True)
     try:
-        cur.callproc("GetCoursesByDepartment", (dept_id,))
-        rows = []
-        for result in cur.stored_results():
-            rows.extend(result.fetchall())
-        return rows
+        query = (
+            "SELECT id, name_ar, name_en, credit_hours, department_id, stage_number "
+            "FROM courses "
+            "WHERE department_id = %s "
+            "ORDER BY name_ar ASC"
+        )
+        cur.execute(query, (dept_id,))
+        return cur.fetchall()
     except Exception as exc:
         raise HTTPException(status_code=500, detail=str(exc))
     finally:
@@ -733,11 +740,10 @@ def get_courses_by_dept_stage_system(dept_id: int, stage: int, system_id: int, c
     try:
         query = (
             "SELECT id, name_ar, name_en, credit_hours, stage_number FROM courses "
-            "WHERE (department_id = %s OR (is_shared = 1 AND id IN (SELECT course_id FROM course_departments WHERE department_id = %s))) "
-            "AND stage_number <= %s AND study_system_id = %s "
+            "WHERE department_id = %s AND stage_number <= %s "
             "ORDER BY stage_number, name_ar"
         )
-        cur.execute(query, (dept_id, dept_id, stage, system_id))
+        cur.execute(query, (dept_id, stage))
         return cur.fetchall()
     except Exception as exc:
         raise HTTPException(status_code=500, detail=str(exc))
@@ -746,34 +752,33 @@ def get_courses_by_dept_stage_system(dept_id: int, stage: int, system_id: int, c
 
 @app.get("/courses/{course_id}/shared-depts")
 def get_shared_dept_ids(course_id: int, conn = Depends(get_db)):
-    cur = conn.cursor(dictionary=True)
-    try:
-        cur.execute("SELECT department_id FROM course_departments WHERE course_id = %s", (course_id,))
-        rows = cur.fetchall()
-        return [r["department_id"] for r in rows]
-    except Exception as exc:
-        raise HTTPException(status_code=500, detail=str(exc))
-    finally:
-        cur.close()
+    return []
 
 @app.post("/courses")
 def insert_course(payload: CoursePayload, conn = Depends(get_db)):
     cur = conn.cursor()
     try:
-        query = (
-            "INSERT INTO courses (name_ar, name_en, credit_hours, department_id, stage_number, study_system_id, is_shared) "
-            "VALUES (%s, %s, %s, %s, %s, %s, %s)"
-        )
-        cur.execute(query, (payload.name_ar, payload.name_en, payload.credit_hours, payload.department_id, payload.stage_number, payload.study_system_id, payload.is_shared))
-        new_id = cur.lastrowid
-        
+        # If shared_dept_ids is provided, insert distinct instances per department
         if payload.shared_dept_ids:
-            cur.execute("UPDATE courses SET is_shared=1 WHERE id=%s", (new_id,))
-            for did in payload.shared_dept_ids:
-                cur.execute("INSERT INTO course_departments (course_id, department_id) VALUES (%s, %s)", (new_id, did))
-        
-        conn.commit()
-        return {"new_id": new_id}
+            new_ids = []
+            for dept_id in payload.shared_dept_ids:
+                query = (
+                    "INSERT INTO courses (name_ar, name_en, credit_hours, department_id, stage_number) "
+                    "VALUES (%s, %s, %s, %s, %s)"
+                )
+                cur.execute(query, (payload.name_ar, payload.name_en, payload.credit_hours, dept_id, payload.stage_number))
+                new_ids.append(cur.lastrowid)
+            conn.commit()
+            return {"new_id": new_ids[0] if new_ids else 0}
+        else:
+            query = (
+                "INSERT INTO courses (name_ar, name_en, credit_hours, department_id, stage_number) "
+                "VALUES (%s, %s, %s, %s, %s)"
+            )
+            cur.execute(query, (payload.name_ar, payload.name_en, payload.credit_hours, payload.department_id, payload.stage_number))
+            new_id = cur.lastrowid
+            conn.commit()
+            return {"new_id": new_id}
     except Exception as exc:
         conn.rollback()
         raise HTTPException(status_code=500, detail=str(exc))
@@ -784,20 +789,15 @@ def insert_course(payload: CoursePayload, conn = Depends(get_db)):
 def update_course(course_id: int, payload: CoursePayload, conn = Depends(get_db)):
     cur = conn.cursor()
     try:
+        dept_id = payload.department_id
+        if not dept_id and payload.shared_dept_ids:
+            dept_id = payload.shared_dept_ids[0]
+            
         query = (
-            "UPDATE courses SET name_ar=%s, name_en=%s, credit_hours=%s, department_id=%s, stage_number=%s, study_system_id=%s, is_shared=%s "
+            "UPDATE courses SET name_ar=%s, name_en=%s, credit_hours=%s, department_id=%s, stage_number=%s "
             "WHERE id=%s"
         )
-        cur.execute(query, (payload.name_ar, payload.name_en, payload.credit_hours, payload.department_id, payload.stage_number, payload.study_system_id, payload.is_shared, course_id))
-        
-        cur.execute("DELETE FROM course_departments WHERE course_id=%s", (course_id,))
-        if payload.shared_dept_ids:
-            cur.execute("UPDATE courses SET is_shared=1, department_id=NULL WHERE id=%s", (course_id,))
-            for did in payload.shared_dept_ids:
-                cur.execute("INSERT INTO course_departments (course_id, department_id) VALUES (%s, %s)", (course_id, did))
-        else:
-            cur.execute("UPDATE courses SET is_shared=0 WHERE id=%s", (course_id,))
-            
+        cur.execute(query, (payload.name_ar, payload.name_en, payload.credit_hours, dept_id, payload.stage_number, course_id))
         conn.commit()
         return {"status": "success"}
     except Exception as exc:
@@ -1445,6 +1445,43 @@ def delete_supervisor(record_id: int, conn = Depends(get_db)):
         return {"status": "success"}
     except Exception as exc:
         conn.rollback()
+        raise HTTPException(status_code=500, detail=str(exc))
+    finally:
+        cur.close()
+
+# 1. Pydantic Model
+class DashboardCountsResponse(BaseModel):
+    total_students: int
+    total_departments: int
+    total_courses: int
+    total_personnel: int
+
+# 2. FastAPI Route
+@app.get("/api/dashboard/counts", response_model=DashboardCountsResponse)
+def get_dashboard_counts(conn = Depends(get_db)):
+    cur = conn.cursor(dictionary=True)
+    try:
+        cur.callproc("Get_dashboard_counts")
+        result = None
+        for r in cur.stored_results():
+            result = r.fetchone()
+            break
+        
+        if not result:
+            return DashboardCountsResponse(
+                total_students=0,
+                total_departments=0,
+                total_courses=0,
+                total_personnel=0
+            )
+            
+        return DashboardCountsResponse(
+            total_students=result["total_students"],
+            total_departments=result["total_departments"],
+            total_courses=result["total_courses"],
+            total_personnel=result["total_personnel"]
+        )
+    except Exception as exc:
         raise HTTPException(status_code=500, detail=str(exc))
     finally:
         cur.close()

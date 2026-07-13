@@ -176,6 +176,7 @@ class StudentFormPanel(SidePanel):
         self._dept = self._add_dropdown("القسم", "Department", values=["—"], row=6, col=1)
         self._study_system = self._add_dropdown("نظام الدراسة", "Study System", values=["سنوي  /  Annual", "مقررات  /  Semester"], row=6, col=0)
         self._adm_year = self._add_entry("سنة التخرج", "Graduation Year", placeholder="مثال: 2020", row=6, col=2)
+        self._adm_year.bind("<KeyRelease>", self._on_grad_year_change)
         
         self._study_type = self._add_dropdown("نوع الدراسة", "Study Type", values=list(STUDY_TYPE_OPTIONS.keys()), row=8, col=0)
         self._degree_level = self._add_dropdown("الدرجة العلمية", "Degree Level", values=list(DEGREE_LEVEL_OPTIONS.keys()), row=8, col=1)
@@ -222,6 +223,20 @@ class StudentFormPanel(SidePanel):
             self._thesis_frame.grid()
         else:
             self._thesis_frame.grid_remove()
+
+    def _on_grad_year_change(self, event=None) -> None:
+        """Automatically set default summer training value as graduation year - 1 if empty or matches previous default."""
+        grad_yr = self._adm_year.get().strip()
+        if grad_yr.isdigit():
+            try:
+                default_summer = str(int(grad_yr) - 1)
+                current_summer = self._summer_training.get().strip()
+                # Only update if the summer training field is empty or is already a 4-digit number that we can overwrite
+                if not current_summer or (current_summer.isdigit() and len(current_summer) == 4):
+                    self._summer_training.delete(0, "end")
+                    self._summer_training.insert(0, default_summer)
+            except Exception:
+                pass
 
     def _filter_orders(self, event=None) -> None:
         """Filter the graduation order combobox values based on typed text."""
@@ -616,6 +631,11 @@ class StudentFormPanel(SidePanel):
             grad_date = f"{grad_yr}-07-01"
 
         summer_training_val = self._summer_training.get().strip() or None
+        if not summer_training_val and grad_yr and grad_yr.isdigit():
+            try:
+                summer_training_val = str(int(grad_yr) - 1)
+            except ValueError:
+                pass
         order_id = self._get_order_id()
 
         if existing:
@@ -864,10 +884,18 @@ class EnrollmentPanel(ctk.CTkFrame):
         if not self._period or not self._student:
             return
         
-        dept_id = self._student.get("department_id", 0)
-        system_id = self._student.get("study_system_id", 1)
-        self._courses = CourseRepository().get_by_dept_stage_system(dept_id, 12, system_id)
-
+        dept_id = self._student.get("department_id")
+        stage = self._period.get("stage_number")
+        system_id = self._period.get("study_system_id") or self._student.get("study_system_id") or 1
+        
+        if dept_id and stage:
+            self._courses = CourseRepository().get_by_dept_stage_system(
+                dept_id=dept_id,
+                stage=stage,
+                system_id=system_id
+            )
+        else:
+            self._courses = CourseRepository().get_all()
 
         self._selected_course = None
         self._course_search_entry.delete(0, "end")

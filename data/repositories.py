@@ -621,49 +621,56 @@ class CourseRepository(BaseRepository):
     def get_all(self) -> list[dict]:
         if not is_online():
             return sqlite_read_all(
-                "SELECT c.*, d.name_ar AS dept_name_ar, d.name_en AS dept_name_en, "
-                "       s.name_ar AS study_system_name_ar, s.name_en AS study_system_name_en "
+                "SELECT c.*, d.name_ar AS dept_name_ar, d.name_en AS dept_name_en "
                 "FROM courses c "
                 "LEFT JOIN departments d ON c.department_id = d.id "
-                "LEFT JOIN study_systems s ON c.study_system_id = s.id "
                 "ORDER BY c.name_ar ASC"
             )
         try:
             resp = requests.get(f"{self.api_url}/courses", timeout=5.0)
             if resp.status_code == 200:
                 return resp.json()
-            return []
+            raise RuntimeError(f"API returned status code {resp.status_code}")
         except Exception as e:
-            print(f"API request failed: {e}")
-            return []
+            print(f"API request failed: {e}. Falling back to SQLite cache.")
+            return sqlite_read_all(
+                "SELECT c.*, d.name_ar AS dept_name_ar, d.name_en AS dept_name_en "
+                "FROM courses c "
+                "LEFT JOIN departments d ON c.department_id = d.id "
+                "ORDER BY c.name_ar ASC"
+            )
         
     def get_by_department(self, dept_id: int) -> list[dict]:
         if not is_online():
             return sqlite_read_all(
-                "SELECT c.id, c.name_ar, c.name_en, c.credit_hours, c.study_system_id, c.is_shared "
+                "SELECT c.id, c.name_ar, c.name_en, c.credit_hours, c.department_id, c.stage_number "
                 "FROM courses c "
                 "WHERE c.department_id = ? "
-                "   OR (c.is_shared = 1 AND c.id IN (SELECT course_id FROM course_departments WHERE department_id = ?)) "
                 "ORDER BY c.name_ar ASC",
-                (dept_id, dept_id)
+                (dept_id,)
             )
         try:
             resp = requests.get(f"{self.api_url}/courses/by-dept/{dept_id}", timeout=5.0)
             if resp.status_code == 200:
                 return resp.json()
-            return []
+            raise RuntimeError(f"API returned status code {resp.status_code}")
         except Exception as e:
-            print(f"API request failed: {e}")
-            return []
+            print(f"API request failed: {e}. Falling back to SQLite cache.")
+            return sqlite_read_all(
+                "SELECT c.id, c.name_ar, c.name_en, c.credit_hours, c.department_id, c.stage_number "
+                "FROM courses c "
+                "WHERE c.department_id = ? "
+                "ORDER BY c.name_ar ASC",
+                (dept_id,)
+            )
 
     def get_by_dept_stage_system(self, dept_id: int, stage: int, system_id: int) -> list[dict]:
         if not is_online():
             return sqlite_read_all(
                 "SELECT id, name_ar, name_en, credit_hours, stage_number FROM courses "
-                "WHERE (department_id = ? OR (is_shared = 1 AND id IN (SELECT course_id FROM course_departments WHERE department_id = ?))) "
-                "AND stage_number <= ? AND study_system_id = ? "
+                "WHERE department_id = ? AND stage_number <= ? "
                 "ORDER BY stage_number, name_ar",
-                (dept_id, dept_id, stage, system_id),
+                (dept_id, stage),
             )
         try:
             resp = requests.get(
@@ -673,26 +680,18 @@ class CourseRepository(BaseRepository):
             )
             if resp.status_code == 200:
                 return resp.json()
-            return []
+            raise RuntimeError(f"API returned status code {resp.status_code}")
         except Exception as e:
-            print(f"API request failed: {e}")
-            return []
+            print(f"API request failed: {e}. Falling back to SQLite cache.")
+            return sqlite_read_all(
+                "SELECT id, name_ar, name_en, credit_hours, stage_number FROM courses "
+                "WHERE department_id = ? AND stage_number <= ? "
+                "ORDER BY stage_number, name_ar",
+                (dept_id, stage),
+            )
 
     def get_shared_dept_ids(self, course_id: int) -> list[int]:
-        if not is_online():
-            rows = sqlite_read_all(
-                "SELECT department_id FROM course_departments WHERE course_id = ?",
-                (course_id,),
-            )
-            return [r["department_id"] for r in rows]
-        try:
-            resp = requests.get(f"{self.api_url}/courses/{course_id}/shared-depts", timeout=5.0)
-            if resp.status_code == 200:
-                return resp.json()
-            return []
-        except Exception as e:
-            print(f"API request failed: {e}")
-            return []
+        return []
 
     def insert(self, data: dict) -> int:
         if not is_online():
@@ -701,9 +700,8 @@ class CourseRepository(BaseRepository):
             payload = dict(data)
             payload["credit_hours"] = int(payload["credit_hours"])
             payload["stage_number"] = int(payload["stage_number"])
-            payload["study_system_id"] = int(payload["study_system_id"])
-            if "is_shared" in payload:
-                payload["is_shared"] = int(payload["is_shared"])
+            if "department_id" in payload and payload["department_id"] is not None:
+                payload["department_id"] = int(payload["department_id"])
             
             resp = requests.post(f"{self.api_url}/courses", json=payload, timeout=5.0)
             if resp.status_code == 200:
@@ -723,9 +721,8 @@ class CourseRepository(BaseRepository):
             payload = dict(data)
             payload["credit_hours"] = int(payload["credit_hours"])
             payload["stage_number"] = int(payload["stage_number"])
-            payload["study_system_id"] = int(payload["study_system_id"])
-            if "is_shared" in payload:
-                payload["is_shared"] = int(payload["is_shared"])
+            if "department_id" in payload and payload["department_id"] is not None:
+                payload["department_id"] = int(payload["department_id"])
                 
             resp = requests.put(f"{self.api_url}/courses/{course_id}", json=payload, timeout=5.0)
             if resp.status_code == 200:
@@ -1875,3 +1872,34 @@ class AuditRepository(BaseRepository):
         except Exception:
             pass
 
+# ---------------------------------------------------------------------------
+# Module 12: Dashboard Analytics
+# ---------------------------------------------------------------------------
+
+class DashboardRepository(BaseRepository):
+    def get_counts(self) -> dict:
+        fallback_query = (
+            "SELECT "
+            "(SELECT COUNT(id) FROM students) AS total_students, "
+            "(SELECT COUNT(id) FROM departments) AS total_departments, "
+            "(SELECT COUNT(id) FROM courses) AS total_courses, "
+            "(SELECT COUNT(id) FROM personnel) AS total_personnel"
+        )
+        
+        # 1. Offline Mode: Read directly from SQLite
+        if not is_online():
+            row = sqlite_read_one(fallback_query)
+            return dict(row) if row else {"total_students": 0, "total_departments": 0, "total_courses": 0, "total_personnel": 0}
+        
+        # 2. Online Mode: Hit the FastAPI endpoint
+        try:
+            resp = requests.get(f"{self.api_url}/api/dashboard/counts", timeout=5.0)
+            if resp.status_code == 200:
+                return resp.json()
+            raise RuntimeError(f"API returned status code {resp.status_code}")
+            
+        except Exception as e:
+            # 3. Failsafe: Fall back to SQLite if the server is unreachable
+            print(f"API request failed: {e}. Falling back to SQLite cache.")
+            row = sqlite_read_one(fallback_query)
+            return dict(row) if row else {"total_students": 0, "total_departments": 0, "total_courses": 0, "total_personnel": 0}
