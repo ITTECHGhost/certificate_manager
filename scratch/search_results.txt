@@ -1,0 +1,262 @@
+.\db.py:82 [postgraduation_number]: if "postgraduation_number" not in student_cols:
+.\db.py:83 [postgraduation_number]: log.info("Adding postgraduation_number column to students table...")
+.\db.py:84 [postgraduation_number]: cursor.execute("ALTER TABLE students ADD COLUMN postgraduation_number INT DEFAULT NULL")
+.\db.py:86 [admission_year]: if "admission_year" not in student_cols:
+.\db.py:87 [admission_year]: log.info("Adding admission_year column to students table...")
+.\db.py:88 [admission_year]: cursor.execute("ALTER TABLE students ADD COLUMN admission_year VARCHAR(9) DEFAULT NULL")
+.\db.py:90 [graduation_year]: if "graduation_year" not in student_cols:
+.\db.py:91 [graduation_year]: log.info("Adding graduation_year column to students table...")
+.\db.py:92 [graduation_year]: cursor.execute("ALTER TABLE students ADD COLUMN graduation_year VARCHAR(9) DEFAULT NULL")
+.\db.py:99 [graduation_year]: if "graduation_year" not in order_cols:
+.\db.py:100 [graduation_year]: log.info("Adding graduation_year column to graduation_orders table...")
+.\db.py:101 [graduation_year]: cursor.execute("ALTER TABLE graduation_orders ADD COLUMN graduation_year INT DEFAULT NULL")
+.\db.py:103 [admission_year]: if "admission_year" not in order_cols:
+.\db.py:104 [admission_year]: log.info("Adding admission_year column to graduation_orders table...")
+.\db.py:105 [admission_year]: cursor.execute("ALTER TABLE graduation_orders ADD COLUMN admission_year INT DEFAULT NULL")
+.\sync_engine.py:99 [postgraduation_number]: "sequence_number", "postgraduation_number", "date_of_birth",
+.\sync_engine.py:102 [admission_year]: "order_id", "admission_year", "summer_training_data",
+.\sync_engine.py:108 [postgraduation_number]: "sequence_number", "postgraduation_number", "date_of_birth",
+.\sync_engine.py:111 [admission_year]: "order_id", "admission_year", "summer_training_data",
+.\sync_engine.py:269 [postgraduation_number]: postgraduation_number   INTEGER,
+.\sync_engine.py:278 [admission_year]: admission_year      INTEGER,
+.\sync_engine.py:279 [graduation_year]: graduation_year     INTEGER,
+.\sync_engine.py:349 [postgraduation_number]: postgraduation_number INTEGER,
+.\sync_engine.py:358 [admission_year]: admission_year        TEXT,
+.\sync_engine.py:359 [graduation_year]: graduation_year       TEXT,
+.\sync_engine.py:437 [graduation_year]: graduation_year     INTEGER,
+.\sync_engine.py:438 [admission_year]: admission_year      INTEGER,
+.\sync_engine.py:495 [graduation_year]: cur.execute("ALTER TABLE local_students ADD COLUMN graduation_year INTEGER DEFAULT NULL;")
+.\sync_engine.py:500 [admission_year]: cur.execute("ALTER TABLE local_students ADD COLUMN admission_year INTEGER DEFAULT NULL;")
+.\sync_engine.py:505 [graduation_year]: cur.execute("ALTER TABLE students ADD COLUMN graduation_year TEXT DEFAULT NULL;")
+.\sync_engine.py:510 [admission_year]: cur.execute("ALTER TABLE students ADD COLUMN admission_year TEXT DEFAULT NULL;")
+.\sync_engine.py:515 [admission_year]: cur.execute("ALTER TABLE graduation_orders ADD COLUMN admission_year INTEGER DEFAULT NULL;")
+.\sync_engine.py:520 [graduation_year]: cur.execute("ALTER TABLE graduation_orders ADD COLUMN graduation_year INTEGER DEFAULT NULL;")
+.\api\main.py:45 [postgraduation_number]: "sequence_number", "postgraduation_number", "date_of_birth",
+.\api\main.py:48 [admission_year]: "order_id", "admission_year", "summer_training_data",
+.\api\main.py:205 [postgraduation_number]: postgraduation_number: Optional[int] = None
+.\api\main.py:214 [admission_year]: admission_year: Optional[str] = None
+.\api\main.py:339 [admission_year]: def get_distinct_admission_years(conn = Depends(get_db)):
+.\api\main.py:343 [admission_year]: cur.execute("SELECT DISTINCT admission_year FROM students ORDER BY admission_year DESC")
+.\api\main.py:345 [admission_year]: return [str(r["admission_year"]) for r in rows if r["admission_year"] is not None]
+.\api\main.py:359 [postgraduation_number]: payload.sequence_number, payload.postgraduation_number, payload.date_of_birth,
+.\api\main.py:362 [admission_year]: payload.order_id, payload.admission_year, payload.summer_training_data,
+.\api\main.py:393 [postgraduation_number]: payload.sequence_number, payload.postgraduation_number, payload.date_of_birth,
+.\api\main.py:396 [admission_year]: payload.order_id, payload.admission_year, payload.summer_training_data,
+.\api\main.py:1057 [graduation_year]: graduation_year: Union[int, str]
+.\api\main.py:1105 [graduation_year]: payload.study_type, payload.graduation_year, payload.graduation_semester,
+.\api\main.py:1133 [graduation_year]: payload.study_type, payload.graduation_year, payload.graduation_semester,
+.\certificate_manager_api\db.py:82 [postgraduation_number]: if "postgraduation_number" not in student_cols:
+.\certificate_manager_api\db.py:83 [postgraduation_number]: log.info("Adding postgraduation_number column to students table...")
+.\certificate_manager_api\db.py:84 [postgraduation_number]: cursor.execute("ALTER TABLE students ADD COLUMN postgraduation_number INT DEFAULT NULL")
+.\certificate_manager_api\db.py:91 [admission_year]: if "admission_year" in order_cols and "graduation_year" not in order_cols:
+.\certificate_manager_api\db.py:91 [graduation_year]: if "admission_year" in order_cols and "graduation_year" not in order_cols:
+.\certificate_manager_api\db.py:92 [admission_year]: log.info("Renaming admission_year to graduation_year in graduation_orders table...")
+.\certificate_manager_api\db.py:92 [graduation_year]: log.info("Renaming admission_year to graduation_year in graduation_orders table...")
+.\certificate_manager_api\db.py:93 [admission_year]: cursor.execute("ALTER TABLE graduation_orders RENAME COLUMN admission_year TO graduation_year")
+.\certificate_manager_api\db.py:93 [graduation_year]: cursor.execute("ALTER TABLE graduation_orders RENAME COLUMN admission_year TO graduation_year")
+.\certificate_manager_api\db.py:94 [graduation_year]: elif "graduation_year" not in order_cols:
+.\certificate_manager_api\db.py:95 [graduation_year]: log.info("Adding graduation_year column to graduation_orders table...")
+.\certificate_manager_api\db.py:96 [graduation_year]: cursor.execute("ALTER TABLE graduation_orders ADD COLUMN graduation_year VARCHAR(50) DEFAULT NULL")
+.\certificate_manager_api\main.py:45 [postgraduation_number]: "sequence_number", "postgraduation_number", "date_of_birth",
+.\certificate_manager_api\main.py:48 [admission_year]: "order_id", "admission_year", "summer_training_data",
+.\certificate_manager_api\main.py:205 [postgraduation_number]: postgraduation_number: Optional[int] = None
+.\certificate_manager_api\main.py:214 [admission_year]: admission_year: Optional[str] = None
+.\certificate_manager_api\main.py:321 [admission_year]: def get_distinct_admission_years(conn = Depends(get_db)):
+.\certificate_manager_api\main.py:325 [admission_year]: cur.execute("SELECT DISTINCT admission_year FROM students ORDER BY admission_year DESC")
+.\certificate_manager_api\main.py:327 [admission_year]: return [str(r["admission_year"]) for r in rows if r["admission_year"] is not None]
+.\certificate_manager_api\main.py:341 [postgraduation_number]: payload.sequence_number, payload.postgraduation_number, payload.date_of_birth,
+.\certificate_manager_api\main.py:344 [admission_year]: payload.order_id, payload.admission_year, payload.summer_training_data,
+.\certificate_manager_api\main.py:375 [postgraduation_number]: payload.sequence_number, payload.postgraduation_number, payload.date_of_birth,
+.\certificate_manager_api\main.py:378 [admission_year]: payload.order_id, payload.admission_year, payload.summer_training_data,
+.\certificate_manager_api\main.py:1039 [graduation_year]: graduation_year: Union[int, str]
+.\certificate_manager_api\main.py:1087 [graduation_year]: payload.study_type, payload.graduation_year, payload.graduation_semester,
+.\certificate_manager_api\main.py:1115 [graduation_year]: payload.study_type, payload.graduation_year, payload.graduation_semester,
+.\data\queries_backup.py:699 [admission_year]: id, full_name_ar, full_name_en, gender, sequence_number, admission_year,
+.\data\queries_backup.py:707 [admission_year]: "       s.admission_year, s.department_id, "
+.\data\queries_backup.py:753 [postgraduation_no]: postgraduation_no: int | None,
+.\data\queries_backup.py:760 [admission_year]: admission_year: int,
+.\data\queries_backup.py:770 [postgraduation_no]: "(full_name_ar, full_name_en, gender, sequence_number, postgraduation_no, date_of_birth, birthplace_id, "
+.\data\queries_backup.py:772 [admission_year]: " admission_year, study_type, graduation_date, graduation_semester, average) "
+.\data\queries_backup.py:774 [postgraduation_no]: (full_name_ar, full_name_en, gender, sequence_number, postgraduation_no, date_of_birth, birthplace_id,
+.\data\queries_backup.py:776 [admission_year]: admission_year, study_type, graduation_date, graduation_semester, average)
+.\data\queries_backup.py:931 [admission_year]: "SELECT department_id, admission_year, average "
+.\data\queries_backup.py:943 [admission_year]: "  AND admission_year = ? "
+.\data\queries_backup.py:947 [admission_year]: student["admission_year"],
+.\data\queries_backup.py:955 [admission_year]: "  AND admission_year = ? "
+.\data\queries_backup.py:957 [admission_year]: (student["department_id"], student["admission_year"])
+.\data\queries_backup.py:963 [admission_year]: def get_top_graduate_average(department_id: int, admission_year: int) -> float | None:
+.\data\queries_backup.py:973 [admission_year]: "  AND admission_year = ? "
+.\data\queries_backup.py:975 [admission_year]: (department_id, admission_year)
+.\data\queries_backup.py:992 [admission_year]: dept_name_en, study_type, admission_year, graduation_semester,
+.\data\queries_backup.py:1001 [admission_year]: "       o.study_type, o.admission_year, o.graduation_semester, "
+.\data\queries_backup.py:1031 [admission_year]: admission_year: int,
+.\data\queries_backup.py:1044 [admission_year]: admission_year:      The batch/دفعة year, e.g. 2018
+.\data\queries_backup.py:1053 [admission_year]: " admission_year, graduation_semester, num_students, notes) "
+.\data\queries_backup.py:1056 [admission_year]: admission_year, graduation_semester, num_students, notes)
+.\data\queries_backup.py:1070 [admission_year]: admission_year: int,
+.\data\queries_backup.py:1080 [admission_year]: "    admission_year=?, graduation_semester=?, num_students=?, notes=? "
+.\data\queries_backup.py:1083 [admission_year]: admission_year, graduation_semester, num_students, notes, order_id)
+.\data\queries_backup.py:1135 [admission_year]: department + admission_year + graduation_semester to this order.
+.\data\queries_backup.py:1155 [admission_year]: "  AND admission_year = ? "
+.\data\queries_backup.py:1163 [admission_year]: order["admission_year"],
+.\data\queries_backup.py:1258 [admission_year]: " department_id, admission_year, study_type, "
+.\data\queries_backup.py:1267 [admission_year]: order["admission_year"],
+.\data\queries_backup.py:1367 [admission_year]: dept_name_ar, admission_year, average, graduation_date).
+.\data\queries_backup.py:1373 [admission_year]: "       s.admission_year, s.average, s.graduation_date, "
+.\data\queries_backup.py:1387 [admission_year]: admission_year: int | None = None,
+.\data\queries_backup.py:1397 [admission_year]: List of dicts: id, full_name_ar, full_name_en, admission_year,
+.\data\queries_backup.py:1406 [admission_year]: if admission_year is not None:
+.\data\queries_backup.py:1407 [admission_year]: conditions.append("s.admission_year = ?")
+.\data\queries_backup.py:1408 [admission_year]: params.append(admission_year)
+.\data\queries_backup.py:1417 [admission_year]: "       s.admission_year, s.average, s.order_id, "
+.\data\queries_backup.py:1431 [admission_year]: admission_year: int | None = None,
+.\data\queries_backup.py:1441 [admission_year]: if admission_year is not None:
+.\data\queries_backup.py:1442 [admission_year]: conditions.append("s.admission_year = ?")
+.\data\queries_backup.py:1443 [admission_year]: params.append(admission_year)
+.\data\queries_backup.py:1478 [admission_year]: def search_students_for_order(name_query: str, admission_year: int | None, department_id: int | None, limit: int) -> list[Row]:
+.\data\queries_backup.py:1480 [admission_year]: "SELECT s.id, s.full_name_ar, s.admission_year, s.order_id, "
+.\data\queries_backup.py:1492 [admission_year]: if admission_year:
+.\data\queries_backup.py:1493 [admission_year]: query += " AND s.admission_year = ?"
+.\data\queries_backup.py:1494 [admission_year]: params.append(admission_year)
+.\data\queries_backup.py:1510 [admission_year]: "SELECT department_id, admission_year, study_type, order_date, graduation_semester "
+.\data\queries_backup.py:1520 [admission_year]: "WHERE department_id = ? AND admission_year = ? AND study_type = ? AND order_id IS NULL",
+.\data\queries_backup.py:1522 [admission_year]: order["department_id"], order["admission_year"], order["study_type"])
+.\data\queries_backup.py:1581 [postgraduation_no]: data["total_graduates"] = data.get("postgraduation_no") if data.get("postgraduation_no") is not None else total
+.\data\queries_backup.py:1583 [admission_year]: data["top_average"] = get_top_graduate_average(data["department_id"], data["admission_year"])
+.\data\queries_backup.py:1650 [admission_year]: conditions.append("s.admission_year = ?")
+.\data\queries_backup.py:1657 [admission_year]: "       s.admission_year, s.average, s.order_id, "
+.\data\queries_backup.py:1685 [admission_year]: conditions.append("s.admission_year = ?")
+.\data\repositories.py:763 [postgraduation_number]: if students_list and "postgraduation_number" not in students_list[0]:
+.\data\repositories.py:781 [postgraduation_number]: "postgraduation_number": sdata.get("postgraduation_number")
+.\data\repositories.py:789 [postgraduation_number]: query = f"SELECT id, sequence_number, postgraduation_number FROM students WHERE id IN ({format_strings})"
+.\data\repositories.py:800 [postgraduation_number]: s["postgraduation_number"] = supp_data[sid].get("postgraduation_number")
+.\data\repositories.py:801 [postgraduation_number]: s["postgraduation_number"] = supp_data[sid].get("postgraduation_number")
+.\data\repositories.py:820 [admission_year]: conditions.append("s.admission_year = ?")
+.\data\repositories.py:827 [admission_year]: "SELECT s.id, s.full_name_ar, s.full_name_en, s.admission_year, s.average, s.order_id, "
+.\data\repositories.py:829 [admission_year]: "FROM (SELECT id, full_name_ar, full_name_en, CAST(admission_year AS TEXT) AS admission_year, average, order_id, department_id FROM students "
+.\data\repositories.py:831 [admission_year]: "      SELECT id, full_name_ar, full_name_en, CAST(admission_year AS TEXT) AS admission_year, average, order_id, department_id FROM local_students) s "
+.\data\repositories.py:865 [postgraduation_number]: "FROM (SELECT id, full_name_ar, full_name_en, gender, sequence_number, postgraduation_number, date_of_birth, "
+.\data\repositories.py:867 [admission_year]: "             order_id, CAST(admission_year AS TEXT) AS admission_year, summer_training_data, average, graduation_date, graduation_semester "
+.\data\repositories.py:870 [postgraduation_number]: "      SELECT id, full_name_ar, full_name_en, gender, sequence_number, postgraduation_number, date_of_birth, "
+.\data\repositories.py:872 [admission_year]: "             order_id, CAST(admission_year AS TEXT) AS admission_year, summer_training_data, average, graduation_date, graduation_semester "
+.\data\repositories.py:899 [admission_year]: "SELECT s.id, s.full_name_ar, s.full_name_en, s.admission_year, s.average, "
+.\data\repositories.py:901 [admission_year]: "FROM (SELECT id, full_name_ar, full_name_en, CAST(admission_year AS TEXT) AS admission_year, average, department_id FROM students "
+.\data\repositories.py:903 [admission_year]: "      SELECT id, full_name_ar, full_name_en, CAST(admission_year AS TEXT) AS admission_year, average, department_id FROM local_students) s "
+.\data\repositories.py:923 [admission_year]: "admission_year": row.get("graduation_year") if "graduation_year" in row else row.get("admission_year"),
+.\data\repositories.py:923 [graduation_year]: "admission_year": row.get("graduation_year") if "graduation_year" in row else row.get("admission_year"),
+.\data\repositories.py:924 [admission_year]: "graduation_year": row.get("graduation_year") if "graduation_year" in row else row.get("admission_year"),
+.\data\repositories.py:924 [graduation_year]: "graduation_year": row.get("graduation_year") if "graduation_year" in row else row.get("admission_year"),
+.\data\repositories.py:946 [admission_year]: conditions.append("s.admission_year = ?")
+.\data\repositories.py:952 [admission_year]: "  SELECT id, full_name_ar, full_name_en, department_id, CAST(admission_year AS TEXT) AS admission_year FROM students "
+.\data\repositories.py:954 [admission_year]: "  SELECT id, full_name_ar, full_name_en, department_id, CAST(admission_year AS TEXT) AS admission_year FROM local_students"
+.\data\repositories.py:1026 [admission_year]: def search_for_order(self, name_query: str = "", admission_year: str | int | None = None, department_id: int = None, limit: int = 50, offset: int = 0) -> list[dict]:
+.\data\repositories.py:1028 [admission_year]: return self.get_all_paginated(limit=limit, offset=offset, name_query=name_query, dept_id=department_id, year=admission_year)
+.\data\repositories.py:1030 [admission_year]: def get_distinct_admission_years(self) -> list[str]:
+.\data\repositories.py:1033 [admission_year]: "SELECT DISTINCT admission_year FROM students "
+.\data\repositories.py:1035 [admission_year]: "SELECT DISTINCT admission_year FROM local_students "
+.\data\repositories.py:1036 [admission_year]: "ORDER BY admission_year DESC"
+.\data\repositories.py:1039 [admission_year]: unique_years = list(set(str(r["admission_year"]) for r in rows if r["admission_year"] is not None))
+.\data\repositories.py:1061 [postgraduation_number]: "postgraduation_number": data.get('postgraduation_number'),
+.\data\repositories.py:1070 [admission_year]: "admission_year": str(data.get('admission_year')) if data.get('admission_year') else None,
+.\data\repositories.py:1096 [postgraduation_number]: "postgraduation_number": data.get('postgraduation_number'),
+.\data\repositories.py:1105 [admission_year]: "admission_year": str(data.get('admission_year')) if data.get('admission_year') else None,
+.\data\repositories.py:1285 [postgraduation_number]: "  SELECT id, full_name_ar, full_name_en, gender, sequence_number, postgraduation_number, date_of_birth, "
+.\data\repositories.py:1287 [admission_year]: "         order_id, CAST(admission_year AS TEXT) AS admission_year, summer_training_data, average, graduation_date, graduation_semester "
+.\data\repositories.py:1290 [postgraduation_number]: "  SELECT id, full_name_ar, full_name_en, gender, sequence_number, postgraduation_number, date_of_birth, "
+.\data\repositories.py:1292 [admission_year]: "         order_id, CAST(admission_year AS TEXT) AS admission_year, summer_training_data, average, graduation_date, graduation_semester "
+.\data\repositories.py:1311 [admission_year]: "WHERE department_id = ? AND admission_year = ? AND average > ? AND average IS NOT NULL",
+.\data\repositories.py:1312 [admission_year]: (data.get("department_id"), data.get("admission_year"), data.get("average", 0) or 0)
+.\data\repositories.py:1317 [admission_year]: "WHERE department_id = ? AND admission_year = ? AND average IS NOT NULL",
+.\data\repositories.py:1318 [admission_year]: (data.get("department_id"), data.get("admission_year"))
+.\data\repositories.py:1321 [postgraduation_number]: data["total_graduates"] = data.get("postgraduation_number") or (total_row["total"] if total_row else 1)
+.\data\repositories.py:1326 [admission_year]: "WHERE department_id = ? AND admission_year = ?",
+.\data\repositories.py:1327 [admission_year]: (data.get("department_id"), data.get("admission_year"))
+.\data\repositories.py:1414 [postgraduation_number]: data["total_graduates"] = data.get("postgraduation_number") or analytics.get("total_graduates", 1)
+.\data\repositories.py:1502 [graduation_year]: data.get('graduation_year'),
+.\data\repositories.py:1517 [graduation_year]: "graduation_year": int(data.get('graduation_year')),
+.\data\repositories.py:1542 [graduation_year]: data.get('graduation_year'),
+.\data\repositories.py:1557 [graduation_year]: "graduation_year": int(data.get('graduation_year')),
+.\data\repositories.py:1590 [admission_year]: "SELECT s.id, s.full_name_ar, s.full_name_en, s.admission_year, s.average, s.order_id, "
+.\data\repositories1.py:468 [admission_year]: conditions.append("s.admission_year = %s")
+.\data\repositories1.py:475 [admission_year]: "SELECT s.id, s.full_name_ar, s.full_name_en, s.admission_year, s.average, s.order_id, "
+.\data\repositories1.py:500 [admission_year]: "SELECT s.id, s.full_name_ar, s.full_name_en, s.admission_year, s.average, "
+.\data\repositories1.py:518 [admission_year]: conditions.append("s.admission_year = %s")
+.\data\repositories1.py:553 [admission_year]: def search_for_order(self, name_query: str = "", admission_year: int = None, department_id: int = None, limit: int = 50) -> list[dict]:
+.\data\repositories1.py:560 [admission_year]: if admission_year:
+.\data\repositories1.py:561 [admission_year]: conditions.append("s.admission_year = %s")
+.\data\repositories1.py:562 [admission_year]: params.append(admission_year)
+.\data\repositories1.py:571 [admission_year]: "SELECT s.id, s.full_name_ar, s.admission_year, s.order_id, d.name_ar AS dept_name_ar "
+.\data\repositories1.py:581 [admission_year]: adm_year = order_data.get("admission_year")
+.\data\repositories1.py:585 [admission_year]: query = "UPDATE students SET order_id = %s, graduation_date = %s, graduation_semester = %s WHERE department_id = %s AND admission_year = %s AND order_id IS NULL"
+.\data\repositories1.py:656 [admission_year]: adm_year = data["admission_year"]
+.\data\repositories1.py:660 [admission_year]: "WHERE department_id = %s AND admission_year = %s AND average > %s AND average IS NOT NULL",
+.\data\repositories1.py:665 [admission_year]: "WHERE department_id = %s AND admission_year = %s AND average IS NOT NULL",
+.\data\repositories1.py:670 [postgraduation_no]: data["total_graduates"] = data.get("postgraduation_no") if data.get("postgraduation_no") is not None else (total_row["total"] if total_row else 1)
+.\data\repositories1.py:674 [admission_year]: "WHERE department_id = %s AND admission_year = %s",
+.\screens\certificate_screen.py:267 [admission_year]: year  = str(s.get("admission_year", ""))
+.\screens\certificate_screen.py:395 [admission_year]: # Strategy: graduation_date -> order_date -> admission_year + 4
+.\screens\certificate_screen.py:404 [admission_year]: if not grad_year and data.get("admission_year"):
+.\screens\certificate_screen.py:406 [admission_year]: grad_year = int(data.get("admission_year")) + 4
+.\screens\certificate_screen.py:654 [admission_year]: "admission_year": _localize(data.get("admission_year", "")),
+.\screens\certificate_screen1.py:196 [admission_year]: year  = str(s.get("admission_year", ""))
+.\screens\certificate_screen1.py:327 [admission_year]: "admission_year": data.get("admission_year", ""),
+.\screens\graduation_orders_screen.py:83 [graduation_year]: self._graduation_year = self._add_entry(
+.\screens\graduation_orders_screen.py:129 [graduation_year]: grad_yr = data.get("graduation_year")
+.\screens\graduation_orders_screen.py:130 [graduation_year]: self._set_entry(self._graduation_year,  str(grad_yr) if grad_yr is not None else "")
+.\screens\graduation_orders_screen.py:168 [graduation_year]: if not self._graduation_year.get().strip():
+.\screens\graduation_orders_screen.py:191 [graduation_year]: grad_yr_raw = self._graduation_year.get().strip()
+.\screens\graduation_orders_screen.py:202 [graduation_year]: graduation_year     = grad_yr_val,
+.\screens\graduation_orders_screen.py:403 [graduation_year]: or term in str(r.get("graduation_year") or "")
+.\screens\graduation_orders_screen.py:414 [graduation_year]: str(r.get("graduation_year", "—")),
+.\screens\order_students_screen.py:179 [graduation_year]: f"دفعة {o.get('graduation_year', '—')}")
+.\screens\order_students_screen.py:191 [admission_year]: years = StudentRepository().get_distinct_admission_years()
+.\screens\order_students_screen.py:268 [admission_year]: admission_year=year,
+.\screens\order_students_screen.py:294 [admission_year]: info = f"{row['full_name_ar']}  ({dept_text}، {row.get('admission_year', '—')}) {status}"
+.\screens\students_screen.py:191 [postgraduation_number]: self._postgraduation_number = self._add_entry("عدد الخريجين", "Postgraduation No.", placeholder="مثال: 86", row=12, col=0)
+.\screens\students_screen.py:261 [graduation_year]: f"{o['order_number']}  |  {o.get('dept_name_ar','')}  |  {o.get('graduation_year','') or '—'}"
+.\screens\students_screen.py:310 [admission_year]: self._set_entry(self._adm_year,     str(data.get("admission_year", "")))
+.\screens\students_screen.py:316 [postgraduation_no]: post_num = data.get("postgraduation_number") or data.get("postgraduation_no")
+.\screens\students_screen.py:316 [postgraduation_number]: post_num = data.get("postgraduation_number") or data.get("postgraduation_no")
+.\screens\students_screen.py:317 [postgraduation_number]: self._set_entry(self._postgraduation_number, str(post_num) if post_num is not None else "")
+.\screens\students_screen.py:402 [graduation_year]: f"{o.get('dept_name_ar','')}  |  {o.get('graduation_year','') or '—'}")
+.\screens\students_screen.py:536 [graduation_year]: f"{o.get('dept_name_ar','')}  |  {o.get('graduation_year','') or '—'}")
+.\screens\students_screen.py:570 [postgraduation_number]: post_raw = self._postgraduation_number.get().strip()
+.\screens\students_screen.py:593 [postgraduation_number]: "postgraduation_number": post_val,
+.\screens\students_screen.py:600 [admission_year]: "admission_year": int(self._adm_year.get().strip()),
+.\screens\students_screen.py:616 [postgraduation_number]: "postgraduation_number": post_val,
+.\screens\students_screen.py:623 [admission_year]: "admission_year": int(self._adm_year.get().strip()),
+.\screens\students_screen.py:1225 [admission_year]: year  = str(s.get("admission_year") or "—")
+.\screens\students_screen.py:1355 [postgraduation_no]: post_num = data.get('postgraduation_number') or data.get('postgraduation_no')
+.\screens\students_screen.py:1355 [postgraduation_number]: post_num = data.get('postgraduation_number') or data.get('postgraduation_no')
+.\screens\students_screen.py:1363 [admission_year]: ("سنة القبول  /  Admission Year", data.get("admission_year", "—")),
+.\screens\students_screen.py:1742 [admission_year]: adm_year = self._student.get("admission_year", year_start)
+.\screens\students_screen.py:1776 [admission_year]: adm_year = self._student.get("admission_year", year_start)
+.\tools\import_tool.py:123 [admission_year]: Optional: full_name_en, admission_year,
+.\tools\import_tool.py:152 [admission_year]: admission_year = row.get(mapping.get("admission_year", ""),          None)
+.\tools\import_tool.py:171 [admission_year]: # Normalise admission_year
+.\tools\import_tool.py:172 [admission_year]: if admission_year is not None:
+.\tools\import_tool.py:174 [admission_year]: admission_year = int(admission_year)
+.\tools\import_tool.py:176 [admission_year]: admission_year = 2020
+.\tools\import_tool.py:186 [admission_year]: " department_id, admission_year, study_type, "
+.\tools\import_tool.py:191 [admission_year]: default_dept_id, admission_year or 2020, study_type,
+.\tools\import_tool.py:331 [admission_year]: ("admission_year",      "سنة القبول  /  Admission Year"),
+.\tools\import_tool.py:426 [admission_year]: "admission_year":  ["admission_year", "year", "enroll_year", "start_year"],
+.\tools\migrate_mysql backup.py:228 [admission_year]: admission_year = int(row[3]) if row[3].isdigit() else 2018
+.\tools\migrate_mysql backup.py:235 [admission_year]: "INSERT INTO graduation_orders (order_number, order_date, department_id, study_type, admission_year, graduation_semester, num_students) "
+.\tools\migrate_mysql backup.py:237 [admission_year]: (row[6], row[7], dept_id, study_type, admission_year, sem, num_st)
+.\tools\migrate_mysql backup.py:280 [admission_year]: admission_year = int(row[6]) if row[6].isdigit() else 2018
+.\tools\migrate_mysql backup.py:299 [admission_year]: "INSERT INTO students (id, full_name_ar, full_name_en, date_of_birth, birthplace_id, nationality_id, department_id, study_system_id, order_id, admission_year, study_type, graduation_semester, average) "
+.\tools\migrate_mysql backup.py:303 [admission_year]: system_id, order_id, admission_year,
+.\tools\migrate_mysql.py:292 [graduation_year]: graduation_year = None
+.\tools\migrate_mysql.py:295 [graduation_year]: graduation_year = int(row[3])
+.\tools\migrate_mysql.py:298 [graduation_year]: if match: graduation_year = int(match.group())
+.\tools\migrate_mysql.py:300 [graduation_year]: # When importing legacy data, map year_study field directly into graduation_year if it evaluates to NULL
+.\tools\migrate_mysql.py:301 [graduation_year]: if graduation_year is None:
+.\tools\migrate_mysql.py:302 [graduation_year]: graduation_year = row[3]
+.\tools\migrate_mysql.py:343 [graduation_year]: "INSERT IGNORE INTO graduation_orders (order_number, order_date, department_id, study_type, graduation_year, graduation_semester, num_students, study_system_id) "
+.\tools\migrate_mysql.py:345 [graduation_year]: (order_num, order_date, dept_id, study_type, graduation_year, sem, num_st, study_system_id)
+.\tools\migrate_mysql.py:391 [admission_year]: admission_year = 2018
+.\tools\migrate_mysql.py:395 [admission_year]: admission_year = int(match.group())
+.\tools\migrate_mysql.py:428 [postgraduation_no]: "postgraduation_no, date_of_birth, birthplace_id, nationality_id, department_id, "
+.\tools\migrate_mysql.py:429 [admission_year]: "study_system_id, order_id, admission_year, graduation_date, graduation_semester, average) "
+.\tools\migrate_mysql.py:431 [admission_year]: (sid, full_name_ar, full_name_en, gender, sequence, postgrad_no, dob, gov_id, country_id, dept_id, system_id, order_id, admission_year, grad_date, sem, avg)

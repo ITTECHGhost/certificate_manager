@@ -31,8 +31,7 @@ class CoursePanel(SidePanel):
 
     def __init__(self, parent_screen, on_save_callback) -> None:
         self._departments: list[dict] = []
-        self._study_systems: list[dict] = []
-        self._dept_checks: list[tuple[ctk.CTkCheckBox, int]] = []
+        self._dept_checks: list[tuple[ctk.BooleanVar, int]] = []
         super().__init__(
             parent_screen,
             title_ar_add="إضافة مادة",  title_en_add="Add Course",
@@ -55,9 +54,6 @@ class CoursePanel(SidePanel):
         self._stage = self._add_dropdown("المرحلة / الفصل", "Stage / Semester",
                                         values=["1","2","3","4","5","6","7","8"], row=2, col=0)
         
-        self._system = self._add_dropdown("نظام الدراسة", "Study System",
-                                         values=["—"], row=4, col=1)
-
         self._add_section_label("نطاق المادة", "Course Scope", row=4, col=3)
         self._shared_var = ctk.BooleanVar(value=False)
         self._shared_chk = ctk.CTkCheckBox(
@@ -67,7 +63,7 @@ class CoursePanel(SidePanel):
             variable=self._shared_var,
             command=self._on_shared_toggle,
         )
-        self._shared_chk.grid(row=4, column=0, sticky="e", pady=(32, 2)) # Adjusted pady to align with dropdown
+        self._shared_chk.grid(row=4, column=0, columnspan=2, sticky="e", pady=(8, 2))
 
         # Single-dept dropdown (shown when not shared)
         self._dept_label = ctk.CTkLabel(
@@ -130,12 +126,7 @@ class CoursePanel(SidePanel):
         labels = [f"{d['name_ar']}  /  {d['name_en']}" for d in self._departments] or ["—"]
         self._dept.configure(values=labels)
         self._dept.set(labels[0])
-        # Reload study systems
-        self._study_systems = StudySystemRepository().get_active()
-        ss_labels = [f"{s['name_ar']}  /  {s['name_en']}" for s in self._study_systems] or ["—"]
-        self._system.configure(values=ss_labels)
-        if ss_labels:
-            self._system.set(ss_labels[0])
+        # Reload study systems removed as courses are system-agnostic
         # Rebuild checklist
         for w in self._dept_checklist.winfo_children():
             w.destroy()
@@ -167,12 +158,14 @@ class CoursePanel(SidePanel):
         self._reload_departments()
         self._shared_var.set(False)
         self._on_shared_toggle()
+        self._shared_chk.configure(state="normal")
         super().open_add()
 
     def open_edit(self, data: dict) -> None:
         self._reload_departments()
-        self._shared_var.set(bool(data.get("is_shared", 0)))
+        self._shared_var.set(False)
         self._on_shared_toggle()
+        self._shared_chk.configure(state="disabled")
         super().open_edit(data)
 
     def _populate(self, data: dict) -> None:
@@ -180,18 +173,7 @@ class CoursePanel(SidePanel):
         self._set_entry(self._name_en, data.get("name_en", ""))
         self._set_dropdown(self._credits, str(data.get("credit_hours", "3")))
         self._set_dropdown(self._stage,   str(data.get("stage_number", "1")))
-        # Set study system by id
-        ss_id = data.get("study_system_id")
-        for s in self._study_systems:
-            if s["id"] == ss_id:
-                self._set_dropdown(self._system, f"{s['name_ar']}  /  {s['name_en']}")
-                break
-        if data.get("is_shared"):
-            shared_ids = CourseRepository().get_shared_dept_ids(data["id"])
-            for var, did in self._dept_checks:
-                var.set(did in shared_ids)
-        else:
-            self._set_dropdown(self._dept, self._dept_label_for_id(data.get("department_id", 0)))
+        self._set_dropdown(self._dept, self._dept_label_for_id(data.get("department_id", 0)))
 
     def _validate(self) -> str | None:
         if not self._departments:
@@ -208,13 +190,6 @@ class CoursePanel(SidePanel):
         return None
 
     def _on_save(self, existing: dict | None) -> None:
-        # Resolve study_system_id from dropdown label
-        ss_label = self._system.get()
-        ss_id = next(
-            (s["id"] for s in self._study_systems
-             if f"{s['name_ar']}  /  {s['name_en']}" == ss_label),
-            (self._study_systems[0]["id"] if self._study_systems else 1)
-        )
         is_shared  = self._shared_var.get()
 
         if is_shared:
@@ -230,7 +205,6 @@ class CoursePanel(SidePanel):
             credit_hours    = int(self._credits.get()),
             department_id   = dept_id,
             stage_number    = int(self._stage.get()),
-            study_system_id = ss_id,
             shared_dept_ids = shared_ids,
         )
         repo = CourseRepository()
@@ -256,7 +230,6 @@ class CoursesScreen(BaseScreen):
         ("القسم  /  Department",               180),
         ("المرحلة  /  Stage",                   60),
         ("الوحدات  /  Credits",                 60),
-        ("النظام  /  System",                   80),
     ]
 
     ALL_DEPTS_LABEL = "كل الأقسام  —  All Departments"
@@ -352,7 +325,6 @@ class CoursesScreen(BaseScreen):
             r.get("dept_name_ar") or "—",
             str(r.get("stage_number", "—")),
             str(r.get("credit_hours", "—")),
-            r.get("study_system_name_ar") or "—",
         ])
 
     def _confirm_delete(self, row: dict) -> None:

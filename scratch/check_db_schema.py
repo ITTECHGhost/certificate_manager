@@ -1,18 +1,40 @@
-import sqlite3
-from pathlib import Path
+import mysql.connector
 
-db_path = Path(__file__).resolve().parent.parent / "local_cache.db"
-conn = sqlite3.connect(str(db_path))
-cur = conn.cursor()
+def main():
+    conn = mysql.connector.connect(
+        host="localhost",
+        user="root",
+        password="12345678",
+        database="certificate_manager"
+    )
+    cursor = conn.cursor()
+    
+    print("--- students table columns ---")
+    cursor.execute("DESCRIBE students")
+    for row in cursor.fetchall():
+        print(row)
+        
+    print("\n--- graduation_orders table columns ---")
+    cursor.execute("DESCRIBE graduation_orders")
+    for row in cursor.fetchall():
+        print(row)
+        
+    print("\n--- InsertStudent Stored Procedure ---")
+    try:
+        cursor.execute("SHOW CREATE PROCEDURE InsertStudent")
+        print(cursor.fetchone()[2])
+    except Exception as e:
+        print("Error fetching InsertStudent:", e)
 
-print("Columns in 'academic_periods' table:")
-cur.execute("PRAGMA table_info(academic_periods)")
-for col in cur.fetchall():
-    print(dict(zip(['cid', 'name', 'type', 'notnull', 'dflt_value', 'pk'], col)))
+    print("\n--- UpdateStudent Stored Procedure ---")
+    try:
+        cursor.execute("SHOW CREATE PROCEDURE UpdateStudent")
+        print(cursor.fetchone()[2])
+    except Exception as e:
+        print("Error fetching UpdateStudent:", e)
+        
+    cursor.close()
+    conn.close()
 
-print("\nColumns in 'local_academic_periods' table:")
-cur.execute("PRAGMA table_info(local_academic_periods)")
-for col in cur.fetchall():
-    print(dict(zip(['cid', 'name', 'type', 'notnull', 'dflt_value', 'pk'], col)))
-
-conn.close()
+if __name__ == "__main__":
+    main()

@@ -276,7 +276,6 @@ def init_local_db() -> None:
                 degree_level        INTEGER DEFAULT 1,
                 order_id            INTEGER,
                 admission_year      INTEGER,
-                graduation_year     INTEGER,
                 summer_training_data TEXT,
                 average             REAL,
                 graduation_date     TEXT,
@@ -333,7 +332,6 @@ def init_local_db() -> None:
                 personnel_role        TEXT DEFAULT 'user',
                 settings_id           INTEGER DEFAULT 1,
                 university_settings_id INTEGER DEFAULT 1,
-                page_location         TEXT DEFAULT 'front',
                 is_active             INTEGER DEFAULT 1,
                 created_at            TEXT
             )
@@ -356,7 +354,6 @@ def init_local_db() -> None:
                 degree_level          INTEGER DEFAULT 1,
                 order_id              INTEGER,
                 admission_year        TEXT,
-                graduation_year       TEXT,
                 summer_training_data  TEXT,
                 average               REAL,
                 graduation_date       TEXT,
@@ -398,18 +395,15 @@ def init_local_db() -> None:
                 name_en         TEXT,
                 credit_hours    INTEGER,
                 department_id   INTEGER,
-                stage_number    INTEGER,
-                study_system_id INTEGER,
-                is_shared       INTEGER DEFAULT 0
+                stage_number    INTEGER
             )
         """)
 
         cur.execute("""
             CREATE TABLE IF NOT EXISTS departments (
-                id                    INTEGER PRIMARY KEY,
-                name_ar               TEXT,
-                name_en               TEXT,
-                study_day_type        TEXT DEFAULT 'Morning',
+                id                     INTEGER PRIMARY KEY,
+                name_ar                TEXT,
+                name_en                TEXT,
                 university_settings_id INTEGER DEFAULT 1
             )
         """)
@@ -419,6 +413,7 @@ def init_local_db() -> None:
                 id                  INTEGER PRIMARY KEY,
                 name_ar             TEXT,
                 name_en             TEXT,
+                study_day_type      TEXT DEFAULT 'Morning',
                 calculation_rule    TEXT DEFAULT 'annual',
                 calculation_weights TEXT DEFAULT '10:20:30:40',
                 period_display      TEXT DEFAULT 'semester',
@@ -471,38 +466,42 @@ def init_local_db() -> None:
         """)
 
         cur.execute("""
-            CREATE TABLE IF NOT EXISTS course_departments (
-                course_id     INTEGER NOT NULL,
-                department_id INTEGER NOT NULL,
-                PRIMARY KEY (course_id, department_id)
-            )
-        """)
-
-        cur.execute("""
-            CREATE TABLE IF NOT EXISTS user_preferences (
+            CREATE TABLE IF NOT EXISTS settings(
                 id              INTEGER PRIMARY KEY,
-                personnel_id    INTEGER,
                 theme           TEXT DEFAULT 'System',
                 accent_color    TEXT DEFAULT 'blue',
                 font_family     TEXT DEFAULT 'Arial',
                 font_size_base  INTEGER DEFAULT 13,
-                rtl             INTEGER DEFAULT 1
+                is_arabic_rtl   INTEGER DEFAULT 1
             )
         """)
 
+        cur.execute("""
+            CREATE TABLE IF NOT EXISTS student_supervisors (
+                id               INTEGER PRIMARY KEY,
+                student_id       INTEGER NOT NULL,
+                personnel_id     INTEGER NOT NULL,
+                supervision_role TEXT NOT NULL
+            )
+        """)
+
+        cur.execute("""
+            CREATE TABLE IF NOT EXISTS thesis_records (
+                id                 INTEGER PRIMARY KEY,
+                student_id         INTEGER NOT NULL,
+                title_ar           TEXT,
+                title_en           TEXT,
+                defense_date       TEXT,
+                committee_decision TEXT,
+                final_grade        REAL
+            )
+        """)
+
+        # Junction table course_departments dropped
+
         # Self-healing migrations for existing local databases
         try:
-            cur.execute("ALTER TABLE local_students ADD COLUMN graduation_year INTEGER DEFAULT NULL;")
-        except sqlite3.OperationalError:
-            pass
-
-        try:
             cur.execute("ALTER TABLE local_students ADD COLUMN admission_year INTEGER DEFAULT NULL;")
-        except sqlite3.OperationalError:
-            pass
-
-        try:
-            cur.execute("ALTER TABLE students ADD COLUMN graduation_year TEXT DEFAULT NULL;")
         except sqlite3.OperationalError:
             pass
 
@@ -537,15 +536,17 @@ _REPLICA_TABLES: list[tuple[str, str]] = [
     ("university_settings", "SELECT * FROM university_settings"),
     ("countries",           "SELECT * FROM countries"),
     ("governorates",        "SELECT * FROM governorates"),
+    ("settings",            "SELECT * FROM settings"),
     ("departments",         "SELECT * FROM departments"),
     ("study_systems",       "SELECT * FROM study_systems"),
     ("personnel",           "SELECT * FROM personnel"),
     ("courses",             "SELECT * FROM courses"),
-    ("course_departments",  "SELECT * FROM course_departments"),
     ("graduation_orders",   "SELECT * FROM graduation_orders"),
     ("students",            "SELECT * FROM students"),
     ("academic_periods",    "SELECT * FROM academic_periods"),
     ("enrollments",         "SELECT * FROM enrollments"),
+    ("student_supervisors", "SELECT * FROM student_supervisors"),
+    ("thesis_records",      "SELECT * FROM thesis_records"),
 ]
 
 
@@ -634,7 +635,12 @@ def download_mysql_snapshot(mysql_conn, sqlite_conn):
     Optimized to dynamically drop and recreate the SQLite cache tables to
     match the MySQL schema perfectly.
     """
-    tables = ['departments', 'courses', 'study_systems', 'students', 'academic_periods', 'enrollments', 'settings', 'personnel', 'graduation_orders']
+    tables = [
+        'university_settings', 'countries', 'governorates', 'settings',
+        'departments', 'study_systems', 'personnel', 'courses',
+        'graduation_orders', 'students', 'academic_periods', 'enrollments',
+        'student_supervisors', 'thesis_records'
+    ]
     my_cursor = mysql_conn.cursor(dictionary=True)
     sq_cursor = sqlite_conn.cursor()
     try:
@@ -651,14 +657,6 @@ def download_mysql_snapshot(mysql_conn, sqlite_conn):
         for table in tables:
             src_table = table
             dest_table = table
-            if table == 'settings':
-                dest_table = 'university_settings'
-                try:
-                    my_cursor.execute("SELECT * FROM university_settings LIMIT 1;")
-                    my_cursor.fetchall()
-                    src_table = 'university_settings'
-                except Exception:
-                    src_table = 'settings'
                     
             try:
                 # 1. Fetch fresh rows from MySQL

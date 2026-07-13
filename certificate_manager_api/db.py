@@ -48,91 +48,65 @@ def get_connection():
 
 
 def init_db() -> None:
-    """Check MySQL connection on startup and ensure required tables and columns exist."""
+    """Check MySQL connection on startup and verify that required tables and columns exist without mutating the schema."""
     log.info("Checking MySQL database connection to %s@%s...", DBConfig.DB_USER, DBConfig.DB_HOST)
     conn = None
     cursor = None
     try:
         conn = get_connection()
         cursor = conn.cursor()
-        # Verify and create course_departments table if it does not exist
-        cursor.execute("""
-            CREATE TABLE IF NOT EXISTS course_departments (
-                course_id     INT NOT NULL,
-                department_id INT NOT NULL,
-                PRIMARY KEY (course_id, department_id),
-                FOREIGN KEY (course_id) REFERENCES courses(id) ON UPDATE CASCADE ON DELETE CASCADE,
-                FOREIGN KEY (department_id) REFERENCES departments(id) ON UPDATE CASCADE ON DELETE CASCADE
-            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-        """)
+        
+        # Verify if course_departments table exists
+        cursor.execute("SHOW TABLES LIKE 'course_departments'")
+        if cursor.fetchone():
+            log.warning("Database schema warning: 'course_departments' table still exists in MySQL, but is dropped in local cache.")
 
-        # Verify and add missing columns to the students table for full compatibility
+        # Verify students table columns
         cursor.execute("DESCRIBE students")
         raw_student_rows = cursor.fetchall()
         student_cols = [row[0] for row in raw_student_rows]  # type: ignore
 
-        if "graduation_date" not in student_cols:
-            log.info("Adding graduation_date column to students table...")
-            cursor.execute("ALTER TABLE students ADD COLUMN graduation_date DATE DEFAULT NULL")
+        for col in ["graduation_date", "graduation_semester", "postgraduation_number", "admission_year"]:
+            if col not in student_cols:
+                log.warning("Database schema warning: column '%s' is missing from 'students' table.", col)
 
-        if "graduation_semester" not in student_cols:
-            log.info("Adding graduation_semester column to students table...")
-            cursor.execute("ALTER TABLE students ADD COLUMN graduation_semester VARCHAR(50) DEFAULT NULL")
-
-        if "postgraduation_number" not in student_cols:
-            log.info("Adding postgraduation_number column to students table...")
-            cursor.execute("ALTER TABLE students ADD COLUMN postgraduation_number INT DEFAULT NULL")
-
-        # Verify and add missing columns to the graduation_orders table for full compatibility
+        # Verify graduation_orders table columns
         cursor.execute("DESCRIBE graduation_orders")
         raw_order_rows = cursor.fetchall()
         order_cols = [row[0] for row in raw_order_rows]  # type: ignore
 
-        if "admission_year" in order_cols and "graduation_year" not in order_cols:
-            log.info("Renaming admission_year to graduation_year in graduation_orders table...")
-            cursor.execute("ALTER TABLE graduation_orders RENAME COLUMN admission_year TO graduation_year")
-        elif "graduation_year" not in order_cols:
-            log.info("Adding graduation_year column to graduation_orders table...")
-            cursor.execute("ALTER TABLE graduation_orders ADD COLUMN graduation_year VARCHAR(50) DEFAULT NULL")
+        for col in ["graduation_year", "admission_year", "study_type", "notes"]:
+            if col not in order_cols:
+                log.warning("Database schema warning: column '%s' is missing from 'graduation_orders' table.", col)
 
-        if "study_type" not in order_cols:
-            log.info("Adding study_type column to graduation_orders table...")
-            cursor.execute("ALTER TABLE graduation_orders ADD COLUMN study_type VARCHAR(50) DEFAULT NULL")
-
-        if "notes" not in order_cols:
-            log.info("Adding notes column to graduation_orders table...")
-            cursor.execute("ALTER TABLE graduation_orders ADD COLUMN notes VARCHAR(255) DEFAULT NULL")
-
-        # Verify and add missing columns to the academic_periods table
+        # Verify academic_periods table columns
         cursor.execute("DESCRIBE academic_periods")
         raw_ap_rows = cursor.fetchall()
         ap_cols = [row[0] for row in raw_ap_rows]  # type: ignore
 
         if "study_system_id" not in ap_cols:
-            log.info("Adding study_system_id column to academic_periods table...")
-            cursor.execute(
-                "ALTER TABLE academic_periods ADD COLUMN study_system_id INT NOT NULL DEFAULT 1"
-            )
+            log.warning("Database schema warning: column 'study_system_id' is missing from 'academic_periods' table.")
 
-        # Verify and add missing columns to the courses table
+        # Verify courses table columns
         cursor.execute("DESCRIBE courses")
         raw_course_rows = cursor.fetchall()
         course_cols = [row[0] for row in raw_course_rows]  # type: ignore
 
-        if "study_system_id" not in course_cols:
-            log.info("Adding study_system_id column to courses table...")
-            cursor.execute(
-                "ALTER TABLE courses ADD COLUMN study_system_id INT NOT NULL DEFAULT 1"
-            )
+        if "study_system_id" in course_cols:
+            log.warning("Database schema warning: column 'study_system_id' still exists in 'courses' table.")
 
-        if "is_shared" not in course_cols:
-            log.info("Adding is_shared column to courses table...")
-            cursor.execute(
-                "ALTER TABLE courses ADD COLUMN is_shared TINYINT(1) NOT NULL DEFAULT 0"
-            )
+        if "is_shared" in course_cols:
+            log.warning("Database schema warning: column 'is_shared' still exists in 'courses' table.")
 
-        conn.commit()
-        log.info("Database connection successful, tables verified, and schemas reconciled.")
+        if "department_id" not in course_cols:
+            log.warning("Database schema warning: column 'department_id' is missing from 'courses' table.")
+
+        # Ensure composite unique index name_dep exists on (name_en, department_id, credit_hours)
+        cursor.execute("SHOW INDEX FROM courses WHERE Key_name = 'name_dep'")
+        if not cursor.fetchall():
+            log.warning("Database schema warning: composite unique index 'name_dep' is missing from 'courses' table.")
+
+        log.info("Database schema verification completed successfully (read-only verification).")
     except Exception as e:
         log.error("Database connection or schema verification failed: %s", e)
         raise

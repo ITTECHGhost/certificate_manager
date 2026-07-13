@@ -175,11 +175,13 @@ class StudentFormPanel(SidePanel):
 
         self._dept = self._add_dropdown("القسم", "Department", values=["—"], row=6, col=1)
         self._study_system = self._add_dropdown("نظام الدراسة", "Study System", values=["سنوي  /  Annual", "مقررات  /  Semester"], row=6, col=0)
-        self._adm_year = self._add_entry("سنة القبول", "Admission Year", placeholder="مثال: 2020", row=6, col=2)
+        self._adm_year = self._add_entry("سنة التخرج", "Graduation Year", placeholder="مثال: 2020", row=6, col=2)
+        self._adm_year.bind("<KeyRelease>", self._on_grad_year_change)
         
         self._study_type = self._add_dropdown("نوع الدراسة", "Study Type", values=list(STUDY_TYPE_OPTIONS.keys()), row=8, col=0)
         self._degree_level = self._add_dropdown("الدرجة العلمية", "Degree Level", values=list(DEGREE_LEVEL_OPTIONS.keys()), row=8, col=1)
         self._degree_level.configure(command=self._on_degree_change)
+        self._admission_year = self._add_entry("سنة القبول", "Admission Year", placeholder="مثال: 2016", row=8, col=2)
         
         # -- ROW 10: Graduation Section --
         self._add_section_label("التخرج", "Graduation", row=10, col=3)
@@ -190,6 +192,7 @@ class StudentFormPanel(SidePanel):
 
         self._postgraduation_number = self._add_entry("عدد الخريجين", "Postgraduation No.", placeholder="مثال: 86", row=12, col=0)
         self._sequence_number = self._add_entry("رقم التسلسل", "Sequence of Graduation", placeholder="مثال: 1", row=12, col=1)
+        self._summer_training = self._add_entry("التدريب الصيفي", "Summer Training", placeholder="مثال: 2019", row=12, col=2)
 
         self._order = self._add_combobox("الأمر الجامعي", "Graduation Order", values=["— بدون أمر / None"], row=14, col=0, colspan=3)
         self._order.bind("<KeyRelease>", self._filter_orders)
@@ -220,6 +223,20 @@ class StudentFormPanel(SidePanel):
             self._thesis_frame.grid()
         else:
             self._thesis_frame.grid_remove()
+
+    def _on_grad_year_change(self, event=None) -> None:
+        """Automatically set default summer training value as graduation year - 1 if empty or matches previous default."""
+        grad_yr = self._adm_year.get().strip()
+        if grad_yr.isdigit():
+            try:
+                default_summer = str(int(grad_yr) - 1)
+                current_summer = self._summer_training.get().strip()
+                # Only update if the summer training field is empty or is already a 4-digit number that we can overwrite
+                if not current_summer or (current_summer.isdigit() and len(current_summer) == 4):
+                    self._summer_training.delete(0, "end")
+                    self._summer_training.insert(0, default_summer)
+            except Exception:
+                pass
 
     def _filter_orders(self, event=None) -> None:
         """Filter the graduation order combobox values based on typed text."""
@@ -307,7 +324,22 @@ class StudentFormPanel(SidePanel):
         self._set_entry(self._name_ar,      data.get("full_name_ar",   ""))
         self._set_entry(self._name_en,      data.get("full_name_en",   ""))
         self._set_entry(self._dob,          data.get("date_of_birth",  ""))
-        self._set_entry(self._adm_year,     str(data.get("admission_year", "")))
+        self._set_entry(self._adm_year,     str(data.get("graduation_year") or ""))
+        
+        adm_year = data.get("admission_year")
+        if not adm_year and data.get("id"):
+            try:
+                periods = AcademicPeriodRepository().get_by_student(data["id"])
+                if periods:
+                    earliest_period = sorted(periods, key=lambda p: p.get("academic_year", ""))[0]
+                    ay = earliest_period.get("academic_year", "")
+                    import re
+                    match = re.search(r"\d{4}", ay)
+                    if match:
+                        adm_year = match.group()
+            except Exception as e:
+                print(f"Error fetching periods for fallback: {e}")
+        self._set_entry(self._admission_year, str(adm_year or ""))
         # Graduation details fallback logic
         grad_date = data.get("graduation_date") or data.get("order_date")
         self._set_entry(self._grad_date,    str(grad_date) if grad_date else "")
@@ -315,6 +347,7 @@ class StudentFormPanel(SidePanel):
         self._set_entry(self._sequence_number, str(data.get("sequence_number", "") or ""))
         post_num = data.get("postgraduation_number") or data.get("postgraduation_no")
         self._set_entry(self._postgraduation_number, str(post_num) if post_num is not None else "")
+        self._set_entry(self._summer_training, data.get("summer_training_data") or "")
 
         # Gender
         gender_val = data.get("gender")
@@ -479,7 +512,12 @@ class StudentFormPanel(SidePanel):
         if thesis_raw and len(thesis_raw) != 10:
             return "تاريخ المناقشة يجب أن يكون بصيغة YYYY-MM-DD"
 
-        if not self._adm_year.get().strip().isdigit():
+        grad_yr = self._adm_year.get().strip()
+        if grad_yr and not grad_yr.isdigit():
+            return "سنة التخرج يجب أن تكون رقماً  —  Graduation year must be a number"
+
+        adm_yr = self._admission_year.get().strip()
+        if adm_yr and not adm_yr.isdigit():
             return "سنة القبول يجب أن تكون رقماً  —  Admission year must be a number"
         if not self._depts:
             return "يجب إضافة قسم أولاً  —  Add a department first"
@@ -579,6 +617,25 @@ class StudentFormPanel(SidePanel):
             grad_sem = SEMESTER_OPTIONS.get(grad_sem_label, grad_sem_label)
         grad_date = self._grad_date.get().strip() or None
 
+        grad_yr = self._adm_year.get().strip()
+        if not grad_yr and grad_date:
+            try:
+                import re
+                match = re.search(r"\d{4}", grad_date)
+                if match:
+                    grad_yr = match.group()
+            except Exception:
+                pass
+
+        if grad_yr and not grad_date:
+            grad_date = f"{grad_yr}-07-01"
+
+        summer_training_val = self._summer_training.get().strip() or None
+        if not summer_training_val and grad_yr and grad_yr.isdigit():
+            try:
+                summer_training_val = str(int(grad_yr) - 1)
+            except ValueError:
+                pass
         order_id = self._get_order_id()
 
         if existing:
@@ -597,13 +654,14 @@ class StudentFormPanel(SidePanel):
                     "nationality_id": self._get_nationality_id(),
                     "department_id": self._get_dept_id(),
                     "study_system_id": self._get_study_system_id(),
-                    "admission_year": int(self._adm_year.get().strip()),
+                    "admission_year": self._admission_year.get().strip(),
                     "study_type": STUDY_TYPE_OPTIONS[self._study_type.get()],
                     "degree_level": DEGREE_LEVEL_OPTIONS[self._degree_level.get()],
                     "graduation_date": grad_date,
                     "graduation_semester": grad_sem,
                     "average": avg_val,
                     "order_id": order_id,
+                    "summer_training_data": summer_training_val,
                 }
             )
         else:
@@ -620,13 +678,14 @@ class StudentFormPanel(SidePanel):
                     "nationality_id": self._get_nationality_id(),
                     "department_id": self._get_dept_id(),
                     "study_system_id": self._get_study_system_id(),
-                    "admission_year": int(self._adm_year.get().strip()),
+                    "admission_year": self._admission_year.get().strip(),
                     "study_type": STUDY_TYPE_OPTIONS[self._study_type.get()],
                     "degree_level": DEGREE_LEVEL_OPTIONS[self._degree_level.get()],
                     "graduation_date": grad_date,
                     "graduation_semester": grad_sem,
                     "average": avg_val,
                     "order_id": order_id,
+                    "summer_training_data": summer_training_val,
                 }
             )
             
@@ -825,10 +884,18 @@ class EnrollmentPanel(ctk.CTkFrame):
         if not self._period or not self._student:
             return
         
-        dept_id = self._student.get("department_id", 0)
-        system_id = self._student.get("study_system_id", 1)
-        self._courses = CourseRepository().get_by_dept_stage_system(dept_id, 12, system_id)
-
+        dept_id = self._student.get("department_id")
+        stage = self._period.get("stage_number")
+        system_id = self._period.get("study_system_id") or self._student.get("study_system_id") or 1
+        
+        if dept_id and stage:
+            self._courses = CourseRepository().get_by_dept_stage_system(
+                dept_id=dept_id,
+                stage=stage,
+                system_id=system_id
+            )
+        else:
+            self._courses = CourseRepository().get_all()
 
         self._selected_course = None
         self._course_search_entry.delete(0, "end")
@@ -1222,7 +1289,7 @@ class StudentsScreen(BaseScreen):
 
         for i, s in enumerate(students):
             dept  = s.get("dept_name_ar") or "—"
-            year  = str(s.get("admission_year") or "—")
+            year  = str(s.get("graduation_year") or s.get("admission_year") or "—")
             avg   = f"  |  معدل: {s['average']}" if s.get("average") else ""
             label = f"  {s.get('full_name_ar') or '—'}  —  {dept}  |  دفعة {year}{avg}"
 
@@ -1360,7 +1427,8 @@ class StudentsScreen(BaseScreen):
         fields = [
             ("القسم  /  Department",        data.get("dept_name_ar", "—")),
             ("نظام الدراسة  /  Study System", data.get("study_system_name_ar", "—")),
-            ("سنة القبول  /  Admission Year", data.get("admission_year", "—")),
+            ("سنة القبول  /  Admission Year",  data.get("admission_year") or "—"),
+            ("سنة التخرج  /  Graduation Year", data.get("graduation_year") or "—"),
             ("تاريخ الميلاد  /  Date of Birth", data.get("date_of_birth", "—")),
             ("الجنسية  /  Nationality",      data.get("nationality_ar", "—")),
             ("محل الولادة  /  Birthplace",
@@ -1372,6 +1440,7 @@ class StudentsScreen(BaseScreen):
             ("تاريخ التخرج  /  Graduation Date", grad_date_str),
             ("فصل التخرج  /  Graduation Semester", sem_display),
             ("تسلسل وصادر التخرج  /  Grad. Seq & Postgrad No.", grad_seq_display),
+            ("التدريب الصيفي  /  Summer Training", data.get("summer_training_data") or "—"),
         ]
 
         def draw_field(parent, label, value, row_idx, col_offset):

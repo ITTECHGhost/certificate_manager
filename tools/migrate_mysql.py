@@ -425,7 +425,7 @@ class MigrationManager:
             try:
                 self.cursor.execute(
                     "INSERT IGNORE INTO students (id, full_name_ar, full_name_en, gender, sequence_number, "
-                    "postgraduation_no, date_of_birth, birthplace_id, nationality_id, department_id, "
+                    "postgraduation_number, date_of_birth, birthplace_id, nationality_id, department_id, "
                     "study_system_id, order_id, admission_year, graduation_date, graduation_semester, average) "
                     "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
                     (sid, full_name_ar, full_name_en, gender, sequence, postgrad_no, dob, gov_id, country_id, dept_id, system_id, order_id, admission_year, grad_date, sem, avg)

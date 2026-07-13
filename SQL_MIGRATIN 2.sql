@@ -170,8 +170,21 @@ SELECT
 FROM
     `project2`.`signatures`;
 
+-- Disable Foreign Key Checks temporarily to speed up bulk inserts
+SET
+    FOREIGN_KEY_CHECKS = 0;
+
+-- ==========================
 -- =============================================================================
--- 3. MIGRATE COURSES (department_id = NULL for shared courses)
+-- 1. PRE-MIGRATION CLEANUP
+-- =============================================================================
+-- Ensure the table is empty and reset the Auto-Increment ID counter to 1
+DELETE FROM `certificate_manager`.`courses`;
+
+ALTER TABLE `certificate_manager`.`courses` AUTO_INCREMENT = 1;
+
+-- =============================================================================
+-- 2. MIGRATE COURSES (Study System ID Removed)
 -- =============================================================================
 -- Part A: Semester System Courses
 INSERT IGNORE INTO `certificate_manager`.`courses` (
@@ -179,7 +192,8 @@ INSERT IGNORE INTO `certificate_manager`.`courses` (
     `name_en`,
     `credit_hours`,
     `department_id`,
-    `stage_number`
+    `stage_number`,
+    `is_shared`
 )
 SELECT
     `name_ar`,
@@ -188,19 +202,22 @@ SELECT
     CASE
         WHEN `dep` LIKE '%علوم الحاسوب%' THEN 2
         WHEN `dep` LIKE '%نظم المعلومات%' THEN 1
-        ELSE NULL -- NULL represents a shared college requirement
+        ELSE 1
     END,
-    CAST(SUBSTRING(`code`, 3, 1) AS UNSIGNED)
+    CAST(SUBSTRING(`code`, 3, 1) AS UNSIGNED),
+    1
 FROM
     `project2`.`subjects_140`;
 
 -- Part B: Annual System Courses
+-- Duplicates with the same name_en and department_id will be safely ignored
 INSERT IGNORE INTO `certificate_manager`.`courses` (
     `name_ar`,
     `name_en`,
     `credit_hours`,
     `department_id`,
-    `stage_number`
+    `stage_number`,
+    `is_shared`
 )
 SELECT
     `name_ar`,
@@ -209,7 +226,7 @@ SELECT
     CASE
         WHEN `dep` LIKE '%علوم الحاسوب%' THEN 2
         WHEN `dep` LIKE '%نظم المعلومات%' THEN 1
-        ELSE NULL
+        ELSE 1
     END,
     CASE
         WHEN `requirment` LIKE '%اولى%' THEN 1
@@ -217,7 +234,8 @@ SELECT
         WHEN `requirment` LIKE '%ثالثة%' THEN 3
         WHEN `requirment` LIKE '%رابعة%' THEN 4
         ELSE 1
-    END
+    END,
+    1
 FROM
     `project2`.`subjects_q`;
 
@@ -225,10 +243,6 @@ COMMIT;
 
 SET
     FOREIGN_KEY_CHECKS = 1;
-
--------------------------------------------------------------------------------------------------
-SET
-    FOREIGN_KEY_CHECKS = 0;
 
 START TRANSACTION;
 

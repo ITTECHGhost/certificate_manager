@@ -621,49 +621,56 @@ class CourseRepository(BaseRepository):
     def get_all(self) -> list[dict]:
         if not is_online():
             return sqlite_read_all(
-                "SELECT c.*, d.name_ar AS dept_name_ar, d.name_en AS dept_name_en, "
-                "       s.name_ar AS study_system_name_ar, s.name_en AS study_system_name_en "
+                "SELECT c.*, d.name_ar AS dept_name_ar, d.name_en AS dept_name_en "
                 "FROM courses c "
                 "LEFT JOIN departments d ON c.department_id = d.id "
-                "LEFT JOIN study_systems s ON c.study_system_id = s.id "
                 "ORDER BY c.name_ar ASC"
             )
         try:
             resp = requests.get(f"{self.api_url}/courses", timeout=5.0)
             if resp.status_code == 200:
                 return resp.json()
-            return []
+            raise RuntimeError(f"API returned status code {resp.status_code}")
         except Exception as e:
-            print(f"API request failed: {e}")
-            return []
+            print(f"API request failed: {e}. Falling back to SQLite cache.")
+            return sqlite_read_all(
+                "SELECT c.*, d.name_ar AS dept_name_ar, d.name_en AS dept_name_en "
+                "FROM courses c "
+                "LEFT JOIN departments d ON c.department_id = d.id "
+                "ORDER BY c.name_ar ASC"
+            )
         
     def get_by_department(self, dept_id: int) -> list[dict]:
         if not is_online():
             return sqlite_read_all(
-                "SELECT c.id, c.name_ar, c.name_en, c.credit_hours, c.study_system_id, c.is_shared "
+                "SELECT c.id, c.name_ar, c.name_en, c.credit_hours, c.department_id, c.stage_number "
                 "FROM courses c "
                 "WHERE c.department_id = ? "
-                "   OR (c.is_shared = 1 AND c.id IN (SELECT course_id FROM course_departments WHERE department_id = ?)) "
                 "ORDER BY c.name_ar ASC",
-                (dept_id, dept_id)
+                (dept_id,)
             )
         try:
             resp = requests.get(f"{self.api_url}/courses/by-dept/{dept_id}", timeout=5.0)
             if resp.status_code == 200:
                 return resp.json()
-            return []
+            raise RuntimeError(f"API returned status code {resp.status_code}")
         except Exception as e:
-            print(f"API request failed: {e}")
-            return []
+            print(f"API request failed: {e}. Falling back to SQLite cache.")
+            return sqlite_read_all(
+                "SELECT c.id, c.name_ar, c.name_en, c.credit_hours, c.department_id, c.stage_number "
+                "FROM courses c "
+                "WHERE c.department_id = ? "
+                "ORDER BY c.name_ar ASC",
+                (dept_id,)
+            )
 
     def get_by_dept_stage_system(self, dept_id: int, stage: int, system_id: int) -> list[dict]:
         if not is_online():
             return sqlite_read_all(
                 "SELECT id, name_ar, name_en, credit_hours, stage_number FROM courses "
-                "WHERE (department_id = ? OR (is_shared = 1 AND id IN (SELECT course_id FROM course_departments WHERE department_id = ?))) "
-                "AND stage_number <= ? AND study_system_id = ? "
+                "WHERE department_id = ? AND stage_number <= ? "
                 "ORDER BY stage_number, name_ar",
-                (dept_id, dept_id, stage, system_id),
+                (dept_id, stage),
             )
         try:
             resp = requests.get(
@@ -673,26 +680,18 @@ class CourseRepository(BaseRepository):
             )
             if resp.status_code == 200:
                 return resp.json()
-            return []
+            raise RuntimeError(f"API returned status code {resp.status_code}")
         except Exception as e:
-            print(f"API request failed: {e}")
-            return []
+            print(f"API request failed: {e}. Falling back to SQLite cache.")
+            return sqlite_read_all(
+                "SELECT id, name_ar, name_en, credit_hours, stage_number FROM courses "
+                "WHERE department_id = ? AND stage_number <= ? "
+                "ORDER BY stage_number, name_ar",
+                (dept_id, stage),
+            )
 
     def get_shared_dept_ids(self, course_id: int) -> list[int]:
-        if not is_online():
-            rows = sqlite_read_all(
-                "SELECT department_id FROM course_departments WHERE course_id = ?",
-                (course_id,),
-            )
-            return [r["department_id"] for r in rows]
-        try:
-            resp = requests.get(f"{self.api_url}/courses/{course_id}/shared-depts", timeout=5.0)
-            if resp.status_code == 200:
-                return resp.json()
-            return []
-        except Exception as e:
-            print(f"API request failed: {e}")
-            return []
+        return []
 
     def insert(self, data: dict) -> int:
         if not is_online():
@@ -701,9 +700,8 @@ class CourseRepository(BaseRepository):
             payload = dict(data)
             payload["credit_hours"] = int(payload["credit_hours"])
             payload["stage_number"] = int(payload["stage_number"])
-            payload["study_system_id"] = int(payload["study_system_id"])
-            if "is_shared" in payload:
-                payload["is_shared"] = int(payload["is_shared"])
+            if "department_id" in payload and payload["department_id"] is not None:
+                payload["department_id"] = int(payload["department_id"])
             
             resp = requests.post(f"{self.api_url}/courses", json=payload, timeout=5.0)
             if resp.status_code == 200:
@@ -723,9 +721,8 @@ class CourseRepository(BaseRepository):
             payload = dict(data)
             payload["credit_hours"] = int(payload["credit_hours"])
             payload["stage_number"] = int(payload["stage_number"])
-            payload["study_system_id"] = int(payload["study_system_id"])
-            if "is_shared" in payload:
-                payload["is_shared"] = int(payload["is_shared"])
+            if "department_id" in payload and payload["department_id"] is not None:
+                payload["department_id"] = int(payload["department_id"])
                 
             resp = requests.put(f"{self.api_url}/courses/{course_id}", json=payload, timeout=5.0)
             if resp.status_code == 200:
@@ -817,18 +814,18 @@ class StudentRepository(BaseRepository):
                 conditions.append("s.department_id = ?")
                 params.append(dept_id)
             if year:
-                conditions.append("s.admission_year = ?")
+                conditions.append("s.graduation_year = ?")
                 params.append(str(year))
                 
             where = ("WHERE " + " AND ".join(conditions)) if conditions else ""
             params += [limit, offset]
             
             res = sqlite_read_all(
-                "SELECT s.id, s.full_name_ar, s.full_name_en, s.admission_year, s.average, s.order_id, "
+                "SELECT s.id, s.full_name_ar, s.full_name_en, s.admission_year, s.graduation_year, s.average, s.order_id, "
                 "d.name_ar AS dept_name_ar "
-                "FROM (SELECT id, full_name_ar, full_name_en, CAST(admission_year AS TEXT) AS admission_year, average, order_id, department_id FROM students "
+                "FROM (SELECT id, full_name_ar, full_name_en, CAST(admission_year AS TEXT) AS admission_year, CAST(strftime('%Y', graduation_date) AS TEXT) AS graduation_year, average, order_id, department_id FROM students "
                 "      UNION ALL "
-                "      SELECT id, full_name_ar, full_name_en, CAST(admission_year AS TEXT) AS admission_year, average, order_id, department_id FROM local_students) s "
+                "      SELECT id, full_name_ar, full_name_en, CAST(admission_year AS TEXT) AS admission_year, CAST(strftime('%Y', graduation_date) AS TEXT) AS graduation_year, average, order_id, department_id FROM local_students) s "
                 "LEFT JOIN departments d ON s.department_id = d.id "
                 f"{where} ORDER BY s.full_name_ar LIMIT ? OFFSET ?", tuple(params)
             )
@@ -860,6 +857,7 @@ class StudentRepository(BaseRepository):
                 "SELECT s.*, o.order_number, "
                 "COALESCE(s.graduation_date, o.order_date) AS graduation_date, "
                 "COALESCE(s.graduation_semester, o.graduation_semester) AS graduation_semester, "
+                "CAST(strftime('%Y', COALESCE(s.graduation_date, o.order_date)) AS TEXT) AS graduation_year, "
                 "d.name_ar AS dept_name_ar, ss.name_ar AS study_system_name_ar, ss.study_day_type AS study_type, "
                 "c.name_ar AS nationality_ar, g.name_ar AS birthplace_ar "
                 "FROM (SELECT id, full_name_ar, full_name_en, gender, sequence_number, postgraduation_number, date_of_birth, "
@@ -896,11 +894,11 @@ class StudentRepository(BaseRepository):
         if not is_online():
             pattern = f"%{query.strip()}%"
             res = sqlite_read_all(
-                "SELECT s.id, s.full_name_ar, s.full_name_en, s.admission_year, s.average, "
+                "SELECT s.id, s.full_name_ar, s.full_name_en, s.admission_year, s.graduation_year, s.average, "
                 "d.name_ar AS dept_name_ar "
-                "FROM (SELECT id, full_name_ar, full_name_en, CAST(admission_year AS TEXT) AS admission_year, average, department_id FROM students "
+                "FROM (SELECT id, full_name_ar, full_name_en, CAST(admission_year AS TEXT) AS admission_year, CAST(strftime('%Y', graduation_date) AS TEXT) AS graduation_year, average, department_id FROM students "
                 "      UNION ALL "
-                "      SELECT id, full_name_ar, full_name_en, CAST(admission_year AS TEXT) AS admission_year, average, department_id FROM local_students) s "
+                "      SELECT id, full_name_ar, full_name_en, CAST(admission_year AS TEXT) AS admission_year, CAST(strftime('%Y', graduation_date) AS TEXT) AS graduation_year, average, department_id FROM local_students) s "
                 "LEFT JOIN departments d ON s.department_id = d.id "
                 "WHERE s.full_name_ar LIKE ? OR s.full_name_en LIKE ? "
                 "ORDER BY s.full_name_ar LIMIT ?", (pattern, pattern, limit)
@@ -920,8 +918,8 @@ class StudentRepository(BaseRepository):
                             "full_name_ar": row.get("name_ar") if "name_ar" in row else row.get("full_name_ar"),
                             "full_name_en": row.get("name_en") if "name_en" in row else row.get("full_name_en"),
                             "dept_name_ar": row.get("dept_name_ar"),
-                            "admission_year": row.get("graduation_year") if "graduation_year" in row else row.get("admission_year"),
-                            "graduation_year": row.get("graduation_year") if "graduation_year" in row else row.get("admission_year"),
+                            "admission_year": row.get("admission_year"),
+                            "graduation_year": row.get("graduation_year"),
                             "average": row.get("average")
                         })
                 else:
@@ -943,15 +941,15 @@ class StudentRepository(BaseRepository):
                 conditions.append("s.department_id = ?")
                 params.append(dept_id)
             if year:
-                conditions.append("s.admission_year = ?")
+                conditions.append("s.graduation_year = ?")
                 params.append(str(year))
                 
             where = ("WHERE " + " AND ".join(conditions)) if conditions else ""
             row = sqlite_read_one(
                 "SELECT COUNT(*) as total_count FROM ("
-                "  SELECT id, full_name_ar, full_name_en, department_id, CAST(admission_year AS TEXT) AS admission_year FROM students "
+                "  SELECT id, full_name_ar, full_name_en, department_id, CAST(strftime('%Y', graduation_date) AS TEXT) AS graduation_year FROM students "
                 "  UNION ALL "
-                "  SELECT id, full_name_ar, full_name_en, department_id, CAST(admission_year AS TEXT) AS admission_year FROM local_students"
+                "  SELECT id, full_name_ar, full_name_en, department_id, CAST(strftime('%Y', graduation_date) AS TEXT) AS graduation_year FROM local_students"
                 ") s "
                 f"{where}", tuple(params)
             )
@@ -1022,6 +1020,19 @@ class StudentRepository(BaseRepository):
         except Exception as e:
             print(f"API request failed: {e}")
             raise
+
+    def link_to_order(self, student_id: int, order_id: int) -> None:
+        if not is_online():
+            raise OfflineModeError()
+        try:
+            resp = requests.post(f"{self.api_url}/students/{student_id}/link-order/{order_id}", timeout=5.0)
+            if resp.status_code == 200:
+                log_activity(f"تم ربط الطالب ID: {student_id} بالأمر الجامعي ID: {order_id}")
+            else:
+                raise RuntimeError(f"API single link failed: {resp.text}")
+        except Exception as e:
+            print(f"API request failed: {e}")
+            raise
  
     def search_for_order(self, name_query: str = "", admission_year: str | int | None = None, department_id: int = None, limit: int = 50, offset: int = 0) -> list[dict]:
         """Legacy wrapper for OrderStudentsScreen mapping to the new paginated SP."""
@@ -1030,9 +1041,9 @@ class StudentRepository(BaseRepository):
     def get_distinct_admission_years(self) -> list[str]:
         if not is_online():
             rows = sqlite_read_all(
-                "SELECT DISTINCT admission_year FROM students "
+                "SELECT DISTINCT strftime('%Y', graduation_date) AS admission_year FROM students WHERE graduation_date IS NOT NULL "
                 "UNION "
-                "SELECT DISTINCT admission_year FROM local_students "
+                "SELECT DISTINCT strftime('%Y', graduation_date) AS admission_year FROM local_students WHERE graduation_date IS NOT NULL "
                 "ORDER BY admission_year DESC"
             )
             # Eliminate duplicates that may arise from different SQLite data types (text vs int)
@@ -1308,14 +1319,14 @@ class CertificateRepository(BaseRepository):
             # Class Rank
             rank_row = sqlite_read_one(
                 "SELECT COUNT(*) + 1 as rank FROM students "
-                "WHERE department_id = ? AND admission_year = ? AND average > ? AND average IS NOT NULL",
-                (data.get("department_id"), data.get("admission_year"), data.get("average", 0) or 0)
+                "WHERE department_id = ? AND strftime('%Y', graduation_date) = ? AND average > ? AND average IS NOT NULL",
+                (data.get("department_id"), data.get("graduation_year"), data.get("average", 0) or 0)
             )
             # Total Graduates
             total_row = sqlite_read_one(
                 "SELECT COUNT(*) as total FROM students "
-                "WHERE department_id = ? AND admission_year = ? AND average IS NOT NULL",
-                (data.get("department_id"), data.get("admission_year"))
+                "WHERE department_id = ? AND strftime('%Y', graduation_date) = ? AND average IS NOT NULL",
+                (data.get("department_id"), data.get("graduation_year"))
             )
             data["rank"] = data.get("sequence_number") or (rank_row["rank"] if rank_row else 1)
             data["total_graduates"] = data.get("postgraduation_number") or (total_row["total"] if total_row else 1)
@@ -1323,8 +1334,8 @@ class CertificateRepository(BaseRepository):
             # Top Average
             top_row = sqlite_read_one(
                 "SELECT MAX(average) as top_avg FROM students "
-                "WHERE department_id = ? AND admission_year = ?",
-                (data.get("department_id"), data.get("admission_year"))
+                "WHERE department_id = ? AND strftime('%Y', graduation_date) = ?",
+                (data.get("department_id"), data.get("graduation_year"))
             )
             data["top_average"] = top_row["top_avg"] if top_row else None
             
@@ -1587,9 +1598,12 @@ class GraduationOrderRepository(BaseRepository):
     def get_students_for_order(self, order_id: int) -> list[dict]:
         if not is_online():
             return sqlite_read_all(
-                "SELECT s.id, s.full_name_ar, s.full_name_en, s.admission_year, s.average, s.order_id, "
+                "SELECT s.id, s.full_name_ar, s.full_name_en, s.admission_year, "
+                "CAST(strftime('%Y', s.graduation_date) AS TEXT) AS graduation_year, s.average, s.order_id, "
                 "d.name_ar AS dept_name_ar "
-                "FROM (SELECT * FROM students UNION ALL SELECT * FROM local_students) s "
+                "FROM (SELECT id, full_name_ar, full_name_en, admission_year, graduation_date, average, order_id, department_id FROM students "
+                "      UNION ALL "
+                "      SELECT id, full_name_ar, full_name_en, admission_year, graduation_date, average, order_id, department_id FROM local_students) s "
                 "LEFT JOIN departments d ON s.department_id = d.id "
                 "WHERE s.order_id = ?",
                 (order_id,)
@@ -1858,3 +1872,34 @@ class AuditRepository(BaseRepository):
         except Exception:
             pass
 
+# ---------------------------------------------------------------------------
+# Module 12: Dashboard Analytics
+# ---------------------------------------------------------------------------
+
+class DashboardRepository(BaseRepository):
+    def get_counts(self) -> dict:
+        fallback_query = (
+            "SELECT "
+            "(SELECT COUNT(id) FROM students) AS total_students, "
+            "(SELECT COUNT(id) FROM departments) AS total_departments, "
+            "(SELECT COUNT(id) FROM courses) AS total_courses, "
+            "(SELECT COUNT(id) FROM personnel) AS total_personnel"
+        )
+        
+        # 1. Offline Mode: Read directly from SQLite
+        if not is_online():
+            row = sqlite_read_one(fallback_query)
+            return dict(row) if row else {"total_students": 0, "total_departments": 0, "total_courses": 0, "total_personnel": 0}
+        
+        # 2. Online Mode: Hit the FastAPI endpoint
+        try:
+            resp = requests.get(f"{self.api_url}/api/dashboard/counts", timeout=5.0)
+            if resp.status_code == 200:
+                return resp.json()
+            raise RuntimeError(f"API returned status code {resp.status_code}")
+            
+        except Exception as e:
+            # 3. Failsafe: Fall back to SQLite if the server is unreachable
+            print(f"API request failed: {e}. Falling back to SQLite cache.")
+            row = sqlite_read_one(fallback_query)
+            return dict(row) if row else {"total_students": 0, "total_departments": 0, "total_courses": 0, "total_personnel": 0}

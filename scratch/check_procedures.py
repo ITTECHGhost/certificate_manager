@@ -1,30 +1,30 @@
-import sys
-from pathlib import Path
-sys.path.append(str(Path(__file__).parent.parent))
-
 import mysql.connector
-from config import DBConfig
 
-try:
+def main():
     conn = mysql.connector.connect(
-        host=DBConfig.DB_HOST,
-        user=DBConfig.DB_USER,
-        password=DBConfig.DB_PASSWORD,
-        database=DBConfig.DB_NAME
+        host="localhost",
+        user="root",
+        password="12345678",
+        database="certificate_manager"
     )
-    cur = conn.cursor()
+    cursor = conn.cursor(dictionary=True)
     
-    print("--- Stored Procedures ---")
-    cur.execute("SHOW PROCEDURE STATUS WHERE Db = 'certificate_manager'")
-    for row in cur.fetchall():
-        print(row[1])
-        
-    print("\n--- Tables ---")
-    cur.execute("SHOW TABLES")
-    for row in cur.fetchall():
-        print(row[0])
-        
-    cur.close()
+    # Get all procedures
+    cursor.execute("SHOW PROCEDURE STATUS WHERE Db = 'certificate_manager'")
+    procedures = [row['Name'] for row in cursor.fetchall()]
+    
+    print("Checking stored procedures for 'postgraduation_no' or 'admission_year'...")
+    for proc in procedures:
+        cursor.execute(f"SHOW CREATE PROCEDURE {proc}")
+        create_sql = cursor.fetchone()['Create Procedure']
+        if 'postgraduation_no' in create_sql:
+            print(f"Procedure '{proc}' references 'postgraduation_no'")
+        if 'admission_year' in create_sql:
+            # We want to know if it's in the students context
+            print(f"Procedure '{proc}' references 'admission_year'")
+            
+    cursor.close()
     conn.close()
-except Exception as e:
-    print(f"Error: {e}")
+
+if __name__ == "__main__":
+    main()
