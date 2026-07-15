@@ -197,6 +197,15 @@ def sync_offline_queue(payload: SyncPayload, conn=Depends(get_db)):
             detail=f"Database synchronization failed: {str(exc)}"
         )
 
+class StudentSearchResponse(BaseModel):
+    student_id: int
+    name_ar: str
+    name_en: str
+    dept_name_ar: Optional[str] = None
+    graduation_year: Optional[Union[str, int]] = None
+    admission_year: Optional[Union[str, int]] = None
+    average: Optional[float] = None
+
 class StudentPayload(BaseModel):
     full_name_ar: str
     full_name_en: str
@@ -240,13 +249,12 @@ def get_students_paginated(
     finally:
         cur.close()
 
-@app.get("/students/search/basic")
+@app.get("/students/search/basic", response_model=List[StudentSearchResponse])
 def search_students_basic(query: str, limit: int = 50, db = Depends(get_db)):
     cursor = db.cursor(dictionary=True)
     try:
         # Execute the Stored Procedure
         cursor.callproc("SearchStudentsBasic", (query, limit))
-        
         # Fetch the results from the procedure's output
         results = []
         for result_set in cursor.stored_results():

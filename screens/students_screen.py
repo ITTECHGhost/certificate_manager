@@ -1049,6 +1049,12 @@ class EnrollmentPanel(ctk.CTkFrame):
         self._add_error.configure(text="")
         from ui.widgets import show_modern_alert
 
+        if not getattr(self, "_period", None):
+            msg = "لا توجد فترة أكاديمية محددة\nNo academic period selected"
+            self._add_error.configure(text=f"⚠️  {msg}")
+            show_modern_alert(self, msg)
+            return
+
         if not getattr(self, "_selected_course", None) or not self._courses:
             msg = "الرجاء اختيار مادة من القائمة\nPlease select a course from the list"
             self._add_error.configure(text=f"⚠️  {msg}")
@@ -1068,24 +1074,35 @@ class EnrollmentPanel(ctk.CTkFrame):
 
         course_id = self._selected_course["id"]
 
+        round_val = int(self._round_option.get())
+
         try:
             periods = []
             student = getattr(self, "_student", None)
             if student:
                 student_id = student["id"]
                 periods = AcademicPeriodRepository().get_by_student(student_id)
+            
+            course_already_taken = False
             for p in periods:
                 enrollments = EnrollmentRepository().get_by_period(p["id"])
                 for enr in enrollments:
-                    if enr["course_id"] == course_id and enr.get("score") is not None and float(enr["score"]) >= 50.0:
-                        msg = "هذا الطالب قد نجح في هذه المادة سابقاً!\nThis student has already passed this course!"
-                        self._add_error.configure(text=f"⚠️  {msg}")
-                        show_modern_alert(self, msg)
-                        return
-        except Exception as e:
-            print(f"Error checking duplicate passed courses: {e}")
+                    if enr["course_id"] == course_id:
+                        course_already_taken = True
+                        if enr.get("score") is not None and float(enr["score"]) >= 50.0:
+                            msg = "هذا الطالب قد نجح في هذه المادة سابقاً!\nThis student has already passed this course!"
+                            self._add_error.configure(text=f"⚠️  {msg}")
+                            show_modern_alert(self, msg)
+                            return
+            
+            if course_already_taken and round_val == 1:
+                msg = "لا يمكن اختيار الدور الأول لمادة معادة!\nCannot select Round 1 for a repeated course! Must be 2 or 3."
+                self._add_error.configure(text=f"⚠️  {msg}")
+                show_modern_alert(self, msg)
+                return
 
-        round_val = int(self._round_option.get())
+        except Exception as e:
+            print(f"Error checking duplicate courses: {e}")
 
         try:
             EnrollmentRepository().insert(
@@ -1138,6 +1155,7 @@ class StudentsScreen(BaseScreen):
 
     def __init__(self, parent, switch_callback) -> None:
         self._selected_student: dict | None = None
+        self._search_timer = None
         super().__init__(parent, switch_callback)
 
     # ── Build ─────────────────────────────────────────────────────────────────
@@ -1193,9 +1211,29 @@ class StudentsScreen(BaseScreen):
 
         # ── Suggestions list (shown while searching) ──────────────────────────
         self._suggestion_frame = ctk.CTkScrollableFrame(
-            self, height=180, fg_color=("gray94", "gray18")
+            self, height=400, fg_color=("gray94", "gray18")
         )
         self._suggestion_frame.grid_columnconfigure(0, weight=1)
+        
+        # Pre-create fonts
+        self._sugg_row_font = ctk.CTkFont(family=AppFonts.FAMILY, size=AppFonts.SIZE_SMALL)
+        
+        # Pre-create pool of 12 reusable buttons
+        self._suggestion_pool = []
+        for r in range(1, 13):
+            btn = ctk.CTkButton(
+                self._suggestion_frame,
+                text="",
+                font=self._sugg_row_font,
+                height=36,
+                anchor="e",
+                fg_color="transparent",
+                hover_color=AppColors.NAV_HOVER_BG,
+                text_color=AppColors.NAV_TEXT,
+                corner_radius=6
+            )
+            self._suggestion_pool.append(btn)
+            
         # Not gridded initially — shown only when suggestions exist
 
         # ── Student detail view ───────────────────────────────────────────────
@@ -1227,6 +1265,8 @@ class StudentsScreen(BaseScreen):
 
     def _reload_detail(self) -> None:
         """Reload the detail view after enrollment changes."""
+        if not self._selected_student:
+            return
         data = StudentRepository().get_by_id(self._selected_student["id"])
         if data:
             self._selected_student = data
@@ -1235,11 +1275,21 @@ class StudentsScreen(BaseScreen):
     # ── Search + Fuzzy matching ───────────────────────────────────────────────
 
     def _on_search_change(self, *_) -> None:
-        """Show suggestions as the user types (live, after 2 chars)."""
+        """Show suggestions as the user types (live, after 2 chars, debounced)."""
+        if self._search_timer is not None:
+            self.after_cancel(self._search_timer)
+            self._search_timer = None
+
         query = self._search_var.get().strip()
         if len(query) < 2:
             self._hide_suggestions()
             return
+
+        self._search_timer = self.after(100, lambda: self._execute_search_debounced(query))
+
+    def _execute_search_debounced(self, query: str) -> None:
+        """Execute the search once the typing delay has elapsed."""
+        self._search_timer = None
         self._show_suggestions_for(query)
 
     def _do_search(self) -> None:
@@ -1249,66 +1299,55 @@ class StudentsScreen(BaseScreen):
             self._show_suggestions_for(query)
 
     def _show_suggestions_for(self, query: str) -> None:
-        """
-        Fetch candidates, rank by difflib similarity, and display as buttons.
-
-        difflib.get_close_matches ranks Arabic names by character similarity,
-        so partial or misspelled names still find the right student.
-        """
-        candidates = StudentRepository().search(query, limit=30)
-        if not candidates:
-            self._hide_suggestions()
-            return
-
-        # Rank by similarity score
-        names_ar = [c["full_name_ar"] for c in candidates]
-        names_en = [c["full_name_en"] for c in candidates]
-
-        def similarity(row: dict) -> float:
-            ar_score = difflib.SequenceMatcher(None, query, row.get("full_name_ar") or "").ratio()
-            en_score = difflib.SequenceMatcher(None, query.lower(),
-                                               (row.get("full_name_en") or "").lower()).ratio()
-            return max(ar_score, en_score)
-
-        ranked = sorted(candidates, key=similarity, reverse=True)[:8]
-        self._render_suggestions(ranked)
+        """Fetch candidates asynchronously, and display using DB relevance sorting."""
+        import threading
+        
+        def fetch_and_rank():
+            try:
+                # DB handles exact/fuzzy ranking natively
+                candidates = StudentRepository().search(query, limit=30)
+                if not candidates:
+                    self.after(0, self._hide_suggestions)
+                    return
+                # Push back to main thread for UI updates
+                self.after(0, lambda: self._render_suggestions(candidates[:12]))
+            except Exception as e:
+                print(f"Async search error: {e}")
+                self.after(0, self._hide_suggestions)
+                
+        # Start the background thread so the UI doesn't freeze
+        threading.Thread(target=fetch_and_rank, daemon=True).start()
 
     def _render_suggestions(self, students: list[dict]) -> None:
-        """Display a button for each suggestion."""
-        for w in self._suggestion_frame.winfo_children():
-            w.destroy()
-
+        """Display suggestions using the pre-allocated grid widget pool."""
         self._suggestion_frame.grid(row=2, column=0, sticky="ew", pady=(0, 2))
 
-        ctk.CTkLabel(
-            self._suggestion_frame,
-            text="اختر طالباً  —  Select a student",
-            font=ctk.CTkFont(family=AppFonts.FAMILY, size=AppFonts.SIZE_TINY),
-            text_color=AppColors.TEXT_MUTED, anchor="e",
-        ).grid(row=0, column=0, sticky="e", padx=8, pady=(4, 2))
+        # First, hide all buttons in the pool
+        for btn in self._suggestion_pool:
+            btn.grid_remove()
 
+        # Update and show only the required rows (up to 12)
         for i, s in enumerate(students):
-            dept  = s.get("dept_name_ar") or "—"
-            year  = str(s.get("graduation_year") or s.get("admission_year") or "—")
-            avg   = f"  |  معدل: {s['average']}" if s.get("average") else ""
-            label = f"  {s.get('full_name_ar') or '—'}  —  {dept}  |  دفعة {year}{avg}"
-
-            ctk.CTkButton(
-                self._suggestion_frame,
-                text=label,
-                font=ctk.CTkFont(family=AppFonts.FAMILY, size=AppFonts.SIZE_SMALL),
-                height=36, anchor="e",
-                fg_color="transparent",
-                hover_color=AppColors.NAV_HOVER_BG,
-                text_color=AppColors.NAV_TEXT,
-                corner_radius=6,
-                command=lambda sid=s["id"]: self._select_student(sid),
-            ).grid(row=i + 1, column=0, sticky="ew", padx=4, pady=2)
+            btn = self._suggestion_pool[i]
+            
+            ar_name = s.get("full_name_ar") or ""
+            en_name = s.get("full_name_en") or ""
+            dept = s.get("dept_name_ar") or ""
+            avg = s.get("average") or ""
+            
+            # Build a clean string that forces RTL rendering using the Unicode RLM marker (\u200F)
+            # This ensures that mixed Arabic/English text doesn't get scrambled by Tkinter's LTR defaults.
+            label_text = f"\u200F{dept} (المعدل: {avg}) |  {en_name}  | {ar_name} \u200F"
+            
+            # Bind events safely
+            sid = s["id"]
+            btn.configure(text=label_text, command=lambda current_id=sid: self._select_student(current_id))
+            
+            # Grid the button
+            btn.grid(row=i + 1, column=0, sticky="ew", padx=4, pady=2)
 
     def _hide_suggestions(self) -> None:
         self._suggestion_frame.grid_remove()
-        for w in self._suggestion_frame.winfo_children():
-            w.destroy()
 
     def _select_student(self, student_id: int) -> None:
         """Load the full student record and display it."""
