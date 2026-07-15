@@ -18200,3 +18200,39 @@ RuntimeError: API single link failed: {"detail":"Not Found"}
 2026-07-13 21:59:29,822 [SYSTEM] INFO: User '1' logged in successfully.
 2026-07-13 21:59:35,025 [SYSTEM] INFO: Database snapshot backup complete.
 2026-07-13 22:00:18,725 [SYSTEM] INFO: Application closed normally.
+2026-07-14 08:30:59,054 [SYSTEM] INFO: Application starting...
+2026-07-14 08:30:59,055 [SYSTEM] INFO: Checking MySQL database connection to root@localhost...
+2026-07-14 08:30:59,305 [SYSTEM] INFO: Database schema verification completed successfully (read-only verification).
+2026-07-14 08:30:59,319 [SYSTEM] INFO: Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-07-14 08:31:01,381 [SYSTEM] INFO: Restarting FastAPI Windows Service asynchronously...
+2026-07-14 08:31:01,767 [SYSTEM] INFO: FastAPI Windows Service restart sequence completed.
+2026-07-14 08:31:06,106 [SYSTEM] INFO: User '1' logged in successfully.
+2026-07-14 08:31:12,687 [SYSTEM] INFO: Database snapshot backup complete.
+2026-07-14 08:46:54,724 [SYSTEM] INFO: Network restored. Triggering offline queue sync...
+2026-07-14 08:46:54,804 [SYSTEM] INFO: Sync queue is empty — nothing to do.
+2026-07-14 08:46:55,085 [SYSTEM] INFO: Inbound sync complete: {'tables_synced': 14, 'total_rows': 5690, 'errors': []}
+2026-07-14 13:22:00,233 [SYSTEM] INFO: Application closed normally.
+2026-07-14 13:22:49,845 [SYSTEM] INFO: Application starting...
+2026-07-14 13:22:49,846 [SYSTEM] INFO: Checking MySQL database connection to root@localhost...
+2026-07-14 13:22:50,003 [SYSTEM] INFO: Database schema verification completed successfully (read-only verification).
+2026-07-14 13:22:50,024 [SYSTEM] INFO: Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-07-14 13:22:50,245 [SYSTEM] INFO: Restarting FastAPI Windows Service asynchronously...
+2026-07-14 13:22:51,455 [SYSTEM] INFO: FastAPI Windows Service restart sequence completed.
+2026-07-14 13:22:57,048 [SYSTEM] INFO: User '1' logged in successfully.
+2026-07-14 13:23:00,382 [SYSTEM] INFO: Database snapshot backup complete.
+2026-07-14 17:03:28,749 [SYSTEM] INFO: Network restored. Triggering offline queue sync...
+2026-07-14 17:03:29,135 [SYSTEM] INFO: Sync queue is empty — nothing to do.
+2026-07-14 17:03:31,415 [SYSTEM] INFO: Inbound sync complete: {'tables_synced': 14, 'total_rows': 5690, 'errors': []}
+2026-07-14 23:26:59,517 [SYSTEM] INFO: Network restored. Triggering offline queue sync...
+2026-07-14 23:26:59,728 [SYSTEM] INFO: Sync queue is empty — nothing to do.
+2026-07-14 23:27:01,227 [SYSTEM] INFO: Inbound sync complete: {'tables_synced': 14, 'total_rows': 5690, 'errors': []}
+2026-07-15 05:50:57,018 [SYSTEM] INFO: Network restored. Triggering offline queue sync...
+2026-07-15 05:50:57,230 [SYSTEM] INFO: Sync queue is empty — nothing to do.
+2026-07-15 05:50:58,106 [SYSTEM] INFO: Inbound sync complete: {'tables_synced': 14, 'total_rows': 5690, 'errors': []}
+2026-07-15 08:38:13,997 [SYSTEM] INFO: Network restored. Triggering offline queue sync...
+2026-07-15 08:38:15,280 [SYSTEM] INFO: Sync queue is empty — nothing to do.
+2026-07-15 08:38:17,923 [SYSTEM] INFO: Inbound sync complete: {'tables_synced': 14, 'total_rows': 5690, 'errors': []}
+2026-07-15 09:10:11,385 [SYSTEM] INFO: Network restored. Triggering offline queue sync...
+2026-07-15 09:10:11,880 [SYSTEM] INFO: Sync queue is empty — nothing to do.
+2026-07-15 09:10:13,507 [SYSTEM] INFO: Inbound sync complete: {'tables_synced': 14, 'total_rows': 5690, 'errors': []}
+2026-07-15 09:38:29,619 [SYSTEM] INFO: Application closed normally.
