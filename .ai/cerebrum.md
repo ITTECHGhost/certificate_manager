@@ -46,10 +46,4 @@
 - **Integration of new dashboard counts API endpoint using raw MySQL connection pool** (2026-07-13): The dashboard counts route (`/api/dashboard/counts`) was originally requested to use SQLAlchemy, which would introduce redundant libraries, new engines, and potential `Commands out of sync` errors when executing stored procedures. Fixed by refactoring the endpoint to use the existing `get_db` raw MySQL connection pool and calling `cur.callproc("Get_dashboard_counts")` natively, keeping the code simple, fully aligned with the rest of the endpoints, and free of SQLAlchemy.
 - **Optimized dashboard counts retrieval in client HomeScreen** (2026-07-13): The home screen's stat cards refreshed by executing four distinct sequential table row count queries (`count_table_rows`) over the network, incurring severe lag. Fixed by integrating the new `DashboardRepository().get_counts()` module on the client home screen to fetch all counts in a single network trip, with a robust fallback to individual table count queries on failure.
 - **Missing pythoncore environment configuration in deployed API service directory** (2026-07-14): Opening code files under the deployed API service path `C:\AppServ\www\certificate_manager_api` (such as `main.py`) generated editor errors (`Cannot find module 'fastapi'`) due to the absence of a `pyrightconfig.json` configuration file, preventing the language server and analysis tools from finding python packages inside `pythoncore-3.14-64`. Fixed by writing a `pyrightconfig.json` in `C:\AppServ\www\certificate_manager_api` pointing to the exact same Python directory and virtual environment paths.
-
-
-
-
-
-
-
+- **NoneType is not subscriptable in StudentsScreen._reload_detail** (2026-07-15): `_reload_detail` crashed when attempting to access `self._selected_student["id"]` while `self._selected_student` was `None`. Fixed by adding a guard check at the beginning of the method.

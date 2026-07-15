@@ -891,43 +891,79 @@ class StudentRepository(BaseRepository):
         return res
  
     def search(self, query: str, limit: int = 8) -> list[dict]:
+        clean_query = query.strip()
+        
+        # 1. Performance Guard: Mirroring the SP logic, abort if less than 2 chars
+        if len(clean_query) < 2:
+            return []
+
         if not is_online():
-            pattern = f"%{query.strip()}%"
-            res = sqlite_read_all(
-                "SELECT s.id, s.full_name_ar, s.full_name_en, s.admission_year, s.graduation_year, s.average, "
-                "d.name_ar AS dept_name_ar "
-                "FROM (SELECT id, full_name_ar, full_name_en, CAST(admission_year AS TEXT) AS admission_year, CAST(strftime('%Y', graduation_date) AS TEXT) AS graduation_year, average, department_id FROM students "
-                "      UNION ALL "
-                "      SELECT id, full_name_ar, full_name_en, CAST(admission_year AS TEXT) AS admission_year, CAST(strftime('%Y', graduation_date) AS TEXT) AS graduation_year, average, department_id FROM local_students) s "
-                "LEFT JOIN departments d ON s.department_id = d.id "
-                "WHERE s.full_name_ar LIKE ? OR s.full_name_en LIKE ? "
-                "ORDER BY s.full_name_ar LIMIT ?", (pattern, pattern, limit)
-            )
+            # 2. Offline Mode: SQLite Replica Search
+            exact_match = clean_query
+            prefix_match = f"{clean_query}%"
+            fuzzy_match = f"%{clean_query}%"
+            
+            # The query unions the remote cache and local queue, matching the SP's weighted sorting
+            sqlite_query = """
+                SELECT 
+                    s.id AS student_id, 
+                    s.full_name_ar AS name_ar, 
+                    s.full_name_en AS name_en, 
+                    d.name_ar AS dept_name_ar,
+                    CAST(strftime('%Y', s.graduation_date) AS TEXT) AS graduation_year, 
+                    CAST(s.admission_year AS TEXT) AS admission_year, 
+                    s.average 
+                FROM (
+                    SELECT id, full_name_ar, full_name_en, admission_year, graduation_date, average, department_id FROM students 
+                    UNION ALL 
+                    SELECT id, full_name_ar, full_name_en, admission_year, graduation_date, average, department_id FROM local_students
+                ) s 
+                LEFT JOIN departments d ON s.department_id = d.id 
+                WHERE s.full_name_ar LIKE ? OR s.full_name_en LIKE ?
+                ORDER BY 
+                    CASE 
+                        WHEN s.full_name_ar = ? OR s.full_name_en = ? THEN 1
+                        WHEN s.full_name_ar LIKE ? OR s.full_name_en LIKE ? THEN 2
+                        ELSE 3 
+                    END,
+                    s.full_name_ar ASC
+                LIMIT ?
+            """
+            
+            # Note the parameter order matches the ? placeholders in the query
+            params = (fuzzy_match, fuzzy_match, exact_match, exact_match, prefix_match, prefix_match, limit)
+            res = sqlite_read_all(sqlite_query, params)
+            
         else:
+            # 3. Online Mode: FastAPI Call
             try:
                 resp = requests.get(
                     f"{self.api_url}/students/search/all",
-                    params={"query": query, "limit": limit},
+                    params={"query": clean_query, "limit": limit},
                     timeout=5.0
                 )
                 if resp.status_code == 200:
-                    res = []
-                    for row in resp.json():
-                        res.append({
-                            "id": row.get("student_id") if "student_id" in row else row.get("id"),
-                            "full_name_ar": row.get("name_ar") if "name_ar" in row else row.get("full_name_ar"),
-                            "full_name_en": row.get("name_en") if "name_en" in row else row.get("full_name_en"),
-                            "dept_name_ar": row.get("dept_name_ar"),
-                            "admission_year": row.get("admission_year"),
-                            "graduation_year": row.get("graduation_year"),
-                            "average": row.get("average")
-                        })
+                    res = resp.json()
                 else:
                     res = []
             except Exception as e:
                 print(f"API request failed: {e}")
                 res = []
-        return self._inject_missing_graduation_numbers(res)
+                
+        # 4. Map back to standard dict format and inject missing numbers
+        formatted_res = []
+        for row in res:
+            formatted_res.append({
+                "id": row.get("student_id") if "student_id" in row else row.get("id"),
+                "full_name_ar": row.get("name_ar") if "name_ar" in row else row.get("full_name_ar"),
+                "full_name_en": row.get("name_en") if "name_en" in row else row.get("full_name_en"),
+                "dept_name_ar": row.get("dept_name_ar"),
+                "admission_year": row.get("admission_year"),
+                "graduation_year": row.get("graduation_year"),
+                "average": row.get("average")
+            })
+            
+        return self._inject_missing_graduation_numbers(formatted_res)
         
     def count(self, name_query: str = "", dept_id: int = None, year: str | int | None = None) -> int:
         if not is_online():

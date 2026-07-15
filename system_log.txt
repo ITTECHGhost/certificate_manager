@@ -18236,3 +18236,155 @@ RuntimeError: API single link failed: {"detail":"Not Found"}
 2026-07-15 09:10:11,880 [SYSTEM] INFO: Sync queue is empty — nothing to do.
 2026-07-15 09:10:13,507 [SYSTEM] INFO: Inbound sync complete: {'tables_synced': 14, 'total_rows': 5690, 'errors': []}
 2026-07-15 09:38:29,619 [SYSTEM] INFO: Application closed normally.
+2026-07-15 11:54:07,968 [SYSTEM] INFO: Application starting...
+2026-07-15 11:54:07,969 [SYSTEM] INFO: Checking MySQL database connection to root@localhost...
+2026-07-15 11:54:08,417 [SYSTEM] INFO: Database schema verification completed successfully (read-only verification).
+2026-07-15 11:54:08,439 [SYSTEM] INFO: Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-07-15 11:54:08,724 [SYSTEM] INFO: Restarting FastAPI Windows Service asynchronously...
+2026-07-15 11:54:09,991 [SYSTEM] INFO: FastAPI Windows Service restart sequence completed.
+2026-07-15 11:54:14,048 [SYSTEM] INFO: User '1' logged in successfully.
+2026-07-15 11:54:16,643 [SYSTEM] INFO: Database snapshot backup complete.
+2026-07-15 11:54:24,942 [SYSTEM] ERROR: Unhandled exception in Tkinter callback:
+Traceback (most recent call last):
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\tkinter\__init__.py", line 2093, in __call__
+    return self.func(*args)
+           ~~~~~~~~~^^^^^^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\tkinter\__init__.py", line 876, in callit
+    func(*args, **kw)
+    ~~~~^^^^^^^^^^^^^
+  File "f:\CR_PY\certificate_manager\screens\students_screen.py", line 1275, in <lambda>
+    self._search_timer = self.after(300, lambda: self._execute_search_debounced(query))
+                                                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "f:\CR_PY\certificate_manager\screens\students_screen.py", line 1280, in _execute_search_debounced
+    self._show_suggestions_for(query)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "f:\CR_PY\certificate_manager\screens\students_screen.py", line 1311, in _show_suggestions_for
+    self._render_suggestions(ranked)
+    ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^
+  File "f:\CR_PY\certificate_manager\screens\students_screen.py", line 1320, in _render_suggestions
+    widget.grid_remove()
+    ~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\tkinter\__init__.py", line 2740, in grid_remove
+    self.tk.call('grid', 'remove', self._w)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_tkinter.TclError: bad window path name ".!ctkframe.!ctkframe.!studentsscreen.!ctkframe3.!canvas.!ctkscrollableframe.!ctklabel8"
+2026-07-15 11:54:30,542 [SYSTEM] ERROR: Unhandled exception in Tkinter callback:
+Traceback (most recent call last):
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\tkinter\__init__.py", line 2093, in __call__
+    return self.func(*args)
+           ~~~~~~~~~^^^^^^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\tkinter\__init__.py", line 876, in callit
+    func(*args, **kw)
+    ~~~~^^^^^^^^^^^^^
+  File "f:\CR_PY\certificate_manager\screens\students_screen.py", line 1275, in <lambda>
+    self._search_timer = self.after(300, lambda: self._execute_search_debounced(query))
+                                                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "f:\CR_PY\certificate_manager\screens\students_screen.py", line 1280, in _execute_search_debounced
+    self._show_suggestions_for(query)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "f:\CR_PY\certificate_manager\screens\students_screen.py", line 1311, in _show_suggestions_for
+    self._render_suggestions(ranked)
+    ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^
+  File "f:\CR_PY\certificate_manager\screens\students_screen.py", line 1320, in _render_suggestions
+    widget.grid_remove()
+    ~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\tkinter\__init__.py", line 2740, in grid_remove
+    self.tk.call('grid', 'remove', self._w)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_tkinter.TclError: bad window path name ".!ctkframe.!ctkframe.!studentsscreen.!ctkframe3.!canvas.!ctkscrollableframe.!ctklabel8"
+2026-07-15 11:54:33,893 [SYSTEM] ERROR: Unhandled exception in Tkinter callback:
+Traceback (most recent call last):
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\tkinter\__init__.py", line 2093, in __call__
+    return self.func(*args)
+           ~~~~~~~~~^^^^^^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\customtkinter\windows\widgets\ctk_button.py", line 554, in _clicked
+    self._command()
+    ~~~~~~~~~~~~~^^
+  File "f:\CR_PY\certificate_manager\screens\students_screen.py", line 1286, in _do_search
+    self._show_suggestions_for(query)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "f:\CR_PY\certificate_manager\screens\students_screen.py", line 1311, in _show_suggestions_for
+    self._render_suggestions(ranked)
+    ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^
+  File "f:\CR_PY\certificate_manager\screens\students_screen.py", line 1320, in _render_suggestions
+    widget.grid_remove()
+    ~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\tkinter\__init__.py", line 2740, in grid_remove
+    self.tk.call('grid', 'remove', self._w)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_tkinter.TclError: bad window path name ".!ctkframe.!ctkframe.!studentsscreen.!ctkframe3.!canvas.!ctkscrollableframe.!ctklabel8"
+2026-07-15 12:09:22,681 [SYSTEM] INFO: Application closed normally.
+2026-07-15 12:11:44,034 [SYSTEM] INFO: Application starting...
+2026-07-15 12:11:44,035 [SYSTEM] INFO: Checking MySQL database connection to root@localhost...
+2026-07-15 12:11:44,400 [SYSTEM] INFO: Database schema verification completed successfully (read-only verification).
+2026-07-15 12:11:44,416 [SYSTEM] INFO: Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-07-15 12:11:44,485 [SYSTEM] INFO: Restarting FastAPI Windows Service asynchronously...
+2026-07-15 12:11:44,815 [SYSTEM] INFO: FastAPI Windows Service restart sequence completed.
+2026-07-15 12:11:48,893 [SYSTEM] INFO: User '1' logged in successfully.
+2026-07-15 12:11:51,391 [SYSTEM] INFO: Database snapshot backup complete.
+2026-07-15 12:21:14,070 [SYSTEM] INFO: Application closed normally.
+2026-07-15 12:21:21,175 [SYSTEM] INFO: Application starting...
+2026-07-15 12:21:21,175 [SYSTEM] INFO: Checking MySQL database connection to root@localhost...
+2026-07-15 12:21:21,309 [SYSTEM] INFO: Database schema verification completed successfully (read-only verification).
+2026-07-15 12:21:21,321 [SYSTEM] INFO: Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-07-15 12:21:21,361 [SYSTEM] INFO: Restarting FastAPI Windows Service asynchronously...
+2026-07-15 12:21:21,698 [SYSTEM] INFO: FastAPI Windows Service restart sequence completed.
+2026-07-15 12:21:25,705 [SYSTEM] INFO: User '1' logged in successfully.
+2026-07-15 12:21:28,234 [SYSTEM] INFO: Database snapshot backup complete.
+2026-07-15 12:22:34,393 [SYSTEM] INFO: Application closed normally.
+2026-07-15 13:02:42,802 [SYSTEM] INFO: Application starting...
+2026-07-15 13:02:42,802 [SYSTEM] INFO: Checking MySQL database connection to root@localhost...
+2026-07-15 13:02:43,064 [SYSTEM] INFO: Database schema verification completed successfully (read-only verification).
+2026-07-15 13:02:43,082 [SYSTEM] INFO: Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-07-15 13:02:43,245 [SYSTEM] INFO: Restarting FastAPI Windows Service asynchronously...
+2026-07-15 13:02:44,036 [SYSTEM] INFO: FastAPI Windows Service restart sequence completed.
+2026-07-15 13:02:48,140 [SYSTEM] INFO: User '1' logged in successfully.
+2026-07-15 13:02:50,636 [SYSTEM] INFO: Database snapshot backup complete.
+2026-07-15 13:11:16,357 [SYSTEM] INFO: Application closed normally.
+2026-07-15 13:11:21,597 [SYSTEM] INFO: Application starting...
+2026-07-15 13:11:21,597 [SYSTEM] INFO: Checking MySQL database connection to root@localhost...
+2026-07-15 13:11:21,750 [SYSTEM] INFO: Database schema verification completed successfully (read-only verification).
+2026-07-15 13:11:21,761 [SYSTEM] INFO: Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-07-15 13:11:21,793 [SYSTEM] INFO: Restarting FastAPI Windows Service asynchronously...
+2026-07-15 13:11:22,063 [SYSTEM] INFO: FastAPI Windows Service restart sequence completed.
+2026-07-15 13:11:25,591 [SYSTEM] INFO: User '1' logged in successfully.
+2026-07-15 13:11:28,033 [SYSTEM] INFO: Database snapshot backup complete.
+2026-07-15 13:13:48,802 [SYSTEM] INFO: Application closed normally.
+2026-07-15 13:13:53,147 [SYSTEM] INFO: Application starting...
+2026-07-15 13:13:53,148 [SYSTEM] INFO: Checking MySQL database connection to root@localhost...
+2026-07-15 13:13:53,274 [SYSTEM] INFO: Database schema verification completed successfully (read-only verification).
+2026-07-15 13:13:53,284 [SYSTEM] INFO: Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-07-15 13:13:53,318 [SYSTEM] INFO: Restarting FastAPI Windows Service asynchronously...
+2026-07-15 13:13:53,607 [SYSTEM] INFO: FastAPI Windows Service restart sequence completed.
+2026-07-15 13:13:57,294 [SYSTEM] INFO: User '1' logged in successfully.
+2026-07-15 13:13:59,734 [SYSTEM] INFO: Database snapshot backup complete.
+2026-07-15 14:00:53,217 [SYSTEM] INFO: Application closed normally.
+2026-07-15 14:00:59,839 [SYSTEM] INFO: Application starting...
+2026-07-15 14:00:59,840 [SYSTEM] INFO: Checking MySQL database connection to root@localhost...
+2026-07-15 14:01:00,205 [SYSTEM] INFO: Database schema verification completed successfully (read-only verification).
+2026-07-15 14:01:00,228 [SYSTEM] INFO: Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-07-15 14:01:00,303 [SYSTEM] INFO: Restarting FastAPI Windows Service asynchronously...
+2026-07-15 14:01:00,792 [SYSTEM] INFO: FastAPI Windows Service restart sequence completed.
+2026-07-15 14:01:05,560 [SYSTEM] INFO: User '1' logged in successfully.
+2026-07-15 14:01:08,186 [SYSTEM] INFO: Database snapshot backup complete.
+2026-07-15 14:06:02,226 [SYSTEM] INFO: Application starting...
+2026-07-15 14:06:02,229 [SYSTEM] INFO: Checking MySQL database connection to root@localhost...
+2026-07-15 14:06:02,389 [SYSTEM] INFO: Database schema verification completed successfully (read-only verification).
+2026-07-15 14:06:02,404 [SYSTEM] INFO: Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-07-15 14:06:02,424 [SYSTEM] INFO: Restarting FastAPI Windows Service asynchronously...
+2026-07-15 14:06:02,786 [SYSTEM] INFO: FastAPI Windows Service restart sequence completed.
+2026-07-15 14:06:07,927 [SYSTEM] INFO: User '1' logged in successfully.
+2026-07-15 14:06:10,351 [SYSTEM] ERROR: Unhandled exception in Tkinter callback:
+Traceback (most recent call last):
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\tkinter\__init__.py", line 2093, in __call__
+    return self.func(*args)
+           ~~~~~~~~~^^^^^^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\tkinter\__init__.py", line 876, in callit
+    func(*args, **kw)
+    ~~~~^^^^^^^^^^^^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\tkinter\__init__.py", line 802, in focus_set
+    self.tk.call('focus', self._w)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+_tkinter.TclError: bad window path name ".!loginscreen.!ctkframe2.!ctkframe.!ctkframe.!ctkentry.!entry"
+2026-07-15 14:06:10,503 [SYSTEM] INFO: Database snapshot backup complete.
+2026-07-15 14:17:07,069 [SYSTEM] INFO: Application closed normally.
