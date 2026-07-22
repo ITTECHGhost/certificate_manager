@@ -733,6 +733,8 @@ except ImportError:
     has_webview = False
 
 if has_webview:
+    from nicegui import app
+    app.native.window_args['maximized'] = True
     ui.run(native=True, window_size=(1024, 768), title="Certificate Manager Dashboard", port=8060)
 else:
     print("Native mode not supported because 'pywebview' is not installed. Falling back to browser-based mode on port 8060.")

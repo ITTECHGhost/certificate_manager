@@ -10,7 +10,7 @@ if exist "%~dp0..\.venv\Scripts\python.exe" (
     set PYTHON_PATH="%USERPROFILE%\AppData\Local\Python\pythoncore-3.14-64\python.exe"
 )
 
-echo Starting FastAPI Uvicorn Server on port 8000...
+echo Starting FastAPI Uvicorn Server on port 2030...
 cd /d "%~dp0"
-start /B "FastAPI_Server" %PYTHON_PATH% -m uvicorn main:app --host 0.0.0.0 --port 8000
+start /B "FastAPI_Server" %PYTHON_PATH% -m uvicorn main:app --host 0.0.0.0 --port 2030
 echo Server start command executed in background.

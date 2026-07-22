@@ -23,7 +23,7 @@ from sync_engine import set_online
 
 def test_api_ping():
     print("Testing ping...")
-    resp = requests.get("http://127.0.0.1:8000/ping")
+    resp = requests.get("http://127.0.0.1:2030/ping")
     print(f"Ping response: {resp.status_code} - {resp.json()}")
 
 def test_departments():
