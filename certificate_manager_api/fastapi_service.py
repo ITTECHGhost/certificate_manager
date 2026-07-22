@@ -64,7 +64,7 @@ class FastAPIWindowsService(win32serviceutil.ServiceFramework):
         
         # Start the FastAPI server using Uvicorn
         process = subprocess.Popen(
-            [python_exe, "-m", "uvicorn", "main:app", "--host", "0.0.0.0", "--port", "2030"],
+            [python_exe, "-m", "uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"],
             cwd=server_dir,
             stdout=subprocess.DEVNULL,
             stderr=subprocess.DEVNULL
