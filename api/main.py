@@ -1235,7 +1235,19 @@ def get_user_appearance(user_id: int, conn = Depends(get_db)):
         for result in cur.stored_results():
             row = result.fetchone()
             break
-        return row or {}
+        if not row or not row.get("theme"):
+            cur.callproc("UpdateUserPreferences", (user_id, "Dark", "blue", "Segoe UI", 13, 1))
+            conn.commit()
+            return {
+                "EMP_ID": user_id,
+                "id": user_id,
+                "theme": "Dark",
+                "accent_color": "blue",
+                "font_family": "Segoe UI",
+                "font_size_base": 13,
+                "is_arabic_rtl": 1
+            }
+        return row
     except Exception as exc:
         raise HTTPException(status_code=500, detail=str(exc))
     finally:
@@ -1461,12 +1473,26 @@ class DashboardCountsResponse(BaseModel):
 def get_dashboard_counts(conn = Depends(get_db)):
     cur = conn.cursor(dictionary=True)
     try:
-        cur.callproc("Get_dashboard_counts")
         result = None
-        for r in cur.stored_results():
-            result = r.fetchone()
-            break
-        
+        try:
+            cur.callproc("Get_dashboard_counts")
+            for r in cur.stored_results():
+                result = r.fetchone()
+                break
+        except Exception as sp_exc:
+            logger.warning(f"Get_dashboard_counts SP call failed ({sp_exc}). Falling back to direct SQL.")
+            result = None
+
+        if not result:
+            cur.execute(
+                "SELECT "
+                "(SELECT COUNT(id) FROM students) AS total_students, "
+                "(SELECT COUNT(id) FROM departments) AS total_departments, "
+                "(SELECT COUNT(id) FROM courses) AS total_courses, "
+                "(SELECT COUNT(id) FROM personnel) AS total_personnel"
+            )
+            result = cur.fetchone()
+
         if not result:
             return DashboardCountsResponse(
                 total_students=0,
@@ -1474,12 +1500,12 @@ def get_dashboard_counts(conn = Depends(get_db)):
                 total_courses=0,
                 total_personnel=0
             )
-            
+
         return DashboardCountsResponse(
-            total_students=result["total_students"],
-            total_departments=result["total_departments"],
-            total_courses=result["total_courses"],
-            total_personnel=result["total_personnel"]
+            total_students=result.get("total_students", 0),
+            total_departments=result.get("total_departments", 0),
+            total_courses=result.get("total_courses", 0),
+            total_personnel=result.get("total_personnel", 0)
         )
     except Exception as exc:
         raise HTTPException(status_code=500, detail=str(exc))

@@ -31,18 +31,18 @@ from config import (
     NAV_ITEMS, SETTINGS_ITEM, SCREEN_HEADERS,
     refresh_config
 )
-from screens.home_screen import HomeScreen
-from screens.placeholder_screen import PlaceholderScreen
-from screens.departments_screen import DepartmentsScreen
-from screens.personnel_screen import PersonnelScreen  # <-- Updated to unified Personnel
-from screens.courses_screen import CoursesScreen
-from screens.graduation_orders_screen import GraduationOrdersScreen
-from screens.students_screen import StudentsScreen
-from screens.order_students_screen import OrderStudentsScreen
-from screens.history_screen import HistoryScreen
-from screens.certificate_screen import CertificateScreen
-from screens.settings_screen import SettingsScreen
-from screens.login_screen import LoginScreen
+from ctk_screens.home_screen import HomeScreen
+from ctk_screens.placeholder_screen import PlaceholderScreen
+from ctk_screens.departments_screen import DepartmentsScreen
+from ctk_screens.personnel_screen import PersonnelScreen
+from ctk_screens.courses_screen import CoursesScreen
+from ctk_screens.graduation_orders_screen import GraduationOrdersScreen
+from ctk_screens.students_screen import StudentsScreen
+from ctk_screens.order_students_screen import OrderStudentsScreen
+from ctk_screens.history_screen import HistoryScreen
+from ctk_screens.certificate_screen import CertificateScreen
+from ctk_screens.settings_screen import SettingsScreen
+from ctk_screens.login_screen import LoginScreen
 
 # ---------------------------------------------------------------------------
 # Global Logging Setup (Text Files)

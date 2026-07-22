@@ -330,7 +330,6 @@ def init_local_db() -> None:
                 username              TEXT,
                 password_hash         TEXT,
                 personnel_role        TEXT DEFAULT 'user',
-                settings_id           INTEGER DEFAULT 1,
                 university_settings_id INTEGER DEFAULT 1,
                 is_active             INTEGER DEFAULT 1,
                 created_at            TEXT
@@ -467,7 +466,8 @@ def init_local_db() -> None:
 
         cur.execute("""
             CREATE TABLE IF NOT EXISTS settings(
-                id              INTEGER PRIMARY KEY,
+                id              INTEGER PRIMARY KEY AUTOINCREMENT,
+                EMP_ID          INTEGER UNIQUE,
                 theme           TEXT DEFAULT 'System',
                 accent_color    TEXT DEFAULT 'blue',
                 font_family     TEXT DEFAULT 'Arial',
@@ -497,9 +497,57 @@ def init_local_db() -> None:
             )
         """)
 
-        # Junction table course_departments dropped
-
         # Self-healing migrations for existing local databases
+        try:
+            cur.execute("PRAGMA table_info(personnel)")
+            personnel_cols = [row[1] for row in cur.fetchall()]
+            if "settings_id" in personnel_cols:
+                log.info("Migrating SQLite personnel table: dropping settings_id column...")
+                cur.execute("""
+                    CREATE TABLE personnel_temp (
+                        id                    INTEGER PRIMARY KEY,
+                        name_ar               TEXT,
+                        name_en               TEXT,
+                        academic_title_ar     TEXT,
+                        academic_title_en     TEXT,
+                        responsibility_ar     TEXT,
+                        responsibility_en     TEXT,
+                        display_order         INTEGER DEFAULT 0,
+                        username              TEXT,
+                        password_hash         TEXT,
+                        personnel_role        TEXT DEFAULT 'user',
+                        university_settings_id INTEGER DEFAULT 1,
+                        is_active             INTEGER DEFAULT 1,
+                        created_at            TEXT
+                    )
+                """)
+                cur.execute("""
+                    INSERT INTO personnel_temp (
+                        id, name_ar, name_en, academic_title_ar, academic_title_en,
+                        responsibility_ar, responsibility_en, display_order, username,
+                        password_hash, personnel_role, university_settings_id, is_active, created_at
+                    )
+                    SELECT 
+                        id, name_ar, name_en, academic_title_ar, academic_title_en,
+                        responsibility_ar, responsibility_en, display_order, username,
+                        password_hash, personnel_role, university_settings_id, is_active, created_at
+                    FROM personnel
+                """)
+                cur.execute("DROP TABLE personnel")
+                cur.execute("ALTER TABLE personnel_temp RENAME TO personnel")
+        except Exception as exc:
+            log.warning("Migration for personnel table failed: %s", exc)
+
+        try:
+            cur.execute("PRAGMA table_info(settings)")
+            settings_cols = [row[1] for row in cur.fetchall()]
+            if "EMP_ID" not in settings_cols:
+                log.info("Migrating SQLite settings table: adding EMP_ID column...")
+                cur.execute("ALTER TABLE settings ADD COLUMN EMP_ID INTEGER;")
+                cur.execute("UPDATE settings SET EMP_ID = 1 WHERE EMP_ID IS NULL;")
+        except Exception as exc:
+            log.warning("Migration for settings table failed: %s", exc)
+
         try:
             cur.execute("ALTER TABLE local_students ADD COLUMN admission_year INTEGER DEFAULT NULL;")
         except sqlite3.OperationalError:
