@@ -83,47 +83,12 @@ class MainAppShell:
         """Builds the full application container."""
         ui.query('.nicegui-content').classes('p-0 m-0')
         ui.query('body').classes(Styles.BODY)
+        
+        from nicegui_ui.state import app_session
+        app_session.apply_theme_mode()
 
-        ui.add_head_html(
-            "<style>\n"
-            ".q-tab-panel { padding: 8px 0 0 0 !important; }\n"
-            ".q-tabs__content { justify-content: flex-start; }\n"
-            "/* Light Mode Overrides */\n"
-            "body:not(.body--dark) { background-color: #f1f5f9 !important; color: #0f172a !important; }\n"
-            "body:not(.body--dark) .q-table { color: #0f172a !important; background-color: transparent !important; }\n"
-            "body:not(.body--dark) .q-table th { color: #334155 !important; font-weight: 700 !important; font-size: 13px !important; }\n"
-            "body:not(.body--dark) .q-table td, body:not(.body--dark) .q-table td * { color: #0f172a !important; font-weight: 600 !important; font-size: 13px !important; }\n"
-            "body:not(.body--dark) .q-tab { color: #475569 !important; font-weight: 600 !important; }\n"
-            "body:not(.body--dark) .q-tab--active { color: #2563eb !important; font-weight: 700 !important; }\n"
-            "body:not(.body--dark) .q-field__label { color: #475569 !important; }\n"
-            "body:not(.body--dark) .q-field__native, body:not(.body--dark) .q-field__input { color: #0f172a !important; font-weight: 500 !important; }\n"
-            "/* Dark Mode Overrides */\n"
-            "body.body--dark { background-color: #0f172a !important; color: #f8fafc !important; }\n"
-            "body.body--dark .q-table { color: #f8fafc !important; background-color: transparent !important; }\n"
-            "body.body--dark .q-table th { color: #94a3b8 !important; font-weight: 700 !important; }\n"
-            "body.body--dark .q-table td, body.body--dark .q-table td * { color: #f1f5f9 !important; font-weight: 500 !important; }\n"
-            "body.body--dark .q-tab { color: #94a3b8 !important; }\n"
-            "body.body--dark .q-tab--active { color: #60a5fa !important; font-weight: 700 !important; }\n"
-            "</style>\n"
-            "<script>\n"
-            "function syncDarkClass() {\n"
-            "  if (document.body && document.body.classList.contains('body--dark')) {\n"
-            "    document.documentElement.classList.add('dark');\n"
-            "  } else {\n"
-            "    document.documentElement.classList.remove('dark');\n"
-            "  }\n"
-            "}\n"
-            "syncDarkClass();\n"
-            "setInterval(syncDarkClass, 300);\n"
-            "document.addEventListener('DOMContentLoaded', () => {\n"
-            "  syncDarkClass();\n"
-            "  const observer = new MutationObserver(syncDarkClass);\n"
-            "  if (document.body) {\n"
-            "    observer.observe(document.body, { attributes: true, attributeFilter: ['class'] });\n"
-            "  }\n"
-            "});\n"
-            "</script>\n"
-        )
+        from nicegui_ui.ui_theme import inject_global_styles
+        inject_global_styles()
 
         with ui.row().classes(Styles.LAYOUT_ROW):
             self._build_sidebar()
@@ -164,7 +129,6 @@ class MainAppShell:
         row = ui.row().classes(css).on(
             "click", lambda key=item["key"]: self._switch_screen(key)
         )
-        row._nav_key = item["key"]
 
         with row:
             icon_el = ui.icon(item["icon"], size="sm")
@@ -175,7 +139,7 @@ class MainAppShell:
                 ui.label(item["ar"]).classes("font-semibold text-xs leading-tight")
                 ui.label(item["en"]).classes("text-[11px] text-slate-400 leading-tight")
 
-            self._nav_labels.append((row, label_col))
+            self._nav_labels.append((row, label_col, item["key"]))
 
     def _build_user_chip(self) -> None:
         with ui.row().classes(Styles.USER_CHIP) as self._user_chip_row:
@@ -190,6 +154,9 @@ class MainAppShell:
             self._user_chip_labels.append(user_text_col)
 
     def toggle_sidebar(self) -> None:
+        if not self._sidebar_col:
+            return
+
         self.is_sidebar_open = not self.is_sidebar_open
 
         if self.is_sidebar_open:
@@ -197,32 +164,38 @@ class MainAppShell:
                 remove=Styles.SIDEBAR_COL_COLLAPSED,
                 add=Styles.SIDEBAR_COL_EXPANDED
             )
-            self._sidebar_title_label.set_visibility(True)
-            self._sidebar_title_icon.set_visibility(False)
+            if self._sidebar_title_label:
+                self._sidebar_title_label.set_visibility(True)
+            if self._sidebar_title_icon:
+                self._sidebar_title_icon.set_visibility(False)
 
-            for row, label_col in self._nav_labels:
+            for row, label_col, _ in self._nav_labels:
                 label_col.set_visibility(True)
                 row.classes(remove="justify-center", add="")
 
             for text_col in self._user_chip_labels:
                 text_col.set_visibility(True)
-            self._user_chip_row.classes(remove=Styles.USER_CHIP_MINI, add=Styles.USER_CHIP)
+            if self._user_chip_row:
+                self._user_chip_row.classes(remove=Styles.USER_CHIP_MINI, add=Styles.USER_CHIP)
 
         else:
             self._sidebar_col.classes(
                 remove=Styles.SIDEBAR_COL_EXPANDED,
                 add=Styles.SIDEBAR_COL_COLLAPSED
             )
-            self._sidebar_title_label.set_visibility(False)
-            self._sidebar_title_icon.set_visibility(True)
+            if self._sidebar_title_label:
+                self._sidebar_title_label.set_visibility(False)
+            if self._sidebar_title_icon:
+                self._sidebar_title_icon.set_visibility(True)
 
-            for row, label_col in self._nav_labels:
+            for row, label_col, _ in self._nav_labels:
                 label_col.set_visibility(False)
                 row.classes(add="justify-center")
 
             for text_col in self._user_chip_labels:
                 text_col.set_visibility(False)
-            self._user_chip_row.classes(remove=Styles.USER_CHIP, add=Styles.USER_CHIP_MINI)
+            if self._user_chip_row:
+                self._user_chip_row.classes(remove=Styles.USER_CHIP, add=Styles.USER_CHIP_MINI)
 
     def _build_top_header(self) -> None:
         with ui.row().classes(Styles.HEADER_BAR):
@@ -273,8 +246,7 @@ class MainAppShell:
     def _switch_screen(self, screen_key: str) -> None:
         self.current_screen = screen_key
 
-        for row, _label_col in self._nav_labels:
-            key = getattr(row, '_nav_key', None)
+        for row, _label_col, key in self._nav_labels:
             if key == screen_key:
                 row.classes(remove=Styles.NAV_ITEM_INACTIVE, add=Styles.NAV_ITEM_ACTIVE)
             else:

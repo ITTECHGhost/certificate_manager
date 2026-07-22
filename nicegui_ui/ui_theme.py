@@ -107,18 +107,18 @@ class Styles:
     """
 
     BODY = (
-        "bg-slate-100 dark:bg-[#0f172a] text-slate-900 dark:text-slate-200 "
+        "bg-slate-100 dark:bg-slate-900 text-slate-900 dark:text-slate-200 "
         "m-0 p-0 overflow-hidden font-sans select-none transition-colors duration-200"
     )
 
     LAYOUT_ROW = "w-full h-screen flex-nowrap m-0 p-0 gap-0"
 
     SIDEBAR_COL_EXPANDED = (
-        "w-64 h-full bg-[#0f172a] dark:bg-[#020617] "
+        "w-64 h-full bg-slate-900 dark:bg-slate-950 "
         "border-r border-slate-800 p-0 justify-between shrink-0 transition-all duration-300"
     )
     SIDEBAR_COL_COLLAPSED = (
-        "w-20 h-full bg-[#0f172a] dark:bg-[#020617] "
+        "w-20 h-full bg-slate-900 dark:bg-slate-950 "
         "border-r border-slate-800 p-0 justify-between shrink-0 items-center transition-all duration-300"
     )
     SIDEBAR_HEADER = (
@@ -148,11 +148,11 @@ class Styles:
     USER_STATUS_ONLINE = f"text-emerald-500 {Typography.USER_STATUS}"
 
     HEADER_BAR = (
-        "w-full h-16 bg-white dark:bg-[#020617] border-b border-slate-200 dark:border-slate-800 "
+        "w-full h-16 bg-white dark:bg-slate-950 border-b border-slate-200 dark:border-slate-800 "
         "px-6 flex items-center justify-between shrink-0 transition-colors duration-200"
     )
 
-    MAIN_SCROLL = "flex-1 h-full bg-slate-100 dark:bg-[#0f172a] p-5 transition-colors duration-200"
+    MAIN_SCROLL = "flex-1 h-full bg-slate-100 dark:bg-slate-900 p-5 transition-colors duration-200"
     MAIN_COL    = "w-full gap-5"
 
     PAGE_HEADER_ROW  = "w-full justify-between items-end"
@@ -168,7 +168,7 @@ class Styles:
 
     STAT_GRID  = "w-full gap-5"
     STAT_CARD  = (
-        "p-5 bg-white dark:bg-[#1e293b] rounded-2xl border border-slate-200 "
+        "p-5 bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 "
         "dark:border-slate-800 shadow-md dark:shadow-xl gap-4 transition-colors duration-200"
     )
     STAT_ICON_ROW = "w-full justify-between items-start"
@@ -178,7 +178,7 @@ class Styles:
     BOTTOM_ROW = "w-full gap-6 items-stretch"
 
     ACTIONS_PANEL = (
-        "w-1/3 p-6 bg-white dark:bg-[#1e293b] "
+        "w-1/3 p-6 bg-white dark:bg-slate-800 "
         "rounded-2xl border border-slate-200 dark:border-slate-800 gap-4 shadow-md dark:shadow-xl transition-colors duration-200"
     )
     ACTIONS_TITLE = f"{Typography.SECTION_HEAD} text-slate-900 dark:text-white mb-2"
@@ -192,14 +192,14 @@ class Styles:
     ACTION_BTN_SLATE   = f"{ACTION_BTN_BASE} bg-slate-700 hover:bg-slate-600"
 
     TABLE_PANEL = (
-        "w-full p-6 bg-white dark:bg-[#1e293b] "
+        "w-full p-6 bg-white dark:bg-slate-800 "
         "rounded-2xl border border-slate-200 dark:border-slate-800 shadow-md dark:shadow-xl gap-2 transition-colors duration-200"
     )
     TABLE_TITLE  = f"{Typography.SECTION_HEAD} text-slate-900 dark:text-white mb-2"
     TABLE_CLASSES = "w-full bg-transparent text-slate-900 dark:text-slate-300 no-shadow border-none"
 
     SETTINGS_CARD = (
-        "w-full p-6 bg-white dark:bg-[#1e293b] rounded-2xl border border-slate-200 "
+        "w-full p-6 bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 "
         "dark:border-slate-800 shadow-md dark:shadow-xl gap-6 transition-colors duration-200"
     )
 
@@ -267,3 +267,42 @@ QUICK_ACTIONS: list[dict] = [
         "target":  None,
     },
 ]
+
+def inject_global_styles():
+    """Reads theme.css and injects it along with the dark mode class syncer."""
+    from nicegui import ui
+    import os
+    
+    css_path = os.path.join(os.path.dirname(__file__), 'theme.css')
+    try:
+        with open(css_path, 'r', encoding='utf-8') as f:
+            css = f.read()
+            
+        ui.add_head_html(f"""
+        <style>
+        {css}
+        </style>
+        <script>
+        function syncDarkClass() {{
+            const isDark = document.body && document.body.classList.contains('body--dark');
+            if (isDark) {{
+                document.documentElement.classList.add('dark');
+            }} else {{
+                document.documentElement.classList.remove('dark');
+            }}
+        }}
+        // Run immediately and then poll to ensure it catches Quasar's changes
+        syncDarkClass();
+        setInterval(syncDarkClass, 150);
+        
+        document.addEventListener('DOMContentLoaded', () => {{
+            syncDarkClass();
+            const observer = new MutationObserver(syncDarkClass);
+            if (document.body) {{
+                observer.observe(document.body, {{ attributes: true, attributeFilter: ['class'] }});
+            }}
+        }});
+        </script>
+        """)
+    except Exception as e:
+        print(f"[Theme] Failed to load theme.css: {e}")
