@@ -18017,6 +18017,8 @@ TypeError: 'NoneType' object is not subscriptable
 2026-07-05 11:28:32,059 [SYSTEM] INFO: Sync queue is empty — nothing to do.
 2026-07-05 11:28:32,410 [SYSTEM] INFO: Inbound sync complete: {'tables_synced': 12, 'total_rows': 5224, 'errors': []}
 2026-07-05 11:34:26,585 [SYSTEM] INFO: Application closed normally.
+<<<<<<< HEAD
+=======
 2026-07-06 12:10:24,690 [SYSTEM] INFO: Application starting...
 2026-07-06 12:10:24,996 [SYSTEM] INFO: Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
 2026-07-06 12:10:27,060 [SYSTEM] INFO: Restarting FastAPI Windows Service asynchronously...
@@ -18200,6 +18202,9 @@ RuntimeError: API single link failed: {"detail":"Not Found"}
 2026-07-13 21:59:29,822 [SYSTEM] INFO: User '1' logged in successfully.
 2026-07-13 21:59:35,025 [SYSTEM] INFO: Database snapshot backup complete.
 2026-07-13 22:00:18,725 [SYSTEM] INFO: Application closed normally.
+<<<<<<< HEAD
+>>>>>>> dc354ca5f1ecc914cbb5445bc096312db5bb3b79
+=======
 2026-07-14 08:30:59,054 [SYSTEM] INFO: Application starting...
 2026-07-14 08:30:59,055 [SYSTEM] INFO: Checking MySQL database connection to root@localhost...
 2026-07-14 08:30:59,305 [SYSTEM] INFO: Database schema verification completed successfully (read-only verification).
@@ -18388,6 +18393,1447 @@ Traceback (most recent call last):
 _tkinter.TclError: bad window path name ".!loginscreen.!ctkframe2.!ctkframe.!ctkframe.!ctkentry.!entry"
 2026-07-15 14:06:10,503 [SYSTEM] INFO: Database snapshot backup complete.
 2026-07-15 14:17:07,069 [SYSTEM] INFO: Application closed normally.
+<<<<<<< HEAD
+>>>>>>> ae75322003e14fcda2330afc09229d447377b568
+2026-07-15 21:43:21,455 [SYSTEM] INFO: NiceGUI Application starting...
+2026-07-15 21:43:21,455 [SYSTEM] INFO: Checking MySQL database connection to root@localhost...
+2026-07-15 21:43:23,507 [SYSTEM] WARNING: Could not initialize MySQL Connection Pool: 2003: Can't connect to MySQL server on 'localhost:3306' (Errno 10061: No connection could be made because the target machine actively refused it). Falling back to direct connections.
+2026-07-15 21:43:25,536 [SYSTEM] ERROR: Database connection or schema verification failed: 2003: Can't connect to MySQL server on 'localhost:3306' (Errno 10061: No connection could be made because the target machine actively refused it)
+2026-07-15 21:43:25,536 [SYSTEM] WARNING: MySQL unavailable at startup: 2003: Can't connect to MySQL server on 'localhost:3306' (Errno 10061: No connection could be made because the target machine actively refused it) — starting in offline mode.
+2026-07-15 21:43:25,548 [SYSTEM] INFO: Local SQLite cache initialised at C:\Users\alhayat\Music\certificate_manager\local_cache.db
+2026-07-15 21:43:25,572 [SYSTEM] INFO: Restarting FastAPI Windows Service asynchronously...
+2026-07-15 21:43:25,614 [SYSTEM] INFO: FastAPI Windows Service restart sequence completed.
+2026-07-15 21:43:26,098 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:43:26,353 [SYSTEM] INFO: NiceGUI Application starting...
+2026-07-15 21:43:26,354 [SYSTEM] INFO: Checking MySQL database connection to root@localhost...
+2026-07-15 21:43:26,462 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:43:26,919 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:43:27,473 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:43:27,838 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:43:28,249 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:43:28,417 [SYSTEM] WARNING: Could not initialize MySQL Connection Pool: 2003: Can't connect to MySQL server on 'localhost:3306' (Errno 10061: No connection could be made because the target machine actively refused it). Falling back to direct connections.
+2026-07-15 21:43:28,661 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:44:13,993 [SYSTEM] INFO: NiceGUI Application starting...
+2026-07-15 21:44:13,993 [SYSTEM] INFO: Checking MySQL database connection to root@localhost...
+2026-07-15 21:44:18,055 [SYSTEM] WARNING: Could not initialize MySQL Connection Pool: 2003 (HY000): Can't connect to MySQL server on 'localhost:3306' (10061). Falling back to direct connections.
+2026-07-15 21:44:22,099 [SYSTEM] ERROR: Database connection or schema verification failed: 2003 (HY000): Can't connect to MySQL server on 'localhost:3306' (10061)
+2026-07-15 21:44:22,099 [SYSTEM] WARNING: MySQL unavailable at startup: 2003 (HY000): Can't connect to MySQL server on 'localhost:3306' (10061) — starting in offline mode.
+2026-07-15 21:44:22,102 [SYSTEM] INFO: Local SQLite cache initialised at C:\Users\alhayat\Music\certificate_manager\local_cache.db
+2026-07-15 21:44:22,139 [SYSTEM] INFO: Restarting FastAPI Windows Service asynchronously...
+2026-07-15 21:44:22,180 [SYSTEM] INFO: FastAPI Windows Service restart sequence completed.
+2026-07-15 21:44:22,612 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:44:22,969 [SYSTEM] INFO: NiceGUI Application starting...
+2026-07-15 21:44:22,969 [SYSTEM] INFO: Checking MySQL database connection to root@localhost...
+2026-07-15 21:44:22,974 [SYSTEM] INFO: NiceGUI Application starting...
+2026-07-15 21:44:22,974 [SYSTEM] INFO: Checking MySQL database connection to root@localhost...
+2026-07-15 21:44:23,019 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:44:23,425 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:44:23,832 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:44:24,236 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:44:24,643 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:44:25,000 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:44:25,414 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:44:25,816 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:44:26,220 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:44:26,623 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:44:27,028 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:44:27,033 [SYSTEM] WARNING: Could not initialize MySQL Connection Pool: 2003 (HY000): Can't connect to MySQL server on 'localhost:3306' (10061). Falling back to direct connections.
+2026-07-15 21:44:27,049 [SYSTEM] WARNING: Could not initialize MySQL Connection Pool: 2003 (HY000): Can't connect to MySQL server on 'localhost:3306' (10061). Falling back to direct connections.
+2026-07-15 21:44:27,435 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:44:27,838 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:44:28,243 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:44:28,647 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:44:29,063 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:44:29,467 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:44:29,872 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:44:30,281 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:44:30,641 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:44:31,053 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:44:31,107 [SYSTEM] ERROR: Database connection or schema verification failed: 2003 (HY000): Can't connect to MySQL server on 'localhost:3306' (10061)
+2026-07-15 21:44:31,107 [SYSTEM] WARNING: MySQL unavailable at startup: 2003 (HY000): Can't connect to MySQL server on 'localhost:3306' (10061) — starting in offline mode.
+2026-07-15 21:44:31,109 [SYSTEM] INFO: Local SQLite cache initialised at C:\Users\alhayat\Music\certificate_manager\local_cache.db
+2026-07-15 21:44:31,122 [SYSTEM] ERROR: Database connection or schema verification failed: 2003 (HY000): Can't connect to MySQL server on 'localhost:3306' (10061)
+2026-07-15 21:44:31,122 [SYSTEM] WARNING: MySQL unavailable at startup: 2003 (HY000): Can't connect to MySQL server on 'localhost:3306' (10061) — starting in offline mode.
+2026-07-15 21:44:31,125 [SYSTEM] INFO: Local SQLite cache initialised at C:\Users\alhayat\Music\certificate_manager\local_cache.db
+2026-07-15 21:44:31,141 [SYSTEM] INFO: Restarting FastAPI Windows Service asynchronously...
+2026-07-15 21:44:31,153 [SYSTEM] INFO: Restarting FastAPI Windows Service asynchronously...
+2026-07-15 21:44:31,184 [SYSTEM] INFO: FastAPI Windows Service restart sequence completed.
+2026-07-15 21:44:31,191 [SYSTEM] INFO: FastAPI Windows Service restart sequence completed.
+2026-07-15 21:44:31,410 [SYSTEM] INFO: 5 changes detected
+2026-07-15 21:44:31,770 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:44:32,131 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:44:32,488 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:44:32,546 [SYSTEM] INFO: NiceGUI Application starting...
+2026-07-15 21:44:32,546 [SYSTEM] INFO: Checking MySQL database connection to root@localhost...
+2026-07-15 21:44:32,847 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:44:33,257 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:44:33,662 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:44:34,069 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:44:34,472 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:44:34,877 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:44:35,282 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:44:35,687 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:44:36,092 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:44:36,457 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:44:36,650 [SYSTEM] WARNING: Could not initialize MySQL Connection Pool: 2003 (HY000): Can't connect to MySQL server on 'localhost:3306' (10061). Falling back to direct connections.
+2026-07-15 21:44:36,863 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:44:37,280 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:44:37,682 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:44:38,088 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:44:38,492 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:44:38,898 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:44:39,301 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:44:39,704 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:44:40,109 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:44:40,514 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:44:40,722 [SYSTEM] ERROR: Database connection or schema verification failed: 2003 (HY000): Can't connect to MySQL server on 'localhost:3306' (10061)
+2026-07-15 21:44:40,723 [SYSTEM] WARNING: MySQL unavailable at startup: 2003 (HY000): Can't connect to MySQL server on 'localhost:3306' (10061) — starting in offline mode.
+2026-07-15 21:44:40,727 [SYSTEM] INFO: Local SQLite cache initialised at C:\Users\alhayat\Music\certificate_manager\local_cache.db
+2026-07-15 21:44:40,732 [SYSTEM] INFO: Restarting FastAPI Windows Service asynchronously...
+2026-07-15 21:44:40,791 [SYSTEM] INFO: FastAPI Windows Service restart sequence completed.
+2026-07-15 21:44:40,920 [SYSTEM] INFO: 5 changes detected
+2026-07-15 21:44:41,325 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:44:41,740 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:44:42,104 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:44:42,518 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:44:42,925 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:44:43,329 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:44:43,731 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:44:44,134 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:44:44,537 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:44:44,941 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:44:45,344 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:44:45,748 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:44:46,152 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:44:46,557 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:44:46,962 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:44:47,368 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:44:47,773 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:44:48,177 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:44:48,582 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:44:48,938 [SYSTEM] INFO: 5 changes detected
+2026-07-15 21:44:49,289 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:44:49,644 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:44:50,003 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:44:50,408 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:44:50,815 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:44:51,220 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:44:51,622 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:44:52,030 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:44:52,433 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:44:52,838 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:44:53,245 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:44:53,661 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:44:54,067 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:44:54,473 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:44:54,878 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:44:55,282 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:44:55,688 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:44:56,093 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:44:56,496 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:44:56,903 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:44:57,308 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:44:57,713 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:44:58,119 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:44:58,524 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:44:58,926 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:44:59,330 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:44:59,735 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:45:00,091 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:45:00,500 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:45:00,903 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:45:01,307 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:45:01,712 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:45:02,115 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:45:02,518 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:45:02,923 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:45:03,328 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:45:03,733 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:45:04,135 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:45:04,538 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:45:04,941 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:45:05,344 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:45:05,748 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:45:06,165 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:45:06,569 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:45:06,978 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:45:07,383 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:45:07,789 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:45:08,194 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:45:08,598 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:45:09,003 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:45:09,407 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:45:09,809 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:45:10,264 [SYSTEM] INFO: 5 changes detected
+2026-07-15 21:45:10,631 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:45:11,037 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:45:11,442 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:45:11,847 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:45:12,249 [SYSTEM] INFO: 5 changes detected
+2026-07-15 21:45:12,654 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:45:13,072 [SYSTEM] INFO: 5 changes detected
+2026-07-15 21:45:13,478 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:45:13,885 [SYSTEM] INFO: 5 changes detected
+2026-07-15 21:45:14,290 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:45:14,696 [SYSTEM] INFO: 5 changes detected
+2026-07-15 21:45:15,099 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:45:15,503 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:45:15,908 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:45:16,315 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:45:16,717 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:45:17,133 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:45:17,489 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:45:17,900 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:45:18,307 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:45:18,713 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:45:19,118 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:45:19,524 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:45:19,926 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:45:20,343 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:45:20,748 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:45:21,155 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:45:21,558 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:45:21,913 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:45:22,328 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:45:22,732 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:45:23,136 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:45:23,539 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:45:23,945 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:45:24,352 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:45:24,757 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:45:25,164 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:45:25,568 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:45:25,971 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:45:26,380 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:45:26,785 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:45:27,190 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:45:27,597 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:45:28,001 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:45:28,406 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:45:28,809 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:45:29,215 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:45:29,620 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:45:30,023 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:45:30,384 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:45:30,792 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:45:31,201 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:45:31,608 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:45:32,012 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:45:32,417 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:45:32,820 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:45:33,223 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:45:33,626 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:45:34,030 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:45:34,436 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:45:34,839 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:45:35,243 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:45:35,647 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:45:36,054 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:45:36,460 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:45:36,862 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:45:37,267 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:45:37,671 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:45:38,073 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:45:38,479 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:45:38,886 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:45:39,290 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:45:39,695 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:45:40,097 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:45:40,502 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:45:40,906 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:45:41,309 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:45:41,710 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:45:42,115 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:45:42,522 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:45:42,926 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:45:43,329 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:45:43,736 [SYSTEM] INFO: 5 changes detected
+2026-07-15 21:45:44,138 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:45:44,542 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:45:44,948 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:45:45,353 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:45:45,757 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:45:46,160 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:45:46,566 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:45:46,968 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:45:47,372 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:45:47,777 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:45:48,185 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:45:48,590 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:45:48,993 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:45:49,398 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:45:49,804 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:45:50,212 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:45:50,617 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:45:51,025 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:45:51,428 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:45:51,834 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:45:52,244 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:45:52,645 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:45:53,049 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:45:53,454 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:45:53,858 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:45:54,262 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:45:54,667 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:45:55,074 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:45:55,480 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:45:55,884 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:45:56,291 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:45:56,698 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:45:57,157 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:45:57,561 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:45:57,969 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:45:58,329 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:50:30,040 [SYSTEM] INFO: NiceGUI Application starting...
+2026-07-15 21:50:30,040 [SYSTEM] INFO: Checking MySQL database connection to root@localhost...
+2026-07-15 21:50:32,113 [SYSTEM] WARNING: Could not initialize MySQL Connection Pool: 2003: Can't connect to MySQL server on 'localhost:3306' (Errno 10061: No connection could be made because the target machine actively refused it). Falling back to direct connections.
+2026-07-15 21:50:34,142 [SYSTEM] ERROR: Database connection or schema verification failed: 2003: Can't connect to MySQL server on 'localhost:3306' (Errno 10061: No connection could be made because the target machine actively refused it)
+2026-07-15 21:50:34,143 [SYSTEM] WARNING: MySQL unavailable at startup: 2003: Can't connect to MySQL server on 'localhost:3306' (Errno 10061: No connection could be made because the target machine actively refused it) — starting in offline mode.
+2026-07-15 21:50:34,148 [SYSTEM] INFO: Local SQLite cache initialised at C:\Users\alhayat\Music\certificate_manager\local_cache.db
+2026-07-15 21:50:34,166 [SYSTEM] INFO: Restarting FastAPI Windows Service asynchronously...
+2026-07-15 21:50:34,212 [SYSTEM] INFO: FastAPI Windows Service restart sequence completed.
+2026-07-15 21:50:34,692 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:50:34,979 [SYSTEM] INFO: NiceGUI Application starting...
+2026-07-15 21:50:34,979 [SYSTEM] INFO: Checking MySQL database connection to root@localhost...
+2026-07-15 21:50:35,094 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:50:35,460 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:50:35,919 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:50:36,383 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:50:36,797 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:50:37,054 [SYSTEM] WARNING: Could not initialize MySQL Connection Pool: 2003: Can't connect to MySQL server on 'localhost:3306' (Errno 10061: No connection could be made because the target machine actively refused it). Falling back to direct connections.
+2026-07-15 21:50:37,202 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:50:37,605 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:51:21,258 [SYSTEM] INFO: NiceGUI Application starting...
+2026-07-15 21:51:21,258 [SYSTEM] INFO: Checking MySQL database connection to root@localhost...
+2026-07-15 21:51:25,337 [SYSTEM] WARNING: Could not initialize MySQL Connection Pool: 2003 (HY000): Can't connect to MySQL server on 'localhost:3306' (10061). Falling back to direct connections.
+2026-07-15 21:51:29,431 [SYSTEM] ERROR: Database connection or schema verification failed: 2003 (HY000): Can't connect to MySQL server on 'localhost:3306' (10061)
+2026-07-15 21:51:29,432 [SYSTEM] WARNING: MySQL unavailable at startup: 2003 (HY000): Can't connect to MySQL server on 'localhost:3306' (10061) — starting in offline mode.
+2026-07-15 21:51:29,437 [SYSTEM] INFO: Local SQLite cache initialised at C:\Users\alhayat\Music\certificate_manager\local_cache.db
+2026-07-15 21:51:29,469 [SYSTEM] INFO: Restarting FastAPI Windows Service asynchronously...
+2026-07-15 21:51:29,505 [SYSTEM] INFO: FastAPI Windows Service restart sequence completed.
+2026-07-15 21:51:29,943 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:51:30,314 [SYSTEM] INFO: NiceGUI Application starting...
+2026-07-15 21:51:30,315 [SYSTEM] INFO: Checking MySQL database connection to root@localhost...
+2026-07-15 21:51:30,319 [SYSTEM] INFO: NiceGUI Application starting...
+2026-07-15 21:51:30,319 [SYSTEM] INFO: Checking MySQL database connection to root@localhost...
+2026-07-15 21:51:30,348 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:51:30,753 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:51:31,170 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:51:31,537 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:51:31,945 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:51:32,349 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:51:32,766 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:51:33,180 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:51:33,585 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:51:33,987 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:51:34,343 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:51:34,400 [SYSTEM] WARNING: Could not initialize MySQL Connection Pool: 2003 (HY000): Can't connect to MySQL server on 'localhost:3306' (10061). Falling back to direct connections.
+2026-07-15 21:51:34,400 [SYSTEM] WARNING: Could not initialize MySQL Connection Pool: 2003 (HY000): Can't connect to MySQL server on 'localhost:3306' (10061). Falling back to direct connections.
+2026-07-15 21:51:34,753 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:51:35,156 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:51:35,574 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:51:35,987 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:51:36,392 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:51:36,797 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:51:37,201 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:51:37,604 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:51:38,008 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:51:38,412 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:51:38,492 [SYSTEM] ERROR: Database connection or schema verification failed: 2003 (HY000): Can't connect to MySQL server on 'localhost:3306' (10061)
+2026-07-15 21:51:38,493 [SYSTEM] ERROR: Database connection or schema verification failed: 2003 (HY000): Can't connect to MySQL server on 'localhost:3306' (10061)
+2026-07-15 21:51:38,493 [SYSTEM] WARNING: MySQL unavailable at startup: 2003 (HY000): Can't connect to MySQL server on 'localhost:3306' (10061) — starting in offline mode.
+2026-07-15 21:51:38,493 [SYSTEM] WARNING: MySQL unavailable at startup: 2003 (HY000): Can't connect to MySQL server on 'localhost:3306' (10061) — starting in offline mode.
+2026-07-15 21:51:38,501 [SYSTEM] INFO: Local SQLite cache initialised at C:\Users\alhayat\Music\certificate_manager\local_cache.db
+2026-07-15 21:51:38,508 [SYSTEM] INFO: Local SQLite cache initialised at C:\Users\alhayat\Music\certificate_manager\local_cache.db
+2026-07-15 21:51:38,534 [SYSTEM] INFO: Restarting FastAPI Windows Service asynchronously...
+2026-07-15 21:51:38,539 [SYSTEM] INFO: Restarting FastAPI Windows Service asynchronously...
+2026-07-15 21:51:38,568 [SYSTEM] INFO: FastAPI Windows Service restart sequence completed.
+2026-07-15 21:51:38,573 [SYSTEM] INFO: FastAPI Windows Service restart sequence completed.
+2026-07-15 21:51:38,765 [SYSTEM] INFO: 5 changes detected
+2026-07-15 21:51:39,122 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:51:39,481 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:51:39,839 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:51:39,911 [SYSTEM] INFO: NiceGUI Application starting...
+2026-07-15 21:51:39,911 [SYSTEM] INFO: Checking MySQL database connection to root@localhost...
+2026-07-15 21:51:40,248 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:51:40,655 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:51:41,021 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:51:41,424 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:51:41,841 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:51:42,245 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:51:42,660 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:51:43,064 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:51:43,469 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:51:43,874 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:51:44,004 [SYSTEM] WARNING: Could not initialize MySQL Connection Pool: 2003 (HY000): Can't connect to MySQL server on 'localhost:3306' (10061). Falling back to direct connections.
+2026-07-15 21:51:44,277 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:51:44,644 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:51:45,050 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:51:45,454 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:51:45,861 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:51:46,267 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:51:46,678 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:51:47,084 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:51:47,488 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:51:47,891 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:51:48,084 [SYSTEM] ERROR: Database connection or schema verification failed: 2003 (HY000): Can't connect to MySQL server on 'localhost:3306' (10061)
+2026-07-15 21:51:48,085 [SYSTEM] WARNING: MySQL unavailable at startup: 2003 (HY000): Can't connect to MySQL server on 'localhost:3306' (10061) — starting in offline mode.
+2026-07-15 21:51:48,089 [SYSTEM] INFO: Local SQLite cache initialised at C:\Users\alhayat\Music\certificate_manager\local_cache.db
+2026-07-15 21:51:48,103 [SYSTEM] INFO: Restarting FastAPI Windows Service asynchronously...
+2026-07-15 21:51:48,144 [SYSTEM] INFO: FastAPI Windows Service restart sequence completed.
+2026-07-15 21:51:48,298 [SYSTEM] INFO: 5 changes detected
+2026-07-15 21:51:48,706 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:51:49,111 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:51:49,515 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:51:49,919 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:51:50,324 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:51:50,729 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:51:51,147 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:51:51,553 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:51:51,959 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:51:52,365 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:51:52,770 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:51:53,137 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:51:53,544 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:51:53,961 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:51:54,366 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:51:54,769 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:51:55,186 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:51:55,553 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:51:55,962 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:51:56,378 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:51:56,782 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:51:57,186 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:51:57,593 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:51:57,996 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:51:58,400 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:51:58,803 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:51:59,169 [SYSTEM] INFO: 6 changes detected
+2026-07-15 21:51:59,578 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:51:59,984 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:52:00,389 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:52:00,804 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:52:01,210 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:52:01,625 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:52:02,029 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:52:02,432 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:52:02,837 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:52:03,240 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:52:03,649 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:52:04,053 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:52:04,457 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:52:04,861 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:52:05,266 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:52:05,672 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:52:06,075 [SYSTEM] INFO: 5 changes detected
+2026-07-15 21:52:06,482 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:52:06,885 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:52:07,288 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:52:07,692 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:52:08,098 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:52:08,503 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:52:08,910 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:52:09,314 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:52:09,718 [SYSTEM] INFO: 5 changes detected
+2026-07-15 21:52:10,084 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:52:10,497 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:52:10,913 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:52:11,332 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:52:11,698 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:52:12,102 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:52:12,518 [SYSTEM] INFO: 5 changes detected
+2026-07-15 21:52:12,922 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:52:13,326 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:52:13,729 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:52:14,136 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:52:14,540 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:52:14,893 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:52:15,253 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:52:15,610 [SYSTEM] INFO: 8 changes detected
+2026-07-15 21:52:15,968 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:52:16,377 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:52:16,783 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:52:17,200 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:52:17,605 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:52:18,008 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:52:18,411 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:52:18,817 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:52:19,221 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:52:19,627 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:52:20,030 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:52:20,433 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:52:20,837 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:52:21,241 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:52:21,646 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:52:22,048 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:52:22,454 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:52:22,858 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:52:23,260 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:52:23,665 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:52:24,069 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:52:24,472 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:52:24,876 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:52:25,244 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:52:25,650 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:52:26,052 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:52:26,458 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:52:26,864 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:52:27,268 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:52:27,672 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:52:28,077 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:52:28,495 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:52:28,901 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:52:29,306 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:52:29,722 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:52:30,088 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:52:30,495 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:52:30,911 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:52:31,315 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:52:31,721 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:52:32,124 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:52:32,528 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:52:32,932 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:52:33,335 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:52:33,738 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:52:34,144 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:52:34,548 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:52:34,966 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:52:35,333 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:52:35,739 [SYSTEM] INFO: 5 changes detected
+2026-07-15 21:52:36,144 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:52:36,547 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:52:36,965 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:52:37,369 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:52:37,774 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:52:38,189 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:52:38,594 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:52:38,997 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:52:39,401 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:52:39,806 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:52:40,174 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:52:40,584 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:52:40,989 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:52:41,392 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:52:41,797 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:52:42,252 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:52:42,655 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:52:43,062 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:52:43,430 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:52:43,839 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:52:44,262 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:52:44,680 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:52:45,086 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:52:45,479 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:52:45,891 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:52:46,309 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:52:46,714 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:52:47,119 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:52:47,523 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:52:47,928 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:52:48,345 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:52:48,851 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:52:49,267 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:52:49,670 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:52:50,074 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:52:50,480 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:54:13,892 [SYSTEM] INFO: Application starting...
+2026-07-15 21:54:13,892 [SYSTEM] INFO: Checking MySQL database connection to root@localhost...
+2026-07-15 21:54:17,977 [SYSTEM] WARNING: Could not initialize MySQL Connection Pool: 2003 (HY000): Can't connect to MySQL server on 'localhost:3306' (10061). Falling back to direct connections.
+2026-07-15 21:54:22,078 [SYSTEM] ERROR: Database connection or schema verification failed: 2003 (HY000): Can't connect to MySQL server on 'localhost:3306' (10061)
+2026-07-15 21:54:22,079 [SYSTEM] WARNING: MySQL unavailable at startup: 2003 (HY000): Can't connect to MySQL server on 'localhost:3306' (10061) — starting in offline mode.
+2026-07-15 21:54:22,084 [SYSTEM] INFO: Local SQLite cache initialised at C:\Users\alhayat\Music\certificate_manager\local_cache.db
+2026-07-15 21:54:22,092 [SYSTEM] INFO: Restarting FastAPI Windows Service asynchronously...
+2026-07-15 21:54:22,208 [SYSTEM] INFO: FastAPI Windows Service restart sequence completed.
+2026-07-15 21:54:28,050 [SYSTEM] INFO: User '1' logged in successfully.
+2026-07-15 21:56:27,437 [SYSTEM] INFO: Network restored. Triggering offline queue sync...
+2026-07-15 21:56:31,515 [SYSTEM] WARNING: Could not initialize MySQL Connection Pool: 2003 (HY000): Can't connect to MySQL server on 'localhost:3306' (10061). Falling back to direct connections.
+2026-07-15 21:56:35,613 [SYSTEM] ERROR: Auto-sync failed: 2003 (HY000): Can't connect to MySQL server on 'localhost:3306' (10061)
+2026-07-15 21:56:39,703 [SYSTEM] ERROR: Background inbound sync failed: 2003 (HY000): Can't connect to MySQL server on 'localhost:3306' (10061)
+2026-07-15 21:56:53,941 [SYSTEM] INFO: Application closed normally.
+2026-07-15 21:59:36,370 [SYSTEM] INFO: NiceGUI Application starting...
+2026-07-15 21:59:36,370 [SYSTEM] INFO: Checking MySQL database connection to root@localhost...
+2026-07-15 21:59:36,392 [SYSTEM] INFO: package: mysql.connector.plugins
+2026-07-15 21:59:36,392 [SYSTEM] INFO: plugin_name: mysql_native_password
+2026-07-15 21:59:36,393 [SYSTEM] INFO: AUTHENTICATION_PLUGIN_CLASS: MySQLNativePasswordAuthPlugin
+2026-07-15 21:59:36,394 [SYSTEM] WARNING: Could not initialize MySQL Connection Pool: 1045 (28000): Access denied for user 'root'@'localhost' (using password: YES). Falling back to direct connections.
+2026-07-15 21:59:36,396 [SYSTEM] ERROR: Database connection or schema verification failed: 1045 (28000): Access denied for user 'root'@'localhost' (using password: YES)
+2026-07-15 21:59:36,396 [SYSTEM] WARNING: MySQL unavailable at startup: 1045 (28000): Access denied for user 'root'@'localhost' (using password: YES) — starting in offline mode.
+2026-07-15 21:59:36,398 [SYSTEM] INFO: Local SQLite cache initialised at C:\Users\alhayat\Music\certificate_manager\local_cache.db
+2026-07-15 21:59:36,413 [SYSTEM] INFO: Restarting FastAPI Windows Service asynchronously...
+2026-07-15 21:59:36,463 [SYSTEM] INFO: FastAPI Windows Service restart sequence completed.
+2026-07-15 21:59:36,793 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:59:37,197 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:59:37,311 [SYSTEM] INFO: NiceGUI Application starting...
+2026-07-15 21:59:37,311 [SYSTEM] INFO: Checking MySQL database connection to root@localhost...
+2026-07-15 21:59:37,336 [SYSTEM] INFO: package: mysql.connector.plugins
+2026-07-15 21:59:37,337 [SYSTEM] INFO: plugin_name: mysql_native_password
+2026-07-15 21:59:37,338 [SYSTEM] INFO: AUTHENTICATION_PLUGIN_CLASS: MySQLNativePasswordAuthPlugin
+2026-07-15 21:59:37,341 [SYSTEM] WARNING: Could not initialize MySQL Connection Pool: 1045 (28000): Access denied for user 'root'@'localhost' (using password: YES). Falling back to direct connections.
+2026-07-15 21:59:37,342 [SYSTEM] ERROR: Database connection or schema verification failed: 1045 (28000): Access denied for user 'root'@'localhost' (using password: YES)
+2026-07-15 21:59:37,343 [SYSTEM] WARNING: MySQL unavailable at startup: 1045 (28000): Access denied for user 'root'@'localhost' (using password: YES) — starting in offline mode.
+2026-07-15 21:59:37,344 [SYSTEM] INFO: Local SQLite cache initialised at C:\Users\alhayat\Music\certificate_manager\local_cache.db
+2026-07-15 21:59:37,360 [SYSTEM] INFO: Restarting FastAPI Windows Service asynchronously...
+2026-07-15 21:59:37,414 [SYSTEM] INFO: FastAPI Windows Service restart sequence completed.
+2026-07-15 21:59:37,553 [SYSTEM] INFO: 5 changes detected
+2026-07-15 21:59:37,909 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:59:38,265 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:59:38,623 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:59:39,032 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:59:39,447 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:59:39,850 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:59:40,254 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:59:40,671 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:59:41,075 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:59:41,480 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:59:41,884 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:59:42,289 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:59:42,694 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:59:43,097 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:59:43,462 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:59:43,965 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:59:44,325 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:59:44,830 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:59:45,189 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:59:45,647 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:59:46,056 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:59:46,458 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:59:46,862 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:59:47,264 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:59:47,668 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:59:48,072 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:59:48,476 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:59:48,878 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:59:49,281 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:59:49,697 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:59:50,204 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:59:50,563 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:59:51,069 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:59:51,427 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:59:51,886 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:59:52,298 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:59:52,713 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:59:53,116 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:59:53,521 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:59:53,925 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:59:54,328 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:59:54,744 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:59:55,161 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:59:55,565 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:59:55,967 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:59:56,373 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:59:56,737 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:59:57,192 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:59:57,600 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:59:58,003 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:59:58,406 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:59:58,823 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:59:59,227 [SYSTEM] INFO: 1 change detected
+2026-07-15 21:59:59,632 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:00:00,035 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:00:00,438 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:00:00,803 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:00:01,262 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:00:01,675 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:00:02,091 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:00:02,456 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:00:02,962 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:00:03,367 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:00:03,771 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:00:04,174 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:00:04,539 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:00:05,044 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:00:05,401 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:00:05,858 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:00:06,363 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:00:06,724 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:00:07,181 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:00:07,594 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:00:07,996 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:00:08,400 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:00:08,766 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:00:09,224 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:00:09,636 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:00:10,052 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:00:10,455 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:00:10,822 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:00:11,330 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:00:11,686 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:00:12,146 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:00:12,562 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:00:12,967 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:00:13,371 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:00:13,787 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:00:14,189 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:00:14,594 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:00:14,997 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:00:15,363 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:00:15,869 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:00:16,280 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:00:16,646 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:00:17,056 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:00:17,461 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:00:17,866 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:00:18,270 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:00:18,675 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:00:19,029 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:00:19,532 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:00:19,893 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:00:20,402 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:00:20,761 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:00:21,221 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:00:21,635 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:00:22,037 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:00:22,440 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:00:22,844 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:00:23,248 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:00:23,652 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:00:24,058 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:00:24,512 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:00:24,927 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:00:25,331 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:00:25,736 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:00:26,142 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:00:26,548 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:00:26,950 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:00:27,365 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:00:27,768 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:00:28,171 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:00:28,536 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:00:29,043 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:00:29,400 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:00:29,907 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:00:30,269 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:00:30,728 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:00:31,144 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:00:31,547 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:00:31,952 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:00:32,358 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:00:32,760 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:00:33,163 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:00:33,567 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:00:33,969 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:00:34,376 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:00:34,778 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:00:35,180 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:00:35,583 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:00:35,986 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:00:36,389 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:00:36,805 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:00:37,269 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:00:37,677 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:00:38,041 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:00:38,549 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:00:38,911 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:00:39,466 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:00:39,872 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:00:40,237 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:00:40,745 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:00:41,104 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:00:41,559 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:00:41,962 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:00:42,469 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:00:42,877 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:00:43,279 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:00:43,681 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:00:44,083 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:00:44,448 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:00:44,952 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:00:45,309 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:00:45,769 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:00:46,182 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:00:46,585 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:00:46,999 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:00:47,365 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:00:47,872 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:00:48,235 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:00:48,695 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:00:49,111 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:00:49,528 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:00:49,894 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:00:50,401 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:00:50,764 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:00:51,269 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:00:51,628 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:00:52,136 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:00:52,495 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:00:53,002 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:00:53,365 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:00:53,871 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:00:54,232 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:00:54,741 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:00:55,098 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:00:55,556 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:00:55,972 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:00:56,389 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:00:56,791 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:00:57,194 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:00:57,561 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:00:58,023 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:00:58,434 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:00:58,851 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:00:59,217 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:00:59,674 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:01:00,087 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:01:00,489 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:01:00,892 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:01:01,025 [SYSTEM] INFO: NiceGUI Application starting...
+2026-07-15 22:01:01,026 [SYSTEM] INFO: Checking MySQL database connection to root@localhost...
+2026-07-15 22:01:01,048 [SYSTEM] INFO: package: mysql.connector.plugins
+2026-07-15 22:01:01,048 [SYSTEM] INFO: plugin_name: mysql_native_password
+2026-07-15 22:01:01,049 [SYSTEM] INFO: AUTHENTICATION_PLUGIN_CLASS: MySQLNativePasswordAuthPlugin
+2026-07-15 22:01:01,065 [SYSTEM] WARNING: Database schema warning: 'course_departments' table still exists in MySQL, but is dropped in local cache.
+2026-07-15 22:01:01,075 [SYSTEM] WARNING: Database schema warning: column 'graduation_year' is missing from 'graduation_orders' table.
+2026-07-15 22:01:01,081 [SYSTEM] WARNING: Database schema warning: column 'study_system_id' still exists in 'courses' table.
+2026-07-15 22:01:01,081 [SYSTEM] WARNING: Database schema warning: column 'is_shared' still exists in 'courses' table.
+2026-07-15 22:01:01,086 [SYSTEM] WARNING: Database schema warning: composite unique index 'name_dep' is missing from 'courses' table.
+2026-07-15 22:01:01,086 [SYSTEM] INFO: Database schema verification completed successfully (read-only verification).
+2026-07-15 22:01:01,090 [SYSTEM] INFO: Local SQLite cache initialised at C:\Users\alhayat\Music\certificate_manager\local_cache.db
+2026-07-15 22:01:01,110 [SYSTEM] INFO: Restarting FastAPI Windows Service asynchronously...
+2026-07-15 22:01:01,161 [SYSTEM] INFO: FastAPI Windows Service restart sequence completed.
+2026-07-15 22:01:01,245 [SYSTEM] INFO: 5 changes detected
+2026-07-15 22:01:01,693 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:01:01,700 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:01:02,026 [SYSTEM] INFO: NiceGUI Application starting...
+2026-07-15 22:01:02,026 [SYSTEM] INFO: Checking MySQL database connection to root@localhost...
+2026-07-15 22:01:02,049 [SYSTEM] INFO: package: mysql.connector.plugins
+2026-07-15 22:01:02,049 [SYSTEM] INFO: plugin_name: mysql_native_password
+2026-07-15 22:01:02,050 [SYSTEM] INFO: AUTHENTICATION_PLUGIN_CLASS: MySQLNativePasswordAuthPlugin
+2026-07-15 22:01:02,065 [SYSTEM] WARNING: Database schema warning: 'course_departments' table still exists in MySQL, but is dropped in local cache.
+2026-07-15 22:01:02,070 [SYSTEM] WARNING: Database schema warning: column 'graduation_year' is missing from 'graduation_orders' table.
+2026-07-15 22:01:02,074 [SYSTEM] WARNING: Database schema warning: column 'study_system_id' still exists in 'courses' table.
+2026-07-15 22:01:02,074 [SYSTEM] WARNING: Database schema warning: column 'is_shared' still exists in 'courses' table.
+2026-07-15 22:01:02,075 [SYSTEM] WARNING: Database schema warning: composite unique index 'name_dep' is missing from 'courses' table.
+2026-07-15 22:01:02,075 [SYSTEM] INFO: Database schema verification completed successfully (read-only verification).
+2026-07-15 22:01:02,078 [SYSTEM] INFO: Local SQLite cache initialised at C:\Users\alhayat\Music\certificate_manager\local_cache.db
+2026-07-15 22:01:02,095 [SYSTEM] INFO: Restarting FastAPI Windows Service asynchronously...
+2026-07-15 22:01:02,140 [SYSTEM] INFO: FastAPI Windows Service restart sequence completed.
+2026-07-15 22:01:02,145 [SYSTEM] INFO: 5 changes detected
+2026-07-15 22:01:02,161 [SYSTEM] INFO: 5 changes detected
+2026-07-15 22:01:02,561 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:01:02,576 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:01:02,978 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:01:02,978 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:01:03,393 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:01:03,393 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:01:03,760 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:01:04,217 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:01:04,217 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:01:04,633 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:01:04,633 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:01:05,035 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:01:05,036 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:01:05,440 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:01:05,440 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:01:05,856 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:01:05,856 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:01:06,221 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:01:06,729 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:01:06,729 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:01:07,089 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:01:07,089 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:01:07,597 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:01:07,597 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:01:08,007 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:01:08,358 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:01:08,359 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:01:08,816 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:01:08,816 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:01:09,231 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:01:09,232 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:01:09,635 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:01:09,635 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:01:10,038 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:01:10,053 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:01:10,452 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:01:10,467 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:01:10,833 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:01:10,868 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:01:11,334 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:01:11,338 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:01:11,749 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:01:11,749 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:01:12,155 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:01:12,155 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:01:12,558 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:01:12,964 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:01:12,964 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:01:13,368 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:01:13,368 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:01:13,773 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:01:13,774 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:01:14,190 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:01:14,593 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:01:14,593 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:01:14,958 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:01:14,958 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:01:15,419 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:01:15,835 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:01:15,836 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:01:16,239 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:01:16,239 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:01:16,642 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:01:16,642 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:01:17,046 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:01:17,046 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:01:17,449 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:01:17,449 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:01:17,802 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:01:17,802 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:01:18,158 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:01:18,158 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:01:18,515 [SYSTEM] INFO: 8 changes detected
+2026-07-15 22:01:18,515 [SYSTEM] INFO: 8 changes detected
+2026-07-15 22:01:18,873 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:01:19,227 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:01:19,227 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:01:19,583 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:01:19,583 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:01:19,941 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:01:20,449 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:01:20,450 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:01:20,811 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:01:20,811 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:01:21,269 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:01:21,269 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:01:21,684 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:01:22,091 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:01:22,091 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:01:22,493 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:01:22,493 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:01:22,897 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:01:23,300 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:01:23,714 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:01:23,714 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:01:24,069 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:01:24,069 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:01:24,527 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:01:24,942 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:01:24,942 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:01:25,360 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:01:25,360 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:01:25,763 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:01:26,170 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:01:26,170 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:01:26,572 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:01:27,077 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:01:27,441 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:01:27,899 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:01:28,308 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:01:28,712 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:01:29,116 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:01:29,523 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:01:29,925 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:01:30,329 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:01:30,732 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:01:31,137 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:01:31,541 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:01:31,943 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:01:32,347 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:01:32,764 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:01:33,168 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:01:33,570 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:01:33,974 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:01:34,340 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:01:34,797 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:01:35,213 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:01:35,615 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:01:36,019 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:01:36,423 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:01:36,829 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:01:37,233 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:01:37,635 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:01:38,043 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:01:38,444 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:01:38,848 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:01:39,251 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:01:39,655 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:01:40,059 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:01:40,463 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:01:40,866 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:01:41,282 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:01:41,687 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:01:42,104 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:01:42,509 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:01:42,914 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:01:43,316 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:01:43,669 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:01:44,177 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:01:44,535 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:01:45,040 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:01:45,401 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:01:45,909 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:01:46,272 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:01:46,730 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:01:47,144 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:01:47,546 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:01:47,951 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:01:48,353 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:01:48,755 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:01:49,159 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:01:49,562 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:01:49,967 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:01:50,371 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:01:50,774 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:01:51,192 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:01:51,559 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:01:52,069 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:01:52,429 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:01:52,888 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:01:53,305 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:01:53,723 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:01:54,128 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:01:54,533 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:01:54,939 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:01:55,344 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:01:55,711 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:01:56,218 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:01:56,578 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:01:57,086 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:01:57,452 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:01:57,910 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:01:58,325 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:01:58,732 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:01:59,135 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:01:59,552 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:01:59,955 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:02:00,363 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:02:00,767 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:02:01,174 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:02:01,578 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:02:01,981 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:02:02,384 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:02:02,787 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:02:03,192 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:02:03,597 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:02:03,998 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:02:04,407 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:02:04,811 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:02:05,216 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:02:05,619 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:02:06,021 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:02:06,382 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:02:06,887 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:02:07,244 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:02:07,703 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:02:08,116 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:02:08,518 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:02:08,921 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:02:09,324 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:02:09,741 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:02:10,107 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:02:10,614 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:02:10,979 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:02:11,486 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:02:11,850 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:02:12,308 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:02:12,710 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:02:13,113 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:02:13,519 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:02:13,922 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:02:14,339 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:02:14,743 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:02:15,149 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:02:15,553 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:02:15,959 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:02:16,376 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:02:16,744 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:02:17,251 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:02:17,660 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:02:18,067 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:02:18,472 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:02:18,876 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:02:19,280 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:02:19,685 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:02:20,087 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:02:20,491 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:02:20,895 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:02:21,300 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:02:21,705 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:02:22,110 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:02:22,516 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:02:22,920 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:02:23,325 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:02:23,732 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:02:24,136 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:02:24,541 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:02:24,957 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:02:25,324 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:02:25,831 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:02:26,242 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:02:26,649 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:02:27,054 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:02:27,459 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:02:27,861 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:02:28,228 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:02:28,687 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:02:29,101 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:02:29,506 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:02:29,908 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:02:30,311 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:02:30,713 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:02:31,118 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:02:31,523 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:02:31,927 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:02:32,332 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:02:32,736 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:02:33,142 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:02:33,545 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:02:33,963 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:02:34,364 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:02:34,767 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:02:35,133 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:02:35,644 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:02:36,005 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:02:36,461 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:02:36,878 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:02:37,285 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:02:37,688 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:02:38,092 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:02:38,496 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:02:38,900 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:02:39,304 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:02:39,710 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:02:40,113 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:02:40,567 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:02:40,981 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:02:41,397 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:02:41,761 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:02:42,217 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:02:42,633 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:02:43,049 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:02:43,413 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:02:43,877 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:02:44,290 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:02:44,707 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:02:45,110 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:02:45,513 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:02:45,918 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:02:46,321 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:02:46,684 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:02:47,143 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:02:47,557 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:02:47,963 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:02:48,378 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:02:48,783 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:02:49,191 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:02:49,594 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:02:49,999 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:02:50,401 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:02:50,806 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:02:51,172 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:02:51,679 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:02:52,092 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:02:52,448 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:02:52,904 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:02:53,322 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:02:53,727 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:02:54,132 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:02:54,535 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:02:54,937 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:02:55,354 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:02:55,759 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:02:56,162 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:02:56,527 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:02:57,035 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:02:57,442 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:02:57,947 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:02:58,309 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:02:58,766 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:02:59,181 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:02:59,584 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:02:59,986 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:03:00,390 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:03:00,792 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:03:01,206 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:03:01,609 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:03:02,012 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:03:02,366 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:03:02,875 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:03:03,234 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:03:03,738 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:03:04,096 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:03:04,556 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:03:04,967 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:03:05,385 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:03:05,788 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:03:06,190 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:03:06,593 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:03:06,997 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:03:07,400 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:03:07,803 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:03:08,168 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:03:08,678 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:03:09,088 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:03:09,493 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:03:09,860 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:03:10,319 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:03:10,734 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:03:11,138 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:03:11,542 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:03:11,945 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:03:12,347 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:03:12,751 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:03:13,156 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:03:13,564 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:03:13,981 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:03:14,385 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:03:14,789 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:03:15,195 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:03:15,601 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:03:16,006 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:03:16,371 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:03:16,878 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:03:17,239 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:03:17,701 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:03:18,118 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:03:18,522 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:03:18,938 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:03:19,343 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:03:19,747 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:03:20,112 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:03:20,621 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:03:20,983 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:03:21,491 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:03:21,857 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:03:22,314 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:03:22,726 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:03:23,142 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:03:23,545 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:03:23,950 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:03:24,352 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:03:24,755 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:03:25,161 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:03:25,564 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:03:25,967 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:03:26,371 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:03:26,777 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:03:27,183 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:03:27,587 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:03:27,992 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:03:28,394 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:03:28,761 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:03:29,270 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:03:29,629 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:03:30,085 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:03:30,502 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:03:30,919 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:03:31,322 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:03:31,727 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:03:32,132 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:03:32,537 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:03:32,940 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:03:33,345 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:03:33,750 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:03:34,158 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:03:34,562 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:03:34,963 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:03:35,367 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:03:35,770 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:03:36,174 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:03:36,579 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:03:36,983 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:03:37,386 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:03:37,791 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:03:38,196 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:03:38,598 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:03:39,003 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:03:39,367 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:03:39,874 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:03:40,233 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:03:40,742 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:03:41,104 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:03:41,562 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:03:41,977 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:03:42,382 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:03:42,786 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:03:43,189 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:03:43,595 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:03:43,997 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:03:44,503 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:03:44,864 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:03:45,370 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:03:45,772 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:03:46,138 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:03:46,597 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:03:47,009 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:03:47,426 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:03:47,829 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:03:48,183 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:03:48,221 [SYSTEM] INFO: Application starting...
+2026-07-15 22:03:48,221 [SYSTEM] INFO: Checking MySQL database connection to root@localhost...
+2026-07-15 22:03:48,252 [SYSTEM] WARNING: Database schema warning: 'course_departments' table still exists in MySQL, but is dropped in local cache.
+2026-07-15 22:03:48,265 [SYSTEM] WARNING: Database schema warning: column 'graduation_year' is missing from 'graduation_orders' table.
+2026-07-15 22:03:48,277 [SYSTEM] WARNING: Database schema warning: column 'study_system_id' still exists in 'courses' table.
+2026-07-15 22:03:48,277 [SYSTEM] WARNING: Database schema warning: column 'is_shared' still exists in 'courses' table.
+2026-07-15 22:03:48,279 [SYSTEM] WARNING: Database schema warning: composite unique index 'name_dep' is missing from 'courses' table.
+2026-07-15 22:03:48,280 [SYSTEM] INFO: Database schema verification completed successfully (read-only verification).
+2026-07-15 22:03:48,282 [SYSTEM] INFO: Local SQLite cache initialised at C:\Users\alhayat\Music\certificate_manager\local_cache.db
+2026-07-15 22:03:48,326 [SYSTEM] INFO: Restarting FastAPI Windows Service asynchronously...
+2026-07-15 22:03:48,446 [SYSTEM] INFO: FastAPI Windows Service restart sequence completed.
+2026-07-15 22:03:48,544 [SYSTEM] INFO: 4 changes detected
+2026-07-15 22:03:48,905 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:03:49,261 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:03:49,619 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:03:49,974 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:03:50,332 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:03:50,690 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:03:51,100 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:03:51,503 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:03:51,906 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:03:52,309 [SYSTEM] INFO: User '1' logged in successfully.
+2026-07-15 22:03:52,311 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:03:52,669 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:03:53,131 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:03:53,534 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:03:53,907 [SYSTEM] INFO: Database snapshot backup complete.
+2026-07-15 22:03:53,988 [SYSTEM] INFO: 6 changes detected
+2026-07-15 22:03:54,390 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:03:54,799 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:03:55,204 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:03:55,607 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:03:56,009 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:03:56,413 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:03:56,814 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:03:57,222 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:03:57,626 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:03:58,093 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:03:58,511 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:03:58,876 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:03:59,334 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:03:59,837 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:04:00,200 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:04:00,659 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:04:01,071 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:04:01,478 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:04:01,896 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:04:02,302 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:04:02,669 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:04:03,177 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:04:03,539 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:04:03,949 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:04:04,357 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:04:04,760 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:04:05,169 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:04:05,574 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:04:05,977 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:04:06,384 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:04:06,788 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:04:07,192 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:04:07,596 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:04:08,000 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:04:08,403 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:04:08,807 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:04:09,209 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:04:09,614 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:04:10,020 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:04:10,385 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:04:10,895 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:04:11,256 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:04:11,761 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:04:12,121 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:04:12,626 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:04:12,991 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:04:13,507 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:04:13,862 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:04:14,323 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:04:14,738 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:04:15,146 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:04:15,563 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:04:15,966 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:04:16,368 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:04:16,773 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:04:17,176 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:04:17,580 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:04:17,985 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:04:18,350 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:04:18,708 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:04:19,066 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:04:19,421 [SYSTEM] INFO: 8 changes detected
+2026-07-15 22:04:19,778 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:04:20,138 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:04:20,547 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:04:20,955 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:04:21,360 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:04:21,766 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:04:22,172 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:04:22,529 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:04:22,984 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:04:23,387 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:04:23,794 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:04:24,197 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:04:24,553 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:04:25,013 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:04:25,430 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:04:25,833 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:04:26,248 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:04:26,656 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:04:27,058 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:04:27,460 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:04:27,862 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:04:28,267 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:04:28,670 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:04:29,073 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:04:29,474 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:04:29,879 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:04:30,295 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:04:30,700 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:04:31,107 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:04:31,512 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:04:31,878 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:04:32,336 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:04:32,738 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:04:33,143 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:04:33,647 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:04:34,011 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:04:34,467 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:04:34,883 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:04:35,287 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:04:35,703 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:04:36,106 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:04:36,508 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:04:36,872 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:04:37,328 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:04:37,356 [SYSTEM] INFO: Application closed normally.
+2026-07-15 22:04:37,692 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:04:38,046 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:04:38,407 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:04:38,763 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:04:39,119 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:04:39,478 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:04:39,837 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:04:40,247 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:04:40,662 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:04:41,066 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:04:41,470 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:04:41,886 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:04:42,238 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:04:42,697 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:04:43,110 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:04:43,512 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:04:43,916 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:04:44,323 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:04:44,727 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:04:45,132 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:04:45,537 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:04:45,944 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:04:46,350 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:04:46,754 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:04:47,157 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:04:47,560 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:04:47,977 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:04:48,382 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:04:48,784 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:04:49,188 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:04:49,591 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:04:49,996 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:04:50,412 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:04:50,776 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:04:51,184 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:04:51,600 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:04:51,967 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:04:52,428 [SYSTEM] INFO: 1 change detected
+2026-07-15 22:04:52,933 [SYSTEM] INFO: 1 change detected
+=======
 2026-07-16 10:15:25,029 [SYSTEM] INFO: Application starting...
 2026-07-16 10:15:25,030 [SYSTEM] INFO: Checking MySQL database connection to root@localhost...
 2026-07-16 10:15:25,523 [SYSTEM] INFO: Database schema verification completed successfully (read-only verification).
@@ -18397,3 +19843,4 @@ _tkinter.TclError: bad window path name ".!loginscreen.!ctkframe2.!ctkframe.!ctk
 2026-07-16 10:15:32,409 [SYSTEM] INFO: User '1' logged in successfully.
 2026-07-16 10:15:39,219 [SYSTEM] INFO: Database snapshot backup complete.
 2026-07-16 10:16:08,464 [SYSTEM] INFO: Application closed normally.
+>>>>>>> 6d5b1450d41a779e6996e3777ae2e22e37f8fe5c

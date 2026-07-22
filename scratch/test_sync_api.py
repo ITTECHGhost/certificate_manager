@@ -9,7 +9,7 @@ DB_PATH = Path(__file__).resolve().parent.parent / "local_cache.db"
 def test_ping():
     print("--- Testing GET /ping ---")
     try:
-        response = requests.get("http://127.0.0.1:8000/ping", timeout=2.0)
+        response = requests.get("http://127.0.0.1:2030/ping", timeout=2.0)
         print("Status Code:", response.status_code)
         print("Response JSON:", response.json())
         return response.status_code == 200
@@ -68,7 +68,7 @@ def test_batch_sync():
     }
     
     try:
-        response = requests.post("http://127.0.0.1:8000/sync", json=payload, timeout=5.0)
+        response = requests.post("http://127.0.0.1:2030/sync", json=payload, timeout=5.0)
         print("Sync Status Code:", response.status_code)
         print("Sync Response JSON:", response.json())
         return response.status_code == 200

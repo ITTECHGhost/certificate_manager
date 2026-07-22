@@ -54,14 +54,18 @@ class LoginScreen:
                     "w-full bg-blue-600 hover:bg-blue-500 text-white font-medium py-3 rounded-xl normal-case transition-colors mt-2"
                 )
 
-    def handle_login(self) -> None:
+    def handle_login(self, e=None) -> None:
         """Validates credentials via AuthRepository and updates session state."""
+        if not self.username_input or not self.password_input:
+            return
+
         username = (self.username_input.value or "").strip()
         password = self.password_input.value or ""
 
         if not username or not password:
-            self.error_label.set_text("Invalid username or password")
-            self.error_label.set_visibility(True)
+            if self.error_label:
+                self.error_label.set_text("Invalid username or password")
+                self.error_label.set_visibility(True)
             return
 
         conn = None
@@ -71,7 +75,8 @@ class LoginScreen:
             user_record = auth_repo.authenticate(username, password)
 
             if user_record:
-                self.error_label.set_visibility(False)
+                if self.error_label:
+                    self.error_label.set_visibility(False)
                 user_id = user_record.get("id", 1)
                 app_session.login_user(user_id)
 
@@ -80,13 +85,15 @@ class LoginScreen:
                 else:
                     ui.navigate.to("/")
             else:
-                self.error_label.set_text("Invalid username or password")
-                self.error_label.set_visibility(True)
+                if self.error_label:
+                    self.error_label.set_text("Invalid username or password")
+                    self.error_label.set_visibility(True)
 
         except Exception as exc:
             print(f"[LoginScreen] Authentication Error: {exc}")
-            self.error_label.set_text("Invalid username or password")
-            self.error_label.set_visibility(True)
+            if self.error_label:
+                self.error_label.set_text("Invalid username or password")
+                self.error_label.set_visibility(True)
         finally:
             if conn:
                 try:

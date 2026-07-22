@@ -1,0 +1,9 @@
+customtkinter
+mysql-connector-python
+python-docx
+requests
+fastapi
+uvicorn
+pydantic
+pywin32
+nicegui

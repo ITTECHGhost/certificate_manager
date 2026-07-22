@@ -501,6 +501,29 @@ START TRANSACTION;
 -- 1A: Semester System Periods (from subjects_students_140)
 -- Based on your summary query: yearr = stage level, semester = term
 INSERT IGNORE INTO `certificate_manager`.`academic_periods` (
+<<<<<<< HEAD
+    `student_id`, `academic_year`, `study_system_id`, `stage_number`, `semester_num`
+)
+SELECT DISTINCT
+    (SELECT `id` FROM `certificate_manager`.`students` WHERE `full_name_ar` = 
+        (SELECT `name` FROM `project2`.`students_140` WHERE `id` = `ss140`.`id_student` LIMIT 1) LIMIT 1),
+    `yearr`, -- Note: If this is stage, ensure you have a calendar year column. 
+    2,       -- 2 = Semester System
+    CAST(SUBSTRING(`code`, 3, 1) AS UNSIGNED), -- stage_number (Level 1, 2, 3, 4)
+    CASE WHEN `semester` LIKE '%الاول%' THEN 1 ELSE 2 END -- semester_num (Term 1, 2)
+FROM `project2`.`subjects_students_140` AS `ss140`
+WHERE (SELECT `name` FROM `project2`.`students_140` WHERE `id` = `ss140`.`id_student` LIMIT 1) IS NOT NULL;
+
+
+-- 1B: Annual/Semester Periods (from subjects_students_q)
+-- Splitting 'مرحلة ثالثة-كورس ثاني' into Level and Semester
+INSERT IGNORE INTO `certificate_manager`.`academic_periods` (
+    `student_id`, `academic_year`, `study_system_id`, `stage_number`, `semester_num`
+)
+SELECT DISTINCT
+    (SELECT `id` FROM `certificate_manager`.`students` WHERE `full_name_ar` = 
+        (SELECT `name` FROM `project2`.`students_q` WHERE `id` = `ssq`.`id_student` LIMIT 1) LIMIT 1),
+=======
     `student_id`,
     `academic_year`,
     `study_system_id`,
@@ -577,6 +600,7 @@ SELECT DISTINCT
         LIMIT
             1
     ),
+>>>>>>> a92d5c369c49380bd2ac5b294633ff9de5bef463
     `yearr`, -- Calendar Year
     1, -- 1 = Annual System
     CASE
@@ -584,6 +608,14 @@ SELECT DISTINCT
         WHEN `requirment` LIKE '%ثانية%' THEN 2
         WHEN `requirment` LIKE '%ثالثة%' THEN 3
         WHEN `requirment` LIKE '%رابعة%' THEN 4
+<<<<<<< HEAD
+        ELSE 1 
+    END, -- stage_number
+    CASE WHEN `requirment` LIKE '%كورس اول%' THEN 1 ELSE 2 END -- semester_num
+FROM `project2`.`subjects_students_q` AS `ssq`
+WHERE (SELECT `name` FROM `project2`.`students_q` WHERE `id` = `ssq`.`id_student` LIMIT 1) IS NOT NULL;
+
+=======
         ELSE 1
     END, -- stage_number
     CASE
@@ -603,6 +635,7 @@ WHERE
         LIMIT
             1
     ) IS NOT NULL;
+>>>>>>> a92d5c369c49380bd2ac5b294633ff9de5bef463
 
 -- =============================================================================
 -- Phase 2: MIGRATE ENROLLMENTS (GRADES)
@@ -684,6 +717,77 @@ WHERE
     `period_id` IS NOT NULL
     AND `course_id` IS NOT NULL;
 
+<<<<<<< HEAD
+-- 2A: Semester System Enrollments (140)
+INSERT INTO `certificate_manager`.`enrollments` (
+    `period_id`, `course_id`, `score`, `is_second_round`, `passed_round`
+)
+SELECT * FROM (
+    SELECT 
+        (SELECT `id` FROM `certificate_manager`.`academic_periods` ap WHERE 
+            ap.`student_id` = (SELECT `id` FROM `certificate_manager`.`students` WHERE
+                               `full_name_ar` = (SELECT `name` FROM `project2`.`students_140` WHERE
+                                                 `id` = `ss140`.`id_student` LIMIT 1) LIMIT 1)
+            AND ap.`stage_number` = CAST(SUBSTRING(`ss140`.`code`, 3, 1) AS UNSIGNED)
+            AND ap.`semester_num` = CASE WHEN `ss140`.`semester` LIKE '%الاول%' THEN 1 ELSE 2 END
+         LIMIT 1) AS `period_id`,
+         
+        (SELECT `id` FROM `certificate_manager`.`courses` c WHERE 
+            c.`name_ar` = `ss140`.`name_ar` 
+            AND c.`stage_number` = CAST(SUBSTRING(`ss140`.`code`, 3, 1) AS UNSIGNED)
+         LIMIT 1) AS `course_id`,
+         
+        CAST(`ss140`.`degree` AS DECIMAL(5,1)) AS `score`,
+        CASE WHEN `ss140`.`failed` LIKE '%ثاني%' OR `ss140`.`failed` LIKE '%ثالث%' THEN 1 ELSE 0 END AS `is_second_round`,
+        CASE 
+            WHEN `ss140`.`failed` LIKE '%ثاني%' THEN '2' 
+            WHEN `ss140`.`failed` LIKE '%ثالث%' THEN '3' 
+            ELSE '1' 
+        END AS `passed_round`
+    FROM `project2`.`subjects_students_140` AS `ss140`
+) AS `mapped_140`
+WHERE `period_id` IS NOT NULL AND `course_id` IS NOT NULL;
+
+
+-- 2B: Annual/Semester Enrollments (q)
+INSERT INTO `certificate_manager`.`enrollments` (
+    `period_id`, `course_id`, `score`, `is_second_round`, `passed_round`
+)
+SELECT * FROM (
+    SELECT 
+        (SELECT `id` FROM `certificate_manager`.`academic_periods` ap WHERE 
+            ap.`student_id` = (SELECT `id` FROM `certificate_manager`.`students` WHERE `full_name_ar` = (SELECT `name` FROM `project2`.`students_q` WHERE `id` = `ssq`.`id_student` LIMIT 1) LIMIT 1)
+            AND ap.`academic_year` = `ssq`.`yearr`
+            AND ap.`stage_number` = (CASE 
+                WHEN `ssq`.`requirment` LIKE '%اولى%' THEN 1
+                WHEN `ssq`.`requirment` LIKE '%ثانية%' THEN 2
+                WHEN `ssq`.`requirment` LIKE '%ثالثة%' THEN 3
+                WHEN `ssq`.`requirment` LIKE '%رابعة%' THEN 4
+                ELSE 1 END)
+            AND ap.`semester_num` = (CASE WHEN `ssq`.`requirment` LIKE '%كورس اول%' THEN 1 ELSE 2 END)
+         LIMIT 1) AS `period_id`,
+         
+        (SELECT `id` FROM `certificate_manager`.`courses` c WHERE 
+            c.`name_ar` = `ssq`.`name_ar` 
+            AND c.`stage_number` = (CASE 
+                WHEN `ssq`.`requirment` LIKE '%اولى%' THEN 1
+                WHEN `ssq`.`requirment` LIKE '%ثانية%' THEN 2
+                WHEN `ssq`.`requirment` LIKE '%ثالثة%' THEN 3
+                WHEN `ssq`.`requirment` LIKE '%رابعة%' THEN 4
+                ELSE 1 END)
+         LIMIT 1) AS `course_id`,
+         
+        CAST(`ssq`.`degree` AS DECIMAL(5,1)) AS `score`,
+        CASE WHEN `ssq`.`role` LIKE '%ثاني%' OR `ssq`.`role` LIKE '%ثالث%' THEN 1 ELSE 0 END AS `is_second_round`,
+        CASE 
+            WHEN `ssq`.`role` LIKE '%ثاني%' THEN '2' 
+            WHEN `ssq`.`role` LIKE '%ثالث%' THEN '3' 
+            ELSE '1' 
+        END AS `passed_round`
+    FROM `project2`.`subjects_students_q` AS `ssq`
+) AS `mapped_q`
+WHERE `period_id` IS NOT NULL AND `course_id` IS NOT NULL;
+=======
 -- 2B: Annual/Semester Enrollments (q)
 INSERT INTO
     `certificate_manager`.`enrollments` (
@@ -778,6 +882,7 @@ FROM
 WHERE
     `period_id` IS NOT NULL
     AND `course_id` IS NOT NULL;
+>>>>>>> a92d5c369c49380bd2ac5b294633ff9de5bef463
 
 COMMIT;
 
