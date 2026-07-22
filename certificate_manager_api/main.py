@@ -255,6 +255,7 @@ def search_students_basic(query: str, limit: int = 50, db = Depends(get_db)):
     try:
         # Execute the Stored Procedure
         cursor.callproc("SearchStudentsBasic", (query, limit))
+        
         # Fetch the results from the procedure's output
         results = []
         for result_set in cursor.stored_results():
@@ -1481,12 +1482,26 @@ class DashboardCountsResponse(BaseModel):
 def get_dashboard_counts(conn = Depends(get_db)):
     cur = conn.cursor(dictionary=True)
     try:
-        cur.callproc("Get_dashboard_counts")
         result = None
-        for r in cur.stored_results():
-            result = r.fetchone()
-            break
-        
+        try:
+            cur.callproc("Get_dashboard_counts")
+            for r in cur.stored_results():
+                result = r.fetchone()
+                break
+        except Exception as sp_exc:
+            logger.warning(f"Get_dashboard_counts SP call failed ({sp_exc}). Falling back to direct SQL.")
+            result = None
+
+        if not result:
+            cur.execute(
+                "SELECT "
+                "(SELECT COUNT(id) FROM students) AS total_students, "
+                "(SELECT COUNT(id) FROM departments) AS total_departments, "
+                "(SELECT COUNT(id) FROM courses) AS total_courses, "
+                "(SELECT COUNT(id) FROM personnel) AS total_personnel"
+            )
+            result = cur.fetchone()
+
         if not result:
             return DashboardCountsResponse(
                 total_students=0,
@@ -1494,12 +1509,12 @@ def get_dashboard_counts(conn = Depends(get_db)):
                 total_courses=0,
                 total_personnel=0
             )
-            
+
         return DashboardCountsResponse(
-            total_students=result["total_students"],
-            total_departments=result["total_departments"],
-            total_courses=result["total_courses"],
-            total_personnel=result["total_personnel"]
+            total_students=result.get("total_students", 0),
+            total_departments=result.get("total_departments", 0),
+            total_courses=result.get("total_courses", 0),
+            total_personnel=result.get("total_personnel", 0)
         )
     except Exception as exc:
         raise HTTPException(status_code=500, detail=str(exc))
