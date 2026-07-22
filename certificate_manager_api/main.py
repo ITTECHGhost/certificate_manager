@@ -1243,7 +1243,19 @@ def get_user_appearance(user_id: int, conn = Depends(get_db)):
         for result in cur.stored_results():
             row = result.fetchone()
             break
-        return row or {}
+        if not row or not row.get("theme"):
+            cur.callproc("UpdateUserPreferences", (user_id, "Dark", "blue", "Segoe UI", 13, 1))
+            conn.commit()
+            return {
+                "EMP_ID": user_id,
+                "id": user_id,
+                "theme": "Dark",
+                "accent_color": "blue",
+                "font_family": "Segoe UI",
+                "font_size_base": 13,
+                "is_arabic_rtl": 1
+            }
+        return row
     except Exception as exc:
         raise HTTPException(status_code=500, detail=str(exc))
     finally:

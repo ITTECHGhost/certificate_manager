@@ -1,18 +1,5 @@
 # =============================================================================
-# screens/settings_screen.py — NiceGUI Settings Screen
-# =============================================================================
-#
-# Full NiceGUI rewrite of the application settings screen.
-# Built using the `UI` component factory from `ui_components.py` and `state.py`.
-#
-# Features:
-#   1. Institution Info (Univ & College AR/EN)
-#   2. Study Systems Management (CRUD list with Active toggle switches + Add/Delete)
-#   3. Appearance & Theme (Theme Mode dropdown with live Light/Dark mode switching,
-#      Accent, Font, Base Font Size, RTL Layout controls bound to logged-in EMP_ID session state)
-#   4. Database Maintenance (Backup, Restore, Legacy MySQL Import, Clear Logs)
-#   5. About Section (Version & Developer credits)
-#
+# nicegui_screens/settings_screen.py — NiceGUI Settings Screen
 # =============================================================================
 
 from pathlib import Path
@@ -20,8 +7,8 @@ from nicegui import ui
 from data.repositories import SettingsRepository, StudySystemRepository
 from db import backup_db, restore_db
 from tools.migrate_mysql import trigger_migration
-from ui_components import UI
-from state import get_user_session
+from nicegui_ui.ui_components import UI
+from nicegui_ui.state import get_user_session
 
 
 class SettingsScreen:
@@ -35,16 +22,13 @@ class SettingsScreen:
         self.sys_repo = StudySystemRepository()
         self.on_notify = on_notify or (lambda msg, typ="positive": ui.notify(msg, type=typ))
 
-        # Active User Session State
         self.session = get_user_session()
         self.emp_id = self.session.emp_id
 
-        # Data
         self.settings_data: dict = {}
         self.appearance_data: dict = {}
         self.systems: list = []
 
-        # Form Controls
         self.univ_ar_input = None
         self.univ_en_input = None
         self.college_ar_input = None
@@ -58,10 +42,6 @@ class SettingsScreen:
         self._load_data()
         self._build_ui()
         self._apply_initial_theme()
-
-    # ------------------------------------------------------------------
-    # Data Loading
-    # ------------------------------------------------------------------
 
     def _load_data(self) -> None:
         """Fetch current settings, user appearance (tied to EMP_ID), and study systems from repositories."""
@@ -83,10 +63,6 @@ class SettingsScreen:
         else:
             dark_mode.auto()
 
-    # ------------------------------------------------------------------
-    # UI Construction
-    # ------------------------------------------------------------------
-
     def _build_ui(self) -> None:
         """Build the settings screen layout using the UI factory."""
         with ui.column().classes("w-full gap-6 pb-12"):
@@ -95,8 +71,6 @@ class SettingsScreen:
             self._section_appearance()
             self._section_database_maintenance()
             self._section_about()
-
-    # ── Section 1: Institution Info ──────────────────────────────────
 
     def _section_institution_info(self) -> None:
         with UI.card():
@@ -125,8 +99,6 @@ class SettingsScreen:
                 icon="save",
                 on_click=self._save_institution_info
             ).classes("self-end")
-
-    # ── Section 2: Study Systems ─────────────────────────────────────
 
     def _section_study_systems(self) -> None:
         with UI.card():
@@ -169,8 +141,6 @@ class SettingsScreen:
                         "", icon="delete",
                         on_click=lambda sid=s["id"]: self._delete_study_system(sid)
                     ).classes("text-red-500 dark:text-red-400 hover:bg-red-500/20 p-2")
-
-    # ── Section 3: Appearance & Theme (Bound to EMP_ID Session State) ─
 
     def _section_appearance(self) -> None:
         with UI.card():
@@ -215,8 +185,6 @@ class SettingsScreen:
                 on_click=self._save_appearance
             ).classes("self-end bg-purple-600 hover:bg-purple-500")
 
-    # ── Section 4: Database Maintenance ──────────────────────────────
-
     def _section_database_maintenance(self) -> None:
         with UI.card():
             UI.card_header("صيانة قاعدة البيانات — Database Maintenance", "storage", "text-amber-500 dark:text-amber-400")
@@ -247,8 +215,6 @@ class SettingsScreen:
                     "delete_forever", "bg-red-600", self._do_clear_logs
                 )
 
-    # ── Section 5: About ─────────────────────────────────────────────
-
     def _section_about(self) -> None:
         with UI.card():
             UI.card_header("حول البرنامج — About", "info", "text-slate-400")
@@ -260,10 +226,6 @@ class SettingsScreen:
                 ui.label("Developed by M. Hussein / تم التطوير بواسطة م. حسين").classes(
                     "text-xs text-emerald-600 dark:text-emerald-400 font-semibold mt-1"
                 )
-
-    # ------------------------------------------------------------------
-    # Live Theme Change & Event Handlers
-    # ------------------------------------------------------------------
 
     def _on_theme_select_change(self, e=None) -> None:
         """Live theme switch when Theme Mode dropdown option changes."""
@@ -325,7 +287,6 @@ class SettingsScreen:
             ui.notify(f"Error deleting system: {exc}", type="negative")
 
     def _save_appearance(self) -> None:
-        """Saves theme and appearance preferences to database for current EMP_ID session."""
         try:
             theme_val = str(self.theme_select.value or "Dark")
             accent_val = str(self.accent_select.value or "blue")
@@ -333,7 +294,6 @@ class SettingsScreen:
             size_val = int(self.font_size_input.value or 13)
             rtl_val = 1 if (self.rtl_switch.value if self.rtl_switch else True) else 0
 
-            # Apply live mode
             dark_mode = ui.dark_mode()
             if theme_val == "Dark":
                 dark_mode.enable()
@@ -342,7 +302,6 @@ class SettingsScreen:
             else:
                 dark_mode.auto()
 
-            # Save to repository via session EMP_ID
             self.s_repo.update_user_appearance(
                 emp_id=self.emp_id,
                 theme=theme_val,
@@ -352,7 +311,6 @@ class SettingsScreen:
                 rtl=rtl_val
             )
 
-            # Update session state in memory
             self.session.update_preferences(
                 theme=theme_val,
                 accent_color=accent_val,

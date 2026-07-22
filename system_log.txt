@@ -18388,3 +18388,12 @@ Traceback (most recent call last):
 _tkinter.TclError: bad window path name ".!loginscreen.!ctkframe2.!ctkframe.!ctkframe.!ctkentry.!entry"
 2026-07-15 14:06:10,503 [SYSTEM] INFO: Database snapshot backup complete.
 2026-07-15 14:17:07,069 [SYSTEM] INFO: Application closed normally.
+2026-07-16 10:15:25,029 [SYSTEM] INFO: Application starting...
+2026-07-16 10:15:25,030 [SYSTEM] INFO: Checking MySQL database connection to root@localhost...
+2026-07-16 10:15:25,523 [SYSTEM] INFO: Database schema verification completed successfully (read-only verification).
+2026-07-16 10:15:25,539 [SYSTEM] INFO: Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-07-16 10:15:27,582 [SYSTEM] INFO: Restarting FastAPI Windows Service asynchronously...
+2026-07-16 10:15:28,665 [SYSTEM] INFO: FastAPI Windows Service restart sequence completed.
+2026-07-16 10:15:32,409 [SYSTEM] INFO: User '1' logged in successfully.
+2026-07-16 10:15:39,219 [SYSTEM] INFO: Database snapshot backup complete.
+2026-07-16 10:16:08,464 [SYSTEM] INFO: Application closed normally.

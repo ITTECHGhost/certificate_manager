@@ -3,6 +3,7 @@
 # =============================================================================
 
 import os
+import hashlib
 import logging
 import requests
 from api_config import API_URL
@@ -180,40 +181,127 @@ class SettingsRepository(BaseRepository):
             print(f"API request failed: {e}")
             raise
 
-    def get_user_appearance(self, user_id: int) -> dict:
+    def get_user_appearance(self, emp_id: int) -> dict:
+        """
+        Fetch appearance preferences tied directly to personnel user via EMP_ID.
+        Auto-creates default theme preferences in settings table if missing.
+        """
         if not is_online():
-            row = self._call_read_one("GetUserPreferences", (user_id,))
-            return row if row else {"theme": "System", "accent_color": "blue", "font_family": "Arial", "font_size_base": 13}
+            row = sqlite_read_one("SELECT * FROM settings WHERE EMP_ID = ?", (emp_id,))
+            if not row:
+                conn = get_local_connection()
+                try:
+                    conn.execute("""
+                        INSERT INTO settings (EMP_ID, theme, accent_color, font_family, font_size_base, is_arabic_rtl)
+                        VALUES (?, 'Dark', 'blue', 'Segoe UI', 13, 1)
+                        ON CONFLICT(EMP_ID) DO NOTHING
+                    """, (emp_id,))
+                    conn.commit()
+                except Exception as ex:
+                    print(f"Could not auto-insert default settings offline: {ex}")
+                finally:
+                    conn.close()
+                row = sqlite_read_one("SELECT * FROM settings WHERE EMP_ID = ?", (emp_id,))
+            return row if row else {
+                "theme": "Dark",
+                "accent_color": "blue",
+                "font_family": "Segoe UI",
+                "font_size_base": 13,
+                "is_arabic_rtl": 1,
+                "EMP_ID": emp_id
+            }
         try:
-            resp = requests.get(f"{self.api_url}/settings/appearance/{user_id}", timeout=5.0)
-            if resp.status_code == 200:
+            resp = requests.get(f"{self.api_url}/settings/appearance/{emp_id}", timeout=5.0)
+            if resp.status_code == 200 and resp.json():
                 return resp.json()
-            return {"theme": "System", "accent_color": "blue", "font_family": "Arial", "font_size_base": 13}
+            self.update_user_appearance(emp_id, theme="Dark", accent="blue", font="Segoe UI", size=13, rtl=1)
+            return {
+                "theme": "Dark",
+                "accent_color": "blue",
+                "font_family": "Segoe UI",
+                "font_size_base": 13,
+                "is_arabic_rtl": 1,
+                "EMP_ID": emp_id
+            }
         except Exception as e:
             print(f"API request failed: {e}")
-            return {"theme": "System", "accent_color": "blue", "font_family": "Arial", "font_size_base": 13}
+            return {
+                "theme": "Dark",
+                "accent_color": "blue",
+                "font_family": "Segoe UI",
+                "font_size_base": 13,
+                "is_arabic_rtl": 1,
+                "EMP_ID": emp_id
+            }
 
-    def update_user_appearance(self, user_id: int, theme: str, accent: str, font: str, size: int, rtl: int = 1) -> None:
+    def update_user_appearance(self, emp_id: int, theme: str, accent: str, font: str, size: int, rtl: int = 1) -> None:
+        """
+        Update appearance preferences tied directly to personnel user via EMP_ID.
+        """
         if not is_online():
-            self._call_write("UpdateUserPreferences", (user_id, theme, accent, font, size, rtl))
-            log_activity(f"تم تحديث المظهر للمستخدم ID: {user_id}")
+            conn = _get_local_conn()
+            try:
+                conn.execute("""
+                    INSERT INTO settings (EMP_ID, theme, accent_color, font_family, font_size_base, is_arabic_rtl)
+                    VALUES (?, ?, ?, ?, ?, ?)
+                    ON CONFLICT(EMP_ID) DO UPDATE SET
+                        theme = excluded.theme,
+                        accent_color = excluded.accent_color,
+                        font_family = excluded.font_family,
+                        font_size_base = excluded.font_size_base,
+                        is_arabic_rtl = excluded.is_arabic_rtl
+                """, (emp_id, theme, accent, font, size, rtl))
+                conn.commit()
+            finally:
+                conn.close()
+            log_activity(f"تم تحديث المظهر للمستخدم ID: {emp_id}")
             return
         try:
             payload = {
+                "emp_id": emp_id,
                 "theme": theme,
                 "accent_color": accent,
                 "font_family": font,
                 "font_size_base": size,
                 "rtl": rtl
             }
-            resp = requests.put(f"{self.api_url}/settings/appearance/{user_id}", json=payload, timeout=5.0)
+            resp = requests.put(f"{self.api_url}/settings/appearance/{emp_id}", json=payload, timeout=5.0)
             if resp.status_code == 200:
-                log_activity(f"تم تحديث المظهر للمستخدم ID: {user_id}")
+                log_activity(f"تم تحديث المظهر للمستخدم ID: {emp_id}")
             else:
-                raise RuntimeError(f"API update failed: {resp.text}")
+                conn = _get_local_conn()
+                try:
+                    conn.execute("""
+                        INSERT INTO settings (EMP_ID, theme, accent_color, font_family, font_size_base, is_arabic_rtl)
+                        VALUES (?, ?, ?, ?, ?, ?)
+                        ON CONFLICT(EMP_ID) DO UPDATE SET
+                            theme = excluded.theme,
+                            accent_color = excluded.accent_color,
+                            font_family = excluded.font_family,
+                            font_size_base = excluded.font_size_base,
+                            is_arabic_rtl = excluded.is_arabic_rtl
+                    """, (emp_id, theme, accent, font, size, rtl))
+                    conn.commit()
+                finally:
+                    conn.close()
+                log_activity(f"تم تحديث المظهر للمستخدم ID: {emp_id}")
         except Exception as e:
             print(f"API request failed: {e}")
-            raise
+            conn = _get_local_conn()
+            try:
+                conn.execute("""
+                    INSERT INTO settings (EMP_ID, theme, accent_color, font_family, font_size_base, is_arabic_rtl)
+                    VALUES (?, ?, ?, ?, ?, ?)
+                    ON CONFLICT(EMP_ID) DO UPDATE SET
+                        theme = excluded.theme,
+                        accent_color = excluded.accent_color,
+                        font_family = excluded.font_family,
+                        font_size_base = excluded.font_size_base,
+                        is_arabic_rtl = excluded.is_arabic_rtl
+                """, (emp_id, theme, accent, font, size, rtl))
+                conn.commit()
+            finally:
+                conn.close()
 
     def clear_audit_logs(self) -> None:
         if not is_online():
@@ -1939,3 +2027,31 @@ class DashboardRepository(BaseRepository):
             print(f"API request failed: {e}. Falling back to SQLite cache.")
             row = sqlite_read_one(fallback_query)
             return dict(row) if row else {"total_students": 0, "total_departments": 0, "total_courses": 0, "total_personnel": 0}
+
+
+# ---------------------------------------------------------------------------
+# Module 13: Authentication
+# ---------------------------------------------------------------------------
+
+class AuthRepository:
+    def __init__(self, db_connection):
+        self.db = db_connection
+
+    # def _hash_password(self, raw_password: str) -> str:
+    #     return hashlib.sha256(raw_password.encode('utf-8')).hexdigest()
+
+    def authenticate(self, username: str, raw_password: str) -> dict | None:
+        cursor = self.db.cursor(dictionary=True)
+        try:
+            # Passing raw_password directly for testing purposes
+            cursor.callproc("AuthenticateUser", (username, raw_password))
+            for result_set in cursor.stored_results():
+                user_record = result_set.fetchone()
+                if user_record:
+                    return user_record
+            return None
+        except Exception as e:
+            print(f"Authentication Error: {e}")
+            return None
+        finally:
+            cursor.close()
