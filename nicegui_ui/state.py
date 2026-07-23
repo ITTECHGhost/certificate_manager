@@ -46,17 +46,16 @@ class UserSessionState:
         return str(self.preferences.get("accent_color", "blue")).lower().replace("-", "_")
 
     def apply_theme_mode(self) -> None:
-        """Apply active theme mode to NiceGUI dark_mode controller."""
+        """Apply active user preference theme mode ('dark', 'light', or 'system') to NiceGUI dark_mode controller."""
         try:
-            from nicegui import ui
+            from nicegui_ui.ui_theme import is_windows_dark_mode, set_dark_mode
             mode = self.theme_mode
-            dark_controller = ui.dark_mode()
             if mode == "dark":
-                dark_controller.enable()
+                set_dark_mode(True)
             elif mode == "light":
-                dark_controller.disable()
+                set_dark_mode(False)
             else:
-                dark_controller.auto()
+                set_dark_mode(is_windows_dark_mode())
         except Exception as exc:
             log.warning("Could not apply theme mode: %s", exc)
 
@@ -111,13 +110,14 @@ class UserSessionState:
 
         self.apply_theme_mode()
 
-    def logout(self) -> None:
-        """Reset active user session state on logout."""
+    def logout_user(self) -> None:
+        """Reset active user session data back to default state."""
         self.emp_id = 1
         self.username = "admin"
         self.name_ar = "مدير النظام"
         self.name_en = "Admin User"
         self.role = "admin"
+        self.is_active = False
 
 
 _current_session: Optional[UserSessionState] = None

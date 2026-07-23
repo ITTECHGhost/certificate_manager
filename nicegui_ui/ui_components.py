@@ -27,10 +27,20 @@ class UI:
     def card(extra_classes: str = ""):
         """
         Creates a standard card container context manager (Light/Dark mode ready).
-        Explicit surface backgrounds guarantee card surface contrast in all themes.
+        All screens using UI.card inherit identical border, shadow, background, and padding tokens.
         """
-        css = f"{Styles.SETTINGS_CARD} {extra_classes}".strip()
+        css = f"{Styles.CARD} {extra_classes}".strip()
         return ui.column().classes(css)
+
+    @staticmethod
+    def login_card(extra_classes: str = ""):
+        """
+        Creates the specialized login card container context manager (Light/Dark mode ready).
+        Inherits global card design tokens and glow effects.
+        """
+        css = f"{Styles.LOGIN_CARD} {extra_classes}".strip()
+        return ui.column().classes(css)
+
 
     @staticmethod
     def card_header(title: str, icon_name: str = "info", icon_color: str | None = None):
@@ -98,6 +108,7 @@ class UI:
             "text-slate-700 dark:text-slate-300 font-medium px-3 py-1.5 rounded-lg normal-case shadow-none transition-colors"
         )
         return btn
+
 
     # ── Navigation & Badges ─────────────────────────────────────────────────
 

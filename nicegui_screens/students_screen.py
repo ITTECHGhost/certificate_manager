@@ -5,7 +5,7 @@
 from nicegui import ui
 from nicegui_ui.ui_components import UI
 from nicegui_ui.ui_theme import Styles
-from nicegui_ui.state import app_session
+
 from data.repositories import StudentRepository
 
 
@@ -13,7 +13,7 @@ class StudentsScreen:
     """
     NiceGUI Students Management Screen.
     Provides throttled student search, results table with dynamic slots,
-    and profile action triggers.
+    and profile action triggers inside global UI.card container.
     """
 
     def __init__(self) -> None:
@@ -23,17 +23,17 @@ class StudentsScreen:
         self.build_ui()
 
     def build_ui(self) -> None:
-        """Constructs the Students Management view layout."""
-        app_session.apply_theme_mode()
+        """Constructs the Students Management view layout using global UI components."""
+        with UI.card():
+            UI.card_header("إدارة الطلاب — Students Management", "people", "text-blue-500 dark:text-blue-400")
 
-        with ui.column().classes("w-full max-w-6xl mx-auto gap-6 p-8"):
-            UI.section_header("إدارة الطلاب — Students Management")
-
-            self.search_input = ui.input(
-                placeholder="ابحث بالاسم (Search by name)..."
-            ).classes("w-full max-w-md").on(
-                "update:model-value", self.perform_search, throttle=300
-            ).props("outlined")
+            with ui.row().classes("w-full items-center justify-between gap-4 mt-2"):
+                self.search_input = UI.text_input(
+                    label="ابحث بالاسم (Search student by name)",
+                    placeholder="أدخل اسم الطالب..."
+                ).classes("w-full max-w-md").on(
+                    "update:model-value", self.perform_search, throttle=300
+                )
 
             columns = [
                 {"name": "name_ar", "label": "Name / الاسم", "field": "name_ar", "align": "left"},
@@ -47,7 +47,7 @@ class StudentsScreen:
                 columns=columns,
                 rows=[],
                 row_key="name_ar"
-            ).props("flat bordered").classes(Styles.TABLE_CLASSES)
+            ).classes(Styles.TABLE_CLASSES).props("flat bordered hide-bottom")
 
             self.table.add_slot("body-cell-actions", """
                 <q-td :props="props">
@@ -57,10 +57,15 @@ class StudentsScreen:
 
             self.table.on("view_profile", self._on_view_profile)
 
+
     def perform_search(self, event) -> None:
         """Throttled search handler for student records."""
+        if self.table is None:
+            return
+
         if hasattr(event, "value") and event.value is not None:
             query = str(event.value)
+
         elif isinstance(getattr(event, "args", None), str):
             query = event.args
         elif isinstance(getattr(event, "args", None), dict):

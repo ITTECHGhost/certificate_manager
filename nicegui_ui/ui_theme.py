@@ -1,6 +1,19 @@
-# =============================================================================
-# nicegui_ui/ui_theme.py — NiceGUI UI Theme Constants & Accent Palettes
-# =============================================================================
+import sys
+import winreg
+
+
+def is_windows_dark_mode() -> bool:
+    """Detects if Windows OS app mode is set to Dark mode (AppsUseLightTheme = 0)."""
+    if sys.platform != "win32":
+        return False
+    try:
+        registry_path = r"Software\Microsoft\Windows\CurrentVersion\Themes\Personalize"
+        with winreg.OpenKey(winreg.HKEY_CURRENT_USER, registry_path) as key:
+            value, _ = winreg.QueryValueEx(key, "AppsUseLightTheme")
+            return value == 0
+    except Exception:
+        return False
+
 
 class Colors:
     """Centralized hex color palette for the NiceGUI UI."""
@@ -167,13 +180,18 @@ class Styles:
     )
 
     CARD = (
-        "p-6 !bg-white dark:!bg-[#1e293b] rounded-2xl border border-slate-200 "
+        "app-card w-full p-6 bg-white dark:bg-[#1e293b] rounded-2xl border border-slate-200 "
         "dark:border-slate-800 shadow-md dark:shadow-xl gap-4 transition-colors duration-200"
+    )
+    LOGIN_CARD = (
+        "app-login-card w-[440px] max-w-full bg-white dark:bg-[#0b1329] rounded-[24px] p-8 pt-10 gap-5 "
+        "border border-slate-200 dark:border-blue-500/20 shadow-xl dark:shadow-[0_0_35px_rgba(59,130,246,0.15)] "
+        "login-card-glow relative mt-8 transition-all duration-300"
     )
 
     STAT_GRID  = "w-full gap-5"
     STAT_CARD  = (
-        "p-5 !bg-white dark:!bg-[#1e293b] rounded-2xl border border-slate-200 "
+        "app-card p-5 bg-white dark:bg-[#1e293b] rounded-2xl border border-slate-200 "
         "dark:border-slate-800 shadow-md dark:shadow-xl gap-4 transition-colors duration-200"
     )
     STAT_ICON_ROW = "w-full justify-between items-start"
@@ -183,7 +201,7 @@ class Styles:
     BOTTOM_ROW = "w-full gap-6 items-stretch"
 
     ACTIONS_PANEL = (
-        "p-6 !bg-white dark:!bg-[#1e293b] "
+        "app-card w-1/3 p-6 bg-white dark:bg-[#1e293b] "
         "rounded-2xl border border-slate-200 dark:border-slate-800 gap-4 shadow-md dark:shadow-xl transition-colors duration-200"
     )
     ACTIONS_TITLE = f"{Typography.SECTION_HEAD} text-slate-900 dark:text-white mb-2"
@@ -197,21 +215,13 @@ class Styles:
     ACTION_BTN_SLATE   = f"{ACTION_BTN_BASE} bg-slate-700 hover:bg-slate-600"
 
     TABLE_PANEL = (
-        "p-6 !bg-white dark:!bg-[#1e293b] "
+        "app-card w-full p-6 bg-white dark:bg-[#1e293b] "
         "rounded-2xl border border-slate-200 dark:border-slate-800 shadow-md dark:shadow-xl gap-2 transition-colors duration-200"
     )
     TABLE_TITLE  = f"{Typography.SECTION_HEAD} text-slate-900 dark:text-white mb-2"
     TABLE_CLASSES = "w-full bg-transparent text-slate-900 dark:text-slate-300 no-shadow border-none"
 
-    SETTINGS_CARD = (
-        "w-full p-6 !bg-white dark:!bg-[#1e293b] rounded-2xl border border-slate-200 "
-        "dark:border-slate-800 shadow-md dark:shadow-xl gap-6 transition-colors duration-200"
-    )
-
-    LOGIN_CARD = (
-        "rounded-[24px] p-8 pt-10 gap-5 "
-        "transition-all duration-300 login-card-glow login-card-container relative mt-8"
-    )
+    SETTINGS_CARD = CARD
 
 
 NAV_ITEMS: list[dict] = [
@@ -278,8 +288,20 @@ QUICK_ACTIONS: list[dict] = [
     },
 ]
 
+def set_dark_mode(enable: bool) -> None:
+    """Enables or disables dark mode for Quasar and syncs the 'dark' CSS class to body and documentElement."""
+    from nicegui import ui
+    dark = ui.dark_mode()
+    if enable:
+        dark.enable()
+        ui.run_javascript("document.body.classList.add('dark'); document.documentElement.classList.add('dark');")
+    else:
+        dark.disable()
+        ui.run_javascript("document.body.classList.remove('dark'); document.documentElement.classList.remove('dark');")
+
+
 def inject_global_styles():
-    """Reads theme.css and injects it cleanly into head."""
+    """Reads theme.css and injects Tailwind config and global styles."""
     from nicegui import ui
     import os
     
@@ -288,14 +310,16 @@ def inject_global_styles():
         with open(css_path, 'r', encoding='utf-8') as f:
             css = f.read()
             
-        ui.add_head_html(f"<style>{css}</style>")
-        ui.add_head_html('''
-            <script>
-                tailwind.config = {
-                    darkMode: ['class', '.body--dark'],
-                }
-            </script>
-        ''')
+        ui.add_head_html(f"""
+        <script>
+        window.tailwind = window.tailwind || {{}};
+        window.tailwind.config = window.tailwind.config || {{}};
+        window.tailwind.config.darkMode = 'class';
+        </script>
+        <style>
+        {css}
+        </style>
+        """)
     except Exception as e:
         print(f"[Theme] Failed to load theme.css: {e}")
 
