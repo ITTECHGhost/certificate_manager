@@ -162,8 +162,7 @@ class MainAppShell:
                 def confirm_logout():
                     dialog.close()
                     from nicegui_ui.state import app_session
-                    app_session.logout_user()
-                    ui.notify("تم تسجيل الخروج بنجاح / Logged out successfully!", type="info")
+                    app_session.logout()
                     ui.navigate.to('/')
 
                 ui.button("Logout / تسجيل الخروج", on_click=confirm_logout).classes(
@@ -172,40 +171,23 @@ class MainAppShell:
         dialog.open()
 
     def _build_user_chip(self) -> None:
-        from nicegui_ui.state import app_session
+        with ui.row().classes(f"{Styles.USER_CHIP} justify-between").on("click", self._handle_logout) as self._user_chip_row:
+            self._user_chip_row.tooltip("Click to Logout / تسجيل الخروج")
+            with ui.row().classes("items-center gap-3 flex-nowrap overflow-hidden"):
+                ui.icon("account_circle", size="sm").classes(Styles.USER_ICON).tooltip(
+                    "Admin User - Online"
+                )
+                user_text_col = ui.column().classes("gap-0")
+                with user_text_col:
+                    UI.standard_label("Admin User")
+                    UI.muted_label("Online").classes("text-emerald-500 font-semibold")
+                self._user_chip_labels.append(user_text_col)
 
-        user_name = app_session.name_en or app_session.username or "Admin User"
-        user_role = (app_session.role or "admin").capitalize()
-
-        with ui.row().classes(Styles.USER_CHIP) as self._user_chip_row:
-            ui.icon("account_circle", size="sm").classes(Styles.USER_ICON).tooltip(
-                f"{user_name} ({user_role})"
-            )
-            user_text_col = ui.column().classes("gap-0 flex-1 min-w-0")
-            with user_text_col:
-                UI.standard_label(user_name).classes("truncate text-xs font-bold text-slate-200")
-                UI.muted_label(f"{user_role} • Connected").classes("text-[10px] text-emerald-400 font-semibold")
-
-            logout_btn = ui.icon("logout", size="xs").classes(
-                "text-slate-400 hover:text-red-400 transition-colors cursor-pointer"
-            ).tooltip("تسجيل الخروج / Logout")
-
-            self._user_chip_labels.append(user_text_col)
-            self._user_chip_labels.append(logout_btn)
-
-            with ui.menu().classes("bg-slate-900 border border-slate-800 rounded-xl shadow-xl p-1") as user_menu:
-                with ui.column().classes("p-2 gap-1 min-w-[190px]"):
-                    with ui.row().classes("items-center gap-2 pb-2 mb-1 border-b border-slate-800"):
-                        ui.icon("account_circle", size="md").classes("text-blue-400")
-                        with ui.column().classes("gap-0"):
-                            ui.label(user_name).classes("text-xs font-bold text-slate-100")
-                            ui.label(f"{user_role} • Online").classes("text-[10px] text-emerald-400 font-semibold")
-
-                    ui.menu_item("تسجيل الخروج / Logout", on_click=self._handle_logout).classes(
-                        "text-red-400 hover:bg-red-500/20 rounded-lg text-xs font-semibold py-2 px-3"
-                    )
-
-            self._user_chip_row.on("click", user_menu.open)
+            with ui.row().classes("items-center shrink-0") as logout_icon_row:
+                ui.icon("logout", size="xs").classes(
+                    "text-slate-400 hover:text-red-400 transition-colors cursor-pointer"
+                ).tooltip("Logout / تسجيل الخروج").on("click", self._handle_logout)
+                self._user_chip_labels.append(logout_icon_row)
 
     def toggle_sidebar(self) -> None:
         if not self._sidebar_col:
@@ -346,7 +328,7 @@ class MainAppShell:
         self._refresh_cards = stat_cards_section
 
         with ui.row().classes("w-full gap-5 items-stretch flex-nowrap"):
-            with UI.card("w-1/3 justify-between"):
+            with ui.column().classes(f"w-1/3 {Styles.ACTIONS_PANEL} justify-between"):
                 UI.section_label("Quick Actions  —  إجراءات سريعة")
                 with ui.column().classes("w-full gap-3 flex-1 justify-center"):
                     for action in QUICK_ACTIONS:
@@ -359,7 +341,7 @@ class MainAppShell:
                             ),
                         ).classes(action["style"])
 
-            with UI.card("flex-1"):
+            with ui.column().classes(f"flex-1 {Styles.TABLE_PANEL}"):
                 with ui.tabs().classes(
                     "w-full text-slate-700 dark:text-slate-300 border-b border-slate-200 dark:border-slate-700/60"
                 ) as tabs:
