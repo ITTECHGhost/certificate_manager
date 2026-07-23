@@ -1,6 +1,19 @@
-# =============================================================================
-# nicegui_ui/ui_theme.py — NiceGUI UI Theme Constants & Accent Palettes
-# =============================================================================
+import sys
+import winreg
+
+
+def is_windows_dark_mode() -> bool:
+    """Detects if Windows OS app mode is set to Dark mode (AppsUseLightTheme = 0)."""
+    if sys.platform != "win32":
+        return False
+    try:
+        registry_path = r"Software\Microsoft\Windows\CurrentVersion\Themes\Personalize"
+        with winreg.OpenKey(winreg.HKEY_CURRENT_USER, registry_path) as key:
+            value, _ = winreg.QueryValueEx(key, "AppsUseLightTheme")
+            return value == 0
+    except Exception:
+        return False
+
 
 class Colors:
     """Centralized hex color palette for the NiceGUI UI."""
@@ -166,9 +179,19 @@ class Styles:
         "outline-none shadow-none rounded-lg px-4 py-2 font-medium capitalize transition-colors"
     )
 
+    CARD = (
+        "app-card w-full p-6 bg-white dark:bg-[#1e293b] rounded-2xl border border-slate-200 "
+        "dark:border-slate-800 shadow-md dark:shadow-xl gap-4 transition-colors duration-200"
+    )
+    LOGIN_CARD = (
+        "app-login-card w-[440px] max-w-full bg-white dark:bg-[#0b1329] rounded-[24px] p-8 pt-10 gap-5 "
+        "border border-slate-200 dark:border-blue-500/20 shadow-xl dark:shadow-[0_0_35px_rgba(59,130,246,0.15)] "
+        "login-card-glow relative mt-8 transition-all duration-300"
+    )
+
     STAT_GRID  = "w-full gap-5"
     STAT_CARD  = (
-        "p-5 bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 "
+        "app-card p-5 bg-white dark:bg-[#1e293b] rounded-2xl border border-slate-200 "
         "dark:border-slate-800 shadow-md dark:shadow-xl gap-4 transition-colors duration-200"
     )
     STAT_ICON_ROW = "w-full justify-between items-start"
@@ -178,7 +201,7 @@ class Styles:
     BOTTOM_ROW = "w-full gap-6 items-stretch"
 
     ACTIONS_PANEL = (
-        "w-1/3 p-6 bg-white dark:bg-slate-800 "
+        "app-card w-1/3 p-6 bg-white dark:bg-[#1e293b] "
         "rounded-2xl border border-slate-200 dark:border-slate-800 gap-4 shadow-md dark:shadow-xl transition-colors duration-200"
     )
     ACTIONS_TITLE = f"{Typography.SECTION_HEAD} text-slate-900 dark:text-white mb-2"
@@ -192,16 +215,14 @@ class Styles:
     ACTION_BTN_SLATE   = f"{ACTION_BTN_BASE} bg-slate-700 hover:bg-slate-600"
 
     TABLE_PANEL = (
-        "w-full p-6 bg-white dark:bg-slate-800 "
+        "app-card w-full p-6 bg-white dark:bg-[#1e293b] "
         "rounded-2xl border border-slate-200 dark:border-slate-800 shadow-md dark:shadow-xl gap-2 transition-colors duration-200"
     )
     TABLE_TITLE  = f"{Typography.SECTION_HEAD} text-slate-900 dark:text-white mb-2"
     TABLE_CLASSES = "w-full bg-transparent text-slate-900 dark:text-slate-300 no-shadow border-none"
 
-    SETTINGS_CARD = (
-        "w-full p-6 bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 "
-        "dark:border-slate-800 shadow-md dark:shadow-xl gap-6 transition-colors duration-200"
-    )
+    SETTINGS_CARD = CARD
+
 
 
 NAV_ITEMS: list[dict] = [
@@ -269,7 +290,7 @@ QUICK_ACTIONS: list[dict] = [
 ]
 
 def inject_global_styles():
-    """Reads theme.css and injects it along with the dark mode class syncer."""
+    """Reads theme.css and injects Tailwind config and global styles."""
     from nicegui import ui
     import os
     
@@ -279,30 +300,14 @@ def inject_global_styles():
             css = f.read()
             
         ui.add_head_html(f"""
+        <script>
+        window.tailwind = window.tailwind || {{}};
+        window.tailwind.config = window.tailwind.config || {{}};
+        window.tailwind.config.darkMode = ['class', '.body--dark'];
+        </script>
         <style>
         {css}
         </style>
-        <script>
-        function syncDarkClass() {{
-            const isDark = document.body && document.body.classList.contains('body--dark');
-            if (isDark) {{
-                document.documentElement.classList.add('dark');
-            }} else {{
-                document.documentElement.classList.remove('dark');
-            }}
-        }}
-        // Run immediately and then poll to ensure it catches Quasar's changes
-        syncDarkClass();
-        setInterval(syncDarkClass, 150);
-        
-        document.addEventListener('DOMContentLoaded', () => {{
-            syncDarkClass();
-            const observer = new MutationObserver(syncDarkClass);
-            if (document.body) {{
-                observer.observe(document.body, {{ attributes: true, attributeFilter: ['class'] }});
-            }}
-        }});
-        </script>
         """)
     except Exception as e:
         print(f"[Theme] Failed to load theme.css: {e}")

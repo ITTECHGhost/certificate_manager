@@ -1,8 +1,35 @@
 {
-  "venvPath": ".",
-  "venv": ".venv",
+  "include": [
+    "."
+  ],
+  "pythonVersion": "3.14",
+  "pythonPlatform": "Windows",
+  "pythonPath": "C:\\Users\\IT_TECK\\AppData\\Local\\Python\\pythoncore-3.14-64\\python.exe",
+  "extraPaths": [
+    ".",
+    "C:\\Users\\IT_TECK\\AppData\\Local\\Python\\pythoncore-3.14-64\\Lib\\site-packages",
+    "C:\\Users\\IT_TECK\\AppData\\Local\\Python\\pythoncore-3.14-64\\Lib\\site-packages\\win32",
+    "C:\\Users\\IT_TECK\\AppData\\Local\\Python\\pythoncore-3.14-64\\Lib\\site-packages\\win32\\lib",
+    "C:\\Users\\IT_TECK\\AppData\\Local\\Python\\pythoncore-3.14-64\\Lib\\site-packages\\Pythonwin"
+  ],
+  "executionEnvironments": [
+    {
+      "root": ".",
+      "pythonVersion": "3.14",
+      "pythonPlatform": "Windows",
+      "pythonPath": "C:\\Users\\IT_TECK\\AppData\\Local\\Python\\pythoncore-3.14-64\\python.exe",
+      "extraPaths": [
+        ".",
+        "C:\\Users\\IT_TECK\\AppData\\Local\\Python\\pythoncore-3.14-64\\Lib\\site-packages",
+        "C:\\Users\\IT_TECK\\AppData\\Local\\Python\\pythoncore-3.14-64\\Lib\\site-packages\\win32",
+        "C:\\Users\\IT_TECK\\AppData\\Local\\Python\\pythoncore-3.14-64\\Lib\\site-packages\\win32\\lib",
+        "C:\\Users\\IT_TECK\\AppData\\Local\\Python\\pythoncore-3.14-64\\Lib\\site-packages\\Pythonwin"
+      ]
+    }
+  ],
   "exclude": [
     "**/node_modules",
     "**/__pycache__"
   ]
 }
+

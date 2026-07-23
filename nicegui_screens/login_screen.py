@@ -25,13 +25,18 @@ class LoginScreen:
 
     def build_ui(self) -> None:
         """Renders the two-column split login layout using UI component factory."""
-        self.dark_mode = ui.dark_mode(value=None) # Automatically syncs with system mode
-        
+        from nicegui_ui.ui_theme import is_windows_dark_mode, inject_global_styles
+
+        self.dark_mode = ui.dark_mode()
+        if is_windows_dark_mode():
+            self.dark_mode.enable()
+        else:
+            self.dark_mode.disable()
+
         # 1. Reset container padding & set background to adapt to theme
         ui.query(".nicegui-content").classes("p-0 m-0 bg-slate-50 dark:bg-[#0f172a] transition-colors duration-500")
         ui.query("body").classes("m-0 p-0 overflow-hidden bg-slate-50 dark:bg-[#0f172a] transition-colors duration-500")
         
-        from nicegui_ui.ui_theme import inject_global_styles
         inject_global_styles()
 
         # 2. Main 2-Column Split Container
@@ -52,10 +57,9 @@ class LoginScreen:
             with ui.column().classes(
                 "w-1/2 md:w-2/5 h-full items-center justify-center bg-slate-50 dark:bg-[#0f172a] p-6 transition-colors duration-500 relative"
             ):
-                # The Card Container
-                with ui.column().classes(
-                    "w-[440px] max-w-full login-card rounded-[24px] p-8 pt-10 gap-5 transition-all duration-300 login-card-glow relative mt-8"
-                ):
+                # The Card Container loaded from global UI factory
+                with UI.login_card():
+
                     # Top User Badge Icon (Offset)
                     with ui.element("div").classes(
                         "w-16 h-16 rounded-2xl avatar-badge border "

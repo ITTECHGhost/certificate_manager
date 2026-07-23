@@ -27,17 +27,23 @@ class UI:
     def card(extra_classes: str = ""):
         """
         Creates a standard card container context manager (Light/Dark mode ready).
-        Explicit surface backgrounds guarantee card surface contrast in all themes.
+        All screens using UI.card inherit identical border, shadow, background, and padding tokens.
         """
-        theme = app_session.theme
-        bg = theme.card_background
-        border = theme.border_color
-        shadow = "shadow-xl"
-        css = f"w-full p-8 {bg} {border} {shadow} gap-4 {extra_classes}".strip()
+        css = f"{Styles.CARD} {extra_classes}".strip()
         return ui.column().classes(css)
 
     @staticmethod
-    def card_header(title: str, icon_name: str = "info", icon_color: str = None):
+    def login_card(extra_classes: str = ""):
+        """
+        Creates the specialized login card container context manager (Light/Dark mode ready).
+        Inherits global card design tokens and glow effects.
+        """
+        css = f"{Styles.LOGIN_CARD} {extra_classes}".strip()
+        return ui.column().classes(css)
+
+
+    @staticmethod
+    def card_header(title: str, icon_name: str = "info", icon_color: str | None = None):
         """
         Renders a card section header row with bilingual title and icon.
         Icon defaults to active accent color if not explicitly provided.
@@ -61,7 +67,7 @@ class UI:
     # ── Buttons ─────────────────────────────────────────────────────────────
 
     @staticmethod
-    def primary_button(text: str, icon: str = None, on_click=None) -> ui.button:
+    def primary_button(text: str, icon: str | None = None, on_click=None) -> ui.button:
         """Primary action button styled dynamically using active accent color."""
         palette = UI.get_accent()
         btn = ui.button(text, icon=icon, on_click=on_click).classes(
@@ -70,7 +76,7 @@ class UI:
         return btn
 
     @staticmethod
-    def secondary_button(text: str, icon: str = None, on_click=None) -> ui.button:
+    def secondary_button(text: str, icon: str | None = None, on_click=None) -> ui.button:
         """Slate secondary button."""
         btn = ui.button(text, icon=icon, on_click=on_click).classes(
             "bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 "
@@ -79,7 +85,7 @@ class UI:
         return btn
 
     @staticmethod
-    def success_button(text: str, icon: str = None, on_click=None) -> ui.button:
+    def success_button(text: str, icon: str | None = None, on_click=None) -> ui.button:
         """Emerald-600 success button."""
         btn = ui.button(text, icon=icon, on_click=on_click).classes(
             "bg-emerald-600 hover:bg-emerald-500 text-white font-medium px-4 py-2 rounded-xl normal-case transition-colors"
@@ -87,7 +93,7 @@ class UI:
         return btn
 
     @staticmethod
-    def danger_button(text: str, icon: str = None, on_click=None) -> ui.button:
+    def danger_button(text: str, icon: str | None = None, on_click=None) -> ui.button:
         """Red-600 danger button."""
         btn = ui.button(text, icon=icon, on_click=on_click).classes(
             "bg-rose-600 hover:bg-rose-500 text-white font-medium px-4 py-2 rounded-xl normal-case transition-colors"
@@ -95,13 +101,14 @@ class UI:
         return btn
 
     @staticmethod
-    def ghost_button(text: str, icon: str = None, on_click=None) -> ui.button:
+    def ghost_button(text: str, icon: str | None = None, on_click=None) -> ui.button:
         """Transparent ghost button."""
         btn = ui.button(text, icon=icon, on_click=on_click).classes(
             "bg-transparent hover:bg-slate-200 dark:hover:bg-slate-800 "
             "text-slate-700 dark:text-slate-300 font-medium px-3 py-1.5 rounded-lg normal-case shadow-none transition-colors"
         )
         return btn
+
 
     # ── Navigation & Badges ─────────────────────────────────────────────────
 

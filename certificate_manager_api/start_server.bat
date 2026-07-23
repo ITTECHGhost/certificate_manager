@@ -4,7 +4,7 @@ if not exist %PYTHON_PATH% (
     set PYTHON_PATH=python
 )
 
-echo Starting FastAPI Uvicorn Server on port 8000...
+echo Starting FastAPI Uvicorn Server on port 2030...
 cd /d "%~dp0"
-start /B "FastAPI_Server" %PYTHON_PATH% -m uvicorn main:app --host 0.0.0.0 --port 8000
+start /B "FastAPI_Server" %PYTHON_PATH% -m uvicorn main:app --host 0.0.0.0 --port 2030
 echo Server start command executed in background.

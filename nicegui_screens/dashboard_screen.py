@@ -10,12 +10,13 @@ from sync_engine import is_online
 from nicegui_ui.ui_theme import Styles, NAV_ITEMS, STAT_CARDS, QUICK_ACTIONS
 from nicegui_ui.ui_components import UI
 from nicegui_screens.settings_screen import SettingsScreen
+from nicegui_screens.students_screen import StudentsScreen
 
 
 class MainAppShell:
     """
     Main Application Shell managing the Collapsible Sidebar, Top Header,
-    and Dynamic Screen Switching (Dashboard, Settings, etc.).
+    and Dynamic Screen Switching (Dashboard, Settings, Students, etc.).
     """
 
     def __init__(self) -> None:
@@ -267,11 +268,13 @@ class MainAppShell:
                 self._build_dashboard_content()
             elif self.current_screen == "settings":
                 SettingsScreen()
+            elif self.current_screen == "students":
+                StudentsScreen()
             else:
                 self._build_placeholder_screen()
 
     def _build_dashboard_content(self) -> None:
-        """Renders main dashboard metrics & panels."""
+        """Renders main dashboard metrics & panels using UI.card context managers."""
 
         @ui.refreshable
         def stat_cards_section() -> None:
@@ -290,10 +293,7 @@ class MainAppShell:
         self._refresh_cards = stat_cards_section
 
         with ui.row().classes("w-full gap-5 items-stretch flex-nowrap"):
-            with ui.column().classes(
-                "w-1/3 p-5 bg-white dark:bg-[#1e293b] rounded-2xl border border-slate-200 "
-                "dark:border-slate-800 gap-3 shadow-md dark:shadow-xl justify-between transition-colors duration-200"
-            ):
+            with UI.card("w-1/3 justify-between"):
                 UI.section_label("Quick Actions  —  إجراءات سريعة")
                 with ui.column().classes("w-full gap-3 flex-1 justify-center"):
                     for action in QUICK_ACTIONS:
@@ -306,10 +306,7 @@ class MainAppShell:
                             ),
                         ).classes(action["style"])
 
-            with ui.column().classes(
-                "flex-1 p-5 bg-white dark:bg-[#1e293b] rounded-2xl border border-slate-200 "
-                "dark:border-slate-800 shadow-md dark:shadow-xl gap-3 transition-colors duration-200"
-            ):
+            with UI.card("flex-1"):
                 with ui.tabs().classes(
                     "w-full text-slate-700 dark:text-slate-300 border-b border-slate-200 dark:border-slate-700/60"
                 ) as tabs:
@@ -365,10 +362,7 @@ class MainAppShell:
 
     def _build_placeholder_screen(self) -> None:
         header_ar, header_en = self._get_screen_header_titles()
-        with ui.column().classes(
-            "w-full items-center justify-center py-20 gap-4 "
-            "bg-white dark:bg-[#1e293b] rounded-2xl border border-slate-200 dark:border-slate-800 shadow-md dark:shadow-xl"
-        ):
+        with UI.card("items-center justify-center py-20"):
             ui.icon("construction", size="lg").classes("text-amber-500 dark:text-amber-400")
             ui.label(f"شاشة {header_ar} قيد التطوير").classes(
                 "text-2xl font-bold text-slate-900 dark:text-white"
@@ -378,6 +372,7 @@ class MainAppShell:
             )
 
     def _on_refresh_click(self) -> None:
+
         self.refresh_data()
         if self._refresh_cards is not None:
             self._refresh_cards.refresh()
