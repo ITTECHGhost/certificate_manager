@@ -2,6 +2,10 @@
    theme.css — Global styles for NiceGUI application
    ========================================================================== */
 
+body.body--dark {
+    color-scheme: dark;
+}
+
 /* --------------------------------------------------------------------------
    Login Screen Specifics
    -------------------------------------------------------------------------- */
@@ -10,57 +14,115 @@
     border: 1px solid rgba(226, 232, 240, 1);
     position: relative;
 }
-.dark .login-card-glow {
+
+.dark .login-card-glow,
+.body--dark .login-card-glow {
     box-shadow: 0 0 35px rgba(59, 130, 246, 0.15), 0 0 15px rgba(37, 99, 235, 0.1), 0 25px 50px rgba(0, 0, 0, 0.5);
     border: 1px solid rgba(59, 130, 246, 0.2);
 }
-.dark .login-card-glow:hover {
+
+.dark .login-card-glow:hover,
+.body--dark .login-card-glow:hover {
     box-shadow: 0 0 45px rgba(59, 130, 246, 0.25), 0 0 20px rgba(37, 99, 235, 0.15), 0 25px 50px rgba(0, 0, 0, 0.6);
     border: 1px solid rgba(59, 130, 246, 0.35);
 }
+
 .custom-input .q-field__control {
     background-color: #f8fafc !important;
     border-radius: 10px !important;
 }
-.dark .custom-input .q-field__control {
+
+.dark .custom-input .q-field__control,
+.body--dark .custom-input .q-field__control {
     background-color: #070e1e !important;
 }
+
 .custom-input .q-field__control:before {
     border-color: rgba(148, 163, 184, 0.4) !important;
 }
-.dark .custom-input .q-field__control:before {
+
+.dark .custom-input .q-field__control:before,
+.body--dark .custom-input .q-field__control:before {
     border-color: rgba(51, 65, 85, 0.7) !important;
 }
+
 .custom-input.q-field--focused .q-field__control:after {
     border-color: #3b82f6 !important;
     box-shadow: 0 0 8px rgba(59, 130, 246, 0.2) !important;
 }
-.dark .custom-input.q-field--focused .q-field__control:after {
+
+.dark .custom-input.q-field--focused .q-field__control:after,
+.body--dark .custom-input.q-field--focused .q-field__control:after {
     box-shadow: 0 0 12px rgba(59, 130, 246, 0.35) !important;
 }
 
-/* Explicit dark/light mode surface rules */
+/* Explicit dark/light mode surface rules (Overrides Quasar .bg-white layer) */
+.app-login-card,
 .login-card {
     background-color: #ffffff;
 }
-.dark .login-card {
-    background-color: #0b1329;
+
+body.body--dark .app-login-card,
+body.dark .app-login-card,
+body.body--dark .login-card,
+body.dark .login-card,
+.body--dark .app-login-card,
+.dark .app-login-card {
+    background-color: #0b1329 !important;
+}
+
+.app-card {
+    background-color: #ffffff !important;
+}
+
+body.body--dark .app-card,
+body.dark .app-card,
+.body--dark .app-card,
+.dark .app-card {
+    background-color: #1e293b !important;
+}
+
+.app-header-bar {
+    background-color: #ffffff !important;
+}
+
+body.body--dark .app-header-bar,
+body.dark .app-header-bar,
+.body--dark .app-header-bar,
+.dark .app-header-bar {
+    background-color: #020617 !important;
 }
 
 .avatar-badge {
     background-color: #ffffff;
     border-color: #e2e8f0;
 }
+
+body.body--dark .avatar-badge,
+body.dark .avatar-badge,
+.body--dark .avatar-badge,
 .dark .avatar-badge {
-    background-color: #0b1329;
-    border-color: rgba(51, 65, 85, 0.5);
+    background-color: #0b1329 !important;
+    border-color: rgba(51, 65, 85, 0.5) !important;
 }
 
 .avatar-inner {
-    background-color: #f1f5f9;
+    background-color: #f1f5f9 !important;
 }
+
+body.body--dark .avatar-inner,
+body.dark .avatar-inner,
+.body--dark .avatar-inner,
 .dark .avatar-inner {
-    background-color: #1e293b;
+    background-color: #1e293b !important;
+}
+
+/* In dark mode, prevent Quasar .bg-white from forcing white background on elements */
+body.body--dark .bg-white:not(.keep-white),
+body.dark .bg-white:not(.keep-white),
+.body--dark .bg-white:not(.keep-white),
+.dark .bg-white:not(.keep-white) {
+    background-color: transparent !important;
 }
 
 /* Connecting network nodes pattern for dark mode background */
@@ -69,6 +131,7 @@ body.body--dark .bg-network {
     background-image: radial-gradient(circle at 50% 50%, rgba(15, 23, 42, 0.8) 0%, rgba(2, 6, 23, 1) 100%), url("data:image/svg+xml;utf8,<svg width='100' height='100' xmlns='http://www.w3.org/2000/svg'><circle cx='20' cy='20' r='1.5' fill='%23334155'/><circle cx='80' cy='40' r='1.5' fill='%23334155'/><circle cx='40' cy='80' r='1.5' fill='%23334155'/><path d='M20 20 L80 40 L40 80 Z' fill='none' stroke='%231e293b' stroke-width='0.5'/></svg>");
     background-size: cover, 120px 120px;
 }
+
 .bg-network {
     background-image: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
 }
@@ -85,23 +148,85 @@ body.body--dark .bg-network {
 /* --------------------------------------------------------------------------
    Dashboard & Global Overrides
    -------------------------------------------------------------------------- */
-.q-tab-panel { padding: 8px 0 0 0 !important; }
-.q-tabs__content { justify-content: flex-start; }
+.q-tab-panel {
+    padding: 8px 0 0 0 !important;
+}
+
+.q-tabs__content {
+    justify-content: flex-start;
+}
 
 /* Light Mode Overrides */
-body:not(.body--dark) { background-color: #f1f5f9 !important; color: #0f172a !important; }
-body:not(.body--dark) .q-table { color: #0f172a !important; background-color: transparent !important; }
-body:not(.body--dark) .q-table th { color: #334155 !important; font-weight: 700 !important; font-size: 13px !important; }
-body:not(.body--dark) .q-table td, body:not(.body--dark) .q-table td * { color: #0f172a !important; font-weight: 600 !important; font-size: 13px !important; }
-body:not(.body--dark) .q-tab { color: #475569 !important; font-weight: 600 !important; }
-body:not(.body--dark) .q-tab--active { color: #2563eb !important; font-weight: 700 !important; }
-body:not(.body--dark) .q-field__label { color: #475569 !important; }
-body:not(.body--dark) .q-field__native, body:not(.body--dark) .q-field__input { color: #0f172a !important; font-weight: 500 !important; }
+body:not(.body--dark) {
+    background-color: #f1f5f9 !important;
+    color: #0f172a !important;
+}
+
+body:not(.body--dark) .q-table {
+    color: #0f172a !important;
+    background-color: transparent !important;
+}
+
+body:not(.body--dark) .q-table th {
+    color: #334155 !important;
+    font-weight: 700 !important;
+    font-size: 13px !important;
+}
+
+body:not(.body--dark) .q-table td,
+body:not(.body--dark) .q-table td * {
+    color: #0f172a !important;
+    font-weight: 600 !important;
+    font-size: 13px !important;
+}
+
+body:not(.body--dark) .q-tab {
+    color: #475569 !important;
+    font-weight: 600 !important;
+}
+
+body:not(.body--dark) .q-tab--active {
+    color: #2563eb !important;
+    font-weight: 700 !important;
+}
+
+body:not(.body--dark) .q-field__label {
+    color: #475569 !important;
+}
+
+body:not(.body--dark) .q-field__native,
+body:not(.body--dark) .q-field__input {
+    color: #0f172a !important;
+    font-weight: 500 !important;
+}
 
 /* Dark Mode Overrides */
-body.body--dark { background-color: #0f172a !important; color: #f8fafc !important; }
-body.body--dark .q-table { color: #f8fafc !important; background-color: transparent !important; }
-body.body--dark .q-table th { color: #94a3b8 !important; font-weight: 700 !important; }
-body.body--dark .q-table td, body.body--dark .q-table td * { color: #f1f5f9 !important; font-weight: 500 !important; }
-body.body--dark .q-tab { color: #94a3b8 !important; }
-body.body--dark .q-tab--active { color: #60a5fa !important; font-weight: 700 !important; }
+body.body--dark {
+    background-color: #0f172a !important;
+    color: #f8fafc !important;
+}
+
+body.body--dark .q-table {
+    color: #f8fafc !important;
+    background-color: transparent !important;
+}
+
+body.body--dark .q-table th {
+    color: #94a3b8 !important;
+    font-weight: 700 !important;
+}
+
+body.body--dark .q-table td,
+body.body--dark .q-table td * {
+    color: #f1f5f9 !important;
+    font-weight: 500 !important;
+}
+
+body.body--dark .q-tab {
+    color: #94a3b8 !important;
+}
+
+body.body--dark .q-tab--active {
+    color: #60a5fa !important;
+    font-weight: 700 !important;
+}

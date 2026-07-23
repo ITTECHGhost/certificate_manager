@@ -79,19 +79,19 @@ class SettingsScreen:
             with ui.grid(columns=2).classes("w-full gap-4"):
                 self.univ_ar_input = UI.text_input(
                     "اسم الجامعة بالعربية / Univ. Name (AR)",
-                    value=self.settings_data.get("univ_name_ar", "")
+                    value=self.settings_data.get("univ_name_ar") or ""
                 )
                 self.univ_en_input = UI.text_input(
                     "اسم الجامعة بالإنكليزية / Univ. Name (EN)",
-                    value=self.settings_data.get("univ_name_en", "")
+                    value=self.settings_data.get("univ_name_en") or ""
                 )
                 self.college_ar_input = UI.text_input(
                     "اسم الكلية بالعربية / College Name (AR)",
-                    value=self.settings_data.get("college_name_ar", "")
+                    value=self.settings_data.get("college_name_ar") or ""
                 )
                 self.college_en_input = UI.text_input(
                     "اسم الكلية بالإنكليزية / College Name (EN)",
-                    value=self.settings_data.get("college_name_en", "")
+                    value=self.settings_data.get("college_name_en") or ""
                 )
 
             UI.primary_button(
@@ -229,14 +229,14 @@ class SettingsScreen:
 
     def _on_theme_select_change(self, e=None) -> None:
         """Live theme switch when Theme Mode dropdown option changes."""
-        val = str(self.theme_select.value or "Dark")
-        dark_mode = ui.dark_mode()
+        from nicegui_ui.ui_theme import is_windows_dark_mode, set_dark_mode
+        val = str((self.theme_select.value if self.theme_select else None) or "Dark")
         if val == "Dark":
-            dark_mode.enable()
+            set_dark_mode(True)
         elif val == "Light":
-            dark_mode.disable()
+            set_dark_mode(False)
         else:
-            dark_mode.auto()
+            set_dark_mode(is_windows_dark_mode())
         
         ui.notify(
             f"تم تغيير المظهر إلى {'الداكن' if val == 'Dark' else ('الفاتح' if val == 'Light' else 'النظام')} / Theme set to {val}!",
@@ -246,10 +246,10 @@ class SettingsScreen:
     def _save_institution_info(self) -> None:
         try:
             self.s_repo.update_settings(
-                univ_ar=self.univ_ar_input.value or "",
-                univ_en=self.univ_en_input.value or "",
-                college_ar=self.college_ar_input.value or "",
-                college_en=self.college_en_input.value or ""
+                univ_ar=(self.univ_ar_input.value if self.univ_ar_input else "") or "",
+                univ_en=(self.univ_en_input.value if self.univ_en_input else "") or "",
+                college_ar=(self.college_ar_input.value if self.college_ar_input else "") or "",
+                college_en=(self.college_en_input.value if self.college_en_input else "") or ""
             )
             ui.notify("تم حفظ معلومات المؤسسة بنجاح / Institution info saved!", type="positive")
         except Exception as exc:
@@ -288,10 +288,10 @@ class SettingsScreen:
 
     def _save_appearance(self) -> None:
         try:
-            theme_val = str(self.theme_select.value or "Dark")
-            accent_val = str(self.accent_select.value or "blue")
-            font_val = str(self.font_select.value or "Segoe UI")
-            size_val = int(self.font_size_input.value or 13)
+            theme_val = str((self.theme_select.value if self.theme_select else None) or "Dark")
+            accent_val = str((self.accent_select.value if self.accent_select else None) or "blue")
+            font_val = str((self.font_select.value if self.font_select else None) or "Arial")
+            size_val = int((self.font_size_input.value if self.font_size_input else None) or 14)
             rtl_val = 1 if (self.rtl_switch.value if self.rtl_switch else True) else 0
 
             dark_mode = ui.dark_mode()

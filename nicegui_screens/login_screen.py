@@ -25,13 +25,10 @@ class LoginScreen:
 
     def build_ui(self) -> None:
         """Renders the two-column split login layout using UI component factory."""
-        from nicegui_ui.ui_theme import is_windows_dark_mode, inject_global_styles
+        from nicegui_ui.ui_theme import is_windows_dark_mode, set_dark_mode, inject_global_styles
 
         self.dark_mode = ui.dark_mode()
-        if is_windows_dark_mode():
-            self.dark_mode.enable()
-        else:
-            self.dark_mode.disable()
+        set_dark_mode(is_windows_dark_mode())
 
         # 1. Reset container padding & set background to adapt to theme
         ui.query(".nicegui-content").classes("p-0 m-0 bg-slate-50 dark:bg-[#0f172a] transition-colors duration-500")
@@ -134,7 +131,7 @@ class LoginScreen:
                 with ui.row().classes("w-[440px] max-w-full justify-end items-center mt-6 px-2"):
                     with ui.row().classes("gap-2 items-center avatar-badge px-3 py-1.5 rounded-full border shadow-sm"):
                         ui.icon("dark_mode", size="xs").classes("text-slate-400 dark:text-slate-500")
-                        ui.switch(on_change=lambda e: self.dark_mode.enable() if e.value else self.dark_mode.disable()).props("dense size=sm").bind_value(self.dark_mode, 'value')
+                        ui.switch(on_change=lambda e: set_dark_mode(e.value)).props("dense size=sm").bind_value(self.dark_mode, 'value')
                         ui.icon("light_mode", size="xs").classes("text-slate-500 dark:text-slate-400")
 
     def handle_login(self, e=None) -> None:

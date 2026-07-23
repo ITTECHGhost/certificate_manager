@@ -289,6 +289,18 @@ QUICK_ACTIONS: list[dict] = [
     },
 ]
 
+def set_dark_mode(enable: bool) -> None:
+    """Enables or disables dark mode for Quasar and syncs the 'dark' CSS class to body and documentElement."""
+    from nicegui import ui
+    dark = ui.dark_mode()
+    if enable:
+        dark.enable()
+        ui.run_javascript("document.body.classList.add('dark'); document.documentElement.classList.add('dark');")
+    else:
+        dark.disable()
+        ui.run_javascript("document.body.classList.remove('dark'); document.documentElement.classList.remove('dark');")
+
+
 def inject_global_styles():
     """Reads theme.css and injects Tailwind config and global styles."""
     from nicegui import ui
@@ -303,7 +315,7 @@ def inject_global_styles():
         <script>
         window.tailwind = window.tailwind || {{}};
         window.tailwind.config = window.tailwind.config || {{}};
-        window.tailwind.config.darkMode = ['class', '.body--dark'];
+        window.tailwind.config.darkMode = 'class';
         </script>
         <style>
         {css}
