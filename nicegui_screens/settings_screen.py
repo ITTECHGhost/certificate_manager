@@ -54,14 +54,7 @@ class SettingsScreen:
 
     def _apply_initial_theme(self) -> None:
         """Applies saved theme preference on screen load."""
-        saved_theme = str(self.appearance_data.get("theme", "Dark"))
-        dark_mode = ui.dark_mode()
-        if saved_theme == "Dark":
-            dark_mode.enable()
-        elif saved_theme == "Light":
-            dark_mode.disable()
-        else:
-            dark_mode.auto()
+        self.session.apply_theme_mode()
 
     def _build_ui(self) -> None:
         """Build the settings screen layout using the UI factory."""
@@ -237,6 +230,7 @@ class SettingsScreen:
             dark_mode.disable()
         else:
             dark_mode.auto()
+
         
         ui.notify(
             f"تم تغيير المظهر إلى {'الداكن' if val == 'Dark' else ('الفاتح' if val == 'Light' else 'النظام')} / Theme set to {val}!",
@@ -301,6 +295,7 @@ class SettingsScreen:
                 dark_mode.disable()
             else:
                 dark_mode.auto()
+
 
             self.s_repo.update_user_appearance(
                 emp_id=self.emp_id,

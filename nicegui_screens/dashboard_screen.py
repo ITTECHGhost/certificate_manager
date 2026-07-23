@@ -141,17 +141,52 @@ class MainAppShell:
 
             self._nav_labels.append((row, label_col, item["key"]))
 
-    def _build_user_chip(self) -> None:
-        with ui.row().classes(Styles.USER_CHIP) as self._user_chip_row:
-            ui.icon("account_circle", size="sm").classes(Styles.USER_ICON).tooltip(
-                "Admin User - Online"
+    def _handle_logout(self) -> None:
+        """Opens a confirmation dialog before performing logout."""
+        with ui.dialog() as dialog, ui.card().classes(
+            "p-6 gap-4 w-96 max-w-full rounded-2xl !bg-white dark:!bg-[#1e293b] "
+            "border border-slate-200 dark:border-slate-800 shadow-2xl"
+        ):
+            ui.label("Confirm Logout / تأكيد تسجيل الخروج").classes(
+                "text-lg font-bold text-slate-900 dark:text-white border-b border-slate-200 dark:border-slate-800 pb-2 w-full"
             )
-            user_text_col = ui.column().classes("gap-0")
-            with user_text_col:
-                UI.standard_label("Admin User")
-                UI.muted_label("Online").classes("text-emerald-500 font-semibold")
+            ui.label("Are you sure you want to log out? / هل أنت تأكد من تسجيل الخروج؟").classes(
+                "text-sm text-slate-600 dark:text-slate-300 my-2"
+            )
+            with ui.row().classes("w-full justify-end gap-3 mt-2"):
+                ui.button("Cancel / إلغاء", on_click=dialog.close).classes(
+                    "bg-slate-200 dark:bg-slate-800 text-slate-800 dark:text-slate-300 "
+                    "hover:bg-slate-300 dark:hover:bg-slate-700 font-medium px-4 py-2 rounded-xl normal-case"
+                )
+                def confirm_logout():
+                    dialog.close()
+                    from nicegui_ui.state import app_session
+                    app_session.logout()
+                    ui.navigate.to('/')
 
-            self._user_chip_labels.append(user_text_col)
+                ui.button("Logout / تسجيل الخروج", on_click=confirm_logout).classes(
+                    "bg-rose-600 hover:bg-rose-500 text-white font-medium px-4 py-2 rounded-xl normal-case"
+                )
+        dialog.open()
+
+    def _build_user_chip(self) -> None:
+        with ui.row().classes(f"{Styles.USER_CHIP} justify-between").on("click", self._handle_logout) as self._user_chip_row:
+            self._user_chip_row.tooltip("Click to Logout / تسجيل الخروج")
+            with ui.row().classes("items-center gap-3 flex-nowrap overflow-hidden"):
+                ui.icon("account_circle", size="sm").classes(Styles.USER_ICON).tooltip(
+                    "Admin User - Online"
+                )
+                user_text_col = ui.column().classes("gap-0")
+                with user_text_col:
+                    UI.standard_label("Admin User")
+                    UI.muted_label("Online").classes("text-emerald-500 font-semibold")
+                self._user_chip_labels.append(user_text_col)
+
+            with ui.row().classes("items-center shrink-0") as logout_icon_row:
+                ui.icon("logout", size="xs").classes(
+                    "text-slate-400 hover:text-red-400 transition-colors cursor-pointer"
+                ).tooltip("Logout / تسجيل الخروج").on("click", self._handle_logout)
+                self._user_chip_labels.append(logout_icon_row)
 
     def toggle_sidebar(self) -> None:
         if not self._sidebar_col:
@@ -290,10 +325,7 @@ class MainAppShell:
         self._refresh_cards = stat_cards_section
 
         with ui.row().classes("w-full gap-5 items-stretch flex-nowrap"):
-            with ui.column().classes(
-                "w-1/3 p-5 bg-white dark:bg-[#1e293b] rounded-2xl border border-slate-200 "
-                "dark:border-slate-800 gap-3 shadow-md dark:shadow-xl justify-between transition-colors duration-200"
-            ):
+            with ui.column().classes(f"w-1/3 {Styles.ACTIONS_PANEL} justify-between"):
                 UI.section_label("Quick Actions  —  إجراءات سريعة")
                 with ui.column().classes("w-full gap-3 flex-1 justify-center"):
                     for action in QUICK_ACTIONS:
@@ -306,10 +338,7 @@ class MainAppShell:
                             ),
                         ).classes(action["style"])
 
-            with ui.column().classes(
-                "flex-1 p-5 bg-white dark:bg-[#1e293b] rounded-2xl border border-slate-200 "
-                "dark:border-slate-800 shadow-md dark:shadow-xl gap-3 transition-colors duration-200"
-            ):
+            with ui.column().classes(f"flex-1 {Styles.TABLE_PANEL}"):
                 with ui.tabs().classes(
                     "w-full text-slate-700 dark:text-slate-300 border-b border-slate-200 dark:border-slate-700/60"
                 ) as tabs:
@@ -366,8 +395,7 @@ class MainAppShell:
     def _build_placeholder_screen(self) -> None:
         header_ar, header_en = self._get_screen_header_titles()
         with ui.column().classes(
-            "w-full items-center justify-center py-20 gap-4 "
-            "bg-white dark:bg-[#1e293b] rounded-2xl border border-slate-200 dark:border-slate-800 shadow-md dark:shadow-xl"
+            f"w-full items-center justify-center py-20 gap-4 {Styles.CARD}"
         ):
             ui.icon("construction", size="lg").classes("text-amber-500 dark:text-amber-400")
             ui.label(f"شاشة {header_ar} قيد التطوير").classes(

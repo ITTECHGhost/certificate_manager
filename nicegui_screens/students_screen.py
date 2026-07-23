@@ -4,6 +4,8 @@
 
 from nicegui import ui
 from nicegui_ui.ui_components import UI
+from nicegui_ui.ui_theme import Styles
+from nicegui_ui.state import app_session
 from data.repositories import StudentRepository
 
 
@@ -22,6 +24,8 @@ class StudentsScreen:
 
     def build_ui(self) -> None:
         """Constructs the Students Management view layout."""
+        app_session.apply_theme_mode()
+
         with ui.column().classes("w-full max-w-6xl mx-auto gap-6 p-8"):
             UI.section_header("إدارة الطلاب — Students Management")
 
@@ -29,7 +33,7 @@ class StudentsScreen:
                 placeholder="ابحث بالاسم (Search by name)..."
             ).classes("w-full max-w-md").on(
                 "update:model-value", self.perform_search, throttle=300
-            ).props("outlined dark")
+            ).props("outlined")
 
             columns = [
                 {"name": "name_ar", "label": "Name / الاسم", "field": "name_ar", "align": "left"},
@@ -43,7 +47,7 @@ class StudentsScreen:
                 columns=columns,
                 rows=[],
                 row_key="name_ar"
-            ).props("flat bordered dark").classes("w-full")
+            ).props("flat bordered").classes(Styles.TABLE_CLASSES)
 
             self.table.add_slot("body-cell-actions", """
                 <q-td :props="props">

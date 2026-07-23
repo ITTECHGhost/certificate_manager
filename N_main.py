@@ -24,6 +24,20 @@ if sys.platform == "win32":
 
         _ProactorBasePipeTransport._call_connection_lost = _silenced_call_connection_lost
 
+# Handle restricted Windows multiprocessing Pipe permissions safely (WinError 5 Access is denied)
+try:
+    import concurrent.futures
+    import multiprocessing.connection
+    import nicegui.run
+
+    _h1, _h2 = multiprocessing.connection.Pipe(duplex=False)
+    _h1.close()
+    _h2.close()
+except Exception:
+    import concurrent.futures
+    import nicegui.run
+    nicegui.run.setup = lambda: setattr(nicegui.run, 'process_pool', concurrent.futures.ThreadPoolExecutor())
+
 def get_screen_resolution() -> tuple[int, int]:
     """Retrieve PC's primary monitor screen resolution for native desktop window sizing."""
     try:
@@ -37,7 +51,24 @@ def get_screen_resolution() -> tuple[int, int]:
                 return (width, height)
     except Exception as err:
         print(f"[N_main] Error detecting screen resolution: {err}")
-    return (1280, 800)
+    return (1280, 720)
+
+def can_use_native_mode() -> bool:
+    """Check whether Windows native pywebview IPC pipes can be created without permission errors."""
+    try:
+        import webview
+        
+        # Test if the OS allows creating Named Pipes for multiprocessing (required by Pywebview native mode)
+        import multiprocessing.connection
+        _h1, _h2 = multiprocessing.connection.Pipe(duplex=False)
+        _h1.close()
+        _h2.close()
+        
+        return True
+    except Exception as err:
+        print(f"[N_main] Native pywebview mode unavailable ({err}). Serving in web browser mode...")
+        return False
+
 
 # --- ROUTING ---
 
@@ -53,19 +84,22 @@ def dashboard_page():
 
 # --- APP EXECUTION ---
 
-from nicegui import app
-
-app.native.window_args['maximized'] = True
-
-# The window is maximized via app.native.window_args['maximized'] = True
-
 if __name__ in {"__main__", "__mp_main__"}:
     screen_size = get_screen_resolution()
+    use_native = can_use_native_mode()
+
+    if use_native:
+        from nicegui import app
+        app.native.window_args['maximized'] = True
+        app.native.start_args['gui'] = 'edgechromium'
+        app.native.start_args['debug'] = True
+
+
     ui.run(
-        native      = True,           # Open as a native desktop window (PyWebView)
-        port        = 2323,           # Avoid conflict with FastAPI on port 2030
-        window_size = screen_size,    # Auto-detect PC screen resolution
+        native      = use_native,
+        port        = 2323,
+        window_size = screen_size if use_native else None,
         title       = "Certificate Manager",
-        reload      = False,          # No hot-reload in production
-        dark        = None,           # Rely on OS system preference for login screen
+        reload      = False,
+        dark        = None,
     )

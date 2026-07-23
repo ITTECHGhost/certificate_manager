@@ -60,6 +60,7 @@ class UserSessionState:
         except Exception as exc:
             log.warning("Could not apply theme mode: %s", exc)
 
+
     def update_preferences(
         self,
         theme: Optional[str] = None,
@@ -109,6 +110,14 @@ class UserSessionState:
             log.warning("Could not fetch user appearance on login: %s", exc)
 
         self.apply_theme_mode()
+
+    def logout(self) -> None:
+        """Reset active user session state on logout."""
+        self.emp_id = 1
+        self.username = "admin"
+        self.name_ar = "مدير النظام"
+        self.name_en = "Admin User"
+        self.role = "admin"
 
 
 _current_session: Optional[UserSessionState] = None
