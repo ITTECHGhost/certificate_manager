@@ -175,7 +175,7 @@ class MainAppShell:
 
             for text_col in self._user_chip_labels:
                 text_col.set_visibility(True)
-            if self._user_chip_row:
+            if self._user_chip_row is not None:
                 self._user_chip_row.classes(remove=Styles.USER_CHIP_MINI, add=Styles.USER_CHIP)
 
         else:
@@ -194,7 +194,7 @@ class MainAppShell:
 
             for text_col in self._user_chip_labels:
                 text_col.set_visibility(False)
-            if self._user_chip_row:
+            if self._user_chip_row is not None:
                 self._user_chip_row.classes(remove=Styles.USER_CHIP, add=Styles.USER_CHIP_MINI)
 
     def _build_top_header(self) -> None:
