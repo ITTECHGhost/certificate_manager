@@ -90,6 +90,8 @@ if __name__ in {"__main__", "__mp_main__"}:
 
     if use_native:
         from nicegui import app
+        import webview
+        webview.settings['OPEN_DEVTOOLS_IN_DEBUG'] = False
         app.native.window_args['maximized'] = True
         app.native.start_args['gui'] = 'edgechromium'
         app.native.start_args['debug'] = True
