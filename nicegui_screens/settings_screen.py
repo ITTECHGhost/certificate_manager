@@ -51,16 +51,16 @@ class SettingsScreen:
         try:
             self.settings_data = self.s_repo.get_settings() or {}
             self.systems = self.sys_repo.get_all() or []
-            # Appearance_data is not used for defaults — session.preferences is the source of truth.
-            # We load it only to sync it back if the DB has fresher values than the session.
             db_appearance = self.s_repo.get_user_appearance(self.emp_id) or {}
-            if db_appearance:
-                # Only update session if DB returned real non-default values
-                pref = self.session.preferences
-                for key in ("theme", "accent_color", "font_family", "font_size_base", "is_arabic_rtl"):
-                    db_val = db_appearance.get(key)
-                    if db_val is not None:
-                        pref[key] = db_val
+            # Only sync if the DB row actually exists and isn't just a fallback default
+            # get_user_appearance returns an auto-created row, but if it was just created, it might have default values.
+            # We want to avoid overwriting session.preferences if the DB is just giving us defaults.
+            # A good way is to check if it's the exact default payload or if we just rely on session.preferences as the master.
+            # Actually, get_user_appearance ALWAYS returns at least defaults. 
+            # If the user logged in, their preferences were already synced to session in state.py `login_user()`.
+            # We don't need to overwrite them here.
+            # Just let session.preferences be the source of truth.
+            pass
         except Exception as exc:
             print(f"[SettingsScreen] Error loading settings data: {exc}")
 
@@ -157,7 +157,7 @@ class SettingsScreen:
                     <q-toggle
                         :model-value="props.row.is_active"
                         @update:model-value="(val) => $parent.$emit('toggle-active', {id: props.row.id, val: val})"
-                        dense
+                        dense color="primary"
                     />
                 </q-td>
             ''')
@@ -165,8 +165,7 @@ class SettingsScreen:
                 <q-td :props="props" class="text-right">
                     <q-btn
                         icon="delete"
-                        flat round dense size="xs"
-                        class="app-text-error"
+                        flat round dense size="sm" color="negative"
                         @click="$parent.$emit('delete-system', props.row.id)"
                     />
                 </q-td>
@@ -210,7 +209,7 @@ class SettingsScreen:
 
                 self.font_select = UI.select(
                     "نوع الخط / Font Family",
-                    options=["Arial", "Segoe UI", "Roboto", "Cairo", "Tahoma"],
+                    options=["Arial", "Segoe UI", "Roboto", "Cairo", "Tahoma", "Noto Sans Arabic", "times new roman"],
                     value=saved_font
                 )
                 self.font_select.on("update:model-value", self._on_font_select_change)

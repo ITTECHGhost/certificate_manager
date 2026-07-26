@@ -59,35 +59,35 @@ class UI:
         """Primary accent-colored button. Visual styling from CSS `.app-btn-primary`."""
         return ui.button(text, icon=icon, on_click=on_click).classes(
             "app-btn-primary font-medium px-5 py-3 rounded-xl normal-case"
-        )
+        ).props("color=none")
 
     @staticmethod
     def secondary_button(text: str, icon: str | None = None, on_click=None) -> ui.button:
         """Secondary muted button. Visual styling from CSS `.app-btn-secondary`."""
         return ui.button(text, icon=icon, on_click=on_click).classes(
             "app-btn-secondary font-medium px-4 py-2 rounded-xl normal-case"
-        )
+        ).props("color=none")
 
     @staticmethod
     def success_button(text: str, icon: str | None = None, on_click=None) -> ui.button:
         """Success/emerald button. Visual styling from CSS `.app-btn-success`."""
         return ui.button(text, icon=icon, on_click=on_click).classes(
             "app-btn-success font-medium px-4 py-2 rounded-xl normal-case"
-        )
+        ).props("color=none")
 
     @staticmethod
     def danger_button(text: str, icon: str | None = None, on_click=None) -> ui.button:
         """Danger/red button. Visual styling from CSS `.app-btn-danger`."""
         return ui.button(text, icon=icon, on_click=on_click).classes(
             "app-btn-danger font-medium px-4 py-2 rounded-xl normal-case"
-        )
+        ).props("color=none")
 
     @staticmethod
     def ghost_button(text: str, icon: str | None = None, on_click=None) -> ui.button:
         """Transparent ghost button. Visual styling from CSS `.app-btn-ghost`."""
         return ui.button(text, icon=icon, on_click=on_click).classes(
             "app-btn-ghost font-medium px-3 py-1.5 rounded-lg normal-case shadow-none"
-        )
+        ).props("color=none")
 
     # ── Input Fields ────────────────────────────────────────────────────────
 
