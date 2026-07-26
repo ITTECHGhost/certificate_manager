@@ -4049,7 +4049,6 @@ INSERT INTO `personnel` (`id`, `name_ar`, `name_en`, `academic_title_ar`, `acade
 -- Triggers `personnel`
 --
 DELIMITER $$
-<<<<<<< HEAD
 CREATE TRIGGER `unique_signatories_insert` BEFORE INSERT ON `personnel` FOR EACH ROW BEGIN
     DECLARE existing_slot INT;
     IF NEW.display_order BETWEEN 1 AND 6 THEN
@@ -4062,25 +4061,10 @@ CREATE TRIGGER `unique_signatories_insert` BEFORE INSERT ON `personnel` FOR EACH
             SET MESSAGE_TEXT = 'Operation Denied: This signatory slot is already assigned.';
         END IF;
     END IF;
-=======
-CREATE TRIGGER `unique_signatories_insert` BEFORE INSERT ON `personnel` FOR EACH ROW BEGIN
-    DECLARE existing_slot INT;
-    IF NEW.display_order BETWEEN 1 AND 6 THEN
-        SELECT COUNT(*) INTO existing_slot 
-        FROM `certificate_manager`.`personnel` 
-        WHERE `display_order` = NEW.display_order;
-        
-        IF existing_slot > 0 THEN
-            SIGNAL SQLSTATE '45000' 
-            SET MESSAGE_TEXT = 'Operation Denied: This signatory slot is already assigned.';
-        END IF;
-    END IF;
->>>>>>> a92d5c369c49380bd2ac5b294633ff9de5bef463
 END
 $$
 DELIMITER ;
 DELIMITER $$
-<<<<<<< HEAD
 CREATE TRIGGER `unique_signatories_update` BEFORE UPDATE ON `personnel` FOR EACH ROW BEGIN
     DECLARE existing_slot INT;
         IF NEW.display_order BETWEEN 1 AND 6 AND NEW.display_order != OLD.display_order THEN
@@ -4093,20 +4077,6 @@ CREATE TRIGGER `unique_signatories_update` BEFORE UPDATE ON `personnel` FOR EACH
             SET MESSAGE_TEXT = 'Operation Denied: This signatory slot is already assigned.';
         END IF;
     END IF;
-=======
-CREATE TRIGGER `unique_signatories_update` BEFORE UPDATE ON `personnel` FOR EACH ROW BEGIN
-    DECLARE existing_slot INT;
-        IF NEW.display_order BETWEEN 1 AND 6 AND NEW.display_order != OLD.display_order THEN
-        SELECT COUNT(*) INTO existing_slot 
-        FROM `certificate_manager`.`personnel` 
-        WHERE `display_order` = NEW.display_order;
-        
-        IF existing_slot > 0 THEN
-            SIGNAL SQLSTATE '45000' 
-            SET MESSAGE_TEXT = 'Operation Denied: This signatory slot is already assigned.';
-        END IF;
-    END IF;
->>>>>>> a92d5c369c49380bd2ac5b294633ff9de5bef463
 END
 $$
 DELIMITER ;

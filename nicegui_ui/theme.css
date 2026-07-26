@@ -273,16 +273,6 @@ body.body--dark {
   color-scheme: dark;
 }
 
-<<<<<<< HEAD
-/* --------------------------------------------------------------------------
-   Login Screen Specifics & Custom Gradient Design
-   -------------------------------------------------------------------------- */
-.login-card-glow {
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-    border: 1px solid rgba(226, 232, 240, 1);
-    position: relative;
-=======
-
 /* ═══════════════════════════════════════════════════════════════════════════
    4. COMPONENT CLASSES
    ═══════════════════════════════════════════════════════════════════════════ */
@@ -290,7 +280,6 @@ body.body--dark {
 /* ── 4a. Text Utilities ─────────────────────────────────────────────────── */
 .app-text-primary {
   color: var(--text-primary) !important;
->>>>>>> 9562a1d23cd6479a6a3565da19e2625b4fc10329
 }
 
 .app-text-secondary {
@@ -647,14 +636,6 @@ body.body--dark .app-login-card:hover,
   border-color: rgba(168, 85, 247, 0.2) !important;
 }
 
-<<<<<<< HEAD
-.bg-network {
-    background-image: linear-gradient(135deg, #021765 0%, #000000 100%) !important;
-    background-size: cover !important;
-}
-
-/* Offset avatar badge */
-=======
 /* Text colors (mode-responsive) */
 .stat-text-blue {
   color: #2563eb !important;
@@ -842,7 +823,6 @@ body.body--dark .app-avatar-badge,
 }
 
 /* Avatar position offset */
->>>>>>> 9562a1d23cd6479a6a3565da19e2625b4fc10329
 .avatar-offset {
   position: absolute;
   top: -32px;
@@ -851,138 +831,6 @@ body.body--dark .app-avatar-badge,
   z-index: 10;
 }
 
-<<<<<<< HEAD
-/* Card Glow Effect */
-.login-card-glow {
-    position: relative;
-    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
-}
-
-/* --------------------------------------------------------------------------
-   Light Mode Rules (body:not(.body--dark))
-   -------------------------------------------------------------------------- */
-body:not(.body--dark) {
-    background-color: #f1f5f9 !important;
-    color: #0f172a !important;
-}
-
-body:not(.body--dark) .login-right-col {
-    background-color: #f8fafc !important;
-}
-
-body:not(.body--dark) .login-card-container {
-    background-color: #ffffff !important;
-    border: 1px solid #e2e8f0 !important;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08) !important;
-}
-
-body:not(.body--dark) .login-title {
-    color: #0f172a !important;
-}
-
-body:not(.body--dark) .login-subtitle,
-body:not(.body--dark) .login-label-en {
-    color: #64748b !important;
-}
-
-body:not(.body--dark) .login-label-ar {
-    color: #1e293b !important;
-}
-
-body:not(.body--dark) .avatar-badge {
-    background-color: #ffffff !important;
-    border-color: #cbd5e1 !important;
-}
-
-body:not(.body--dark) .avatar-inner {
-    background-color: #f1f5f9 !important;
-}
-
-body:not(.body--dark) .login-badge-icon {
-    color: #475569 !important;
-}
-
-body:not(.body--dark) .custom-input .q-field__control {
-    background-color: #f1f5f9 !important;
-    border-radius: 10px !important;
-}
-
-body:not(.body--dark) .custom-input .q-field__native,
-body:not(.body--dark) .custom-input .q-field__input {
-    color: #0f172a !important;
-}
-
-body:not(.body--dark) .custom-input .q-field__control:before {
-    border-color: rgba(148, 163, 184, 0.5) !important;
-}
-
-/* --------------------------------------------------------------------------
-   Dark Mode Rules (body.body--dark)
-   -------------------------------------------------------------------------- */
-body.body--dark {
-    background-color: #0b1329 !important;
-    color: #f8fafc !important;
-}
-
-body.body--dark .login-right-col {
-    background-color: #0b1329 !important;
-}
-
-body.body--dark .login-card-container {
-    background-color: #0b1329 !important;
-    border: 1px solid rgba(59, 130, 246, 0.25) !important;
-    box-shadow: 0 0 35px rgba(59, 130, 246, 0.15), 0 25px 50px rgba(0, 0, 0, 0.6) !important;
-}
-
-body.body--dark .login-title {
-    color: #ffffff !important;
-}
-
-body.body--dark .login-subtitle,
-body.body--dark .login-label-en {
-    color: #94a3b8 !important;
-}
-
-body.body--dark .login-label-ar {
-    color: #e2e8f0 !important;
-}
-
-body.body--dark .avatar-badge {
-    background-color: #0b1329 !important;
-    border-color: rgba(59, 130, 246, 0.3) !important;
-}
-
-body.body--dark .avatar-inner {
-    background-color: #1e293b !important;
-}
-
-body.body--dark .login-badge-icon {
-    color: #cbd5e1 !important;
-}
-
-body.body--dark .custom-input .q-field__control {
-    background-color: #070e1e !important;
-    border-radius: 10px !important;
-}
-
-body.body--dark .custom-input .q-field__native,
-body.body--dark .custom-input .q-field__input {
-    color: #ffffff !important;
-}
-
-body.body--dark .custom-input .q-field__control:before {
-    border-color: rgba(51, 65, 85, 0.7) !important;
-}
-
-.custom-input.q-field--focused .q-field__control:after {
-    border-color: #3b82f6 !important;
-    box-shadow: 0 0 10px rgba(59, 130, 246, 0.3) !important;
-}
-
-/* --------------------------------------------------------------------------
-   Dashboard & Global Overrides
-   -------------------------------------------------------------------------- */
-=======
 /* Theme toggle container */
 .app-theme-toggle {
   background-color: var(--avatar-outer-bg) !important;
@@ -996,7 +844,6 @@ body.body--dark .custom-input .q-field__control:before {
    ═══════════════════════════════════════════════════════════════════════════ */
 
 /* Tab panel padding override */
->>>>>>> 9562a1d23cd6479a6a3565da19e2625b4fc10329
 .q-tab-panel {
   padding: 8px 0 0 0 !important;
 }

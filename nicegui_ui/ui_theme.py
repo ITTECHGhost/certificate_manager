@@ -80,19 +80,12 @@ class Styles:
     NAV_ITEM_MINI_ACTIVE   = f"{_NAV_MINI} app-nav-item--active"
     NAV_ITEM_MINI_INACTIVE = f"{_NAV_MINI} app-nav-item"
 
-<<<<<<< HEAD
-    HEADER_BAR = (
-        "w-full h-16 !bg-white dark:!bg-slate-950 border-b border-slate-200 dark:border-slate-800 "
-        "px-6 flex items-center justify-between shrink-0 transition-colors duration-200"
-    )
-=======
     # ── User Chip (sidebar) ─────────────────────────────────────────────────
     USER_CHIP      = "app-user-chip w-full items-center gap-3 p-3 rounded-xl border cursor-pointer"
     USER_CHIP_MINI = "app-user-chip w-full justify-center p-3 rounded-xl border cursor-pointer"
     USER_ICON          = "app-sidebar-icon"
     USER_NAME          = "app-sidebar-text text-sm font-semibold leading-tight truncate"
     USER_STATUS_ONLINE = "app-user-status text-xs font-medium leading-tight"
->>>>>>> 9562a1d23cd6479a6a3565da19e2625b4fc10329
 
     # ── Top Header Bar ──────────────────────────────────────────────────────
     HEADER_BAR = "app-header-bar w-full h-16 px-6 flex items-center justify-between shrink-0"
@@ -150,11 +143,7 @@ class Styles:
     SETTINGS_CARD = CARD
 
 
-<<<<<<< HEAD
-=======
 # ── Navigation Config ───────────────────────────────────────────────────────
-
->>>>>>> 9562a1d23cd6479a6a3565da19e2625b4fc10329
 NAV_ITEMS: list[dict] = [
     {"key": "home",        "ar": "الرئيسية",       "en": "Dashboard",         "icon": "space_dashboard"},
     {"key": "students",    "ar": "الطلاب",          "en": "Students",          "icon": "people"},

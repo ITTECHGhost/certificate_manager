@@ -191,33 +191,6 @@ class MainAppShell:
             self._nav_labels.append((row, label_col, item["key"]))
 
     def _handle_logout(self) -> None:
-<<<<<<< HEAD
-        """Opens a confirmation dialog before performing logout."""
-        with ui.dialog() as dialog, ui.card().classes(
-            "p-6 gap-4 w-96 max-w-full rounded-2xl !bg-white dark:!bg-[#1e293b] "
-            "border border-slate-200 dark:border-slate-800 shadow-2xl"
-        ):
-            ui.label("Confirm Logout / تأكيد تسجيل الخروج").classes(
-                "text-lg font-bold text-slate-900 dark:text-white border-b border-slate-200 dark:border-slate-800 pb-2 w-full"
-            )
-            ui.label("Are you sure you want to log out? / هل أنت تأكد من تسجيل الخروج؟").classes(
-                "text-sm text-slate-600 dark:text-slate-300 my-2"
-            )
-            with ui.row().classes("w-full justify-end gap-3 mt-2"):
-                ui.button("Cancel / إلغاء", on_click=dialog.close).classes(
-                    "bg-slate-200 dark:bg-slate-800 text-slate-800 dark:text-slate-300 "
-                    "hover:bg-slate-300 dark:hover:bg-slate-700 font-medium px-4 py-2 rounded-xl normal-case"
-                )
-                def confirm_logout():
-                    dialog.close()
-                    from nicegui_ui.state import app_session
-                    app_session.logout()
-                    ui.navigate.to('/')
-
-                ui.button("Logout / تسجيل الخروج", on_click=confirm_logout).classes(
-                    "bg-rose-600 hover:bg-rose-500 text-white font-medium px-4 py-2 rounded-xl normal-case"
-                )
-=======
         """Displays a modal confirmation dialog before logging out the active user."""
         with ui.dialog() as dialog, UI.card():
             dialog_card_classes = "p-6 gap-4 min-w-[340px] max-w-sm rounded-2xl"
@@ -244,29 +217,10 @@ class MainAppShell:
 
                     UI.danger_button("تسجيل الخروج / Logout", icon="logout", on_click=_confirm).classes("px-4 py-2 text-xs font-bold")
 
->>>>>>> 9562a1d23cd6479a6a3565da19e2625b4fc10329
         dialog.open()
 
     def _build_user_chip(self) -> None:
-        with ui.row().classes(f"{Styles.USER_CHIP} justify-between").on("click", self._handle_logout) as self._user_chip_row:
-            self._user_chip_row.tooltip("Click to Logout / تسجيل الخروج")
-            with ui.row().classes("items-center gap-3 flex-nowrap overflow-hidden"):
-                ui.icon("account_circle", size="sm").classes(Styles.USER_ICON).tooltip(
-                    "Admin User - Online"
-                )
-                user_text_col = ui.column().classes("gap-0")
-                with user_text_col:
-                    UI.standard_label("Admin User")
-                    UI.muted_label("Online").classes("text-emerald-500 font-semibold")
-                self._user_chip_labels.append(user_text_col)
-
-<<<<<<< HEAD
-            with ui.row().classes("items-center shrink-0") as logout_icon_row:
-                ui.icon("logout", size="xs").classes(
-                    "text-slate-400 hover:text-red-400 transition-colors cursor-pointer"
-                ).tooltip("Logout / تسجيل الخروج").on("click", self._handle_logout)
-                self._user_chip_labels.append(logout_icon_row)
-=======
+        from nicegui_ui.state import app_session
         user_name = app_session.name_en or app_session.username or "Admin User"
         user_role = (app_session.role or "admin").capitalize()
 
@@ -303,7 +257,6 @@ class MainAppShell:
 
             self._user_chip_labels.append(user_text_col)
             self._user_chip_labels.append(logout_btn)
->>>>>>> 9562a1d23cd6479a6a3565da19e2625b4fc10329
 
     def toggle_sidebar(self) -> None:
         if not self._sidebar_col:
@@ -327,13 +280,8 @@ class MainAppShell:
 
             for text_col in self._user_chip_labels:
                 text_col.set_visibility(True)
-<<<<<<< HEAD
-            if self._user_chip_row is not None:
-                self._user_chip_row.classes(remove=Styles.USER_CHIP_MINI, add=Styles.USER_CHIP)
-=======
             if self._user_chip_row:
                 self._user_chip_row.classes(remove=getattr(self, '_chip_mini', ''), add=getattr(self, '_chip_expanded', ''))
->>>>>>> 9562a1d23cd6479a6a3565da19e2625b4fc10329
 
         else:
             self._sidebar_col.classes(
@@ -351,13 +299,8 @@ class MainAppShell:
 
             for text_col in self._user_chip_labels:
                 text_col.set_visibility(False)
-<<<<<<< HEAD
-            if self._user_chip_row is not None:
-                self._user_chip_row.classes(remove=Styles.USER_CHIP, add=Styles.USER_CHIP_MINI)
-=======
             if self._user_chip_row:
                 self._user_chip_row.classes(remove=getattr(self, '_chip_expanded', ''), add=getattr(self, '_chip_mini', ''))
->>>>>>> 9562a1d23cd6479a6a3565da19e2625b4fc10329
 
     def _build_top_header(self) -> None:
         with ui.row().classes(Styles.HEADER_BAR):
@@ -467,15 +410,8 @@ class MainAppShell:
                             ui.label(action["label_ar"]).classes("font-bold text-sm")
                             ui.label(action["label_en"]).classes("font-normal text-xs opacity-90")
 
-<<<<<<< HEAD
-            with ui.column().classes(f"flex-1 {Styles.TABLE_PANEL}"):
-                with ui.tabs().classes(
-                    "w-full text-slate-700 dark:text-slate-300 border-b border-slate-200 dark:border-slate-700/60"
-                ) as tabs:
-=======
             with UI.card("flex-1"):
                 with ui.tabs().classes("w-full app-tabs") as tabs:
->>>>>>> 9562a1d23cd6479a6a3565da19e2625b4fc10329
                     tab_students = ui.tab(
                         "Recent Students Added  —  أحدث الطلاب المضافين",
                         icon="person_add"
@@ -543,13 +479,5 @@ class MainAppShell:
             ui.label(f"{header_en} Screen — Under Migration to NiceGUI").classes(
                 "app-text-muted text-sm"
             )
-
-    def _on_refresh_click(self) -> None:
-
-        self.refresh_data()
-        if self._refresh_cards is not None:
-            self._refresh_cards.refresh()
-        if hasattr(self, '_refresh_status') and self._refresh_status is not None:
-            self._refresh_status.refresh()
 
 DashboardScreen = MainAppShell
