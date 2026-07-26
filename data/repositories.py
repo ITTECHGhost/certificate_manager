@@ -2033,25 +2033,4 @@ class DashboardRepository(BaseRepository):
 # Module 13: Authentication
 # ---------------------------------------------------------------------------
 
-class AuthRepository:
-    def __init__(self, db_connection):
-        self.db = db_connection
-
-    # def _hash_password(self, raw_password: str) -> str:
-    #     return hashlib.sha256(raw_password.encode('utf-8')).hexdigest()
-
-    def authenticate(self, username: str, raw_password: str) -> dict | None:
-        cursor = self.db.cursor(dictionary=True)
-        try:
-            # Passing raw_password directly for testing purposes
-            cursor.callproc("AuthenticateUser", (username, raw_password))
-            for result_set in cursor.stored_results():
-                user_record = result_set.fetchone()
-                if user_record:
-                    return user_record
-            return None
-        except Exception as e:
-            print(f"Authentication Error: {e}")
-            return None
-        finally:
-            cursor.close()
+from repositories.auth_repository import AuthRepository

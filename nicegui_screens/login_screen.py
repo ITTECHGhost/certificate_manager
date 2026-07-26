@@ -160,7 +160,7 @@ class LoginScreen:
 
 
     def handle_login(self, e=None) -> None:
-        """Validates credentials via AuthRepository and updates session state."""
+        """Validates credentials via AuthRepository.authenticate_user and updates session state."""
         if not self.username_input or not self.password_input:
             return
 
@@ -168,38 +168,59 @@ class LoginScreen:
         password = self.password_input.value or ""
 
         if not username or not password:
+            msg = "يرجى إدخال اسم المستخدم وكلمة المرور / Please enter username and password"
             if self.error_label:
-                self.error_label.set_text("يرجى إدخال اسم المستخدم وكلمة المرور / Please enter username and password")
+                self.error_label.set_text(msg)
                 self.error_label.set_visibility(True)
+            ui.notify(msg, type="warning")
             return
 
         conn = None
         try:
             conn = get_connection()
             auth_repo = AuthRepository(conn)
-            user_record = auth_repo.authenticate(username, password)
+            user_record = auth_repo.authenticate_user(username, password)
 
             if user_record:
                 if self.error_label:
                     self.error_label.set_visibility(False)
+                
                 from nicegui_ui.state import app_session
                 user_id = user_record.get("id", 1)
+                
+                # Fetch saved appearance preferences from sp_GetUserAppearance
+                appearance = auth_repo.get_user_appearance(user_id)
+                
+                # Login user session and update preferences
                 app_session.login_user(user_id, user_record)
+                if appearance:
+                    app_session.update_preferences(
+                        theme=appearance.get("theme", "Dark"),
+                        accent_color=appearance.get("accent_color", "blue"),
+                        font_family=appearance.get("font_family", "Segoe UI"),
+                        font_size_base=appearance.get("font_size_base", 14),
+                        is_arabic_rtl=appearance.get("is_arabic_rtl", 1)
+                    )
 
                 if self.on_login_success:
                     self.on_login_success(user_record)
 
+                ui.notify(f"مرحباً بك {user_record.get('name_ar', username)} / Welcome!", type="positive")
                 ui.navigate.to("/dashboard")
             else:
+                msg = "اسم المستخدم أو كلمة المرور غير صحيحة / Invalid username or password"
                 if self.error_label:
-                    self.error_label.set_text("اسم المستخدم أو كلمة المرور غير صحيحة / Invalid username or password")
+                    self.error_label.set_text(msg)
                     self.error_label.set_visibility(True)
+                ui.notify(msg, type="negative")
 
         except Exception as exc:
             print(f"[LoginScreen] Authentication Error: {exc}")
+            msg = "خطأ في عملية المصادقة / Authentication failed. Check connection."
             if self.error_label:
-                self.error_label.set_text("اسم المستخدم أو كلمة المرور غير صحيحة / Invalid username or password")
+                self.error_label.set_text(msg)
                 self.error_label.set_visibility(True)
+            ui.notify(msg, type="negative")
         finally:
             if conn:
                 try:

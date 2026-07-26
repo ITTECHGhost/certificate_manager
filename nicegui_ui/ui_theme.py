@@ -44,7 +44,7 @@ class Typography:
 
 
 # ── Valid accent palette names ──────────────────────────────────────────────
-ACCENT_OPTIONS: list[str] = ["blue", "green", "red", "dark-blue", "orange", "purple"]
+ACCENT_OPTIONS: list[str] = ["blue", "green", "red", "orange", "purple"]
 
 
 class Styles:
@@ -217,15 +217,15 @@ def set_accent(accent_name: str) -> None:
 def set_font_family(family: str) -> None:
     """Live-update font family CSS custom property on document root."""
     from nicegui import ui
-    font = (family or "Segoe UI").strip()
-    ui.run_javascript(f"document.documentElement.style.setProperty('--font-primary', \"'{font}', 'Segoe UI', 'Tahoma', sans-serif\");")
+    font = (family or "Cairo").strip()
+    ui.run_javascript(f"document.documentElement.style.setProperty('--font-primary', \"'{font}', 'Cairo', 'Roboto', 'Segoe UI', 'Tahoma', sans-serif\");")
 
 
 def set_font_size(size_base: int) -> None:
     """Live-update base font size on document root element."""
     from nicegui import ui
-    size = int(size_base or 13)
-    ui.run_javascript(f"document.documentElement.style.fontSize = '{size}px';")
+    size = int(size_base or 14)
+    ui.run_javascript(f"document.documentElement.style.setProperty('--font-size-base', '{size}px'); document.documentElement.style.fontSize = '{size}px';")
 
 
 def inject_global_styles():
