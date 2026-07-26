@@ -1,5 +1,8 @@
 # =============================================================================
 # nicegui_screens/dashboard_screen.py — NiceGUI Dashboard Screen & App Layout Shell
+#
+# Visual styling: CSS hook classes (app-*) from theme.css
+# This file contains ONLY structural layout classes (w-*, h-*, p-*, gap-*, flex, etc.)
 # =============================================================================
 
 from nicegui import ui
@@ -84,7 +87,7 @@ class MainAppShell:
         """Builds the full application container."""
         ui.query('.nicegui-content').classes('p-0 m-0')
         ui.query('body').classes(Styles.BODY)
-        
+
         from nicegui_ui.state import app_session
         app_session.apply_theme_mode()
 
@@ -94,12 +97,57 @@ class MainAppShell:
         with ui.row().classes(Styles.LAYOUT_ROW):
             self._build_sidebar()
 
-            with ui.column().classes("flex-1 h-full gap-0 overflow-hidden bg-slate-100 dark:bg-[#0f172a] transition-colors duration-200"):
+            with ui.column().classes("app-main-area flex-1 h-full gap-0 overflow-hidden"):
                 self._build_top_header()
 
                 with ui.scroll_area().classes("flex-1 h-full p-5"):
                     self.content_container = ui.column().classes("w-full gap-5")
                     self._render_active_screen()
+
+        # Start periodic background network status polling loop (every 5 seconds)
+        ui.timer(5.0, self._check_network_loop)
+
+    async def _check_network_loop(self) -> None:
+        """Periodically checks FastAPI reachability and automatically updates live online/offline indicators."""
+        from nicegui import run
+        from sync_engine import (
+            check_network_status, set_online, is_online,
+            sync_offline_queue_to_mysql
+        )
+
+        prev_online = is_online()
+        now_online = bool(await run.io_bound(check_network_status))
+        set_online(now_online)
+
+        # Unconditionally refresh live status indicators in DOM using .refresh()
+        if hasattr(self, '_refresh_status') and self._refresh_status:
+            self._refresh_status.refresh()
+        if hasattr(self, '_header_status') and self._header_status:
+            self._header_status.refresh()
+
+        if now_online and not prev_online:
+            try:
+                await run.io_bound(sync_offline_queue_to_mysql)
+            except Exception as exc:
+                print(f"[MainAppShell] Sync error on reconnection: {exc}")
+
+    async def _on_refresh_click(self) -> None:
+        """Refreshes network status, dashboard metrics, and UI components on demand."""
+        from nicegui import run
+        from sync_engine import check_network_status, set_online
+
+        now_online = bool(await run.io_bound(check_network_status))
+        set_online(now_online)
+
+        if hasattr(self, '_refresh_status') and self._refresh_status:
+            self._refresh_status.refresh()
+        if hasattr(self, '_header_status') and self._header_status:
+            self._header_status.refresh()
+
+        self.refresh_data()
+        if self._refresh_cards:
+            self._refresh_cards.refresh()
+        ui.notify("تم تحديث البيانات / Data refreshed!", type="info")
 
     def _build_sidebar(self) -> None:
         self._nav_labels = []
@@ -113,10 +161,10 @@ class MainAppShell:
                 )
                 self._sidebar_title_icon = ui.icon(
                     "workspace_premium", size="md"
-                ).classes("text-blue-400 self-center mx-auto")
+                ).classes("app-text-accent self-center mx-auto")
                 self._sidebar_title_icon.set_visibility(False)
 
-            with ui.column().classes("w-full flex-1 overflow-y-auto p-3 gap-1"):
+            with ui.column().classes(Styles.SIDEBAR_NAV_GROUP):
                 for item in NAV_ITEMS:
                     self._build_nav_item(item)
 
@@ -137,12 +185,13 @@ class MainAppShell:
 
             label_col = ui.column().classes("gap-0")
             with label_col:
-                ui.label(item["ar"]).classes("font-semibold text-xs leading-tight")
-                ui.label(item["en"]).classes("text-[11px] text-slate-400 leading-tight")
+                ui.label(item["ar"]).classes("nav-title-ar font-bold text-sm leading-tight")
+                ui.label(item["en"]).classes("nav-title-en font-normal text-xs leading-tight")
 
             self._nav_labels.append((row, label_col, item["key"]))
 
     def _handle_logout(self) -> None:
+<<<<<<< HEAD
         """Opens a confirmation dialog before performing logout."""
         with ui.dialog() as dialog, ui.card().classes(
             "p-6 gap-4 w-96 max-w-full rounded-2xl !bg-white dark:!bg-[#1e293b] "
@@ -168,6 +217,34 @@ class MainAppShell:
                 ui.button("Logout / تسجيل الخروج", on_click=confirm_logout).classes(
                     "bg-rose-600 hover:bg-rose-500 text-white font-medium px-4 py-2 rounded-xl normal-case"
                 )
+=======
+        """Displays a modal confirmation dialog before logging out the active user."""
+        with ui.dialog() as dialog, UI.card():
+            dialog_card_classes = "p-6 gap-4 min-w-[340px] max-w-sm rounded-2xl"
+            
+            with ui.column().classes(dialog_card_classes):
+                with ui.row().classes("items-center gap-3 w-full border-b pb-3"):
+                    ui.icon("logout", size="md").classes("app-text-danger")
+                    with ui.column().classes("gap-0"):
+                        ui.label("تأكيد تسجيل الخروج").classes("app-text-primary text-base font-bold")
+                        ui.label("Logout Confirmation").classes("app-text-muted text-xs")
+
+                ui.label("هل أنت تأكد من رغبتك في تسجيل الخروج؟").classes("app-text-primary text-sm font-semibold mt-2")
+                ui.label("Are you sure you want to log out?").classes("app-text-muted text-xs mb-2")
+
+                with ui.row().classes("w-full justify-end gap-3 pt-2 border-t"):
+                    UI.ghost_button("إلغاء / Cancel", on_click=dialog.close).classes("px-4 py-2 text-xs")
+                    
+                    def _confirm():
+                        dialog.close()
+                        from nicegui_ui.state import app_session
+                        app_session.logout_user()
+                        ui.notify("تم تسجيل الخروج بنجاح / Logged out successfully!", type="info")
+                        ui.navigate.to("/")
+
+                    UI.danger_button("تسجيل الخروج / Logout", icon="logout", on_click=_confirm).classes("px-4 py-2 text-xs font-bold")
+
+>>>>>>> 9562a1d23cd6479a6a3565da19e2625b4fc10329
         dialog.open()
 
     def _build_user_chip(self) -> None:
@@ -183,11 +260,50 @@ class MainAppShell:
                     UI.muted_label("Online").classes("text-emerald-500 font-semibold")
                 self._user_chip_labels.append(user_text_col)
 
+<<<<<<< HEAD
             with ui.row().classes("items-center shrink-0") as logout_icon_row:
                 ui.icon("logout", size="xs").classes(
                     "text-slate-400 hover:text-red-400 transition-colors cursor-pointer"
                 ).tooltip("Logout / تسجيل الخروج").on("click", self._handle_logout)
                 self._user_chip_labels.append(logout_icon_row)
+=======
+        user_name = app_session.name_en or app_session.username or "Admin User"
+        user_role = (app_session.role or "admin").capitalize()
+
+        self._chip_expanded = "w-full items-center gap-3 p-3 rounded-2xl border cursor-pointer transition-all bg-[#131C35] border-slate-700 hover:bg-slate-800"
+        self._chip_mini = "w-full justify-center p-3 rounded-2xl border cursor-pointer transition-all bg-[#131C35] border-slate-700 hover:bg-slate-800"
+
+        with ui.row().classes(self._chip_expanded) as self._user_chip_row:
+            with ui.element("div").classes("w-10 h-10 shrink-0 rounded-full bg-blue-500 flex items-center justify-center text-white font-bold text-sm"):
+                ui.label("SA")
+                
+            user_text_col = ui.column().classes("gap-0 flex-1 min-w-0")
+            with user_text_col:
+                ui.label(user_name).classes("truncate text-sm font-bold text-slate-100")
+                
+                @ui.refreshable
+                def status_indicator():
+                    from sync_engine import is_online
+                    online = is_online()
+                    color = "text-emerald-400" if online else "text-red-400"
+                    dot = "🟢" if online else "🔴"
+                    text = "متصل / Online" if online else "غير متصل / Offline"
+                    ui.label(f"{dot} {text}").classes(f"text-[10px] {color} font-semibold")
+                
+                status_indicator()
+                self._refresh_status = status_indicator
+
+            logout_btn = ui.icon("logout", size="xs").classes(
+                "text-slate-400 hover:text-slate-200 cursor-pointer transition-colors ml-auto"
+            )
+            logout_btn.on("click", self._handle_logout)
+            logout_btn.tooltip("تسجيل الخروج / Logout")
+
+            self._user_chip_row.on("click", self._handle_logout)
+
+            self._user_chip_labels.append(user_text_col)
+            self._user_chip_labels.append(logout_btn)
+>>>>>>> 9562a1d23cd6479a6a3565da19e2625b4fc10329
 
     def toggle_sidebar(self) -> None:
         if not self._sidebar_col:
@@ -211,8 +327,13 @@ class MainAppShell:
 
             for text_col in self._user_chip_labels:
                 text_col.set_visibility(True)
+<<<<<<< HEAD
             if self._user_chip_row is not None:
                 self._user_chip_row.classes(remove=Styles.USER_CHIP_MINI, add=Styles.USER_CHIP)
+=======
+            if self._user_chip_row:
+                self._user_chip_row.classes(remove=getattr(self, '_chip_mini', ''), add=getattr(self, '_chip_expanded', ''))
+>>>>>>> 9562a1d23cd6479a6a3565da19e2625b4fc10329
 
         else:
             self._sidebar_col.classes(
@@ -230,8 +351,13 @@ class MainAppShell:
 
             for text_col in self._user_chip_labels:
                 text_col.set_visibility(False)
+<<<<<<< HEAD
             if self._user_chip_row is not None:
                 self._user_chip_row.classes(remove=Styles.USER_CHIP, add=Styles.USER_CHIP_MINI)
+=======
+            if self._user_chip_row:
+                self._user_chip_row.classes(remove=getattr(self, '_chip_expanded', ''), add=getattr(self, '_chip_mini', ''))
+>>>>>>> 9562a1d23cd6479a6a3565da19e2625b4fc10329
 
     def _build_top_header(self) -> None:
         with ui.row().classes(Styles.HEADER_BAR):
@@ -239,30 +365,31 @@ class MainAppShell:
                 ui.button(
                     icon="menu",
                     on_click=self.toggle_sidebar
-                ).classes(
-                    "bg-slate-200 dark:bg-slate-800 text-slate-800 dark:text-slate-300 "
-                    "hover:bg-slate-300 dark:hover:bg-slate-700 "
-                    "p-2 rounded-xl border border-slate-300 dark:border-slate-700/60 shadow-none transition-colors"
-                )
+                ).classes("app-btn-icon p-2 rounded-xl shadow-none")
 
                 title_ar, title_en = self._get_screen_header_titles()
                 with ui.row().classes("items-baseline gap-3"):
                     self._header_title_ar = ui.label(title_ar).classes(
-                        "text-xl font-bold text-slate-900 dark:text-white tracking-wide"
+                        "app-text-primary text-xl font-bold tracking-wide"
                     )
                     self._header_title_en = ui.label(f"—  {title_en}").classes(
-                        "text-sm font-medium text-slate-600 dark:text-slate-400"
+                        "app-text-muted text-sm font-medium"
                     )
 
             with ui.row().classes("items-center gap-4"):
-                UI.secondary_button("Refresh Data", icon="sync", on_click=self._on_refresh_click)
+                @ui.refreshable
+                def header_status_badge():
+                    from sync_engine import is_online
+                    online = is_online()
+                    bg = "bg-emerald-500/10 text-emerald-400 border-emerald-500/30" if online else "bg-red-500/10 text-red-400 border-red-500/30"
+                    dot = "🟢" if online else "🔴"
+                    text = "متصل / Online" if online else "غير متصل / Offline"
+                    ui.label(f"{dot} {text}").classes(f"px-3 py-1.5 rounded-xl border text-xs font-bold {bg}")
+                header_status_badge()
+                self._header_status = header_status_badge
 
-                online = is_online()
-                net_text = "🟢 متصل (Online)" if online else "🔴 وضع عدم الاتصال (Offline)"
-                net_color = "text-emerald-600 dark:text-emerald-400" if online else "text-red-600 dark:text-red-400"
-                ui.label(net_text).classes(
-                    f"text-xs font-semibold px-3 py-1.5 bg-slate-100 dark:bg-slate-900/80 "
-                    f"rounded-full border border-slate-200 dark:border-slate-800 {net_color}"
+                ui.button("تحديث البيانات / Refresh Data", icon="sync", on_click=self._on_refresh_click).classes(
+                    "app-btn-refresh font-bold normal-case shadow-none px-4 py-2 text-sm"
                 )
 
     def _get_screen_header_titles(self) -> tuple[str, str]:
@@ -317,11 +444,11 @@ class MainAppShell:
                 for card_cfg in STAT_CARDS:
                     value = self.counts.get(card_cfg["count_key"], 0)
                     UI.stat_card(
-                        title      = card_cfg["label"],
+                        title_ar   = card_cfg["label_ar"],
+                        title_en   = card_cfg["label_en"],
                         value      = value,
                         icon_name  = card_cfg["icon"],
-                        text_color = card_cfg["text_color"],
-                        icon_bg    = card_cfg["icon_bg"],
+                        variant    = card_cfg["variant"],
                     )
 
         stat_cards_section()
@@ -332,19 +459,23 @@ class MainAppShell:
                 UI.section_label("Quick Actions  —  إجراءات سريعة")
                 with ui.column().classes("w-full gap-3 flex-1 justify-center"):
                     for action in QUICK_ACTIONS:
-                        ui.button(
-                            action["label"],
-                            icon=action["icon"],
-                            on_click=(
+                        with ui.button(on_click=(
                                 (lambda t=action["target"]: self._switch_screen(t))
                                 if action["target"] else None
-                            ),
-                        ).classes(action["style"])
+                            )).classes("app-btn-quick w-full h-auto flex flex-col items-center justify-center p-4 gap-1 rounded-2xl shadow-none normal-case"):
+                            ui.icon(action["icon"], size="sm")
+                            ui.label(action["label_ar"]).classes("font-bold text-sm")
+                            ui.label(action["label_en"]).classes("font-normal text-xs opacity-90")
 
+<<<<<<< HEAD
             with ui.column().classes(f"flex-1 {Styles.TABLE_PANEL}"):
                 with ui.tabs().classes(
                     "w-full text-slate-700 dark:text-slate-300 border-b border-slate-200 dark:border-slate-700/60"
                 ) as tabs:
+=======
+            with UI.card("flex-1"):
+                with ui.tabs().classes("w-full app-tabs") as tabs:
+>>>>>>> 9562a1d23cd6479a6a3565da19e2625b4fc10329
                     tab_students = ui.tab(
                         "Recent Students Added  —  أحدث الطلاب المضافين",
                         icon="person_add"
@@ -354,13 +485,13 @@ class MainAppShell:
                         icon="workspace_premium"
                     )
 
-                with ui.tab_panels(tabs, value=tab_students).classes("w-full bg-transparent p-0"):
-                    with ui.tab_panel(tab_students).classes("w-full p-0 pt-2"):
+                with ui.tab_panels(tabs, value=tab_students).classes("w-full p-0 bg-transparent"):
+                    with ui.tab_panel(tab_students).classes("w-full p-0 pt-2 bg-transparent"):
                         cols_s = [
-                            {"name": "name",   "label": "Student Name / اسم الطالب", "field": "name",   "align": "left"},
-                            {"name": "dept",   "label": "Department / القسم",        "field": "dept",   "align": "left"},
-                            {"name": "year",   "label": "Batch / سنة القبول",        "field": "year",   "align": "center"},
-                            {"name": "status", "label": "Status / الحالة",           "field": "status", "align": "right"},
+                            {"name": "name",   "label": "Student Name / اسم الطالب", "field": "name",   "align": "left", "headerClasses": "text-slate-400 font-bold bg-transparent"},
+                            {"name": "dept",   "label": "Department / القسم",        "field": "dept",   "align": "left", "headerClasses": "text-slate-400 font-bold bg-transparent"},
+                            {"name": "year",   "label": "Batch / سنة القبول",        "field": "year",   "align": "center", "headerClasses": "text-slate-400 font-bold bg-transparent"},
+                            {"name": "status", "label": "Status / الحالة",           "field": "status", "align": "right", "headerClasses": "text-slate-400 font-bold bg-transparent"},
                         ]
                         rows_s = [
                             {
@@ -371,16 +502,23 @@ class MainAppShell:
                             }
                             for s in self.recent_students
                         ]
-                        ui.table(
+                        s_table = ui.table(
                             columns=cols_s, rows=rows_s, row_key="name"
-                        ).classes(Styles.TABLE_CLASSES).props("flat bordered hide-bottom")
+                        ).classes(Styles.TABLE_CLASSES).props("flat separator='horizontal'")
+                        s_table.add_slot("body-cell-status", '''
+                            <q-td :props="props">
+                                <span v-if="props.value === 'مستمر'" class="text-emerald-400 font-bold">{{ props.value }}</span>
+                                <span v-else class="text-slate-300 font-semibold">{{ props.value }}</span>
+                            </q-td>
+                        ''')
 
-                    with ui.tab_panel(tab_certs).classes("w-full p-0 pt-2"):
+                with ui.tab_panels(tabs, value=tab_students).classes("w-full p-0 bg-transparent"):
+                    with ui.tab_panel(tab_certs).classes("w-full p-0 pt-2 bg-transparent"):
                         cols_c = [
-                            {"name": "name",  "label": "Student Name / اسم الطالب", "field": "name",  "align": "left"},
-                            {"name": "dept",  "label": "Department / القسم",        "field": "dept",  "align": "left"},
-                            {"name": "order", "label": "Order No / رقم الأمر",      "field": "order", "align": "center"},
-                            {"name": "date",  "label": "Date Issued / التاريخ",      "field": "date",  "align": "right"},
+                            {"name": "name",  "label": "Student Name / اسم الطالب", "field": "name",  "align": "left", "headerClasses": "text-slate-400 font-bold bg-transparent"},
+                            {"name": "dept",  "label": "Department / القسم",        "field": "dept",  "align": "left", "headerClasses": "text-slate-400 font-bold bg-transparent"},
+                            {"name": "order", "label": "Order No / رقم الأمر",      "field": "order", "align": "center", "headerClasses": "text-slate-400 font-bold bg-transparent"},
+                            {"name": "date",  "label": "Date Issued / التاريخ",      "field": "date",  "align": "right", "headerClasses": "text-slate-400 font-bold bg-transparent"},
                         ]
                         rows_c = [
                             {
@@ -393,17 +531,17 @@ class MainAppShell:
                         ]
                         ui.table(
                             columns=cols_c, rows=rows_c, row_key="name"
-                        ).classes(Styles.TABLE_CLASSES).props("flat bordered hide-bottom")
+                        ).classes(Styles.TABLE_CLASSES).props("flat separator='horizontal'")
 
     def _build_placeholder_screen(self) -> None:
         header_ar, header_en = self._get_screen_header_titles()
         with UI.card("items-center justify-center py-20"):
-            ui.icon("construction", size="lg").classes("text-amber-500 dark:text-amber-400")
+            ui.icon("construction", size="lg").classes("app-text-warning")
             ui.label(f"شاشة {header_ar} قيد التطوير").classes(
-                "text-2xl font-bold text-slate-900 dark:text-white"
+                "app-text-primary text-2xl font-bold"
             )
             ui.label(f"{header_en} Screen — Under Migration to NiceGUI").classes(
-                "text-sm text-slate-600 dark:text-slate-400"
+                "app-text-muted text-sm"
             )
 
     def _on_refresh_click(self) -> None:
@@ -411,6 +549,7 @@ class MainAppShell:
         self.refresh_data()
         if self._refresh_cards is not None:
             self._refresh_cards.refresh()
-
+        if hasattr(self, '_refresh_status') and self._refresh_status is not None:
+            self._refresh_status.refresh()
 
 DashboardScreen = MainAppShell

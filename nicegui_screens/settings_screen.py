@@ -1,5 +1,8 @@
 # =============================================================================
 # nicegui_screens/settings_screen.py — NiceGUI Settings Screen
+#
+# Visual styling: CSS hook classes (app-*) from theme.css
+# This file contains ONLY structural layout classes (w-*, h-*, p-*, gap-*, flex, etc.)
 # =============================================================================
 
 from pathlib import Path
@@ -67,7 +70,7 @@ class SettingsScreen:
 
     def _section_institution_info(self) -> None:
         with UI.card():
-            UI.card_header("معلومات المؤسسة — Institution Info", "domain", "text-blue-500 dark:text-blue-400")
+            UI.card_header("معلومات المؤسسة — Institution Info", "domain", icon_css="stat-text-blue")
 
             with ui.grid(columns=2).classes("w-full gap-4"):
                 self.univ_ar_input = UI.text_input(
@@ -95,7 +98,7 @@ class SettingsScreen:
 
     def _section_study_systems(self) -> None:
         with UI.card():
-            with ui.row().classes("w-full justify-between items-center border-b border-slate-200 dark:border-slate-800 pb-3"):
+            with ui.row().classes("w-full justify-between items-center pb-3 app-card-header"):
                 UI.section_label("أنظمة الدراسة — Study Systems")
                 UI.success_button(
                     "إضافة نظام جديد / Add System",
@@ -112,8 +115,8 @@ class SettingsScreen:
         with self._systems_container:
             for s in self.systems:
                 with ui.row().classes(
-                    "w-full items-center gap-3 p-3 bg-slate-50 dark:bg-slate-900/60 "
-                    "rounded-xl border border-slate-200 dark:border-slate-800 flex-nowrap"
+                    "app-tile w-full items-center gap-3 p-3 "
+                    "rounded-xl border flex-nowrap"
                 ):
                     UI.standard_label(
                         f"{s.get('name_ar', '')} ({s.get('name_en', '')})"
@@ -133,11 +136,11 @@ class SettingsScreen:
                     UI.ghost_button(
                         "", icon="delete",
                         on_click=lambda sid=s["id"]: self._delete_study_system(sid)
-                    ).classes("text-red-500 dark:text-red-400 hover:bg-red-500/20 p-2")
+                    ).classes("app-text-error p-2")
 
     def _section_appearance(self) -> None:
         with UI.card():
-            UI.card_header("المظهر والسمات — Appearance & Theme", "palette", "text-purple-500 dark:text-purple-400")
+            UI.card_header("المظهر والسمات — Appearance & Theme", "palette", icon_css="stat-text-purple")
 
             saved_theme = str(self.appearance_data.get("theme", "Dark"))
             saved_accent = str(self.appearance_data.get("accent_color", "blue"))
@@ -158,6 +161,8 @@ class SettingsScreen:
                     options=["blue", "green", "dark-blue", "orange", "purple", "red"],
                     value=saved_accent
                 )
+                self.accent_select.on("update:model-value", self._on_accent_select_change)
+
                 self.font_select = UI.select(
                     "نوع الخط / Font Family",
                     options=["Arial", "Segoe UI", "Roboto", "Cairo", "Tahoma"],
@@ -168,7 +173,7 @@ class SettingsScreen:
                     value=saved_size, min=10, max=24
                 )
 
-            with ui.row().classes("w-full items-center justify-between p-3 bg-slate-50 dark:bg-slate-900/40 rounded-xl border border-slate-200 dark:border-slate-800"):
+            with ui.row().classes("app-tile w-full items-center justify-between p-3 rounded-xl border"):
                 UI.standard_label("اتجاه الواجهة من اليمين إلى اليسار / Arabic RTL Layout")
                 self.rtl_switch = UI.switch("تفعيل RTL / Enable RTL", value=bool(saved_rtl))
 
@@ -176,48 +181,48 @@ class SettingsScreen:
                 "حفظ وتطبيق المظهر / Save Appearance",
                 icon="brush",
                 on_click=self._save_appearance
-            ).classes("self-end bg-purple-600 hover:bg-purple-500")
+            ).classes("self-end")
 
     def _section_database_maintenance(self) -> None:
         with UI.card():
-            UI.card_header("صيانة قاعدة البيانات — Database Maintenance", "storage", "text-amber-500 dark:text-amber-400")
+            UI.card_header("صيانة قاعدة البيانات — Database Maintenance", "storage", icon_css="stat-text-amber")
 
             with ui.grid(columns=2).classes("w-full gap-4"):
                 UI.action_tile(
                     "نسخ احتياطي لقاعدة البيانات / Backup Database",
                     "إنشاء نسخة SQL احتياطية حفظاً للبيانات",
                     "إنشاء نسخة احتياطية / Create Backup",
-                    "backup", "bg-blue-600", self._do_backup
+                    "backup", btn_variant="primary", on_click_fn=self._do_backup
                 )
                 UI.action_tile(
                     "استعادة نسخة احتياطية / Restore Database",
                     "استرجاع البيانات من ملف .sql سابق",
                     "استعادة النسخة / Restore Backup",
-                    "restore", "bg-amber-600", self._do_restore
+                    "restore", btn_variant="warning", on_click_fn=self._do_restore
                 )
                 UI.action_tile(
                     "استيراد من النظام القديم / Import Legacy MySQL",
                     "نقل وسحب البيانات القديمة تلقائياً",
                     "استيراد البيانات / Import Data",
-                    "upload_file", "bg-emerald-600", self._do_import
+                    "upload_file", btn_variant="success", on_click_fn=self._do_import
                 )
                 UI.action_tile(
                     "مسح سجل التغييرات / Clear Audit Logs",
                     "تفريغ ملف سجل النشاطات الحالية",
                     "مسح السجل / Clear Logs",
-                    "delete_forever", "bg-red-600", self._do_clear_logs
+                    "delete_forever", btn_variant="danger", on_click_fn=self._do_clear_logs
                 )
 
     def _section_about(self) -> None:
         with UI.card():
-            UI.card_header("حول البرنامج — About", "info", "text-slate-400")
+            UI.card_header("حول البرنامج — About", "info", icon_css="app-text-faint")
 
             with ui.column().classes("w-full items-center text-center gap-2 p-4"):
                 UI.section_label("نظام إدارة الشهادات - الإصدار 2.0 (NiceGUI Native UI)")
                 UI.muted_label("Certificate Manager - v2.0")
                 UI.muted_label("تم التطوير لأتمتة عمليات إصدار الوثائق والشهادات الجامعية.").classes("mt-2")
                 ui.label("Developed by M. Hussein / تم التطوير بواسطة م. حسين").classes(
-                    "text-xs text-emerald-600 dark:text-emerald-400 font-semibold mt-1"
+                    "app-text-success text-xs font-semibold mt-1"
                 )
 
     def _on_theme_select_change(self, e=None) -> None:
@@ -230,11 +235,18 @@ class SettingsScreen:
             set_dark_mode(False)
         else:
             set_dark_mode(is_windows_dark_mode())
-        
+
         ui.notify(
             f"تم تغيير المظهر إلى {'الداكن' if val == 'Dark' else ('الفاتح' if val == 'Light' else 'النظام')} / Theme set to {val}!",
             type="info"
         )
+
+    def _on_accent_select_change(self, e=None) -> None:
+        """Live accent palette switch when Accent Color dropdown option changes."""
+        from nicegui_ui.ui_theme import set_accent
+        val = str((self.accent_select.value if self.accent_select else None) or "blue")
+        set_accent(val)
+        ui.notify(f"تم تغيير اللون الأساسي / Accent set to {val}!", type="info")
 
     def _save_institution_info(self) -> None:
         try:

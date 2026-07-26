@@ -1,11 +1,279 @@
 /* ==========================================================================
-   theme.css — Global styles for NiceGUI application
+   theme.css — Centralized Design System
+   
+   Architecture:  System Mode (Dark/Light)
+                  └── Accent Palette (Blue, Green, Red, Dark Blue, Orange, Purple)
+                      └── Component Tokens (Cards, Buttons, Inputs, Nav, etc.)
+   
+   All visual styling is defined here via CSS Custom Properties.
+   Python screen files contain ONLY structural layout classes.
    ========================================================================== */
 
-body.body--dark {
-    color-scheme: dark;
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   1. DESIGN TOKENS — CSS Custom Properties
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ── 1a. Light Mode Tokens (Default) ────────────────────────────────────── */
+:root {
+  --font-primary: 'Arial', 'Roboto', 'Cairo', 'Segoe UI', 'Tahoma', 'times new roman', sans-serif;
+
+  /* Surfaces */
+  --surface-main: #f1f5f9;
+  --surface-card: #ffffff;
+  --surface-card-alt: #f8fafc;
+  --surface-input: #f8fafc;
+  --surface-sidebar: #0f172a;
+  --surface-header: #ffffff;
+  --surface-login-bg: #f8fafc;
+  --surface-login-card: #ffffff;
+
+  /* Text */
+  --text-primary: #0f172a;
+  --text-secondary: #334155;
+  --text-muted: #64748b;
+  --text-faint: #94a3b8;
+
+  /* Borders */
+  --border-default: #e2e8f0;
+  --border-strong: #cbd5e1;
+  --border-input: rgba(148, 163, 184, 0.4);
+  --border-sidebar: #1e293b;
+
+  /* Shadows */
+  --shadow-card: 0 4px 6px -1px rgba(0, 0, 0, 0.07), 0 2px 4px -1px rgba(0, 0, 0, 0.04);
+  --shadow-card-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -2px rgba(0, 0, 0, 0.04);
+  --shadow-login-card: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --shadow-login-hover: 0 6px 20px rgba(0, 0, 0, 0.12);
+  --shadow-input-focus: 0 0 8px rgba(59, 130, 246, 0.15);
+
+  /* Status colors */
+  --color-online: #10b981;
+  --color-offline: #ef4444;
+  --color-error: #ef4444;
+  --color-success: #10b981;
+  --color-warning: #d97706;
+
+  /* Button surfaces */
+  --btn-secondary-bg: #e2e8f0;
+  --btn-secondary-bg-hover: #cbd5e1;
+  --btn-secondary-text: #334155;
+  --btn-success-bg: #059669;
+  --btn-success-bg-hover: #10b981;
+  --btn-danger-bg: #e11d48;
+  --btn-danger-bg-hover: #f43f5e;
+  --btn-warning-bg: #d97706;
+  --btn-warning-bg-hover: #b45309;
+  --btn-ghost-bg-hover: #f1f5f9;
+  --btn-ghost-text: #475569;
+
+  /* Table / Tab */
+  --table-header-text: #334155;
+  --table-cell-text: #0f172a;
+  --tab-text: #475569;
+  --tab-active-text: #2563eb;
+
+  /* Avatar (login screen) */
+  --avatar-outer-bg: #ffffff;
+  --avatar-outer-border: #e2e8f0;
+  --avatar-inner-bg: #f1f5f9;
+  --avatar-icon-text: #475569;
+
+  /* Badge */
+  --badge-bg: #f1f5f9;
+  --badge-border: #e2e8f0;
 }
 
+/* ── 1b. Dark Mode Tokens ───────────────────────────────────────────────── */
+body.body--dark,
+.body--dark,
+body.dark,
+.dark {
+  --surface-main: #0b1329;
+  --surface-card: #1e293b;
+  --surface-card-alt: rgba(15, 23, 42, 0.6);
+  --surface-input: #070e1e;
+  --surface-sidebar: #0b1329;
+  --surface-header: #0b1329;
+  --surface-login-bg: #0b1329;
+  --surface-login-card: #1e293b;
+
+  --text-primary: #f8fafc;
+  --text-secondary: #cbd5e1;
+  --text-muted: #94a3b8;
+  --text-faint: #64748b;
+
+  --border-default: #334155;
+  --border-strong: #475569;
+  --border-input: rgba(51, 65, 85, 0.7);
+  --border-sidebar: #1e293b;
+
+  --shadow-card: 0 10px 25px rgba(0, 0, 0, 0.25), 0 4px 10px rgba(0, 0, 0, 0.2);
+  --shadow-card-lg: 0 20px 40px rgba(0, 0, 0, 0.4);
+  --shadow-login-card: 0 0 35px rgba(59, 130, 246, 0.15), 0 0 15px rgba(37, 99, 235, 0.1), 0 25px 50px rgba(0, 0, 0, 0.5);
+  --shadow-login-hover: 0 0 45px rgba(59, 130, 246, 0.25), 0 0 20px rgba(37, 99, 235, 0.15), 0 25px 50px rgba(0, 0, 0, 0.6);
+  --shadow-input-focus: 0 0 12px rgba(59, 130, 246, 0.35);
+
+  --color-error: #f87171;
+
+  --btn-secondary-bg: #1e293b;
+  --btn-secondary-bg-hover: #334155;
+  --btn-secondary-text: #cbd5e1;
+  --btn-ghost-bg-hover: #1e293b;
+  --btn-ghost-text: #cbd5e1;
+
+  --table-header-text: #94a3b8;
+  --table-cell-text: #f1f5f9;
+  --tab-text: #94a3b8;
+  --tab-active-text: #60a5fa;
+
+  --avatar-outer-bg: #0b1329;
+  --avatar-outer-border: rgba(51, 65, 85, 0.5);
+  --avatar-inner-bg: #1e293b;
+  --avatar-icon-text: #cbd5e1;
+
+  --badge-bg: rgba(15, 23, 42, 0.8);
+  --badge-border: #334155;
+}
+
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   2. ACCENT PALETTES — Body-level CSS classes
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ── Blue (Default when no accent class is set) ─────────────────────────── */
+body.accent-blue,
+body:not([class*="accent-"]) {
+  --accent-primary: #2563eb;
+  --accent-hover: #1d4ed8;
+  --accent-soft-bg: rgba(59, 130, 246, 0.1);
+  --accent-soft-border: rgba(59, 130, 246, 0.2);
+  --accent-text: #2563eb;
+  --accent-active-bg: rgba(37, 99, 235, 0.2);
+  --accent-active-text: #3b82f6;
+  --accent-active-border: rgba(59, 130, 246, 0.5);
+  --accent-shadow: rgba(59, 130, 246, 0.3);
+}
+
+body.accent-blue.body--dark,
+body:not([class*="accent-"]).body--dark {
+  --accent-text: #60a5fa;
+  --accent-hover: #3b82f6;
+  --accent-active-text: #60a5fa;
+}
+
+/* ── Green ──────────────────────────────────────────────────────────────── */
+body.accent-green {
+  --accent-primary: #059669;
+  --accent-hover: #047857;
+  --accent-soft-bg: rgba(16, 185, 129, 0.1);
+  --accent-soft-border: rgba(16, 185, 129, 0.2);
+  --accent-text: #059669;
+  --accent-active-bg: rgba(5, 150, 105, 0.2);
+  --accent-active-text: #10b981;
+  --accent-active-border: rgba(16, 185, 129, 0.5);
+  --accent-shadow: rgba(16, 185, 129, 0.3);
+}
+
+body.accent-green.body--dark {
+  --accent-text: #34d399;
+  --accent-hover: #10b981;
+  --accent-active-text: #34d399;
+}
+
+/* ── Red ────────────────────────────────────────────────────────────────── */
+body.accent-red {
+  --accent-primary: #e11d48;
+  --accent-hover: #be123c;
+  --accent-soft-bg: rgba(225, 29, 72, 0.1);
+  --accent-soft-border: rgba(225, 29, 72, 0.2);
+  --accent-text: #e11d48;
+  --accent-active-bg: rgba(225, 29, 72, 0.2);
+  --accent-active-text: #f43f5e;
+  --accent-active-border: rgba(225, 29, 72, 0.5);
+  --accent-shadow: rgba(225, 29, 72, 0.3);
+}
+
+body.accent-red.body--dark {
+  --accent-text: #fb7185;
+  --accent-hover: #f43f5e;
+  --accent-active-text: #fb7185;
+}
+
+/* ── Dark Blue (Indigo) ─────────────────────────────────────────────────── */
+body.accent-dark-blue {
+  --accent-primary: #4338ca;
+  --accent-hover: #3730a3;
+  --accent-soft-bg: rgba(99, 102, 241, 0.1);
+  --accent-soft-border: rgba(99, 102, 241, 0.2);
+  --accent-text: #4338ca;
+  --accent-active-bg: rgba(67, 56, 202, 0.2);
+  --accent-active-text: #6366f1;
+  --accent-active-border: rgba(99, 102, 241, 0.5);
+  --accent-shadow: rgba(99, 102, 241, 0.3);
+}
+
+body.accent-dark-blue.body--dark {
+  --accent-text: #a5b4fc;
+  --accent-hover: #6366f1;
+  --accent-active-text: #a5b4fc;
+}
+
+/* ── Orange ──────────────────────────────────────────────────────────────── */
+body.accent-orange {
+  --accent-primary: #ea580c;
+  --accent-hover: #c2410c;
+  --accent-soft-bg: rgba(249, 115, 22, 0.1);
+  --accent-soft-border: rgba(249, 115, 22, 0.2);
+  --accent-text: #ea580c;
+  --accent-active-bg: rgba(234, 88, 12, 0.2);
+  --accent-active-text: #f97316;
+  --accent-active-border: rgba(249, 115, 22, 0.5);
+  --accent-shadow: rgba(249, 115, 22, 0.3);
+}
+
+body.accent-orange.body--dark {
+  --accent-text: #fb923c;
+  --accent-hover: #f97316;
+  --accent-active-text: #fb923c;
+}
+
+/* ── Purple ──────────────────────────────────────────────────────────────── */
+body.accent-purple {
+  --accent-primary: #9333ea;
+  --accent-hover: #7e22ce;
+  --accent-soft-bg: rgba(168, 85, 247, 0.1);
+  --accent-soft-border: rgba(168, 85, 247, 0.2);
+  --accent-text: #9333ea;
+  --accent-active-bg: rgba(147, 51, 234, 0.2);
+  --accent-active-text: #a855f7;
+  --accent-active-border: rgba(168, 85, 247, 0.5);
+  --accent-shadow: rgba(168, 85, 247, 0.3);
+}
+
+body.accent-purple.body--dark {
+  --accent-text: #c084fc;
+  --accent-hover: #a855f7;
+  --accent-active-text: #c084fc;
+}
+
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   3. BASE RESET & BODY
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+body {
+  font-family: var(--font-primary);
+  background-color: var(--surface-main) !important;
+  color: var(--text-primary) !important;
+  transition: background-color 0.3s, color 0.3s;
+}
+
+body.body--dark {
+  color-scheme: dark;
+}
+
+<<<<<<< HEAD
 /* --------------------------------------------------------------------------
    Login Screen Specifics & Custom Gradient Design
    -------------------------------------------------------------------------- */
@@ -13,139 +281,577 @@ body.body--dark {
     box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
     border: 1px solid rgba(226, 232, 240, 1);
     position: relative;
+=======
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   4. COMPONENT CLASSES
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ── 4a. Text Utilities ─────────────────────────────────────────────────── */
+.app-text-primary {
+  color: var(--text-primary) !important;
+>>>>>>> 9562a1d23cd6479a6a3565da19e2625b4fc10329
 }
 
-.dark .login-card-glow,
-.body--dark .login-card-glow {
-    box-shadow: 0 0 35px rgba(59, 130, 246, 0.15), 0 0 15px rgba(37, 99, 235, 0.1), 0 25px 50px rgba(0, 0, 0, 0.5);
-    border: 1px solid rgba(59, 130, 246, 0.2);
+.app-text-secondary {
+  color: var(--text-secondary) !important;
 }
 
-.dark .login-card-glow:hover,
-.body--dark .login-card-glow:hover {
-    box-shadow: 0 0 45px rgba(59, 130, 246, 0.25), 0 0 20px rgba(37, 99, 235, 0.15), 0 25px 50px rgba(0, 0, 0, 0.6);
-    border: 1px solid rgba(59, 130, 246, 0.35);
+.app-text-muted {
+  color: var(--text-muted) !important;
 }
 
-.custom-input .q-field__control {
-    background-color: #f8fafc !important;
-    border-radius: 10px !important;
+.app-text-faint {
+  color: var(--text-faint) !important;
 }
 
-.dark .custom-input .q-field__control,
-.body--dark .custom-input .q-field__control {
-    background-color: #070e1e !important;
+.app-text-accent {
+  color: var(--accent-text) !important;
 }
 
-.custom-input .q-field__control:before {
-    border-color: rgba(148, 163, 184, 0.4) !important;
+.app-text-error {
+  color: var(--color-error) !important;
 }
 
-.dark .custom-input .q-field__control:before,
-.body--dark .custom-input .q-field__control:before {
-    border-color: rgba(51, 65, 85, 0.7) !important;
+.app-text-success {
+  color: var(--color-success) !important;
 }
 
-.custom-input.q-field--focused .q-field__control:after {
-    border-color: #3b82f6 !important;
-    box-shadow: 0 0 8px rgba(59, 130, 246, 0.2) !important;
+.app-text-warning {
+  color: var(--color-warning) !important;
 }
 
-.dark .custom-input.q-field--focused .q-field__control:after,
-.body--dark .custom-input.q-field--focused .q-field__control:after {
-    box-shadow: 0 0 12px rgba(59, 130, 246, 0.35) !important;
+
+/* ── 4b. Cards ──────────────────────────────────────────────────────────── */
+.app-card {
+  background-color: var(--surface-card) !important;
+  border: 1px solid var(--border-default) !important;
+  box-shadow: var(--shadow-card);
+  transition: background-color 0.2s, border-color 0.2s, box-shadow 0.2s;
 }
 
-/* Explicit dark/light mode surface rules (Overrides Quasar .bg-white layer) */
 .app-login-card,
-.login-card {
-    background-color: #ffffff;
+.login-card-glow {
+  background-color: var(--surface-login-card) !important;
+  border: 1px solid var(--border-default) !important;
+  box-shadow: var(--shadow-login-card);
+  position: relative;
+  transition: background-color 0.3s, border-color 0.3s, box-shadow 0.3s;
 }
 
 body.body--dark .app-login-card,
-body.dark .app-login-card,
-body.body--dark .login-card,
-body.dark .login-card,
-.body--dark .app-login-card,
-.dark .app-login-card {
-    background-color: #0b1329 !important;
+.dark .app-login-card,
+body.body--dark .login-card-glow,
+.dark .login-card-glow {
+  border-color: var(--accent-soft-border) !important;
 }
 
-.app-card {
-    background-color: #ffffff !important;
+.app-login-card:hover,
+.login-card-glow:hover {
+  box-shadow: var(--shadow-login-hover);
 }
 
-body.body--dark .app-card,
-body.dark .app-card,
-.body--dark .app-card,
-.dark .app-card {
-    background-color: #1e293b !important;
+body.body--dark .app-login-card:hover,
+.dark .app-login-card:hover {
+  border-color: rgba(59, 130, 246, 0.35) !important;
 }
 
+.app-stat-card {
+  background-color: var(--surface-card) !important;
+  border-color: var(--border-default) !important;
+  box-shadow: var(--shadow-card);
+  transition: background-color 0.2s, border-color 0.2s, box-shadow 0.2s;
+}
+
+.app-tile {
+  background-color: var(--surface-card-alt) !important;
+  border: 1px solid var(--border-default) !important;
+  transition: background-color 0.2s, border-color 0.2s;
+}
+
+.app-card-header {
+  border-bottom: 1px solid var(--border-default);
+}
+
+
+/* ── 4c. Buttons ────────────────────────────────────────────────────────── */
+.app-btn-primary {
+  background-color: var(--accent-primary) !important;
+  color: white !important;
+  box-shadow: 0 4px 14px var(--accent-shadow);
+  transition: background-color 0.2s, box-shadow 0.2s;
+}
+
+.app-btn-primary:hover {
+  background-color: var(--accent-hover) !important;
+  box-shadow: 0 6px 20px var(--accent-shadow);
+}
+
+.app-btn-secondary {
+  background-color: var(--btn-secondary-bg) !important;
+  color: var(--btn-secondary-text) !important;
+  border: 1px solid var(--border-default) !important;
+  transition: background-color 0.2s, color 0.2s, border-color 0.2s;
+}
+
+.app-btn-secondary:hover {
+  background-color: var(--btn-secondary-bg-hover) !important;
+}
+
+.app-btn-success {
+  background-color: var(--btn-success-bg) !important;
+  color: white !important;
+  transition: background-color 0.2s;
+}
+
+.app-btn-success:hover {
+  background-color: var(--btn-success-bg-hover) !important;
+}
+
+.app-btn-danger {
+  background-color: var(--btn-danger-bg) !important;
+  color: white !important;
+  transition: background-color 0.2s;
+}
+
+.app-btn-danger:hover {
+  background-color: var(--btn-danger-bg-hover) !important;
+}
+
+.app-btn-warning {
+  background-color: var(--btn-warning-bg) !important;
+  color: white !important;
+  transition: background-color 0.2s;
+}
+
+.app-btn-warning:hover {
+  background-color: var(--btn-warning-bg-hover) !important;
+}
+
+.app-btn-ghost {
+  background-color: transparent !important;
+  color: var(--btn-ghost-text) !important;
+  transition: background-color 0.2s, color 0.2s;
+}
+
+.app-btn-ghost:hover {
+  background-color: var(--btn-ghost-bg-hover) !important;
+}
+
+.app-btn-icon {
+  background-color: var(--btn-secondary-bg) !important;
+  color: var(--btn-secondary-text) !important;
+  border: 1px solid var(--border-default) !important;
+  transition: background-color 0.2s, color 0.2s;
+}
+
+.app-btn-icon:hover {
+  background-color: var(--btn-secondary-bg-hover) !important;
+}
+
+.app-btn-refresh {
+  background-color: #3b82f6 !important;
+  color: #ffffff !important;
+  border-radius: 0.5rem !important;
+  box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.2) !important;
+  transition: all 0.2s;
+}
+
+.app-btn-refresh:hover {
+  background-color: #2563eb !important;
+}
+
+.app-btn-quick {
+  background: linear-gradient(180deg, rgba(59, 130, 246, 0.9) 0%, rgba(37, 99, 235, 0.9) 100%) !important;
+  color: #ffffff !important;
+  border: 1px solid rgba(59, 130, 246, 0.4) !important;
+  box-shadow: 0 4px 10px rgba(37, 99, 235, 0.2) !important;
+  transition: all 0.2s;
+}
+
+.app-btn-quick:hover {
+  background: linear-gradient(180deg, #3b82f6 0%, #1d4ed8 100%) !important;
+  box-shadow: 0 6px 15px rgba(37, 99, 235, 0.3) !important;
+}
+
+
+/* ── 4d. Inputs (Quasar .q-field overrides) ─────────────────────────────── */
+.app-input .q-field__control,
+.custom-input .q-field__control {
+  background-color: var(--surface-input) !important;
+  border-radius: 10px !important;
+}
+
+.app-input .q-field__control:before,
+.custom-input .q-field__control:before {
+  border-color: var(--border-input) !important;
+}
+
+.app-input.q-field--focused .q-field__control:after,
+.custom-input.q-field--focused .q-field__control:after {
+  border-color: var(--accent-primary) !important;
+  box-shadow: var(--shadow-input-focus) !important;
+}
+
+.app-input .q-field__label {
+  color: var(--text-muted) !important;
+}
+
+.app-input .q-field__native,
+.app-input .q-field__input,
+.custom-input .q-field__native,
+.custom-input .q-field__input {
+  color: var(--text-primary) !important;
+  font-weight: 500;
+}
+
+
+/* ── 4e. Sidebar & Navigation ───────────────────────────────────────────── */
+.app-sidebar {
+  background-color: var(--surface-sidebar) !important;
+  border-right: 1px solid var(--border-sidebar) !important;
+  transition: width 0.3s ease, background-color 0.2s;
+}
+
+.app-sidebar-header {
+  border-bottom: 1px solid var(--border-sidebar);
+}
+
+.app-sidebar-title {
+  color: #ffffff !important;
+}
+
+.app-sidebar-text {
+  color: #e2e8f0 !important;
+}
+
+.app-sidebar-icon {
+  color: #94a3b8 !important;
+}
+
+/* ── 4a. Sidebar Navigation Items ────────────────────────────────────────── */
+.app-nav-item {
+  background-color: transparent !important;
+  border-color: transparent !important;
+  transition: all 0.2s ease-in-out;
+}
+
+.app-nav-item .q-icon {
+  color: #94a3b8 !important;
+  transition: color 0.2s ease-in-out;
+}
+
+.app-nav-item .nav-title-ar {
+  color: #f8fafc !important;
+  transition: color 0.2s ease-in-out;
+}
+
+.app-nav-item .nav-title-en {
+  color: #94a3b8 !important;
+  transition: color 0.2s ease-in-out;
+}
+
+.app-nav-item:hover {
+  background-color: rgba(30, 41, 59, 0.5) !important;
+  border-color: rgba(51, 65, 85, 0.4) !important;
+}
+
+.app-nav-item:hover .q-icon {
+  color: #cbd5e1 !important;
+}
+
+.app-nav-item:hover .nav-title-ar {
+  color: #ffffff !important;
+}
+
+.app-nav-item:hover .nav-title-en {
+  color: #cbd5e1 !important;
+}
+
+.app-nav-item--active {
+  background-color: rgba(30, 41, 59, 0.75) !important;
+  border: 1px solid var(--accent-primary, #3b82f6) !important;
+  box-shadow: 0 0 12px -2px var(--accent-glow, rgba(59, 130, 246, 0.3)) !important;
+  transition: all 0.2s ease-in-out;
+}
+
+.app-nav-item--active .q-icon {
+  color: var(--accent-text, #38bdf8) !important;
+}
+
+.app-nav-item--active .nav-title-ar {
+  color: var(--accent-text, #38bdf8) !important;
+}
+
+.app-nav-item--active .nav-title-en {
+  color: #93c5fd !important;
+}
+
+.app-user-chip {
+  background-color: rgba(30, 41, 59, 0.4) !important;
+  border-color: rgba(30, 41, 59, 0.6) !important;
+  transition: background-color 0.2s;
+}
+
+.app-user-chip:hover {
+  background-color: rgba(30, 41, 59, 0.8) !important;
+}
+
+.app-user-status {
+  color: #34d399 !important;
+}
+
+
+/* ── 4f. Header Bar ─────────────────────────────────────────────────────── */
 .app-header-bar {
-    background-color: #ffffff !important;
+  background-color: var(--surface-header) !important;
+  border-bottom: 1px solid var(--border-default) !important;
+  transition: background-color 0.2s, border-color 0.2s;
 }
 
-body.body--dark .app-header-bar,
-body.dark .app-header-bar,
-.body--dark .app-header-bar,
-.dark .app-header-bar {
-    background-color: #020617 !important;
+
+/* ── 4g. Main Content Area ──────────────────────────────────────────────── */
+.app-main-area {
+  background-color: var(--surface-main) !important;
+  transition: background-color 0.2s;
 }
 
-.avatar-badge {
-    background-color: #ffffff;
-    border-color: #e2e8f0;
+
+/* ── 4h. Stat Card Variants ─────────────────────────────────────────────── */
+.app-stat-value {
+  color: var(--text-primary) !important;
 }
 
-body.body--dark .avatar-badge,
-body.dark .avatar-badge,
-.body--dark .avatar-badge,
-.dark .avatar-badge {
-    background-color: #0b1329 !important;
-    border-color: rgba(51, 65, 85, 0.5) !important;
+.app-stat-label {
+  color: var(--text-secondary) !important;
 }
 
-.avatar-inner {
-    background-color: #f1f5f9 !important;
+/* Icon backgrounds (same in light & dark) */
+.stat-icon-blue {
+  background-color: rgba(59, 130, 246, 0.1) !important;
+  border-color: rgba(59, 130, 246, 0.2) !important;
 }
 
-body.body--dark .avatar-inner,
-body.dark .avatar-inner,
-.body--dark .avatar-inner,
-.dark .avatar-inner {
-    background-color: #1e293b !important;
+.stat-icon-emerald {
+  background-color: rgba(16, 185, 129, 0.1) !important;
+  border-color: rgba(16, 185, 129, 0.2) !important;
 }
 
-/* In dark mode, prevent Quasar .bg-white from forcing white background on elements */
-body.body--dark .bg-white:not(.keep-white),
-body.dark .bg-white:not(.keep-white),
-.body--dark .bg-white:not(.keep-white),
-.dark .bg-white:not(.keep-white) {
-    background-color: transparent !important;
+.stat-icon-amber {
+  background-color: rgba(245, 158, 11, 0.1) !important;
+  border-color: rgba(245, 158, 11, 0.2) !important;
 }
 
-/* Connecting network nodes pattern for dark mode background */
-.dark .bg-network,
-body.body--dark .bg-network {
-    background-image: radial-gradient(circle at 50% 50%, rgba(15, 23, 42, 0.8) 0%, rgba(2, 6, 23, 1) 100%), url("data:image/svg+xml;utf8,<svg width='100' height='100' xmlns='http://www.w3.org/2000/svg'><circle cx='20' cy='20' r='1.5' fill='%23334155'/><circle cx='80' cy='40' r='1.5' fill='%23334155'/><circle cx='40' cy='80' r='1.5' fill='%23334155'/><path d='M20 20 L80 40 L40 80 Z' fill='none' stroke='%231e293b' stroke-width='0.5'/></svg>");
-    background-size: cover, 120px 120px;
+.stat-icon-purple {
+  background-color: rgba(168, 85, 247, 0.1) !important;
+  border-color: rgba(168, 85, 247, 0.2) !important;
 }
 
+<<<<<<< HEAD
 .bg-network {
     background-image: linear-gradient(135deg, #021765 0%, #000000 100%) !important;
     background-size: cover !important;
 }
 
 /* Offset avatar badge */
-.avatar-offset {
-    position: absolute;
-    top: -32px;
-    left: 50%;
-    transform: translateX(-50%);
-    z-index: 10;
+=======
+/* Text colors (mode-responsive) */
+.stat-text-blue {
+  color: #2563eb !important;
 }
 
+.stat-text-emerald {
+  color: #059669 !important;
+}
+
+.stat-text-amber {
+  color: #d97706 !important;
+}
+
+.stat-text-purple {
+  color: #9333ea !important;
+}
+
+body.body--dark .stat-text-blue,
+.dark .stat-text-blue {
+  color: #60a5fa !important;
+}
+
+body.body--dark .stat-text-emerald,
+.dark .stat-text-emerald {
+  color: #34d399 !important;
+}
+
+body.body--dark .stat-text-amber,
+.dark .stat-text-amber {
+  color: #fbbf24 !important;
+}
+
+body.body--dark .stat-text-purple,
+.dark .stat-text-purple {
+  color: #c084fc !important;
+}
+
+
+/* ── 4i. Tables ─────────────────────────────────────────────────────────── */
+.app-table {
+  background-color: transparent !important;
+  color: var(--text-primary) !important;
+}
+
+.app-table th,
+.app-table .q-table th {
+  color: var(--table-header-text) !important;
+  font-weight: 700 !important;
+  font-size: 13px !important;
+}
+
+.app-table td,
+.app-table .q-table td,
+.app-table td * {
+  color: var(--table-cell-text) !important;
+  font-weight: 500 !important;
+  font-size: 13px !important;
+}
+
+
+/* ── 4j. Tabs ───────────────────────────────────────────────────────────── */
+.app-tabs {
+  color: var(--tab-text) !important;
+  border-bottom: 1px solid var(--border-default);
+}
+
+.app-tabs .q-tab {
+  color: var(--tab-text) !important;
+  font-weight: 600 !important;
+}
+
+.app-tabs .q-tab--active {
+  color: var(--tab-active-text) !important;
+  font-weight: 700 !important;
+}
+
+
+/* ── 4k. Badges ─────────────────────────────────────────────────────────── */
+.app-badge {
+  background-color: var(--badge-bg) !important;
+  border-color: var(--badge-border) !important;
+}
+
+.app-badge-online {
+  color: var(--color-online) !important;
+}
+
+.app-badge-offline {
+  color: var(--color-offline) !important;
+}
+
+
+/* ── 4l. Popup Menu ─────────────────────────────────────────────────────── */
+.app-popup-menu {
+  /* Override CSS vars locally so children auto-adapt to dark surface */
+  --text-primary: #f1f5f9;
+  --text-secondary: #cbd5e1;
+  --text-muted: #94a3b8;
+  --text-faint: #64748b;
+  --border-default: #1e293b;
+  --accent-text: #60a5fa;
+  --color-success: #34d399;
+
+  background-color: #0f172a !important;
+  border: 1px solid #1e293b !important;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+}
+
+.app-menu-item-danger {
+  color: #f87171 !important;
+}
+
+.app-menu-item-danger:hover {
+  background-color: rgba(239, 68, 68, 0.2) !important;
+}
+
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   5. LOGIN SCREEN SPECIFICS
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* Left column background pattern */
+.app-login-bg {
+  background-image: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+  background-size: cover;
+  border-right: 1px solid var(--border-default) !important;
+  transition: border-color 0.3s;
+}
+
+body.body--dark .app-login-bg,
+.dark .app-login-bg {
+  background-image:
+    radial-gradient(circle at 50% 50%, rgba(15, 23, 42, 0.8) 0%, rgba(2, 6, 23, 1) 100%),
+    url("data:image/svg+xml;utf8,<svg width='100' height='100' xmlns='http://www.w3.org/2000/svg'><circle cx='20' cy='20' r='1.5' fill='%23334155'/><circle cx='80' cy='40' r='1.5' fill='%23334155'/><circle cx='40' cy='80' r='1.5' fill='%23334155'/><path d='M20 20 L80 40 L40 80 Z' fill='none' stroke='%231e293b' stroke-width='0.5'/></svg>");
+  background-size: cover, 120px 120px;
+}
+
+/* Right column */
+.app-login-right {
+  background-color: var(--surface-login-bg) !important;
+  transition: background-color 0.3s;
+}
+
+/* Login title & subtitle */
+.app-login-title {
+  color: var(--text-primary) !important;
+  transition: color 0.3s;
+}
+
+.app-login-subtitle {
+  color: var(--text-muted) !important;
+  transition: color 0.3s;
+}
+
+/* Logo drop shadow */
+.app-login-logo {
+  filter: drop-shadow(0 10px 20px rgba(0, 0, 0, 0.15));
+}
+
+body.body--dark .app-login-logo,
+.dark .app-login-logo {
+  filter: drop-shadow(0 10px 30px rgba(0, 0, 0, 0.6));
+}
+
+/* Avatar badge */
+.app-avatar-badge {
+  background-color: var(--avatar-outer-bg) !important;
+  border-color: var(--avatar-outer-border) !important;
+  transition: background-color 0.3s, border-color 0.3s;
+}
+
+body.body--dark .app-avatar-badge,
+.dark .app-avatar-badge {
+  box-shadow: inset 0 1px 4px rgba(59, 130, 246, 0.1);
+}
+
+.app-avatar-inner {
+  background-color: var(--avatar-inner-bg) !important;
+  transition: background-color 0.3s;
+}
+
+.app-avatar-icon {
+  color: var(--avatar-icon-text) !important;
+  transition: color 0.3s;
+}
+
+/* Avatar position offset */
+>>>>>>> 9562a1d23cd6479a6a3565da19e2625b4fc10329
+.avatar-offset {
+  position: absolute;
+  top: -32px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10;
+}
+
+<<<<<<< HEAD
 /* Card Glow Effect */
 .login-card-glow {
     position: relative;
@@ -276,85 +982,43 @@ body.body--dark .custom-input .q-field__control:before {
 /* --------------------------------------------------------------------------
    Dashboard & Global Overrides
    -------------------------------------------------------------------------- */
+=======
+/* Theme toggle container */
+.app-theme-toggle {
+  background-color: var(--avatar-outer-bg) !important;
+  border-color: var(--avatar-outer-border) !important;
+  transition: background-color 0.3s, border-color 0.3s;
+}
+
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   6. QUASAR FRAMEWORK OVERRIDES
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* Tab panel padding override */
+>>>>>>> 9562a1d23cd6479a6a3565da19e2625b4fc10329
 .q-tab-panel {
-    padding: 8px 0 0 0 !important;
+  padding: 8px 0 0 0 !important;
 }
 
 .q-tabs__content {
-    justify-content: flex-start;
+  justify-content: flex-start;
 }
 
-/* Light Mode Overrides */
-body:not(.body--dark) {
-    background-color: #f1f5f9 !important;
-    color: #0f172a !important;
+/* Prevent Quasar .bg-white from forcing white in dark mode */
+body.body--dark .bg-white:not(.keep-white),
+.body--dark .bg-white:not(.keep-white),
+.dark .bg-white:not(.keep-white) {
+  background-color: transparent !important;
 }
 
-body:not(.body--dark) .q-table {
-    color: #0f172a !important;
-    background-color: transparent !important;
-}
-
-body:not(.body--dark) .q-table th {
-    color: #334155 !important;
-    font-weight: 700 !important;
-    font-size: 13px !important;
-}
-
-body:not(.body--dark) .q-table td,
-body:not(.body--dark) .q-table td * {
-    color: #0f172a !important;
-    font-weight: 600 !important;
-    font-size: 13px !important;
-}
-
-body:not(.body--dark) .q-tab {
-    color: #475569 !important;
-    font-weight: 600 !important;
-}
-
-body:not(.body--dark) .q-tab--active {
-    color: #2563eb !important;
-    font-weight: 700 !important;
-}
-
+/* Global Quasar light mode table/field overrides (catch-all for components not using app-* classes) */
 body:not(.body--dark) .q-field__label {
-    color: #475569 !important;
+  color: var(--text-muted) !important;
 }
 
 body:not(.body--dark) .q-field__native,
 body:not(.body--dark) .q-field__input {
-    color: #0f172a !important;
-    font-weight: 500 !important;
-}
-
-/* Dark Mode Overrides */
-body.body--dark {
-    background-color: #0f172a !important;
-    color: #f8fafc !important;
-}
-
-body.body--dark .q-table {
-    color: #f8fafc !important;
-    background-color: transparent !important;
-}
-
-body.body--dark .q-table th {
-    color: #94a3b8 !important;
-    font-weight: 700 !important;
-}
-
-body.body--dark .q-table td,
-body.body--dark .q-table td * {
-    color: #f1f5f9 !important;
-    font-weight: 500 !important;
-}
-
-body.body--dark .q-tab {
-    color: #94a3b8 !important;
-}
-
-body.body--dark .q-tab--active {
-    color: #60a5fa !important;
-    font-weight: 700 !important;
+  color: var(--text-primary) !important;
+  font-weight: 500 !important;
 }

@@ -14,7 +14,7 @@ class UserSessionState:
     """
     Session state for the currently logged-in user.
     Tracks employee ID (EMP_ID), user credentials/role, and active UI preferences.
-    Supports 3 appearance modes (Dark, Light, System) and 5 accent colors.
+    Supports 3 appearance modes (Dark, Light, System) and 6 accent colors.
     """
     emp_id: int = 1
     username: str = "admin"
@@ -46,9 +46,9 @@ class UserSessionState:
         return str(self.preferences.get("accent_color", "blue")).lower().replace("-", "_")
 
     def apply_theme_mode(self) -> None:
-        """Apply active user preference theme mode ('dark', 'light', or 'system') to NiceGUI dark_mode controller."""
+        """Apply active user preference theme mode, accent color, font family, and font size to NiceGUI."""
         try:
-            from nicegui_ui.ui_theme import is_windows_dark_mode, set_dark_mode
+            from nicegui_ui.ui_theme import is_windows_dark_mode, set_dark_mode, set_accent, set_font_family, set_font_size
             mode = self.theme_mode
             if mode == "dark":
                 set_dark_mode(True)
@@ -56,6 +56,15 @@ class UserSessionState:
                 set_dark_mode(False)
             else:
                 set_dark_mode(is_windows_dark_mode())
+
+            # Sync accent palette CSS class on body
+            set_accent(self.accent_color)
+
+            # Sync font family and font size
+            font_family = str(self.preferences.get("font_family") or "Segoe UI")
+            font_size = int(self.preferences.get("font_size_base") or 13)
+            set_font_family(font_family)
+            set_font_size(font_size)
         except Exception as exc:
             log.warning("Could not apply theme mode: %s", exc)
 
