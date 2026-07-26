@@ -47,11 +47,20 @@ class SettingsScreen:
         self._apply_initial_theme()
 
     def _load_data(self) -> None:
-        """Fetch current settings, user appearance (tied to EMP_ID), and study systems from repositories."""
+        """Fetch current settings and study systems. Appearance comes from session preferences."""
         try:
             self.settings_data = self.s_repo.get_settings() or {}
-            self.appearance_data = self.s_repo.get_user_appearance(self.emp_id) or {}
             self.systems = self.sys_repo.get_all() or []
+            # Appearance_data is not used for defaults — session.preferences is the source of truth.
+            # We load it only to sync it back if the DB has fresher values than the session.
+            db_appearance = self.s_repo.get_user_appearance(self.emp_id) or {}
+            if db_appearance:
+                # Only update session if DB returned real non-default values
+                pref = self.session.preferences
+                for key in ("theme", "accent_color", "font_family", "font_size_base", "is_arabic_rtl"):
+                    db_val = db_appearance.get(key)
+                    if db_val is not None:
+                        pref[key] = db_val
         except Exception as exc:
             print(f"[SettingsScreen] Error loading settings data: {exc}")
 
@@ -100,53 +109,89 @@ class SettingsScreen:
         with UI.card():
             with ui.row().classes("w-full justify-between items-center pb-3 app-card-header"):
                 UI.section_label("أنظمة الدراسة — Study Systems")
-                UI.success_button(
-                    "إضافة نظام جديد / Add System",
-                    icon="add",
-                    on_click=self._add_study_system
+                ui.button("+ إضافة نظام", on_click=self._add_study_system).classes(
+                    "app-btn-secondary text-sm px-4 py-2 rounded-lg normal-case font-medium"
                 )
 
-            self._systems_container = ui.column().classes("w-full gap-3")
+            self._systems_container = ui.column().classes("w-full")
             self._render_systems_list()
 
     def _render_systems_list(self) -> None:
-        """Renders/refreshes the study systems list rows."""
+        """Renders a clean, minimal flat table for study systems — no decorative colors."""
         self._systems_container.clear()
         with self._systems_container:
-            for s in self.systems:
-                with ui.row().classes(
-                    "app-tile w-full items-center gap-3 p-3 "
-                    "rounded-xl border flex-nowrap"
-                ):
-                    UI.standard_label(
-                        f"{s.get('name_ar', '')} ({s.get('name_en', '')})"
-                    ).classes("w-48 truncate")
+            if not self.systems:
+                ui.label("لا توجد أنظمة دراسية معرفة. / No study systems defined.").classes(
+                    "app-text-muted text-sm italic py-4 px-2"
+                )
+                return
 
-                    UI.chip(f"Rule: {s.get('calculation_rule', 'annual')}", color="blue")
-                    UI.chip(f"Display: {s.get('period_display', 'year')}", color="teal")
+            cols = [
+                {"name": "name",    "label": "System / النظام",         "field": "name",    "align": "left"},
+                {"name": "rule",    "label": "Calc Rule",                "field": "rule",    "align": "center"},
+                {"name": "display", "label": "Period",                   "field": "display", "align": "center"},
+                {"name": "weights", "label": "Weights",                  "field": "weights", "align": "center"},
+                {"name": "active",  "label": "Active",                   "field": "active",  "align": "center"},
+                {"name": "actions", "label": "",                         "field": "actions", "align": "right"},
+            ]
+            rows = [
+                {
+                    "id": s.get("id"),
+                    "name": f"{s.get('name_ar', '')} / {s.get('name_en', '')}",
+                    "rule": s.get("calculation_rule", "annual"),
+                    "display": s.get("period_display", "year"),
+                    "weights": s.get("calculation_weights", "—"),
+                    "is_active": bool(s.get("is_active", 1)),
+                }
+                for s in self.systems
+            ]
 
-                    UI.muted_label(f"Weights: {s.get('calculation_weights', '—')}").classes("flex-grow")
+            table = (
+                ui.table(columns=cols, rows=rows, row_key="id")
+                .classes("w-full app-table")
+                .props("flat dense separator='horizontal' hide-bottom")
+            )
 
-                    sw = UI.switch("تفعيل / Active", value=bool(s.get("is_active", 1)))
-                    sw.on(
-                        "change",
-                        lambda e, sid=s["id"]: self._toggle_system_active(sid, e.value)
-                    )
+            table.add_slot('body-cell-active', '''
+                <q-td :props="props" class="text-center">
+                    <q-toggle
+                        :model-value="props.row.is_active"
+                        @update:model-value="(val) => $parent.$emit('toggle-active', {id: props.row.id, val: val})"
+                        dense
+                    />
+                </q-td>
+            ''')
+            table.add_slot('body-cell-actions', '''
+                <q-td :props="props" class="text-right">
+                    <q-btn
+                        icon="delete"
+                        flat round dense size="xs"
+                        class="app-text-error"
+                        @click="$parent.$emit('delete-system', props.row.id)"
+                    />
+                </q-td>
+            ''')
 
-                    UI.ghost_button(
-                        "", icon="delete",
-                        on_click=lambda sid=s["id"]: self._delete_study_system(sid)
-                    ).classes("app-text-error p-2")
+            table.on('toggle-active', lambda e: self._toggle_system_active(e.args['id'], e.args['val']))
+            table.on('delete-system', lambda e: self._delete_study_system(e.args))
 
     def _section_appearance(self) -> None:
         with UI.card():
             UI.card_header("المظهر والسمات — Appearance & Theme", "palette", icon_css="stat-text-purple")
 
-            saved_theme = str(self.appearance_data.get("theme", "Dark"))
-            saved_accent = str(self.appearance_data.get("accent_color", "blue"))
-            saved_font = str(self.appearance_data.get("font_family", "Segoe UI"))
-            saved_size = int(self.appearance_data.get("font_size_base", 13))
-            saved_rtl = int(self.appearance_data.get("is_arabic_rtl", 1))
+            # Always read from session.preferences — it IS the source of truth after login.
+            # The DB load in _load_data() already synced into session.preferences.
+            pref = self.session.preferences
+            saved_theme  = str(pref.get("theme", "Dark"))
+            saved_accent = str(pref.get("accent_color", "blue")).lower().replace("_", "-")
+            if saved_accent == "dark-blue":
+                saved_accent = "blue"
+            valid_accents = ["blue", "green", "orange", "purple", "red"]
+            if saved_accent not in valid_accents:
+                saved_accent = "blue"
+            saved_font  = str(pref.get("font_family", "Segoe UI"))
+            saved_size  = int(pref.get("font_size_base") or 14)
+            saved_rtl   = int(pref.get("is_arabic_rtl", 1))
 
             with ui.grid(columns=2).classes("w-full gap-4"):
                 self.theme_select = UI.select(
@@ -158,7 +203,7 @@ class SettingsScreen:
 
                 self.accent_select = UI.select(
                     "اللون الأساسي / Accent Color",
-                    options=["blue", "green", "dark-blue", "orange", "purple", "red"],
+                    options=valid_accents,
                     value=saved_accent
                 )
                 self.accent_select.on("update:model-value", self._on_accent_select_change)
@@ -168,10 +213,13 @@ class SettingsScreen:
                     options=["Arial", "Segoe UI", "Roboto", "Cairo", "Tahoma"],
                     value=saved_font
                 )
+                self.font_select.on("update:model-value", self._on_font_select_change)
+
                 self.font_size_input = UI.number_input(
                     "حجم الخط الأساسي / Base Font Size",
                     value=saved_size, min=10, max=24
                 )
+                self.font_size_input.on("update:model-value", self._on_font_size_change)
 
             with ui.row().classes("app-tile w-full items-center justify-between p-3 rounded-xl border"):
                 UI.standard_label("اتجاه الواجهة من اليمين إلى اليسار / Arabic RTL Layout")
@@ -247,6 +295,22 @@ class SettingsScreen:
         val = str((self.accent_select.value if self.accent_select else None) or "blue")
         set_accent(val)
         ui.notify(f"تم تغيير اللون الأساسي / Accent set to {val}!", type="info")
+
+    def _on_font_select_change(self, e=None) -> None:
+        """Live font family switch when Font Family dropdown option changes."""
+        from nicegui_ui.ui_theme import set_font_family
+        val = str((self.font_select.value if self.font_select else None) or "Segoe UI")
+        set_font_family(val)
+        ui.notify(f"تم تغيير نوع الخط إلى {val} / Font family set to {val}!", type="info")
+
+    def _on_font_size_change(self, e=None) -> None:
+        """Live base font size scale when Base Font Size number input changes."""
+        from nicegui_ui.ui_theme import set_font_size
+        try:
+            val = int((self.font_size_input.value if self.font_size_input else None) or 13)
+            set_font_size(val)
+        except Exception:
+            pass
 
     def _save_institution_info(self) -> None:
         try:
