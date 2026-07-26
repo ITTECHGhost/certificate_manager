@@ -145,7 +145,7 @@ body.dark,
 body.accent-blue,
 body.accent-dark-blue,
 body:not([class*="accent-"]) {
-  --accent-primary: #1d4ed8;
+  --accent-primary: #4979d1;
   --accent-hover: #1e40af;
   --accent-soft-bg: rgba(29, 78, 216, 0.12);
   --accent-soft-border: rgba(29, 78, 216, 0.25);
@@ -160,7 +160,7 @@ body:not([class*="accent-"]) {
 body.accent-blue.body--dark,
 body.accent-dark-blue.body--dark,
 body:not([class*="accent-"]).body--dark {
-  --accent-primary: #2563eb;
+  --accent-primary: #4979d1;
   --accent-text: #60a5fa;
   --accent-hover: #3b82f6;
   --accent-active-text: #93c5fd;
@@ -169,7 +169,7 @@ body:not([class*="accent-"]).body--dark {
 
 /* ── Green — matches stat-text-emerald (#059669 / #34d399 dark) ─────────── */
 body.accent-green {
-  --accent-primary: #059669;
+  --accent-primary: #33755f;
   --accent-hover: #047857;
   --accent-soft-bg: rgba(5, 150, 105, 0.1);
   --accent-soft-border: rgba(5, 150, 105, 0.25);
@@ -182,7 +182,7 @@ body.accent-green {
 }
 
 body.accent-green.body--dark {
-  --accent-primary: #10b981;
+  --accent-primary: #33755f;
   --accent-text: #34d399;
   --accent-hover: #059669;
   --accent-active-text: #6ee7b7;
@@ -191,7 +191,7 @@ body.accent-green.body--dark {
 
 /* ── Red — true red, distinct from pink (#dc2626 / #f87171 dark) ─────────── */
 body.accent-red {
-  --accent-primary: #dc2626;
+  --accent-primary: #9c5555;
   --accent-hover: #b91c1c;
   --accent-soft-bg: rgba(220, 38, 38, 0.1);
   --accent-soft-border: rgba(220, 38, 38, 0.25);
@@ -204,7 +204,7 @@ body.accent-red {
 }
 
 body.accent-red.body--dark {
-  --accent-primary: #ef4444;
+  --accent-primary: #9c5555;
   --accent-text: #f87171;
   --accent-hover: #dc2626;
   --accent-active-text: #fca5a5;
@@ -213,7 +213,7 @@ body.accent-red.body--dark {
 
 /* ── Orange — matches stat-text-amber (#d97706 / #fbbf24 dark) ──────────── */
 body.accent-orange {
-  --accent-primary: #d97706;
+  --accent-primary: #a07638;
   --accent-hover: #b45309;
   --accent-soft-bg: rgba(217, 119, 6, 0.1);
   --accent-soft-border: rgba(217, 119, 6, 0.25);
@@ -226,7 +226,7 @@ body.accent-orange {
 }
 
 body.accent-orange.body--dark {
-  --accent-primary: #f59e0b;
+  --accent-primary: #a07638;
   --accent-text: #fbbf24;
   --accent-hover: #d97706;
   --accent-active-text: #fde68a;
@@ -235,7 +235,7 @@ body.accent-orange.body--dark {
 
 /* ── Purple — matches stat-text-purple (#9333ea / #c084fc dark) ─────────── */
 body.accent-purple {
-  --accent-primary: #9333ea;
+  --accent-primary: #785896;
   --accent-hover: #7e22ce;
   --accent-soft-bg: rgba(147, 51, 234, 0.1);
   --accent-soft-border: rgba(147, 51, 234, 0.25);
@@ -248,7 +248,7 @@ body.accent-purple {
 }
 
 body.accent-purple.body--dark {
-  --accent-primary: #a855f7;
+  --accent-primary: #785896;
   --accent-text: #c084fc;
   --accent-hover: #9333ea;
   --accent-active-text: #d8b4fe;
@@ -279,8 +279,16 @@ body.accent-purple.body--dark {
    3. BASE RESET & BODY
    ═══════════════════════════════════════════════════════════════════════════ */
 
-body, button, input, select, textarea, .q-btn, .q-field, .q-table, .q-tab {
-  font-family: var(--font-primary, 'Segoe UI', 'Cairo', 'Tahoma', 'Arial', sans-serif) !important;
+body,
+button,
+input,
+select,
+textarea,
+.q-btn,
+.q-field,
+.q-table,
+.q-tab {
+  font-family: var(--font-primary, 'Arial', 'Segoe UI', 'Roboto', 'Cairo', 'Tahoma', 'Noto Sans Arabic', 'times new roman') !important;
 }
 
 body {
@@ -288,6 +296,9 @@ body {
   background-color: var(--surface-main) !important;
   color: var(--text-primary) !important;
   transition: background-color 0.3s, color 0.3s;
+
+  /* Map Quasar's internal variables to our dynamic accents so default widgets inherit the theme */
+  --q-primary: var(--accent-primary) !important;
 }
 
 body.body--dark {
@@ -570,7 +581,7 @@ body.body--dark .app-login-card:hover,
 .app-nav-item:hover,
 .app-action-item:hover {
   background-color: rgba(30, 41, 59, 0.75) !important;
-  border: 1px solid var(--accent-primary, #3b82f6) !important;
+  border: 1px solid var(--accent-primary, #5898d4) !important;
   box-shadow: 0 0 16px 0 var(--accent-glow, rgba(59, 130, 246, 0.4)) !important;
   transform: translateY(-1px);
 }
@@ -593,7 +604,7 @@ body.body--dark .app-login-card:hover,
 
 .app-nav-item--active {
   background-color: rgba(30, 41, 59, 0.75) !important;
-  border: 1px solid var(--accent-primary, #3b82f6) !important;
+  border: 1px solid var(--accent-primary, #5898d4) !important;
   box-shadow: 0 0 12px -2px var(--accent-glow, rgba(59, 130, 246, 0.4)) !important;
   transition: all 0.2s ease-in-out;
 }
