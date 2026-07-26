@@ -1,5 +1,8 @@
 # =============================================================================
 # nicegui_screens/login_screen.py — NiceGUI Authentication Login Screen
+#
+# Visual styling: CSS hook classes (app-*) from theme.css
+# This file contains ONLY structural layout classes (w-*, h-*, p-*, gap-*, flex, etc.)
 # =============================================================================
 
 import os
@@ -13,7 +16,8 @@ class LoginScreen:
     """
     NiceGUI Login Screen built with the UI component factory.
     Features a two-column split layout (Logo on left, Login Card on right),
-    high-contrast theme-aware inputs, auto OS theme detection, and session routing.
+    theme-aware inputs via CSS custom properties, auto OS theme detection,
+    and instant light/dark mode switching.
     """
 
     def __init__(self, on_login_success=None) -> None:
@@ -25,114 +29,124 @@ class LoginScreen:
 
     def build_ui(self) -> None:
         """Renders the two-column split login layout using UI component factory."""
-        from nicegui_ui.ui_theme import is_windows_dark_mode, set_dark_mode, inject_global_styles
+        from nicegui_ui.ui_theme import is_windows_dark_mode, set_dark_mode, inject_global_styles, set_accent
+        from nicegui_ui.state import app_session
 
         self.dark_mode = ui.dark_mode()
         set_dark_mode(is_windows_dark_mode())
+        set_accent(app_session.accent_color)
 
-        # 1. Reset container padding & set background to adapt to theme
-        ui.query(".nicegui-content").classes("p-0 m-0 bg-slate-50 dark:bg-[#0f172a] transition-colors duration-500")
-        ui.query("body").classes("m-0 p-0 overflow-hidden bg-slate-50 dark:bg-[#0f172a] transition-colors duration-500")
-        
+        # 1. Reset container padding & inject global styles
+        ui.query(".nicegui-content").classes("p-0 m-0")
+        ui.query("body").classes("m-0 p-0 overflow-hidden")
+
         inject_global_styles()
 
         # 2. Main 2-Column Split Container
-        with ui.row().classes("w-full h-screen flex-nowrap m-0 p-0 gap-0 transition-colors duration-500"):
-            
-            # --- LEFT COLUMN: University Logo Area (50% or 60% width) ---
+        with ui.row().classes("w-full h-screen flex-nowrap m-0 p-0 gap-0"):
+
+            # --- LEFT COLUMN: University Logo Area ---
             with ui.column().classes(
-                "w-1/2 md:w-3/5 h-full items-center justify-center p-8 bg-network transition-colors duration-500 border-r border-slate-200 dark:border-slate-800/50"
+                "app-login-bg w-1/2 md:w-3/5 h-full items-center justify-center p-8"
             ):
                 if os.path.exists("csit.png"):
-                    ui.image("csit.png").classes("w-[340px] max-w-full h-auto object-contain drop-shadow-xl dark:drop-shadow-[0_10px_30px_rgba(0,0,0,0.6)]")
+                    ui.image("csit.png").classes(
+                        "app-login-logo w-[340px] max-w-full h-auto object-contain"
+                    )
                 else:
                     ui.label("UNIVERSITY LOGO").classes(
-                        "text-4xl font-extrabold text-slate-500 dark:text-slate-400 tracking-wider text-center"
+                        "app-text-faint text-4xl font-extrabold tracking-wider text-center"
                     )
 
-            # --- RIGHT COLUMN: Login Card Form Area (50% or 40% width) ---
+            # --- RIGHT COLUMN: Login Card Form Area ---
             with ui.column().classes(
-                "w-1/2 md:w-2/5 h-full items-center justify-center bg-slate-50 dark:bg-[#0f172a] p-6 transition-colors duration-500 relative"
+                "app-login-right w-1/2 md:w-2/5 h-full items-center justify-center p-6 relative"
             ):
                 # The Card Container loaded from global UI factory
                 with UI.login_card():
 
                     # Top User Badge Icon (Offset)
                     with ui.element("div").classes(
-                        "w-16 h-16 rounded-2xl avatar-badge border "
-                        "flex items-center justify-center shadow-md dark:shadow-inner dark:shadow-blue-500/10 avatar-offset"
+                        "app-avatar-badge w-16 h-16 rounded-2xl border "
+                        "flex items-center justify-center shadow-md avatar-offset"
                     ):
-                        with ui.element("div").classes("w-12 h-12 rounded-xl avatar-inner flex items-center justify-center"):
-                            ui.icon("person_outline", size="sm").classes("text-slate-600 dark:text-slate-300")
+                        with ui.element("div").classes(
+                            "app-avatar-inner w-12 h-12 rounded-xl flex items-center justify-center"
+                        ):
+                            ui.icon("person_outline", size="sm").classes("app-avatar-icon")
 
                     # Title & Subtitle
                     with ui.column().classes("w-full items-center gap-1 text-center mt-2"):
                         ui.label("SYSTEM LOGIN / تسجيل الدخول").classes(
-                            "text-[1.2rem] font-bold text-slate-800 dark:text-white tracking-wide"
+                            "app-login-title text-[1.2rem] font-bold tracking-wide"
                         )
                         ui.label("Enter credentials to access the system").classes(
-                            "text-[11px] font-medium text-slate-500 dark:text-slate-400 -mb-0.5"
+                            "app-login-subtitle text-[11px] font-medium -mb-0.5"
                         )
                         ui.label("يرجى إدخال بيانات الاعتماد الخاصة بك للوصول").classes(
-                            "text-[11px] font-medium text-slate-500 dark:text-slate-400"
+                            "app-login-subtitle text-[11px] font-medium"
                         )
 
                     # Username Input Group
                     with ui.column().classes("w-full gap-1 mt-3"):
                         with ui.row().classes("w-full justify-between items-end px-1"):
-                            ui.label("Username").classes("text-xs text-slate-500 dark:text-slate-400 font-medium")
-                            ui.label("اسم المستخدم").classes("text-xs font-bold text-slate-700 dark:text-slate-200")
-                        
+                            ui.label("Username").classes("app-text-muted text-xs font-medium")
+                            ui.label("اسم المستخدم").classes("app-text-secondary text-xs font-bold")
+
                         self.username_input = ui.input(
                             placeholder="Enter Username"
                         ).classes(
-                            "w-full custom-input"
+                            "w-full app-input"
                         ).props(
-                            'outlined dense input-class="text-slate-800 dark:text-white font-semibold text-left"'
+                            'outlined dense input-class="font-semibold text-left"'
                         )
                         with self.username_input.add_slot('prepend'):
-                            ui.icon('person_outline', size='sm').classes("text-slate-400 dark:text-slate-500 mr-1")
+                            ui.icon('person_outline', size='sm').classes("app-text-faint mr-1")
                         self.username_input.on('keydown.enter', self.handle_login)
 
                     # Password Input Group
                     with ui.column().classes("w-full gap-1"):
                         with ui.row().classes("w-full justify-between items-end px-1"):
-                            ui.label("Password").classes("text-xs text-slate-500 dark:text-slate-400 font-medium")
-                            ui.label("كلمة المرور").classes("text-xs font-bold text-slate-700 dark:text-slate-200")
+                            ui.label("Password").classes("app-text-muted text-xs font-medium")
+                            ui.label("كلمة المرور").classes("app-text-secondary text-xs font-bold")
 
                         self.password_input = ui.input(
                             placeholder="Enter Password",
                             password=True,
                             password_toggle_button=True
                         ).classes(
-                            "w-full custom-input"
+                            "w-full app-input"
                         ).props(
-                            'outlined dense input-class="text-slate-800 dark:text-white font-semibold text-left"'
+                            'outlined dense input-class="font-semibold text-left"'
                         )
                         with self.password_input.add_slot('prepend'):
-                            ui.icon('key', size='sm').classes("text-slate-400 dark:text-slate-500 mr-1")
+                            ui.icon('key', size='sm').classes("app-text-faint mr-1")
                         self.password_input.on('keydown.enter', self.handle_login)
 
                     # Error Feedback Label
                     self.error_label = ui.label("").classes(
-                        "text-red-500 dark:text-red-400 text-xs text-center w-full font-medium"
+                        "app-text-error text-xs text-center w-full font-medium"
                     )
                     self.error_label.set_visibility(False)
 
                     # Primary Sign-In Button
                     with ui.button(on_click=self.handle_login).classes(
-                        "w-full bg-[#3b82f6] hover:bg-[#2563eb] text-white font-bold "
-                        "text-sm py-3 rounded-xl shadow-lg shadow-blue-500/30 hover:shadow-blue-500/50 normal-case transition-all mt-2 cursor-pointer flex-row justify-between px-6"
+                        "app-btn-primary w-full text-sm py-3 rounded-xl font-bold "
+                        "normal-case mt-2 cursor-pointer flex-row justify-between px-6"
                     ):
                         ui.label("SIGN IN / تسجيل الدخول")
                         ui.icon("arrow_forward", size="sm")
 
                 # Bottom Actions (Theme Toggle)
                 with ui.row().classes("w-[440px] max-w-full justify-end items-center mt-6 px-2"):
-                    with ui.row().classes("gap-2 items-center avatar-badge px-3 py-1.5 rounded-full border shadow-sm"):
-                        ui.icon("dark_mode", size="xs").classes("text-slate-400 dark:text-slate-500")
-                        ui.switch(on_change=lambda e: set_dark_mode(e.value)).props("dense size=sm").bind_value(self.dark_mode, 'value')
-                        ui.icon("light_mode", size="xs").classes("text-slate-500 dark:text-slate-400")
+                    with ui.row().classes(
+                        "app-theme-toggle gap-2 items-center px-3 py-1.5 rounded-full border shadow-sm"
+                    ):
+                        ui.icon("dark_mode", size="xs").classes("app-text-faint")
+                        ui.switch(
+                            on_change=lambda e: set_dark_mode(e.value)
+                        ).props("dense size=sm").bind_value(self.dark_mode, 'value')
+                        ui.icon("light_mode", size="xs").classes("app-text-faint")
 
     def handle_login(self, e=None) -> None:
         """Validates credentials via AuthRepository and updates session state."""

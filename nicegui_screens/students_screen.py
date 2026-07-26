@@ -1,5 +1,8 @@
 # =============================================================================
 # nicegui_screens/students_screen.py — NiceGUI Students Management Screen
+#
+# Visual styling: CSS hook classes (app-*) from theme.css
+# This file contains ONLY structural layout classes (w-*, h-*, p-*, gap-*, flex, etc.)
 # =============================================================================
 
 from nicegui import ui
@@ -24,7 +27,7 @@ class StudentsScreen:
     def build_ui(self) -> None:
         """Constructs the Students Management view layout using global UI components."""
         with UI.card():
-            UI.card_header("إدارة الطلاب — Students Management", "people", "text-blue-500 dark:text-blue-400")
+            UI.card_header("إدارة الطلاب — Students Management", "people", icon_css="stat-text-blue")
 
             with ui.row().classes("w-full items-center justify-between gap-4 mt-2"):
                 self.search_input = UI.text_input(
