@@ -18017,8 +18017,6 @@ TypeError: 'NoneType' object is not subscriptable
 2026-07-05 11:28:32,059 [SYSTEM] INFO: Sync queue is empty — nothing to do.
 2026-07-05 11:28:32,410 [SYSTEM] INFO: Inbound sync complete: {'tables_synced': 12, 'total_rows': 5224, 'errors': []}
 2026-07-05 11:34:26,585 [SYSTEM] INFO: Application closed normally.
-<<<<<<< HEAD
-=======
 2026-07-06 12:10:24,690 [SYSTEM] INFO: Application starting...
 2026-07-06 12:10:24,996 [SYSTEM] INFO: Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
 2026-07-06 12:10:27,060 [SYSTEM] INFO: Restarting FastAPI Windows Service asynchronously...
@@ -18202,9 +18200,6 @@ RuntimeError: API single link failed: {"detail":"Not Found"}
 2026-07-13 21:59:29,822 [SYSTEM] INFO: User '1' logged in successfully.
 2026-07-13 21:59:35,025 [SYSTEM] INFO: Database snapshot backup complete.
 2026-07-13 22:00:18,725 [SYSTEM] INFO: Application closed normally.
-<<<<<<< HEAD
->>>>>>> dc354ca5f1ecc914cbb5445bc096312db5bb3b79
-=======
 2026-07-14 08:30:59,054 [SYSTEM] INFO: Application starting...
 2026-07-14 08:30:59,055 [SYSTEM] INFO: Checking MySQL database connection to root@localhost...
 2026-07-14 08:30:59,305 [SYSTEM] INFO: Database schema verification completed successfully (read-only verification).
@@ -18393,8 +18388,6 @@ Traceback (most recent call last):
 _tkinter.TclError: bad window path name ".!loginscreen.!ctkframe2.!ctkframe.!ctkframe.!ctkentry.!entry"
 2026-07-15 14:06:10,503 [SYSTEM] INFO: Database snapshot backup complete.
 2026-07-15 14:17:07,069 [SYSTEM] INFO: Application closed normally.
-<<<<<<< HEAD
->>>>>>> ae75322003e14fcda2330afc09229d447377b568
 2026-07-15 21:43:21,455 [SYSTEM] INFO: NiceGUI Application starting...
 2026-07-15 21:43:21,455 [SYSTEM] INFO: Checking MySQL database connection to root@localhost...
 2026-07-15 21:43:23,507 [SYSTEM] WARNING: Could not initialize MySQL Connection Pool: 2003: Can't connect to MySQL server on 'localhost:3306' (Errno 10061: No connection could be made because the target machine actively refused it). Falling back to direct connections.

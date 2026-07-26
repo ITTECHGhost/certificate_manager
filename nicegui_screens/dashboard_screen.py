@@ -221,7 +221,6 @@ class MainAppShell:
 
     def _build_user_chip(self) -> None:
         from nicegui_ui.state import app_session
-
         user_name = app_session.name_en or app_session.username or "Admin User"
         user_role = (app_session.role or "admin").capitalize()
 
@@ -384,7 +383,7 @@ class MainAppShell:
 
         @ui.refreshable
         def stat_cards_section() -> None:
-            with ui.grid(columns=4).classes("w-full gap-4"):
+            with ui.element("div").classes(Styles.STAT_GRID):
                 for card_cfg in STAT_CARDS:
                     value = self.counts.get(card_cfg["count_key"], 0)
                     UI.stat_card(
@@ -398,10 +397,10 @@ class MainAppShell:
         stat_cards_section()
         self._refresh_cards = stat_cards_section
 
-        with ui.row().classes("w-full gap-5 items-stretch flex-nowrap"):
-            with UI.card("w-1/3 justify-between"):
+        with ui.row().classes(Styles.BOTTOM_ROW):
+            with ui.column().classes(f"{Styles.ACTIONS_PANEL} justify-between"):
                 UI.section_label("Quick Actions  —  إجراءات سريعة")
-                with ui.column().classes("w-full gap-3 flex-1 justify-center"):
+                with ui.element("div").classes("grid grid-cols-1 sm:grid-cols-3 xl:grid-cols-1 w-full gap-3 flex-1 justify-center"):
                     for action in QUICK_ACTIONS:
                         with ui.button(on_click=(
                                 (lambda t=action["target"]: self._switch_screen(t))
@@ -411,7 +410,7 @@ class MainAppShell:
                             ui.label(action["label_ar"]).classes("font-bold text-sm")
                             ui.label(action["label_en"]).classes("font-normal text-xs opacity-90")
 
-            with UI.card("flex-1"):
+            with UI.card(Styles.TABLE_PANEL):
                 with ui.tabs().classes("w-full app-tabs") as tabs:
                     tab_students = ui.tab(
                         "Recent Students Added  —  أحدث الطلاب المضافين",
@@ -449,7 +448,6 @@ class MainAppShell:
                             </q-td>
                         ''')
 
-                with ui.tab_panels(tabs, value=tab_students).classes("w-full p-0 bg-transparent"):
                     with ui.tab_panel(tab_certs).classes("w-full p-0 pt-2 bg-transparent"):
                         cols_c = [
                             {"name": "name",  "label": "Student Name / اسم الطالب", "field": "name",  "align": "left", "headerClasses": "text-slate-400 font-bold bg-transparent"},
@@ -480,13 +478,5 @@ class MainAppShell:
             ui.label(f"{header_en} Screen — Under Migration to NiceGUI").classes(
                 "app-text-muted text-sm"
             )
-
-    def _on_refresh_click(self) -> None:
-
-        self.refresh_data()
-        if self._refresh_cards is not None:
-            self._refresh_cards.refresh()
-        if hasattr(self, '_refresh_status') and self._refresh_status is not None:
-            self._refresh_status.refresh()
 
 DashboardScreen = MainAppShell

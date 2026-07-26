@@ -108,7 +108,7 @@ class Styles:
     )
 
     # ── Stat Cards ──────────────────────────────────────────────────────────
-    STAT_GRID     = "w-full gap-5"
+    STAT_GRID     = "w-full grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4"
     STAT_CARD     = "app-stat-card p-5 rounded-2xl border gap-4"
     STAT_ICON_ROW = "w-full justify-between items-start"
 
@@ -133,10 +133,10 @@ class Styles:
     TABLE_CLASSES = "app-table w-full no-shadow border-none"
 
     # ── Dashboard Panels ────────────────────────────────────────────────────
-    BOTTOM_ROW    = "w-full gap-6 items-stretch"
-    ACTIONS_PANEL = "app-card w-1/3 p-6 rounded-2xl gap-4"
+    BOTTOM_ROW    = "w-full gap-6 items-stretch flex-wrap xl:flex-nowrap"
+    ACTIONS_PANEL = "app-card w-full xl:w-1/3 p-6 rounded-2xl gap-4"
     ACTIONS_TITLE = "app-text-primary text-lg font-bold mb-2"
-    TABLE_PANEL   = "app-card w-full p-6 rounded-2xl gap-2"
+    TABLE_PANEL   = "app-card w-full xl:flex-1 p-6 rounded-2xl gap-2"
     TABLE_TITLE   = "app-text-primary text-lg font-bold mb-2"
 
     # ── Settings ────────────────────────────────────────────────────────────
@@ -144,7 +144,6 @@ class Styles:
 
 
 # ── Navigation Config ───────────────────────────────────────────────────────
-
 NAV_ITEMS: list[dict] = [
     {"key": "home",        "ar": "الرئيسية",       "en": "Dashboard",         "icon": "space_dashboard"},
     {"key": "students",    "ar": "الطلاب",          "en": "Students",          "icon": "people"},
@@ -251,3 +250,4 @@ def inject_global_styles():
         """)
     except Exception as e:
         print(f"[Theme] Failed to load theme.css: {e}")
+

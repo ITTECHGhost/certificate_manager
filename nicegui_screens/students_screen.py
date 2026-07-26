@@ -8,6 +8,7 @@
 from nicegui import ui
 from nicegui_ui.ui_components import UI
 from nicegui_ui.ui_theme import Styles
+
 from data.repositories import StudentRepository
 
 

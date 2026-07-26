@@ -68,6 +68,7 @@ class UserSessionState:
         except Exception as exc:
             log.warning("Could not apply theme mode: %s", exc)
 
+
     def update_preferences(
         self,
         theme: Optional[str] = None,
