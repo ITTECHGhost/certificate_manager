@@ -398,17 +398,23 @@ class MainAppShell:
         self._refresh_cards = stat_cards_section
 
         with ui.row().classes(Styles.BOTTOM_ROW):
-            with ui.column().classes(f"{Styles.ACTIONS_PANEL} justify-between"):
+            with ui.column().classes("app-card w-full xl:w-1/3 p-5 rounded-2xl gap-3 h-auto justify-start self-start"):
                 UI.section_label("Quick Actions  —  إجراءات سريعة")
-                with ui.element("div").classes("grid grid-cols-1 sm:grid-cols-3 xl:grid-cols-1 w-full gap-3 flex-1 justify-center"):
+                with ui.column().classes("w-full gap-2.5 mt-1"):
                     for action in QUICK_ACTIONS:
-                        with ui.button(on_click=(
-                                (lambda t=action["target"]: self._switch_screen(t))
-                                if action["target"] else None
-                            )).classes("app-btn-quick w-full h-auto flex flex-col items-center justify-center p-4 gap-1 rounded-2xl shadow-none normal-case"):
-                            ui.icon(action["icon"], size="sm")
-                            ui.label(action["label_ar"]).classes("font-bold text-sm")
-                            ui.label(action["label_en"]).classes("font-normal text-xs opacity-90")
+                        action_row = ui.row().classes(
+                            "app-action-item w-full items-center gap-3.5 px-4 py-3 rounded-xl cursor-pointer"
+                        ).on(
+                            "click",
+                            (lambda t=action["target"]: self._switch_screen(t))
+                            if action["target"] else None
+                        )
+                        with action_row:
+                            ui.icon(action["icon"], size="sm").classes("app-sidebar-icon")
+                            with ui.column().classes("gap-0 min-w-0 flex-1"):
+                                ui.label(action["label_ar"]).classes("nav-title-ar font-bold text-sm leading-tight")
+                                ui.label(action["label_en"]).classes("nav-title-en font-normal text-xs leading-tight")
+                            ui.icon("arrow_back_ios", size="xs").classes("app-text-faint ml-auto opacity-60")
 
             with UI.card(Styles.TABLE_PANEL):
                 with ui.tabs().classes("w-full app-tabs") as tabs:

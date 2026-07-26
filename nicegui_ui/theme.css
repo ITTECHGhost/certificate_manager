@@ -518,49 +518,61 @@ body.body--dark .app-login-card:hover,
   color: #94a3b8 !important;
 }
 
-/* ── 4a. Sidebar Navigation Items ────────────────────────────────────────── */
-.app-nav-item {
-  background-color: transparent !important;
-  border-color: transparent !important;
+/* ── 4a. Sidebar Navigation Items & Quick Action Items ───────────────────── */
+.app-nav-item,
+.app-action-item {
+  background-color: rgba(30, 41, 59, 0.35) !important;
+  border: 1px solid rgba(51, 65, 85, 0.3) !important;
   transition: all 0.2s ease-in-out;
 }
 
-.app-nav-item .q-icon {
+.app-nav-item .q-icon,
+.app-action-item .q-icon {
   color: #94a3b8 !important;
-  transition: color 0.2s ease-in-out;
+  transition: color 0.2s ease-in-out, transform 0.2s ease-in-out;
 }
 
-.app-nav-item .nav-title-ar {
+.app-nav-item .nav-title-ar,
+.app-action-item .nav-title-ar {
   color: #f8fafc !important;
   transition: color 0.2s ease-in-out;
 }
 
-.app-nav-item .nav-title-en {
+.app-nav-item .nav-title-en,
+.app-action-item .nav-title-en {
   color: #94a3b8 !important;
   transition: color 0.2s ease-in-out;
 }
 
-.app-nav-item:hover {
-  background-color: rgba(30, 41, 59, 0.5) !important;
-  border-color: rgba(51, 65, 85, 0.4) !important;
+/* Hover State: GLOW + SAME ACTIVE ACCENT COLOR AS ACTIVATED NAVBAR OPTION */
+.app-nav-item:hover,
+.app-action-item:hover {
+  background-color: rgba(30, 41, 59, 0.75) !important;
+  border: 1px solid var(--accent-primary, #3b82f6) !important;
+  box-shadow: 0 0 16px 0 var(--accent-glow, rgba(59, 130, 246, 0.4)) !important;
+  transform: translateY(-1px);
 }
 
-.app-nav-item:hover .q-icon {
-  color: #cbd5e1 !important;
+.app-nav-item:hover .q-icon,
+.app-action-item:hover .q-icon {
+  color: var(--accent-text, #38bdf8) !important;
+  transform: scale(1.1);
 }
 
-.app-nav-item:hover .nav-title-ar {
-  color: #ffffff !important;
+.app-nav-item:hover .nav-title-ar,
+.app-action-item:hover .nav-title-ar {
+  color: var(--accent-text, #38bdf8) !important;
 }
 
-.app-nav-item:hover .nav-title-en {
-  color: #cbd5e1 !important;
+.app-nav-item:hover .nav-title-en,
+.app-action-item:hover .nav-title-en {
+  color: #93c5fd !important;
 }
 
 .app-nav-item--active {
   background-color: rgba(30, 41, 59, 0.75) !important;
   border: 1px solid var(--accent-primary, #3b82f6) !important;
-  box-shadow: 0 0 12px -2px var(--accent-glow, rgba(59, 130, 246, 0.3)) !important;
+  box-shadow: 0 0 12px -2px var(--accent-glow, rgba(59, 130, 246, 0.4)) !important;
   transition: all 0.2s ease-in-out;
 }
 
