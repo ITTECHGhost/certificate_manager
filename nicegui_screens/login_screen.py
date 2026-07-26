@@ -33,7 +33,8 @@ class LoginScreen:
         from nicegui_ui.state import app_session
 
         self.dark_mode = ui.dark_mode()
-        set_dark_mode(is_windows_dark_mode())
+        initial_dark = is_windows_dark_mode()
+        set_dark_mode(initial_dark, self.dark_mode)
         set_accent(app_session.accent_color)
 
         # 1. Reset container padding & inject global styles
@@ -144,11 +145,11 @@ class LoginScreen:
                     with ui.row().classes(
                         "app-theme-toggle gap-2 items-center px-3 py-1.5 rounded-full border shadow-sm"
                     ):
-                        ui.icon("dark_mode", size="xs").classes("app-text-faint")
-                        ui.switch(
-                            on_change=lambda e: set_dark_mode(e.value)
-                        ).props("dense size=sm").bind_value(self.dark_mode, 'value')
                         ui.icon("light_mode", size="xs").classes("app-text-faint")
+                        ui.switch(
+                            on_change=lambda e: set_dark_mode(e.value, self.dark_mode)
+                        ).props("dense size=sm").bind_value(self.dark_mode, 'value')
+                        ui.icon("dark_mode", size="xs").classes("app-text-faint")
 
     def _toggle_theme(self, is_dark: bool) -> None:
         """Explicitly enables/disables dark mode."""

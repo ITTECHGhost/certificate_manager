@@ -189,10 +189,10 @@ QUICK_ACTIONS: list[dict] = [
 
 # ── Theme Switching Functions ───────────────────────────────────────────────
 
-def set_dark_mode(enable: bool) -> None:
+def set_dark_mode(enable: bool, dark_inst=None) -> None:
     """Enables or disables dark mode for Quasar and syncs the 'dark' CSS class to body and documentElement."""
     from nicegui import ui
-    dark = ui.dark_mode()
+    dark = dark_inst or ui.dark_mode()
     if enable:
         dark.enable()
         ui.run_javascript("document.body.classList.add('dark'); document.documentElement.classList.add('dark');")
