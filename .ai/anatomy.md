@@ -1,7 +1,6 @@
 # Project Anatomy
 
-- `main.py`: The CustomTkinter application entry point. Initializes CTk window, sidebar, header bar, and screen navigation.
-- `N_main.py`: The NiceGUI application entry point. Native desktop mode on port 8081.
+- `main.py`: The NiceGUI application entry point. Native desktop mode on port 2323.
 - `ctk_screens/`: CustomTkinter UI screens — `login_screen.py`, `home_screen.py`, `students_screen.py`, `courses_screen.py`, `personnel_screen.py`, `graduation_orders_screen.py`, `order_students_screen.py`, `history_screen.py`, `certificate_screen.py`, `departments_screen.py`, `settings_screen.py`, `placeholder_screen.py`.
 - `nicegui_screens/`: NiceGUI UI screens — `dashboard_screen.py`, `settings_screen.py`.
 - `nicegui_ui/`: NiceGUI UI components and tokens — `ui_components.py`, `ui_theme.py`, `state.py`.

@@ -224,11 +224,11 @@ class MainAppShell:
         user_name = app_session.name_en or app_session.username or "Admin User"
         user_role = (app_session.role or "admin").capitalize()
 
-        self._chip_expanded = "w-full items-center gap-3 p-3 rounded-2xl border cursor-pointer transition-all bg-[#131C35] border-slate-700 hover:bg-slate-800"
-        self._chip_mini = "w-full justify-center p-3 rounded-2xl border cursor-pointer transition-all bg-[#131C35] border-slate-700 hover:bg-slate-800"
+        self._chip_expanded = "w-full items-center gap-3 p-3 rounded-2xl border cursor-pointer transition-all bg-slate-800/60 dark:bg-[#131C35] border-slate-700/60 dark:border-slate-700 hover:bg-slate-800 dark:hover:bg-slate-800/80"
+        self._chip_mini = "w-full justify-center p-3 rounded-2xl border cursor-pointer transition-all bg-slate-800/60 dark:bg-[#131C35] border-slate-700/60 dark:border-slate-700 hover:bg-slate-800 dark:hover:bg-slate-800/80"
 
         with ui.row().classes(self._chip_expanded) as self._user_chip_row:
-            with ui.element("div").classes("w-10 h-10 shrink-0 rounded-full bg-blue-500 flex items-center justify-center text-white font-bold text-sm"):
+            with ui.element("div").classes("w-10 h-10 shrink-0 rounded-full bg-blue-600 dark:bg-blue-500 flex items-center justify-center text-white font-bold text-sm"):
                 ui.label("SA")
                 
             user_text_col = ui.column().classes("gap-0 flex-1 min-w-0")
@@ -248,7 +248,7 @@ class MainAppShell:
                 self._refresh_status = status_indicator
 
             logout_btn = ui.icon("logout", size="xs").classes(
-                "text-slate-400 hover:text-slate-200 cursor-pointer transition-colors ml-auto"
+                "text-slate-400 hover:text-slate-200 dark:text-slate-400 dark:hover:text-slate-200 cursor-pointer transition-colors ml-auto"
             )
             logout_btn.on("click", self._handle_logout)
             logout_btn.tooltip("تسجيل الخروج / Logout")
@@ -280,7 +280,7 @@ class MainAppShell:
 
             for text_col in self._user_chip_labels:
                 text_col.set_visibility(True)
-            if self._user_chip_row:
+            if self._user_chip_row is not None:
                 self._user_chip_row.classes(remove=getattr(self, '_chip_mini', ''), add=getattr(self, '_chip_expanded', ''))
 
         else:
@@ -299,7 +299,7 @@ class MainAppShell:
 
             for text_col in self._user_chip_labels:
                 text_col.set_visibility(False)
-            if self._user_chip_row:
+            if self._user_chip_row is not None:
                 self._user_chip_row.classes(remove=getattr(self, '_chip_expanded', ''), add=getattr(self, '_chip_mini', ''))
 
     def _build_top_header(self) -> None:
@@ -324,7 +324,11 @@ class MainAppShell:
                 def header_status_badge():
                     from sync_engine import is_online
                     online = is_online()
-                    bg = "bg-emerald-500/10 text-emerald-400 border-emerald-500/30" if online else "bg-red-500/10 text-red-400 border-red-500/30"
+                    bg = (
+                        "bg-emerald-50 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-200 dark:border-emerald-500/30"
+                        if online else
+                        "bg-red-50 dark:bg-red-500/10 text-red-700 dark:text-red-400 border-red-200 dark:border-red-500/30"
+                    )
                     dot = "🟢" if online else "🔴"
                     text = "متصل / Online" if online else "غير متصل / Offline"
                     ui.label(f"{dot} {text}").classes(f"px-3 py-1.5 rounded-xl border text-xs font-bold {bg}")
@@ -430,10 +434,10 @@ class MainAppShell:
                 with ui.tab_panels(tabs, value=tab_students).classes("w-full p-0 bg-transparent"):
                     with ui.tab_panel(tab_students).classes("w-full p-0 pt-2 bg-transparent"):
                         cols_s = [
-                            {"name": "name",   "label": "Student Name / اسم الطالب", "field": "name",   "align": "left", "headerClasses": "text-slate-400 font-bold bg-transparent"},
-                            {"name": "dept",   "label": "Department / القسم",        "field": "dept",   "align": "left", "headerClasses": "text-slate-400 font-bold bg-transparent"},
-                            {"name": "year",   "label": "Batch / سنة القبول",        "field": "year",   "align": "center", "headerClasses": "text-slate-400 font-bold bg-transparent"},
-                            {"name": "status", "label": "Status / الحالة",           "field": "status", "align": "right", "headerClasses": "text-slate-400 font-bold bg-transparent"},
+                            {"name": "name",   "label": "Student Name / اسم الطالب", "field": "name",   "align": "left", "headerClasses": "text-slate-600 dark:text-slate-400 font-bold bg-transparent"},
+                            {"name": "dept",   "label": "Department / القسم",        "field": "dept",   "align": "left", "headerClasses": "text-slate-600 dark:text-slate-400 font-bold bg-transparent"},
+                            {"name": "year",   "label": "Batch / سنة القبول",        "field": "year",   "align": "center", "headerClasses": "text-slate-600 dark:text-slate-400 font-bold bg-transparent"},
+                            {"name": "status", "label": "Status / الحالة",           "field": "status", "align": "right", "headerClasses": "text-slate-600 dark:text-slate-400 font-bold bg-transparent"},
                         ]
                         rows_s = [
                             {
@@ -449,17 +453,17 @@ class MainAppShell:
                         ).classes(Styles.TABLE_CLASSES).props("flat separator='horizontal'")
                         s_table.add_slot("body-cell-status", '''
                             <q-td :props="props">
-                                <span v-if="props.value === 'مستمر'" class="text-emerald-400 font-bold">{{ props.value }}</span>
-                                <span v-else class="text-slate-300 font-semibold">{{ props.value }}</span>
+                                <span v-if="props.value === 'مستمر'" class="text-emerald-600 dark:text-emerald-400 font-bold">{{ props.value }}</span>
+                                <span v-else class="text-slate-700 dark:text-slate-300 font-semibold">{{ props.value }}</span>
                             </q-td>
                         ''')
 
                     with ui.tab_panel(tab_certs).classes("w-full p-0 pt-2 bg-transparent"):
                         cols_c = [
-                            {"name": "name",  "label": "Student Name / اسم الطالب", "field": "name",  "align": "left", "headerClasses": "text-slate-400 font-bold bg-transparent"},
-                            {"name": "dept",  "label": "Department / القسم",        "field": "dept",  "align": "left", "headerClasses": "text-slate-400 font-bold bg-transparent"},
-                            {"name": "order", "label": "Order No / رقم الأمر",      "field": "order", "align": "center", "headerClasses": "text-slate-400 font-bold bg-transparent"},
-                            {"name": "date",  "label": "Date Issued / التاريخ",      "field": "date",  "align": "right", "headerClasses": "text-slate-400 font-bold bg-transparent"},
+                            {"name": "name",  "label": "Student Name / اسم الطالب", "field": "name",  "align": "left", "headerClasses": "text-slate-600 dark:text-slate-400 font-bold bg-transparent"},
+                            {"name": "dept",  "label": "Department / القسم",        "field": "dept",  "align": "left", "headerClasses": "text-slate-600 dark:text-slate-400 font-bold bg-transparent"},
+                            {"name": "order", "label": "Order No / رقم الأمر",      "field": "order", "align": "center", "headerClasses": "text-slate-600 dark:text-slate-400 font-bold bg-transparent"},
+                            {"name": "date",  "label": "Date Issued / التاريخ",      "field": "date",  "align": "right", "headerClasses": "text-slate-600 dark:text-slate-400 font-bold bg-transparent"},
                         ]
                         rows_c = [
                             {

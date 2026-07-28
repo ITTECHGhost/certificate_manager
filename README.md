@@ -7,7 +7,7 @@ The system is built on a multi-tier architecture to separate concerns, ensure da
 
 ### 1. Presentation Layer (NiceGUI)
 - **Framework**: [NiceGUI](https://nicegui.io/)
-- **Entry Point**: `N_main.py`
+- **Entry Point**: `main.py`
 - **Execution**: The UI launches as a native desktop window (using PyWebView) while utilizing modern web technologies (Vue3, TailwindCSS, Quasar) for styling and layout.
 - **Port Mapping**: The NiceGUI frontend operates on **Port 2323**.
 - **Structure**:
@@ -42,9 +42,8 @@ Before launching the main application, ensure the API backend is running:
 ### 2. Start the Application UI
 The user interface is initiated from the project root:
 ```bash
-python N_main.py
+python main.py
 ```
-*(Note: Running `python main.py` is also supported as a lightweight launcher that redirects seamlessly to `N_main.py`.)*
 
 ---
 

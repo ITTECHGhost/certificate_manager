@@ -23,7 +23,7 @@
   --surface-card: #ffffff;
   --surface-card-alt: #f8fafc;
   --surface-input: #f8fafc;
-  --surface-sidebar: #0f172a;
+
   --surface-header: #ffffff;
   --surface-login-bg: #f8fafc;
   --surface-login-card: #ffffff;
@@ -38,7 +38,7 @@
   --border-default: #e2e8f0;
   --border-strong: #cbd5e1;
   --border-input: rgba(148, 163, 184, 0.4);
-  --border-sidebar: #1e293b;
+
 
   /* Shadows */
   --shadow-card: 0 4px 6px -1px rgba(0, 0, 0, 0.07), 0 2px 4px -1px rgba(0, 0, 0, 0.04);
@@ -93,7 +93,7 @@ body.dark,
   --surface-card: #1e293b;
   --surface-card-alt: rgba(15, 23, 42, 0.6);
   --surface-input: #070e1e;
-  --surface-sidebar: #0b1329;
+
   --surface-header: #0b1329;
   --surface-login-bg: #0b1329;
   --surface-login-card: #1e293b;
@@ -106,7 +106,7 @@ body.dark,
   --border-default: #334155;
   --border-strong: #475569;
   --border-input: rgba(51, 65, 85, 0.7);
-  --border-sidebar: #1e293b;
+
 
   --shadow-card: 0 10px 25px rgba(0, 0, 0, 0.25), 0 4px 10px rgba(0, 0, 0, 0.2);
   --shadow-card-lg: 0 20px 40px rgba(0, 0, 0, 0.4);
@@ -145,7 +145,7 @@ body.dark,
 body.accent-blue,
 body.accent-dark-blue,
 body:not([class*="accent-"]) {
-  --accent-primary: #4979d1;
+  --accent-primary: #607eb8;
   --accent-hover: #1e40af;
   --accent-soft-bg: rgba(29, 78, 216, 0.12);
   --accent-soft-border: rgba(29, 78, 216, 0.25);
@@ -160,11 +160,11 @@ body:not([class*="accent-"]) {
 body.accent-blue.body--dark,
 body.accent-dark-blue.body--dark,
 body:not([class*="accent-"]).body--dark {
-  --accent-primary: #4979d1;
-  --accent-text: #60a5fa;
-  --accent-hover: #3b82f6;
+  --accent-primary: #60a5fa;
+  --accent-text: #88baf7;
+  --accent-hover: #5998fd;
   --accent-active-text: #93c5fd;
-  --accent-glow: rgba(96, 165, 250, 0.5);
+  --accent-glow: rgba(122, 179, 250, 0.822);
 }
 
 /* ── Green — matches stat-text-emerald (#059669 / #34d399 dark) ─────────── */
@@ -298,7 +298,7 @@ body {
   transition: background-color 0.3s, color 0.3s;
 
   /* Map Quasar's internal variables to our dynamic accents so default widgets inherit the theme */
-  --q-primary: var(--accent-primary) !important;
+  /* --q-primary: var(--accent-primary) !important; */
 }
 
 body.body--dark {
@@ -529,110 +529,213 @@ body.body--dark .app-login-card:hover,
 
 
 /* ── 4e. Sidebar & Navigation ───────────────────────────────────────────── */
+
+/* --- Design Tokens for Sidebar (light/dark responsive) --- */
+:root {
+  --sidebar-bg: #ffffff;
+  --sidebar-border: #e2e8f0;
+  --sidebar-header-border: #e2e8f0;
+  --sidebar-title-color: #0f172a;
+  --sidebar-text-color: #334155;
+  --sidebar-icon-color: #64748b;
+
+  /* Nav item (inactive) */
+  --nav-bg: #f8fafc;
+  --nav-border: #e2e8f0;
+  --nav-title-ar: #0f172a;
+  --nav-title-en: #64748b;
+  --nav-icon: #64748b;
+
+  /* Nav item hover */
+  --nav-hover-bg: #f1f5f9;
+  --nav-hover-border: var(--accent-primary, #607eb8);
+
+  /* Nav item active */
+  --nav-active-bg: rgba(var(--accent-primary-rgb, 96, 126, 184), 0.1);
+  --nav-active-border: var(--accent-primary, #607eb8);
+
+  /* User chip */
+  --user-chip-bg: #f1f5f9;
+  --user-chip-border: #e2e8f0;
+  --user-chip-hover-bg: #e2e8f0;
+  --user-status-color: #059669;
+}
+
+body.body--dark,
+.body--dark,
+body.dark,
+.dark {
+  --sidebar-bg: #0b1329;
+  --sidebar-border: #1e293b;
+  --sidebar-header-border: #1e293b;
+  --sidebar-title-color: #ffffff;
+  --sidebar-text-color: #e2e8f0;
+  --sidebar-icon-color: #94a3b8;
+
+  --nav-bg: rgba(30, 41, 59, 0.35);
+  --nav-border: rgba(51, 65, 85, 0.3);
+  --nav-title-ar: #f8fafc;
+  --nav-title-en: #94a3b8;
+  --nav-icon: #94a3b8;
+
+  --nav-hover-bg: rgba(30, 41, 59, 0.75);
+
+  --nav-active-bg: rgba(30, 41, 59, 0.75);
+
+  --user-chip-bg: rgba(30, 41, 59, 0.4);
+  --user-chip-border: rgba(30, 41, 59, 0.6);
+  --user-chip-hover-bg: rgba(30, 41, 59, 0.8);
+  --user-status-color: #34d399;
+}
+
+/* --- Sidebar Container --- */
 .app-sidebar {
-  background-color: var(--surface-sidebar) !important;
-  border-right: 1px solid var(--border-sidebar) !important;
-  transition: width 0.3s ease, background-color 0.2s;
+  background-color: var(--sidebar-bg) !important;
+  border-right: 1px solid var(--sidebar-border) !important;
+  color: var(--sidebar-text-color) !important;
+  transition: width 0.3s ease, background-color 0.3s, border-color 0.3s, color 0.3s;
 }
 
 .app-sidebar-header {
-  border-bottom: 1px solid var(--border-sidebar);
+  border-bottom: 1px solid var(--sidebar-header-border);
+  transition: border-color 0.3s;
 }
 
 .app-sidebar-title {
-  color: #ffffff !important;
+  color: var(--sidebar-title-color) !important;
+  transition: color 0.3s;
 }
 
 .app-sidebar-text {
-  color: #e2e8f0 !important;
+  color: var(--sidebar-text-color) !important;
+  transition: color 0.3s;
 }
 
 .app-sidebar-icon {
-  color: #94a3b8 !important;
+  color: var(--sidebar-icon-color) !important;
+  transition: color 0.3s;
 }
 
-/* ── 4a. Sidebar Navigation Items & Quick Action Items ───────────────────── */
-.app-nav-item,
-.app-action-item {
-  background-color: rgba(30, 41, 59, 0.35) !important;
-  border: 1px solid rgba(51, 65, 85, 0.3) !important;
+/* --- Nav Items (Inactive) --- */
+.app-nav-item {
+  background-color: var(--nav-bg) !important;
+  border: 1px solid var(--nav-border) !important;
   transition: all 0.2s ease-in-out;
 }
 
-.app-nav-item .q-icon,
-.app-action-item .q-icon {
-  color: #94a3b8 !important;
+.app-nav-item .q-icon {
+  color: var(--nav-icon) !important;
   transition: color 0.2s ease-in-out, transform 0.2s ease-in-out;
 }
 
-.app-nav-item .nav-title-ar,
-.app-action-item .nav-title-ar {
-  color: #f8fafc !important;
+.app-nav-item .nav-title-ar {
+  color: var(--nav-title-ar) !important;
   transition: color 0.2s ease-in-out;
 }
 
-.app-nav-item .nav-title-en,
-.app-action-item .nav-title-en {
-  color: #94a3b8 !important;
+.app-nav-item .nav-title-en {
+  color: var(--nav-title-en) !important;
   transition: color 0.2s ease-in-out;
 }
 
-/* Hover State: GLOW + SAME ACTIVE ACCENT COLOR AS ACTIVATED NAVBAR OPTION */
-.app-nav-item:hover,
-.app-action-item:hover {
-  background-color: rgba(30, 41, 59, 0.75) !important;
-  border: 1px solid var(--accent-primary, #5898d4) !important;
+/* --- Nav Items (Hover) --- */
+.app-nav-item:hover {
+  background-color: var(--nav-hover-bg) !important;
+  border: 1px solid var(--nav-hover-border) !important;
   box-shadow: 0 0 16px 0 var(--accent-glow, rgba(59, 130, 246, 0.4)) !important;
   transform: translateY(-1px);
 }
 
-.app-nav-item:hover .q-icon,
-.app-action-item:hover .q-icon {
-  color: var(--accent-text, #38bdf8) !important;
+.app-nav-item:hover .q-icon {
+  color: var(--accent-text, #2563eb) !important;
   transform: scale(1.1);
 }
 
-.app-nav-item:hover .nav-title-ar,
-.app-action-item:hover .nav-title-ar {
-  color: var(--accent-text, #38bdf8) !important;
+.app-nav-item:hover .nav-title-ar {
+  color: var(--accent-text, #2563eb) !important;
 }
 
-.app-nav-item:hover .nav-title-en,
-.app-action-item:hover .nav-title-en {
-  color: #93c5fd !important;
+.app-nav-item:hover .nav-title-en {
+  color: var(--accent-active-text, #3b82f6) !important;
 }
 
+/* --- Nav Items (Active) --- */
 .app-nav-item--active {
-  background-color: rgba(30, 41, 59, 0.75) !important;
-  border: 1px solid var(--accent-primary, #5898d4) !important;
+  background-color: var(--nav-active-bg) !important;
+  border: 1px solid var(--nav-active-border) !important;
   box-shadow: 0 0 12px -2px var(--accent-glow, rgba(59, 130, 246, 0.4)) !important;
   transition: all 0.2s ease-in-out;
 }
 
 .app-nav-item--active .q-icon {
-  color: var(--accent-text, #38bdf8) !important;
+  color: var(--accent-text, #2563eb) !important;
 }
 
 .app-nav-item--active .nav-title-ar {
-  color: var(--accent-text, #38bdf8) !important;
+  color: var(--accent-text, #2563eb) !important;
 }
 
 .app-nav-item--active .nav-title-en {
-  color: #93c5fd !important;
+  color: var(--accent-active-text, #3b82f6) !important;
 }
 
+/* --- Quick Action Items (Light Mode) --- */
+.app-action-item {
+  background-color: var(--nav-bg) !important;
+  border: 1px solid var(--nav-border) !important;
+  transition: all 0.2s ease-in-out;
+}
+
+.app-action-item .nav-title-ar {
+  color: var(--nav-title-ar) !important;
+  transition: color 0.2s ease-in-out;
+}
+
+.app-action-item .nav-title-en {
+  color: var(--nav-title-en) !important;
+  transition: color 0.2s ease-in-out;
+}
+
+.app-action-item .q-icon {
+  color: var(--nav-icon) !important;
+  transition: color 0.2s ease-in-out, transform 0.2s ease-in-out;
+}
+
+/* --- Quick Action Items (Hover) --- */
+.app-action-item:hover {
+  background-color: var(--nav-hover-bg) !important;
+  border: 1px solid var(--nav-hover-border) !important;
+  box-shadow: 0 0 16px 0 var(--accent-glow, rgba(59, 130, 246, 0.4)) !important;
+  transform: translateY(-1px);
+}
+
+.app-action-item:hover .q-icon {
+  color: var(--accent-text, #2563eb) !important;
+  transform: scale(1.1);
+}
+
+.app-action-item:hover .nav-title-ar {
+  color: var(--accent-text, #2563eb) !important;
+}
+
+.app-action-item:hover .nav-title-en {
+  color: var(--accent-active-text, #3b82f6) !important;
+}
+
+/* --- User Chip --- */
 .app-user-chip {
-  background-color: rgba(30, 41, 59, 0.4) !important;
-  border-color: rgba(30, 41, 59, 0.6) !important;
-  transition: background-color 0.2s;
+  background-color: var(--user-chip-bg) !important;
+  border-color: var(--user-chip-border) !important;
+  transition: background-color 0.3s, border-color 0.3s;
 }
 
 .app-user-chip:hover {
-  background-color: rgba(30, 41, 59, 0.8) !important;
+  background-color: var(--user-chip-hover-bg) !important;
 }
 
 .app-user-status {
-  color: #34d399 !important;
+  color: var(--user-status-color) !important;
+  transition: color 0.3s;
 }
 
 
@@ -770,6 +873,33 @@ body.body--dark .stat-text-purple,
 
 .app-badge-offline {
   color: var(--color-offline) !important;
+}
+
+/* Status badges (network indicator) */
+.app-status-online {
+  background-color: rgba(16, 185, 129, 0.08) !important;
+  color: #059669 !important;
+  border: 1px solid rgba(16, 185, 129, 0.25) !important;
+}
+
+.app-status-offline {
+  background-color: rgba(239, 68, 68, 0.08) !important;
+  color: #dc2626 !important;
+  border: 1px solid rgba(239, 68, 68, 0.25) !important;
+}
+
+body.body--dark .app-status-online,
+.dark .app-status-online {
+  background-color: rgba(16, 185, 129, 0.1) !important;
+  color: #34d399 !important;
+  border-color: rgba(16, 185, 129, 0.3) !important;
+}
+
+body.body--dark .app-status-offline,
+.dark .app-status-offline {
+  background-color: rgba(239, 68, 68, 0.1) !important;
+  color: #f87171 !important;
+  border-color: rgba(239, 68, 68, 0.3) !important;
 }
 
 

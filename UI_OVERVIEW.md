@@ -27,7 +27,7 @@ All core components are rendered through the `UI` factory class to guarantee con
 
 ### State & Routing Management
 - **`state.py`**: Manages the global `app_session`, handling secure user login storage, active accent colors, and global cache tracking.
-- **`N_main.py` (Router)**: Registers all active `@ui.page` routes.
+- **`main.py` (Router)**: Registers all active `@ui.page` routes.
 
 ---
 
