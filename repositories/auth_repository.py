@@ -28,7 +28,7 @@ class AuthRepository:
 
     def authenticate_user(self, username: str, password: str) -> dict | None:
         """
-        Authenticates a user via stored procedure sp_AuthenticateUser / AuthenticateUser.
+        Authenticates a user via stored procedure AuthenticateUser.
         Returns dictionary with keys: id, username, name_ar, name_en, personnel_role, is_active.
         """
         if not username or not password:
@@ -39,11 +39,11 @@ class AuthRepository:
             conn = self._get_conn()
             try:
                 cur = conn.cursor(dictionary=True)
-                proc_name = "sp_AuthenticateUser"
+                proc_name = "AuthenticateUser"
                 try:
                     cur.callproc(proc_name, (username, password))
                 except Exception:
-                    proc_name = "AuthenticateUser"
+                    proc_name = "sp_AuthenticateUser"
                     cur.callproc(proc_name, (username, password))
 
                 user_record = None
@@ -94,13 +94,13 @@ class AuthRepository:
 
     def get_user_appearance(self, user_id: int) -> dict:
         """
-        Fetches user appearance settings via stored procedure sp_GetUserAppearance / GetUserAppearance.
+        Fetches user appearance settings via stored procedure Get_User_Settings.
         Returns dict: {theme, accent_color, font_family, font_size_base, is_arabic_rtl}.
         """
         defaults = {
             "theme": "Dark",
             "accent_color": "blue",
-            "font_family": "Segoe UI",
+            "font_family": "Arial",
             "font_size_base": 14,
             "is_arabic_rtl": 1
         }
@@ -109,11 +109,11 @@ class AuthRepository:
             conn = self._get_conn()
             try:
                 cur = conn.cursor(dictionary=True)
-                proc_name = "sp_GetUserAppearance"
+                proc_name = "Get_User_Settings"
                 try:
                     cur.callproc(proc_name, (user_id,))
                 except Exception:
-                    proc_name = "GetUserAppearance"
+                    proc_name = "sp_GetUserAppearance"
                     cur.callproc(proc_name, (user_id,))
 
                 for result_set in cur.stored_results():
@@ -131,7 +131,7 @@ class AuthRepository:
                         pass
 
         except Exception as exc:
-            log.warning("[AuthRepository] GetUserAppearance SP error: %s", exc)
+            log.warning("[AuthRepository] Get_User_Settings SP error: %s", exc)
 
         # SQLite local fallback
         try:

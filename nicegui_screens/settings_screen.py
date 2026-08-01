@@ -275,6 +275,7 @@ class SettingsScreen:
     def _on_theme_select_change(self, e=None) -> None:
         """Live theme switch when Theme Mode dropdown option changes."""
         from nicegui_ui.ui_theme import is_windows_dark_mode, set_dark_mode
+        from nicegui_ui.state import log_state
         val = str((self.theme_select.value if self.theme_select else None) or "Dark")
         if val == "Dark":
             set_dark_mode(True)
@@ -282,6 +283,36 @@ class SettingsScreen:
             set_dark_mode(False)
         else:
             set_dark_mode(is_windows_dark_mode())
+
+        # Update session memory
+        self.session.update_preferences(theme=val)
+
+        # Update database and track result
+        mysql_result = "success"
+        try:
+            self.s_repo.update_user_appearance(
+                emp_id=self.emp_id,
+                theme=val,
+                accent=self.session.accent_color,
+                font=str(self.session.preferences.get("font_family") or "Segoe UI"),
+                size=int(self.session.preferences.get("font_size_base") or 13),
+                rtl=int(self.session.preferences.get("is_arabic_rtl") or 1)
+            )
+        except Exception as exc:
+            mysql_result = f"error: {exc}"
+
+        dark_val = None
+        try:
+            dark_val = getattr(ui.dark_mode(), 'value', None)
+        except Exception:
+            pass
+
+        log_state("THEME_TOGGLE", {
+            "target_value": val,
+            "app_session_preferences": dict(self.session.preferences),
+            "ui_dark_mode_value": dark_val,
+            "mysql_update_result": mysql_result
+        })
 
         ui.notify(
             f"تم تغيير المظهر إلى {'الداكن' if val == 'Dark' else ('الفاتح' if val == 'Light' else 'النظام')} / Theme set to {val}!",
@@ -355,6 +386,7 @@ class SettingsScreen:
             ui.notify(f"Error deleting system: {exc}", type="negative")
 
     def _save_appearance(self) -> None:
+        from nicegui_ui.state import log_state
         try:
             theme_val = str((self.theme_select.value if self.theme_select else None) or "Dark")
             accent_val = str((self.accent_select.value if self.accent_select else None) or "blue")
@@ -370,15 +402,18 @@ class SettingsScreen:
             else:
                 dark_mode.auto()
 
-
-            self.s_repo.update_user_appearance(
-                emp_id=self.emp_id,
-                theme=theme_val,
-                accent=accent_val,
-                font=font_val,
-                size=size_val,
-                rtl=rtl_val
-            )
+            mysql_result = "success"
+            try:
+                self.s_repo.update_user_appearance(
+                    emp_id=self.emp_id,
+                    theme=theme_val,
+                    accent=accent_val,
+                    font=font_val,
+                    size=size_val,
+                    rtl=rtl_val
+                )
+            except Exception as exc:
+                mysql_result = f"error: {exc}"
 
             self.session.update_preferences(
                 theme=theme_val,
@@ -387,6 +422,17 @@ class SettingsScreen:
                 font_size_base=size_val,
                 is_arabic_rtl=rtl_val
             )
+
+            dark_val = getattr(dark_mode, 'value', None)
+            log_state("THEME_SAVE", {
+                "target_value": theme_val,
+                "accent_color": accent_val,
+                "font_family": font_val,
+                "font_size_base": size_val,
+                "app_session_preferences": dict(self.session.preferences),
+                "ui_dark_mode_value": dark_val,
+                "mysql_update_result": mysql_result
+            })
 
             ui.notify("تم حفظ وتطبيق تفضيلات المظهر بنجاح / Appearance saved & applied!", type="positive")
         except Exception as exc:

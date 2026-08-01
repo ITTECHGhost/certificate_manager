@@ -13,9 +13,11 @@ CREATE PROCEDURE AuthenticateUser(
 BEGIN
     SELECT 
         id, 
+        username,
         name_ar, 
         name_en, 
-        personnel_role
+        personnel_role,
+        is_active
     FROM personnel
     WHERE username = p_username 
       AND password_hash = p_password_hash
@@ -53,14 +55,19 @@ CREATE PROCEDURE Update_User_Settings(
     IN p_is_arabic_rtl TINYINT
 )
 BEGIN
-    UPDATE settings
-    SET 
-        theme = p_theme,
-        accent_color = p_accent_color,
-        font_family = p_font_family,
-        font_size_base = p_font_size_base,
-        is_arabic_rtl = p_is_arabic_rtl
-    WHERE EMP_ID = p_EMP_ID;
+    IF EXISTS (SELECT 1 FROM settings WHERE EMP_ID = p_EMP_ID) THEN
+        UPDATE settings
+        SET 
+            theme = p_theme,
+            accent_color = p_accent_color,
+            font_family = p_font_family,
+            font_size_base = p_font_size_base,
+            is_arabic_rtl = p_is_arabic_rtl
+        WHERE EMP_ID = p_EMP_ID;
+    ELSE
+        INSERT INTO settings (EMP_ID, theme, accent_color, font_family, font_size_base, is_arabic_rtl)
+        VALUES (p_EMP_ID, p_theme, p_accent_color, p_font_family, p_font_size_base, p_is_arabic_rtl);
+    END IF;
 END //
 
 -- 4. Procedure: Create_Default_Settings

@@ -197,15 +197,6 @@ def sync_offline_queue(payload: SyncPayload, conn=Depends(get_db)):
             detail=f"Database synchronization failed: {str(exc)}"
         )
 
-class StudentSearchResponse(BaseModel):
-    student_id: int
-    name_ar: str
-    name_en: str
-    dept_name_ar: Optional[str] = None
-    graduation_year: Optional[Union[str, int]] = None
-    admission_year: Optional[Union[str, int]] = None
-    average: Optional[float] = None
-
 class StudentPayload(BaseModel):
     full_name_ar: str
     full_name_en: str
@@ -249,7 +240,7 @@ def get_students_paginated(
     finally:
         cur.close()
 
-@app.get("/students/search/basic", response_model=List[StudentSearchResponse])
+@app.get("/students/search/basic")
 def search_students_basic(query: str, limit: int = 50, db = Depends(get_db)):
     cursor = db.cursor(dictionary=True)
     try:
@@ -1517,6 +1508,99 @@ def get_dashboard_counts(conn = Depends(get_db)):
             total_personnel=result.get("total_personnel", 0)
         )
     except Exception as exc:
+        raise HTTPException(status_code=500, detail=str(exc))
+    finally:
+        cur.close()
+
+# --- Authentication & User Preferences Endpoints ---
+
+class LoginRequest(BaseModel):
+    username: str
+    password: str
+
+@app.post("/api/login")
+def login(req: LoginRequest, conn = Depends(get_db)):
+    cur = conn.cursor(dictionary=True)
+    try:
+        cur.callproc("sp_AuthenticateUser", (req.username, req.password))
+        
+        user_record = None
+        for result in cur.stored_results():
+            user_record = result.fetchone()
+            break
+            
+        if not user_record:
+            raise HTTPException(status_code=401, detail="Invalid username or password")
+            
+        if not user_record.get("is_active"):
+            raise HTTPException(status_code=403, detail="Account is disabled")
+
+        # Fetch appearance using the other procedure, ensure to consume previous result sets completely
+        while cur.nextset(): 
+            pass
+
+        cur.callproc("sp_GetUserAppearance", (user_record["id"],))
+        appearance = {}
+        for result in cur.stored_results():
+            appearance = result.fetchone() or {}
+            break
+            
+        return {
+            "success": True, 
+            "user": user_record, 
+            "appearance": appearance
+        }
+    except HTTPException:
+        raise
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=str(exc))
+    finally:
+        cur.close()
+
+@app.post("/api/logout")
+def logout():
+    return {"success": True, "message": "Logged out successfully"}
+
+@app.get("/api/user/appearance/{emp_id}")
+def get_user_appearance(emp_id: int, conn = Depends(get_db)):
+    cur = conn.cursor(dictionary=True)
+    try:
+        cur.callproc("sp_GetUserAppearance", (emp_id,))
+        appearance = {}
+        for result in cur.stored_results():
+            appearance = result.fetchone() or {}
+            break
+        return appearance
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=str(exc))
+    finally:
+        cur.close()
+
+class AppearanceUpdate(BaseModel):
+    theme: str
+    accent_color: str
+    font_family: str
+    font_size_base: int
+    is_arabic_rtl: int
+
+@app.post("/api/user/appearance/{emp_id}")
+def update_user_appearance(emp_id: int, req: AppearanceUpdate, conn = Depends(get_db)):
+    cur = conn.cursor()
+    try:
+        cur.execute("""
+            INSERT INTO settings (EMP_ID, theme, accent_color, font_family, font_size_base, is_arabic_rtl)
+            VALUES (%s, %s, %s, %s, %s, %s)
+            ON DUPLICATE KEY UPDATE
+                theme = VALUES(theme),
+                accent_color = VALUES(accent_color),
+                font_family = VALUES(font_family),
+                font_size_base = VALUES(font_size_base),
+                is_arabic_rtl = VALUES(is_arabic_rtl)
+        """, (emp_id, req.theme, req.accent_color, req.font_family, req.font_size_base, req.is_arabic_rtl))
+        conn.commit()
+        return {"success": True}
+    except Exception as exc:
+        conn.rollback()
         raise HTTPException(status_code=500, detail=str(exc))
     finally:
         cur.close()

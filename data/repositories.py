@@ -187,33 +187,46 @@ class SettingsRepository(BaseRepository):
         Auto-creates default theme preferences in settings table if missing.
         """
         if not is_online():
-            row = sqlite_read_one("SELECT * FROM settings WHERE EMP_ID = ?", (emp_id,))
-            if not row:
-                conn = get_local_connection()
-                try:
-                    conn.execute("""
-                        INSERT INTO settings (EMP_ID, theme, accent_color, font_family, font_size_base, is_arabic_rtl)
-                        VALUES (?, 'Dark', 'blue', 'Segoe UI', 13, 1)
-                        ON CONFLICT(EMP_ID) DO NOTHING
-                    """, (emp_id,))
-                    conn.commit()
-                except Exception as ex:
-                    print(f"Could not auto-insert default settings offline: {ex}")
-                finally:
-                    conn.close()
+            try:
                 row = sqlite_read_one("SELECT * FROM settings WHERE EMP_ID = ?", (emp_id,))
-            return row if row else {
-                "theme": "Dark",
-                "accent_color": "blue",
-                "font_family": "Segoe UI",
-                "font_size_base": 13,
-                "is_arabic_rtl": 1,
-                "EMP_ID": emp_id
-            }
+                if not row:
+                    conn = get_local_connection()
+                    try:
+                        conn.execute("""
+                            INSERT INTO settings (EMP_ID, theme, accent_color, font_family, font_size_base, is_arabic_rtl)
+                            VALUES (?, 'Dark', 'blue', 'Segoe UI', 13, 1)
+                            ON CONFLICT(EMP_ID) DO NOTHING
+                        """, (emp_id,))
+                        conn.commit()
+                    except Exception as ex:
+                        print(f"[ERROR][SettingsRepository.get_user_appearance] Could not auto-insert default settings offline: {ex}", flush=True)
+                    finally:
+                        conn.close()
+                    row = sqlite_read_one("SELECT * FROM settings WHERE EMP_ID = ?", (emp_id,))
+                return row if row else {
+                    "theme": "Dark",
+                    "accent_color": "blue",
+                    "font_family": "Segoe UI",
+                    "font_size_base": 13,
+                    "is_arabic_rtl": 1,
+                    "EMP_ID": emp_id
+                }
+            except Exception as exc:
+                print(f"[ERROR][SettingsRepository.get_user_appearance] Offline SQLite read failed for user {emp_id}: {exc}", flush=True)
+                return {
+                    "theme": "Dark",
+                    "accent_color": "blue",
+                    "font_family": "Segoe UI",
+                    "font_size_base": 13,
+                    "is_arabic_rtl": 1,
+                    "EMP_ID": emp_id
+                }
+
         try:
             resp = requests.get(f"{self.api_url}/settings/appearance/{emp_id}", timeout=5.0)
             if resp.status_code == 200 and resp.json():
                 return resp.json()
+            print(f"[WARNING][SettingsRepository.get_user_appearance] API returned status {resp.status_code}, creating default user appearance...", flush=True)
             self.update_user_appearance(emp_id, theme="Dark", accent="blue", font="Segoe UI", size=13, rtl=1)
             return {
                 "theme": "Dark",
@@ -224,7 +237,7 @@ class SettingsRepository(BaseRepository):
                 "EMP_ID": emp_id
             }
         except Exception as e:
-            print(f"API request failed: {e}")
+            print(f"[ERROR][SettingsRepository.get_user_appearance] API/DB connection failure for user {emp_id}: {e}", flush=True)
             return {
                 "theme": "Dark",
                 "accent_color": "blue",
@@ -252,10 +265,14 @@ class SettingsRepository(BaseRepository):
                         is_arabic_rtl = excluded.is_arabic_rtl
                 """, (emp_id, theme, accent, font, size, rtl))
                 conn.commit()
+            except Exception as exc:
+                print(f"[ERROR][SettingsRepository.update_user_appearance] Offline SQLite update failed for user {emp_id}: {exc}", flush=True)
+                raise
             finally:
                 conn.close()
             log_activity(f"تم تحديث المظهر للمستخدم ID: {emp_id}")
             return
+
         try:
             payload = {
                 "emp_id": emp_id,
@@ -269,6 +286,7 @@ class SettingsRepository(BaseRepository):
             if resp.status_code == 200:
                 log_activity(f"تم تحديث المظهر للمستخدم ID: {emp_id}")
             else:
+                print(f"[WARNING][SettingsRepository.update_user_appearance] API returned status {resp.status_code}: {resp.text}, writing to local cache fallback...", flush=True)
                 conn = _get_local_conn()
                 try:
                     conn.execute("""
@@ -286,7 +304,7 @@ class SettingsRepository(BaseRepository):
                     conn.close()
                 log_activity(f"تم تحديث المظهر للمستخدم ID: {emp_id}")
         except Exception as e:
-            print(f"API request failed: {e}")
+            print(f"[ERROR][SettingsRepository.update_user_appearance] API/DB connection failure for user {emp_id}: {e}", flush=True)
             conn = _get_local_conn()
             try:
                 conn.execute("""
@@ -300,6 +318,8 @@ class SettingsRepository(BaseRepository):
                         is_arabic_rtl = excluded.is_arabic_rtl
                 """, (emp_id, theme, accent, font, size, rtl))
                 conn.commit()
+            except Exception as ex:
+                print(f"[ERROR][SettingsRepository.update_user_appearance] Offline SQLite fallback update failed: {ex}", flush=True)
             finally:
                 conn.close()
 

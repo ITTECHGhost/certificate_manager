@@ -2,11 +2,21 @@
 # nicegui_ui/state.py — Application & User Session State Management
 # =============================================================================
 
+import json
 import logging
 from dataclasses import dataclass, field
 from typing import Optional, Dict, Any
 
 log = logging.getLogger(__name__)
+
+
+def log_state(tag: str, data: dict) -> None:
+    """Print clean debug state snapshots to stdout for tracking theme loading and persistence lifecycle."""
+    try:
+        formatted_json = json.dumps(data, indent=2, ensure_ascii=False, default=str)
+        print(f"\n==================== [DEBUG: {tag}] ====================\n{formatted_json}\n=======================================================\n", flush=True)
+    except Exception as err:
+        print(f"[DEBUG: {tag}] {data} (Formatting error: {err})", flush=True)
 
 
 @dataclass
@@ -68,7 +78,6 @@ class UserSessionState:
         except Exception as exc:
             log.warning("Could not apply theme mode: %s", exc)
 
-
     def update_preferences(
         self,
         theme: Optional[str] = None,
@@ -103,6 +112,7 @@ class UserSessionState:
             self.name_en = user_record.get("name_en", self.name_en)
             self.role = user_record.get("personnel_role", self.role)
 
+        appearance = {}
         try:
             from data.repositories import SettingsRepository
             appearance = SettingsRepository().get_user_appearance(user_id)
@@ -115,9 +125,37 @@ class UserSessionState:
                     "is_arabic_rtl": appearance.get("is_arabic_rtl", 1)
                 })
         except Exception as exc:
-            log.warning("Could not fetch user appearance on login: %s", exc)
+            log.error("[login_user] Failed to fetch user appearance preferences for user %s: %s", user_id, exc, exc_info=True)
+
+        # Explicitly synchronize NiceGUI's dark mode controller with the fetched theme preference
+        try:
+            from nicegui import ui
+            fetched_theme = str(self.preferences.get("theme", "Dark")).strip().title()
+            if fetched_theme == "Dark":
+                ui.dark_mode().enable()
+            elif fetched_theme == "Light":
+                ui.dark_mode().disable()
+            elif fetched_theme == "System":
+                ui.dark_mode().auto()
+        except Exception as dm_err:
+            log.warning("Could not sync ui.dark_mode() in login_user: %s", dm_err)
 
         self.apply_theme_mode()
+
+        # Log SESSION_INIT debug state snapshot
+        dark_mode_val = None
+        try:
+            from nicegui import ui
+            dark_mode_val = getattr(ui.dark_mode(), 'value', None)
+        except Exception:
+            pass
+
+        log_state("SESSION_INIT", {
+            "user_id": user_id,
+            "mysql_fetched_settings": appearance,
+            "app_session_preferences": dict(self.preferences),
+            "ui_dark_mode_value": dark_mode_val
+        })
 
     def logout_user(self) -> None:
         """Reset active user session data back to default state."""

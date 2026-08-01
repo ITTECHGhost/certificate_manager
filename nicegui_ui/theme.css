@@ -398,7 +398,7 @@ body.body--dark .app-login-card:hover,
 /* ── 4c. Buttons ────────────────────────────────────────────────────────── */
 .app-btn-primary {
   background-color: var(--accent-primary) !important;
-  color: white !important;
+  color: var(--accent-text) !important;
   box-shadow: 0 4px 14px var(--accent-shadow);
   transition: background-color 0.2s, box-shadow 0.2s;
 }
@@ -472,7 +472,7 @@ body.body--dark .app-login-card:hover,
 
 .app-btn-refresh {
   background-color: var(--accent-primary) !important;
-  color: #ffffff !important;
+  color: var(--accent-text) !important;
   border-radius: 0.5rem !important;
   box-shadow: 0 4px 6px -1px var(--accent-shadow) !important;
   transition: all 0.2s;
@@ -485,7 +485,7 @@ body.body--dark .app-login-card:hover,
 
 .app-btn-quick {
   background-color: var(--accent-primary) !important;
-  color: #ffffff !important;
+  color: var(--accent-text) !important;
   border: 1px solid var(--accent-soft-border) !important;
   box-shadow: 0 4px 10px var(--accent-shadow) !important;
   transition: all 0.2s;
@@ -555,10 +555,14 @@ body.body--dark .app-login-card:hover,
   --nav-active-border: var(--accent-primary, #607eb8);
 
   /* User chip */
-  --user-chip-bg: #f1f5f9;
+  --user-chip-bg: #f8fafc;
   --user-chip-border: #e2e8f0;
-  --user-chip-hover-bg: #e2e8f0;
-  --user-status-color: #059669;
+  --user-chip-hover-bg: #f1f5f9;
+  --user-avatar-bg: var(--accent-primary, #2563eb);
+  --user-avatar-text: #ffffff;
+  --user-name-color: #0f172a;
+  --user-logout-color: #64748b;
+  --user-logout-hover: var(--color-error, #ef4444);
 }
 
 body.body--dark,
@@ -583,9 +587,13 @@ body.dark,
   --nav-active-bg: rgba(30, 41, 59, 0.75);
 
   --user-chip-bg: rgba(30, 41, 59, 0.4);
-  --user-chip-border: rgba(30, 41, 59, 0.6);
+  --user-chip-border: rgba(51, 65, 85, 0.6);
   --user-chip-hover-bg: rgba(30, 41, 59, 0.8);
-  --user-status-color: #34d399;
+  --user-avatar-bg: var(--accent-primary, #3b82f6);
+  --user-avatar-text: #ffffff;
+  --user-name-color: #f8fafc;
+  --user-logout-color: #94a3b8;
+  --user-logout-hover: #f87171;
 }
 
 /* --- Sidebar Container --- */
@@ -722,20 +730,53 @@ body.dark,
   color: var(--accent-active-text, #3b82f6) !important;
 }
 
-/* --- User Chip --- */
+/* --- User Chip Component --- */
 .app-user-chip {
   background-color: var(--user-chip-bg) !important;
-  border-color: var(--user-chip-border) !important;
-  transition: background-color 0.3s, border-color 0.3s;
+  border: 1px solid var(--user-chip-border) !important;
+  transition: background-color 0.2s ease-in-out, border-color 0.2s ease-in-out;
 }
 
 .app-user-chip:hover {
   background-color: var(--user-chip-hover-bg) !important;
 }
 
-.app-user-status {
-  color: var(--user-status-color) !important;
-  transition: color 0.3s;
+.app-user-avatar {
+  background-color: var(--user-avatar-bg) !important;
+  color: var(--user-avatar-text) !important;
+}
+
+.app-user-name {
+  color: var(--user-name-color) !important;
+  transition: color 0.2s ease-in-out;
+}
+
+.app-user-status-online {
+  color: #059669 !important;
+}
+
+body.body--dark .app-user-status-online,
+.dark .app-user-status-online {
+  color: #34d399 !important;
+}
+
+.app-user-status-offline {
+  color: #dc2626 !important;
+}
+
+body.body--dark .app-user-status-offline,
+.dark .app-user-status-offline {
+  color: #f87171 !important;
+}
+
+.app-user-logout {
+  color: var(--user-logout-color) !important;
+  transition: color 0.2s ease-in-out, transform 0.2s ease-in-out;
+}
+
+.app-user-logout:hover {
+  color: var(--user-logout-hover) !important;
+  transform: scale(1.15);
 }
 
 
