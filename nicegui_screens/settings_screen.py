@@ -1,3 +1,6 @@
+import logging
+log = logging.getLogger(__name__)
+
 # =============================================================================
 # nicegui_screens/settings_screen.py — NiceGUI Settings Screen
 #
@@ -62,7 +65,7 @@ class SettingsScreen:
             # Just let session.preferences be the source of truth.
             pass
         except Exception as exc:
-            print(f"[SettingsScreen] Error loading settings data: {exc}")
+            log.warning(f"[SettingsScreen] Error loading settings data: {exc}")
 
     def _apply_initial_theme(self) -> None:
         """Applies saved theme preference on screen load."""

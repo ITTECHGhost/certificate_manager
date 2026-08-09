@@ -1230,24 +1230,34 @@ def update_settings(payload: SettingsPayload, conn = Depends(get_db)):
 def get_user_appearance(user_id: int, conn = Depends(get_db)):
     cur = conn.cursor(dictionary=True)
     try:
-        cur.callproc("GetUserPreferences", (user_id,))
+        cur.callproc("Get_User_Settings", (user_id,))
         row = None
         for result in cur.stored_results():
             row = result.fetchone()
             break
-        if not row or not row.get("theme"):
-            cur.callproc("UpdateUserPreferences", (user_id, "Dark", "blue", "Segoe UI", 13, 1))
-            conn.commit()
+
+        # Consume remaining result sets to prevent Commands out of sync errors
+        while cur.nextset():
+            pass
+
+        if not row:
             return {
                 "EMP_ID": user_id,
-                "id": user_id,
                 "theme": "Dark",
                 "accent_color": "blue",
                 "font_family": "Segoe UI",
                 "font_size_base": 13,
                 "is_arabic_rtl": 1
             }
-        return row
+
+        return {
+            "EMP_ID": row.get("EMP_ID", user_id),
+            "theme": row.get("theme") or "Dark",
+            "accent_color": row.get("accent_color") or "blue",
+            "font_family": row.get("font_family") or "Segoe UI",
+            "font_size_base": int(row.get("font_size_base") or 13),
+            "is_arabic_rtl": int(row.get("is_arabic_rtl") if row.get("is_arabic_rtl") is not None else 1)
+        }
     except Exception as exc:
         raise HTTPException(status_code=500, detail=str(exc))
     finally:

@@ -398,7 +398,7 @@ body.body--dark .app-login-card:hover,
 /* ── 4c. Buttons ────────────────────────────────────────────────────────── */
 .app-btn-primary {
   background-color: var(--accent-primary) !important;
-  color: var(--accent-text) !important;
+  color: white !important;
   box-shadow: 0 4px 14px var(--accent-shadow);
   transition: background-color 0.2s, box-shadow 0.2s;
 }
@@ -897,8 +897,12 @@ body.body--dark .stat-text-purple,
 }
 
 .app-tabs .q-tab--active {
-  color: var(--tab-active-text) !important;
+  color: var(--accent-text) !important;
   font-weight: 700 !important;
+}
+
+.app-tabs .q-tab__indicator {
+  background-color: var(--accent-text) !important;
 }
 
 

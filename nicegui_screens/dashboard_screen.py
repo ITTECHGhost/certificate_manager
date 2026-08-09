@@ -1,3 +1,6 @@
+import logging
+log = logging.getLogger(__name__)
+
 # =============================================================================
 # nicegui_screens/dashboard_screen.py — NiceGUI Dashboard Screen & App Layout Shell
 #
@@ -72,7 +75,7 @@ class MainAppShell:
         try:
             self.counts = self.repo.get_counts()
         except Exception as exc:
-            print(f"[MainAppShell] Failed to fetch counts: {exc}")
+            log.warning(f"[MainAppShell] Failed to fetch counts: {exc}")
 
         # Fetch recent students
         try:
@@ -119,6 +122,7 @@ class MainAppShell:
 
         # Apply active user session theme & global CSS tokens
         from nicegui_ui.state import app_session
+        app_session.load()
         app_session.apply_theme_mode()
 
         from nicegui_ui.ui_theme import inject_global_styles
@@ -168,7 +172,7 @@ class MainAppShell:
             try:
                 await run.io_bound(sync_offline_queue_to_mysql)
             except Exception as exc:
-                print(f"[MainAppShell] Sync error on reconnection: {exc}")
+                log.warning(f"[MainAppShell] Sync error on reconnection: {exc}")
 
     async def _on_refresh_click(self) -> None:
         """
@@ -426,7 +430,7 @@ class MainAppShell:
                 ui.button(
                     icon="menu",
                     on_click=self.toggle_sidebar
-                ).classes("app-btn-icon p-2 rounded-xl shadow-none")
+                ).classes("app-btn-primary p-2 rounded-xl shadow-none")
 
                 # Dynamic Screen Title Labels (Arabic — English)
                 title_ar, title_en = self._get_screen_header_titles()

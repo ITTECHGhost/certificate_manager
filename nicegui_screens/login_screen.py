@@ -1,3 +1,6 @@
+import logging
+log = logging.getLogger(__name__)
+
 # =============================================================================
 # nicegui_screens/login_screen.py — NiceGUI Authentication Login Screen
 #
@@ -31,11 +34,9 @@ class LoginScreen:
         """Renders the two-column split login layout using UI component factory."""
         from nicegui_ui.ui_theme import is_windows_dark_mode, set_dark_mode, inject_global_styles, set_accent
         from nicegui_ui.state import app_session
-
         self.dark_mode = ui.dark_mode()
-        initial_dark = is_windows_dark_mode()
-        set_dark_mode(initial_dark, self.dark_mode)
-        set_accent(app_session.accent_color)
+        app_session.load()
+        app_session.apply_theme_mode()
 
         # 1. Reset container padding & inject global styles
         ui.query(".nicegui-content").classes("p-0 m-0")
@@ -215,7 +216,7 @@ class LoginScreen:
                 ui.notify(msg, type="negative")
 
         except Exception as exc:
-            print(f"[LoginScreen] Authentication Error: {exc}")
+            log.warning(f"[LoginScreen] Authentication Error: {exc}")
             msg = "خطأ في عملية المصادقة / Authentication failed. Check connection."
             if self.error_label:
                 self.error_label.set_text(msg)

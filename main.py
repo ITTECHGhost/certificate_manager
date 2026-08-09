@@ -85,6 +85,11 @@ def dashboard_page():
 # --- APP EXECUTION ---
 
 if __name__ in {"__main__", "__mp_main__"}:
+    if __name__ == "__main__":
+        from utils.health_check import run_system_health_checks
+        # Run system diagnostic health check once on startup and log to activity_log.txt
+        run_system_health_checks()
+
     screen_size = get_screen_resolution()
     use_native = can_use_native_mode()
 
@@ -103,4 +108,5 @@ if __name__ in {"__main__", "__mp_main__"}:
         title       = "Certificate Manager",
         reload      = False,
         dark        = None,
+        storage_secret = "certificate_manager_secret_key"
     )

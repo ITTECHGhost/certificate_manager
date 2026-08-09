@@ -1,3 +1,6 @@
+import logging
+log = logging.getLogger(__name__)
+
 # =============================================================================
 # nicegui_screens/login_screen.py — NiceGUI Authentication Login Screen
 # =============================================================================
@@ -184,7 +187,7 @@ class LoginScreen:
                     self.error_label.set_visibility(True)
 
         except Exception as exc:
-            print(f"[LoginScreen] Authentication Error: {exc}")
+            log.warning(f"[LoginScreen] Authentication Error: {exc}")
             if self.error_label:
                 self.error_label.set_text("اسم المستخدم أو كلمة المرور غير صحيحة / Invalid username or password")
                 self.error_label.set_visibility(True)

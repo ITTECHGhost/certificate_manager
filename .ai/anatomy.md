@@ -13,3 +13,7 @@
 - `themes/`: JSON theme files for `customtkinter` styling.
 - `tools/`: Utility scripts — `migrate_mysql.py` (SQLite→MySQL migration).
 - `local_cache.db`: Auto-generated SQLite database for offline mode. Contains sync queue, temp ID counter, SP result cache, and replica tables for all major MySQL tables.
+- `system_log.txt`: Centralized log file for all system-level diagnostic activities (startup health checks, database initialization, network status transitions, and sync engine runs).
+- `activity_log.txt`: Centralized log file for all user activities (login/logout attempts, authentication verification methods, student additions/edits, and certificate generations).
+
+> **AGENT RULE:** When investigating system behavior, errors, or tracing recent actions (e.g., failed logins, API/SP failures, offline fallback triggers), ALWAYS search `system_log.txt` and `activity_log.txt` to gather context on what actually happened during runtime.

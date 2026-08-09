@@ -1,3 +1,6 @@
+import logging
+log = logging.getLogger(__name__)
+
 # =============================================================================
 # nicegui_screens/students_screen.py — NiceGUI Students Management Screen
 #
@@ -89,7 +92,7 @@ class StudentsScreen:
             self.table.rows = results if results else []
             self.table.update()
         except Exception as exc:
-            print(f"[StudentsScreen] Search error: {exc}")
+            log.warning(f"[StudentsScreen] Search error: {exc}")
             self.table.rows = []
             self.table.update()
 

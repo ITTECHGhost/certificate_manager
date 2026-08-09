@@ -1,7 +1,7 @@
 # MySQL Database Schema & Stored Procedures Report
 **Database**: `certificate_manager`  
 **Host**: `localhost`  
-**Total Tables**: 14 | **Total Stored Procedures**: 55
+**Total Tables**: 14 | **Total Stored Procedures**: 54
 
 ---
 
@@ -807,21 +807,6 @@ BEGIN
         SELECT id, student_id, title_ar, title_en, defense_date, committee_decision, final_grade
         FROM thesis_records WHERE student_id = p_student_id ORDER BY id DESC;
     END
-```
-
-### Procedure: `GetUserPreferences`
-**Parameters**:
-- `IN` **p_personnel_id**: `int(11)`
-
-```sql
-CREATE DEFINER=`root`@`localhost` PROCEDURE `GetUserPreferences`(IN p_personnel_id INT)
-BEGIN
-        SELECT s.* FROM settings s
-    LEFT JOIN personnel p ON p.settings_id = s.id
-    WHERE p.id = p_personnel_id OR s.id = 1
-    ORDER BY p.id DESC
-    LIMIT 1;
-END
 ```
 
 ### Procedure: `Get_dashboard_counts`

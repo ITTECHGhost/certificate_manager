@@ -276,3 +276,63 @@
 2026-07-29 16:30:09,470 [ACTIVITY] تم تحديث المظهر للمستخدم ID: 1
 2026-07-29 16:30:22,783 [ACTIVITY] تم تحديث المظهر للمستخدم ID: 1
 2026-07-29 16:30:28,356 [ACTIVITY] تم تحديث المظهر للمستخدم ID: 1
+2026-08-09 10:18:28,875 [ACTIVITY] تم تحديث المظهر للمستخدم ID: 1
+2026-08-09 12:25:56 [ACTIVITY] SYSTEM STARTUP DIAGNOSTIC CHECK STARTED
+2026-08-09 12:25:56 [ACTIVITY] [CHECK 1/4] FastAPI Connection Check ... [OK]
+2026-08-09 12:25:57 [ACTIVITY] [CHECK 2/4] MySQL Database Connection ... [OK]
+2026-08-09 12:25:57 [ACTIVITY] [CHECK 3/4] Authentication & Core SP Checks ... [OK]
+2026-08-09 12:25:57 [ACTIVITY] [CHECK 4/4] Sync Engine & Local Replica Check ... [OK]
+2026-08-09 12:25:57 [ACTIVITY] Status: ALL CHECKS PASSED. PROCEEDING TO LOGIN/DASHBOARD.
+2026-08-09 12:34:43 [ACTIVITY] SYSTEM STARTUP DIAGNOSTIC CHECK STARTED
+2026-08-09 12:34:43,942 [ACTIVITY] SYSTEM STARTUP DIAGNOSTIC CHECK STARTED
+2026-08-09 12:34:43 [ACTIVITY] [CHECK 1/4] FastAPI Connection Check ... [OK]
+2026-08-09 12:34:43,949 [ACTIVITY] [CHECK 1/4] FastAPI Connection Check ... [OK]
+2026-08-09 12:34:44 [ACTIVITY] [CHECK 2/4] MySQL Database Connection ... [OK]
+2026-08-09 12:34:44,075 [ACTIVITY] [CHECK 2/4] MySQL Database Connection ... [OK]
+2026-08-09 12:34:44 [ACTIVITY] [CHECK 3/4] Authentication & Core SP Checks ... [OK]
+2026-08-09 12:34:44,114 [ACTIVITY] [CHECK 3/4] Authentication & Core SP Checks ... [OK]
+2026-08-09 12:34:44 [ACTIVITY] [CHECK 4/4] Sync Engine & Local Replica Check ... [OK]
+2026-08-09 12:34:44,127 [ACTIVITY] [CHECK 4/4] Sync Engine & Local Replica Check ... [OK]
+2026-08-09 12:34:44 [ACTIVITY] Status: ALL CHECKS PASSED. PROCEEDING TO LOGIN/DASHBOARD.
+2026-08-09 12:34:44,128 [ACTIVITY] Status: ALL CHECKS PASSED. PROCEEDING TO LOGIN/DASHBOARD.
+2026-08-09 18:31:09 [INFO] Login attempt initiated for username: 'admin'
+2026-08-09 18:31:09 [WARNING] Authentication rejected by MySQL Stored Procedure 'AuthenticateUser' for user 'admin' (invalid credentials or inactive)
+2026-08-09 18:31:09 [WARNING] Authentication failed via Offline SQLite Replica Repository for user 'admin'
+2026-08-09 18:31:14 [INFO] Login attempt initiated for username: '1'
+2026-08-09 18:31:14 [OK] Authentication verified via MySQL Stored Procedure 'AuthenticateUser' for user '1' (ID: 1, Role: admin)
+2026-08-09 20:16:40 [INFO] Login attempt initiated for username: '1'
+2026-08-09 20:16:40 [OK] Authentication verified via MySQL Stored Procedure 'AuthenticateUser' for user '1' (ID: 1, Role: admin)
+2026-08-09 20:43:35 [INFO] Login attempt initiated for username: 'admin'
+2026-08-09 20:43:35 [WARNING] Authentication rejected by MySQL Stored Procedure 'AuthenticateUser' for user 'admin' (invalid credentials or inactive)
+2026-08-09 20:43:35 [WARNING] Authentication failed via Offline SQLite Replica Repository for user 'admin'
+2026-08-09 20:43:35 [OK] Authentication verified via Local Admin Failsafe for user 'admin'
+2026-08-09 20:43:36 [INFO] Login attempt initiated for username: '1'
+2026-08-09 20:43:36 [OK] Authentication verified via MySQL Stored Procedure 'AuthenticateUser' for user '1' (ID: 1, Role: admin)
+2026-08-09 20:43:44 [INFO] Login attempt initiated for username: '1'
+2026-08-09 20:43:44 [OK] Authentication verified via MySQL Stored Procedure 'AuthenticateUser' for user '1' (ID: 1, Role: admin)
+2026-08-09 20:51:55 [INFO] Login attempt initiated for username: '1'
+2026-08-09 20:51:55 [OK] Authentication verified via MySQL Stored Procedure 'AuthenticateUser' for user '1' (ID: 1, Role: admin)
+2026-08-09 20:52:21 [INFO] Login attempt initiated for username: '1'
+2026-08-09 20:52:21 [OK] Authentication verified via MySQL Stored Procedure 'AuthenticateUser' for user '1' (ID: 1, Role: admin)
+2026-08-09 20:57:13 [INFO] تم تحديث المظهر للمستخدم ID: 1
+2026-08-09 20:57:17 [INFO] تم تحديث المظهر للمستخدم ID: 1
+2026-08-09 21:24:19 [INFO] Login attempt initiated for username: '1'
+2026-08-09 21:24:19 [OK] Authentication verified via MySQL Stored Procedure 'AuthenticateUser' for user '1' (ID: 1, Role: admin)
+2026-08-09 21:24:29 [INFO] تم تحديث المظهر للمستخدم ID: 1
+2026-08-09 21:24:31 [INFO] تم تحديث المظهر للمستخدم ID: 1
+2026-08-09 21:25:41 [INFO] Login attempt initiated for username: '1'
+2026-08-09 21:25:41 [OK] Authentication verified via MySQL Stored Procedure 'AuthenticateUser' for user '1' (ID: 1, Role: admin)
+2026-08-09 21:25:48 [INFO] User 'admin' (ID: 1) logged out successfully using function app_session.logout_user()
+2026-08-09 21:25:52 [INFO] Login attempt initiated for username: '1'
+2026-08-09 21:25:52 [OK] Authentication verified via MySQL Stored Procedure 'AuthenticateUser' for user '1' (ID: 1, Role: admin)
+2026-08-09 21:27:34 [INFO] Login attempt initiated for username: '1'
+2026-08-09 21:27:34 [OK] Authentication verified via MySQL Stored Procedure 'AuthenticateUser' for user '1' (ID: 1, Role: admin)
+2026-08-09 21:27:51 [INFO] تم تحديث المظهر للمستخدم ID: 1
+2026-08-09 21:28:08 [INFO] User 'admin' (ID: 1) logged out successfully using function app_session.logout_user()
+2026-08-09 21:29:34 [INFO] Login attempt initiated for username: '1'
+2026-08-09 21:29:34 [OK] Authentication verified via MySQL Stored Procedure 'AuthenticateUser' for user '1' (ID: 1, Role: admin)
+2026-08-09 21:31:00 [INFO] Login attempt initiated for username: '1'
+2026-08-09 21:31:00 [OK] Authentication verified via MySQL Stored Procedure 'AuthenticateUser' for user '1' (ID: 1, Role: admin)
+2026-08-09 21:32:40 [INFO] تم تحديث المظهر للمستخدم ID: 1
+2026-08-09 21:49:27 [INFO] Login attempt initiated for username: '1'
+2026-08-09 21:49:27 [OK] Authentication verified via MySQL Stored Procedure 'AuthenticateUser' for user '1' (ID: 1, Role: admin)

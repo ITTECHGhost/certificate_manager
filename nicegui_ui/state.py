@@ -11,12 +11,12 @@ log = logging.getLogger(__name__)
 
 
 def log_state(tag: str, data: dict) -> None:
-    """Print clean debug state snapshots to stdout for tracking theme loading and persistence lifecycle."""
+    """Log debug state snapshots to logger instead of dumping print blocks to terminal stdout."""
     try:
         formatted_json = json.dumps(data, indent=2, ensure_ascii=False, default=str)
-        print(f"\n==================== [DEBUG: {tag}] ====================\n{formatted_json}\n=======================================================\n", flush=True)
+        log.debug("[DEBUG: %s] %s", tag, formatted_json)
     except Exception as err:
-        print(f"[DEBUG: {tag}] {data} (Formatting error: {err})", flush=True)
+        log.debug("[DEBUG: %s] %s (Formatting error: %s)", tag, data, err)
 
 
 @dataclass
@@ -39,6 +39,38 @@ class UserSessionState:
         "font_size_base": 13,
         "is_arabic_rtl": 1
     })
+
+    def save(self) -> None:
+        """Persist current state to NiceGUI browser local storage."""
+        try:
+            from nicegui import app
+            app.storage.user['session_state'] = {
+                'emp_id': self.emp_id,
+                'username': self.username,
+                'name_ar': self.name_ar,
+                'name_en': self.name_en,
+                'role': self.role,
+                'is_active': self.is_active,
+                'preferences': self.preferences
+            }
+        except Exception:
+            pass
+
+    def load(self) -> None:
+        """Restore state from NiceGUI browser local storage if available."""
+        try:
+            from nicegui import app
+            state = app.storage.user.get('session_state')
+            if state:
+                self.emp_id = state.get('emp_id', self.emp_id)
+                self.username = state.get('username', self.username)
+                self.name_ar = state.get('name_ar', self.name_ar)
+                self.name_en = state.get('name_en', self.name_en)
+                self.role = state.get('role', self.role)
+                self.is_active = state.get('is_active', self.is_active)
+                self.preferences = state.get('preferences', self.preferences)
+        except Exception:
+            pass
 
     @property
     def theme_mode(self) -> str:
@@ -99,6 +131,7 @@ class UserSessionState:
             self.preferences["is_arabic_rtl"] = is_arabic_rtl
 
         self.apply_theme_mode()
+        self.save()
 
     def login_user(self, user_id: int, user_record: Optional[Dict[str, Any]] = None) -> None:
         """
@@ -156,15 +189,23 @@ class UserSessionState:
             "app_session_preferences": dict(self.preferences),
             "ui_dark_mode_value": dark_mode_val
         })
+        self.save()
 
     def logout_user(self) -> None:
         """Reset active user session data back to default state."""
+        try:
+            from utils.logger import log_activity
+            log_activity(f"User '{self.username}' (ID: {self.emp_id}) logged out successfully using function app_session.logout_user()", "INFO")
+        except Exception:
+            pass
+
         self.emp_id = 1
         self.username = "admin"
         self.name_ar = "مدير النظام"
         self.name_en = "Admin User"
         self.role = "admin"
         self.is_active = False
+        self.save()
 
 
 _current_session: Optional[UserSessionState] = None

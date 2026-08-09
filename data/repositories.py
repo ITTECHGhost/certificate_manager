@@ -6,6 +6,7 @@ import os
 import hashlib
 import logging
 import requests
+from typing import Any
 from api_config import API_URL
 from db import get_connection
 from sync_engine import (
@@ -18,8 +19,16 @@ from sync_engine import (
 
 activity_logger = logging.getLogger("activity")
 
-def log_activity(summary: str) -> None:
-    activity_logger.info(summary)
+def safe_cast(val: Any, target_type: type = int, default_val: Any = 0) -> Any:
+    """Safely cast a value to target_type with default_val fallback on None or cast failure."""
+    if val is None:
+        return default_val
+    try:
+        return target_type(val)
+    except (ValueError, TypeError):
+        return default_val
+
+from utils.logger import log_activity, log_system
 
 
 class OfflineModeError(Exception):
@@ -159,7 +168,7 @@ class SettingsRepository(BaseRepository):
                 return resp.json()
             return {}
         except Exception as e:
-            print(f"API request failed: {e}")
+            log_system(f"API request failed: {e}", "WARNING")
             return {}
 
     def update_settings(self, univ_ar: str, univ_en: str, college_ar: str, college_en: str) -> None:
@@ -178,73 +187,98 @@ class SettingsRepository(BaseRepository):
             else:
                 raise RuntimeError(f"API update failed: {resp.text}")
         except Exception as e:
-            print(f"API request failed: {e}")
+            log_system(f"API request failed: {e}", "WARNING")
             raise
 
     def get_user_appearance(self, emp_id: int) -> dict:
         """
         Fetch appearance preferences tied directly to personnel user via EMP_ID.
-        Auto-creates default theme preferences in settings table if missing.
+        Uses online API routing with automatic fallback to local SQLite cache.
         """
         if not is_online():
             try:
-                row = sqlite_read_one("SELECT * FROM settings WHERE EMP_ID = ?", (emp_id,))
+                row = sqlite_read_one(
+                    "SELECT EMP_ID, theme, accent_color, font_family, font_size_base, is_arabic_rtl FROM settings WHERE EMP_ID = ?",
+                    (emp_id,)
+                )
                 if not row:
-                    conn = get_local_connection()
-                    try:
-                        conn.execute("""
-                            INSERT INTO settings (EMP_ID, theme, accent_color, font_family, font_size_base, is_arabic_rtl)
-                            VALUES (?, 'Dark', 'blue', 'Segoe UI', 13, 1)
-                            ON CONFLICT(EMP_ID) DO NOTHING
-                        """, (emp_id,))
-                        conn.commit()
-                    except Exception as ex:
-                        print(f"[ERROR][SettingsRepository.get_user_appearance] Could not auto-insert default settings offline: {ex}", flush=True)
-                    finally:
-                        conn.close()
-                    row = sqlite_read_one("SELECT * FROM settings WHERE EMP_ID = ?", (emp_id,))
-                return row if row else {
-                    "theme": "Dark",
-                    "accent_color": "blue",
-                    "font_family": "Segoe UI",
-                    "font_size_base": 13,
-                    "is_arabic_rtl": 1,
-                    "EMP_ID": emp_id
+                    return {
+                        "EMP_ID": emp_id,
+                        "theme": "Dark",
+                        "accent_color": "blue",
+                        "font_family": "Segoe UI",
+                        "font_size_base": 13,
+                        "is_arabic_rtl": 1
+                    }
+                return {
+                    "EMP_ID": safe_cast(row.get("EMP_ID", emp_id), int, emp_id),
+                    "theme": str(row.get("theme") or "Dark"),
+                    "accent_color": str(row.get("accent_color") or "blue"),
+                    "font_family": str(row.get("font_family") or "Segoe UI"),
+                    "font_size_base": safe_cast(row.get("font_size_base"), int, 13),
+                    "is_arabic_rtl": safe_cast(row.get("is_arabic_rtl"), int, 1)
                 }
             except Exception as exc:
-                print(f"[ERROR][SettingsRepository.get_user_appearance] Offline SQLite read failed for user {emp_id}: {exc}", flush=True)
+                log_system(f"[ERROR][SettingsRepository.get_user_appearance] Offline SQLite read failed for user {emp_id}: {exc}", "ERROR")
                 return {
+                    "EMP_ID": emp_id,
                     "theme": "Dark",
                     "accent_color": "blue",
                     "font_family": "Segoe UI",
                     "font_size_base": 13,
-                    "is_arabic_rtl": 1,
-                    "EMP_ID": emp_id
+                    "is_arabic_rtl": 1
                 }
 
         try:
             resp = requests.get(f"{self.api_url}/settings/appearance/{emp_id}", timeout=5.0)
             if resp.status_code == 200 and resp.json():
-                return resp.json()
-            print(f"[WARNING][SettingsRepository.get_user_appearance] API returned status {resp.status_code}, creating default user appearance...", flush=True)
-            self.update_user_appearance(emp_id, theme="Dark", accent="blue", font="Segoe UI", size=13, rtl=1)
+                data = resp.json()
+                return {
+                    "EMP_ID": int(data.get("EMP_ID") or emp_id),
+                    "theme": str(data.get("theme") or "Dark"),
+                    "accent_color": str(data.get("accent_color") or "blue"),
+                    "font_family": str(data.get("font_family") or "Segoe UI"),
+                    "font_size_base": int(data.get("font_size_base") or 13),
+                    "is_arabic_rtl": int(data.get("is_arabic_rtl") if data.get("is_arabic_rtl") is not None else 1)
+                }
+            log_system(f"[WARNING][SettingsRepository.get_user_appearance] API status {resp.status_code}, falling back to SQLite...", "WARNING")
+            row = sqlite_read_one("SELECT EMP_ID, theme, accent_color, font_family, font_size_base, is_arabic_rtl FROM settings WHERE EMP_ID = ?", (emp_id,))
+            if row:
+                return {
+                    "EMP_ID": safe_cast(row.get("EMP_ID", emp_id), int, emp_id),
+                    "theme": str(row.get("theme") or "Dark"),
+                    "accent_color": str(row.get("accent_color") or "blue"),
+                    "font_family": str(row.get("font_family") or "Segoe UI"),
+                    "font_size_base": safe_cast(row.get("font_size_base"), int, 13),
+                    "is_arabic_rtl": safe_cast(row.get("is_arabic_rtl"), int, 1)
+                }
             return {
+                "EMP_ID": emp_id,
                 "theme": "Dark",
                 "accent_color": "blue",
                 "font_family": "Segoe UI",
                 "font_size_base": 13,
-                "is_arabic_rtl": 1,
-                "EMP_ID": emp_id
+                "is_arabic_rtl": 1
             }
         except Exception as e:
-            print(f"[ERROR][SettingsRepository.get_user_appearance] API/DB connection failure for user {emp_id}: {e}", flush=True)
+            log_system(f"[ERROR][SettingsRepository.get_user_appearance] API/DB connection failure for user {emp_id}: {e}", "ERROR")
+            row = sqlite_read_one("SELECT EMP_ID, theme, accent_color, font_family, font_size_base, is_arabic_rtl FROM settings WHERE EMP_ID = ?", (emp_id,))
+            if row:
+                return {
+                    "EMP_ID": safe_cast(row.get("EMP_ID", emp_id), int, emp_id),
+                    "theme": str(row.get("theme") or "Dark"),
+                    "accent_color": str(row.get("accent_color") or "blue"),
+                    "font_family": str(row.get("font_family") or "Segoe UI"),
+                    "font_size_base": safe_cast(row.get("font_size_base"), int, 13),
+                    "is_arabic_rtl": safe_cast(row.get("is_arabic_rtl"), int, 1)
+                }
             return {
+                "EMP_ID": emp_id,
                 "theme": "Dark",
                 "accent_color": "blue",
                 "font_family": "Segoe UI",
                 "font_size_base": 13,
-                "is_arabic_rtl": 1,
-                "EMP_ID": emp_id
+                "is_arabic_rtl": 1
             }
 
     def update_user_appearance(self, emp_id: int, theme: str, accent: str, font: str, size: int, rtl: int = 1) -> None:
@@ -266,7 +300,7 @@ class SettingsRepository(BaseRepository):
                 """, (emp_id, theme, accent, font, size, rtl))
                 conn.commit()
             except Exception as exc:
-                print(f"[ERROR][SettingsRepository.update_user_appearance] Offline SQLite update failed for user {emp_id}: {exc}", flush=True)
+                log_system(f"[ERROR][SettingsRepository.update_user_appearance] Offline SQLite update failed for user {emp_id}: {exc}", "ERROR")
                 raise
             finally:
                 conn.close()
@@ -286,7 +320,7 @@ class SettingsRepository(BaseRepository):
             if resp.status_code == 200:
                 log_activity(f"تم تحديث المظهر للمستخدم ID: {emp_id}")
             else:
-                print(f"[WARNING][SettingsRepository.update_user_appearance] API returned status {resp.status_code}: {resp.text}, writing to local cache fallback...", flush=True)
+                log_system(f"[WARNING][SettingsRepository.update_user_appearance] API returned status {resp.status_code}: {resp.text}, writing to local cache fallback...", "WARNING")
                 conn = _get_local_conn()
                 try:
                     conn.execute("""
@@ -304,7 +338,7 @@ class SettingsRepository(BaseRepository):
                     conn.close()
                 log_activity(f"تم تحديث المظهر للمستخدم ID: {emp_id}")
         except Exception as e:
-            print(f"[ERROR][SettingsRepository.update_user_appearance] API/DB connection failure for user {emp_id}: {e}", flush=True)
+            log_system(f"[ERROR][SettingsRepository.update_user_appearance] API/DB connection failure for user {emp_id}: {e}", "ERROR")
             conn = _get_local_conn()
             try:
                 conn.execute("""
@@ -319,7 +353,7 @@ class SettingsRepository(BaseRepository):
                 """, (emp_id, theme, accent, font, size, rtl))
                 conn.commit()
             except Exception as ex:
-                print(f"[ERROR][SettingsRepository.update_user_appearance] Offline SQLite fallback update failed: {ex}", flush=True)
+                log_system(f"[ERROR][SettingsRepository.update_user_appearance] Offline SQLite fallback update failed: {ex}", "ERROR")
             finally:
                 conn.close()
 
@@ -335,7 +369,7 @@ class SettingsRepository(BaseRepository):
             else:
                 raise RuntimeError(f"API clear logs failed: {resp.text}")
         except Exception as e:
-            print(f"API request failed: {e}")
+            log_system(f"API request failed: {e}", "WARNING")
             raise
 
 # ---------------------------------------------------------------------------
@@ -352,7 +386,7 @@ class CountryRepository(BaseRepository):
                 return resp.json()
             return []
         except Exception as e:
-            print(f"API request failed: {e}")
+            log_system(f"API request failed: {e}", "WARNING")
             return []
 
 class GovernorateRepository(BaseRepository):
@@ -365,7 +399,7 @@ class GovernorateRepository(BaseRepository):
                 return resp.json()
             return []
         except Exception as e:
-            print(f"API request failed: {e}")
+            log_system(f"API request failed: {e}", "WARNING")
             return []
 
 class DepartmentRepository(BaseRepository):
@@ -388,7 +422,7 @@ class DepartmentRepository(BaseRepository):
                 return resp.json()
             return []
         except Exception as e:
-            print(f"API request failed: {e}")
+            log_system(f"API request failed: {e}", "WARNING")
             return []
         
     def get_by_id(self, dept_id: int) -> dict | None:
@@ -411,7 +445,7 @@ class DepartmentRepository(BaseRepository):
                 return resp.json()
             return None
         except Exception as e:
-            print(f"API request failed: {e}")
+            log_system(f"API request failed: {e}", "WARNING")
             return None
 
     def insert(self, name_ar: str, name_en: str, uni_settings_id: int = 1, **_ignored) -> int:
@@ -431,7 +465,7 @@ class DepartmentRepository(BaseRepository):
             else:
                 raise RuntimeError(f"API insert failed: {resp.text}")
         except Exception as e:
-            print(f"API request failed: {e}")
+            log_system(f"API request failed: {e}", "WARNING")
             raise
 
     def update(self, dept_id: int, name_ar: str, name_en: str, uni_settings_id: int = 1, **_ignored) -> None:
@@ -451,7 +485,7 @@ class DepartmentRepository(BaseRepository):
             else:
                 raise RuntimeError(f"API update failed: {resp.text}")
         except Exception as e:
-            print(f"API request failed: {e}")
+            log_system(f"API request failed: {e}", "WARNING")
             raise
 
     def delete(self, dept_id: int) -> None:
@@ -466,7 +500,7 @@ class DepartmentRepository(BaseRepository):
             else:
                 raise RuntimeError(f"API delete failed: {resp.text}")
         except Exception as e:
-            print(f"API request failed: {e}")
+            log_system(f"API request failed: {e}", "WARNING")
             raise
 
 # ---------------------------------------------------------------------------
@@ -483,7 +517,7 @@ class StudySystemRepository(BaseRepository):
                 return resp.json()
             return []
         except Exception as e:
-            print(f"API request failed: {e}")
+            log_system(f"API request failed: {e}", "WARNING")
             return []
         
     def get_active(self) -> list[dict]:
@@ -495,7 +529,7 @@ class StudySystemRepository(BaseRepository):
                 return resp.json()
             return []
         except Exception as e:
-            print(f"API request failed: {e}")
+            log_system(f"API request failed: {e}", "WARNING")
             return []
         
     def get_by_id(self, system_id: int) -> dict | None:
@@ -507,7 +541,7 @@ class StudySystemRepository(BaseRepository):
                 return resp.json()
             return None
         except Exception as e:
-            print(f"API request failed: {e}")
+            log_system(f"API request failed: {e}", "WARNING")
             return None
 
     def insert(self, name_ar: str, name_en: str, calc_rule: str, period_display: str = 'year', calculation_weights: str = None) -> int:
@@ -530,7 +564,7 @@ class StudySystemRepository(BaseRepository):
             else:
                 raise RuntimeError(f"API insert failed: {resp.text}")
         except Exception as e:
-            print(f"API request failed: {e}")
+            log_system(f"API request failed: {e}", "WARNING")
             raise
 
     def update(self, sys_id: int, name_ar: str, name_en: str, calc_rule: str, period_display: str = 'year', calculation_weights: str = None, **_ignored) -> None:
@@ -558,7 +592,7 @@ class StudySystemRepository(BaseRepository):
             else:
                 raise RuntimeError(f"API update failed: {resp.text}")
         except Exception as e:
-            print(f"API request failed: {e}")
+            log_system(f"API request failed: {e}", "WARNING")
             raise
 
     def toggle(self, sys_id: int, new_status: int) -> None:
@@ -569,7 +603,7 @@ class StudySystemRepository(BaseRepository):
             if resp.status_code != 200:
                 raise RuntimeError(f"API toggle failed: {resp.text}")
         except Exception as e:
-            print(f"API request failed: {e}")
+            log_system(f"API request failed: {e}", "WARNING")
             raise
 
     def delete(self, sys_id: int) -> None:
@@ -584,7 +618,7 @@ class StudySystemRepository(BaseRepository):
             else:
                 raise RuntimeError(f"API delete failed: {resp.text}")
         except Exception as e:
-            print(f"API request failed: {e}")
+            log_system(f"API request failed: {e}", "WARNING")
             raise
 
 # ---------------------------------------------------------------------------
@@ -601,7 +635,7 @@ class PersonnelRepository(BaseRepository):
                 return resp.json()
             return []
         except Exception as e:
-            print(f"API request failed: {e}")
+            log_system(f"API request failed: {e}", "WARNING")
             return []
         
     def get_active(self) -> list[dict]:
@@ -613,7 +647,7 @@ class PersonnelRepository(BaseRepository):
                 return resp.json()
             return []
         except Exception as e:
-            print(f"API request failed: {e}")
+            log_system(f"API request failed: {e}", "WARNING")
             return []
 
     def authenticate(self, username: str, password_hash: str) -> dict | None:
@@ -634,7 +668,7 @@ class PersonnelRepository(BaseRepository):
                 return result
             return None
         except Exception as e:
-            print(f"API request failed: {e}")
+            log_system(f"API request failed: {e}", "WARNING")
             return None
 
     def insert(self, data: dict) -> int:
@@ -665,7 +699,7 @@ class PersonnelRepository(BaseRepository):
             else:
                 raise RuntimeError(f"API insert failed: {resp.text}")
         except Exception as e:
-            print(f"API request failed: {e}")
+            log_system(f"API request failed: {e}", "WARNING")
             raise
         
     def update(self, person_id: int, data: dict) -> None:
@@ -694,7 +728,7 @@ class PersonnelRepository(BaseRepository):
             else:
                 raise RuntimeError(f"API update failed: {resp.text}")
         except Exception as e:
-            print(f"API request failed: {e}")
+            log_system(f"API request failed: {e}", "WARNING")
             raise
 
     def toggle_active(self, person_id: int, is_active: int) -> None:
@@ -705,7 +739,7 @@ class PersonnelRepository(BaseRepository):
             if resp.status_code != 200:
                 raise RuntimeError(f"API toggle failed: {resp.text}")
         except Exception as e:
-            print(f"API request failed: {e}")
+            log_system(f"API request failed: {e}", "WARNING")
             raise
         
     def delete(self, person_id: int) -> None:
@@ -718,7 +752,7 @@ class PersonnelRepository(BaseRepository):
             else:
                 raise RuntimeError(f"API delete failed: {resp.text}")
         except Exception as e:
-            print(f"API request failed: {e}")
+            log_system(f"API request failed: {e}", "WARNING")
             raise
 
 # ---------------------------------------------------------------------------
@@ -740,7 +774,7 @@ class CourseRepository(BaseRepository):
                 return resp.json()
             raise RuntimeError(f"API returned status code {resp.status_code}")
         except Exception as e:
-            print(f"API request failed: {e}. Falling back to SQLite cache.")
+            log_system(f"API request failed: {e}. Falling back to SQLite cache.", "WARNING")
             return sqlite_read_all(
                 "SELECT c.*, d.name_ar AS dept_name_ar, d.name_en AS dept_name_en "
                 "FROM courses c "
@@ -763,7 +797,7 @@ class CourseRepository(BaseRepository):
                 return resp.json()
             raise RuntimeError(f"API returned status code {resp.status_code}")
         except Exception as e:
-            print(f"API request failed: {e}. Falling back to SQLite cache.")
+            log_system(f"API request failed: {e}. Falling back to SQLite cache.", "WARNING")
             return sqlite_read_all(
                 "SELECT c.id, c.name_ar, c.name_en, c.credit_hours, c.department_id, c.stage_number "
                 "FROM courses c "
@@ -790,7 +824,7 @@ class CourseRepository(BaseRepository):
                 return resp.json()
             raise RuntimeError(f"API returned status code {resp.status_code}")
         except Exception as e:
-            print(f"API request failed: {e}. Falling back to SQLite cache.")
+            log_system(f"API request failed: {e}. Falling back to SQLite cache.", "WARNING")
             return sqlite_read_all(
                 "SELECT id, name_ar, name_en, credit_hours, stage_number FROM courses "
                 "WHERE department_id = ? AND stage_number <= ? "
@@ -819,7 +853,7 @@ class CourseRepository(BaseRepository):
             else:
                 raise RuntimeError(f"API insert failed: {resp.text}")
         except Exception as e:
-            print(f"API request failed: {e}")
+            log_system(f"API request failed: {e}", "WARNING")
             raise
 
     def update(self, course_id: int, data: dict) -> None:
@@ -838,7 +872,7 @@ class CourseRepository(BaseRepository):
             else:
                 raise RuntimeError(f"API update failed: {resp.text}")
         except Exception as e:
-            print(f"API request failed: {e}")
+            log_system(f"API request failed: {e}", "WARNING")
             raise
 
     def delete(self, course_id: int) -> None:
@@ -851,7 +885,7 @@ class CourseRepository(BaseRepository):
             else:
                 raise RuntimeError(f"API delete failed: {resp.text}")
         except Exception as e:
-            print(f"API request failed: {e}")
+            log_system(f"API request failed: {e}", "WARNING")
             raise
 
 
@@ -886,7 +920,7 @@ class StudentRepository(BaseRepository):
                                     "postgraduation_number": sdata.get("postgraduation_number")
                                 }
                         except Exception as e:
-                            print(f"API supplemental fetch failed for {sid}: {e}")
+                            log_system(f"API supplemental fetch failed for {sid}: {e}", "WARNING")
                 else:
                     conn = get_local_connection()
                     cursor = conn.cursor()
@@ -906,7 +940,7 @@ class StudentRepository(BaseRepository):
                         s["postgraduation_number"] = supp_data[sid].get("postgraduation_number")
                         
             except Exception as e:
-                print(f"Supplemental fetch failed: {e}")
+                log_system(f"Supplemental fetch failed: {e}", "WARNING")
                 
         return students_list
 
@@ -955,7 +989,7 @@ class StudentRepository(BaseRepository):
                 else:
                     res = []
             except Exception as e:
-                print(f"API request failed: {e}")
+                log_system(f"API request failed: {e}", "WARNING")
                 res = []
         return self._inject_missing_graduation_numbers(res)
         
@@ -992,7 +1026,7 @@ class StudentRepository(BaseRepository):
                 else:
                     res = None
             except Exception as e:
-                print(f"API request failed: {e}")
+                log_system(f"API request failed: {e}", "WARNING")
                 res = None
         if res:
             res = self._inject_missing_graduation_numbers([res])[0]
@@ -1055,7 +1089,7 @@ class StudentRepository(BaseRepository):
                 else:
                     res = []
             except Exception as e:
-                print(f"API request failed: {e}")
+                log_system(f"API request failed: {e}", "WARNING")
                 res = []
                 
         # 4. Map back to standard dict format and inject missing numbers
@@ -1113,7 +1147,7 @@ class StudentRepository(BaseRepository):
             else:
                 row = {"total_count": 0}
         except Exception as e:
-            print(f"API request failed: {e}")
+            log_system(f"API request failed: {e}", "WARNING")
             row = {"total_count": 0}
         return row['total_count'] if row else 0
  
@@ -1132,7 +1166,7 @@ class StudentRepository(BaseRepository):
                 return resp.json()
             return []
         except Exception as e:
-            print(f"API request failed: {e}")
+            log_system(f"API request failed: {e}", "WARNING")
             return []
  
     def unlink_from_order(self, student_id: int) -> None:
@@ -1145,7 +1179,7 @@ class StudentRepository(BaseRepository):
             else:
                 raise RuntimeError(f"API unlink failed: {resp.text}")
         except Exception as e:
-            print(f"API request failed: {e}")
+            log_system(f"API request failed: {e}", "WARNING")
             raise
  
     def link_students_to_order(self, order_id: int, order_data: dict) -> int:
@@ -1162,7 +1196,7 @@ class StudentRepository(BaseRepository):
             else:
                 raise RuntimeError(f"API link failed: {resp.text}")
         except Exception as e:
-            print(f"API request failed: {e}")
+            log_system(f"API request failed: {e}", "WARNING")
             raise
 
     def link_to_order(self, student_id: int, order_id: int) -> None:
@@ -1175,7 +1209,7 @@ class StudentRepository(BaseRepository):
             else:
                 raise RuntimeError(f"API single link failed: {resp.text}")
         except Exception as e:
-            print(f"API request failed: {e}")
+            log_system(f"API request failed: {e}", "WARNING")
             raise
  
     def search_for_order(self, name_query: str = "", admission_year: str | int | None = None, department_id: int = None, limit: int = 50, offset: int = 0) -> list[dict]:
@@ -1200,7 +1234,7 @@ class StudentRepository(BaseRepository):
                 return resp.json()
             return []
         except Exception as e:
-            print(f"API request failed: {e}")
+            log_system(f"API request failed: {e}", "WARNING")
             return []
  
     def insert(self, data: dict) -> int:
@@ -1236,7 +1270,7 @@ class StudentRepository(BaseRepository):
             else:
                 raise RuntimeError(f"API insert failed: {resp.text}")
         except Exception as e:
-            print(f"API request failed: {e}")
+            log_system(f"API request failed: {e}", "WARNING")
             raise
         
     def update(self, student_id: int, data: dict) -> None:
@@ -1269,7 +1303,7 @@ class StudentRepository(BaseRepository):
             else:
                 raise RuntimeError(f"API update failed: {resp.text}")
         except Exception as e:
-            print(f"API request failed: {e}")
+            log_system(f"API request failed: {e}", "WARNING")
             raise
  
     def delete(self, student_id: int) -> None:
@@ -1297,7 +1331,7 @@ class AcademicPeriodRepository(BaseRepository):
                 return resp.json()
             return []
         except Exception as e:
-            print(f"API request failed: {e}")
+            log_system(f"API request failed: {e}", "WARNING")
             return []
 
     def insert(self, student_id: int, year: str, sys_id: int, stage: int, semester_num: int = 1) -> int:
@@ -1323,7 +1357,7 @@ class AcademicPeriodRepository(BaseRepository):
             else:
                 raise RuntimeError(f"API insert failed: {resp.text}")
         except Exception as e:
-            print(f"API request failed: {e}")
+            log_system(f"API request failed: {e}", "WARNING")
             raise
 
     def delete(self, period_id: int) -> None:
@@ -1334,7 +1368,7 @@ class AcademicPeriodRepository(BaseRepository):
             if resp.status_code != 200:
                 raise RuntimeError(f"API delete failed: {resp.text}")
         except Exception as e:
-            print(f"API request failed: {e}")
+            log_system(f"API request failed: {e}", "WARNING")
             raise
 
 class EnrollmentRepository(BaseRepository):
@@ -1360,7 +1394,7 @@ class EnrollmentRepository(BaseRepository):
                 return resp.json()
             return []
         except Exception as e:
-            print(f"API request failed: {e}")
+            log_system(f"API request failed: {e}", "WARNING")
             return []
 
 
@@ -1392,7 +1426,7 @@ class EnrollmentRepository(BaseRepository):
             else:
                 raise RuntimeError(f"API insert failed: {resp.text}")
         except Exception as e:
-            print(f"API request failed: {e}")
+            log_system(f"API request failed: {e}", "WARNING")
             raise
 
     def update(self, enrollment_id: int, score: float, is_second: int) -> None:
@@ -1407,7 +1441,7 @@ class EnrollmentRepository(BaseRepository):
             if resp.status_code != 200:
                 raise RuntimeError(f"API update failed: {resp.text}")
         except Exception as e:
-            print(f"API request failed: {e}")
+            log_system(f"API request failed: {e}", "WARNING")
             raise
 
     def delete(self, enrollment_id: int) -> None:
@@ -1418,7 +1452,7 @@ class EnrollmentRepository(BaseRepository):
             if resp.status_code != 200:
                 raise RuntimeError(f"API delete failed: {resp.text}")
         except Exception as e:
-            print(f"API request failed: {e}")
+            log_system(f"API request failed: {e}", "WARNING")
             raise
 
 # ---------------------------------------------------------------------------
@@ -1555,7 +1589,7 @@ class CertificateRepository(BaseRepository):
             else:
                 return None
         except Exception as e:
-            print(f"API request failed: {e}")
+            log_system(f"API request failed: {e}", "WARNING")
             return None
         
         if not rowsets or not rowsets[0]:
@@ -1626,7 +1660,7 @@ class GraduationOrderRepository(BaseRepository):
                 return resp.json()
             return []
         except Exception as e:
-            print(f"API request failed: {e}")
+            log_system(f"API request failed: {e}", "WARNING")
             return []
 
     def get_by_id(self, order_id: int) -> dict | None:
@@ -1644,7 +1678,7 @@ class GraduationOrderRepository(BaseRepository):
                 return resp.json()
             return None
         except Exception as e:
-            print(f"API request failed: {e}")
+            log_system(f"API request failed: {e}", "WARNING")
             return None
 
     def insert(self, data: dict) -> int:
@@ -1683,7 +1717,7 @@ class GraduationOrderRepository(BaseRepository):
             else:
                 raise RuntimeError(f"API insert failed: {resp.text}")
         except Exception as e:
-            print(f"API request failed: {e}")
+            log_system(f"API request failed: {e}", "WARNING")
             raise
 
     def update(self, order_id: int, data: dict) -> None:
@@ -1721,7 +1755,7 @@ class GraduationOrderRepository(BaseRepository):
             else:
                 raise RuntimeError(f"API update failed: {resp.text}")
         except Exception as e:
-            print(f"API request failed: {e}")
+            log_system(f"API request failed: {e}", "WARNING")
             raise
 
     def delete(self, order_id: int) -> None:
@@ -1736,7 +1770,7 @@ class GraduationOrderRepository(BaseRepository):
             else:
                 raise RuntimeError(f"API delete failed: {resp.text}")
         except Exception as e:
-            print(f"API request failed: {e}")
+            log_system(f"API request failed: {e}", "WARNING")
             raise
 
     def get_students_for_order(self, order_id: int) -> list[dict]:
@@ -1758,7 +1792,7 @@ class GraduationOrderRepository(BaseRepository):
                 return resp.json()
             return []
         except Exception as e:
-            print(f"API request failed: {e}")
+            log_system(f"API request failed: {e}", "WARNING")
             return []
 
     def link_students(self, order_id: int) -> int:
@@ -1778,7 +1812,7 @@ class GraduationOrderRepository(BaseRepository):
                 return count
             return 0
         except Exception as e:
-            print(f"API request failed: {e}")
+            log_system(f"API request failed: {e}", "WARNING")
             return 0
 
     def unlink_student(self, student_id: int) -> None:
@@ -1793,7 +1827,7 @@ class GraduationOrderRepository(BaseRepository):
             else:
                 raise RuntimeError(f"API unlink failed: {resp.text}")
         except Exception as e:
-            print(f"API request failed: {e}")
+            log_system(f"API request failed: {e}", "WARNING")
             raise
 
 # ---------------------------------------------------------------------------
@@ -1809,7 +1843,7 @@ class ThesisRepository(BaseRepository):
                 return resp.json()
             return []
         except Exception as e:
-            print(f"API request failed: {e}")
+            log_system(f"API request failed: {e}", "WARNING")
             return []
 
     def insert(self, student_id: int, title_ar: str, title_en: str, defense_date: str = None, committee_decision: str = None, final_grade: float = None) -> int:
@@ -1835,7 +1869,7 @@ class ThesisRepository(BaseRepository):
             else:
                 raise RuntimeError(f"API insert failed: {resp.text}")
         except Exception as e:
-            print(f"API request failed: {e}")
+            log_system(f"API request failed: {e}", "WARNING")
             raise
 
     def update(self, thesis_id: int, title_ar: str, title_en: str, defense_date: str = None, committee_decision: str = None, final_grade: float = None) -> None:
@@ -1859,7 +1893,7 @@ class ThesisRepository(BaseRepository):
             else:
                 raise RuntimeError(f"API update failed: {resp.text}")
         except Exception as e:
-            print(f"API request failed: {e}")
+            log_system(f"API request failed: {e}", "WARNING")
             raise
 
     def delete(self, thesis_id: int) -> None:
@@ -1874,7 +1908,7 @@ class ThesisRepository(BaseRepository):
             else:
                 raise RuntimeError(f"API delete failed: {resp.text}")
         except Exception as e:
-            print(f"API request failed: {e}")
+            log_system(f"API request failed: {e}", "WARNING")
             raise
 
     def save(self, student_id: int, title_ar: str, title_en: str, defense_date: str = None, committee_decision: str = None, final_grade: float = None) -> None:
@@ -1898,7 +1932,7 @@ class StudentSupervisorRepository(BaseRepository):
                 return resp.json()
             return []
         except Exception as e:
-            print(f"API request failed: {e}")
+            log_system(f"API request failed: {e}", "WARNING")
             return []
 
     def insert(self, student_id: int, personnel_id: int, supervision_role: str) -> int:
@@ -1920,7 +1954,7 @@ class StudentSupervisorRepository(BaseRepository):
             else:
                 raise RuntimeError(f"API insert failed: {resp.text}")
         except Exception as e:
-            print(f"API request failed: {e}")
+            log_system(f"API request failed: {e}", "WARNING")
             raise
 
     def update(self, record_id: int, personnel_id: int, supervision_role: str) -> None:
@@ -1940,7 +1974,7 @@ class StudentSupervisorRepository(BaseRepository):
             else:
                 raise RuntimeError(f"API update failed: {resp.text}")
         except Exception as e:
-            print(f"API request failed: {e}")
+            log_system(f"API request failed: {e}", "WARNING")
             raise
 
     def delete(self, record_id: int) -> None:
@@ -1955,7 +1989,7 @@ class StudentSupervisorRepository(BaseRepository):
             else:
                 raise RuntimeError(f"API delete failed: {resp.text}")
         except Exception as e:
-            print(f"API request failed: {e}")
+            log_system(f"API request failed: {e}", "WARNING")
             raise
 
 # ---------------------------------------------------------------------------
@@ -2044,7 +2078,7 @@ class DashboardRepository(BaseRepository):
             
         except Exception as e:
             # 3. Failsafe: Fall back to SQLite if the server is unreachable
-            print(f"API request failed: {e}. Falling back to SQLite cache.")
+            log_system(f"API request failed: {e}. Falling back to SQLite cache.", "WARNING")
             row = sqlite_read_one(fallback_query)
             return dict(row) if row else {"total_students": 0, "total_departments": 0, "total_courses": 0, "total_personnel": 0}
 
