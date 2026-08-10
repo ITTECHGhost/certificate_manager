@@ -19897,3 +19897,9 @@ _tkinter.TclError: bad window path name ".!loginscreen.!ctkframe2.!ctkframe.!ctk
 2026-08-09 21:49:11 [OK] [CHECK 3/4] Authentication & Core SP Checks ... [OK]
 2026-08-09 21:49:11 [OK] [CHECK 4/4] Sync Engine & Local Replica Check ... [OK]
 2026-08-09 21:49:11 [OK] Status: ALL CHECKS PASSED. PROCEEDING TO LOGIN/DASHBOARD.
+2026-08-10 08:43:55 [INFO] SYSTEM STARTUP DIAGNOSTIC CHECK STARTED
+2026-08-10 08:43:57 [WARNING] [CHECK 1/4] FastAPI Connection Check ... [OFFLINE MODE]
+2026-08-10 08:43:57 [OK] [CHECK 2/4] SQLite Replica Database Connection ... [OK]
+2026-08-10 08:43:57 [OK] [CHECK 3/4] Authentication & Core SP Checks ... [OFFLINE MODE]
+2026-08-10 08:43:57 [OK] [CHECK 4/4] Sync Engine & Local Replica Check ... [OK]
+2026-08-10 08:43:57 [OK] Status: OFFLINE MODE ACTIVE. PROCEEDING TO LOGIN/DASHBOARD.

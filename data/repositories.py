@@ -2013,7 +2013,7 @@ class SupervisorRepository(BaseRepository):
 # ---------------------------------------------------------------------------
 class AuditRepository(BaseRepository):
     def _read_activity_logs(self) -> list[dict]:
-        log_path = "activity_log.txt"
+        log_path = os.path.join("logs", "activity_log.txt")
         if not os.path.exists(log_path):
             return []
         logs = []
@@ -2045,7 +2045,8 @@ class AuditRepository(BaseRepository):
 
     def clear_audit_logs(self) -> None:
         try:
-            with open("activity_log.txt", "w", encoding="utf-8") as f:
+            log_path = os.path.join("logs", "activity_log.txt")
+            with open(log_path, "w", encoding="utf-8") as f:
                 f.write("")
         except Exception:
             pass

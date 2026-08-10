@@ -35,8 +35,9 @@ def log_system(msg: str, level: str = "INFO") -> None:
     tag, color = _format_level(level)
     log_line = f"{dt_str} {tag} {msg}"
 
+    log_path = os.path.join("logs", "system_log.txt")
     try:
-        with open("system_log.txt", "a", encoding="utf-8") as f:
+        with open(log_path, "a", encoding="utf-8") as f:
             f.write(log_line + "\n")
     except Exception:
         pass
@@ -53,8 +54,9 @@ def log_activity(msg: str, level: str = "INFO") -> None:
     tag, color = _format_level(level)
     log_line = f"{dt_str} {tag} {msg}"
 
+    log_path = os.path.join("logs", "activity_log.txt")
     try:
-        with open("activity_log.txt", "a", encoding="utf-8") as f:
+        with open(log_path, "a", encoding="utf-8") as f:
             f.write(log_line + "\n")
     except Exception:
         pass
