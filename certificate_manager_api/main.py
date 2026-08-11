@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException, Depends
+from fastapi import FastAPI, HTTPException, Depends, APIRouter, status, Query
 from pydantic import BaseModel
 from typing import List, Dict, Any, Optional, Union
 import mysql.connector
@@ -25,6 +25,8 @@ async def lifespan(app: FastAPI):
     yield
 
 app = FastAPI(title="Certificate Manager API", lifespan=lifespan)
+router = APIRouter()
+app.include_router(router)
 
 
 # Database Configuration (supports overrides from environment variables)
@@ -109,6 +111,74 @@ def get_db():
 def ping():
     """Health check endpoint to verify database server connectivity/status."""
     return {"status": "online"}
+
+def decode_db_value(obj: Any) -> Any:
+    """Recursively decode bytes or bytearray values to UTF-8 strings."""
+    if isinstance(obj, (bytes, bytearray)):
+        return obj.decode("utf-8")
+    elif isinstance(obj, dict):
+        return {k: decode_db_value(v) for k, v in obj.items()}
+    elif isinstance(obj, list):
+        return [decode_db_value(v) for v in obj]
+    elif isinstance(obj, tuple):
+        return tuple(decode_db_value(v) for v in obj)
+    return obj
+
+
+def execute_sp_fetchall(conn, sp_name: str, args: tuple = ()) -> List[Dict[str, Any]]:
+    """
+    Execute a stored procedure and fetch all rows across all result sets,
+    fully consuming cursor result sets (nextset) and decoding any byte payloads.
+    """
+    cur = conn.cursor(dictionary=True)
+    try:
+        cur.callproc(sp_name, args)
+        rows = []
+        if hasattr(cur, "stored_results"):
+            for result_set in cur.stored_results():
+                rows.extend(result_set.fetchall())
+        else:
+            rows = cur.fetchall()
+
+        try:
+            while cur.nextset():
+                pass
+        except Exception:
+            pass
+
+        return decode_db_value(rows)
+    finally:
+        cur.close()
+
+
+def execute_sp_fetchone(conn, sp_name: str, args: tuple = ()) -> Optional[Dict[str, Any]]:
+    """
+    Execute a stored procedure and fetch the first matching row,
+    draining all cursor result sets and decoding any byte payloads.
+    """
+    cur = conn.cursor(dictionary=True)
+    try:
+        cur.callproc(sp_name, args)
+        row = None
+        if hasattr(cur, "stored_results"):
+            for result_set in cur.stored_results():
+                r = result_set.fetchone()
+                if r:
+                    row = r
+                    break
+        else:
+            row = cur.fetchone()
+
+        try:
+            while cur.nextset():
+                pass
+        except Exception:
+            pass
+
+        return decode_db_value(row) if row else None
+    finally:
+        cur.close()
+
 
 def resolve_payload_fks(payload: dict, id_map: dict) -> dict:
     """Resolve temporary IDs (negative integers) to real database auto-increment IDs."""
@@ -227,49 +297,63 @@ def get_students_paginated(
     conn = Depends(get_db)
 ):
     """Call GetStudentsPaginated SP on the database."""
-    cur = conn.cursor(dictionary=True)
     try:
-        cur.callproc("GetStudentsPaginated", (limit, offset, name_query, dept_id, year))
-        rows = []
-        for result in cur.stored_results():
-            rows.extend(result.fetchall())
-        return rows
+        return execute_sp_fetchall(conn, "GetStudentsPaginated", (limit, offset, name_query, dept_id, year))
     except Exception as exc:
         logger.error(f"Error fetching paginated students: {exc}")
         raise HTTPException(status_code=500, detail=str(exc))
-    finally:
-        cur.close()
+
+class StudentSearchResponse(BaseModel):
+    student_id: int
+    name_ar: Optional[str] = ""
+    name_en: Optional[str] = ""
+    department_name_ar: Optional[str] = ""
+    graduation_year: Optional[str] = ""
+    average: Optional[float] = 0.0
+
+@router.get("/students/search", response_model=List[StudentSearchResponse])
+def search_students_paginated(
+    query: str = Query("", description="Search term (Arabic or English)"),
+    limit: int = Query(25, description="Rows per page (25, 50, 100)"),
+    offset: int = Query(0, description="Pagination offset"),
+    conn = Depends(get_db)
+):
+    try:
+        raw_rows = execute_sp_fetchall(conn, "SearchStudentsPaginated", (query.strip(), limit, offset))
+        results = []
+        for row in raw_rows:
+            if isinstance(row, dict):
+                # Normalize column aliases if present in SP output
+                if "id" in row and "student_id" not in row:
+                    row["student_id"] = row["id"]
+                if "full_name_ar" in row and "name_ar" not in row:
+                    row["name_ar"] = row["full_name_ar"]
+                if "full_name_en" in row and "name_en" not in row:
+                    row["name_en"] = row["full_name_en"]
+                if "dept_name_ar" in row and "department_name_ar" not in row:
+                    row["department_name_ar"] = row["dept_name_ar"]
+                if "admission_year" in row and "graduation_year" not in row:
+                    row["graduation_year"] = str(row["admission_year"])
+                results.append(row)
+        return results
+    except Exception as exc:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, 
+            detail=f"Database execution error: {str(exc)}"
+        )
 
 @app.get("/students/search/basic")
-def search_students_basic(query: str, limit: int = 50, db = Depends(get_db)):
-    cursor = db.cursor(dictionary=True)
+def search_students_basic(query: str, limit: int = 50, conn = Depends(get_db)):
     try:
-        # Execute the Stored Procedure
-        cursor.callproc("SearchStudentsBasic", (query, limit))
-        
-        # Fetch the results from the procedure's output
-        results = []
-        for result_set in cursor.stored_results():
-            results.extend(result_set.fetchall())
-            
-        return results
+        return execute_sp_fetchall(conn, "SearchStudentsBasic", (query, limit))
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
-    finally:
-        cursor.close()
 
 @app.get("/students/{student_id}")
 def get_student_by_id(student_id: int, conn = Depends(get_db)):
     """Call GetStudentDossierByID SP on the database."""
-    cur = conn.cursor(dictionary=True)
     try:
-        cur.callproc("GetStudentDossierByID", (student_id,))
-        row = None
-        for result in cur.stored_results():
-            r = result.fetchone()
-            if r:
-                row = r
-                break
+        row = execute_sp_fetchone(conn, "GetStudentDossierByID", (student_id,))
         if not row:
             raise HTTPException(status_code=404, detail="Student not found")
         return row
@@ -278,24 +362,15 @@ def get_student_by_id(student_id: int, conn = Depends(get_db)):
     except Exception as exc:
         logger.error(f"Error fetching student dossier: {exc}")
         raise HTTPException(status_code=500, detail=str(exc))
-    finally:
-        cur.close()
 
 @app.get("/students/search/all")
-def search_students(query: str, limit: int = 8, conn = Depends(get_db)):
+def search_students_all(query: str, limit: int = 8, conn = Depends(get_db)):
     """Call SearchStudentsBasic SP on the database."""
-    cur = conn.cursor(dictionary=True)
     try:
-        cur.callproc("SearchStudentsBasic", (query, limit))
-        rows = []
-        for result in cur.stored_results():
-            rows.extend(result.fetchall())
-        return rows
+        return execute_sp_fetchall(conn, "SearchStudentsBasic", (query, limit))
     except Exception as exc:
         logger.error(f"Error searching students: {exc}")
         raise HTTPException(status_code=500, detail=str(exc))
-    finally:
-        cur.close()
 
 @app.get("/students/count/all")
 def count_students(
@@ -305,35 +380,21 @@ def count_students(
     conn = Depends(get_db)
 ):
     """Call CountStudentsFiltered SP on the database."""
-    cur = conn.cursor(dictionary=True)
     try:
-        cur.callproc("CountStudentsFiltered", (name_query, dept_id, year))
-        row = None
-        for result in cur.stored_results():
-            row = result.fetchone()
-            break
+        row = execute_sp_fetchone(conn, "CountStudentsFiltered", (name_query, dept_id, year))
         return row or {"total_count": 0}
     except Exception as exc:
         logger.error(f"Error counting students: {exc}")
         raise HTTPException(status_code=500, detail=str(exc))
-    finally:
-        cur.close()
 
 @app.get("/students/by-order/{order_id}")
 def get_students_by_order(order_id: int, conn = Depends(get_db)):
     """Call GetStudentsByOrder SP on the database."""
-    cur = conn.cursor(dictionary=True)
     try:
-        cur.callproc("GetStudentsByOrder", (order_id,))
-        rows = []
-        for result in cur.stored_results():
-            rows.extend(result.fetchall())
-        return rows
+        return execute_sp_fetchall(conn, "GetStudentsByOrder", (order_id,))
     except Exception as exc:
         logger.error(f"Error fetching students by order: {exc}")
         raise HTTPException(status_code=500, detail=str(exc))
-    finally:
-        cur.close()
 
 @app.get("/students/distinct/years")
 def get_distinct_admission_years(conn = Depends(get_db)):
@@ -492,27 +553,15 @@ class DepartmentPayload(BaseModel):
 
 @app.get("/departments")
 def get_departments(conn = Depends(get_db)):
-    cur = conn.cursor(dictionary=True)
     try:
-        cur.callproc("GetAllDepartments")
-        rows = []
-        for result in cur.stored_results():
-            rows.extend(result.fetchall())
-        return rows
+        return execute_sp_fetchall(conn, "GetAllDepartments")
     except Exception as exc:
         raise HTTPException(status_code=500, detail=str(exc))
-    finally:
-        cur.close()
 
 @app.get("/departments/{dept_id}")
 def get_department(dept_id: int, conn = Depends(get_db)):
-    cur = conn.cursor(dictionary=True)
     try:
-        cur.callproc("GetDepartmentByID", (dept_id,))
-        row = None
-        for result in cur.stored_results():
-            row = result.fetchone()
-            break
+        row = execute_sp_fetchone(conn, "GetDepartmentByID", (dept_id,))
         if not row:
             raise HTTPException(status_code=404, detail="Department not found")
         return row
@@ -520,8 +569,6 @@ def get_department(dept_id: int, conn = Depends(get_db)):
         raise
     except Exception as exc:
         raise HTTPException(status_code=500, detail=str(exc))
-    finally:
-        cur.close()
 
 @app.post("/departments")
 def insert_department(payload: DepartmentPayload, conn = Depends(get_db)):
@@ -582,41 +629,22 @@ class StudySystemPayload(BaseModel):
 
 @app.get("/study-systems")
 def get_study_systems(conn = Depends(get_db)):
-    cur = conn.cursor(dictionary=True)
     try:
-        cur.callproc("GetAllStudySystems")
-        rows = []
-        for result in cur.stored_results():
-            rows.extend(result.fetchall())
-        return rows
+        return execute_sp_fetchall(conn, "GetAllStudySystems")
     except Exception as exc:
         raise HTTPException(status_code=500, detail=str(exc))
-    finally:
-        cur.close()
 
 @app.get("/study-systems/active")
 def get_active_study_systems(conn = Depends(get_db)):
-    cur = conn.cursor(dictionary=True)
     try:
-        cur.callproc("GetActiveStudySystems")
-        rows = []
-        for result in cur.stored_results():
-            rows.extend(result.fetchall())
-        return rows
+        return execute_sp_fetchall(conn, "GetActiveStudySystems")
     except Exception as exc:
         raise HTTPException(status_code=500, detail=str(exc))
-    finally:
-        cur.close()
 
 @app.get("/study-systems/{sys_id}")
 def get_study_system(sys_id: int, conn = Depends(get_db)):
-    cur = conn.cursor(dictionary=True)
     try:
-        cur.callproc("GetStudySystemByID", (sys_id,))
-        row = None
-        for result in cur.stored_results():
-            row = result.fetchone()
-            break
+        row = execute_sp_fetchone(conn, "GetStudySystemByID", (sys_id,))
         if not row:
             raise HTTPException(status_code=404, detail="Study system not found")
         return row
@@ -624,8 +652,6 @@ def get_study_system(sys_id: int, conn = Depends(get_db)):
         raise
     except Exception as exc:
         raise HTTPException(status_code=500, detail=str(exc))
-    finally:
-        cur.close()
 
 @app.post("/study-systems")
 def insert_study_system(payload: StudySystemPayload, conn = Depends(get_db)):
@@ -842,41 +868,22 @@ class LoginPayload(BaseModel):
 
 @app.get("/personnel")
 def get_personnel(conn = Depends(get_db)):
-    cur = conn.cursor(dictionary=True)
     try:
-        cur.callproc("GetAllPersonnel")
-        rows = []
-        for result in cur.stored_results():
-            rows.extend(result.fetchall())
-        return rows
+        return execute_sp_fetchall(conn, "GetAllPersonnel")
     except Exception as exc:
         raise HTTPException(status_code=500, detail=str(exc))
-    finally:
-        cur.close()
 
 @app.get("/personnel/active")
 def get_active_personnel(conn = Depends(get_db)):
-    cur = conn.cursor(dictionary=True)
     try:
-        cur.callproc("GetActivePersonnel")
-        rows = []
-        for result in cur.stored_results():
-            rows.extend(result.fetchall())
-        return rows
+        return execute_sp_fetchall(conn, "GetActivePersonnel")
     except Exception as exc:
         raise HTTPException(status_code=500, detail=str(exc))
-    finally:
-        cur.close()
 
 @app.post("/personnel/login")
 def authenticate_personnel(payload: LoginPayload, conn = Depends(get_db)):
-    cur = conn.cursor(dictionary=True)
     try:
-        cur.callproc("AuthenticateUser", (payload.username, payload.password_hash))
-        row = None
-        for result in cur.stored_results():
-            row = result.fetchone()
-            break
+        row = execute_sp_fetchone(conn, "AuthenticateUser", (payload.username, payload.password_hash))
         if not row:
             raise HTTPException(status_code=401, detail="Invalid username or password")
         return row
@@ -884,8 +891,6 @@ def authenticate_personnel(payload: LoginPayload, conn = Depends(get_db)):
         raise
     except Exception as exc:
         raise HTTPException(status_code=500, detail=str(exc))
-    finally:
-        cur.close()
 
 @app.post("/personnel")
 def insert_personnel(payload: PersonnelPayload, conn = Depends(get_db)):
@@ -958,17 +963,10 @@ class AcademicPeriodPayload(BaseModel):
 
 @app.get("/academic-periods/by-student/{student_id}")
 def get_academic_periods_by_student(student_id: int, conn = Depends(get_db)):
-    cur = conn.cursor(dictionary=True)
     try:
-        cur.callproc("GetAcademicPeriodsByStudent", (student_id,))
-        rows = []
-        for result in cur.stored_results():
-            rows.extend(result.fetchall())
-        return rows
+        return execute_sp_fetchall(conn, "GetAcademicPeriodsByStudent", (student_id,))
     except Exception as exc:
         raise HTTPException(status_code=500, detail=str(exc))
-    finally:
-        cur.close()
 
 @app.post("/academic-periods")
 def insert_academic_period(payload: AcademicPeriodPayload, conn = Depends(get_db)):
@@ -1009,17 +1007,10 @@ class EnrollmentPayload(BaseModel):
 
 @app.get("/enrollments/by-period/{period_id}")
 def get_enrollments_by_period(period_id: int, conn = Depends(get_db)):
-    cur = conn.cursor(dictionary=True)
     try:
-        cur.callproc("GetEnrollmentsByPeriod", (period_id,))
-        rows = []
-        for result in cur.stored_results():
-            rows.extend(result.fetchall())
-        return rows
+        return execute_sp_fetchall(conn, "GetEnrollmentsByPeriod", (period_id,))
     except Exception as exc:
         raise HTTPException(status_code=500, detail=str(exc))
-    finally:
-        cur.close()
 
 @app.post("/enrollments")
 def insert_enrollment(payload: EnrollmentPayload, conn = Depends(get_db)):
@@ -1091,28 +1082,16 @@ class GraduationOrderPayload(BaseModel):
 @app.get("/graduation-orders")
 @app.get("/orders")
 def get_graduation_orders(limit: int = 25, offset: int = 0, conn = Depends(get_db)):
-    cur = conn.cursor(dictionary=True)
     try:
-        cur.callproc("GetAllGraduationOrders", (limit, offset))
-        rows = []
-        for result in cur.stored_results():
-            rows.extend(result.fetchall())
-        return rows
+        return execute_sp_fetchall(conn, "GetAllGraduationOrders", (limit, offset))
     except Exception as exc:
         raise HTTPException(status_code=500, detail=str(exc))
-    finally:
-        cur.close()
 
 @app.get("/graduation-orders/{order_id}")
 @app.get("/orders/{order_id}")
 def get_graduation_order(order_id: int, conn = Depends(get_db)):
-    cur = conn.cursor(dictionary=True)
     try:
-        cur.callproc("GetGraduationOrderByID", (order_id,))
-        row = None
-        for result in cur.stored_results():
-            row = result.fetchone()
-            break
+        row = execute_sp_fetchone(conn, "GetGraduationOrderByID", (order_id,))
         if not row:
             raise HTTPException(status_code=404, detail="Order not found")
         return row
@@ -1120,8 +1099,6 @@ def get_graduation_order(order_id: int, conn = Depends(get_db)):
         raise
     except Exception as exc:
         raise HTTPException(status_code=500, detail=str(exc))
-    finally:
-        cur.close()
 
 @app.post("/graduation-orders")
 @app.post("/orders")
@@ -1228,30 +1205,28 @@ def update_settings(payload: SettingsPayload, conn = Depends(get_db)):
 
 @app.get("/settings/appearance/{user_id}")
 def get_user_appearance(user_id: int, conn = Depends(get_db)):
-    cur = conn.cursor(dictionary=True)
     try:
-        cur.callproc("GetUserPreferences", (user_id,))
-        row = None
-        for result in cur.stored_results():
-            row = result.fetchone()
-            break
-        if not row or not row.get("theme"):
-            cur.callproc("UpdateUserPreferences", (user_id, "Dark", "blue", "Segoe UI", 13, 1))
-            conn.commit()
+        row = execute_sp_fetchone(conn, "Get_User_Settings", (user_id,))
+        if not row:
             return {
                 "EMP_ID": user_id,
-                "id": user_id,
                 "theme": "Dark",
                 "accent_color": "blue",
                 "font_family": "Segoe UI",
                 "font_size_base": 13,
                 "is_arabic_rtl": 1
             }
-        return row
+
+        return {
+            "EMP_ID": row.get("EMP_ID", user_id),
+            "theme": row.get("theme") or "Dark",
+            "accent_color": row.get("accent_color") or "blue",
+            "font_family": row.get("font_family") or "Segoe UI",
+            "font_size_base": int(row.get("font_size_base") or 13),
+            "is_arabic_rtl": int(row.get("is_arabic_rtl") if row.get("is_arabic_rtl") is not None else 1)
+        }
     except Exception as exc:
         raise HTTPException(status_code=500, detail=str(exc))
-    finally:
-        cur.close()
 
 @app.put("/settings/appearance/{user_id}")
 def update_user_appearance(user_id: int, payload: AppearancePayload, conn = Depends(get_db)):
@@ -1297,31 +1272,17 @@ def get_certificate_data(student_id: int, conn = Depends(get_db)):
 # --- LOOKUPS ENDPOINTS ---
 @app.get("/lookups/countries")
 def get_countries(conn = Depends(get_db)):
-    cur = conn.cursor(dictionary=True)
     try:
-        cur.callproc("GetAllCountries")
-        rows = []
-        for result in cur.stored_results():
-            rows.extend(result.fetchall())
-        return rows
+        return execute_sp_fetchall(conn, "GetAllCountries")
     except Exception as exc:
         raise HTTPException(status_code=500, detail=str(exc))
-    finally:
-        cur.close()
 
 @app.get("/lookups/governorates")
 def get_governorates(conn = Depends(get_db)):
-    cur = conn.cursor(dictionary=True)
     try:
-        cur.callproc("GetAllGovernorates")
-        rows = []
-        for result in cur.stored_results():
-            rows.extend(result.fetchall())
-        return rows
+        return execute_sp_fetchall(conn, "GetAllGovernorates")
     except Exception as exc:
         raise HTTPException(status_code=500, detail=str(exc))
-    finally:
-        cur.close()
 
 # --- THESIS & SUPERVISOR ENDPOINTS ---
 class ThesisPayload(BaseModel):
@@ -1339,17 +1300,10 @@ class SupervisorPayload(BaseModel):
 
 @app.get("/thesis/by-student/{student_id}")
 def get_thesis_by_student(student_id: int, conn = Depends(get_db)):
-    cur = conn.cursor(dictionary=True)
     try:
-        cur.callproc("GetThesisByStudent", (student_id,))
-        rows = []
-        for result in cur.stored_results():
-            rows.extend(result.fetchall())
-        return rows
+        return execute_sp_fetchall(conn, "GetThesisByStudent", (student_id,))
     except Exception as exc:
         raise HTTPException(status_code=500, detail=str(exc))
-    finally:
-        cur.close()
 
 @app.post("/thesis")
 def insert_thesis(payload: ThesisPayload, conn = Depends(get_db)):
@@ -1401,17 +1355,10 @@ def delete_thesis(thesis_id: int, conn = Depends(get_db)):
 
 @app.get("/supervisors/by-student/{student_id}")
 def get_supervisors_by_student(student_id: int, conn = Depends(get_db)):
-    cur = conn.cursor(dictionary=True)
     try:
-        cur.callproc("GetSupervisorsByStudent", (student_id,))
-        rows = []
-        for result in cur.stored_results():
-            rows.extend(result.fetchall())
-        return rows
+        return execute_sp_fetchall(conn, "GetSupervisorsByStudent", (student_id,))
     except Exception as exc:
         raise HTTPException(status_code=500, detail=str(exc))
-    finally:
-        cur.close()
 
 @app.post("/supervisors")
 def insert_supervisor(payload: SupervisorPayload, conn = Depends(get_db)):
@@ -1518,63 +1465,9 @@ class LoginRequest(BaseModel):
     username: str
     password: str
 
-@app.post("/api/login")
-def login(req: LoginRequest, conn = Depends(get_db)):
-    cur = conn.cursor(dictionary=True)
-    try:
-        cur.callproc("sp_AuthenticateUser", (req.username, req.password))
-        
-        user_record = None
-        for result in cur.stored_results():
-            user_record = result.fetchone()
-            break
-            
-        if not user_record:
-            raise HTTPException(status_code=401, detail="Invalid username or password")
-            
-        if not user_record.get("is_active"):
-            raise HTTPException(status_code=403, detail="Account is disabled")
-
-        # Fetch appearance using the other procedure, ensure to consume previous result sets completely
-        while cur.nextset(): 
-            pass
-
-        cur.callproc("sp_GetUserAppearance", (user_record["id"],))
-        appearance = {}
-        for result in cur.stored_results():
-            appearance = result.fetchone() or {}
-            break
-            
-        return {
-            "success": True, 
-            "user": user_record, 
-            "appearance": appearance
-        }
-    except HTTPException:
-        raise
-    except Exception as exc:
-        raise HTTPException(status_code=500, detail=str(exc))
-    finally:
-        cur.close()
-
 @app.post("/api/logout")
 def logout():
     return {"success": True, "message": "Logged out successfully"}
-
-@app.get("/api/user/appearance/{emp_id}")
-def get_user_appearance(emp_id: int, conn = Depends(get_db)):
-    cur = conn.cursor(dictionary=True)
-    try:
-        cur.callproc("sp_GetUserAppearance", (emp_id,))
-        appearance = {}
-        for result in cur.stored_results():
-            appearance = result.fetchone() or {}
-            break
-        return appearance
-    except Exception as exc:
-        raise HTTPException(status_code=500, detail=str(exc))
-    finally:
-        cur.close()
 
 class AppearanceUpdate(BaseModel):
     theme: str
@@ -1583,31 +1476,6 @@ class AppearanceUpdate(BaseModel):
     font_size_base: int
     is_arabic_rtl: int
 
-@app.post("/api/user/appearance/{emp_id}")
-def update_user_appearance(emp_id: int, req: AppearanceUpdate, conn = Depends(get_db)):
-    cur = conn.cursor()
-    try:
-        cur.execute("""
-            INSERT INTO settings (EMP_ID, theme, accent_color, font_family, font_size_base, is_arabic_rtl)
-            VALUES (%s, %s, %s, %s, %s, %s)
-            ON DUPLICATE KEY UPDATE
-                theme = VALUES(theme),
-                accent_color = VALUES(accent_color),
-                font_family = VALUES(font_family),
-                font_size_base = VALUES(font_size_base),
-                is_arabic_rtl = VALUES(is_arabic_rtl)
-        """, (emp_id, req.theme, req.accent_color, req.font_family, req.font_size_base, req.is_arabic_rtl))
-        conn.commit()
-        return {"success": True}
-    except Exception as exc:
-        conn.rollback()
-        raise HTTPException(status_code=500, detail=str(exc))
-    finally:
-        cur.close()
-
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="127.0.0.1", port=2030)
-
-
-

@@ -91,11 +91,11 @@ class MainAppShell:
                 {"full_name_ar": "منى يوسف حسين", "dept_name_ar": "أمن الشبكات", "admission_year": "2022-2023", "status": "متخرج"},
             ]
 
-        # Fetch recent certificate orders
+        # Fetch recent certificates (students with graduation orders)
         try:
-            all_orders = self.order_repo.get_all() or []
-            self.recent_certificates = all_orders[:5]
-        except Exception:
+            self.recent_certificates = self.student_repo.get_recent_graduates(limit=5)
+        except Exception as exc:
+            log.warning(f"[MainAppShell] Failed to fetch recent certificates: {exc}")
             self.recent_certificates = []
 
         # Fallback sample data if DB is empty
@@ -429,6 +429,7 @@ class MainAppShell:
                 # [BUTTON: SIDEBAR MENU TOGGLE]
                 ui.button(
                     icon="menu",
+                    color=None,
                     on_click=self.toggle_sidebar
                 ).classes("app-btn-primary p-2 rounded-xl shadow-none")
 
@@ -461,8 +462,8 @@ class MainAppShell:
                 self._header_status = header_status_badge
 
                 # [BUTTON: REFRESH DATA]
-                ui.button("تحديث البيانات / Refresh Data", icon="sync", on_click=self._on_refresh_click).classes(
-                    "app-btn-refresh font-bold normal-case shadow-none px-4 py-2 text-sm"
+                ui.button("تحديث البيانات / Refresh Data", icon="sync", color=None, on_click=self._on_refresh_click).classes(
+                    "app-btn-secondary font-bold normal-case shadow-none px-4 py-2 text-sm"
                 )
 
     def _get_screen_header_titles(self) -> tuple[str, str]:

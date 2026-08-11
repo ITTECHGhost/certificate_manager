@@ -102,7 +102,7 @@ class SettingsScreen:
                     value=self.settings_data.get("college_name_en") or ""
                 )
 
-            UI.primary_button(
+            UI.success_button(
                 "حفظ معلومات المؤسسة / Save Info",
                 icon="save",
                 on_click=self._save_institution_info
@@ -112,8 +112,8 @@ class SettingsScreen:
         with UI.card():
             with ui.row().classes("w-full justify-between items-center pb-3 app-card-header"):
                 UI.section_label("أنظمة الدراسة — Study Systems")
-                ui.button("+ إضافة نظام", on_click=self._add_study_system).classes(
-                    "app-btn-secondary text-sm px-4 py-2 rounded-lg normal-case font-medium"
+                ui.button("+ إضافة نظام", color=None, on_click=self._add_study_system).classes(
+                    "app-btn-primary text-sm px-4 py-2 rounded-lg normal-case font-medium"
                 )
 
             self._systems_container = ui.column().classes("w-full")
@@ -135,7 +135,7 @@ class SettingsScreen:
                 {"name": "display", "label": "Period",                   "field": "display", "align": "center"},
                 {"name": "weights", "label": "Weights",                  "field": "weights", "align": "center"},
                 {"name": "active",  "label": "Active",                   "field": "active",  "align": "center"},
-                {"name": "actions", "label": "",                         "field": "actions", "align": "right"},
+                {"name": "actions", "label": "حذف / Delete",                     "field": "actions", "align": "right"},
             ]
             rows = [
                 {
@@ -227,7 +227,7 @@ class SettingsScreen:
                 UI.standard_label("اتجاه الواجهة من اليمين إلى اليسار / Arabic RTL Layout")
                 self.rtl_switch = UI.switch("تفعيل RTL / Enable RTL", value=bool(saved_rtl))
 
-            UI.primary_button(
+            UI.success_button(
                 "حفظ وتطبيق المظهر / Save Appearance",
                 icon="brush",
                 on_click=self._save_appearance
@@ -242,7 +242,7 @@ class SettingsScreen:
                     "نسخ احتياطي لقاعدة البيانات / Backup Database",
                     "إنشاء نسخة SQL احتياطية حفظاً للبيانات",
                     "إنشاء نسخة احتياطية / Create Backup",
-                    "backup", btn_variant="primary", on_click_fn=self._do_backup
+                    "backup", btn_variant="success", on_click_fn=self._do_backup
                 )
                 UI.action_tile(
                     "استعادة نسخة احتياطية / Restore Database",

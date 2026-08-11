@@ -134,7 +134,7 @@ class LoginScreen:
                     self.error_label.set_visibility(False)
 
                     # Primary Sign-In Button
-                    with ui.button(on_click=self.handle_login).classes(
+                    with ui.button(color=None, on_click=self.handle_login).classes(
                         "app-btn-primary w-full text-sm py-3 rounded-xl font-bold "
                         "normal-case mt-2 cursor-pointer flex-row justify-between px-6"
                     ):

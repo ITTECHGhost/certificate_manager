@@ -107,7 +107,13 @@ body.dark,
   --border-strong: #475569;
   --border-input: rgba(51, 65, 85, 0.7);
 
-
+  /* Map Quasar's internal variables for dark mode specificity */
+  --q-primary: var(--accent-primary) !important;
+  --q-secondary: var(--btn-secondary-bg) !important;
+  --q-positive: var(--btn-success-bg) !important;
+  --q-negative: var(--btn-danger-bg) !important;
+  --q-warning: var(--btn-warning-bg) !important;
+  --q-info: var(--text-muted) !important;
   --shadow-card: 0 10px 25px rgba(0, 0, 0, 0.25), 0 4px 10px rgba(0, 0, 0, 0.2);
   --shadow-card-lg: 0 20px 40px rgba(0, 0, 0, 0.4);
   --shadow-login-card: 0 0 35px rgba(59, 130, 246, 0.15), 0 0 15px rgba(37, 99, 235, 0.1), 0 25px 50px rgba(0, 0, 0, 0.5);
@@ -298,7 +304,12 @@ body {
   transition: background-color 0.3s, color 0.3s;
 
   /* Map Quasar's internal variables to our dynamic accents so default widgets inherit the theme */
-  /* --q-primary: var(--accent-primary) !important; */
+  --q-primary: var(--accent-primary) !important;
+  --q-secondary: var(--btn-secondary-bg) !important;
+  --q-positive: var(--btn-success-bg) !important;
+  --q-negative: var(--btn-danger-bg) !important;
+  --q-warning: var(--btn-warning-bg) !important;
+  --q-info: var(--text-muted) !important;
 }
 
 body.body--dark {
@@ -470,31 +481,6 @@ body.body--dark .app-login-card:hover,
   background-color: var(--btn-secondary-bg-hover) !important;
 }
 
-.app-btn-refresh {
-  background-color: var(--accent-primary) !important;
-  color: var(--accent-text) !important;
-  border-radius: 0.5rem !important;
-  box-shadow: 0 4px 6px -1px var(--accent-shadow) !important;
-  transition: all 0.2s;
-}
-
-.app-btn-refresh:hover {
-  background-color: var(--accent-hover) !important;
-  box-shadow: 0 6px 12px -2px var(--accent-shadow) !important;
-}
-
-.app-btn-quick {
-  background-color: var(--accent-primary) !important;
-  color: var(--accent-text) !important;
-  border: 1px solid var(--accent-soft-border) !important;
-  box-shadow: 0 4px 10px var(--accent-shadow) !important;
-  transition: all 0.2s;
-}
-
-.app-btn-quick:hover {
-  background-color: var(--accent-hover) !important;
-  box-shadow: 0 6px 15px var(--accent-shadow) !important;
-}
 
 
 /* ── 4d. Inputs (Quasar .q-field overrides) ─────────────────────────────── */
@@ -877,8 +863,7 @@ body.body--dark .stat-text-purple,
 }
 
 .app-table td,
-.app-table .q-table td,
-.app-table td * {
+.app-table .q-table td {
   color: var(--table-cell-text) !important;
   font-weight: 500 !important;
   font-size: 13px !important;

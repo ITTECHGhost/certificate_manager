@@ -5,8 +5,9 @@
 import os
 import hashlib
 import logging
+import sqlite3
 import requests
-from typing import Any
+from typing import Any, List, Dict, Optional, Union
 from api_config import API_URL
 from db import get_connection
 from sync_engine import (
@@ -15,6 +16,7 @@ from sync_engine import (
     sqlite_read_all, sqlite_read_one,
     pull_mysql_to_sqlite_background,
     get_local_connection,
+    DB_PATH,
 )
 
 activity_logger = logging.getLogger("activity")
@@ -288,7 +290,8 @@ class SettingsRepository(BaseRepository):
         if not is_online():
             conn = _get_local_conn()
             try:
-                conn.execute("""
+                cur = conn.cursor()
+                cur.execute("""
                     INSERT INTO settings (EMP_ID, theme, accent_color, font_family, font_size_base, is_arabic_rtl)
                     VALUES (?, ?, ?, ?, ?, ?)
                     ON CONFLICT(EMP_ID) DO UPDATE SET
@@ -298,6 +301,21 @@ class SettingsRepository(BaseRepository):
                         font_size_base = excluded.font_size_base,
                         is_arabic_rtl = excluded.is_arabic_rtl
                 """, (emp_id, theme, accent, font, size, rtl))
+                
+                # Queue this setting update so it gets pushed when we go online
+                payload = {
+                    "emp_id": emp_id,
+                    "theme": theme,
+                    "accent_color": accent,
+                    "font_family": font,
+                    "font_size_base": size,
+                    "rtl": rtl
+                }
+                from sync_engine import _json_dumps
+                cur.execute(
+                    "INSERT INTO sync_queue (table_name, operation, temp_id, payload) VALUES (?, 'UPDATE', ?, ?)",
+                    ("settings", emp_id, _json_dumps(payload))
+                )
                 conn.commit()
             except Exception as exc:
                 log_system(f"[ERROR][SettingsRepository.update_user_appearance] Offline SQLite update failed for user {emp_id}: {exc}", "ERROR")
@@ -889,9 +907,154 @@ class CourseRepository(BaseRepository):
             raise
 
 
+def search_students_sqlite(db_path: str, search_term: str, limit: int = 25, offset: int = 0) -> List[Dict[str, Any]]:
+    """Execute paginated student search against local SQLite database."""
+    search_term = search_term.strip()
+
+    if len(search_term) < 2:
+        query = """
+            SELECT 
+                s.id AS student_id, 
+                s.full_name_ar AS name_ar, 
+                s.full_name_en AS name_en, 
+                d.name_ar AS department_name_ar, 
+                strftime('%Y', s.graduation_date) AS graduation_year, 
+                s.average
+            FROM (
+                SELECT id, full_name_ar, full_name_en, graduation_date, average, department_id FROM students
+                UNION ALL
+                SELECT id, full_name_ar, full_name_en, graduation_date, average, department_id FROM local_students
+            ) s
+            LEFT JOIN departments d ON s.department_id = d.id
+            ORDER BY s.id DESC
+            LIMIT ? OFFSET ?
+        """
+        params = (limit, offset)
+    else:
+        query = """
+            SELECT 
+                s.id AS student_id, 
+                s.full_name_ar AS name_ar, 
+                s.full_name_en AS name_en, 
+                d.name_ar AS department_name_ar, 
+                strftime('%Y', s.graduation_date) AS graduation_year, 
+                s.average
+            FROM (
+                SELECT id, full_name_ar, full_name_en, graduation_date, average, department_id FROM students
+                UNION ALL
+                SELECT id, full_name_ar, full_name_en, graduation_date, average, department_id FROM local_students
+            ) s
+            LEFT JOIN departments d ON s.department_id = d.id
+            WHERE 
+                s.full_name_ar LIKE '%' || ? || '%' 
+                OR s.full_name_en LIKE '%' || ? || '%'
+            ORDER BY 
+                CASE 
+                    WHEN s.full_name_ar = ? OR s.full_name_en = ? THEN 1
+                    WHEN s.full_name_ar LIKE ? || '%' OR s.full_name_en LIKE ? || '%' THEN 2
+                    ELSE 3
+                END,
+                s.full_name_ar ASC
+            LIMIT ? OFFSET ?
+        """
+        params = (search_term, search_term, search_term, search_term, search_term, search_term, limit, offset)
+
+    try:
+        with sqlite3.connect(db_path) as conn:
+            conn.row_factory = sqlite3.Row
+            cur = conn.cursor()
+            cur.execute(query, params)
+            rows = cur.fetchall()
+            
+            return [
+                {
+                    "student_id": safe_cast(dict(row).get("student_id"), int, 0),
+                    "name_ar": safe_cast(dict(row).get("name_ar"), str, "Unknown"),
+                    "name_en": safe_cast(dict(row).get("name_en"), str, "Unknown"),
+                    "department_name_ar": safe_cast(dict(row).get("department_name_ar"), str, "Unknown"),
+                    "graduation_year": safe_cast(dict(row).get("graduation_year"), str, "N/A"),
+                    "average": safe_cast(dict(row).get("average"), float, 0.0)
+                } for row in rows
+            ]
+    except sqlite3.OperationalError:
+        # Fallback query if local_students table is absent in custom db_path
+        fallback_query = (
+            query.replace(
+                "( SELECT id, full_name_ar, full_name_en, graduation_date, average, department_id FROM students UNION ALL SELECT id, full_name_ar, full_name_en, graduation_date, average, department_id FROM local_students ) s",
+                "students s"
+            ).replace(
+                "(\n                SELECT id, full_name_ar, full_name_en, graduation_date, average, department_id FROM students\n                UNION ALL\n                SELECT id, full_name_ar, full_name_en, graduation_date, average, department_id FROM local_students\n            ) s",
+                "students s"
+            )
+        )
+        with sqlite3.connect(db_path) as conn:
+            conn.row_factory = sqlite3.Row
+            cur = conn.cursor()
+            cur.execute(fallback_query, params)
+            rows = cur.fetchall()
+            
+            return [
+                {
+                    "student_id": safe_cast(dict(row).get("student_id"), int, 0),
+                    "name_ar": safe_cast(dict(row).get("name_ar"), str, "Unknown"),
+                    "name_en": safe_cast(dict(row).get("name_en"), str, "Unknown"),
+                    "department_name_ar": safe_cast(dict(row).get("department_name_ar"), str, "Unknown"),
+                    "graduation_year": safe_cast(dict(row).get("graduation_year"), str, "N/A"),
+                    "average": safe_cast(dict(row).get("average"), float, 0.0)
+                } for row in rows
+            ]
+
+
 class StudentRepository(BaseRepository):
-    def __init__(self, api_url: str = API_URL):
+    def __init__(self, api_url: str = API_URL, local_db_path: str = DB_PATH):
         super().__init__(api_url)
+        self.api_base_url = api_url
+        self.local_db_path = local_db_path
+
+    def search_students_paginated(self, query: str = "", limit: int = 25, offset: int = 0) -> List[Dict[str, Any]]:
+        """Paginated student search route supporting online API endpoint with offline SQLite fallback."""
+        if is_online():
+            try:
+                response = requests.get(
+                    f"{self.api_base_url}/students/search", 
+                    params={"query": query, "limit": limit, "offset": offset},
+                    timeout=3
+                )
+                if response.status_code == 200:
+                    payload = response.json()
+                    return [
+                        {
+                            "student_id": safe_cast(item.get("student_id"), int, 0),
+                            "name_ar": safe_cast(item.get("name_ar"), str, "Unknown"),
+                            "name_en": safe_cast(item.get("name_en"), str, "Unknown"),
+                            "department_name_ar": safe_cast(item.get("department_name_ar"), str, "Unknown"),
+                            "graduation_year": safe_cast(item.get("graduation_year"), str, "N/A"),
+                            "average": safe_cast(item.get("average"), float, 0.0)
+                        } for item in payload
+                    ]
+            except Exception as err:
+                log_system(f"[WARNING][StudentRepository] API request failed, falling back to SQLite: {err}", "WARNING")
+
+        return search_students_sqlite(self.local_db_path, query, limit, offset)
+
+    def get_recent_graduates(self, limit: int = 5) -> list[dict]:
+        """Fetch recently graduated students (students linked to a graduation order)."""
+        query = (
+            "SELECT s.full_name_ar, s.full_name_en, "
+            "d.name_ar AS dept_name_ar, o.order_number, o.order_date AS issue_date "
+            "FROM ("
+            "  SELECT full_name_ar, full_name_en, department_id, order_id, id FROM students "
+            "  UNION ALL "
+            "  SELECT full_name_ar, full_name_en, department_id, order_id, id FROM local_students"
+            ") s "
+            "JOIN departments d ON s.department_id = d.id "
+            "JOIN graduation_orders o ON s.order_id = o.id "
+            "ORDER BY o.order_date DESC, s.id DESC LIMIT ?"
+        )
+        try:
+            return sqlite_read_all(query, (limit,))
+        except Exception:
+            return []
 
     def _inject_missing_graduation_numbers(self, students_list: list[dict]) -> list[dict]:
         """Supplemental fetch for columns omitted by legacy Stored Procedures."""
@@ -969,7 +1132,7 @@ class StudentRepository(BaseRepository):
                 "      UNION ALL "
                 "      SELECT id, full_name_ar, full_name_en, CAST(admission_year AS TEXT) AS admission_year, CAST(strftime('%Y', graduation_date) AS TEXT) AS graduation_year, average, order_id, department_id FROM local_students) s "
                 "LEFT JOIN departments d ON s.department_id = d.id "
-                f"{where} ORDER BY s.full_name_ar LIMIT ? OFFSET ?", tuple(params)
+                f"{where} ORDER BY s.id DESC LIMIT ? OFFSET ?", tuple(params)
             )
         else:
             try:
@@ -986,6 +1149,9 @@ class StudentRepository(BaseRepository):
                 )
                 if resp.status_code == 200:
                     res = resp.json()
+                    # Sort online results by ID descending as requested by user
+                    if not name_query:
+                        res.sort(key=lambda x: x.get("id", 0), reverse=True)
                 else:
                     res = []
             except Exception as e:

@@ -85,37 +85,37 @@ class UI:
     @staticmethod
     def primary_button(text: str, icon: str | None = None, on_click=None) -> ui.button:
         """Primary accent-colored button. Colors via `.app-btn-primary` in theme.css."""
-        return ui.button(text, icon=icon, on_click=on_click).classes(
+        return ui.button(text, icon=icon, on_click=on_click, color=None).classes(
             "app-btn-primary font-medium px-5 py-3 rounded-xl normal-case transition-all"
-        ).props("color=none")
+        )
 
     @staticmethod
     def secondary_button(text: str, icon: str | None = None, on_click=None) -> ui.button:
         """Secondary button. Colors via `.app-btn-secondary` in theme.css."""
-        return ui.button(text, icon=icon, on_click=on_click).classes(
+        return ui.button(text, icon=icon, on_click=on_click, color=None).classes(
             "app-btn-secondary font-medium px-4 py-2 rounded-xl normal-case transition-all"
-        ).props("color=none")
+        )
 
     @staticmethod
     def success_button(text: str, icon: str | None = None, on_click=None) -> ui.button:
         """Success/emerald button. Colors via `.app-btn-success` in theme.css."""
-        return ui.button(text, icon=icon, on_click=on_click).classes(
+        return ui.button(text, icon=icon, on_click=on_click, color=None).classes(
             "app-btn-success font-medium px-4 py-2 rounded-xl normal-case transition-all"
-        ).props("color=none")
+        )
 
     @staticmethod
     def danger_button(text: str, icon: str | None = None, on_click=None) -> ui.button:
         """Danger/red button. Colors via `.app-btn-danger` in theme.css."""
-        return ui.button(text, icon=icon, on_click=on_click).classes(
+        return ui.button(text, icon=icon, on_click=on_click, color=None).classes(
             "app-btn-danger font-medium px-4 py-2 rounded-xl normal-case transition-all"
-        ).props("color=none")
+        )
 
     @staticmethod
     def ghost_button(text: str, icon: str | None = None, on_click=None) -> ui.button:
         """Transparent ghost button. Colors via `.app-btn-ghost` in theme.css."""
-        return ui.button(text, icon=icon, on_click=on_click).classes(
+        return ui.button(text, icon=icon, on_click=on_click, color=None).classes(
             "app-btn-ghost font-medium px-3 py-1.5 rounded-lg normal-case shadow-none transition-all"
-        ).props("color=none")
+        )
 
     # ── Input Fields ────────────────────────────────────────────────────────
 
@@ -125,7 +125,8 @@ class UI:
         value: str = "",
         placeholder: str = "",
         password: bool = False,
-        password_toggle_button: bool = False
+        password_toggle_button: bool = False,
+        on_change = None
     ) -> ui.input:
         """Theme-aware text/password input. Colors via `.app-input` in theme.css."""
         inp = ui.input(
@@ -133,19 +134,20 @@ class UI:
             value=value,
             placeholder=placeholder,
             password=password,
-            password_toggle_button=password_toggle_button if password else False
+            password_toggle_button=password_toggle_button if password else False,
+            on_change=on_change
         ).classes(
             "w-full app-input rounded-xl"
         ).props('outlined input-class="font-medium text-center"')
         return inp
 
     @staticmethod
-    def text_input(label: str, value: str = "", placeholder: str = "") -> ui.input:
+    def text_input(label: str, value: str = "", placeholder: str = "", on_change = None) -> ui.input:
         """Alias for UI.input for standard text fields."""
-        return UI.input(label=label, value=value, placeholder=placeholder)
+        return UI.input(label=label, value=value, placeholder=placeholder, on_change=on_change)
 
     @staticmethod
-    def select(label: str, options: list, value=None) -> ui.select:
+    def select(label: str, options: list | dict, value=None) -> ui.select:
         """Theme-aware select dropdown. Colors via `.app-input` in theme.css."""
         return ui.select(label=label, options=options, value=value).classes(
             "w-full app-input rounded-xl"
@@ -220,7 +222,7 @@ class UI:
         ):
             ui.label(title_ar).classes("app-text-primary font-bold")
             ui.label(subtitle_ar).classes("app-text-muted text-xs")
-            ui.button(btn_label, icon=btn_icon, on_click=on_click_fn).classes(
+            ui.button(btn_label, icon=btn_icon, on_click=on_click_fn, color=None).classes(
                 f"{variant_class} text-xs py-2 rounded-lg normal-case mt-2 font-medium"
             )
 

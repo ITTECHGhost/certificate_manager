@@ -83,6 +83,7 @@ def check_network_status() -> bool:
 # ---------------------------------------------------------------------------
 
 _LOCAL_DB_PATH = Path(__file__).resolve().parent / "local_cache.db"
+DB_PATH = str(_LOCAL_DB_PATH)
 
 # Maps a logical table name to:
 #   - local_table:  the SQLite mirror table
@@ -1087,6 +1088,24 @@ def sync_offline_queue_to_mysql(mysql_conn=None) -> dict:
         # 1. Build the payload for the FastAPI sync endpoint
         actions = []
         for row in queue_rows:
+            if row["table_name"] == "settings":
+                try:
+                    payload = _json_loads(row["payload"])
+                    emp_id = row["temp_id"]
+                    resp = requests.put(f"{API_URL}/settings/appearance/{emp_id}", json=payload, timeout=5.0)
+                    if resp.status_code == 200:
+                        sqlite_conn.execute("DELETE FROM sync_queue WHERE id = ?", (row["id"],))
+                        sqlite_conn.commit()
+                        synced += 1
+                        log.info("Synced offline settings for user %d", emp_id)
+                    else:
+                        failed += 1
+                        log.warning("Failed to sync offline settings for user %d: %s", emp_id, resp.text)
+                except Exception as exc:
+                    failed += 1
+                    log.error("Error syncing offline settings for user %d: %s", row["temp_id"], exc)
+                continue
+
             actions.append({
                 "id": row["id"],
                 "table_name": row["table_name"],
@@ -1094,6 +1113,9 @@ def sync_offline_queue_to_mysql(mysql_conn=None) -> dict:
                 "temp_id": row["temp_id"],
                 "payload": _json_loads(row["payload"])
             })
+
+        if not actions:
+            return {"synced": synced, "failed": failed, "id_map": {}}
 
         payload = {"actions": actions}
 
