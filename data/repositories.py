@@ -806,7 +806,7 @@ class CourseRepository(BaseRepository):
                 "SELECT c.id, c.name_ar, c.name_en, c.credit_hours, c.department_id, c.stage_number "
                 "FROM courses c "
                 "WHERE c.department_id = ? "
-                "ORDER BY c.name_ar ASC",
+                "ORDER BY c.stage_number ASC, c.name_ar ASC",
                 (dept_id,)
             )
         try:
@@ -820,7 +820,7 @@ class CourseRepository(BaseRepository):
                 "SELECT c.id, c.name_ar, c.name_en, c.credit_hours, c.department_id, c.stage_number "
                 "FROM courses c "
                 "WHERE c.department_id = ? "
-                "ORDER BY c.name_ar ASC",
+                "ORDER BY c.stage_number ASC, c.name_ar ASC",
                 (dept_id,)
             )
 

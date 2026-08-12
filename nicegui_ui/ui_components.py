@@ -147,9 +147,9 @@ class UI:
         return UI.input(label=label, value=value, placeholder=placeholder, on_change=on_change)
 
     @staticmethod
-    def select(label: str, options: list | dict, value=None) -> ui.select:
+    def select(label: str, options: list | dict, value=None, with_input: bool = False, on_change=None) -> ui.select:
         """Theme-aware select dropdown. Colors via `.app-input` in theme.css."""
-        return ui.select(label=label, options=options, value=value).classes(
+        return ui.select(options=options, label=label, value=value, with_input=with_input, on_change=on_change).classes(
             "w-full app-input rounded-xl"
         ).props("outlined")
 

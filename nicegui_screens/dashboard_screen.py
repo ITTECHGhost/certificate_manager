@@ -28,6 +28,7 @@ from nicegui_ui.ui_theme import Styles, NAV_ITEMS, STAT_CARDS, QUICK_ACTIONS
 from nicegui_ui.ui_components import UI
 from nicegui_screens.settings_screen import SettingsScreen
 from nicegui_screens.students_screen import StudentsScreen
+from nicegui_screens.graduation_orders_screen import GraduationOrdersScreen
 
 
 class MainAppShell:
@@ -512,6 +513,8 @@ class MainAppShell:
                 SettingsScreen()
             elif self.current_screen == "students":
                 StudentsScreen()
+            elif self.current_screen == "orders":
+                GraduationOrdersScreen()
             else:
                 self._build_placeholder_screen()
 

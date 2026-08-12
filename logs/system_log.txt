@@ -20020,3 +20020,81 @@ _tkinter.TclError: bad window path name ".!loginscreen.!ctkframe2.!ctkframe.!ctk
 2026-08-11 17:46:18 [OK] [CHECK 3/4] Authentication & Core SP Checks ... [OK]
 2026-08-11 17:46:18 [OK] [CHECK 4/4] Sync Engine & Local Replica Check ... [OK]
 2026-08-11 17:46:18 [OK] Status: ALL CHECKS PASSED. PROCEEDING TO LOGIN/DASHBOARD.
+2026-08-11 19:37:23 [INFO] SYSTEM STARTUP DIAGNOSTIC CHECK STARTED
+2026-08-11 19:37:23 [OK] [CHECK 1/4] FastAPI Connection Check ... [OK]
+2026-08-11 19:37:23 [OK] [CHECK 2/4] MySQL Database Connection ... [OK]
+2026-08-11 19:37:23 [OK] [CHECK 3/4] Authentication & Core SP Checks ... [OK]
+2026-08-11 19:37:23 [OK] [CHECK 4/4] Sync Engine & Local Replica Check ... [OK]
+2026-08-11 19:37:23 [OK] Status: ALL CHECKS PASSED. PROCEEDING TO LOGIN/DASHBOARD.
+2026-08-12 20:20:11 [INFO] SYSTEM STARTUP DIAGNOSTIC CHECK STARTED
+2026-08-12 20:20:11 [OK] [CHECK 1/4] FastAPI Connection Check ... [OK]
+2026-08-12 20:20:11 [OK] [CHECK 2/4] MySQL Database Connection ... [OK]
+2026-08-12 20:20:11 [OK] [CHECK 3/4] Authentication & Core SP Checks ... [OK]
+2026-08-12 20:20:11 [OK] [CHECK 4/4] Sync Engine & Local Replica Check ... [OK]
+2026-08-12 20:20:11 [OK] Status: ALL CHECKS PASSED. PROCEEDING TO LOGIN/DASHBOARD.
+2026-08-12 20:38:22 [INFO] SYSTEM STARTUP DIAGNOSTIC CHECK STARTED
+2026-08-12 20:38:22 [OK] [CHECK 1/4] FastAPI Connection Check ... [OK]
+2026-08-12 20:38:22 [OK] [CHECK 2/4] MySQL Database Connection ... [OK]
+2026-08-12 20:38:22 [OK] [CHECK 3/4] Authentication & Core SP Checks ... [OK]
+2026-08-12 20:38:22 [OK] [CHECK 4/4] Sync Engine & Local Replica Check ... [OK]
+2026-08-12 20:38:22 [OK] Status: ALL CHECKS PASSED. PROCEEDING TO LOGIN/DASHBOARD.
+2026-08-12 21:02:45 [INFO] SYSTEM STARTUP DIAGNOSTIC CHECK STARTED
+2026-08-12 21:02:45 [OK] [CHECK 1/4] FastAPI Connection Check ... [OK]
+2026-08-12 21:02:45 [OK] [CHECK 2/4] MySQL Database Connection ... [OK]
+2026-08-12 21:02:45 [OK] [CHECK 3/4] Authentication & Core SP Checks ... [OK]
+2026-08-12 21:02:45 [OK] [CHECK 4/4] Sync Engine & Local Replica Check ... [OK]
+2026-08-12 21:02:45 [OK] Status: ALL CHECKS PASSED. PROCEEDING TO LOGIN/DASHBOARD.
+2026-08-12 21:25:51 [INFO] SYSTEM STARTUP DIAGNOSTIC CHECK STARTED
+2026-08-12 21:25:51 [OK] [CHECK 1/4] FastAPI Connection Check ... [OK]
+2026-08-12 21:25:51 [OK] [CHECK 2/4] MySQL Database Connection ... [OK]
+2026-08-12 21:25:51 [OK] [CHECK 3/4] Authentication & Core SP Checks ... [OK]
+2026-08-12 21:25:51 [OK] [CHECK 4/4] Sync Engine & Local Replica Check ... [OK]
+2026-08-12 21:25:51 [OK] Status: ALL CHECKS PASSED. PROCEEDING TO LOGIN/DASHBOARD.
+2026-08-12 21:32:15 [INFO] SYSTEM STARTUP DIAGNOSTIC CHECK STARTED
+2026-08-12 21:32:15 [OK] [CHECK 1/4] FastAPI Connection Check ... [OK]
+2026-08-12 21:32:15 [OK] [CHECK 2/4] MySQL Database Connection ... [OK]
+2026-08-12 21:32:15 [OK] [CHECK 3/4] Authentication & Core SP Checks ... [OK]
+2026-08-12 21:32:15 [OK] [CHECK 4/4] Sync Engine & Local Replica Check ... [OK]
+2026-08-12 21:32:15 [OK] Status: ALL CHECKS PASSED. PROCEEDING TO LOGIN/DASHBOARD.
+2026-08-12 21:37:07 [INFO] SYSTEM STARTUP DIAGNOSTIC CHECK STARTED
+2026-08-12 21:37:07 [OK] [CHECK 1/4] FastAPI Connection Check ... [OK]
+2026-08-12 21:37:07 [OK] [CHECK 2/4] MySQL Database Connection ... [OK]
+2026-08-12 21:37:07 [OK] [CHECK 3/4] Authentication & Core SP Checks ... [OK]
+2026-08-12 21:37:07 [OK] [CHECK 4/4] Sync Engine & Local Replica Check ... [OK]
+2026-08-12 21:37:07 [OK] Status: ALL CHECKS PASSED. PROCEEDING TO LOGIN/DASHBOARD.
+2026-08-12 22:03:18 [INFO] SYSTEM STARTUP DIAGNOSTIC CHECK STARTED
+2026-08-12 22:03:18 [OK] [CHECK 1/4] FastAPI Connection Check ... [OK]
+2026-08-12 22:03:18 [OK] [CHECK 2/4] MySQL Database Connection ... [OK]
+2026-08-12 22:03:18 [OK] [CHECK 3/4] Authentication & Core SP Checks ... [OK]
+2026-08-12 22:03:18 [OK] [CHECK 4/4] Sync Engine & Local Replica Check ... [OK]
+2026-08-12 22:03:18 [OK] Status: ALL CHECKS PASSED. PROCEEDING TO LOGIN/DASHBOARD.
+2026-08-12 22:26:59 [INFO] SYSTEM STARTUP DIAGNOSTIC CHECK STARTED
+2026-08-12 22:26:59 [OK] [CHECK 1/4] FastAPI Connection Check ... [OK]
+2026-08-12 22:26:59 [OK] [CHECK 2/4] MySQL Database Connection ... [OK]
+2026-08-12 22:26:59 [OK] [CHECK 3/4] Authentication & Core SP Checks ... [OK]
+2026-08-12 22:26:59 [OK] [CHECK 4/4] Sync Engine & Local Replica Check ... [OK]
+2026-08-12 22:26:59 [OK] Status: ALL CHECKS PASSED. PROCEEDING TO LOGIN/DASHBOARD.
+2026-08-12 23:00:20 [INFO] SYSTEM STARTUP DIAGNOSTIC CHECK STARTED
+2026-08-12 23:00:20 [OK] [CHECK 1/4] FastAPI Connection Check ... [OK]
+2026-08-12 23:00:20 [OK] [CHECK 2/4] MySQL Database Connection ... [OK]
+2026-08-12 23:00:20 [OK] [CHECK 3/4] Authentication & Core SP Checks ... [OK]
+2026-08-12 23:00:20 [OK] [CHECK 4/4] Sync Engine & Local Replica Check ... [OK]
+2026-08-12 23:00:20 [OK] Status: ALL CHECKS PASSED. PROCEEDING TO LOGIN/DASHBOARD.
+2026-08-12 23:05:26 [WARNING] API request failed: API returned status code 405. Falling back to SQLite cache.
+2026-08-12 23:12:03 [INFO] SYSTEM STARTUP DIAGNOSTIC CHECK STARTED
+2026-08-12 23:12:03 [OK] [CHECK 1/4] FastAPI Connection Check ... [OK]
+2026-08-12 23:12:03 [OK] [CHECK 2/4] MySQL Database Connection ... [OK]
+2026-08-12 23:12:03 [OK] [CHECK 3/4] Authentication & Core SP Checks ... [OK]
+2026-08-12 23:12:03 [OK] [CHECK 4/4] Sync Engine & Local Replica Check ... [OK]
+2026-08-12 23:12:03 [OK] Status: ALL CHECKS PASSED. PROCEEDING TO LOGIN/DASHBOARD.
+2026-08-12 23:14:10 [WARNING] API request failed: API insert failed: {"detail":"1062 (23000): Duplicate entry '1028-2' for key 'period_id'"}
+2026-08-12 23:14:19 [WARNING] API request failed: API insert failed: {"detail":"1062 (23000): Duplicate entry '1028-2' for key 'period_id'"}
+2026-08-12 23:16:07 [WARNING] API request failed: API returned status code 405. Falling back to SQLite cache.
+2026-08-12 23:22:17 [WARNING] API request failed: API returned status code 405. Falling back to SQLite cache.
+2026-08-12 23:27:45 [WARNING] API request failed: API returned status code 405. Falling back to SQLite cache.
+2026-08-12 23:30:25 [INFO] SYSTEM STARTUP DIAGNOSTIC CHECK STARTED
+2026-08-12 23:30:25 [OK] [CHECK 1/4] FastAPI Connection Check ... [OK]
+2026-08-12 23:30:26 [OK] [CHECK 2/4] MySQL Database Connection ... [OK]
+2026-08-12 23:30:26 [OK] [CHECK 3/4] Authentication & Core SP Checks ... [OK]
+2026-08-12 23:30:26 [OK] [CHECK 4/4] Sync Engine & Local Replica Check ... [OK]
+2026-08-12 23:30:26 [OK] Status: ALL CHECKS PASSED. PROCEEDING TO LOGIN/DASHBOARD.

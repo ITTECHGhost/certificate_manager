@@ -11,7 +11,7 @@ log = logging.getLogger(__name__)
 from nicegui import ui
 from nicegui_ui.ui_components import UI
 from nicegui_ui.ui_theme import Styles
-from nicegui_ui.student_components import StudentProfileView, StudentFormView
+from nicegui_ui.student_components import StudentProfileView, StudentFormView, CourseEnrollmentView
 
 from data.repositories import StudentRepository
 
@@ -31,8 +31,15 @@ class StudentsScreen:
         self.main_container = ui.column().classes('w-full h-full p-0 m-0 gap-0')
         
         # Instantiate the views with callbacks
-        self.profile_view = StudentProfileView(self.repo, self.main_container, on_back=self.show_list_view)
         self.form_view = StudentFormView(self.repo, self.main_container, on_back=self.show_list_view, on_save_callback=self._refresh_table)
+        self.enrollment_view = CourseEnrollmentView(self.repo, self.main_container, on_back=lambda st: self.profile_view.render(st, initial_tab="periods"))
+        self.profile_view = StudentProfileView(
+            self.repo, 
+            self.main_container, 
+            on_back=self.show_list_view, 
+            on_edit=self.form_view.render_edit,
+            on_manage_courses=self.enrollment_view.render
+        )
         
         self.show_list_view()
 
