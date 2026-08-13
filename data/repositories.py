@@ -1320,11 +1320,14 @@ class StudentRepository(BaseRepository):
     def get_by_order(self, order_id: int) -> list[dict]:
         if not is_online():
             return sqlite_read_all(
-                "SELECT id, full_name_ar, average, order_id FROM students WHERE order_id = ? "
-                "UNION ALL "
-                "SELECT id, full_name_ar, average, order_id FROM local_students WHERE order_id = ? "
-                "ORDER BY average DESC",
-                (order_id, order_id)
+                "SELECT s.id, s.full_name_ar, s.full_name_en, s.average, s.order_id, d.name_ar AS dept_name_ar "
+                "FROM (SELECT id, full_name_ar, full_name_en, average, order_id, department_id FROM students "
+                "      UNION ALL "
+                "      SELECT id, full_name_ar, full_name_en, average, order_id, department_id FROM local_students) s "
+                "LEFT JOIN departments d ON s.department_id = d.id "
+                "WHERE s.order_id = ? "
+                "ORDER BY s.average DESC",
+                (order_id,)
             )
         try:
             resp = requests.get(f"{self.api_url}/students/by-order/{order_id}", timeout=5.0)
@@ -1334,6 +1337,157 @@ class StudentRepository(BaseRepository):
         except Exception as e:
             log_system(f"API request failed: {e}", "WARNING")
             return []
+
+    def link_to_order(self, student_id: int, order_id: int) -> None:
+        if not is_online():
+            sqlite_read_all("UPDATE students SET order_id = ? WHERE id = ?", (order_id, student_id))
+            sqlite_read_all("UPDATE local_students SET order_id = ? WHERE id = ?", (order_id, student_id))
+            log_activity(f"تم ربط الطالب ID {student_id} بالأمر الجامعي ID {order_id}")
+            return
+        try:
+            resp = requests.put(f"{self.api_url}/students/{student_id}/link-order/{order_id}", timeout=5.0)
+            if resp.status_code != 200:
+                st = self.get_by_id(student_id)
+                if st:
+                    st["order_id"] = order_id
+                    self.update(student_id, st)
+            log_activity(f"تم ربط الطالب ID {student_id} بالأمر الجامعي ID {order_id}")
+        except Exception as e:
+            log_system(f"API request failed: {e}", "WARNING")
+
+    def unlink_from_order(self, student_id: int) -> None:
+        if not is_online():
+            sqlite_read_all("UPDATE students SET order_id = NULL WHERE id = ?", (student_id,))
+            sqlite_read_all("UPDATE local_students SET order_id = NULL WHERE id = ?", (student_id,))
+            log_activity(f"تم إلغاء ربط الطالب ID {student_id} من الأمر الجامعي")
+            return
+        try:
+            resp = requests.put(f"{self.api_url}/students/{student_id}/unlink-order", timeout=5.0)
+            if resp.status_code != 200:
+                st = self.get_by_id(student_id)
+                if st:
+                    st["order_id"] = None
+                    self.update(student_id, st)
+            log_activity(f"تم إلغاء ربط الطالب ID {student_id} من الأمر الجامعي")
+        except Exception as e:
+            log_system(f"API request failed: {e}", "WARNING")
+
+    def search_unlinked(self, name_query: str = "", dept_id: int | None = None, year: int | None = None, limit: int = 50) -> list[dict]:
+        if is_online():
+            try:
+                resp = requests.get(
+                    f"{self.api_url}/students/search/unlinked",
+                    params={
+                        "name_query": name_query,
+                        "dept_id": dept_id,
+                        "year": str(year) if year is not None else None,
+                        "limit": limit
+                    },
+                    timeout=3.0
+                )
+                if resp.status_code == 200:
+                    return resp.json()
+            except Exception as e:
+                log_system(f"API request failed: {e}", "WARNING")
+
+        # Direct Database Fallback (MySQL or SQLite)
+        conditions = ["(s.order_id IS NULL OR s.order_id = 0)"]
+        params = []
+        if name_query:
+            pattern = f"%{name_query.strip()}%"
+            conditions.append("(s.full_name_ar LIKE %s OR s.full_name_en LIKE %s)")
+            params.extend([pattern, pattern])
+        if dept_id:
+            conditions.append("s.department_id = %s")
+            params.append(dept_id)
+        if year:
+            conditions.append("(YEAR(s.graduation_date) = %s OR s.admission_year = %s)")
+            params.extend([str(year), str(year)])
+
+        where = "WHERE " + " AND ".join(conditions)
+        
+        # 1. Direct MySQL connection fallback
+        try:
+            conn = get_connection()
+            cur = conn.cursor(dictionary=True)
+            query = f"""
+                SELECT s.id, s.full_name_ar, s.full_name_en, s.department_id, s.admission_year, 
+                       YEAR(s.graduation_date) AS graduation_year, s.average, s.order_id,
+                       d.name_ar AS dept_name_ar
+                FROM students s
+                LEFT JOIN departments d ON s.department_id = d.id
+                {where}
+                ORDER BY s.id DESC LIMIT %s
+            """
+            params.append(limit)
+            cur.execute(query, tuple(params))
+            rows = cur.fetchall()
+            cur.close()
+            conn.close()
+            if rows:
+                return rows
+        except Exception as err:
+            log_system(f"Direct MySQL query failed, falling back to SQLite: {err}", "WARNING")
+
+        # 2. SQLite replica fallback
+        sqlite_conditions = ["(s.order_id IS NULL OR s.order_id = 0)"]
+        sqlite_params = []
+        if name_query:
+            pattern = f"%{name_query.strip()}%"
+            sqlite_conditions.append("(s.full_name_ar LIKE ? OR s.full_name_en LIKE ?)")
+            sqlite_params.extend([pattern, pattern])
+        if dept_id:
+            sqlite_conditions.append("s.department_id = ?")
+            sqlite_params.append(dept_id)
+        if year:
+            sqlite_conditions.append("(s.graduation_year = ? OR s.admission_year = ?)")
+            sqlite_params.extend([str(year), str(year)])
+
+        sqlite_where = "WHERE " + " AND ".join(sqlite_conditions)
+        sqlite_query = f"""
+            SELECT s.id, s.full_name_ar, s.full_name_en, s.department_id, s.admission_year, 
+                   CAST(strftime('%Y', s.graduation_date) AS TEXT) AS graduation_year, s.average, s.order_id,
+                   d.name_ar AS dept_name_ar
+            FROM (
+                SELECT id, full_name_ar, full_name_en, admission_year, graduation_date, average, order_id, department_id FROM students
+                UNION ALL
+                SELECT id, full_name_ar, full_name_en, admission_year, graduation_date, average, order_id, department_id FROM local_students
+            ) s
+            LEFT JOIN departments d ON s.department_id = d.id
+            {sqlite_where}
+            ORDER BY s.id DESC LIMIT ?
+        """
+        sqlite_params.append(limit)
+        return sqlite_read_all(sqlite_query, tuple(sqlite_params))
+
+    def auto_link_matching(self, order_id: int, order_data: dict) -> int:
+        dept_id = order_data.get("department_id")
+        grad_year = order_data.get("graduation_year")
+        
+        conditions = ["(s.order_id IS NULL OR s.order_id = 0)"]
+        params = []
+        if dept_id:
+            conditions.append("s.department_id = ?")
+            params.append(dept_id)
+        if grad_year:
+            conditions.append("(s.graduation_year = ? OR s.admission_year = ?)")
+            params += [str(grad_year), str(grad_year)]
+
+        where = "WHERE " + " AND ".join(conditions)
+        matching = sqlite_read_all(f"""
+            SELECT s.id FROM (
+                SELECT id, department_id, order_id, CAST(strftime('%Y', graduation_date) AS TEXT) AS graduation_year, CAST(admission_year AS TEXT) AS admission_year FROM students
+                UNION ALL
+                SELECT id, department_id, order_id, CAST(strftime('%Y', graduation_date) AS TEXT) AS graduation_year, CAST(admission_year AS TEXT) AS admission_year FROM local_students
+            ) s {where}
+        """, tuple(params))
+
+        count = 0
+        for m in matching:
+            sid = m["id"]
+            self.link_to_order(sid, order_id)
+            count += 1
+        return count
  
     def unlink_from_order(self, student_id: int) -> None:
         if not is_online():

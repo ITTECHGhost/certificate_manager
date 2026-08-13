@@ -29,6 +29,10 @@ from nicegui_ui.ui_components import UI
 from nicegui_screens.settings_screen import SettingsScreen
 from nicegui_screens.students_screen import StudentsScreen
 from nicegui_screens.graduation_orders_screen import GraduationOrdersScreen
+from nicegui_screens.departments_screen import DepartmentsScreen
+from nicegui_screens.courses_screen import CoursesScreen
+from nicegui_screens.personnel_screen import PersonnelScreen
+from nicegui_screens.certificate_screen import CertificateScreen
 
 
 class MainAppShell:
@@ -515,6 +519,14 @@ class MainAppShell:
                 StudentsScreen()
             elif self.current_screen == "orders":
                 GraduationOrdersScreen()
+            elif self.current_screen == "departments":
+                DepartmentsScreen()
+            elif self.current_screen == "courses":
+                CoursesScreen()
+            elif self.current_screen == "personnel":
+                PersonnelScreen()
+            elif self.current_screen == "certificate":
+                CertificateScreen()
             else:
                 self._build_placeholder_screen()
 

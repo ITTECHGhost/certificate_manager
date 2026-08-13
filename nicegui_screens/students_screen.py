@@ -30,8 +30,18 @@ class StudentsScreen:
         
         self.main_container = ui.column().classes('w-full h-full p-0 m-0 gap-0')
         
+        def _on_form_back(arg=None):
+            if isinstance(arg, dict):
+                self.profile_view.render(arg)
+            elif hasattr(self.form_view, "editing_student_data") and isinstance(self.form_view.editing_student_data, dict):
+                st = self.form_view.editing_student_data
+                self.form_view.editing_student_data = None
+                self.profile_view.render(st)
+            else:
+                self.show_list_view()
+
         # Instantiate the views with callbacks
-        self.form_view = StudentFormView(self.repo, self.main_container, on_back=self.show_list_view, on_save_callback=self._refresh_table)
+        self.form_view = StudentFormView(self.repo, self.main_container, on_back=_on_form_back, on_save_callback=self._refresh_table)
         self.enrollment_view = CourseEnrollmentView(self.repo, self.main_container, on_back=lambda st: self.profile_view.render(st, initial_tab="periods"))
         self.profile_view = StudentProfileView(
             self.repo, 

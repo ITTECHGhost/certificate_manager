@@ -9,6 +9,7 @@ from data.repositories import (
     CourseRepository,
     DepartmentRepository,
     StudySystemRepository,
+    GraduationOrderRepository,
     OfflineModeError,
     sqlite_read_all,
 )
@@ -642,11 +643,14 @@ class StudentFormView:
         self.on_save = on_save_callback
         self.dept_repo = DepartmentRepository()
         self.sys_repo = StudySystemRepository()
+        self.order_repo = GraduationOrderRepository()
         self.student_id = None
+        self.editing_student_data = None
         
     def render_add(self):
         """Render form in add mode"""
         self.student_id = None
+        self.editing_student_data = None
         self._build_ui(mode="Add New Student / إضافة طالب جديد")
         
     def render_edit(self, student_row):
@@ -661,7 +665,22 @@ class StudentFormView:
         if not data:
             data = student_row
             
+        self.editing_student_data = data
         self._build_ui(mode="Edit Student / تعديل بيانات الطالب", data=data)
+
+    def handle_back_action(self):
+        """Intelligent back navigation: return to student profile if editing, or list view if adding."""
+        if self.editing_student_data:
+            st_data = dict(self.editing_student_data)
+            self.editing_student_data = None
+            if callable(self.on_back):
+                try:
+                    self.on_back(st_data)
+                except TypeError:
+                    self.on_back()
+        else:
+            if callable(self.on_back):
+                self.on_back()
         
     def _build_ui(self, mode="Add New Student", data=None):
         self.parent.clear()
@@ -670,76 +689,140 @@ class StudentFormView:
         try:
             depts = self.dept_repo.get_all()
             dept_opts = {d["id"]: d.get("name_ar", str(d["id"])) for d in depts} if depts else {1: "قسم علوم الحاسوب"}
-        except:
+        except Exception:
             dept_opts = {1: "قسم علوم الحاسوب"}
 
         try:
             systems = self.sys_repo.get_all()
-            sys_opts = {s["id"]: s.get("name_ar", str(s["id"])) for s in systems} if systems else {1: "Annual / صباحي", 2: "Semester / مسائي"}
-        except:
-            sys_opts = {1: "Annual / صباحي", 2: "Semester / مسائي"}
+            sys_opts = {s["id"]: s.get("name_ar", str(s["id"])) for s in systems} if systems else {1: "نظام فصلي", 2: "نظام سنوي"}
+        except Exception:
+            sys_opts = {1: "نظام فصلي", 2: "نظام سنوي"}
+
+        # Governorates dropdown
+        try:
+            govs = sqlite_read_all("SELECT id, name_ar FROM governorates ORDER BY id ASC")
+            gov_opts = {g["id"]: g.get("name_ar", str(g["id"])) for g in govs} if govs else {1: "بغداد"}
+        except Exception:
+            gov_opts = {1: "بغداد"}
+
+        # Countries dropdown
+        try:
+            countries = sqlite_read_all("SELECT id, name_ar FROM countries ORDER BY id ASC")
+            country_opts = {c["id"]: c.get("name_ar", str(c["id"])) for c in countries} if countries else {1: "العراق"}
+        except Exception:
+            country_opts = {1: "العراق"}
+
+        # Graduation Orders dropdown
+        try:
+            orders = self.order_repo.get_all(limit=500, offset=0) or []
+            order_opts = {0: "بدون أمر تخرج / None"}
+            for o in orders:
+                onum = o.get("order_number") or "—"
+                odate = o.get("order_date") or ""
+                odept = o.get("dept_name_ar") or ""
+                order_opts[o["id"]] = f"أمر: {onum} ({odept} - {odate})"
+        except Exception:
+            order_opts = {0: "بدون أمر تخرج / None"}
+
+        SEMESTER_OPTS = {
+            "first": "الفصل الأول / Term 1",
+            "second": "الفصل الثاني / Term 2",
+            "summer": "الفصل الصيفي / Summer",
+        }
 
         with self.parent:
             with UI.card().classes('flex-1'):
                 # Header
                 with ui.row().classes('w-full justify-between items-center pb-3 app-card-header'):
                     with ui.row().classes('items-center gap-3'):
-                        ui.button(icon='arrow_back', on_click=self.on_back).props('flat round dense').classes('app-text-primary')
+                        ui.button(icon='arrow_back', on_click=self.handle_back_action).props('flat round dense').classes('app-text-primary')
                         UI.section_header(mode)
                     ui.icon('person_add' if 'Add' in mode else 'edit', size='sm').classes('app-text-accent')
                     
                 # Form Body
                 with ui.column().classes('w-full flex-1 overflow-y-auto gap-8 mt-4'):
                     
-                    # Section: Name
-                    ui.label("Name / الاسم").classes('text-lg font-bold app-text-accent w-full')
+                    # Section 1: Name Details
+                    ui.label("Name / بيانات الاسم").classes('text-lg font-bold app-text-accent w-full')
                     with ui.row().classes('w-full gap-4'):
                         self.name_ar = UI.text_input("Full Arabic Name / الاسم الكامل بالعربية").classes('flex-1')
                         self.name_en = UI.text_input("Full English Name / الاسم الكامل بالإنكليزية").classes('flex-1')
                     
-                    # Section: Personal
+                    # Section 2: Personal Details
                     ui.label("Personal Details / البيانات الشخصية").classes('text-lg font-bold app-text-accent w-full')
                     with ui.row().classes('w-full gap-4'):
                         self.dob = UI.text_input("Date of Birth / تاريخ الميلاد (YYYY-MM-DD)").classes('flex-1')
                         self.gender = UI.select("Gender / الجنس", {1: "Male / ذكر", 2: "Female / أنثى"}, value=1).classes('flex-1')
-                    
-                    # Section: Academic
-                    ui.label("Academic / الدراسة").classes('text-lg font-bold app-text-accent w-full')
+                        default_gov = list(gov_opts.keys())[0] if gov_opts else 1
+                        self.birthplace = UI.select("Birthplace / مكان الولادة", gov_opts, value=default_gov).classes('flex-1')
+                        default_ctry = list(country_opts.keys())[0] if country_opts else 1
+                        self.nationality = UI.select("Nationality / الجنسية", country_opts, value=default_ctry).classes('flex-1')
+
+                    # Section 3: Academic Details
+                    ui.label("Academic / الدراسة والأكاديميا").classes('text-lg font-bold app-text-accent w-full')
                     with ui.row().classes('w-full gap-4'):
                         default_dept = list(dept_opts.keys())[0] if dept_opts else 1
                         self.department = UI.select("Department / القسم", dept_opts, value=default_dept).classes('flex-1')
                         self.degree = UI.select("Degree Level / الدرجة العلمية", {1: "Bachelor / بكالوريوس", 2: "Higher Diploma / دبلوم عالي", 3: "Master / ماجستير", 4: "PhD / دكتوراه"}, value=1).classes('flex-1')
                         default_sys = list(sys_opts.keys())[0] if sys_opts else 1
                         self.study_system = UI.select("Study System / نظام الدراسة", sys_opts, value=default_sys).classes('flex-1')
+                        self.admission_year = UI.text_input("Admission Year / سنة القبول (مثال: 2021)").classes('flex-1')
                     
-                    # Section: Graduation
-                    ui.label("Graduation / التخرج").classes('text-lg font-bold app-text-accent w-full')
+                    # Section 4: Graduation & Ministerial Order
+                    ui.label("Graduation & Ministerial Order / التخرج والأمر الجامعي").classes('text-lg font-bold app-text-accent w-full')
                     with ui.row().classes('w-full gap-4'):
-                        self.grad_date = UI.text_input("Graduation Date / تاريخ التخرج").classes('flex-1')
+                        self.order_id = UI.select("Graduation Order / الأمر الجامعي", order_opts, value=0).classes('flex-1')
+                        self.grad_date = UI.text_input("Graduation Date / تاريخ التخرج (YYYY-MM-DD)").classes('flex-1')
+                        self.grad_semester = UI.select("Graduation Semester / فصل التخرج", SEMESTER_OPTS, value="first").classes('flex-1')
+
+                    with ui.row().classes('w-full gap-4'):
                         self.average = UI.text_input("Average / المعدل (50-100)").classes('flex-1')
                         self.sequence = UI.text_input("Sequence Number / رقم التسلسل").classes('flex-1')
+                        self.postgrad_num = UI.text_input("Postgrad Decree / رقم الأمر الوثيقي/العالي").classes('flex-1')
+
+                    with ui.row().classes('w-full gap-4'):
+                        self.summer_training = UI.text_input("Summer Training / التدريب الصيفي").classes('w-full')
                     
-                # Footer
+                # Footer Action Buttons
                 with ui.row().classes('w-full pt-4 mt-4 justify-end gap-4 shrink-0 app-card-header'):
                     UI.success_button('Save / حفظ', icon='save', on_click=self.save)
-                    UI.secondary_button('Cancel / إلغاء', on_click=self.on_back)
+                    UI.secondary_button('Cancel / إلغاء', on_click=self.handle_back_action)
 
-            # Populate data if edit
+            # Populate data if edit mode
             if data:
                 self.name_ar.value = data.get("full_name_ar") or data.get("name_ar") or ""
                 self.name_en.value = data.get("full_name_en") or data.get("name_en") or ""
                 self.dob.value = str(data.get("date_of_birth") or "")
                 if data.get("gender") in [1, 2]:
                     self.gender.value = data.get("gender")
+                if data.get("birthplace_id") in gov_opts:
+                    self.birthplace.value = data.get("birthplace_id")
+                if data.get("nationality_id") in country_opts:
+                    self.nationality.value = data.get("nationality_id")
+
                 if data.get("department_id") in dept_opts:
                     self.department.value = data.get("department_id")
                 if data.get("degree_level") in [1, 2, 3, 4]:
                     self.degree.value = data.get("degree_level")
                 if data.get("study_system_id") in sys_opts:
                     self.study_system.value = data.get("study_system_id")
+                self.admission_year.value = str(data.get("admission_year") or "")
+
+                oid_val = data.get("order_id")
+                if oid_val in order_opts:
+                    self.order_id.value = oid_val
+                else:
+                    self.order_id.value = 0
+
                 self.grad_date.value = str(data.get("graduation_date") or "")
+                gsem = str(data.get("graduation_semester") or "").lower()
+                if gsem in SEMESTER_OPTS:
+                    self.grad_semester.value = gsem
+
                 self.average.value = str(data.get("average") or "")
                 self.sequence.value = str(data.get("sequence_number") or "")
+                self.postgrad_num.value = str(data.get("postgraduation_number") or "")
+                self.summer_training.value = str(data.get("summer_training_data") or "")
 
     def save(self):
         """Extract inputs and persist student changes to database."""
@@ -748,17 +831,62 @@ class StudentFormView:
             ui.notify("يرجى إدخال اسم الطالب بالعربية / Please enter Arabic Name", type="warning")
             return
 
+        # Validate Date of Birth
+        dob_raw = self.dob.value.strip() if self.dob.value else None
+        if dob_raw:
+            from datetime import datetime
+            normalized_dob = dob_raw.replace("/", "-").replace(".", "-")
+            parts = normalized_dob.split("-")
+            valid_dob = False
+            if len(parts) == 3 and len(parts[0]) == 4:
+                try:
+                    dt = datetime(int(parts[0]), int(parts[1]), int(parts[2]))
+                    dob_raw = dt.strftime("%Y-%m-%d")
+                    valid_dob = True
+                except ValueError:
+                    pass
+            if not valid_dob:
+                ui.notify("تاريخ غير صالح في (تاريخ الميلاد). يرجى كتابة التاريخ بصيغة YYYY-MM-DD (مثال: 1995-05-05)", type="warning")
+                return
+
+        # Validate Graduation Date
+        grad_date_raw = self.grad_date.value.strip() if self.grad_date.value else None
+        if grad_date_raw:
+            from datetime import datetime
+            normalized_gdate = grad_date_raw.replace("/", "-").replace(".", "-")
+            parts = normalized_gdate.split("-")
+            valid_gdate = False
+            if len(parts) == 3 and len(parts[0]) == 4:
+                try:
+                    dt = datetime(int(parts[0]), int(parts[1]), int(parts[2]))
+                    grad_date_raw = dt.strftime("%Y-%m-%d")
+                    valid_gdate = True
+                except ValueError:
+                    pass
+            if not valid_gdate:
+                ui.notify("تاريخ غير صالح في (تاريخ التخرج). يرجى كتابة التاريخ بصيغة YYYY-MM-DD (مثال: 2025-12-05)", type="warning")
+                return
+
+        oid_val = self.order_id.value if isinstance(self.order_id.value, int) and self.order_id.value > 0 else None
+
         payload = {
             "full_name_ar": name_ar_val,
             "full_name_en": self.name_en.value.strip() if self.name_en.value else "",
             "gender": int(self.gender.value) if self.gender.value else 1,
-            "date_of_birth": self.dob.value.strip() if self.dob.value else None,
+            "date_of_birth": dob_raw,
+            "birthplace_id": self.birthplace.value if isinstance(self.birthplace.value, int) else None,
+            "nationality_id": self.nationality.value if isinstance(self.nationality.value, int) else 1,
             "department_id": self.department.value if isinstance(self.department.value, int) else None,
             "study_system_id": self.study_system.value if isinstance(self.study_system.value, int) else 1,
             "degree_level": self.degree.value if isinstance(self.degree.value, int) else 1,
-            "graduation_date": self.grad_date.value.strip() if self.grad_date.value else None,
+            "admission_year": self.admission_year.value.strip() if self.admission_year.value else None,
+            "order_id": oid_val,
+            "graduation_date": grad_date_raw,
+            "graduation_semester": str(self.grad_semester.value or "first"),
             "average": float(self.average.value) if self.average.value and str(self.average.value).replace('.', '', 1).isdigit() else None,
             "sequence_number": self.sequence.value.strip() if self.sequence.value else None,
+            "postgraduation_number": self.postgrad_num.value.strip() if self.postgrad_num.value else None,
+            "summer_training_data": self.summer_training.value.strip() if self.summer_training.value else None,
         }
 
         try:
@@ -767,11 +895,12 @@ class StudentFormView:
                 ui.notify("تم تعديل بيانات الطالب بنجاح / Student updated successfully", type="positive")
             else:
                 new_id = self.repo.insert(payload)
+                self.student_id = new_id
                 ui.notify(f"تم إضافة الطالب بنجاح (ID: {new_id}) / Student added successfully", type="positive")
             
             if self.on_save:
                 self.on_save()
-            self.on_back()
+            self.handle_back_action()
         except OfflineModeError as err:
             ui.notify(str(err), type="warning")
         except Exception as err:

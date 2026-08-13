@@ -5,6 +5,9 @@
 import sys
 import asyncio
 from nicegui import ui
+from utils.logger import setup_global_exception_logging
+
+setup_global_exception_logging()
 
 # Import screens from isolated NiceGUI folder
 from nicegui_screens.login_screen import LoginScreen

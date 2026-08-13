@@ -20098,3 +20098,413 @@ _tkinter.TclError: bad window path name ".!loginscreen.!ctkframe2.!ctkframe.!ctk
 2026-08-12 23:30:26 [OK] [CHECK 3/4] Authentication & Core SP Checks ... [OK]
 2026-08-12 23:30:26 [OK] [CHECK 4/4] Sync Engine & Local Replica Check ... [OK]
 2026-08-12 23:30:26 [OK] Status: ALL CHECKS PASSED. PROCEEDING TO LOGIN/DASHBOARD.
+2026-08-12 23:56:33 [INFO] SYSTEM STARTUP DIAGNOSTIC CHECK STARTED
+2026-08-12 23:56:34 [OK] [CHECK 1/4] FastAPI Connection Check ... [OK]
+2026-08-12 23:56:34 [OK] [CHECK 2/4] MySQL Database Connection ... [OK]
+2026-08-12 23:56:34 [OK] [CHECK 3/4] Authentication & Core SP Checks ... [OK]
+2026-08-12 23:56:34 [OK] [CHECK 4/4] Sync Engine & Local Replica Check ... [OK]
+2026-08-12 23:56:34 [OK] Status: ALL CHECKS PASSED. PROCEEDING TO LOGIN/DASHBOARD.
+2026-08-13 00:11:50 [WARNING] API request failed: 'charmap' codec can't encode characters in position 32-33: character maps to <undefined>
+2026-08-13 00:25:49 [INFO] Test System Log Message
+2026-08-13 00:32:18 [INFO] Test System Log Message
+2026-08-13 00:32:18 [ERROR] UNHANDLED EXCEPTION:
+Traceback (most recent call last):
+  File "C:\Users\IT_TECK\.gemini\antigravity-ide\brain\1e4b9027-d442-4a8c-882b-3f301189b5dd\scratch\test_logging.py", line 22, in <module>
+    test_logs()
+    ~~~~~~~~~^^
+  File "C:\Users\IT_TECK\.gemini\antigravity-ide\brain\1e4b9027-d442-4a8c-882b-3f301189b5dd\scratch\test_logging.py", line 11, in test_logs
+    with open("system_log.txt", "r", encoding="utf-8") as f:
+         ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: 'system_log.txt'
+
+2026-08-13 00:32:27 [INFO] Test System Log Message
+2026-08-13 00:34:15 [INFO] SYSTEM STARTUP DIAGNOSTIC CHECK STARTED
+2026-08-13 00:34:15 [OK] [CHECK 1/4] FastAPI Connection Check ... [OK]
+2026-08-13 00:34:15 [OK] [CHECK 2/4] MySQL Database Connection ... [OK]
+2026-08-13 00:34:15 [OK] [CHECK 3/4] Authentication & Core SP Checks ... [OK]
+2026-08-13 00:34:15 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-08-13 00:34:15 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-08-13 00:34:15 [OK] [CHECK 4/4] Sync Engine & Local Replica Check ... [OK]
+2026-08-13 00:34:15 [OK] Status: ALL CHECKS PASSED. PROCEEDING TO LOGIN/DASHBOARD.
+2026-08-13 00:34:17 [INFO] Using WinForms / Chromium
+2026-08-13 00:34:17 [INFO] Using WinForms / Chromium
+2026-08-13 00:34:23 [INFO] before_load event fired. injecting pywebview object
+2026-08-13 00:34:23 [INFO] before_load event fired. injecting pywebview object
+2026-08-13 00:34:23 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-13 00:34:23 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-13 00:34:23 [INFO] _pywebviewready event fired
+2026-08-13 00:34:23 [INFO] _pywebviewready event fired
+2026-08-13 00:34:23 [INFO] loaded event fired
+2026-08-13 00:34:23 [INFO] loaded event fired
+2026-08-13 00:34:32 [INFO] before_load event fired. injecting pywebview object
+2026-08-13 00:34:32 [INFO] before_load event fired. injecting pywebview object
+2026-08-13 00:34:32 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-13 00:34:32 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-13 00:34:32 [INFO] _pywebviewready event fired
+2026-08-13 00:34:32 [INFO] _pywebviewready event fired
+2026-08-13 00:34:32 [INFO] loaded event fired
+2026-08-13 00:34:32 [INFO] loaded event fired
+2026-08-13 00:34:56 [ERROR] int() argument must be a string, a bytes-like object or a real number, not 'GenericEventArguments'
+Traceback (most recent call last):
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\events.py", line 472, in handle_event
+    result = cast(Callable[[EventT], Any], handler)(arguments)
+  File "f:\CR_PY\certificate_manager\nicegui_screens\graduation_orders_screen.py", line 90, in on_limit_change
+    self.current_limit = int(val or 25)
+                         ~~~^^^^^^^^^^^
+TypeError: int() argument must be a string, a bytes-like object or a real number, not 'GenericEventArguments'
+2026-08-13 00:34:56 [ERROR] int() argument must be a string, a bytes-like object or a real number, not 'GenericEventArguments'
+Traceback (most recent call last):
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\events.py", line 472, in handle_event
+    result = cast(Callable[[EventT], Any], handler)(arguments)
+  File "f:\CR_PY\certificate_manager\nicegui_screens\graduation_orders_screen.py", line 90, in on_limit_change
+    self.current_limit = int(val or 25)
+                         ~~~^^^^^^^^^^^
+TypeError: int() argument must be a string, a bytes-like object or a real number, not 'GenericEventArguments'
+2026-08-13 00:35:03 [ERROR] int() argument must be a string, a bytes-like object or a real number, not 'GenericEventArguments'
+Traceback (most recent call last):
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\events.py", line 472, in handle_event
+    result = cast(Callable[[EventT], Any], handler)(arguments)
+  File "f:\CR_PY\certificate_manager\nicegui_screens\graduation_orders_screen.py", line 90, in on_limit_change
+    self.current_limit = int(val or 25)
+                         ~~~^^^^^^^^^^^
+TypeError: int() argument must be a string, a bytes-like object or a real number, not 'GenericEventArguments'
+2026-08-13 00:35:03 [ERROR] int() argument must be a string, a bytes-like object or a real number, not 'GenericEventArguments'
+Traceback (most recent call last):
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\events.py", line 472, in handle_event
+    result = cast(Callable[[EventT], Any], handler)(arguments)
+  File "f:\CR_PY\certificate_manager\nicegui_screens\graduation_orders_screen.py", line 90, in on_limit_change
+    self.current_limit = int(val or 25)
+                         ~~~^^^^^^^^^^^
+TypeError: int() argument must be a string, a bytes-like object or a real number, not 'GenericEventArguments'
+2026-08-13 00:40:12 [ERROR] UNHANDLED EXCEPTION:
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+    from data.repositories import StudentRepository; repo = StudentRepository(); res = repo.search_unlinked(limit=10); print('Found unlinked count:', len(res)); print('Sample 3:', [(s['id'], s['department_id'], s['order_id']) for s in res[:3]])
+                                                                                                                                                                                               ~^^^^^^^^^^^^^^^^^
+KeyError: 'department_id'
+
+2026-08-13 00:43:19 [INFO] SYSTEM STARTUP DIAGNOSTIC CHECK STARTED
+2026-08-13 00:43:19 [OK] [CHECK 1/4] FastAPI Connection Check ... [OK]
+2026-08-13 00:43:19 [OK] [CHECK 2/4] MySQL Database Connection ... [OK]
+2026-08-13 00:43:20 [OK] [CHECK 3/4] Authentication & Core SP Checks ... [OK]
+2026-08-13 00:43:20 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-08-13 00:43:20 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-08-13 00:43:20 [OK] [CHECK 4/4] Sync Engine & Local Replica Check ... [OK]
+2026-08-13 00:43:20 [OK] Status: ALL CHECKS PASSED. PROCEEDING TO LOGIN/DASHBOARD.
+2026-08-13 00:43:22 [INFO] Using WinForms / Chromium
+2026-08-13 00:43:22 [INFO] Using WinForms / Chromium
+2026-08-13 00:43:25 [INFO] before_load event fired. injecting pywebview object
+2026-08-13 00:43:25 [INFO] before_load event fired. injecting pywebview object
+2026-08-13 00:43:25 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-13 00:43:25 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-13 00:43:25 [INFO] _pywebviewready event fired
+2026-08-13 00:43:25 [INFO] _pywebviewready event fired
+2026-08-13 00:43:25 [INFO] loaded event fired
+2026-08-13 00:43:25 [INFO] loaded event fired
+2026-08-13 00:43:30 [INFO] before_load event fired. injecting pywebview object
+2026-08-13 00:43:30 [INFO] before_load event fired. injecting pywebview object
+2026-08-13 00:43:30 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-13 00:43:30 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-13 00:43:30 [INFO] _pywebviewready event fired
+2026-08-13 00:43:30 [INFO] _pywebviewready event fired
+2026-08-13 00:43:30 [INFO] loaded event fired
+2026-08-13 00:43:30 [INFO] loaded event fired
+2026-08-13 00:53:07 [WARNING] API request failed: API update failed: {"detail":"1452 (23000): Cannot add or update a child row: a foreign key constraint fails (`certificate_manager`.`students`, CONSTRAINT `students_ibfk_2` FOREIGN KEY (`nationality_id`) REFERENCES `countries` (`id`) ON UPDATE CASCADE)"}
+2026-08-13 00:53:07 [ERROR] UNHANDLED EXCEPTION:
+Traceback (most recent call last):
+  File "C:\Users\IT_TECK\.gemini\antigravity-ide\brain\1e4b9027-d442-4a8c-882b-3f301189b5dd\scratch\test_student_edit_fields.py", line 44, in <module>
+    test_student_form_fields()
+    ~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\IT_TECK\.gemini\antigravity-ide\brain\1e4b9027-d442-4a8c-882b-3f301189b5dd\scratch\test_student_edit_fields.py", line 36, in test_student_form_fields
+    repo.update(sid, payload)
+    ~~~~~~~~~~~^^^^^^^^^^^^^^
+  File "f:\CR_PY\certificate_manager\data\repositories.py", line 1624, in update
+    raise RuntimeError(f"API update failed: {resp.text}")
+RuntimeError: API update failed: {"detail":"1452 (23000): Cannot add or update a child row: a foreign key constraint fails (`certificate_manager`.`students`, CONSTRAINT `students_ibfk_2` FOREIGN KEY (`nationality_id`) REFERENCES `countries` (`id`) ON UPDATE CASCADE)"}
+
+2026-08-13 00:55:38 [INFO] SYSTEM STARTUP DIAGNOSTIC CHECK STARTED
+2026-08-13 00:55:38 [OK] [CHECK 1/4] FastAPI Connection Check ... [OK]
+2026-08-13 00:55:38 [OK] [CHECK 2/4] MySQL Database Connection ... [OK]
+2026-08-13 00:55:38 [OK] [CHECK 3/4] Authentication & Core SP Checks ... [OK]
+2026-08-13 00:55:38 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-08-13 00:55:38 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-08-13 00:55:38 [OK] [CHECK 4/4] Sync Engine & Local Replica Check ... [OK]
+2026-08-13 00:55:38 [OK] Status: ALL CHECKS PASSED. PROCEEDING TO LOGIN/DASHBOARD.
+2026-08-13 00:55:41 [INFO] Using WinForms / Chromium
+2026-08-13 00:55:41 [INFO] Using WinForms / Chromium
+2026-08-13 00:55:44 [INFO] before_load event fired. injecting pywebview object
+2026-08-13 00:55:44 [INFO] before_load event fired. injecting pywebview object
+2026-08-13 00:55:44 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-13 00:55:44 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-13 00:55:44 [INFO] _pywebviewready event fired
+2026-08-13 00:55:44 [INFO] _pywebviewready event fired
+2026-08-13 00:55:44 [INFO] loaded event fired
+2026-08-13 00:55:44 [INFO] loaded event fired
+2026-08-13 00:55:49 [INFO] before_load event fired. injecting pywebview object
+2026-08-13 00:55:49 [INFO] before_load event fired. injecting pywebview object
+2026-08-13 00:55:49 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-13 00:55:49 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-13 00:55:49 [INFO] _pywebviewready event fired
+2026-08-13 00:55:49 [INFO] _pywebviewready event fired
+2026-08-13 00:55:49 [INFO] loaded event fired
+2026-08-13 00:55:49 [INFO] loaded event fired
+2026-08-13 00:56:31 [WARNING] An element has been deleted but is still being used. This is most likely a bug in your application code. See https://github.com/zauberzeug/nicegui/issues/3028 for more information.
+Stack (most recent call last):
+  File "f:\CR_PY\certificate_manager\main.py", line 107, in <module>
+    ui.run(
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\ui_run.py", line 311, in run
+    Server.instance.run()
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\server.py", line 49, in run
+    super().run(sockets=sockets)
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\uvicorn\server.py", line 75, in run
+    return asyncio_run(self.serve(sockets=sockets), loop_factory=self.config.get_loop_factory())
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\asyncio\runners.py", line 204, in run
+    return runner.run(main)
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\asyncio\runners.py", line 127, in run
+    return self._loop.run_until_complete(task)
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\asyncio\base_events.py", line 706, in run_until_complete
+    self.run_forever()
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\asyncio\base_events.py", line 677, in run_forever
+    self._run_once()
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\asyncio\base_events.py", line 2057, in _run_once
+    handle._run()
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\asyncio\events.py", line 94, in _run
+    self._context.run(self._callback, *self._args)
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\socketio\async_server.py", line 619, in _handle_event_internal
+    r = await server._trigger_event(data[0], namespace, sid, *data[1:])
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\socketio\async_server.py", line 658, in _trigger_event
+    ret = handler(*args)
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\nicegui.py", line 238, in _on_event
+    client.handle_event(msg)
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\client.py", line 401, in handle_event
+    sender._handle_event(msg)  # pylint: disable=protected-access
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\element.py", line 411, in _handle_event
+    events.handle_event(listener.handler, args)
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\events.py", line 472, in handle_event
+    result = cast(Callable[[EventT], Any], handler)(arguments)
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\elements\button.py", line 43, in <lambda>
+    self.on('click', lambda _: handle_event(callback, ClickEventArguments(sender=self, client=self.client)), [])
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\events.py", line 474, in handle_event
+    result = cast(Callable[[], Any], handler)()
+  File "f:\CR_PY\certificate_manager\nicegui_ui\student_components.py", line 866, in save
+    self.on_save()
+  File "f:\CR_PY\certificate_manager\nicegui_screens\students_screen.py", line 267, in _refresh_table
+    self.perform_search(reset_offset=True)
+  File "f:\CR_PY\certificate_manager\nicegui_screens\students_screen.py", line 215, in perform_search
+    self.table.rows = mapped
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\elements\table.py", line 331, in rows
+    self._props['rows'] = value
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\observables.py", line 113, in __setitem__
+    self._handle_change()
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\observables.py", line 38, in _handle_change
+    events.handle_event(handler, events.ObservableChangeEventArguments(sender=self))
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\events.py", line 474, in handle_event
+    result = cast(Callable[[], Any], handler)()
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\props.py", line 110, in _update
+    element.update()
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\element.py", line 434, in update
+    if not self._is_safe_to_interact():
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\element.py", line 425, in _is_safe_to_interact
+    helpers.warn_once('An element has been deleted but is still being used. '
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\helpers\warnings.py", line 9, in warn_once
+    log.warning(message, stack_info=stack_info)
+2026-08-13 00:56:31 [WARNING] An element has been deleted but is still being used. This is most likely a bug in your application code. See https://github.com/zauberzeug/nicegui/issues/3028 for more information.
+Stack (most recent call last):
+  File "f:\CR_PY\certificate_manager\main.py", line 107, in <module>
+    ui.run(
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\ui_run.py", line 311, in run
+    Server.instance.run()
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\server.py", line 49, in run
+    super().run(sockets=sockets)
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\uvicorn\server.py", line 75, in run
+    return asyncio_run(self.serve(sockets=sockets), loop_factory=self.config.get_loop_factory())
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\asyncio\runners.py", line 204, in run
+    return runner.run(main)
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\asyncio\runners.py", line 127, in run
+    return self._loop.run_until_complete(task)
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\asyncio\base_events.py", line 706, in run_until_complete
+    self.run_forever()
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\asyncio\base_events.py", line 677, in run_forever
+    self._run_once()
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\asyncio\base_events.py", line 2057, in _run_once
+    handle._run()
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\asyncio\events.py", line 94, in _run
+    self._context.run(self._callback, *self._args)
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\socketio\async_server.py", line 619, in _handle_event_internal
+    r = await server._trigger_event(data[0], namespace, sid, *data[1:])
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\socketio\async_server.py", line 658, in _trigger_event
+    ret = handler(*args)
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\nicegui.py", line 238, in _on_event
+    client.handle_event(msg)
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\client.py", line 401, in handle_event
+    sender._handle_event(msg)  # pylint: disable=protected-access
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\element.py", line 411, in _handle_event
+    events.handle_event(listener.handler, args)
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\events.py", line 472, in handle_event
+    result = cast(Callable[[EventT], Any], handler)(arguments)
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\elements\button.py", line 43, in <lambda>
+    self.on('click', lambda _: handle_event(callback, ClickEventArguments(sender=self, client=self.client)), [])
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\events.py", line 474, in handle_event
+    result = cast(Callable[[], Any], handler)()
+  File "f:\CR_PY\certificate_manager\nicegui_ui\student_components.py", line 866, in save
+    self.on_save()
+  File "f:\CR_PY\certificate_manager\nicegui_screens\students_screen.py", line 267, in _refresh_table
+    self.perform_search(reset_offset=True)
+  File "f:\CR_PY\certificate_manager\nicegui_screens\students_screen.py", line 215, in perform_search
+    self.table.rows = mapped
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\elements\table.py", line 331, in rows
+    self._props['rows'] = value
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\observables.py", line 113, in __setitem__
+    self._handle_change()
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\observables.py", line 38, in _handle_change
+    events.handle_event(handler, events.ObservableChangeEventArguments(sender=self))
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\events.py", line 474, in handle_event
+    result = cast(Callable[[], Any], handler)()
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\props.py", line 110, in _update
+    element.update()
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\element.py", line 434, in update
+    if not self._is_safe_to_interact():
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\element.py", line 425, in _is_safe_to_interact
+    helpers.warn_once('An element has been deleted but is still being used. '
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\helpers\warnings.py", line 9, in warn_once
+    log.warning(message, stack_info=stack_info)
+2026-08-13 01:03:22 [WARNING] Failed to delete user data folder: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\IT_TECK\\AppData\\Local\\Temp\\tmp28nz5uh9\\EBWebView\\Default\\shared_proto_db\\metadata\\000003.log'
+2026-08-13 01:03:22 [WARNING] Failed to delete user data folder: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\IT_TECK\\AppData\\Local\\Temp\\tmp28nz5uh9\\EBWebView\\Default\\shared_proto_db\\metadata\\000003.log'
+2026-08-13 01:05:18 [INFO] SYSTEM STARTUP DIAGNOSTIC CHECK STARTED
+2026-08-13 01:05:18 [OK] [CHECK 1/4] FastAPI Connection Check ... [OK]
+2026-08-13 01:05:19 [OK] [CHECK 2/4] MySQL Database Connection ... [OK]
+2026-08-13 01:05:19 [OK] [CHECK 3/4] Authentication & Core SP Checks ... [OK]
+2026-08-13 01:05:19 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-08-13 01:05:19 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-08-13 01:05:19 [OK] [CHECK 4/4] Sync Engine & Local Replica Check ... [OK]
+2026-08-13 01:05:19 [OK] Status: ALL CHECKS PASSED. PROCEEDING TO LOGIN/DASHBOARD.
+2026-08-13 01:05:21 [INFO] Using WinForms / Chromium
+2026-08-13 01:05:21 [INFO] Using WinForms / Chromium
+2026-08-13 01:05:25 [INFO] before_load event fired. injecting pywebview object
+2026-08-13 01:05:25 [INFO] before_load event fired. injecting pywebview object
+2026-08-13 01:05:25 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-13 01:05:25 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-13 01:05:25 [INFO] _pywebviewready event fired
+2026-08-13 01:05:25 [INFO] _pywebviewready event fired
+2026-08-13 01:05:25 [INFO] loaded event fired
+2026-08-13 01:05:25 [INFO] loaded event fired
+2026-08-13 01:05:30 [INFO] before_load event fired. injecting pywebview object
+2026-08-13 01:05:30 [INFO] before_load event fired. injecting pywebview object
+2026-08-13 01:05:30 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-13 01:05:30 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-13 01:05:30 [INFO] _pywebviewready event fired
+2026-08-13 01:05:30 [INFO] _pywebviewready event fired
+2026-08-13 01:05:30 [INFO] loaded event fired
+2026-08-13 01:05:30 [INFO] loaded event fired
+2026-08-13 01:23:25 [INFO] SYSTEM STARTUP DIAGNOSTIC CHECK STARTED
+2026-08-13 01:23:25 [OK] [CHECK 1/4] FastAPI Connection Check ... [OK]
+2026-08-13 01:23:25 [OK] [CHECK 2/4] MySQL Database Connection ... [OK]
+2026-08-13 01:23:25 [OK] [CHECK 3/4] Authentication & Core SP Checks ... [OK]
+2026-08-13 01:23:25 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-08-13 01:23:25 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-08-13 01:23:25 [OK] [CHECK 4/4] Sync Engine & Local Replica Check ... [OK]
+2026-08-13 01:23:25 [OK] Status: ALL CHECKS PASSED. PROCEEDING TO LOGIN/DASHBOARD.
+2026-08-13 01:23:29 [INFO] Using WinForms / Chromium
+2026-08-13 01:23:29 [INFO] Using WinForms / Chromium
+2026-08-13 01:23:34 [INFO] before_load event fired. injecting pywebview object
+2026-08-13 01:23:34 [INFO] before_load event fired. injecting pywebview object
+2026-08-13 01:23:34 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-13 01:23:34 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-13 01:23:34 [INFO] _pywebviewready event fired
+2026-08-13 01:23:34 [INFO] _pywebviewready event fired
+2026-08-13 01:23:34 [INFO] loaded event fired
+2026-08-13 01:23:34 [INFO] loaded event fired
+2026-08-13 01:23:51 [INFO] before_load event fired. injecting pywebview object
+2026-08-13 01:23:51 [INFO] before_load event fired. injecting pywebview object
+2026-08-13 01:23:51 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-13 01:23:51 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-13 01:23:51 [INFO] _pywebviewready event fired
+2026-08-13 01:23:51 [INFO] _pywebviewready event fired
+2026-08-13 01:23:51 [INFO] loaded event fired
+2026-08-13 01:23:51 [INFO] loaded event fired
+2026-08-13 01:23:56 [WARNING] Failed to fetch departments: DepartmentRepository.get_all() got an unexpected keyword argument 'limit'
+2026-08-13 01:23:56 [WARNING] Failed to fetch departments: DepartmentRepository.get_all() got an unexpected keyword argument 'limit'
+2026-08-13 01:24:03 [WARNING] Failed to fetch courses: CourseRepository.get_all() got an unexpected keyword argument 'limit'
+2026-08-13 01:24:03 [WARNING] Failed to fetch courses: CourseRepository.get_all() got an unexpected keyword argument 'limit'
+2026-08-13 01:24:08 [WARNING] Failed to fetch courses: CourseRepository.get_all() got an unexpected keyword argument 'limit'
+2026-08-13 01:24:08 [WARNING] Failed to fetch courses: CourseRepository.get_all() got an unexpected keyword argument 'limit'
+2026-08-13 01:24:10 [ERROR] UI.danger_button() missing 1 required positional argument: 'text'
+Traceback (most recent call last):
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\events.py", line 474, in handle_event
+    result = cast(Callable[[], Any], handler)()
+  File "f:\CR_PY\certificate_manager\nicegui_screens\dashboard_screen.py", line 256, in <lambda>
+    "click", lambda key=item["key"]: self._switch_screen(key)
+                                     ~~~~~~~~~~~~~~~~~~~^^^^^
+  File "f:\CR_PY\certificate_manager\nicegui_screens\dashboard_screen.py", line 508, in _switch_screen
+    self._render_active_screen()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "f:\CR_PY\certificate_manager\nicegui_screens\dashboard_screen.py", line 527, in _render_active_screen
+    PersonnelScreen()
+    ~~~~~~~~~~~~~~~^^
+  File "f:\CR_PY\certificate_manager\nicegui_screens\personnel_screen.py", line 36, in __init__
+    self.show_list_view()
+    ~~~~~~~~~~~~~~~~~~~^^
+  File "f:\CR_PY\certificate_manager\nicegui_screens\personnel_screen.py", line 94, in show_list_view
+    content_view()
+    ~~~~~~~~~~~~^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\functions\refreshable.py", line 85, in __call__
+    return target.run(self.func)
+           ~~~~~~~~~~^^^^^^^^^^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\functions\refreshable.py", line 38, in run
+    result = func(*self.args, **self.kwargs)
+  File "f:\CR_PY\certificate_manager\nicegui_screens\personnel_screen.py", line 92, in content_view
+    self._build_table()
+    ~~~~~~~~~~~~~~~~~^^
+  File "f:\CR_PY\certificate_manager\nicegui_screens\personnel_screen.py", line 134, in _build_table
+    self._render_card(row)
+    ~~~~~~~~~~~~~~~~~^^^^^
+  File "f:\CR_PY\certificate_manager\nicegui_screens\personnel_screen.py", line 198, in _render_card
+    UI.danger_button(
+    ~~~~~~~~~~~~~~~~^
+        icon="delete",
+        ^^^^^^^^^^^^^^
+        on_click=lambda r=row: self.confirm_delete(r)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ).classes("text-xs px-2 py-1.5")
+    ^
+TypeError: UI.danger_button() missing 1 required positional argument: 'text'
+2026-08-13 01:24:10 [ERROR] UI.danger_button() missing 1 required positional argument: 'text'
+Traceback (most recent call last):
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\events.py", line 474, in handle_event
+    result = cast(Callable[[], Any], handler)()
+  File "f:\CR_PY\certificate_manager\nicegui_screens\dashboard_screen.py", line 256, in <lambda>
+    "click", lambda key=item["key"]: self._switch_screen(key)
+                                     ~~~~~~~~~~~~~~~~~~~^^^^^
+  File "f:\CR_PY\certificate_manager\nicegui_screens\dashboard_screen.py", line 508, in _switch_screen
+    self._render_active_screen()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "f:\CR_PY\certificate_manager\nicegui_screens\dashboard_screen.py", line 527, in _render_active_screen
+    PersonnelScreen()
+    ~~~~~~~~~~~~~~~^^
+  File "f:\CR_PY\certificate_manager\nicegui_screens\personnel_screen.py", line 36, in __init__
+    self.show_list_view()
+    ~~~~~~~~~~~~~~~~~~~^^
+  File "f:\CR_PY\certificate_manager\nicegui_screens\personnel_screen.py", line 94, in show_list_view
+    content_view()
+    ~~~~~~~~~~~~^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\functions\refreshable.py", line 85, in __call__
+    return target.run(self.func)
+           ~~~~~~~~~~^^^^^^^^^^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\functions\refreshable.py", line 38, in run
+    result = func(*self.args, **self.kwargs)
+  File "f:\CR_PY\certificate_manager\nicegui_screens\personnel_screen.py", line 92, in content_view
+    self._build_table()
+    ~~~~~~~~~~~~~~~~~^^
+  File "f:\CR_PY\certificate_manager\nicegui_screens\personnel_screen.py", line 134, in _build_table
+    self._render_card(row)
+    ~~~~~~~~~~~~~~~~~^^^^^
+  File "f:\CR_PY\certificate_manager\nicegui_screens\personnel_screen.py", line 198, in _render_card
+    UI.danger_button(
+    ~~~~~~~~~~~~~~~~^
+        icon="delete",
+        ^^^^^^^^^^^^^^
+        on_click=lambda r=row: self.confirm_delete(r)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ).classes("text-xs px-2 py-1.5")
+    ^
+TypeError: UI.danger_button() missing 1 required positional argument: 'text'
