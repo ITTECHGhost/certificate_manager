@@ -853,13 +853,11 @@ class PersonnelPayload(BaseModel):
     academic_title_en: Optional[str] = None
     responsibility_ar: Optional[str] = None
     responsibility_en: Optional[str] = None
-    display_order: Optional[int] = 0
+    display_order: Optional[int] = 0          # 0 = not a signatory; 1-10 = signatory order
     username: str
-    password_hash: str
+    password_hash: Optional[str] = None       # plain-text; omit to preserve existing
     personnel_role: Optional[str] = "user"
-    settings_id: Optional[int] = 1
     university_settings_id: Optional[int] = 1
-    page_location: Optional[str] = "front"
     is_active: Optional[int] = 1
 
 class LoginPayload(BaseModel):
@@ -896,7 +894,14 @@ def authenticate_personnel(payload: LoginPayload, conn = Depends(get_db)):
 def insert_personnel(payload: PersonnelPayload, conn = Depends(get_db)):
     cur = conn.cursor()
     try:
-        fields = payload.model_dump()
+        # Include all fields that are not None, except password_hash which is skipped when None
+        all_fields = payload.model_dump()
+        fields = {
+            k: v for k, v in all_fields.items()
+            if k != "password_hash" and v is not None
+        }
+        if all_fields.get("password_hash") is not None:
+            fields["password_hash"] = all_fields["password_hash"]
         columns = ", ".join(fields.keys())
         placeholders = ", ".join(["%s"] * len(fields))
         values = tuple(fields.values())
@@ -914,7 +919,18 @@ def insert_personnel(payload: PersonnelPayload, conn = Depends(get_db)):
 def update_personnel(person_id: int, payload: PersonnelPayload, conn = Depends(get_db)):
     cur = conn.cursor()
     try:
-        fields = payload.model_dump()
+        # Build update fields: include all non-None values; always include zero-able integer fields;
+        # skip password_hash when None (preserve existing password in DB)
+        all_fields = payload.model_dump()
+        zero_safe_int_fields = {"display_order", "is_signature", "is_active",
+                                "settings_id", "university_settings_id"}
+        fields = {}
+        for k, v in all_fields.items():
+            if k == "password_hash":
+                if v is not None:  # only update password when explicitly set
+                    fields[k] = v
+            elif v is not None or k in zero_safe_int_fields:
+                fields[k] = v
         set_clause = ", ".join([f"{f}=%s" for f in fields.keys()])
         values = tuple(fields.values()) + (person_id,)
         query = f"UPDATE personnel SET {set_clause} WHERE id=%s"

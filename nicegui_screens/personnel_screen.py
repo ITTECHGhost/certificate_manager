@@ -6,24 +6,18 @@ from nicegui_screens.graduation_orders_screen import extract_event_value
 
 log = logging.getLogger(__name__)
 
+# display_order is the ONLY signatory column in MySQL.
+# 0 = not a signatory.  1-10 = signatory with that position number.
 ORDER_OPTIONS = {
-    "1": (1, "front"),
-    "2": (2, "front"),
-    "3": (3, "front"),
-    "4": (4, "front"),
-    "5": (5, "back"),
-    "6": (6, "back"),
-    "7": (7, "back"),
-    "8": (8, "back"),
-    "9": (9, "back"),
-    "10": (10, "back"),
-    "بدون / None": (0, "front"),
+    "1": 1, "2": 2, "3": 3, "4": 4, "5": 5,
+    "6": 6, "7": 7, "8": 8, "9": 9, "10": 10,
+    "بدون / None": 0,
 }
 
 class PersonnelScreen:
     """
     Personnel Management Screen (NiceGUI version).
-    Uses full page views for list and edit modes.
+    Uses full page views for list and edit modes (view replacing UI).
     """
 
     def __init__(self):
@@ -38,9 +32,9 @@ class PersonnelScreen:
     def show_list_view(self):
         self.container.clear()
         with self.container:
-            with UI.card().classes("flex-1 gap-6 p-6 overflow-hidden"):
+            with UI.card().classes("flex-1 gap-6 p-6 overflow-hidden flex-col w-full h-full"):
                 # Header Bar
-                with ui.row().classes("w-full justify-between items-center pb-4 border-b border-[var(--border-default)] app-card-header"):
+                with ui.row().classes("w-full justify-between items-center pb-4 border-b border-[var(--border-default)] app-card-header shrink-0"):
                     with ui.row().classes("items-center gap-3"):
                         ui.icon("manage_accounts", size="md").classes("app-text-accent")
                         with ui.column().classes("gap-0"):
@@ -54,7 +48,7 @@ class PersonnelScreen:
                     ).classes("text-sm px-5 py-2.5 shrink-0")
 
                 # Controls Row
-                with ui.row().classes("w-full items-center justify-between gap-4 flex-wrap"):
+                with ui.row().classes("w-full items-center justify-between gap-4 flex-wrap shrink-0"):
                     with ui.row().classes("items-center gap-3 flex-1 min-w-[300px]"):
                         def on_search_change(e):
                             val = extract_event_value(e, default="")
@@ -100,71 +94,75 @@ class PersonnelScreen:
 
     def _get_filtered_data(self) -> list[dict]:
         try:
-            fetch_limit = 500 if self.search_term else self.current_limit
-            fetch_offset = 0 if self.search_term else self.current_offset
-            rows = self.repo.get_all() or [] # repo doesn't support limit yet natively
-            
-            # Apply manual limit/offset since repo.get_all doesn't take args currently
-            if self.search_term:
-                t = self.search_term
-                filtered = [
-                    r for r in rows
-                    if t in str(r.get("name_ar") or "").lower()
-                    or t in str(r.get("username") or "").lower()
-                ]
-                return filtered[fetch_offset:fetch_offset + fetch_limit]
-            
-            return rows[fetch_offset:fetch_offset + fetch_limit]
-            
+            rows = self.repo.get_all() or []
         except Exception as err:
             log.warning(f"Failed to fetch personnel: {err}")
             return []
 
-    def _build_table(self):
-        rows = self._get_filtered_data()
+        if not self.search_term:
+            return rows
 
-        with ui.column().classes("w-full flex-1 gap-3 overflow-y-auto min-h-[340px]"):
-            if not rows:
+        t = self.search_term
+        filtered = [
+            r for r in rows
+            if t in str(r.get("name_ar") or "").lower()
+            or t in str(r.get("name_en") or "").lower()
+            or t in str(r.get("username") or "").lower()
+            or t in str(r.get("academic_title_ar") or "").lower()
+            or t in str(r.get("responsibility_ar") or "").lower()
+        ]
+        return filtered
+
+    def _build_table(self):
+        all_rows = self._get_filtered_data()
+        total_count = len(all_rows)
+        
+        start_idx = self.current_offset
+        end_idx = start_idx + self.current_limit
+        page_rows = all_rows[start_idx:end_idx]
+
+        with ui.column().classes("w-full flex-1 gap-3 overflow-y-auto min-h-[300px]"):
+            if not page_rows:
                 with ui.column().classes("w-full items-center py-12 text-center bg-[var(--bg-card)] rounded-xl border border-[var(--border-default)]"):
                     ui.icon("group_off", size="lg").classes("app-text-muted mb-2")
                     ui.label("لا توجد كوادر مطابقة").classes("text-lg font-bold app-text-muted")
                     ui.label("No matching personnel found.").classes("text-xs app-text-muted")
             else:
-                for row in rows:
+                for row in page_rows:
                     self._render_card(row)
 
-        start_idx = self.current_offset + 1 if rows else 0
-        
-        try:
-            total_rows = len(self.repo.get_all() or [])
-        except:
-            total_rows = len(rows)
-
-        end_idx = min(self.current_offset + self.current_limit, total_rows)
+        disp_start = start_idx + 1 if total_count > 0 else 0
+        disp_end = min(end_idx, total_count)
 
         with ui.row().classes("w-full items-center justify-between pt-4 border-t border-[var(--border-default)] shrink-0"):
             prev_btn = UI.secondary_button("◄ السابق / Previous", on_click=self.go_prev).classes("text-xs px-4 py-2")
             if self.current_offset == 0 or self.search_term:
                 prev_btn.disable()
 
-            ui.label(f"السجلات {start_idx} - {end_idx} من {total_rows}").classes("text-sm font-bold app-text-primary")
+            ui.label(f"السجلات {disp_start} - {disp_end} من {total_count}  |  Records {disp_start} - {disp_end} of {total_count}").classes("text-xs font-bold app-text-primary")
 
             next_btn = UI.secondary_button("التالي / Next ►", on_click=self.go_next).classes("text-xs px-4 py-2")
-            if end_idx >= total_rows or self.search_term:
+            if end_idx >= total_count or self.search_term:
                 next_btn.disable()
 
     def _render_card(self, row: dict):
         pid = row["id"]
         is_active = row.get("is_active", 1)
+        is_signature = bool(row.get("is_signature", 0))
         role = str(row.get("personnel_role") or "user")
         display_order = row.get("display_order", 0)
+        
+        title_ar = row.get("academic_title_ar") or ""
+        name_ar = row.get("name_ar") or "—"
+        full_display_name = f"{title_ar} {name_ar}".strip() if title_ar else name_ar
+        resp_ar = row.get("responsibility_ar") or "—"
 
         with ui.row().classes(f"w-full items-center justify-between p-4 rounded-xl {'bg-[var(--bg-card)]' if is_active else 'bg-red-500/5'} border border-[var(--border-default)] gap-4 flex-nowrap overflow-hidden hover:border-[var(--color-accent)] transition-all shadow-sm"):
             with ui.row().classes("items-center gap-4 flex-1 min-w-0"):
                 ui.icon("account_circle", size="md").classes("app-text-accent shrink-0")
                 with ui.column().classes("gap-0 min-w-0 flex-1"):
-                    ui.label(row.get("name_ar") or "—").classes("font-bold text-base app-text-primary truncate")
-                    ui.label(f"@{row.get('username') or 'N/A'}").classes("text-xs text-slate-400 font-mono truncate")
+                    ui.label(full_display_name).classes("font-bold text-base app-text-primary truncate")
+                    ui.label(f"@{row.get('username') or 'N/A'}  •  {resp_ar}").classes("text-xs text-slate-400 font-mono truncate")
 
             with ui.row().classes("items-center gap-3 shrink-0 flex-nowrap"):
                 with ui.column().classes("items-center gap-0 shrink-0 text-center"):
@@ -172,8 +170,14 @@ class PersonnelScreen:
                     ui.label(role).classes("text-xs font-bold px-2.5 py-1 rounded-lg bg-[var(--bg-card)] border border-[var(--border-default)] app-text-primary")
 
                 with ui.column().classes("items-center gap-0 shrink-0 text-center"):
-                    ui.label("ترتيب التوقيع / Signature Order").classes("text-[10px] app-text-muted font-semibold")
-                    ui.label(str(display_order) if display_order > 0 else "بدون").classes("text-xs font-bold px-2.5 py-1 rounded-lg bg-[var(--bg-card)] border border-[var(--border-default)] app-text-accent")
+                    ui.label("ترتيب التوقيع / Order").classes("text-[10px] app-text-muted font-semibold")
+                    if is_signature and display_order and display_order > 0:
+                        order_str = f"🖋️ {display_order}"
+                        order_cls = "app-text-accent border-[var(--color-accent)]"
+                    else:
+                        order_str = "بدون توقيع"
+                        order_cls = "app-text-muted border-[var(--border-default)]"
+                    ui.label(order_str).classes(f"text-xs font-bold px-2.5 py-1 rounded-lg bg-[var(--bg-card)] border {order_cls}")
 
             with ui.row().classes("items-center gap-2 shrink-0 flex-nowrap"):
                 def toggle_act(r_id=pid, curr=is_active):
@@ -181,6 +185,8 @@ class PersonnelScreen:
                         self.repo.toggle_active(r_id, 0 if curr else 1)
                         ui.notify("تم تغيير حالة الكادر / State updated", type="positive")
                         self._render_content()
+                    except OfflineModeError as err:
+                        ui.notify(str(err), type="warning")
                     except Exception as err:
                         ui.notify(f"Error toggling state: {err}", type="negative")
 
@@ -196,6 +202,7 @@ class PersonnelScreen:
                 ).classes("text-xs px-3 py-1.5")
 
                 UI.danger_button(
+                    "حذف / Delete",
                     icon="delete",
                     on_click=lambda r=row: self.confirm_delete(r)
                 ).classes("text-xs px-2 py-1.5")
@@ -260,26 +267,49 @@ class PersonnelScreen:
                             resp_ar_inp = UI.text_input("المنصب بالعربية / Arabic Resp", value=existing_data.get("responsibility_ar", "")).classes("flex-1 text-sm")
                             resp_en_inp = UI.text_input("المنصب بالإنكليزية / English Resp", value=existing_data.get("responsibility_en", "")).classes("flex-1 text-sm")
 
-                    # 3. Certificate Settings
+                    # 3. Certificate Settings & Mapping
                     with UI.card().classes("w-full p-5 gap-4 rounded-xl border border-[var(--border-default)] bg-[var(--bg-card)] shrink-0"):
-                        ui.label("الموقع في الوثيقة — Document Position").classes("text-base font-bold app-text-accent")
+                        ui.label("إعدادات الوثيقة والتوقيع — Document Position & Signature").classes("text-base font-bold app-text-accent")
 
-                        existing_order = existing_data.get("display_order", 0)
-                        order_key = "بدون / None"
-                        for k, v in ORDER_OPTIONS.items():
-                            if v[0] == existing_order:
-                                order_key = k
-                                break
+                        # is_signature is derived from display_order: >0 means signatory
+                        existing_order = int(existing_data.get("display_order") or 0)
+                        init_is_sig = existing_order > 0
+
+                        # Modern Toggle Switch placed ABOVE the dropdown list
+                        is_sig_switch = UI.switch(
+                            "يظهر كتوقيع في الوثيقة / Is Signature",
+                            value=init_is_sig
+                        ).classes("text-sm font-bold app-text-primary mb-2")
+
+                        # Find matching label for the current display_order
+                        order_key = next(
+                            (k for k, v in ORDER_OPTIONS.items() if v == existing_order),
+                            "بدون / None"
+                        )
 
                         order_sel = UI.select(
-                            "التسلسل / Order",
+                            "الموقع والتسلسل / Position & Order",
                             options={k: k for k in ORDER_OPTIONS.keys()},
-                            value=order_key
+                            value=order_key if init_is_sig else "بدون / None"
                         ).classes("w-64 text-sm")
+
+                        # Dropdown only activates when toggle switch is ON
+                        if not init_is_sig:
+                            order_sel.disable()
+
+                        def on_sig_switch_change(evt_args):
+                            val = bool(evt_args.value if hasattr(evt_args, "value") else evt_args)
+                            if val:
+                                order_sel.enable()
+                            else:
+                                order_sel.value = "بدون / None"
+                                order_sel.disable()
+
+                        is_sig_switch.on_value_change(on_sig_switch_change)
 
                     with ui.row().classes("w-full justify-end gap-3 pt-4 border-t border-[var(--border-default)] shrink-0"):
                         def save_action():
-                            n_ar = name_ar_inp.value.strip() if name_ar_inp.value else ""
+                            n_ar = (name_ar_inp.value or "").strip()
                             if not n_ar:
                                 ui.notify("الاسم بالعربية مطلوب / Arabic name is required", type="warning")
                                 return
@@ -289,8 +319,8 @@ class PersonnelScreen:
                                 ui.notify("كلمة المرور مطلوبة / Password is required", type="warning")
                                 return
 
-                            selected_order = ORDER_OPTIONS[order_sel.value]
-
+                            # ORDER_OPTIONS maps label→int; 0 when toggle is OFF
+                            display_order = ORDER_OPTIONS.get(order_sel.value, 0) if is_sig_switch.value else 0
                             payload = {
                                 "name_ar": n_ar,
                                 "name_en": name_en_inp.value.strip() if name_en_inp.value else "",
@@ -298,27 +328,25 @@ class PersonnelScreen:
                                 "academic_title_en": title_en_inp.value.strip() if title_en_inp.value else "",
                                 "responsibility_ar": resp_ar_inp.value.strip() if resp_ar_inp.value else "",
                                 "responsibility_en": resp_en_inp.value.strip() if resp_en_inp.value else "",
-                                "display_order": selected_order[0],
-                                "page_location": selected_order[1],
+                                "display_order": display_order,
                                 "username": user_inp.value.strip() if user_inp.value else "",
                                 "personnel_role": role_inp.value,
                                 "is_active": existing_data.get("is_active", 1)
                             }
 
                             if pwd:
-                                payload["password_hash"] = pwd # Simple hash fallback managed by repo or API
+                                payload["password_hash"] = pwd
 
                             try:
                                 if mode == "add":
                                     self.repo.insert(data=payload)
-                                    ui.notify("تمت الإضافة بنجاح / Personnel added", type="positive")
+                                    ui.notify("تمت إضافة الكادر بنجاح / Personnel added", type="positive")
                                 else:
-                                    # If not updating password, don't pass empty string
-                                    if not pwd:
-                                        payload["password_hash"] = existing_data.get("password_hash")
-                                        
-                                    self.repo.update(person_id=pid, data=payload)
-                                    ui.notify("تم التعديل بنجاح / Personnel updated", type="positive")
+                                    # Do NOT set password_hash if not entered —
+                                    # the API skips it when absent, preserving the existing hash in MySQL.
+                                    if pid is not None:
+                                        self.repo.update(person_id=int(pid), data=payload)
+                                    ui.notify("تم تعديل الكادر بنجاح / Personnel updated", type="positive")
                                 self.show_list_view()
                             except OfflineModeError as err:
                                 ui.notify(str(err), type="warning")
@@ -327,7 +355,7 @@ class PersonnelScreen:
                                 ui.notify(f"Error: {err}", type="negative")
 
                         UI.secondary_button("إلغاء / Cancel", on_click=self.show_list_view).classes("text-sm px-5 py-2")
-                        UI.success_button("💾 حفظ / Save", icon="save", on_click=save_action).classes("text-sm px-5 py-2")
+                        UI.success_button("حفظ / Save", icon="save", on_click=save_action).classes("text-sm px-5 py-2")
 
     def confirm_delete(self, row: dict):
         pid = row["id"]

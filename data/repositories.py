@@ -700,15 +700,16 @@ class PersonnelRepository(BaseRepository):
                 "academic_title_en": data.get("academic_title_en"),
                 "responsibility_ar": data.get("responsibility_ar"),
                 "responsibility_en": data.get("responsibility_en"),
-                "display_order": int(data.get("display_order", 0)) if data.get("display_order") is not None else 0,
+                # display_order encodes signatory state: 0=none, 1-10=signatory position
+                "display_order": int(data.get("display_order") or 0),
                 "username": data.get("username"),
-                "password_hash": data.get("password_hash"),
                 "personnel_role": data.get("personnel_role", "user"),
-                "settings_id": int(data.get("settings_id", 1)) if data.get("settings_id") is not None else 1,
-                "university_settings_id": int(data.get("university_settings_id", 1)) if data.get("university_settings_id") is not None else 1,
-                "page_location": data.get("page_location", "front"),
-                "is_active": int(data.get("is_active", 1)) if data.get("is_active") is not None else 1
+                "university_settings_id": int(data.get("university_settings_id") or 1),
+                "is_active": int(data.get("is_active") if data.get("is_active") is not None else 1),
             }
+            if data.get("password_hash"):  # plain-text; only set when explicitly provided
+                payload["password_hash"] = data["password_hash"]
+
             resp = requests.post(f"{self.api_url}/personnel", json=payload, timeout=5.0)
             if resp.status_code == 200:
                 new_id = resp.json()["new_id"]
@@ -731,15 +732,16 @@ class PersonnelRepository(BaseRepository):
                 "academic_title_en": data.get("academic_title_en"),
                 "responsibility_ar": data.get("responsibility_ar"),
                 "responsibility_en": data.get("responsibility_en"),
-                "display_order": int(data.get("display_order", 0)) if data.get("display_order") is not None else 0,
+                # display_order encodes signatory state: 0=none, 1-10=signatory position
+                "display_order": int(data.get("display_order") or 0),
                 "username": data.get("username"),
-                "password_hash": data.get("password_hash"),
                 "personnel_role": data.get("personnel_role", "user"),
-                "settings_id": int(data.get("settings_id", 1)) if data.get("settings_id") is not None else 1,
-                "university_settings_id": int(data.get("university_settings_id", 1)) if data.get("university_settings_id") is not None else 1,
-                "page_location": data.get("page_location", "front"),
-                "is_active": int(data.get("is_active", 1)) if data.get("is_active") is not None else 1
+                "university_settings_id": int(data.get("university_settings_id") or 1),
+                "is_active": int(data.get("is_active") if data.get("is_active") is not None else 1),
             }
+            if data.get("password_hash"):  # plain-text; only set when explicitly provided
+                payload["password_hash"] = data["password_hash"]
+
             resp = requests.put(f"{self.api_url}/personnel/{person_id}", json=payload, timeout=5.0)
             if resp.status_code == 200:
                 log_activity(f"تم تعديل بيانات الكادر ID: {person_id}")

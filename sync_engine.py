@@ -320,20 +320,20 @@ def init_local_db() -> None:
 
         cur.execute("""
             CREATE TABLE IF NOT EXISTS personnel (
-                id                    INTEGER PRIMARY KEY,
-                name_ar               TEXT,
-                name_en               TEXT,
-                academic_title_ar     TEXT,
-                academic_title_en     TEXT,
-                responsibility_ar     TEXT,
-                responsibility_en     TEXT,
-                display_order         INTEGER DEFAULT 0,
-                username              TEXT,
-                password_hash         TEXT,
-                personnel_role        TEXT DEFAULT 'user',
+                id                     INTEGER PRIMARY KEY,
+                name_ar                TEXT,
+                name_en                TEXT,
+                academic_title_ar      TEXT,
+                academic_title_en      TEXT,
+                responsibility_ar      TEXT,
+                responsibility_en      TEXT,
+                display_order          INTEGER DEFAULT 0,
+                username               TEXT,
+                password_hash          TEXT,
+                personnel_role         TEXT DEFAULT 'user',
                 university_settings_id INTEGER DEFAULT 1,
-                is_active             INTEGER DEFAULT 1,
-                created_at            TEXT
+                is_active              INTEGER DEFAULT 1,
+                created_at             TEXT
             )
         """)
 
@@ -498,40 +498,43 @@ def init_local_db() -> None:
             )
         """)
 
-        # Self-healing migrations for existing local databases
+        # Self-healing migration: drop obsolete settings_id column if it exists
         try:
             cur.execute("PRAGMA table_info(personnel)")
             personnel_cols = [row[1] for row in cur.fetchall()]
+
             if "settings_id" in personnel_cols:
                 log.info("Migrating SQLite personnel table: dropping settings_id column...")
                 cur.execute("""
                     CREATE TABLE personnel_temp (
-                        id                    INTEGER PRIMARY KEY,
-                        name_ar               TEXT,
-                        name_en               TEXT,
-                        academic_title_ar     TEXT,
-                        academic_title_en     TEXT,
-                        responsibility_ar     TEXT,
-                        responsibility_en     TEXT,
-                        display_order         INTEGER DEFAULT 0,
-                        username              TEXT,
-                        password_hash         TEXT,
-                        personnel_role        TEXT DEFAULT 'user',
+                        id                     INTEGER PRIMARY KEY,
+                        name_ar                TEXT,
+                        name_en                TEXT,
+                        academic_title_ar      TEXT,
+                        academic_title_en      TEXT,
+                        responsibility_ar      TEXT,
+                        responsibility_en      TEXT,
+                        display_order          INTEGER DEFAULT 0,
+                        username               TEXT,
+                        password_hash          TEXT,
+                        personnel_role         TEXT DEFAULT 'user',
                         university_settings_id INTEGER DEFAULT 1,
-                        is_active             INTEGER DEFAULT 1,
-                        created_at            TEXT
+                        is_active              INTEGER DEFAULT 1,
+                        created_at             TEXT
                     )
                 """)
                 cur.execute("""
                     INSERT INTO personnel_temp (
                         id, name_ar, name_en, academic_title_ar, academic_title_en,
-                        responsibility_ar, responsibility_en, display_order, username,
-                        password_hash, personnel_role, university_settings_id, is_active, created_at
+                        responsibility_ar, responsibility_en, display_order,
+                        username, password_hash, personnel_role,
+                        university_settings_id, is_active, created_at
                     )
-                    SELECT 
+                    SELECT
                         id, name_ar, name_en, academic_title_ar, academic_title_en,
-                        responsibility_ar, responsibility_en, display_order, username,
-                        password_hash, personnel_role, university_settings_id, is_active, created_at
+                        responsibility_ar, responsibility_en, display_order,
+                        username, password_hash, personnel_role,
+                        university_settings_id, is_active, created_at
                     FROM personnel
                 """)
                 cur.execute("DROP TABLE personnel")

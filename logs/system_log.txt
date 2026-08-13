@@ -20536,3 +20536,289 @@ TypeError: UI.danger_button() missing 1 required positional argument: 'text'
 2026-08-13 08:46:40 [INFO] loaded event fired
 2026-08-13 09:00:01 [WARNING] Failed to fetch departments: DepartmentRepository.get_all() got an unexpected keyword argument 'limit'
 2026-08-13 09:00:01 [WARNING] Failed to fetch departments: DepartmentRepository.get_all() got an unexpected keyword argument 'limit'
+2026-08-13 09:06:11 [INFO] SYSTEM STARTUP DIAGNOSTIC CHECK STARTED
+2026-08-13 09:06:11 [OK] [CHECK 1/4] FastAPI Connection Check ... [OK]
+2026-08-13 09:06:11 [OK] [CHECK 2/4] MySQL Database Connection ... [OK]
+2026-08-13 09:06:11 [OK] [CHECK 3/4] Authentication & Core SP Checks ... [OK]
+2026-08-13 09:06:11 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-08-13 09:06:11 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-08-13 09:06:11 [OK] [CHECK 4/4] Sync Engine & Local Replica Check ... [OK]
+2026-08-13 09:06:11 [OK] Status: ALL CHECKS PASSED. PROCEEDING TO LOGIN/DASHBOARD.
+2026-08-13 09:06:14 [INFO] Using WinForms / Chromium
+2026-08-13 09:06:14 [INFO] Using WinForms / Chromium
+2026-08-13 09:06:18 [INFO] before_load event fired. injecting pywebview object
+2026-08-13 09:06:18 [INFO] before_load event fired. injecting pywebview object
+2026-08-13 09:06:18 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-13 09:06:18 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-13 09:06:18 [INFO] _pywebviewready event fired
+2026-08-13 09:06:18 [INFO] _pywebviewready event fired
+2026-08-13 09:06:18 [INFO] loaded event fired
+2026-08-13 09:06:18 [INFO] loaded event fired
+2026-08-13 09:06:24 [INFO] before_load event fired. injecting pywebview object
+2026-08-13 09:06:24 [INFO] before_load event fired. injecting pywebview object
+2026-08-13 09:06:24 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-13 09:06:24 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-13 09:06:24 [INFO] _pywebviewready event fired
+2026-08-13 09:06:24 [INFO] _pywebviewready event fired
+2026-08-13 09:06:24 [INFO] loaded event fired
+2026-08-13 09:06:24 [INFO] loaded event fired
+2026-08-13 09:06:50 [WARNING] Failed to fetch courses: CourseRepository.get_all() got an unexpected keyword argument 'limit'
+2026-08-13 09:06:50 [WARNING] Failed to fetch courses: CourseRepository.get_all() got an unexpected keyword argument 'limit'
+2026-08-13 09:19:13 [INFO] SYSTEM STARTUP DIAGNOSTIC CHECK STARTED
+2026-08-13 09:19:13 [OK] [CHECK 1/4] FastAPI Connection Check ... [OK]
+2026-08-13 09:19:13 [OK] [CHECK 2/4] MySQL Database Connection ... [OK]
+2026-08-13 09:19:13 [OK] [CHECK 3/4] Authentication & Core SP Checks ... [OK]
+2026-08-13 09:19:13 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-08-13 09:19:13 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-08-13 09:19:13 [OK] [CHECK 4/4] Sync Engine & Local Replica Check ... [OK]
+2026-08-13 09:19:13 [OK] Status: ALL CHECKS PASSED. PROCEEDING TO LOGIN/DASHBOARD.
+2026-08-13 09:19:16 [INFO] Using WinForms / Chromium
+2026-08-13 09:19:16 [INFO] Using WinForms / Chromium
+2026-08-13 09:19:19 [INFO] before_load event fired. injecting pywebview object
+2026-08-13 09:19:19 [INFO] before_load event fired. injecting pywebview object
+2026-08-13 09:19:19 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-13 09:19:19 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-13 09:19:19 [INFO] _pywebviewready event fired
+2026-08-13 09:19:19 [INFO] _pywebviewready event fired
+2026-08-13 09:19:19 [INFO] loaded event fired
+2026-08-13 09:19:19 [INFO] loaded event fired
+2026-08-13 09:19:24 [INFO] before_load event fired. injecting pywebview object
+2026-08-13 09:19:24 [INFO] before_load event fired. injecting pywebview object
+2026-08-13 09:19:24 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-13 09:19:24 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-13 09:19:24 [INFO] _pywebviewready event fired
+2026-08-13 09:19:24 [INFO] _pywebviewready event fired
+2026-08-13 09:19:24 [INFO] loaded event fired
+2026-08-13 09:19:24 [INFO] loaded event fired
+2026-08-13 09:25:07 [INFO] SYSTEM STARTUP DIAGNOSTIC CHECK STARTED
+2026-08-13 09:25:07 [OK] [CHECK 1/4] FastAPI Connection Check ... [OK]
+2026-08-13 09:25:07 [OK] [CHECK 2/4] MySQL Database Connection ... [OK]
+2026-08-13 09:25:07 [OK] [CHECK 3/4] Authentication & Core SP Checks ... [OK]
+2026-08-13 09:25:07 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-08-13 09:25:07 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-08-13 09:25:07 [OK] [CHECK 4/4] Sync Engine & Local Replica Check ... [OK]
+2026-08-13 09:25:08 [OK] Status: ALL CHECKS PASSED. PROCEEDING TO LOGIN/DASHBOARD.
+2026-08-13 09:25:10 [INFO] Using WinForms / Chromium
+2026-08-13 09:25:10 [INFO] Using WinForms / Chromium
+2026-08-13 09:25:13 [INFO] before_load event fired. injecting pywebview object
+2026-08-13 09:25:13 [INFO] before_load event fired. injecting pywebview object
+2026-08-13 09:25:13 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-13 09:25:13 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-13 09:25:13 [INFO] _pywebviewready event fired
+2026-08-13 09:25:13 [INFO] _pywebviewready event fired
+2026-08-13 09:25:13 [INFO] loaded event fired
+2026-08-13 09:25:13 [INFO] loaded event fired
+2026-08-13 09:25:21 [INFO] before_load event fired. injecting pywebview object
+2026-08-13 09:25:21 [INFO] before_load event fired. injecting pywebview object
+2026-08-13 09:25:21 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-13 09:25:21 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-13 09:25:21 [INFO] _pywebviewready event fired
+2026-08-13 09:25:21 [INFO] _pywebviewready event fired
+2026-08-13 09:25:21 [INFO] loaded event fired
+2026-08-13 09:25:21 [INFO] loaded event fired
+2026-08-13 09:25:32 [ERROR] UI.danger_button() missing 1 required positional argument: 'text'
+Traceback (most recent call last):
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\events.py", line 474, in handle_event
+    result = cast(Callable[[], Any], handler)()
+  File "f:\CR_PY\certificate_manager\nicegui_screens\dashboard_screen.py", line 256, in <lambda>
+    "click", lambda key=item["key"]: self._switch_screen(key)
+                                     ~~~~~~~~~~~~~~~~~~~^^^^^
+  File "f:\CR_PY\certificate_manager\nicegui_screens\dashboard_screen.py", line 508, in _switch_screen
+    self._render_active_screen()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "f:\CR_PY\certificate_manager\nicegui_screens\dashboard_screen.py", line 527, in _render_active_screen
+    PersonnelScreen()
+    ~~~~~~~~~~~~~~~^^
+  File "f:\CR_PY\certificate_manager\nicegui_screens\personnel_screen.py", line 36, in __init__
+    self.show_list_view()
+    ~~~~~~~~~~~~~~~~~~~^^
+  File "f:\CR_PY\certificate_manager\nicegui_screens\personnel_screen.py", line 94, in show_list_view
+    content_view()
+    ~~~~~~~~~~~~^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\functions\refreshable.py", line 85, in __call__
+    return target.run(self.func)
+           ~~~~~~~~~~^^^^^^^^^^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\functions\refreshable.py", line 38, in run
+    result = func(*self.args, **self.kwargs)
+  File "f:\CR_PY\certificate_manager\nicegui_screens\personnel_screen.py", line 92, in content_view
+    self._build_table()
+    ~~~~~~~~~~~~~~~~~^^
+  File "f:\CR_PY\certificate_manager\nicegui_screens\personnel_screen.py", line 138, in _build_table
+    self._render_card(row)
+    ~~~~~~~~~~~~~~~~~^^^^^
+  File "f:\CR_PY\certificate_manager\nicegui_screens\personnel_screen.py", line 222, in _render_card
+    UI.danger_button(
+    ~~~~~~~~~~~~~~~~^
+        icon="delete",
+        ^^^^^^^^^^^^^^
+        on_click=lambda r=row: self.confirm_delete(r)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ).classes("text-xs px-2 py-1.5")
+    ^
+TypeError: UI.danger_button() missing 1 required positional argument: 'text'
+2026-08-13 09:25:32 [ERROR] UI.danger_button() missing 1 required positional argument: 'text'
+Traceback (most recent call last):
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\events.py", line 474, in handle_event
+    result = cast(Callable[[], Any], handler)()
+  File "f:\CR_PY\certificate_manager\nicegui_screens\dashboard_screen.py", line 256, in <lambda>
+    "click", lambda key=item["key"]: self._switch_screen(key)
+                                     ~~~~~~~~~~~~~~~~~~~^^^^^
+  File "f:\CR_PY\certificate_manager\nicegui_screens\dashboard_screen.py", line 508, in _switch_screen
+    self._render_active_screen()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "f:\CR_PY\certificate_manager\nicegui_screens\dashboard_screen.py", line 527, in _render_active_screen
+    PersonnelScreen()
+    ~~~~~~~~~~~~~~~^^
+  File "f:\CR_PY\certificate_manager\nicegui_screens\personnel_screen.py", line 36, in __init__
+    self.show_list_view()
+    ~~~~~~~~~~~~~~~~~~~^^
+  File "f:\CR_PY\certificate_manager\nicegui_screens\personnel_screen.py", line 94, in show_list_view
+    content_view()
+    ~~~~~~~~~~~~^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\functions\refreshable.py", line 85, in __call__
+    return target.run(self.func)
+           ~~~~~~~~~~^^^^^^^^^^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\functions\refreshable.py", line 38, in run
+    result = func(*self.args, **self.kwargs)
+  File "f:\CR_PY\certificate_manager\nicegui_screens\personnel_screen.py", line 92, in content_view
+    self._build_table()
+    ~~~~~~~~~~~~~~~~~^^
+  File "f:\CR_PY\certificate_manager\nicegui_screens\personnel_screen.py", line 138, in _build_table
+    self._render_card(row)
+    ~~~~~~~~~~~~~~~~~^^^^^
+  File "f:\CR_PY\certificate_manager\nicegui_screens\personnel_screen.py", line 222, in _render_card
+    UI.danger_button(
+    ~~~~~~~~~~~~~~~~^
+        icon="delete",
+        ^^^^^^^^^^^^^^
+        on_click=lambda r=row: self.confirm_delete(r)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ).classes("text-xs px-2 py-1.5")
+    ^
+TypeError: UI.danger_button() missing 1 required positional argument: 'text'
+2026-08-13 09:38:59 [INFO] SYSTEM STARTUP DIAGNOSTIC CHECK STARTED
+2026-08-13 09:38:59 [OK] [CHECK 1/4] FastAPI Connection Check ... [OK]
+2026-08-13 09:38:59 [OK] [CHECK 2/4] MySQL Database Connection ... [OK]
+2026-08-13 09:38:59 [OK] [CHECK 3/4] Authentication & Core SP Checks ... [OK]
+2026-08-13 09:38:59 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-08-13 09:38:59 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-08-13 09:38:59 [OK] [CHECK 4/4] Sync Engine & Local Replica Check ... [OK]
+2026-08-13 09:38:59 [OK] Status: ALL CHECKS PASSED. PROCEEDING TO LOGIN/DASHBOARD.
+2026-08-13 09:39:02 [INFO] Using WinForms / Chromium
+2026-08-13 09:39:02 [INFO] Using WinForms / Chromium
+2026-08-13 09:39:06 [INFO] before_load event fired. injecting pywebview object
+2026-08-13 09:39:06 [INFO] before_load event fired. injecting pywebview object
+2026-08-13 09:39:06 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-13 09:39:06 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-13 09:39:06 [INFO] _pywebviewready event fired
+2026-08-13 09:39:06 [INFO] _pywebviewready event fired
+2026-08-13 09:39:06 [INFO] loaded event fired
+2026-08-13 09:39:06 [INFO] loaded event fired
+2026-08-13 09:39:15 [INFO] before_load event fired. injecting pywebview object
+2026-08-13 09:39:15 [INFO] before_load event fired. injecting pywebview object
+2026-08-13 09:39:15 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-13 09:39:15 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-13 09:39:15 [INFO] _pywebviewready event fired
+2026-08-13 09:39:15 [INFO] _pywebviewready event fired
+2026-08-13 09:39:15 [INFO] loaded event fired
+2026-08-13 09:39:15 [INFO] loaded event fired
+2026-08-13 09:40:50 [ERROR] 'GenericEventArguments' object has no attribute 'value'
+Traceback (most recent call last):
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\events.py", line 472, in handle_event
+    result = cast(Callable[[EventT], Any], handler)(arguments)
+  File "f:\CR_PY\certificate_manager\nicegui_screens\personnel_screen.py", line 318, in on_sig_switch_change
+    if e.value:
+       ^^^^^^^
+AttributeError: 'GenericEventArguments' object has no attribute 'value'
+2026-08-13 09:40:50 [ERROR] 'GenericEventArguments' object has no attribute 'value'
+Traceback (most recent call last):
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\events.py", line 472, in handle_event
+    result = cast(Callable[[EventT], Any], handler)(arguments)
+  File "f:\CR_PY\certificate_manager\nicegui_screens\personnel_screen.py", line 318, in on_sig_switch_change
+    if e.value:
+       ^^^^^^^
+AttributeError: 'GenericEventArguments' object has no attribute 'value'
+2026-08-13 10:22:43 [INFO] SYSTEM STARTUP DIAGNOSTIC CHECK STARTED
+2026-08-13 10:22:43 [OK] [CHECK 1/4] FastAPI Connection Check ... [OK]
+2026-08-13 10:22:44 [OK] [CHECK 2/4] MySQL Database Connection ... [OK]
+2026-08-13 10:22:44 [OK] [CHECK 3/4] Authentication & Core SP Checks ... [OK]
+2026-08-13 10:22:44 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-08-13 10:22:44 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-08-13 10:22:44 [OK] [CHECK 4/4] Sync Engine & Local Replica Check ... [OK]
+2026-08-13 10:22:44 [OK] Status: ALL CHECKS PASSED. PROCEEDING TO LOGIN/DASHBOARD.
+2026-08-13 10:22:46 [INFO] Using WinForms / Chromium
+2026-08-13 10:22:46 [INFO] Using WinForms / Chromium
+2026-08-13 10:22:50 [INFO] before_load event fired. injecting pywebview object
+2026-08-13 10:22:50 [INFO] before_load event fired. injecting pywebview object
+2026-08-13 10:22:50 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-13 10:22:50 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-13 10:22:50 [INFO] _pywebviewready event fired
+2026-08-13 10:22:50 [INFO] _pywebviewready event fired
+2026-08-13 10:22:50 [INFO] loaded event fired
+2026-08-13 10:22:50 [INFO] loaded event fired
+2026-08-13 10:22:57 [INFO] before_load event fired. injecting pywebview object
+2026-08-13 10:22:57 [INFO] before_load event fired. injecting pywebview object
+2026-08-13 10:22:57 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-13 10:22:57 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-13 10:22:57 [INFO] _pywebviewready event fired
+2026-08-13 10:22:57 [INFO] _pywebviewready event fired
+2026-08-13 10:22:57 [INFO] loaded event fired
+2026-08-13 10:22:57 [INFO] loaded event fired
+2026-08-13 10:23:36 [WARNING] API request failed: API update failed: {"detail":[{"type":"string_type","loc":["body","password_hash"],"msg":"Input should be a valid string","input":null}]}
+2026-08-13 10:23:36 [ERROR] Error saving personnel: API update failed: {"detail":[{"type":"string_type","loc":["body","password_hash"],"msg":"Input should be a valid string","input":null}]}
+2026-08-13 10:23:36 [ERROR] Error saving personnel: API update failed: {"detail":[{"type":"string_type","loc":["body","password_hash"],"msg":"Input should be a valid string","input":null}]}
+2026-08-13 10:42:20 [INFO] SYSTEM STARTUP DIAGNOSTIC CHECK STARTED
+2026-08-13 10:42:20 [OK] [CHECK 1/4] FastAPI Connection Check ... [OK]
+2026-08-13 10:42:20 [OK] [CHECK 2/4] MySQL Database Connection ... [OK]
+2026-08-13 10:42:20 [OK] [CHECK 3/4] Authentication & Core SP Checks ... [OK]
+2026-08-13 10:42:20 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-08-13 10:42:20 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-08-13 10:42:20 [OK] [CHECK 4/4] Sync Engine & Local Replica Check ... [OK]
+2026-08-13 10:42:20 [OK] Status: ALL CHECKS PASSED. PROCEEDING TO LOGIN/DASHBOARD.
+2026-08-13 10:42:23 [INFO] Using WinForms / Chromium
+2026-08-13 10:42:23 [INFO] Using WinForms / Chromium
+2026-08-13 10:42:26 [INFO] before_load event fired. injecting pywebview object
+2026-08-13 10:42:26 [INFO] before_load event fired. injecting pywebview object
+2026-08-13 10:42:26 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-13 10:42:26 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-13 10:42:26 [INFO] _pywebviewready event fired
+2026-08-13 10:42:26 [INFO] _pywebviewready event fired
+2026-08-13 10:42:26 [INFO] loaded event fired
+2026-08-13 10:42:26 [INFO] loaded event fired
+2026-08-13 10:42:30 [INFO] before_load event fired. injecting pywebview object
+2026-08-13 10:42:30 [INFO] before_load event fired. injecting pywebview object
+2026-08-13 10:42:30 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-13 10:42:30 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-13 10:42:30 [INFO] _pywebviewready event fired
+2026-08-13 10:42:30 [INFO] _pywebviewready event fired
+2026-08-13 10:42:30 [INFO] loaded event fired
+2026-08-13 10:42:30 [INFO] loaded event fired
+2026-08-13 10:47:21 [WARNING] API request failed: API update failed: {"detail":[{"type":"missing","loc":["body","password_hash"],"msg":"Field required","input":{"name_ar":"رائدة سالم خضير","name_en":"Raidah S. Khudhair","academic_title_ar":"الأستاذ الدكتور","academic_title_en":"Prof. Dr.","responsibility_ar":"معاون العميد للشوون العلمية والدراسات العليا","responsibility_en":"Dean Assistant for Scientific Affairs and Postgraduate","display_order":3,"username":"signer_16","personnel_role":"user","settings_id":1,"university_settings_id":1,"page_location":"front","is_signature":1,"is_active":1}}]}
+2026-08-13 10:47:21 [ERROR] Error saving personnel: API update failed: {"detail":[{"type":"missing","loc":["body","password_hash"],"msg":"Field required","input":{"name_ar":"رائدة سالم خضير","name_en":"Raidah S. Khudhair","academic_title_ar":"الأستاذ الدكتور","academic_title_en":"Prof. Dr.","responsibility_ar":"معاون العميد للشوون العلمية والدراسات العليا","responsibility_en":"Dean Assistant for Scientific Affairs and Postgraduate","display_order":3,"username":"signer_16","personnel_role":"user","settings_id":1,"university_settings_id":1,"page_location":"front","is_signature":1,"is_active":1}}]}
+2026-08-13 10:47:21 [ERROR] Error saving personnel: API update failed: {"detail":[{"type":"missing","loc":["body","password_hash"],"msg":"Field required","input":{"name_ar":"رائدة سالم خضير","name_en":"Raidah S. Khudhair","academic_title_ar":"الأستاذ الدكتور","academic_title_en":"Prof. Dr.","responsibility_ar":"معاون العميد للشوون العلمية والدراسات العليا","responsibility_en":"Dean Assistant for Scientific Affairs and Postgraduate","display_order":3,"username":"signer_16","personnel_role":"user","settings_id":1,"university_settings_id":1,"page_location":"front","is_signature":1,"is_active":1}}]}
+2026-08-13 12:48:20 [INFO] SYSTEM STARTUP DIAGNOSTIC CHECK STARTED
+2026-08-13 12:48:20 [OK] [CHECK 1/4] FastAPI Connection Check ... [OK]
+2026-08-13 12:48:20 [OK] [CHECK 2/4] MySQL Database Connection ... [OK]
+2026-08-13 12:48:20 [OK] [CHECK 3/4] Authentication & Core SP Checks ... [OK]
+2026-08-13 12:48:20 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-08-13 12:48:20 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-08-13 12:48:20 [OK] [CHECK 4/4] Sync Engine & Local Replica Check ... [OK]
+2026-08-13 12:48:20 [OK] Status: ALL CHECKS PASSED. PROCEEDING TO LOGIN/DASHBOARD.
+2026-08-13 12:48:23 [INFO] Using WinForms / Chromium
+2026-08-13 12:48:23 [INFO] Using WinForms / Chromium
+2026-08-13 12:48:27 [INFO] before_load event fired. injecting pywebview object
+2026-08-13 12:48:27 [INFO] before_load event fired. injecting pywebview object
+2026-08-13 12:48:27 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-13 12:48:27 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-13 12:48:27 [INFO] _pywebviewready event fired
+2026-08-13 12:48:27 [INFO] _pywebviewready event fired
+2026-08-13 12:48:27 [INFO] loaded event fired
+2026-08-13 12:48:27 [INFO] loaded event fired
+2026-08-13 12:48:35 [INFO] before_load event fired. injecting pywebview object
+2026-08-13 12:48:35 [INFO] before_load event fired. injecting pywebview object
+2026-08-13 12:48:35 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-13 12:48:35 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-13 12:48:35 [INFO] _pywebviewready event fired
+2026-08-13 12:48:35 [INFO] _pywebviewready event fired
+2026-08-13 12:48:35 [INFO] loaded event fired
+2026-08-13 12:48:35 [INFO] loaded event fired

@@ -284,7 +284,8 @@ class DepartmentsScreen:
                             self.repo.insert(**payload)
                             ui.notify("تمت إضافة القسم بنجاح / Department added", type="positive")
                         else:
-                            self.repo.update(dept_id=did, **payload)
+                            if did is not None:
+                                self.repo.update(dept_id=int(did), **payload)
                             ui.notify("تم تعديل القسم بنجاح / Department updated", type="positive")
                         self.close_panel()
                     except OfflineModeError as err:
@@ -294,7 +295,7 @@ class DepartmentsScreen:
                         ui.notify(f"Error: {err}", type="negative")
 
                 UI.secondary_button("إلغاء / Cancel", on_click=self.close_panel).classes("text-sm px-4 py-2")
-                UI.success_button("💾 حفظ / Save", icon="save", on_click=save_action).classes("text-sm px-4 py-2")
+                UI.success_button("حفظ / Save", icon="save", on_click=save_action).classes("text-sm px-4 py-2")
 
     def confirm_delete(self, row: dict):
         did = row["id"]

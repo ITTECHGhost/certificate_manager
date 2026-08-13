@@ -413,7 +413,7 @@ class GraduationOrdersScreen:
                                     log.error(f"Error saving order: {err}")
                                     ui.notify(f"Error saving order: {err}", type="negative")
 
-                            UI.success_button("💾 Save Order Details / حفظ بيانات الأمر", icon="save", on_click=save_order_action).classes("text-sm px-5 py-2")
+                            UI.success_button("حفظ بيانات الأمر / Save Order Details", icon="save", on_click=save_order_action).classes("text-sm px-5 py-2")
 
                     # ── SECTION 2: Integrated Student Linking Panel (For Edit Mode) ──
                     if mode == "edit" and oid:
