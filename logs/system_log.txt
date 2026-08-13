@@ -20508,3 +20508,31 @@ Traceback (most recent call last):
     ).classes("text-xs px-2 py-1.5")
     ^
 TypeError: UI.danger_button() missing 1 required positional argument: 'text'
+2026-08-13 08:46:26 [INFO] SYSTEM STARTUP DIAGNOSTIC CHECK STARTED
+2026-08-13 08:46:27 [OK] [CHECK 1/4] FastAPI Connection Check ... [OK]
+2026-08-13 08:46:27 [OK] [CHECK 2/4] MySQL Database Connection ... [OK]
+2026-08-13 08:46:27 [OK] [CHECK 3/4] Authentication & Core SP Checks ... [OK]
+2026-08-13 08:46:27 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-08-13 08:46:27 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-08-13 08:46:27 [OK] [CHECK 4/4] Sync Engine & Local Replica Check ... [OK]
+2026-08-13 08:46:27 [OK] Status: ALL CHECKS PASSED. PROCEEDING TO LOGIN/DASHBOARD.
+2026-08-13 08:46:30 [INFO] Using WinForms / Chromium
+2026-08-13 08:46:30 [INFO] Using WinForms / Chromium
+2026-08-13 08:46:34 [INFO] before_load event fired. injecting pywebview object
+2026-08-13 08:46:34 [INFO] before_load event fired. injecting pywebview object
+2026-08-13 08:46:34 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-13 08:46:34 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-13 08:46:34 [INFO] _pywebviewready event fired
+2026-08-13 08:46:34 [INFO] _pywebviewready event fired
+2026-08-13 08:46:34 [INFO] loaded event fired
+2026-08-13 08:46:34 [INFO] loaded event fired
+2026-08-13 08:46:40 [INFO] before_load event fired. injecting pywebview object
+2026-08-13 08:46:40 [INFO] before_load event fired. injecting pywebview object
+2026-08-13 08:46:40 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-13 08:46:40 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-13 08:46:40 [INFO] _pywebviewready event fired
+2026-08-13 08:46:40 [INFO] _pywebviewready event fired
+2026-08-13 08:46:40 [INFO] loaded event fired
+2026-08-13 08:46:40 [INFO] loaded event fired
+2026-08-13 09:00:01 [WARNING] Failed to fetch departments: DepartmentRepository.get_all() got an unexpected keyword argument 'limit'
+2026-08-13 09:00:01 [WARNING] Failed to fetch departments: DepartmentRepository.get_all() got an unexpected keyword argument 'limit'
