@@ -651,20 +651,20 @@ class CertificateScreen:
         is_en = "en" in tpl_name.lower() or "eng" in tpl_name.lower()
         options = {
             "is_english": is_en,
-            "to_title": self.to_input.value.strip(),
+            "to_title": (self.to_input.value or "").strip(),
             "opt_order": self.sw_order.value,
-            "order_num": self.inp_order_num.value.strip(),
-            "order_date": self.inp_order_date.value.strip(),
+            "order_num": (self.inp_order_num.value or "").strip(),
+            "order_date": (self.inp_order_date.value or "").strip(),
             "opt_rank": self.sw_rank.value,
-            "rank_val": self.inp_rank_val.value.strip(),
-            "rank_total": self.inp_rank_total.value.strip(),
-            "rank_avg": self.inp_rank_avg.value.strip(),
+            "rank_val": (self.inp_rank_val.value or "").strip(),
+            "rank_total": (self.inp_rank_total.value or "").strip(),
+            "rank_avg": (self.inp_rank_avg.value or "").strip(),
             "opt_summer": self.sw_summer.value,
-            "summer_year": self.inp_summer_year.value.strip(),
+            "summer_year": (self.inp_summer_year.value or "").strip(),
             "opt_postpone": self.sw_postpone.value,
-            "postpone_years": self.inp_postpone_years.value.strip(),
+            "postpone_years": (self.inp_postpone_years.value or "").strip(),
             "opt_second_trial": self.sw_second.value,
-            "second_trial_subjects": self.inp_second_subjects.value.strip(),
+            "second_trial_subjects": (self.inp_second_subjects.value or "").strip(),
         }
 
         try:
@@ -706,7 +706,7 @@ class CertificateScreen:
                 UI.notify(f"تعذر فتح ملف Word: {err}", type="warning")
 
     def print_certificate(self):
-        """Generates the certificate and opens the Windows print dialog ready to print."""
+        """Generates the certificate and opens it in Word allowing print preview and printer selection."""
         if not self.generated_file_path or not os.path.exists(self.generated_file_path):
             success = self.generate_certificate()
             if not success:
@@ -714,16 +714,11 @@ class CertificateScreen:
 
         if self.generated_file_path and os.path.exists(self.generated_file_path):
             try:
-                # Triggers default Windows print dialog for the generated .docx file
-                os.startfile(self.generated_file_path, "print")
-                UI.notify("تم تجهيز وثيقة الطالب وإرسالها للطباعة / Document sent to printer", type="positive")
+                os.startfile(self.generated_file_path)
+                UI.notify("تم فتح الوثيقة للمعاينة والطباعة (يرجى اختيار الطابعة بالضغط على Ctrl+P أو ملف -> طباعة)", type="positive")
             except Exception as err:
-                log.warning(f"Direct print command error: {err}, opening for printing...")
-                try:
-                    os.startfile(self.generated_file_path)
-                    UI.notify("تم فتح الوثيقة (يرجى الضغط على Ctrl+P للطباعة) / Document opened for printing", type="info")
-                except Exception as e2:
-                    UI.notify(f"تعذر فتح الوثيقة للطباعة: {e2}", type="negative")
+                log.error(f"Error opening document for printing: {err}")
+                UI.notify(f"تعذر فتح الوثيقة للطباعة: {err}", type="negative")
 
     def open_generated_document(self):
         if not self.generated_file_path or not os.path.exists(self.generated_file_path):
