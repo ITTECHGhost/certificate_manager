@@ -1854,17 +1854,17 @@ class CertificateRepository(BaseRepository):
             
             # Fetch Academic Periods and Enrollments
             periods = sqlite_read_all(
-                "SELECT id, student_id, academic_year, study_system_id, stage_number FROM ("
-                "  SELECT id, student_id, academic_year, study_system_id, stage_number FROM academic_periods "
+                "SELECT id, student_id, academic_year, study_system_id, stage_number, semester_num FROM ("
+                "  SELECT id, student_id, academic_year, study_system_id, stage_number, semester_num FROM academic_periods "
                 "  UNION ALL "
-                "  SELECT id, student_id, academic_year, study_system_id, stage_number FROM local_academic_periods"
-                ") WHERE student_id = ? ORDER BY stage_number",
+                "  SELECT id, student_id, academic_year, study_system_id, stage_number, semester_num FROM local_academic_periods"
+                ") WHERE student_id = ? ORDER BY academic_year ASC, semester_num ASC",
                 (student_id,)
             )
             data["periods"] = []
             for p in periods:
                 enrollments = sqlite_read_all(
-                    "SELECT e.score, e.passed_round, "
+                    "SELECT e.id, e.period_id, e.course_id, e.score, e.passed_round, "
                     "       CASE WHEN e.passed_round != '1' THEN 1 ELSE 0 END AS is_second_round, "
                     "       c.name_ar AS course_name_ar, c.name_en AS course_name_en, c.credit_hours "
                     "FROM ("
@@ -1881,12 +1881,11 @@ class CertificateRepository(BaseRepository):
                 data["periods"].append(p)
                 
             # Signatories
-            data["front_signatories"] = sqlite_read_all(
-                "SELECT * FROM personnel WHERE is_active = 1 AND display_order BETWEEN 1 AND 4 ORDER BY display_order"
+            data["all_personnel"] = sqlite_read_all(
+                "SELECT * FROM personnel WHERE is_active = 1 ORDER BY display_order"
             )
-            data["back_signatories"] = sqlite_read_all(
-                "SELECT * FROM personnel WHERE is_active = 1 AND display_order >= 5 ORDER BY display_order"
-            )
+            data["front_signatories"] = [p for p in data["all_personnel"] if 1 <= p.get("display_order", 0) <= 4]
+            data["back_signatories"] = [p for p in data["all_personnel"] if p.get("display_order", 0) >= 5]
             
             # Settings
             settings = sqlite_read_one("SELECT * FROM university_settings WHERE id = 1")

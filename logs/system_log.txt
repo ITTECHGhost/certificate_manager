@@ -22149,3 +22149,813 @@ Stack (most recent call last):
 2026-08-15 17:21:20 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
 2026-08-15 17:21:20 [OK] [CHECK 4/4] Sync Engine & Local Replica Check ... [OK]
 2026-08-15 17:21:20 [OK] Status: ALL CHECKS PASSED. PROCEEDING TO LOGIN/DASHBOARD.
+2026-08-15 17:21:24 [INFO] Using WinForms / Chromium
+2026-08-15 17:21:24 [INFO] Using WinForms / Chromium
+2026-08-15 17:21:28 [INFO] before_load event fired. injecting pywebview object
+2026-08-15 17:21:28 [INFO] before_load event fired. injecting pywebview object
+2026-08-15 17:21:28 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-15 17:21:28 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-15 17:21:28 [INFO] _pywebviewready event fired
+2026-08-15 17:21:28 [INFO] _pywebviewready event fired
+2026-08-15 17:21:28 [INFO] loaded event fired
+2026-08-15 17:21:28 [INFO] loaded event fired
+2026-08-15 17:21:41 [INFO] before_load event fired. injecting pywebview object
+2026-08-15 17:21:41 [INFO] before_load event fired. injecting pywebview object
+2026-08-15 17:21:41 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-15 17:21:41 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-15 17:21:41 [INFO] _pywebviewready event fired
+2026-08-15 17:21:41 [INFO] _pywebviewready event fired
+2026-08-15 17:21:41 [INFO] loaded event fired
+2026-08-15 17:21:41 [INFO] loaded event fired
+2026-08-15 18:07:09 [INFO] SYSTEM STARTUP DIAGNOSTIC CHECK STARTED
+2026-08-15 18:07:09 [OK] [CHECK 1/4] FastAPI Connection Check ... [OK]
+2026-08-15 18:07:09 [OK] [CHECK 2/4] MySQL Database Connection ... [OK]
+2026-08-15 18:07:09 [OK] [CHECK 3/4] Authentication & Core SP Checks ... [OK]
+2026-08-15 18:07:09 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-08-15 18:07:09 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-08-15 18:07:09 [OK] [CHECK 4/4] Sync Engine & Local Replica Check ... [OK]
+2026-08-15 18:07:09 [OK] Status: ALL CHECKS PASSED. PROCEEDING TO LOGIN/DASHBOARD.
+2026-08-15 18:07:11 [INFO] Using WinForms / Chromium
+2026-08-15 18:07:11 [INFO] Using WinForms / Chromium
+2026-08-15 18:07:14 [INFO] before_load event fired. injecting pywebview object
+2026-08-15 18:07:14 [INFO] before_load event fired. injecting pywebview object
+2026-08-15 18:07:14 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-15 18:07:14 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-15 18:07:14 [INFO] _pywebviewready event fired
+2026-08-15 18:07:14 [INFO] _pywebviewready event fired
+2026-08-15 18:07:14 [INFO] loaded event fired
+2026-08-15 18:07:14 [INFO] loaded event fired
+2026-08-15 18:07:20 [INFO] before_load event fired. injecting pywebview object
+2026-08-15 18:07:20 [INFO] before_load event fired. injecting pywebview object
+2026-08-15 18:07:20 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-15 18:07:20 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-15 18:07:20 [INFO] _pywebviewready event fired
+2026-08-15 18:07:20 [INFO] _pywebviewready event fired
+2026-08-15 18:07:20 [INFO] loaded event fired
+2026-08-15 18:07:20 [INFO] loaded event fired
+2026-08-15 18:45:21 [INFO] before_load event fired. injecting pywebview object
+2026-08-15 18:45:21 [INFO] before_load event fired. injecting pywebview object
+2026-08-15 18:45:21 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-15 18:45:21 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-15 18:45:21 [INFO] _pywebviewready event fired
+2026-08-15 18:45:21 [INFO] _pywebviewready event fired
+2026-08-15 18:45:21 [INFO] loaded event fired
+2026-08-15 18:45:21 [INFO] loaded event fired
+2026-08-15 20:13:16 [INFO] before_load event fired. injecting pywebview object
+2026-08-15 20:13:16 [INFO] before_load event fired. injecting pywebview object
+2026-08-15 20:13:16 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-15 20:13:16 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-15 20:13:17 [INFO] _pywebviewready event fired
+2026-08-15 20:13:17 [INFO] _pywebviewready event fired
+2026-08-15 20:13:17 [INFO] loaded event fired
+2026-08-15 20:13:17 [INFO] loaded event fired
+2026-08-15 20:31:44 [INFO] SYSTEM STARTUP DIAGNOSTIC CHECK STARTED
+2026-08-15 20:31:44 [OK] [CHECK 1/4] FastAPI Connection Check ... [OK]
+2026-08-15 20:31:44 [OK] [CHECK 2/4] MySQL Database Connection ... [OK]
+2026-08-15 20:31:45 [OK] [CHECK 3/4] Authentication & Core SP Checks ... [OK]
+2026-08-15 20:31:45 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-08-15 20:31:45 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-08-15 20:31:45 [OK] [CHECK 4/4] Sync Engine & Local Replica Check ... [OK]
+2026-08-15 20:31:45 [OK] Status: ALL CHECKS PASSED. PROCEEDING TO LOGIN/DASHBOARD.
+2026-08-15 20:31:47 [INFO] Using WinForms / Chromium
+2026-08-15 20:31:47 [INFO] Using WinForms / Chromium
+2026-08-15 20:31:52 [INFO] before_load event fired. injecting pywebview object
+2026-08-15 20:31:52 [INFO] before_load event fired. injecting pywebview object
+2026-08-15 20:31:52 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-15 20:31:52 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-15 20:31:52 [INFO] _pywebviewready event fired
+2026-08-15 20:31:52 [INFO] _pywebviewready event fired
+2026-08-15 20:31:52 [INFO] loaded event fired
+2026-08-15 20:31:52 [INFO] loaded event fired
+2026-08-15 20:32:01 [INFO] before_load event fired. injecting pywebview object
+2026-08-15 20:32:01 [INFO] before_load event fired. injecting pywebview object
+2026-08-15 20:32:01 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-15 20:32:01 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-15 20:32:01 [INFO] _pywebviewready event fired
+2026-08-15 20:32:01 [INFO] _pywebviewready event fired
+2026-08-15 20:32:01 [INFO] loaded event fired
+2026-08-15 20:32:01 [INFO] loaded event fired
+2026-08-15 20:33:23 [INFO] SYSTEM STARTUP DIAGNOSTIC CHECK STARTED
+2026-08-15 20:33:23 [OK] [CHECK 1/4] FastAPI Connection Check ... [OK]
+2026-08-15 20:33:23 [OK] [CHECK 2/4] MySQL Database Connection ... [OK]
+2026-08-15 20:33:23 [OK] [CHECK 3/4] Authentication & Core SP Checks ... [OK]
+2026-08-15 20:33:23 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-08-15 20:33:23 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-08-15 20:33:23 [OK] [CHECK 4/4] Sync Engine & Local Replica Check ... [OK]
+2026-08-15 20:33:23 [OK] Status: ALL CHECKS PASSED. PROCEEDING TO LOGIN/DASHBOARD.
+2026-08-15 20:33:26 [INFO] Using WinForms / Chromium
+2026-08-15 20:33:26 [INFO] Using WinForms / Chromium
+2026-08-15 20:33:29 [INFO] before_load event fired. injecting pywebview object
+2026-08-15 20:33:29 [INFO] before_load event fired. injecting pywebview object
+2026-08-15 20:33:29 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-15 20:33:29 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-15 20:33:29 [INFO] _pywebviewready event fired
+2026-08-15 20:33:29 [INFO] _pywebviewready event fired
+2026-08-15 20:33:29 [INFO] loaded event fired
+2026-08-15 20:33:29 [INFO] loaded event fired
+2026-08-15 20:33:33 [INFO] before_load event fired. injecting pywebview object
+2026-08-15 20:33:33 [INFO] before_load event fired. injecting pywebview object
+2026-08-15 20:33:33 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-15 20:33:33 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-15 20:33:33 [INFO] _pywebviewready event fired
+2026-08-15 20:33:33 [INFO] _pywebviewready event fired
+2026-08-15 20:33:33 [INFO] loaded event fired
+2026-08-15 20:33:33 [INFO] loaded event fired
+2026-08-15 21:10:27 [INFO] SYSTEM STARTUP DIAGNOSTIC CHECK STARTED
+2026-08-15 21:10:27 [OK] [CHECK 1/4] FastAPI Connection Check ... [OK]
+2026-08-15 21:10:27 [OK] [CHECK 2/4] MySQL Database Connection ... [OK]
+2026-08-15 21:10:27 [OK] [CHECK 3/4] Authentication & Core SP Checks ... [OK]
+2026-08-15 21:10:27 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-08-15 21:10:27 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-08-15 21:10:27 [OK] [CHECK 4/4] Sync Engine & Local Replica Check ... [OK]
+2026-08-15 21:10:27 [OK] Status: ALL CHECKS PASSED. PROCEEDING TO LOGIN/DASHBOARD.
+2026-08-15 21:10:30 [INFO] Using WinForms / Chromium
+2026-08-15 21:10:30 [INFO] Using WinForms / Chromium
+2026-08-15 21:10:33 [INFO] before_load event fired. injecting pywebview object
+2026-08-15 21:10:33 [INFO] before_load event fired. injecting pywebview object
+2026-08-15 21:10:33 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-15 21:10:33 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-15 21:10:33 [INFO] _pywebviewready event fired
+2026-08-15 21:10:33 [INFO] _pywebviewready event fired
+2026-08-15 21:10:33 [INFO] loaded event fired
+2026-08-15 21:10:33 [INFO] loaded event fired
+2026-08-15 21:21:16 [INFO] before_load event fired. injecting pywebview object
+2026-08-15 21:21:16 [INFO] before_load event fired. injecting pywebview object
+2026-08-15 21:21:16 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-15 21:21:16 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-15 21:21:16 [INFO] _pywebviewready event fired
+2026-08-15 21:21:16 [INFO] _pywebviewready event fired
+2026-08-15 21:21:16 [INFO] loaded event fired
+2026-08-15 21:21:17 [INFO] loaded event fired
+2026-08-15 21:30:47 [INFO] SYSTEM STARTUP DIAGNOSTIC CHECK STARTED
+2026-08-15 21:30:47 [OK] [CHECK 1/4] FastAPI Connection Check ... [OK]
+2026-08-15 21:30:47 [OK] [CHECK 2/4] MySQL Database Connection ... [OK]
+2026-08-15 21:30:47 [OK] [CHECK 3/4] Authentication & Core SP Checks ... [OK]
+2026-08-15 21:30:47 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-08-15 21:30:47 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-08-15 21:30:47 [OK] [CHECK 4/4] Sync Engine & Local Replica Check ... [OK]
+2026-08-15 21:30:47 [OK] Status: ALL CHECKS PASSED. PROCEEDING TO LOGIN/DASHBOARD.
+2026-08-15 21:30:50 [INFO] Using WinForms / Chromium
+2026-08-15 21:30:50 [INFO] Using WinForms / Chromium
+2026-08-15 21:30:53 [INFO] before_load event fired. injecting pywebview object
+2026-08-15 21:30:53 [INFO] before_load event fired. injecting pywebview object
+2026-08-15 21:30:53 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-15 21:30:53 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-15 21:30:53 [INFO] _pywebviewready event fired
+2026-08-15 21:30:53 [INFO] _pywebviewready event fired
+2026-08-15 21:30:53 [INFO] loaded event fired
+2026-08-15 21:30:53 [INFO] loaded event fired
+2026-08-15 21:30:58 [INFO] before_load event fired. injecting pywebview object
+2026-08-15 21:30:58 [INFO] before_load event fired. injecting pywebview object
+2026-08-15 21:30:58 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-15 21:30:58 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-15 21:30:58 [INFO] _pywebviewready event fired
+2026-08-15 21:30:58 [INFO] _pywebviewready event fired
+2026-08-15 21:30:59 [INFO] loaded event fired
+2026-08-15 21:30:59 [INFO] loaded event fired
+2026-08-15 21:37:18 [INFO] SYSTEM STARTUP DIAGNOSTIC CHECK STARTED
+2026-08-15 21:37:18 [OK] [CHECK 1/4] FastAPI Connection Check ... [OK]
+2026-08-15 21:37:18 [OK] [CHECK 2/4] MySQL Database Connection ... [OK]
+2026-08-15 21:37:18 [OK] [CHECK 3/4] Authentication & Core SP Checks ... [OK]
+2026-08-15 21:37:18 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-08-15 21:37:18 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-08-15 21:37:18 [OK] [CHECK 4/4] Sync Engine & Local Replica Check ... [OK]
+2026-08-15 21:37:18 [OK] Status: ALL CHECKS PASSED. PROCEEDING TO LOGIN/DASHBOARD.
+2026-08-15 21:37:21 [INFO] Using WinForms / Chromium
+2026-08-15 21:37:21 [INFO] Using WinForms / Chromium
+2026-08-15 21:37:25 [INFO] before_load event fired. injecting pywebview object
+2026-08-15 21:37:25 [INFO] before_load event fired. injecting pywebview object
+2026-08-15 21:37:25 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-15 21:37:25 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-15 21:37:25 [INFO] _pywebviewready event fired
+2026-08-15 21:37:25 [INFO] _pywebviewready event fired
+2026-08-15 21:37:25 [INFO] loaded event fired
+2026-08-15 21:37:25 [INFO] loaded event fired
+2026-08-15 21:37:30 [INFO] before_load event fired. injecting pywebview object
+2026-08-15 21:37:30 [INFO] before_load event fired. injecting pywebview object
+2026-08-15 21:37:30 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-15 21:37:30 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-15 21:37:30 [INFO] _pywebviewready event fired
+2026-08-15 21:37:30 [INFO] _pywebviewready event fired
+2026-08-15 21:37:30 [INFO] loaded event fired
+2026-08-15 21:37:30 [INFO] loaded event fired
+2026-08-15 21:37:49 [ERROR] Error converting docx to html: (-2147221008, 'CoInitialize has not been called.', None, None)
+2026-08-15 21:37:49 [ERROR] Error converting docx to html: (-2147221008, 'CoInitialize has not been called.', None, None)
+2026-08-15 21:40:06 [ERROR] Error printing to Microsoft Print to PDF: (-2147221008, 'CoInitialize has not been called.', None, None)
+2026-08-15 21:40:06 [ERROR] Error printing to Microsoft Print to PDF: (-2147221008, 'CoInitialize has not been called.', None, None)
+2026-08-15 21:40:06 [ERROR] Task exception was never retrieved
+future: <Task finished name='Task-415' coro=<CertificateScreen._async_print_job() done, defined at f:\CR_PY\certificate_manager\nicegui_screens\certificate_screen.py:968> exception=RuntimeError('The current slot cannot be determined because the slot stack for this task is empty.\nThis may happen if you try to create UI from a background task.\nTo fix this, enter the target slot explicitly using `with container_element:`.')>
+Traceback (most recent call last):
+  File "f:\CR_PY\certificate_manager\nicegui_screens\certificate_screen.py", line 975, in _async_print_job
+    UI.notify(f"تعذر إرسال الوثيقة للطباعة على {sel_printer}", type="negative")
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "f:\CR_PY\certificate_manager\nicegui_ui\ui_components.py", line 301, in notify
+    ui.notify(
+    ~~~~~~~~~^
+        html_content,
+        ^^^^^^^^^^^^^
+    ...<6 lines>...
+        multi_line=True
+        ^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\functions\notify.py", line 52, in notify
+    client = context.client
+             ^^^^^^^^^^^^^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\context.py", line 41, in client
+    return self.slot.parent.client
+           ^^^^^^^^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\context.py", line 33, in slot
+    raise RuntimeError('The current slot cannot be determined because the slot stack for this task is empty.\n'
+                       'This may happen if you try to create UI from a background task.\n'
+                       'To fix this, enter the target slot explicitly using `with container_element:`.')
+RuntimeError: The current slot cannot be determined because the slot stack for this task is empty.
+This may happen if you try to create UI from a background task.
+To fix this, enter the target slot explicitly using `with container_element:`.
+2026-08-15 21:40:06 [ERROR] Task exception was never retrieved
+future: <Task finished name='Task-415' coro=<CertificateScreen._async_print_job() done, defined at f:\CR_PY\certificate_manager\nicegui_screens\certificate_screen.py:968> exception=RuntimeError('The current slot cannot be determined because the slot stack for this task is empty.\nThis may happen if you try to create UI from a background task.\nTo fix this, enter the target slot explicitly using `with container_element:`.')>
+Traceback (most recent call last):
+  File "f:\CR_PY\certificate_manager\nicegui_screens\certificate_screen.py", line 975, in _async_print_job
+    UI.notify(f"تعذر إرسال الوثيقة للطباعة على {sel_printer}", type="negative")
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "f:\CR_PY\certificate_manager\nicegui_ui\ui_components.py", line 301, in notify
+    ui.notify(
+    ~~~~~~~~~^
+        html_content,
+        ^^^^^^^^^^^^^
+    ...<6 lines>...
+        multi_line=True
+        ^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\functions\notify.py", line 52, in notify
+    client = context.client
+             ^^^^^^^^^^^^^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\context.py", line 41, in client
+    return self.slot.parent.client
+           ^^^^^^^^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\context.py", line 33, in slot
+    raise RuntimeError('The current slot cannot be determined because the slot stack for this task is empty.\n'
+                       'This may happen if you try to create UI from a background task.\n'
+                       'To fix this, enter the target slot explicitly using `with container_element:`.')
+RuntimeError: The current slot cannot be determined because the slot stack for this task is empty.
+This may happen if you try to create UI from a background task.
+To fix this, enter the target slot explicitly using `with container_element:`.
+2026-08-15 22:16:27 [INFO] SYSTEM STARTUP DIAGNOSTIC CHECK STARTED
+2026-08-15 22:16:27 [OK] [CHECK 1/4] FastAPI Connection Check ... [OK]
+2026-08-15 22:16:27 [OK] [CHECK 2/4] MySQL Database Connection ... [OK]
+2026-08-15 22:16:27 [OK] [CHECK 3/4] Authentication & Core SP Checks ... [OK]
+2026-08-15 22:16:27 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-08-15 22:16:27 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-08-15 22:16:27 [OK] [CHECK 4/4] Sync Engine & Local Replica Check ... [OK]
+2026-08-15 22:16:27 [OK] Status: ALL CHECKS PASSED. PROCEEDING TO LOGIN/DASHBOARD.
+2026-08-15 22:16:30 [INFO] Using WinForms / Chromium
+2026-08-15 22:16:30 [INFO] Using WinForms / Chromium
+2026-08-15 22:16:33 [INFO] before_load event fired. injecting pywebview object
+2026-08-15 22:16:33 [INFO] before_load event fired. injecting pywebview object
+2026-08-15 22:16:33 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-15 22:16:33 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-15 22:16:33 [INFO] _pywebviewready event fired
+2026-08-15 22:16:33 [INFO] _pywebviewready event fired
+2026-08-15 22:16:33 [INFO] loaded event fired
+2026-08-15 22:16:33 [INFO] loaded event fired
+2026-08-15 22:17:44 [INFO] before_load event fired. injecting pywebview object
+2026-08-15 22:17:44 [INFO] before_load event fired. injecting pywebview object
+2026-08-15 22:17:44 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-15 22:17:44 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-15 22:17:44 [INFO] _pywebviewready event fired
+2026-08-15 22:17:44 [INFO] _pywebviewready event fired
+2026-08-15 22:17:44 [INFO] loaded event fired
+2026-08-15 22:17:44 [INFO] loaded event fired
+2026-08-15 22:18:54 [ERROR] Error converting docx to pdf: Open.SaveAs
+2026-08-15 22:18:54 [ERROR] Error converting docx to pdf: Open.SaveAs
+2026-08-15 22:18:55 [ERROR] Error converting docx to html: Open.SaveAs
+2026-08-15 22:18:55 [ERROR] Error converting docx to html: Open.SaveAs
+2026-08-15 22:19:19 [ERROR] Error converting docx to pdf: (-2147352567, 'Exception occurred.', (0, 'Microsoft Word', 'You cannot close Microsoft Word because a dialog box is open.\nClick OK, switch to Word, and then close the dialog box.', 'wdmain11.chm', 24959, -2146822809), None)
+2026-08-15 22:19:19 [ERROR] Error converting docx to pdf: (-2147352567, 'Exception occurred.', (0, 'Microsoft Word', 'You cannot close Microsoft Word because a dialog box is open.\nClick OK, switch to Word, and then close the dialog box.', 'wdmain11.chm', 24959, -2146822809), None)
+2026-08-15 22:19:20 [WARNING] http://127.0.0.1:2323/semester - Temp - Ar - D - SBS - اديان عبدالامير فخري احمد_files/image001.png not found
+2026-08-15 22:19:20 [WARNING] http://127.0.0.1:2323/semester - Temp - Ar - D - SBS - اديان عبدالامير فخري احمد_files/image001.png not found
+2026-08-15 22:37:34 [INFO] before_load event fired. injecting pywebview object
+2026-08-15 22:37:34 [INFO] before_load event fired. injecting pywebview object
+2026-08-15 22:37:34 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-15 22:37:34 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-15 22:37:34 [INFO] _pywebviewready event fired
+2026-08-15 22:37:34 [INFO] _pywebviewready event fired
+2026-08-15 22:37:34 [INFO] loaded event fired
+2026-08-15 22:37:34 [INFO] loaded event fired
+2026-08-15 22:37:52 [ERROR] Error converting docx to pdf: Open.SaveAs
+2026-08-15 22:37:53 [ERROR] Error converting docx to pdf: Open.SaveAs
+2026-08-15 22:37:53 [ERROR] Error converting docx to html: Open.SaveAs
+2026-08-15 22:37:53 [ERROR] Error converting docx to html: Open.SaveAs
+2026-08-15 22:37:57 [ERROR] Error converting docx to html: (-2147352567, 'Exception occurred.', (0, 'Microsoft Word', 'You cannot close Microsoft Word because a dialog box is open.\nClick OK, switch to Word, and then close the dialog box.', 'wdmain11.chm', 24959, -2146822809), None)
+2026-08-15 22:37:57 [ERROR] Error converting docx to html: (-2147352567, 'Exception occurred.', (0, 'Microsoft Word', 'You cannot close Microsoft Word because a dialog box is open.\nClick OK, switch to Word, and then close the dialog box.', 'wdmain11.chm', 24959, -2146822809), None)
+2026-08-15 22:37:58 [ERROR] Error opening in-app print dialog: The parent element this slot belongs to has been deleted.
+2026-08-15 22:37:58 [ERROR] Error opening in-app print dialog: The parent element this slot belongs to has been deleted.
+2026-08-15 22:37:59 [ERROR] The parent element this slot belongs to has been deleted.
+Traceback (most recent call last):
+  File "f:\CR_PY\certificate_manager\nicegui_screens\certificate_screen.py", line 1017, in print_certificate
+    self.show_in_app_print_dialog(pdf_path, html_path, self.generated_file_path)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "f:\CR_PY\certificate_manager\nicegui_screens\certificate_screen.py", line 906, in show_in_app_print_dialog
+    with ui.dialog() as print_dialog, UI.card().classes(
+         ~~~~~~~~~^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\defaults.py", line 64, in decorated
+    return original_func(*args, **kwargs)
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\elements\dialog.py", line 30, in __init__
+    with context.client.layout:
+         ^^^^^^^^^^^^^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\context.py", line 41, in client
+    return self.slot.parent.client
+           ^^^^^^^^^^^^^^^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\slot.py", line 31, in parent
+    raise RuntimeError('The parent element this slot belongs to has been deleted.')
+RuntimeError: The parent element this slot belongs to has been deleted.
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\events.py", line 485, in _await_and_handle_in_context
+    await awaitable
+  File "f:\CR_PY\certificate_manager\nicegui_screens\certificate_screen.py", line 1020, in print_certificate
+    UI.notify(f"تعذر فتح نافذة المعاينة والطباعة: {err}", type="negative")
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "f:\CR_PY\certificate_manager\nicegui_ui\ui_components.py", line 301, in notify
+    ui.notify(
+    ~~~~~~~~~^
+        html_content,
+        ^^^^^^^^^^^^^
+    ...<6 lines>...
+        multi_line=True
+        ^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\functions\notify.py", line 52, in notify
+    client = context.client
+             ^^^^^^^^^^^^^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\context.py", line 41, in client
+    return self.slot.parent.client
+           ^^^^^^^^^^^^^^^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\slot.py", line 31, in parent
+    raise RuntimeError('The parent element this slot belongs to has been deleted.')
+RuntimeError: The parent element this slot belongs to has been deleted.
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\background_tasks.py", line 152, in _handle_exceptions
+    task.result()
+    ~~~~~~~~~~~^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\events.py", line 487, in _await_and_handle_in_context
+    core.app.handle_exception(e)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~^^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\app\app.py", line 176, in handle_exception
+    if context.slot_stack and context.client is not None:
+                              ^^^^^^^^^^^^^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\context.py", line 41, in client
+    return self.slot.parent.client
+           ^^^^^^^^^^^^^^^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\slot.py", line 31, in parent
+    raise RuntimeError('The parent element this slot belongs to has been deleted.')
+RuntimeError: The parent element this slot belongs to has been deleted.
+2026-08-15 22:37:59 [ERROR] The parent element this slot belongs to has been deleted.
+Traceback (most recent call last):
+  File "f:\CR_PY\certificate_manager\nicegui_screens\certificate_screen.py", line 1017, in print_certificate
+    self.show_in_app_print_dialog(pdf_path, html_path, self.generated_file_path)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "f:\CR_PY\certificate_manager\nicegui_screens\certificate_screen.py", line 906, in show_in_app_print_dialog
+    with ui.dialog() as print_dialog, UI.card().classes(
+         ~~~~~~~~~^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\defaults.py", line 64, in decorated
+    return original_func(*args, **kwargs)
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\elements\dialog.py", line 30, in __init__
+    with context.client.layout:
+         ^^^^^^^^^^^^^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\context.py", line 41, in client
+    return self.slot.parent.client
+           ^^^^^^^^^^^^^^^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\slot.py", line 31, in parent
+    raise RuntimeError('The parent element this slot belongs to has been deleted.')
+RuntimeError: The parent element this slot belongs to has been deleted.
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\events.py", line 485, in _await_and_handle_in_context
+    await awaitable
+  File "f:\CR_PY\certificate_manager\nicegui_screens\certificate_screen.py", line 1020, in print_certificate
+    UI.notify(f"تعذر فتح نافذة المعاينة والطباعة: {err}", type="negative")
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "f:\CR_PY\certificate_manager\nicegui_ui\ui_components.py", line 301, in notify
+    ui.notify(
+    ~~~~~~~~~^
+        html_content,
+        ^^^^^^^^^^^^^
+    ...<6 lines>...
+        multi_line=True
+        ^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\functions\notify.py", line 52, in notify
+    client = context.client
+             ^^^^^^^^^^^^^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\context.py", line 41, in client
+    return self.slot.parent.client
+           ^^^^^^^^^^^^^^^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\slot.py", line 31, in parent
+    raise RuntimeError('The parent element this slot belongs to has been deleted.')
+RuntimeError: The parent element this slot belongs to has been deleted.
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\background_tasks.py", line 152, in _handle_exceptions
+    task.result()
+    ~~~~~~~~~~~^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\events.py", line 487, in _await_and_handle_in_context
+    core.app.handle_exception(e)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~^^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\app\app.py", line 176, in handle_exception
+    if context.slot_stack and context.client is not None:
+                              ^^^^^^^^^^^^^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\context.py", line 41, in client
+    return self.slot.parent.client
+           ^^^^^^^^^^^^^^^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\slot.py", line 31, in parent
+    raise RuntimeError('The parent element this slot belongs to has been deleted.')
+RuntimeError: The parent element this slot belongs to has been deleted.
+2026-08-15 22:38:31 [ERROR] Error converting docx to html: Open.SaveAs
+2026-08-15 22:38:31 [ERROR] Error converting docx to html: Open.SaveAs
+2026-08-15 22:38:31 [ERROR] Error converting docx to pdf: Open.SaveAs
+2026-08-15 22:38:31 [ERROR] Error converting docx to pdf: Open.SaveAs
+2026-08-15 22:38:36 [ERROR] Error converting docx to html: (-2147352567, 'Exception occurred.', (0, 'Microsoft Word', 'You cannot close Microsoft Word because a dialog box is open.\nClick OK, switch to Word, and then close the dialog box.', 'wdmain11.chm', 24959, -2146822809), None)
+2026-08-15 22:38:36 [ERROR] Error converting docx to html: (-2147352567, 'Exception occurred.', (0, 'Microsoft Word', 'You cannot close Microsoft Word because a dialog box is open.\nClick OK, switch to Word, and then close the dialog box.', 'wdmain11.chm', 24959, -2146822809), None)
+2026-08-15 22:44:18 [ERROR] Error converting docx to html: (-2147352567, 'Exception occurred.', (0, 'Microsoft Word', 'Command failed', 'wdmain11.chm', 36966, -2146824090), None)
+2026-08-15 22:44:18 [ERROR] Error converting docx to html: (-2147352567, 'Exception occurred.', (0, 'Microsoft Word', 'Command failed', 'wdmain11.chm', 36966, -2146824090), None)
+2026-08-15 22:44:20 [ERROR] Error opening in-app print dialog: The parent element this slot belongs to has been deleted.
+2026-08-15 22:44:20 [ERROR] Error opening in-app print dialog: The parent element this slot belongs to has been deleted.
+2026-08-15 22:44:20 [ERROR] The parent element this slot belongs to has been deleted.
+Traceback (most recent call last):
+  File "f:\CR_PY\certificate_manager\nicegui_screens\certificate_screen.py", line 1017, in print_certificate
+    self.show_in_app_print_dialog(pdf_path, html_path, self.generated_file_path)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "f:\CR_PY\certificate_manager\nicegui_screens\certificate_screen.py", line 906, in show_in_app_print_dialog
+    with ui.dialog() as print_dialog, UI.card().classes(
+         ~~~~~~~~~^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\defaults.py", line 64, in decorated
+    return original_func(*args, **kwargs)
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\elements\dialog.py", line 30, in __init__
+    with context.client.layout:
+         ^^^^^^^^^^^^^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\context.py", line 41, in client
+    return self.slot.parent.client
+           ^^^^^^^^^^^^^^^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\slot.py", line 31, in parent
+    raise RuntimeError('The parent element this slot belongs to has been deleted.')
+RuntimeError: The parent element this slot belongs to has been deleted.
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\events.py", line 485, in _await_and_handle_in_context
+    await awaitable
+  File "f:\CR_PY\certificate_manager\nicegui_screens\certificate_screen.py", line 1020, in print_certificate
+    UI.notify(f"تعذر فتح نافذة المعاينة والطباعة: {err}", type="negative")
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "f:\CR_PY\certificate_manager\nicegui_ui\ui_components.py", line 301, in notify
+    ui.notify(
+    ~~~~~~~~~^
+        html_content,
+        ^^^^^^^^^^^^^
+    ...<6 lines>...
+        multi_line=True
+        ^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\functions\notify.py", line 52, in notify
+    client = context.client
+             ^^^^^^^^^^^^^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\context.py", line 41, in client
+    return self.slot.parent.client
+           ^^^^^^^^^^^^^^^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\slot.py", line 31, in parent
+    raise RuntimeError('The parent element this slot belongs to has been deleted.')
+RuntimeError: The parent element this slot belongs to has been deleted.
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\background_tasks.py", line 152, in _handle_exceptions
+    task.result()
+    ~~~~~~~~~~~^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\events.py", line 487, in _await_and_handle_in_context
+    core.app.handle_exception(e)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~^^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\app\app.py", line 176, in handle_exception
+    if context.slot_stack and context.client is not None:
+                              ^^^^^^^^^^^^^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\context.py", line 41, in client
+    return self.slot.parent.client
+           ^^^^^^^^^^^^^^^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\slot.py", line 31, in parent
+    raise RuntimeError('The parent element this slot belongs to has been deleted.')
+RuntimeError: The parent element this slot belongs to has been deleted.
+2026-08-15 22:44:20 [ERROR] The parent element this slot belongs to has been deleted.
+Traceback (most recent call last):
+  File "f:\CR_PY\certificate_manager\nicegui_screens\certificate_screen.py", line 1017, in print_certificate
+    self.show_in_app_print_dialog(pdf_path, html_path, self.generated_file_path)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "f:\CR_PY\certificate_manager\nicegui_screens\certificate_screen.py", line 906, in show_in_app_print_dialog
+    with ui.dialog() as print_dialog, UI.card().classes(
+         ~~~~~~~~~^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\defaults.py", line 64, in decorated
+    return original_func(*args, **kwargs)
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\elements\dialog.py", line 30, in __init__
+    with context.client.layout:
+         ^^^^^^^^^^^^^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\context.py", line 41, in client
+    return self.slot.parent.client
+           ^^^^^^^^^^^^^^^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\slot.py", line 31, in parent
+    raise RuntimeError('The parent element this slot belongs to has been deleted.')
+RuntimeError: The parent element this slot belongs to has been deleted.
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\events.py", line 485, in _await_and_handle_in_context
+    await awaitable
+  File "f:\CR_PY\certificate_manager\nicegui_screens\certificate_screen.py", line 1020, in print_certificate
+    UI.notify(f"تعذر فتح نافذة المعاينة والطباعة: {err}", type="negative")
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "f:\CR_PY\certificate_manager\nicegui_ui\ui_components.py", line 301, in notify
+    ui.notify(
+    ~~~~~~~~~^
+        html_content,
+        ^^^^^^^^^^^^^
+    ...<6 lines>...
+        multi_line=True
+        ^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\functions\notify.py", line 52, in notify
+    client = context.client
+             ^^^^^^^^^^^^^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\context.py", line 41, in client
+    return self.slot.parent.client
+           ^^^^^^^^^^^^^^^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\slot.py", line 31, in parent
+    raise RuntimeError('The parent element this slot belongs to has been deleted.')
+RuntimeError: The parent element this slot belongs to has been deleted.
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\background_tasks.py", line 152, in _handle_exceptions
+    task.result()
+    ~~~~~~~~~~~^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\events.py", line 487, in _await_and_handle_in_context
+    core.app.handle_exception(e)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~^^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\app\app.py", line 176, in handle_exception
+    if context.slot_stack and context.client is not None:
+                              ^^^^^^^^^^^^^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\context.py", line 41, in client
+    return self.slot.parent.client
+           ^^^^^^^^^^^^^^^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\slot.py", line 31, in parent
+    raise RuntimeError('The parent element this slot belongs to has been deleted.')
+RuntimeError: The parent element this slot belongs to has been deleted.
+2026-08-15 22:45:58 [INFO] SYSTEM STARTUP DIAGNOSTIC CHECK STARTED
+2026-08-15 22:45:58 [OK] [CHECK 1/4] FastAPI Connection Check ... [OK]
+2026-08-15 22:45:58 [OK] [CHECK 2/4] MySQL Database Connection ... [OK]
+2026-08-15 22:45:58 [OK] [CHECK 3/4] Authentication & Core SP Checks ... [OK]
+2026-08-15 22:45:58 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-08-15 22:45:58 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-08-15 22:45:58 [OK] [CHECK 4/4] Sync Engine & Local Replica Check ... [OK]
+2026-08-15 22:45:58 [OK] Status: ALL CHECKS PASSED. PROCEEDING TO LOGIN/DASHBOARD.
+2026-08-15 22:46:01 [INFO] Using WinForms / Chromium
+2026-08-15 22:46:01 [INFO] Using WinForms / Chromium
+2026-08-15 22:46:04 [INFO] before_load event fired. injecting pywebview object
+2026-08-15 22:46:04 [INFO] before_load event fired. injecting pywebview object
+2026-08-15 22:46:04 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-15 22:46:04 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-15 22:46:04 [INFO] _pywebviewready event fired
+2026-08-15 22:46:04 [INFO] _pywebviewready event fired
+2026-08-15 22:46:04 [INFO] loaded event fired
+2026-08-15 22:46:04 [INFO] loaded event fired
+2026-08-15 22:46:11 [INFO] before_load event fired. injecting pywebview object
+2026-08-15 22:46:11 [INFO] before_load event fired. injecting pywebview object
+2026-08-15 22:46:11 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-15 22:46:11 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-15 22:46:11 [INFO] _pywebviewready event fired
+2026-08-15 22:46:11 [INFO] _pywebviewready event fired
+2026-08-15 22:46:11 [INFO] loaded event fired
+2026-08-15 22:46:11 [INFO] loaded event fired
+2026-08-15 23:08:34 [INFO] SYSTEM STARTUP DIAGNOSTIC CHECK STARTED
+2026-08-15 23:08:34 [OK] [CHECK 1/4] FastAPI Connection Check ... [OK]
+2026-08-15 23:08:34 [OK] [CHECK 2/4] MySQL Database Connection ... [OK]
+2026-08-15 23:08:34 [OK] [CHECK 3/4] Authentication & Core SP Checks ... [OK]
+2026-08-15 23:08:34 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-08-15 23:08:34 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-08-15 23:08:34 [OK] [CHECK 4/4] Sync Engine & Local Replica Check ... [OK]
+2026-08-15 23:08:34 [OK] Status: ALL CHECKS PASSED. PROCEEDING TO LOGIN/DASHBOARD.
+2026-08-15 23:08:38 [INFO] Using WinForms / Chromium
+2026-08-15 23:08:38 [INFO] Using WinForms / Chromium
+2026-08-15 23:08:41 [INFO] before_load event fired. injecting pywebview object
+2026-08-15 23:08:41 [INFO] before_load event fired. injecting pywebview object
+2026-08-15 23:08:41 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-15 23:08:41 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-15 23:08:41 [INFO] _pywebviewready event fired
+2026-08-15 23:08:41 [INFO] _pywebviewready event fired
+2026-08-15 23:08:41 [INFO] loaded event fired
+2026-08-15 23:08:41 [INFO] loaded event fired
+2026-08-15 23:09:06 [INFO] before_load event fired. injecting pywebview object
+2026-08-15 23:09:06 [INFO] before_load event fired. injecting pywebview object
+2026-08-15 23:09:06 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-15 23:09:06 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-15 23:09:06 [INFO] _pywebviewready event fired
+2026-08-15 23:09:06 [INFO] _pywebviewready event fired
+2026-08-15 23:09:06 [INFO] loaded event fired
+2026-08-15 23:09:06 [INFO] loaded event fired
+2026-08-15 23:18:14 [INFO] SYSTEM STARTUP DIAGNOSTIC CHECK STARTED
+2026-08-15 23:18:14 [OK] [CHECK 1/4] FastAPI Connection Check ... [OK]
+2026-08-15 23:18:14 [OK] [CHECK 2/4] MySQL Database Connection ... [OK]
+2026-08-15 23:18:14 [OK] [CHECK 3/4] Authentication & Core SP Checks ... [OK]
+2026-08-15 23:18:14 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-08-15 23:18:14 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-08-15 23:18:14 [OK] [CHECK 4/4] Sync Engine & Local Replica Check ... [OK]
+2026-08-15 23:18:14 [OK] Status: ALL CHECKS PASSED. PROCEEDING TO LOGIN/DASHBOARD.
+2026-08-15 23:18:17 [INFO] Using WinForms / Chromium
+2026-08-15 23:18:17 [INFO] Using WinForms / Chromium
+2026-08-15 23:18:21 [INFO] before_load event fired. injecting pywebview object
+2026-08-15 23:18:21 [INFO] before_load event fired. injecting pywebview object
+2026-08-15 23:18:21 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-15 23:18:21 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-15 23:18:21 [INFO] _pywebviewready event fired
+2026-08-15 23:18:21 [INFO] _pywebviewready event fired
+2026-08-15 23:18:21 [INFO] loaded event fired
+2026-08-15 23:18:21 [INFO] loaded event fired
+2026-08-15 23:18:25 [INFO] before_load event fired. injecting pywebview object
+2026-08-15 23:18:25 [INFO] before_load event fired. injecting pywebview object
+2026-08-15 23:18:25 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-15 23:18:25 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-15 23:18:25 [INFO] _pywebviewready event fired
+2026-08-15 23:18:25 [INFO] _pywebviewready event fired
+2026-08-15 23:18:25 [INFO] loaded event fired
+2026-08-15 23:18:25 [INFO] loaded event fired
+2026-08-15 23:27:24 [INFO] SYSTEM STARTUP DIAGNOSTIC CHECK STARTED
+2026-08-15 23:27:24 [OK] [CHECK 1/4] FastAPI Connection Check ... [OK]
+2026-08-15 23:27:25 [OK] [CHECK 2/4] MySQL Database Connection ... [OK]
+2026-08-15 23:27:25 [OK] [CHECK 3/4] Authentication & Core SP Checks ... [OK]
+2026-08-15 23:27:25 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-08-15 23:27:25 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-08-15 23:27:25 [OK] [CHECK 4/4] Sync Engine & Local Replica Check ... [OK]
+2026-08-15 23:27:25 [OK] Status: ALL CHECKS PASSED. PROCEEDING TO LOGIN/DASHBOARD.
+2026-08-15 23:27:27 [INFO] Using WinForms / Chromium
+2026-08-15 23:27:27 [INFO] Using WinForms / Chromium
+2026-08-15 23:27:31 [INFO] before_load event fired. injecting pywebview object
+2026-08-15 23:27:31 [INFO] before_load event fired. injecting pywebview object
+2026-08-15 23:27:31 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-15 23:27:31 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-15 23:27:31 [INFO] _pywebviewready event fired
+2026-08-15 23:27:31 [INFO] _pywebviewready event fired
+2026-08-15 23:27:31 [INFO] loaded event fired
+2026-08-15 23:27:31 [INFO] loaded event fired
+2026-08-15 23:27:35 [INFO] before_load event fired. injecting pywebview object
+2026-08-15 23:27:35 [INFO] before_load event fired. injecting pywebview object
+2026-08-15 23:27:35 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-15 23:27:35 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-15 23:27:35 [INFO] _pywebviewready event fired
+2026-08-15 23:27:35 [INFO] _pywebviewready event fired
+2026-08-15 23:27:35 [INFO] loaded event fired
+2026-08-15 23:27:35 [INFO] loaded event fired
+2026-08-15 23:34:39 [INFO] SYSTEM STARTUP DIAGNOSTIC CHECK STARTED
+2026-08-15 23:34:39 [OK] [CHECK 1/4] FastAPI Connection Check ... [OK]
+2026-08-15 23:34:40 [OK] [CHECK 2/4] MySQL Database Connection ... [OK]
+2026-08-15 23:34:40 [OK] [CHECK 3/4] Authentication & Core SP Checks ... [OK]
+2026-08-15 23:34:40 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-08-15 23:34:40 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-08-15 23:34:40 [OK] [CHECK 4/4] Sync Engine & Local Replica Check ... [OK]
+2026-08-15 23:34:40 [OK] Status: ALL CHECKS PASSED. PROCEEDING TO LOGIN/DASHBOARD.
+2026-08-15 23:34:43 [INFO] Using WinForms / Chromium
+2026-08-15 23:34:43 [INFO] Using WinForms / Chromium
+2026-08-15 23:34:47 [INFO] before_load event fired. injecting pywebview object
+2026-08-15 23:34:47 [INFO] before_load event fired. injecting pywebview object
+2026-08-15 23:34:47 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-15 23:34:47 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-15 23:34:47 [INFO] _pywebviewready event fired
+2026-08-15 23:34:47 [INFO] _pywebviewready event fired
+2026-08-15 23:34:47 [INFO] loaded event fired
+2026-08-15 23:34:47 [INFO] loaded event fired
+2026-08-15 23:34:51 [INFO] before_load event fired. injecting pywebview object
+2026-08-15 23:34:51 [INFO] before_load event fired. injecting pywebview object
+2026-08-15 23:34:51 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-15 23:34:51 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-15 23:34:51 [INFO] _pywebviewready event fired
+2026-08-15 23:34:51 [INFO] _pywebviewready event fired
+2026-08-15 23:34:51 [INFO] loaded event fired
+2026-08-15 23:34:51 [INFO] loaded event fired
+2026-08-15 23:40:46 [INFO] SYSTEM STARTUP DIAGNOSTIC CHECK STARTED
+2026-08-15 23:40:46 [OK] [CHECK 1/4] FastAPI Connection Check ... [OK]
+2026-08-15 23:40:46 [OK] [CHECK 2/4] MySQL Database Connection ... [OK]
+2026-08-15 23:40:46 [OK] [CHECK 3/4] Authentication & Core SP Checks ... [OK]
+2026-08-15 23:40:46 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-08-15 23:40:46 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-08-15 23:40:46 [OK] [CHECK 4/4] Sync Engine & Local Replica Check ... [OK]
+2026-08-15 23:40:46 [OK] Status: ALL CHECKS PASSED. PROCEEDING TO LOGIN/DASHBOARD.
+2026-08-15 23:40:49 [INFO] Using WinForms / Chromium
+2026-08-15 23:40:49 [INFO] Using WinForms / Chromium
+2026-08-15 23:40:52 [INFO] before_load event fired. injecting pywebview object
+2026-08-15 23:40:52 [INFO] before_load event fired. injecting pywebview object
+2026-08-15 23:40:52 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-15 23:40:52 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-15 23:40:52 [INFO] _pywebviewready event fired
+2026-08-15 23:40:52 [INFO] _pywebviewready event fired
+2026-08-15 23:40:52 [INFO] loaded event fired
+2026-08-15 23:40:52 [INFO] loaded event fired
+2026-08-15 23:40:56 [INFO] before_load event fired. injecting pywebview object
+2026-08-15 23:40:56 [INFO] before_load event fired. injecting pywebview object
+2026-08-15 23:40:56 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-15 23:40:56 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-15 23:40:56 [INFO] _pywebviewready event fired
+2026-08-15 23:40:56 [INFO] _pywebviewready event fired
+2026-08-15 23:40:56 [INFO] loaded event fired
+2026-08-15 23:40:56 [INFO] loaded event fired
+2026-08-15 23:47:14 [INFO] SYSTEM STARTUP DIAGNOSTIC CHECK STARTED
+2026-08-15 23:47:14 [OK] [CHECK 1/4] FastAPI Connection Check ... [OK]
+2026-08-15 23:47:15 [OK] [CHECK 2/4] MySQL Database Connection ... [OK]
+2026-08-15 23:47:15 [OK] [CHECK 3/4] Authentication & Core SP Checks ... [OK]
+2026-08-15 23:47:15 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-08-15 23:47:15 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-08-15 23:47:15 [OK] [CHECK 4/4] Sync Engine & Local Replica Check ... [OK]
+2026-08-15 23:47:15 [OK] Status: ALL CHECKS PASSED. PROCEEDING TO LOGIN/DASHBOARD.
+2026-08-15 23:47:18 [INFO] Using WinForms / Chromium
+2026-08-15 23:47:18 [INFO] Using WinForms / Chromium
+2026-08-15 23:47:22 [INFO] before_load event fired. injecting pywebview object
+2026-08-15 23:47:22 [INFO] before_load event fired. injecting pywebview object
+2026-08-15 23:47:22 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-15 23:47:22 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-15 23:47:22 [INFO] _pywebviewready event fired
+2026-08-15 23:47:22 [INFO] _pywebviewready event fired
+2026-08-15 23:47:22 [INFO] loaded event fired
+2026-08-15 23:47:22 [INFO] loaded event fired
+2026-08-15 23:47:28 [INFO] before_load event fired. injecting pywebview object
+2026-08-15 23:47:28 [INFO] before_load event fired. injecting pywebview object
+2026-08-15 23:47:28 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-15 23:47:28 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-15 23:47:28 [INFO] _pywebviewready event fired
+2026-08-15 23:47:28 [INFO] _pywebviewready event fired
+2026-08-15 23:47:28 [INFO] loaded event fired
+2026-08-15 23:47:28 [INFO] loaded event fired
+2026-08-15 23:52:07 [INFO] SYSTEM STARTUP DIAGNOSTIC CHECK STARTED
+2026-08-15 23:52:07 [OK] [CHECK 1/4] FastAPI Connection Check ... [OK]
+2026-08-15 23:52:07 [OK] [CHECK 2/4] MySQL Database Connection ... [OK]
+2026-08-15 23:52:07 [OK] [CHECK 3/4] Authentication & Core SP Checks ... [OK]
+2026-08-15 23:52:07 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-08-15 23:52:07 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-08-15 23:52:07 [OK] [CHECK 4/4] Sync Engine & Local Replica Check ... [OK]
+2026-08-15 23:52:07 [OK] Status: ALL CHECKS PASSED. PROCEEDING TO LOGIN/DASHBOARD.
+2026-08-15 23:52:10 [INFO] Using WinForms / Chromium
+2026-08-15 23:52:10 [INFO] Using WinForms / Chromium
+2026-08-15 23:52:17 [INFO] before_load event fired. injecting pywebview object
+2026-08-15 23:52:17 [INFO] before_load event fired. injecting pywebview object
+2026-08-15 23:52:17 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-15 23:52:17 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-15 23:52:17 [INFO] _pywebviewready event fired
+2026-08-15 23:52:17 [INFO] _pywebviewready event fired
+2026-08-15 23:52:17 [INFO] loaded event fired
+2026-08-15 23:52:17 [INFO] loaded event fired
+2026-08-15 23:52:21 [INFO] before_load event fired. injecting pywebview object
+2026-08-15 23:52:21 [INFO] before_load event fired. injecting pywebview object
+2026-08-15 23:52:21 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-15 23:52:21 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-15 23:52:21 [INFO] _pywebviewready event fired
+2026-08-15 23:52:21 [INFO] _pywebviewready event fired
+2026-08-15 23:52:21 [INFO] loaded event fired
+2026-08-15 23:52:21 [INFO] loaded event fired
+2026-08-16 00:14:06 [INFO] SYSTEM STARTUP DIAGNOSTIC CHECK STARTED
+2026-08-16 00:14:07 [OK] [CHECK 1/4] FastAPI Connection Check ... [OK]
+2026-08-16 00:14:07 [OK] [CHECK 2/4] MySQL Database Connection ... [OK]
+2026-08-16 00:14:07 [OK] [CHECK 3/4] Authentication & Core SP Checks ... [OK]
+2026-08-16 00:14:07 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-08-16 00:14:07 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-08-16 00:14:07 [OK] [CHECK 4/4] Sync Engine & Local Replica Check ... [OK]
+2026-08-16 00:14:07 [OK] Status: ALL CHECKS PASSED. PROCEEDING TO LOGIN/DASHBOARD.
+2026-08-16 00:14:09 [INFO] Using WinForms / Chromium
+2026-08-16 00:14:09 [INFO] Using WinForms / Chromium
+2026-08-16 00:14:13 [INFO] before_load event fired. injecting pywebview object
+2026-08-16 00:14:13 [INFO] before_load event fired. injecting pywebview object
+2026-08-16 00:14:13 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-16 00:14:13 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-16 00:14:13 [INFO] _pywebviewready event fired
+2026-08-16 00:14:13 [INFO] _pywebviewready event fired
+2026-08-16 00:14:13 [INFO] loaded event fired
+2026-08-16 00:14:13 [INFO] loaded event fired
+2026-08-16 00:14:18 [INFO] before_load event fired. injecting pywebview object
+2026-08-16 00:14:18 [INFO] before_load event fired. injecting pywebview object
+2026-08-16 00:14:18 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-16 00:14:18 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-16 00:14:18 [INFO] _pywebviewready event fired
+2026-08-16 00:14:18 [INFO] _pywebviewready event fired
+2026-08-16 00:14:18 [INFO] loaded event fired
+2026-08-16 00:14:18 [INFO] loaded event fired
