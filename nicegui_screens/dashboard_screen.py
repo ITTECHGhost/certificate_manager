@@ -516,7 +516,7 @@ class MainAppShell:
             elif self.current_screen == "settings":
                 SettingsScreen()
             elif self.current_screen == "students":
-                StudentsScreen()
+                self._active_students_screen = StudentsScreen()
             elif self.current_screen == "orders":
                 GraduationOrdersScreen()
             elif self.current_screen == "departments":
@@ -526,7 +526,21 @@ class MainAppShell:
             elif self.current_screen == "personnel":
                 PersonnelScreen()
             elif self.current_screen == "certificate":
-                CertificateScreen()
+                def _on_edit_student_handler(student_dict):
+                    self._last_cert_student = student_dict
+                    self._switch_screen("students")
+                    if hasattr(self, "_active_students_screen") and self._active_students_screen:
+                        def _back_to_cert(target_student=None):
+                            st = target_student or student_dict
+                            self._last_cert_student = st
+                            self._switch_screen("certificate")
+                        self._active_students_screen.profile_view.render(student_dict, from_cert=True, on_back_to_cert=_back_to_cert)
+
+                last_st = getattr(self, "_last_cert_student", None)
+                self._active_certificate_screen = CertificateScreen(
+                    on_edit_student=_on_edit_student_handler,
+                    initial_student=last_st
+                )
             else:
                 self._build_placeholder_screen()
 

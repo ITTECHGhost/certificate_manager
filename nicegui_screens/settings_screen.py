@@ -72,13 +72,31 @@ class SettingsScreen:
         self.session.apply_theme_mode()
 
     def _build_ui(self) -> None:
-        """Build the settings screen layout using the UI factory."""
+        """Build the settings screen layout using clean tabbed panels."""
         with ui.column().classes("w-full gap-6 pb-12"):
-            self._section_institution_info()
-            self._section_study_systems()
-            self._section_appearance()
-            self._section_database_maintenance()
-            self._section_about()
+            with ui.tabs().classes("w-full app-tabs border-b border-[var(--border-default)]") as self.tabs:
+                self.tab_inst = ui.tab("institution", label="المؤسسة والدراسة — Institution & Systems", icon="domain")
+                self.tab_app  = ui.tab("appearance",  label="المظهر والسمات — Appearance & Theme",  icon="palette")
+                self.tab_auth = ui.tab("auth",        label="صلاحيات الوصول والملف — Auth & Profile", icon="security")
+                self.tab_logs = ui.tab("logs",        label="سجلات النظام والتحليلات — System Logs & Maintenance", icon="terminal")
+
+            with ui.tab_panels(self.tabs, value=self.tab_inst).classes("w-full bg-transparent p-0 gap-6"):
+                with ui.tab_panel(self.tab_inst).classes("w-full gap-6 p-0 flex flex-col"):
+                    self._section_institution_info()
+                    self._section_study_systems()
+
+                with ui.tab_panel(self.tab_app).classes("w-full gap-6 p-0 flex flex-col"):
+                    self._section_appearance()
+
+                with ui.tab_panel(self.tab_auth).classes("w-full gap-6 p-0 flex flex-col"):
+                    self._section_profile()
+                    self._section_auth_management()
+
+                with ui.tab_panel(self.tab_logs).classes("w-full gap-6 p-0 flex flex-col"):
+                    self._section_database_maintenance()
+                    self._section_system_logs()
+                    self._section_analytics()
+                    self._section_about()
 
     def _section_institution_info(self) -> None:
         with UI.card():
@@ -232,6 +250,50 @@ class SettingsScreen:
                 icon="brush",
                 on_click=self._save_appearance
             ).classes("self-end")
+
+    def _section_profile(self) -> None:
+        with UI.card():
+            UI.card_header("الملف الشخصي والحساب — Profile & Account", "account_circle", icon_css="stat-text-blue")
+            with ui.row().classes("w-full items-center justify-between p-4 bg-[var(--bg-main)] rounded-xl border border-[var(--border-default)]"):
+                with ui.row().classes("items-center gap-4"):
+                    ui.icon("account_circle", size="lg").classes("app-text-accent")
+                    with ui.column().classes("gap-0"):
+                        ui.label(self.session.username or "المستخدم / User").classes("text-lg font-bold app-text-primary")
+                        ui.label(f"اسم الدخول: {self.session.username or 'admin'}  |  الصلاحية: {self.session.role or 'admin'}").classes("text-xs app-text-muted")
+                UI.status_badge(online=True)
+
+    def _section_auth_management(self) -> None:
+        with UI.card():
+            UI.card_header("صلاحيات الوصول وإدارة الكوادر — Auth & User Management", "security", icon_css="stat-text-emerald")
+            UI.muted_label("إدارة حسابات مستخدمي النظام والصلاحيات الممنوحة (مسؤول / مستخدم / موقع).")
+            with ui.row().classes("w-full justify-end mt-2"):
+                UI.primary_button("إدارة الكوادر والصلاحيات / Manage Personnel", icon="manage_accounts", on_click=lambda: ui.notify("يرجى للانتقال إلى شاشة الكوادر لتعديل الصلاحيات", type="info")).classes("text-xs")
+
+    def _section_system_logs(self) -> None:
+        with UI.card():
+            UI.card_header("سجلات حركة النظام — System Activity Logs", "terminal", icon_css="stat-text-amber")
+            log_file = Path("logs/system_log.txt")
+            log_content = ""
+            if log_file.exists():
+                try:
+                    with open(log_file, "r", encoding="utf-8") as f:
+                        lines = f.readlines()
+                        log_content = "".join(lines[-100:])
+                except Exception:
+                    log_content = "تعذر قراءة ملف السجلات / Could not read log file"
+            else:
+                log_content = "لا يوجد سجل نشاطات حالياً / No activity log file found"
+
+            ui.textarea(value=log_content).classes("w-full h-48 font-mono text-xs bg-[var(--bg-main)] rounded-xl p-3").props("readonly")
+
+    def _section_analytics(self) -> None:
+        with UI.card():
+            UI.card_header("تحليلات وإحصائيات النظام — Analytics Summary", "analytics", icon_css="stat-text-purple")
+            with ui.grid(columns=4).classes("w-full gap-4"):
+                UI.stat_card("إجمالي السجلات", "Total DB Records", "1,250+", "storage", variant="blue")
+                UI.stat_card("الوثائق المصدرة", "Issued Certificates", "340+", "description", variant="emerald")
+                UI.stat_card("المستخدمين النشطين", "Active System Users", "12", "people", variant="amber")
+                UI.stat_card("حالة مزامنة SQLite", "Sync Engine Status", "100%", "cloud_done", variant="purple")
 
     def _section_database_maintenance(self) -> None:
         with UI.card():

@@ -348,16 +348,21 @@ class StudentProfileView:
         self.enroll_repo = EnrollmentRepository()
         self.course_repo = CourseRepository()
 
-    def render(self, student_row, initial_tab: str = "info"):
-        """Render the profile view inside the parent container, optionally opening directly on a target tab."""
-        student_id = student_row.get("id") or student_row.get("student_id")
-        if not student_id:
-            ui.notify("Error: No student ID provided", type="negative")
+    def render(self, student_data: dict, initial_tab: str = "info", from_cert: bool = False, on_back_to_cert = None):
+        if not student_data:
             return
             
-        data = self.repo.get_by_id(student_id)
-        if not data:
-            data = student_row
+        student_id = student_data.get("id") or student_data.get("student_id")
+        student_row = student_data
+        if student_id and not student_data.get("dept_name_ar"):
+            try:
+                fetched = self.repo.get_by_id(student_id)
+                if fetched:
+                    student_row = fetched
+            except Exception as e:
+                log.warning(f"Could not fetch full student details: {e}")
+
+        data = student_row
             
         self.parent.clear()
         with self.parent:
@@ -374,11 +379,20 @@ class StudentProfileView:
                             ui.label(name_display).classes('text-xl font-bold app-text-primary')
                             ui.label(f"{dept_display} • {grad_year}").classes('text-sm app-text-muted')
                     
-                    UI.primary_button(
-                        'Edit Student / تعديل البيانات',
-                        icon='edit',
-                        on_click=lambda: self.on_edit(data) if self.on_edit else ui.notify("Edit handler not connected", type="warning")
-                    )
+                    with ui.row().classes('items-center gap-3'):
+                        if on_back_to_cert:
+                            def _go_cert_profile():
+                                on_back_to_cert(data)
+                            UI.primary_button(
+                                '📄 العودة إلى وثيقة الطالب / Back to Certificate',
+                                icon='description',
+                                on_click=_go_cert_profile
+                            ).classes('text-xs px-4 py-2 font-bold')
+                        UI.secondary_button(
+                            'Edit Student / تعديل البيانات',
+                            icon='edit',
+                            on_click=lambda: self.on_edit(data, on_back_to_cert=on_back_to_cert) if self.on_edit else ui.notify("Edit handler not connected", type="warning")
+                        )
                     
                 # Tabs
                 with ui.tabs().classes('w-full border-b border-[var(--border-default)] app-text-primary shrink-0') as tabs:
@@ -646,15 +660,18 @@ class StudentFormView:
         self.order_repo = GraduationOrderRepository()
         self.student_id = None
         self.editing_student_data = None
+        self.on_back_to_cert = None
         
     def render_add(self):
         """Render form in add mode"""
         self.student_id = None
         self.editing_student_data = None
+        self.on_back_to_cert = None
         self._build_ui(mode="Add New Student / إضافة طالب جديد")
         
-    def render_edit(self, student_row):
+    def render_edit(self, student_row, from_cert: bool = False, on_back_to_cert = None):
         """Render form in edit mode"""
+        self.on_back_to_cert = on_back_to_cert
         self.student_id = student_row.get("id") or student_row.get("student_id")
         data = None
         if self.student_id:
@@ -737,7 +754,18 @@ class StudentFormView:
                     with ui.row().classes('items-center gap-3'):
                         ui.button(icon='arrow_back', on_click=self.handle_back_action).props('flat round dense').classes('app-text-primary')
                         UI.section_header(mode)
-                    ui.icon('person_add' if 'Add' in mode else 'edit', size='sm').classes('app-text-accent')
+                    
+                    with ui.row().classes('items-center gap-3'):
+                        if hasattr(self, 'on_back_to_cert') and self.on_back_to_cert:
+                            def _go_cert_header():
+                                st = data or self.editing_student_data or {"id": self.student_id}
+                                self.on_back_to_cert(st)
+                            UI.primary_button(
+                                '📄 العودة إلى وثيقة الطالب / Back to Certificate',
+                                icon='description',
+                                on_click=_go_cert_header
+                            ).classes('text-xs px-4 py-2 font-bold')
+                        ui.icon('person_add' if 'Add' in mode else 'edit', size='sm').classes('app-text-accent')
                     
                 # Form Body
                 with ui.column().classes('w-full flex-1 overflow-y-auto gap-8 mt-4'):
@@ -786,6 +814,15 @@ class StudentFormView:
                 # Footer Action Buttons
                 with ui.row().classes('w-full pt-4 mt-4 justify-end gap-4 shrink-0 app-card-header'):
                     UI.success_button('Save / حفظ', icon='save', on_click=self.save)
+                    if hasattr(self, 'on_back_to_cert') and self.on_back_to_cert:
+                        def _go_cert_footer():
+                            st = data or self.editing_student_data or {"id": self.student_id}
+                            self.on_back_to_cert(st)
+                        UI.primary_button(
+                            '📄 العودة للوثيقة / Back to Certificate',
+                            icon='description',
+                            on_click=_go_cert_footer
+                        ).classes('text-xs px-4 py-2 font-bold')
                     UI.secondary_button('Cancel / إلغاء', on_click=self.handle_back_action)
 
             # Populate data if edit mode

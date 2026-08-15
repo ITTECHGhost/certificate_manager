@@ -1080,3 +1080,55 @@ body:not(.body--dark) .q-field__input {
   color: var(--text-primary) !important;
   font-weight: 500 !important;
 }
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   7. QUASAR NOTIFICATION POPUP STYLING
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.q-notification {
+  border-radius: 16px !important;
+  padding: 14px 20px !important;
+  box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.35), 0 4px 12px -2px rgba(0, 0, 0, 0.2) !important;
+  font-family: var(--font-primary) !important;
+  backdrop-filter: blur(12px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+  margin-bottom: 16px !important;
+}
+
+.q-notification--negative {
+  background: linear-gradient(135deg, #2a0a12 0%, #450a1a 100%) !important;
+  border-left: 6px solid #ef4444 !important;
+  color: #fef2f2 !important;
+}
+
+.q-notification--positive {
+  background: linear-gradient(135deg, #022c22 0%, #064e3b 100%) !important;
+  border-left: 6px solid #10b981 !important;
+  color: #ecfdf5 !important;
+}
+
+.q-notification--warning {
+  background: linear-gradient(135deg, #290e02 0%, #451a03 100%) !important;
+  border-left: 6px solid #f59e0b !important;
+  color: #fffbeb !important;
+}
+
+.q-notification--info {
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%) !important;
+  border-left: 6px solid #3b82f6 !important;
+  color: #f0f9ff !important;
+}
+
+.q-notification__icon {
+  font-size: 26px !important;
+  margin-right: 12px !important;
+}
+
+.q-notification__actions .q-btn {
+  font-size: 11px !important;
+  font-weight: 700 !important;
+  border-radius: 8px !important;
+  padding: 4px 10px !important;
+  background: rgba(255, 255, 255, 0.15) !important;
+  color: #ffffff !important;
+}

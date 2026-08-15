@@ -246,3 +246,65 @@ class UI:
     def chip(text: str, color: str = "blue") -> ui.chip:
         """Dense chip badge with light/dark contrast."""
         return ui.chip(text, color=color).props("dense")
+
+    @staticmethod
+    def notify(message: str | Exception, type: str = "info", title: str = "", duration: float | None = None, position: str = "bottom"):
+        """
+        Displays a beautiful, modern, human-readable notification popup.
+        Parses raw API & Database error strings into clean bilingual titles & descriptions.
+        """
+        from utils.error_formatter import format_error_message
+
+        icon_map = {
+            "positive": "check_circle",
+            "success": "check_circle",
+            "negative": "error_outline",
+            "error": "error_outline",
+            "warning": "warning_amber",
+            "info": "info"
+        }
+
+        norm_type = (type or "info").lower()
+        if norm_type == "error":
+            norm_type = "negative"
+        elif norm_type == "success":
+            norm_type = "positive"
+
+        if norm_type in {"negative", "warning"} or isinstance(message, Exception):
+            parsed_title, parsed_desc = format_error_message(message)
+            display_title = title or parsed_title
+            display_msg = parsed_desc
+            default_duration = 6.0  # 6 seconds for error / warning notifications
+        else:
+            display_title = title
+            display_msg = str(message or "")
+            default_duration = 3.5  # 3.5 seconds for info / success notifications
+
+        icon_name = icon_map.get(norm_type, "info")
+
+        if display_title and display_msg and display_title != display_msg:
+            html_content = (
+                f"<div style='display:flex; flex-direction:column; gap:4px; text-align:right; font-family:var(--font-primary);'>"
+                f"<div style='font-weight:700; font-size:14px; line-height:1.3;'>{display_title}</div>"
+                f"<div style='font-size:12px; opacity:0.92; line-height:1.5;'>{display_msg}</div>"
+                f"</div>"
+            )
+        else:
+            html_content = (
+                f"<div style='font-size:13px; font-weight:600; text-align:right; font-family:var(--font-primary); line-height:1.5;'>{display_title or display_msg}</div>"
+            )
+
+        # Quasar timeout property expects duration in milliseconds (e.g., 9000ms = 9 seconds)
+        effective_duration = duration if duration is not None else default_duration
+        timeout_ms = int(effective_duration * 1000) if effective_duration > 0 else 0
+
+        ui.notify(
+            html_content,
+            type=norm_type,
+            icon=icon_name,
+            position=position,
+            timeout=timeout_ms,
+            close_button="إغلاق / Close",
+            html=True,
+            multi_line=True
+        )

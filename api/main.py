@@ -230,15 +230,22 @@ def sync_offline_queue(payload: SyncPayload, conn=Depends(get_db)):
                     cur.callproc(meta["sp_name"], sp_args)
                     
                     real_id = None
-                    # Retrieve the generated ID from the stored procedure result rows
-                    for result in cur.stored_results():
-                        row = result.fetchone()
-                        if row and "new_id" in row:
-                            real_id = row["new_id"]
-                            break
+                    if hasattr(cur, "stored_results"):
+                        for result in cur.stored_results():
+                            row = result.fetchone()
+                            if row:
+                                if "new_id" in row:
+                                    real_id = row["new_id"]
+                                elif "inserted_id" in row:
+                                    real_id = row["inserted_id"]
+                                break
+                    try:
+                        while cur.nextset():
+                            pass
+                    except Exception:
+                        pass
                     
                     if real_id is None:
-                        # Fallback to LAST_INSERT_ID() if SP does not return new_id row
                         cur.execute("SELECT LAST_INSERT_ID() AS new_id")
                         real_id = cur.fetchone()["new_id"]
                 else:
@@ -396,6 +403,49 @@ def get_students_by_order(order_id: int, conn = Depends(get_db)):
         logger.error(f"Error fetching students by order: {exc}")
         raise HTTPException(status_code=500, detail=str(exc))
 
+@app.get("/students/search/unlinked")
+def search_students_unlinked(
+    name_query: str = "",
+    dept_id: Optional[int] = None,
+    year: Optional[str] = None,
+    limit: int = 50,
+    conn = Depends(get_db)
+):
+    """Fetch unlinked students matching name, dept_id, or graduation year."""
+    cur = conn.cursor(dictionary=True)
+    try:
+        conditions = ["(s.order_id IS NULL OR s.order_id = 0)"]
+        params = []
+        if name_query:
+            pattern = f"%{name_query.strip()}%"
+            conditions.append("(s.full_name_ar LIKE %s OR s.full_name_en LIKE %s)")
+            params.extend([pattern, pattern])
+        if dept_id:
+            conditions.append("s.department_id = %s")
+            params.append(dept_id)
+        if year:
+            conditions.append("(YEAR(s.graduation_date) = %s OR s.admission_year = %s)")
+            params.extend([year, year])
+
+        where = "WHERE " + " AND ".join(conditions)
+        query = f"""
+            SELECT s.id, s.full_name_ar, s.full_name_en, s.admission_year,
+                   YEAR(s.graduation_date) AS graduation_year, s.average, s.order_id,
+                   d.name_ar AS dept_name_ar
+            FROM students s
+            LEFT JOIN departments d ON s.department_id = d.id
+            {where}
+            ORDER BY s.id DESC LIMIT %s
+        """
+        params.append(limit)
+        cur.execute(query, tuple(params))
+        return cur.fetchall()
+    except Exception as exc:
+        logger.error(f"Error searching unlinked students: {exc}")
+        raise HTTPException(status_code=500, detail=str(exc))
+    finally:
+        cur.close()
+
 @app.get("/students/distinct/years")
 def get_distinct_admission_years(conn = Depends(get_db)):
     """Select distinct graduation years (extracted from graduation_date) from the students table."""
@@ -424,18 +474,27 @@ def insert_student(payload: StudentPayload, conn = Depends(get_db)):
             payload.average, payload.graduation_date, payload.graduation_semester
         )
         cur.callproc("InsertStudent", args)
-        conn.commit()
-        
         real_id = None
-        for result in cur.stored_results():
-            row = result.fetchone()
-            if row and "new_id" in row:
-                real_id = row["new_id"]
-                break
+        if hasattr(cur, "stored_results"):
+            for result in cur.stored_results():
+                row = result.fetchone()
+                if row:
+                    if "new_id" in row:
+                        real_id = row["new_id"]
+                    elif "inserted_id" in row:
+                        real_id = row["inserted_id"]
+                    break
+        try:
+            while cur.nextset():
+                pass
+        except Exception:
+            pass
+
         if real_id is None:
             cur.execute("SELECT LAST_INSERT_ID() AS new_id")
             real_id = cur.fetchone()["new_id"]
-        return {"new_id": real_id}
+        conn.commit()
+        return {"new_id": real_id, "inserted_id": real_id, "status": "success"}
     except Exception as exc:
         conn.rollback()
         logger.error(f"Error inserting student: {exc}")
@@ -458,6 +517,11 @@ def update_student(student_id: int, payload: StudentPayload, conn = Depends(get_
             payload.average, payload.graduation_date, payload.graduation_semester
         )
         cur.callproc("UpdateStudent", args)
+        try:
+            while cur.nextset():
+                pass
+        except Exception:
+            pass
         conn.commit()
         return {"status": "success"}
     except Exception as exc:
@@ -473,6 +537,11 @@ def delete_student(student_id: int, conn = Depends(get_db)):
     cur = conn.cursor(dictionary=True)
     try:
         cur.callproc("DeleteStudent", (student_id,))
+        try:
+            while cur.nextset():
+                pass
+        except Exception:
+            pass
         conn.commit()
         return {"status": "success"}
     except Exception as exc:
@@ -488,6 +557,11 @@ def unlink_from_order(student_id: int, conn = Depends(get_db)):
     cur = conn.cursor(dictionary=True)
     try:
         cur.callproc("UnlinkStudentFromOrder", (student_id,))
+        try:
+            while cur.nextset():
+                pass
+        except Exception:
+            pass
         conn.commit()
         return {"status": "success"}
     except Exception as exc:
@@ -503,11 +577,17 @@ def link_students_to_order(order_id: int, conn = Depends(get_db)):
     cur = conn.cursor(dictionary=True)
     try:
         cur.callproc("LinkStudentsToOrder", (order_id,))
-        conn.commit()
         row = None
-        for result in cur.stored_results():
-            row = result.fetchone()
-            break
+        if hasattr(cur, "stored_results"):
+            for result in cur.stored_results():
+                row = result.fetchone()
+                break
+        try:
+            while cur.nextset():
+                pass
+        except Exception:
+            pass
+        conn.commit()
         affected = row.get("affected_rows", 0) if row else 0
         return {"affected_rows": affected}
     except Exception as exc:
@@ -575,17 +655,26 @@ def insert_department(payload: DepartmentPayload, conn = Depends(get_db)):
     cur = conn.cursor(dictionary=True)
     try:
         cur.callproc("InsertDepartment", (payload.name_ar, payload.name_en, payload.university_settings_id))
-        conn.commit()
         real_id = None
-        for result in cur.stored_results():
-            row = result.fetchone()
-            if row and "new_id" in row:
-                real_id = row["new_id"]
-                break
+        if hasattr(cur, "stored_results"):
+            for result in cur.stored_results():
+                row = result.fetchone()
+                if row:
+                    if "new_id" in row:
+                        real_id = row["new_id"]
+                    elif "inserted_id" in row:
+                        real_id = row["inserted_id"]
+                    break
+        try:
+            while cur.nextset():
+                pass
+        except Exception:
+            pass
         if real_id is None:
             cur.execute("SELECT LAST_INSERT_ID() AS new_id")
             real_id = cur.fetchone()["new_id"]
-        return {"new_id": real_id}
+        conn.commit()
+        return {"new_id": real_id, "inserted_id": real_id, "status": "success"}
     except Exception as exc:
         conn.rollback()
         raise HTTPException(status_code=500, detail=str(exc))
@@ -597,6 +686,11 @@ def update_department(dept_id: int, payload: DepartmentPayload, conn = Depends(g
     cur = conn.cursor(dictionary=True)
     try:
         cur.callproc("UpdateDepartment", (dept_id, payload.name_ar, payload.name_en, payload.university_settings_id))
+        try:
+            while cur.nextset():
+                pass
+        except Exception:
+            pass
         conn.commit()
         return {"status": "success"}
     except Exception as exc:
@@ -610,6 +704,11 @@ def delete_department(dept_id: int, conn = Depends(get_db)):
     cur = conn.cursor(dictionary=True)
     try:
         cur.callproc("DeleteDepartment", (dept_id,))
+        try:
+            while cur.nextset():
+                pass
+        except Exception:
+            pass
         conn.commit()
         return {"status": "success"}
     except Exception as exc:
@@ -622,6 +721,7 @@ def delete_department(dept_id: int, conn = Depends(get_db)):
 class StudySystemPayload(BaseModel):
     name_ar: str
     name_en: str
+    study_day_type: Optional[str] = "Morning"
     calculation_rule: Optional[str] = "annual"
     calculation_weights: Optional[str] = "10:20:30:40"
     period_display: Optional[str] = "year"
@@ -657,18 +757,35 @@ def get_study_system(sys_id: int, conn = Depends(get_db)):
 def insert_study_system(payload: StudySystemPayload, conn = Depends(get_db)):
     cur = conn.cursor(dictionary=True)
     try:
-        cur.callproc("InsertStudySystem", (payload.name_ar, payload.name_en, "Morning", payload.calculation_rule, payload.calculation_weights, payload.period_display, 1))
-        conn.commit()
+        cur.callproc("InsertStudySystem", (
+            payload.name_ar,
+            payload.name_en,
+            payload.study_day_type or "Morning",
+            payload.calculation_rule or "annual",
+            payload.calculation_weights,
+            payload.period_display or "year",
+            payload.is_active if payload.is_active is not None else 1
+        ))
         real_id = None
-        for result in cur.stored_results():
-            row = result.fetchone()
-            if row and "new_id" in row:
-                real_id = row["new_id"]
-                break
+        if hasattr(cur, "stored_results"):
+            for result in cur.stored_results():
+                row = result.fetchone()
+                if row:
+                    if "new_id" in row:
+                        real_id = row["new_id"]
+                    elif "inserted_id" in row:
+                        real_id = row["inserted_id"]
+                    break
+        try:
+            while cur.nextset():
+                pass
+        except Exception:
+            pass
         if real_id is None:
             cur.execute("SELECT LAST_INSERT_ID() AS new_id")
             real_id = cur.fetchone()["new_id"]
-        return {"new_id": real_id}
+        conn.commit()
+        return {"new_id": real_id, "inserted_id": real_id, "status": "success"}
     except Exception as exc:
         conn.rollback()
         raise HTTPException(status_code=500, detail=str(exc))
@@ -679,7 +796,21 @@ def insert_study_system(payload: StudySystemPayload, conn = Depends(get_db)):
 def update_study_system(sys_id: int, payload: StudySystemPayload, conn = Depends(get_db)):
     cur = conn.cursor(dictionary=True)
     try:
-        cur.callproc("UpdateStudySystem", (sys_id, payload.name_ar, payload.name_en, "Morning", payload.calculation_rule, payload.calculation_weights, payload.period_display, payload.is_active))
+        cur.callproc("UpdateStudySystem", (
+            sys_id,
+            payload.name_ar,
+            payload.name_en,
+            payload.study_day_type or "Morning",
+            payload.calculation_rule or "annual",
+            payload.calculation_weights,
+            payload.period_display or "year",
+            payload.is_active if payload.is_active is not None else 1
+        ))
+        try:
+            while cur.nextset():
+                pass
+        except Exception:
+            pass
         conn.commit()
         return {"status": "success"}
     except Exception as exc:
@@ -706,6 +837,11 @@ def delete_study_system(sys_id: int, conn = Depends(get_db)):
     cur = conn.cursor(dictionary=True)
     try:
         cur.callproc("DeleteStudySystem", (sys_id,))
+        try:
+            while cur.nextset():
+                pass
+        except Exception:
+            pass
         conn.commit()
         return {"status": "success"}
     except Exception as exc:
@@ -751,7 +887,7 @@ def get_courses_by_dept(dept_id: int, conn = Depends(get_db)):
             "SELECT id, name_ar, name_en, credit_hours, department_id, stage_number "
             "FROM courses "
             "WHERE department_id = %s "
-            "ORDER BY name_ar ASC"
+            "ORDER BY stage_number ASC, name_ar ASC"
         )
         cur.execute(query, (dept_id,))
         return cur.fetchall()
@@ -760,21 +896,6 @@ def get_courses_by_dept(dept_id: int, conn = Depends(get_db)):
     finally:
         cur.close()
 
-@app.get("/courses/by-dept-stage-system")
-def get_courses_by_dept_stage_system(dept_id: int, stage: int, system_id: int, conn = Depends(get_db)):
-    cur = conn.cursor(dictionary=True)
-    try:
-        query = (
-            "SELECT id, name_ar, name_en, credit_hours, stage_number FROM courses "
-            "WHERE department_id = %s AND stage_number <= %s "
-            "ORDER BY stage_number, name_ar"
-        )
-        cur.execute(query, (dept_id, stage))
-        return cur.fetchall()
-    except Exception as exc:
-        raise HTTPException(status_code=500, detail=str(exc))
-    finally:
-        cur.close()
 
 @app.get("/courses/{course_id}/shared-depts")
 def get_shared_dept_ids(course_id: int, conn = Depends(get_db)):
@@ -855,19 +976,40 @@ class PersonnelPayload(BaseModel):
     responsibility_en: Optional[str] = None
     display_order: Optional[int] = 0          # 0 = not a signatory; 1-10 = signatory order
     username: str
-    password_hash: Optional[str] = None       # plain-text; omit to preserve existing
+    password_hash: Optional[str] = None       # plain-text/hash; used in InsertPersonnel or password update
     personnel_role: Optional[str] = "user"
     university_settings_id: Optional[int] = 1
     is_active: Optional[int] = 1
+
+class PersonnelResponse(BaseModel):
+    id: int
+    name_ar: str
+    name_en: str
+    academic_title_ar: Optional[str] = None
+    academic_title_en: Optional[str] = None
+    responsibility_ar: Optional[str] = None
+    responsibility_en: Optional[str] = None
+    display_order: int = 0
+    is_signature: bool = False
+    page_location: int = 0
+    username: str
+    personnel_role: Optional[str] = "user"
+    university_settings_id: Optional[int] = None
+    is_active: int = 1
+    created_at: Optional[Any] = None
 
 class LoginPayload(BaseModel):
     username: str
     password_hash: str
 
-@app.get("/personnel")
+@app.get("/personnel", response_model=List[PersonnelResponse])
 def get_personnel(conn = Depends(get_db)):
     try:
-        return execute_sp_fetchall(conn, "GetAllPersonnel")
+        rows = execute_sp_fetchall(conn, "GetAllPersonnel")
+        for r in rows:
+            r["is_signature"] = bool(r.get("is_signature"))
+            r["page_location"] = int(r.get("page_location") or 0)
+        return rows
     except Exception as exc:
         raise HTTPException(status_code=500, detail=str(exc))
 
@@ -875,6 +1017,20 @@ def get_personnel(conn = Depends(get_db)):
 def get_active_personnel(conn = Depends(get_db)):
     try:
         return execute_sp_fetchall(conn, "GetActivePersonnel")
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=str(exc))
+
+@app.get("/personnel/{person_id}", response_model=PersonnelResponse)
+def get_personnel_by_id(person_id: int, conn = Depends(get_db)):
+    try:
+        row = execute_sp_fetchone(conn, "GetPersonnelById", (person_id,))
+        if not row:
+            raise HTTPException(status_code=404, detail=f"Personnel with id {person_id} not found")
+        row["is_signature"] = bool(row.get("is_signature"))
+        row["page_location"] = int(row.get("page_location") or 0)
+        return row
+    except HTTPException:
+        raise
     except Exception as exc:
         raise HTTPException(status_code=500, detail=str(exc))
 
@@ -892,23 +1048,42 @@ def authenticate_personnel(payload: LoginPayload, conn = Depends(get_db)):
 
 @app.post("/personnel")
 def insert_personnel(payload: PersonnelPayload, conn = Depends(get_db)):
-    cur = conn.cursor()
+    cur = conn.cursor(dictionary=True)
     try:
-        # Include all fields that are not None, except password_hash which is skipped when None
-        all_fields = payload.model_dump()
-        fields = {
-            k: v for k, v in all_fields.items()
-            if k != "password_hash" and v is not None
-        }
-        if all_fields.get("password_hash") is not None:
-            fields["password_hash"] = all_fields["password_hash"]
-        columns = ", ".join(fields.keys())
-        placeholders = ", ".join(["%s"] * len(fields))
-        values = tuple(fields.values())
-        query = f"INSERT INTO personnel ({columns}) VALUES ({placeholders})"
-        cur.execute(query, values)
+        cur.callproc("InsertPersonnel", (
+            payload.name_ar,
+            payload.name_en,
+            payload.academic_title_ar,
+            payload.academic_title_en,
+            payload.responsibility_ar or "",
+            payload.responsibility_en or "",
+            payload.display_order if payload.display_order is not None else 0,
+            payload.username,
+            payload.password_hash or "",
+            payload.personnel_role or "user",
+            payload.university_settings_id,
+            payload.is_active if payload.is_active is not None else 1
+        ))
+
+        inserted_id = None
+        if hasattr(cur, "stored_results"):
+            for result_set in cur.stored_results():
+                row = result_set.fetchone()
+                if row:
+                    if isinstance(row, dict):
+                        inserted_id = row.get("inserted_id")
+                    elif isinstance(row, (tuple, list)):
+                        inserted_id = row[0]
+                    break
+
+        try:
+            while cur.nextset():
+                pass
+        except Exception:
+            pass
+
         conn.commit()
-        return {"new_id": cur.lastrowid}
+        return {"new_id": inserted_id, "inserted_id": inserted_id, "status": "success"}
     except Exception as exc:
         conn.rollback()
         raise HTTPException(status_code=500, detail=str(exc))
@@ -917,24 +1092,32 @@ def insert_personnel(payload: PersonnelPayload, conn = Depends(get_db)):
 
 @app.put("/personnel/{person_id}")
 def update_personnel(person_id: int, payload: PersonnelPayload, conn = Depends(get_db)):
-    cur = conn.cursor()
+    cur = conn.cursor(dictionary=True)
     try:
-        # Build update fields: include all non-None values; always include zero-able integer fields;
-        # skip password_hash when None (preserve existing password in DB)
-        all_fields = payload.model_dump()
-        zero_safe_int_fields = {"display_order", "is_signature", "is_active",
-                                "settings_id", "university_settings_id"}
-        fields = {}
-        for k, v in all_fields.items():
-            if k == "password_hash":
-                if v is not None:  # only update password when explicitly set
-                    fields[k] = v
-            elif v is not None or k in zero_safe_int_fields:
-                fields[k] = v
-        set_clause = ", ".join([f"{f}=%s" for f in fields.keys()])
-        values = tuple(fields.values()) + (person_id,)
-        query = f"UPDATE personnel SET {set_clause} WHERE id=%s"
-        cur.execute(query, values)
+        cur.callproc("UpdatePersonnel", (
+            person_id,
+            payload.name_ar,
+            payload.name_en,
+            payload.academic_title_ar,
+            payload.academic_title_en,
+            payload.responsibility_ar or "",
+            payload.responsibility_en or "",
+            payload.display_order if payload.display_order is not None else 0,
+            payload.username,
+            payload.personnel_role or "user",
+            payload.university_settings_id,
+            payload.is_active if payload.is_active is not None else 1
+        ))
+        try:
+            while cur.nextset():
+                pass
+        except Exception:
+            pass
+
+        # If a new password was provided, update it separately
+        if payload.password_hash:
+            cur.execute("UPDATE personnel SET password_hash = %s WHERE id = %s", (payload.password_hash, person_id))
+
         conn.commit()
         return {"status": "success"}
     except Exception as exc:
@@ -958,9 +1141,14 @@ def toggle_personnel(person_id: int, is_active: int, conn = Depends(get_db)):
 
 @app.delete("/personnel/{person_id}")
 def delete_personnel(person_id: int, conn = Depends(get_db)):
-    cur = conn.cursor()
+    cur = conn.cursor(dictionary=True)
     try:
-        cur.execute("DELETE FROM personnel WHERE id = %s", (person_id,))
+        cur.callproc("DeletePersonnel", (person_id,))
+        try:
+            while cur.nextset():
+                pass
+        except Exception:
+            pass
         conn.commit()
         return {"status": "success"}
     except Exception as exc:
@@ -1127,17 +1315,26 @@ def insert_graduation_order(payload: GraduationOrderPayload, conn = Depends(get_
             payload.num_students, payload.notes, payload.study_system_id
         )
         cur.callproc("InsertGraduationOrder", args)
-        conn.commit()
         real_id = None
-        for result in cur.stored_results():
-            row = result.fetchone()
-            if row and "new_id" in row:
-                real_id = row["new_id"]
-                break
+        if hasattr(cur, "stored_results"):
+            for result in cur.stored_results():
+                row = result.fetchone()
+                if row:
+                    if "new_id" in row:
+                        real_id = row["new_id"]
+                    elif "inserted_id" in row:
+                        real_id = row["inserted_id"]
+                    break
+        try:
+            while cur.nextset():
+                pass
+        except Exception:
+            pass
         if real_id is None:
             cur.execute("SELECT LAST_INSERT_ID() AS new_id")
             real_id = cur.fetchone()["new_id"]
-        return {"new_id": real_id}
+        conn.commit()
+        return {"new_id": real_id, "inserted_id": real_id, "status": "success"}
     except Exception as exc:
         conn.rollback()
         raise HTTPException(status_code=500, detail=str(exc))
@@ -1155,6 +1352,11 @@ def update_graduation_order(order_id: int, payload: GraduationOrderPayload, conn
             payload.num_students, payload.notes, payload.study_system_id
         )
         cur.callproc("UpdateGraduationOrder", args)
+        try:
+            while cur.nextset():
+                pass
+        except Exception:
+            pass
         conn.commit()
         return {"status": "success"}
     except Exception as exc:
@@ -1169,6 +1371,37 @@ def delete_graduation_order(order_id: int, conn = Depends(get_db)):
     cur = conn.cursor(dictionary=True)
     try:
         cur.callproc("DeleteGraduationOrder", (order_id,))
+        try:
+            while cur.nextset():
+                pass
+        except Exception:
+            pass
+        conn.commit()
+        return {"status": "success"}
+    except Exception as exc:
+        conn.rollback()
+        raise HTTPException(status_code=500, detail=str(exc))
+    finally:
+        cur.close()
+
+@app.put("/students/{student_id}/link-order/{order_id}")
+def link_student_order(student_id: int, order_id: int, conn = Depends(get_db)):
+    cur = conn.cursor()
+    try:
+        cur.execute("UPDATE students SET order_id = %s WHERE id = %s", (order_id, student_id))
+        conn.commit()
+        return {"status": "success"}
+    except Exception as exc:
+        conn.rollback()
+        raise HTTPException(status_code=500, detail=str(exc))
+    finally:
+        cur.close()
+
+@app.put("/students/{student_id}/unlink-order")
+def unlink_student_order(student_id: int, conn = Depends(get_db)):
+    cur = conn.cursor()
+    try:
+        cur.execute("UPDATE students SET order_id = NULL WHERE id = %s", (student_id,))
         conn.commit()
         return {"status": "success"}
     except Exception as exc:
@@ -1249,6 +1482,11 @@ def update_user_appearance(user_id: int, payload: AppearancePayload, conn = Depe
     cur = conn.cursor(dictionary=True)
     try:
         cur.callproc("UpdateUserPreferences", (user_id, payload.theme, payload.accent_color, payload.font_family, payload.font_size_base, payload.rtl))
+        try:
+            while cur.nextset():
+                pass
+        except Exception:
+            pass
         conn.commit()
         return {"status": "success"}
     except Exception as exc:
@@ -1262,6 +1500,11 @@ def clear_audit_logs(conn = Depends(get_db)):
     cur = conn.cursor(dictionary=True)
     try:
         cur.callproc("ClearAuditLogs")
+        try:
+            while cur.nextset():
+                pass
+        except Exception:
+            pass
         conn.commit()
         return {"status": "success"}
     except Exception as exc:
@@ -1277,9 +1520,15 @@ def get_certificate_data(student_id: int, conn = Depends(get_db)):
     try:
         cur.callproc("GetFullCertificateData", (student_id,))
         datasets = []
-        for result in cur.stored_results():
-            datasets.append(result.fetchall())
-        return datasets
+        if hasattr(cur, "stored_results"):
+            for result in cur.stored_results():
+                datasets.append(result.fetchall())
+        try:
+            while cur.nextset():
+                pass
+        except Exception:
+            pass
+        return decode_db_value(datasets)
     except Exception as exc:
         raise HTTPException(status_code=500, detail=str(exc))
     finally:
@@ -1326,17 +1575,26 @@ def insert_thesis(payload: ThesisPayload, conn = Depends(get_db)):
     cur = conn.cursor(dictionary=True)
     try:
         cur.callproc("InsertThesis", (payload.student_id, payload.title_ar, payload.title_en, payload.defense_date, payload.committee_decision, payload.final_grade))
-        conn.commit()
         real_id = None
-        for result in cur.stored_results():
-            row = result.fetchone()
-            if row and "new_id" in row:
-                real_id = row["new_id"]
-                break
+        if hasattr(cur, "stored_results"):
+            for result in cur.stored_results():
+                row = result.fetchone()
+                if row:
+                    if "new_id" in row:
+                        real_id = row["new_id"]
+                    elif "inserted_id" in row:
+                        real_id = row["inserted_id"]
+                    break
+        try:
+            while cur.nextset():
+                pass
+        except Exception:
+            pass
         if real_id is None:
             cur.execute("SELECT LAST_INSERT_ID() AS new_id")
             real_id = cur.fetchone()["new_id"]
-        return {"new_id": real_id}
+        conn.commit()
+        return {"new_id": real_id, "inserted_id": real_id, "status": "success"}
     except Exception as exc:
         conn.rollback()
         raise HTTPException(status_code=500, detail=str(exc))
@@ -1348,6 +1606,11 @@ def update_thesis(thesis_id: int, payload: ThesisPayload, conn = Depends(get_db)
     cur = conn.cursor(dictionary=True)
     try:
         cur.callproc("UpdateThesis", (thesis_id, payload.title_ar, payload.title_en, payload.defense_date, payload.committee_decision, payload.final_grade))
+        try:
+            while cur.nextset():
+                pass
+        except Exception:
+            pass
         conn.commit()
         return {"status": "success"}
     except Exception as exc:
@@ -1361,6 +1624,11 @@ def delete_thesis(thesis_id: int, conn = Depends(get_db)):
     cur = conn.cursor(dictionary=True)
     try:
         cur.callproc("DeleteThesis", (thesis_id,))
+        try:
+            while cur.nextset():
+                pass
+        except Exception:
+            pass
         conn.commit()
         return {"status": "success"}
     except Exception as exc:
@@ -1381,17 +1649,26 @@ def insert_supervisor(payload: SupervisorPayload, conn = Depends(get_db)):
     cur = conn.cursor(dictionary=True)
     try:
         cur.callproc("InsertStudentSupervisor", (payload.student_id, payload.personnel_id, payload.supervision_role))
-        conn.commit()
         real_id = None
-        for result in cur.stored_results():
-            row = result.fetchone()
-            if row and "new_id" in row:
-                real_id = row["new_id"]
-                break
+        if hasattr(cur, "stored_results"):
+            for result in cur.stored_results():
+                row = result.fetchone()
+                if row:
+                    if "new_id" in row:
+                        real_id = row["new_id"]
+                    elif "inserted_id" in row:
+                        real_id = row["inserted_id"]
+                    break
+        try:
+            while cur.nextset():
+                pass
+        except Exception:
+            pass
         if real_id is None:
             cur.execute("SELECT LAST_INSERT_ID() AS new_id")
             real_id = cur.fetchone()["new_id"]
-        return {"new_id": real_id}
+        conn.commit()
+        return {"new_id": real_id, "inserted_id": real_id, "status": "success"}
     except Exception as exc:
         conn.rollback()
         raise HTTPException(status_code=500, detail=str(exc))
@@ -1403,6 +1680,11 @@ def update_supervisor(record_id: int, payload: SupervisorPayload, conn = Depends
     cur = conn.cursor(dictionary=True)
     try:
         cur.callproc("UpdateStudentSupervisor", (record_id, payload.personnel_id, payload.supervision_role))
+        try:
+            while cur.nextset():
+                pass
+        except Exception:
+            pass
         conn.commit()
         return {"status": "success"}
     except Exception as exc:
@@ -1416,6 +1698,11 @@ def delete_supervisor(record_id: int, conn = Depends(get_db)):
     cur = conn.cursor(dictionary=True)
     try:
         cur.callproc("DeleteStudentSupervisor", (record_id,))
+        try:
+            while cur.nextset():
+                pass
+        except Exception:
+            pass
         conn.commit()
         return {"status": "success"}
     except Exception as exc:
@@ -1439,9 +1726,15 @@ def get_dashboard_counts(conn = Depends(get_db)):
         result = None
         try:
             cur.callproc("Get_dashboard_counts")
-            for r in cur.stored_results():
-                result = r.fetchone()
-                break
+            if hasattr(cur, "stored_results"):
+                for r in cur.stored_results():
+                    result = r.fetchone()
+                    break
+            try:
+                while cur.nextset():
+                    pass
+            except Exception:
+                pass
         except Exception as sp_exc:
             logger.warning(f"Get_dashboard_counts SP call failed ({sp_exc}). Falling back to direct SQL.")
             result = None
@@ -1481,6 +1774,18 @@ class LoginRequest(BaseModel):
     username: str
     password: str
 
+@app.post("/api/login")
+def api_login(req: LoginRequest, conn = Depends(get_db)):
+    try:
+        row = execute_sp_fetchone(conn, "AuthenticateUser", (req.username, req.password))
+        if not row:
+            raise HTTPException(status_code=401, detail="Invalid username or password")
+        return {"success": True, "user": row}
+    except HTTPException:
+        raise
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=str(exc))
+
 @app.post("/api/logout")
 def logout():
     return {"success": True, "message": "Logged out successfully"}
@@ -1492,6 +1797,50 @@ class AppearanceUpdate(BaseModel):
     font_size_base: int
     is_arabic_rtl: int
 
+@app.get("/api/user/appearance/{emp_id}")
+def api_get_user_appearance(emp_id: int, conn = Depends(get_db)):
+    try:
+        row = execute_sp_fetchone(conn, "Get_User_Settings", (emp_id,))
+        if not row:
+            return {
+                "EMP_ID": emp_id,
+                "theme": "System",
+                "accent_color": "blue",
+                "font_family": "Arial",
+                "font_size_base": 13,
+                "is_arabic_rtl": 1
+            }
+        return row
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=str(exc))
+
+@app.post("/api/user/appearance")
+def api_update_user_appearance(payload: dict, conn = Depends(get_db)):
+    cur = conn.cursor(dictionary=True)
+    try:
+        emp_id = payload.get("emp_id") or payload.get("EMP_ID")
+        theme = payload.get("theme", "System")
+        accent = payload.get("accent_color", "blue")
+        font = payload.get("font_family", "Arial")
+        size = payload.get("font_size_base", 13)
+        rtl = payload.get("is_arabic_rtl", 1)
+        cur.callproc("Update_User_Settings", (emp_id, theme, accent, font, size, rtl))
+        try:
+            while cur.nextset():
+                pass
+        except Exception:
+            pass
+        conn.commit()
+        return {"success": True}
+    except Exception as exc:
+        conn.rollback()
+        raise HTTPException(status_code=500, detail=str(exc))
+    finally:
+        cur.close()
+
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="127.0.0.1", port=2030)
+
+
+

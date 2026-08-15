@@ -183,12 +183,12 @@ class PersonnelScreen:
                 def toggle_act(r_id=pid, curr=is_active):
                     try:
                         self.repo.toggle_active(r_id, 0 if curr else 1)
-                        ui.notify("تم تغيير حالة الكادر / State updated", type="positive")
+                        UI.notify("تم تغيير حالة الكادر / State updated", type="positive")
                         self._render_content()
                     except OfflineModeError as err:
-                        ui.notify(str(err), type="warning")
+                        UI.notify(err, type="warning")
                     except Exception as err:
-                        ui.notify(f"Error toggling state: {err}", type="negative")
+                        UI.notify(err, type="negative")
 
                 if is_active:
                     UI.danger_button("تعطيل / Disable", on_click=toggle_act).classes("text-xs px-2 py-1.5")
@@ -245,10 +245,19 @@ class PersonnelScreen:
                                 value=""
                             ).classes("flex-1 text-sm").props("type=password")
 
+                            role_val = str(existing_data.get("personnel_role") or "user") if existing_data else "user"
+                            role_options = {
+                                "user": "مستخدم / User",
+                                "admin": "مسؤول / Admin",
+                                "signer": "موقع / Signer",
+                            }
+                            if role_val not in role_options:
+                                role_options[role_val] = role_val
+
                             role_inp = UI.select(
                                 "الصلاحية / Role",
-                                options={"user": "مستخدم / User", "admin": "مسؤول / Admin"},
-                                value=existing_data.get("personnel_role", "user") if existing_data else "user"
+                                options=role_options,
+                                value=role_val
                             ).classes("w-48 text-sm")
 
                     # 2. Personal Info
@@ -311,12 +320,12 @@ class PersonnelScreen:
                         def save_action():
                             n_ar = (name_ar_inp.value or "").strip()
                             if not n_ar:
-                                ui.notify("الاسم بالعربية مطلوب / Arabic name is required", type="warning")
+                                UI.notify("الاسم بالعربية مطلوب / Arabic name is required", type="warning")
                                 return
 
                             pwd = pass_inp.value.strip() if pass_inp.value else None
                             if mode == "add" and not pwd:
-                                ui.notify("كلمة المرور مطلوبة / Password is required", type="warning")
+                                UI.notify("كلمة المرور مطلوبة / Password is required", type="warning")
                                 return
 
                             # ORDER_OPTIONS maps label→int; 0 when toggle is OFF
@@ -340,19 +349,19 @@ class PersonnelScreen:
                             try:
                                 if mode == "add":
                                     self.repo.insert(data=payload)
-                                    ui.notify("تمت إضافة الكادر بنجاح / Personnel added", type="positive")
+                                    UI.notify("تمت إضافة الكادر بنجاح / Personnel added", type="positive")
                                 else:
                                     # Do NOT set password_hash if not entered —
                                     # the API skips it when absent, preserving the existing hash in MySQL.
                                     if pid is not None:
                                         self.repo.update(person_id=int(pid), data=payload)
-                                    ui.notify("تم تعديل الكادر بنجاح / Personnel updated", type="positive")
+                                    UI.notify("تم تعديل الكادر بنجاح / Personnel updated", type="positive")
                                 self.show_list_view()
                             except OfflineModeError as err:
-                                ui.notify(str(err), type="warning")
+                                UI.notify(err, type="warning")
                             except Exception as err:
                                 log.error(f"Error saving personnel: {err}")
-                                ui.notify(f"Error: {err}", type="negative")
+                                UI.notify(err, type="negative")
 
                         UI.secondary_button("إلغاء / Cancel", on_click=self.show_list_view).classes("text-sm px-5 py-2")
                         UI.success_button("حفظ / Save", icon="save", on_click=save_action).classes("text-sm px-5 py-2")
@@ -371,13 +380,13 @@ class PersonnelScreen:
                 def do_delete():
                     try:
                         self.repo.delete(pid)
-                        ui.notify("تم حذف السجل / Personnel deleted", type="positive")
+                        UI.notify("تم حذف السجل / Personnel deleted", type="positive")
                         dialog.close()
                         self.show_list_view()
                     except OfflineModeError as err:
-                        ui.notify(str(err), type="warning")
+                        UI.notify(err, type="warning")
                     except Exception as err:
-                        ui.notify(f"خطأ في الحذف / Cannot delete: {err}", type="negative")
+                        UI.notify(err, type="negative")
 
                 UI.danger_button("حذف / Delete", icon="delete", on_click=do_delete).classes("text-sm px-4 py-2")
                 UI.secondary_button("إلغاء / Cancel", on_click=dialog.close).classes("text-sm px-4 py-2")

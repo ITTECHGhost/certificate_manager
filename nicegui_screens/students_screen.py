@@ -188,7 +188,7 @@ class StudentsScreen:
 
     def perform_search(self, event=None, reset_offset: bool = False) -> None:
         """Execute paginated student search via 4-tier backend pipeline."""
-        if self.table is None:
+        if not hasattr(self, 'table') or self.table is None or getattr(self.table, 'is_deleted', False):
             return
 
         if reset_offset:
@@ -212,14 +212,16 @@ class StudentsScreen:
                 offset=self.current_offset
             )
             mapped = self._map_rows(raw_results)
-            self.table.rows = mapped
-            self.table.update()
-            self._update_pagination_controls(len(mapped))
+            if hasattr(self, 'table') and self.table and not getattr(self.table, 'is_deleted', False):
+                self.table.rows = mapped
+                self.table.update()
+                self._update_pagination_controls(len(mapped))
         except Exception as exc:
             log.warning(f"[StudentsScreen] Search error: {exc}")
-            self.table.rows = []
-            self.table.update()
-            self._update_pagination_controls(0)
+            if hasattr(self, 'table') and self.table and not getattr(self.table, 'is_deleted', False):
+                self.table.rows = []
+                self.table.update()
+                self._update_pagination_controls(0)
 
     def _on_limit_change(self, e) -> None:
         """Handle rows-per-page dropdown selection change."""
@@ -263,5 +265,6 @@ class StudentsScreen:
 
     def _refresh_table(self):
         """Callback to reload table data after form save."""
-        if self.table is None: return
+        if not hasattr(self, 'table') or self.table is None or getattr(self.table, 'is_deleted', False):
+            return
         self.perform_search(reset_offset=True)

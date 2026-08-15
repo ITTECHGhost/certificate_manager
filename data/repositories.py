@@ -562,13 +562,14 @@ class StudySystemRepository(BaseRepository):
             log_system(f"API request failed: {e}", "WARNING")
             return None
 
-    def insert(self, name_ar: str, name_en: str, calc_rule: str, period_display: str = 'year', calculation_weights: str = None) -> int:
+    def insert(self, name_ar: str, name_en: str, calc_rule: str, period_display: str = 'year', calculation_weights: str = None, study_day_type: str = 'Morning') -> int:
         if not is_online():
-            return self._call_write("InsertStudySystem", (name_ar, name_en, "Morning", calc_rule, calculation_weights, period_display, 1))
+            return self._call_write("InsertStudySystem", (name_ar, name_en, study_day_type, calc_rule, calculation_weights, period_display, 1))
         try:
             payload = {
                 "name_ar": name_ar,
                 "name_en": name_en,
+                "study_day_type": study_day_type,
                 "calculation_rule": calc_rule,
                 "calculation_weights": calculation_weights,
                 "period_display": period_display,
@@ -585,28 +586,30 @@ class StudySystemRepository(BaseRepository):
             log_system(f"API request failed: {e}", "WARNING")
             raise
 
-    def update(self, sys_id: int, name_ar: str, name_en: str, calc_rule: str, period_display: str = 'year', calculation_weights: str = None, **_ignored) -> None:
+    def update(self, sys_id: int, name_ar: str, name_en: str, calc_rule: str, period_display: str = 'year', calculation_weights: str = None, study_day_type: str = 'Morning', is_active: int = 1, **_ignored) -> None:
         if not is_online():
             existing = self.get_by_id(sys_id)
-            day_type = existing.get("study_day_type", "Morning") if existing else "Morning"
-            is_active = existing.get("is_active", 1) if existing else 1
-            self._call_write("UpdateStudySystem", (sys_id, name_ar, name_en, day_type, calc_rule, calculation_weights, period_display, is_active))
+            day_type = study_day_type or (existing.get("study_day_type", "Morning") if existing else "Morning")
+            active_val = is_active if is_active is not None else (existing.get("is_active", 1) if existing else 1)
+            self._call_write("UpdateStudySystem", (sys_id, name_ar, name_en, day_type, calc_rule, calculation_weights, period_display, active_val))
             log_activity(f"تم تعديل النظام الدراسي: {name_ar}")
             return
         try:
             existing = self.get_by_id(sys_id)
-            is_active = existing.get("is_active", 1) if existing else 1
+            active_val = is_active if is_active is not None else (existing.get("is_active", 1) if existing else 1)
+            day_type = study_day_type or (existing.get("study_day_type", "Morning") if existing else "Morning")
             payload = {
                 "name_ar": name_ar,
                 "name_en": name_en,
+                "study_day_type": day_type,
                 "calculation_rule": calc_rule,
                 "calculation_weights": calculation_weights,
                 "period_display": period_display,
-                "is_active": is_active
+                "is_active": active_val
             }
             resp = requests.put(f"{self.api_url}/study-systems/{sys_id}", json=payload, timeout=5.0)
             if resp.status_code == 200:
-                log_activity(f"تم تعديل النظام الدراسي: {name_ar}")
+                log_activity(f"تم تعديل النظام الدراسي ID: {sys_id}")
             else:
                 raise RuntimeError(f"API update failed: {resp.text}")
         except Exception as e:
@@ -668,6 +671,18 @@ class PersonnelRepository(BaseRepository):
             log_system(f"API request failed: {e}", "WARNING")
             return []
 
+    def get_by_id(self, person_id: int) -> dict | None:
+        if not is_online():
+            return sqlite_read_one("SELECT * FROM personnel WHERE id = ?", (person_id,))
+        try:
+            resp = requests.get(f"{self.api_url}/personnel/{person_id}", timeout=5.0)
+            if resp.status_code == 200:
+                return resp.json()
+            return None
+        except Exception as e:
+            log_system(f"API request failed: {e}", "WARNING")
+            return None
+
     def authenticate(self, username: str, password_hash: str) -> dict | None:
         """Authenticate a user. Online: check MySQL + trigger background pull.
         Offline: check local SQLite replica."""
@@ -703,12 +718,11 @@ class PersonnelRepository(BaseRepository):
                 # display_order encodes signatory state: 0=none, 1-10=signatory position
                 "display_order": int(data.get("display_order") or 0),
                 "username": data.get("username"),
+                "password_hash": data.get("password_hash") or "",
                 "personnel_role": data.get("personnel_role", "user"),
                 "university_settings_id": int(data.get("university_settings_id") or 1),
                 "is_active": int(data.get("is_active") if data.get("is_active") is not None else 1),
             }
-            if data.get("password_hash"):  # plain-text; only set when explicitly provided
-                payload["password_hash"] = data["password_hash"]
 
             resp = requests.post(f"{self.api_url}/personnel", json=payload, timeout=5.0)
             if resp.status_code == 200:
@@ -735,12 +749,11 @@ class PersonnelRepository(BaseRepository):
                 # display_order encodes signatory state: 0=none, 1-10=signatory position
                 "display_order": int(data.get("display_order") or 0),
                 "username": data.get("username"),
+                "password_hash": data.get("password_hash") or "",
                 "personnel_role": data.get("personnel_role", "user"),
                 "university_settings_id": int(data.get("university_settings_id") or 1),
                 "is_active": int(data.get("is_active") if data.get("is_active") is not None else 1),
             }
-            if data.get("password_hash"):  # plain-text; only set when explicitly provided
-                payload["password_hash"] = data["password_hash"]
 
             resp = requests.put(f"{self.api_url}/personnel/{person_id}", json=payload, timeout=5.0)
             if resp.status_code == 200:
