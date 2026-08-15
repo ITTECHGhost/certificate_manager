@@ -22141,3 +22141,11 @@ Stack (most recent call last):
 2026-08-15 11:25:55 [INFO] _pywebviewready event fired
 2026-08-15 11:25:55 [INFO] loaded event fired
 2026-08-15 11:25:55 [INFO] loaded event fired
+2026-08-15 17:21:20 [INFO] SYSTEM STARTUP DIAGNOSTIC CHECK STARTED
+2026-08-15 17:21:20 [OK] [CHECK 1/4] FastAPI Connection Check ... [OK]
+2026-08-15 17:21:20 [OK] [CHECK 2/4] MySQL Database Connection ... [OK]
+2026-08-15 17:21:20 [OK] [CHECK 3/4] Authentication & Core SP Checks ... [OK]
+2026-08-15 17:21:20 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-08-15 17:21:20 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-08-15 17:21:20 [OK] [CHECK 4/4] Sync Engine & Local Replica Check ... [OK]
+2026-08-15 17:21:20 [OK] Status: ALL CHECKS PASSED. PROCEEDING TO LOGIN/DASHBOARD.
