@@ -25,7 +25,7 @@ class UI:
     @staticmethod
     def card(extra_classes: str = ""):
         """Standard card container. Colors via `.app-card` in theme.css."""
-        css = f"app-card rounded-2xl p-6 gap-4 w-full {extra_classes}".strip()
+        css = f"app-card rounded-2xl p-6 gap-4 w-full max-w-full min-w-0 {extra_classes}".strip()
         return ui.column().classes(css)
 
     @staticmethod

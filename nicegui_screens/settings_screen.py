@@ -73,12 +73,12 @@ class SettingsScreen:
 
     def _build_ui(self) -> None:
         """Build the settings screen layout using clean tabbed panels."""
-        with ui.column().classes("w-full gap-6 pb-12"):
-            with ui.tabs().classes("w-full app-tabs border-b border-[var(--border-default)]") as self.tabs:
-                self.tab_inst = ui.tab("institution", label="المؤسسة والدراسة — Institution & Systems", icon="domain")
-                self.tab_app  = ui.tab("appearance",  label="المظهر والسمات — Appearance & Theme",  icon="palette")
-                self.tab_auth = ui.tab("auth",        label="صلاحيات الوصول والملف — Auth & Profile", icon="security")
-                self.tab_logs = ui.tab("logs",        label="سجلات النظام والتحليلات — System Logs & Maintenance", icon="terminal")
+        with ui.column().classes("w-full max-w-full min-w-0 gap-6 pb-12 overflow-hidden"):
+            with ui.tabs().classes("w-full max-w-full min-w-0 app-tabs border-b border-[var(--border-default)]").props("dense shrink inline-label mobile-arrows outside-arrows") as self.tabs:
+                self.tab_inst = ui.tab("institution", label="المؤسسة — Institution", icon="domain").props("no-caps dense")
+                self.tab_app  = ui.tab("appearance",  label="المظهر — Appearance",   icon="palette").props("no-caps dense")
+                self.tab_auth = ui.tab("auth",        label="الصلاحيات — Auth",       icon="security").props("no-caps dense")
+                self.tab_logs = ui.tab("logs",        label="السجلات — System Logs", icon="terminal").props("no-caps dense")
 
             with ui.tab_panels(self.tabs, value=self.tab_inst).classes("w-full bg-transparent p-0 gap-6"):
                 with ui.tab_panel(self.tab_inst).classes("w-full gap-6 p-0 flex flex-col"):

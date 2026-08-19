@@ -1164,27 +1164,81 @@ class AcademicPeriodPayload(BaseModel):
     study_system_id: int
     stage_number: int
     semester_num: Optional[int] = 1
+    result_status: Optional[str] = "PASSED"
+
+class AcademicPeriodStatusPayload(BaseModel):
+    result_status: str
 
 @app.get("/academic-periods/by-student/{student_id}")
 def get_academic_periods_by_student(student_id: int, conn = Depends(get_db)):
+    cur = conn.cursor(dictionary=True)
     try:
-        return execute_sp_fetchall(conn, "GetAcademicPeriodsByStudent", (student_id,))
+        cur.execute(
+            "SELECT id, student_id, academic_year, study_system_id, stage_number, semester_num, "
+            "COALESCE(result_status, 'PASSED') AS result_status "
+            "FROM academic_periods WHERE student_id=%s ORDER BY stage_number, semester_num",
+            (student_id,)
+        )
+        return cur.fetchall() or []
     except Exception as exc:
         raise HTTPException(status_code=500, detail=str(exc))
+    finally:
+        cur.close()
 
 @app.post("/academic-periods")
 def insert_academic_period(payload: AcademicPeriodPayload, conn = Depends(get_db)):
     cur = conn.cursor()
     try:
         query = (
-            "INSERT INTO academic_periods (student_id, academic_year, study_system_id, stage_number, semester_num) "
-            "VALUES (%s, %s, %s, %s, %s)"
+            "INSERT INTO academic_periods (student_id, academic_year, study_system_id, stage_number, semester_num, result_status) "
+            "VALUES (%s, %s, %s, %s, %s, %s)"
         )
-        cur.execute(query, (payload.student_id, payload.academic_year, payload.study_system_id, payload.stage_number, payload.semester_num))
+        status_val = payload.result_status or "PASSED"
+        cur.execute(query, (payload.student_id, payload.academic_year, payload.study_system_id, payload.stage_number, payload.semester_num, status_val))
         conn.commit()
         return {"new_id": cur.lastrowid}
     except Exception as exc:
         conn.rollback()
+        raise HTTPException(status_code=500, detail=str(exc))
+    finally:
+        cur.close()
+
+@app.patch("/academic-periods/{period_id}/status")
+@app.patch("/api/periods/{period_id}/status")
+def update_academic_period_status(period_id: int, payload: AcademicPeriodStatusPayload, conn = Depends(get_db)):
+    cur = conn.cursor()
+    try:
+        cur.execute("UPDATE academic_periods SET result_status=%s WHERE id=%s", (payload.result_status, period_id))
+        conn.commit()
+        return {"status": "success", "result_status": payload.result_status}
+    except Exception as exc:
+        conn.rollback()
+        raise HTTPException(status_code=500, detail=str(exc))
+    finally:
+        cur.close()
+
+@app.get("/api/students/{student_id}/periods")
+def get_student_periods_api(student_id: int, conn = Depends(get_db)):
+    cur = conn.cursor(dictionary=True)
+    try:
+        cur.execute(
+            "SELECT id, student_id, academic_year, study_system_id, stage_number, semester_num, "
+            "COALESCE(result_status, 'PASSED') AS result_status "
+            "FROM academic_periods WHERE student_id=%s ORDER BY stage_number, semester_num",
+            (student_id,)
+        )
+        periods = cur.fetchall() or []
+        for p in periods:
+            cur.execute(
+                "SELECT e.id, e.period_id, e.course_id, e.score, e.passed_round, "
+                "c.name_ar AS course_name_ar, c.name_en AS course_name_en, c.credit_hours "
+                "FROM enrollments e JOIN courses c ON e.course_id=c.id "
+                "WHERE e.period_id=%s ORDER BY c.name_ar",
+                (p["id"],)
+            )
+            p["enrollments"] = cur.fetchall() or []
+        return periods
+    except Exception as exc:
         raise HTTPException(status_code=500, detail=str(exc))
     finally:
         cur.close()

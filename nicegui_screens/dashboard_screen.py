@@ -139,14 +139,14 @@ class MainAppShell:
             self._build_sidebar()
 
             # 2. Render Main Body Container (Header + Scroll Area)
-            with ui.column().classes("app-main-area flex-1 h-full gap-0 overflow-hidden"):
+            with ui.column().classes("app-main-area flex-1 min-w-0 max-w-full h-full gap-0 overflow-hidden"):
                 # Top Navbar
                 self._build_top_header()
 
                 # Scrollable Content Body Area
-                with ui.scroll_area().classes("flex-1 h-full p-5"):
+                with ui.scroll_area().classes("flex-1 min-w-0 max-w-full h-full p-5 overflow-x-hidden"):
                     # Dynamic Screen View Container (Swapped when navigating)
-                    self.content_container = ui.column().classes("w-full gap-5")
+                    self.content_container = ui.column().classes("w-full max-w-full min-w-0 gap-5 overflow-hidden")
                     self._render_active_screen()
 
         # Start periodic background network status polling loop (every 5 seconds)

@@ -1132,3 +1132,44 @@ body:not(.body--dark) .q-field__input {
   background: rgba(255, 255, 255, 0.15) !important;
   color: #ffffff !important;
 }
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   8. COMPACT TAB HEADER OVERRIDES
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.app-tabs,
+.q-tabs {
+  max-width: 100% !important;
+  min-width: 0 !important;
+  overflow: hidden !important;
+}
+
+.app-tabs .q-tabs__content,
+.q-tabs__content {
+  max-width: 100% !important;
+  min-width: 0 !important;
+}
+
+.app-tabs .q-tab,
+.q-tab {
+  min-height: 36px !important;
+  height: 36px !important;
+  padding: 4px 12px !important;
+  font-size: 12px !important;
+  max-width: 220px !important;
+  flex-shrink: 1 !important;
+}
+
+.app-tabs .q-tab__label,
+.q-tab__label {
+  font-size: 12px !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  font-weight: 600 !important;
+}
+
+.app-tabs .q-icon,
+.q-tab .q-icon {
+  font-size: 18px !important;
+}

@@ -536,3 +536,32 @@
 2026-08-15 23:52:19 [OK] Authentication verified via MySQL Stored Procedure 'AuthenticateUser' for user '1' (ID: 1, Role: admin)
 2026-08-16 00:14:17 [INFO] Login attempt initiated for username: '1'
 2026-08-16 00:14:17 [OK] Authentication verified via MySQL Stored Procedure 'AuthenticateUser' for user '1' (ID: 1, Role: admin)
+2026-08-16 09:25:02 [INFO] Login attempt initiated for username: '1'
+2026-08-16 09:25:02 [OK] Authentication verified via MySQL Stored Procedure 'AuthenticateUser' for user '1' (ID: 1, Role: admin)
+2026-08-16 09:57:07 [INFO] Login attempt initiated for username: '1'
+2026-08-16 09:57:07 [OK] Authentication verified via MySQL Stored Procedure 'AuthenticateUser' for user '1' (ID: 1, Role: admin)
+2026-08-16 10:19:02 [INFO] Login attempt initiated for username: '1'
+2026-08-16 10:19:02 [OK] Authentication verified via MySQL Stored Procedure 'AuthenticateUser' for user '1' (ID: 1, Role: admin)
+2026-08-16 10:19:34 [INFO] تم تحديث المظهر للمستخدم ID: 1
+2026-08-16 10:19:36 [INFO] تم تحديث المظهر للمستخدم ID: 1
+2026-08-16 10:53:05 [INFO] تم تحديث المظهر للمستخدم ID: 1
+2026-08-16 10:53:09 [INFO] تم تحديث المظهر للمستخدم ID: 1
+2026-08-16 10:53:27 [INFO] تم تحديث المظهر للمستخدم ID: 1
+2026-08-16 10:53:40 [INFO] تم تحديث المظهر للمستخدم ID: 1
+2026-08-16 10:53:51 [INFO] تم تحديث المظهر للمستخدم ID: 1
+2026-08-16 10:53:54 [INFO] تم تحديث المظهر للمستخدم ID: 1
+2026-08-16 10:56:28 [INFO] Login attempt initiated for username: '1'
+2026-08-16 10:56:28 [OK] Authentication verified via MySQL Stored Procedure 'AuthenticateUser' for user '1' (ID: 1, Role: admin)
+2026-08-16 10:57:42 [INFO] تم تحديث المظهر للمستخدم ID: 1
+2026-08-16 10:57:44 [INFO] تم تحديث المظهر للمستخدم ID: 1
+2026-08-16 11:13:42 [INFO] Login attempt initiated for username: '1'
+2026-08-16 11:13:42 [OK] Authentication verified via MySQL Stored Procedure 'AuthenticateUser' for user '1' (ID: 1, Role: admin)
+2026-08-16 11:13:47 [INFO] User 'admin' (ID: 1) logged out successfully using function app_session.logout_user()
+2026-08-16 11:14:27 [INFO] Login attempt initiated for username: '1'
+2026-08-16 11:14:27 [OK] Authentication verified via MySQL Stored Procedure 'AuthenticateUser' for user '1' (ID: 1, Role: admin)
+2026-08-16 11:21:54 [INFO] Login attempt initiated for username: '1'
+2026-08-16 11:21:54 [OK] Authentication verified via MySQL Stored Procedure 'AuthenticateUser' for user '1' (ID: 1, Role: admin)
+2026-08-16 11:26:45 [INFO] Login attempt initiated for username: '1'
+2026-08-16 11:26:45 [OK] Authentication verified via MySQL Stored Procedure 'AuthenticateUser' for user '1' (ID: 1, Role: admin)
+2026-08-17 11:08:34 [INFO] Login attempt initiated for username: '1'
+2026-08-17 11:08:34 [OK] Authentication verified via MySQL Stored Procedure 'AuthenticateUser' for user '1' (ID: 1, Role: admin)

@@ -38,6 +38,17 @@ def consolidate_course_history(periods: list) -> list:
         copied_periods.append(p_copy)
         period_map[p["id"]] = p_copy
 
+    stage_primary_map = {}
+    for p in periods:
+        st_status = p.get("result_status") or "PASSED"
+        if st_status == "FAILED_REPEAT":
+            continue
+        stg_key = (p.get("stage_number", 1), p.get("semester_num", 1))
+        if stg_key not in stage_primary_map:
+            stage_primary_map[stg_key] = p["id"]
+
+    # Fallback if all periods for a stage were FAILED_REPEAT
+    for p in periods:
         stg_key = (p.get("stage_number", 1), p.get("semester_num", 1))
         if stg_key not in stage_primary_map:
             stage_primary_map[stg_key] = p["id"]
@@ -64,8 +75,7 @@ def consolidate_course_history(periods: list) -> list:
         ))
 
         first_enr = dict(group[0])  # Earliest attempt
-        stg_key = (first_enr["_period"].get("stage_number", 1), first_enr["_period"].get("semester_num", 1))
-        target_period_id = stage_primary_map.get(stg_key, first_enr["_period"]["id"])
+        target_period_id = first_enr["_period"]["id"]
 
         # Calculate total attempts and find highest/passing candidate
         total_attempts = len(group)
@@ -389,6 +399,8 @@ def build_certificate_context(data: dict, options: dict) -> dict:
             else:
                 left_courses, right_courses = [], []
 
+            left_sem_label = "First Semester" if is_english else "الفصل الأول"
+            right_sem_label = "Second Semester" if is_english else "الفصل الثاني"
             row_year_display = f"العام الدراسي {to_arabic_num(ay, is_english)}" if ay else ""
 
             doc_rows = []
@@ -409,8 +421,8 @@ def build_certificate_context(data: dict, options: dict) -> dict:
                 })
 
             paired_semesters.append({
-                "left_label": row_year_display,
-                "right_label": row_year_display,
+                "left_label": left_sem_label,
+                "right_label": right_sem_label,
                 "year_label": row_year_display,
                 "academic_year": to_arabic_num(ay, is_english),
                 "rows": doc_rows,
@@ -488,18 +500,32 @@ def build_certificate_context(data: dict, options: dict) -> dict:
         ctx[f"sig{idx}_title"] = ""
         ctx[f"sig{idx}_resp"] = ""
 
-    all_sigs = data.get("all_personnel") or (data.get("front_signatories", []) + data.get("back_signatories", []))
-    for sig in all_sigs:
-        order = sig.get("display_order")
-        if order and isinstance(order, int) and 1 <= order <= 10:
-            name = sig.get("name_en" if is_english else "name_ar") or ""
-            title = sig.get("academic_title_en" if is_english else "academic_title_ar") or ""
-            resp = sig.get("responsibility_en" if is_english else "responsibility_ar") or ""
+    all_sigs = data.get("all_personnel")
+    if not all_sigs:
+        all_sigs = (data.get("front_signatories", []) or []) + (data.get("back_signatories", []) or [])
 
-            # Ensure 'None' values from DB render as empty string ""
-            ctx[f"sig{order}_name"] = name if name and str(name).strip() != "None" else ""
-            ctx[f"sig{order}_title"] = title if title and str(title).strip() != "None" else ""
-            ctx[f"sig{order}_resp"] = resp if resp and str(resp).strip() != "None" else ""
+    valid_sigs = []
+    for sig in all_sigs:
+        order_raw = sig.get("display_order")
+        try:
+            order_val = int(order_raw) if order_raw is not None else 0
+        except (ValueError, TypeError):
+            order_val = 0
+
+        if 1 <= order_val <= 10:
+            valid_sigs.append((order_val, sig))
+
+    valid_sigs.sort(key=lambda x: x[0])
+
+    for order, sig in valid_sigs:
+        name = sig.get("name_en" if is_english else "name_ar") or ""
+        title = sig.get("academic_title_en" if is_english else "academic_title_ar") or ""
+        resp = sig.get("responsibility_en" if is_english else "responsibility_ar") or ""
+
+        # Ensure 'None' values from DB render as empty string ""
+        ctx[f"sig{order}_name"] = name if name and str(name).strip() != "None" else ""
+        ctx[f"sig{order}_title"] = title if title and str(title).strip() != "None" else ""
+        ctx[f"sig{order}_resp"] = resp if resp and str(resp).strip() != "None" else ""
 
     return ctx
 
@@ -1073,32 +1099,139 @@ class CertificateScreen:
             "second_trial_subjects": (self.inp_second_subjects.value or "").strip(),
         }
 
-        try:
-            ctx = build_certificate_context(self.student_full_data, options)
+def print_certificate_context(ctx: dict) -> None:
+    """
+    Prints every variable passed to Word (docxtpl) line by line to standard output (terminal)
+    and system logs so the user can track every data field step by step.
+    """
+    banner = "=" * 80
+    lines = [
+        "",
+        banner,
+        "  === WORD DOCXTPL CONTEXT VARIABLES TRACKING LOG ===",
+        banner,
+        "\n--- [1. TOP-LEVEL SCALAR VARIABLES & METADATA] ---",
+    ]
 
-            # Ensure output directory exists
-            out_dir = os.path.abspath("certificates")
-            os.makedirs(out_dir, exist_ok=True)
+    scalars = {}
+    lists_and_dicts = {}
+    for k, v in ctx.items():
+        if isinstance(v, (list, dict)):
+            lists_and_dicts[k] = v
+        else:
+            scalars[k] = v
+            lines.append(f"  • {k:<30} = {repr(v)}")
 
-            student_name = ctx.get("student_name", "Student")
-            safe_student = re.sub(r'[\\/*?:"<>|]', "", student_name).strip() or "Student"
-            safe_tpl = re.sub(r'[\\/*?:"<>|]', "", os.path.splitext(tpl_name)[0]).strip()
-            out_file = os.path.join(out_dir, f"{safe_tpl} - {safe_student}.docx")
+    # Signatories
+    signatories = ctx.get("signatories")
+    if isinstance(signatories, list):
+        lines.append(f"\n--- [2. SIGNATORIES ({len(signatories)} Total)] ---")
+        for idx, sig in enumerate(signatories):
+            if isinstance(sig, dict):
+                lines.append(
+                    f"  ► Signatory {idx+1}: name='{sig.get('name')}', title='{sig.get('title')}', order={sig.get('order')}"
+                )
+            else:
+                lines.append(f"  ► Signatory {idx+1}: {sig}")
 
-            doc = DocxTemplate(tpl_path)
-            doc.render(ctx)
-            doc.save(out_file)
+    # Tables & Paired Semesters / Years
+    for table_key in ("paired_semesters", "paired_years", "semesters"):
+        table_list = ctx.get(table_key)
+        if isinstance(table_list, list) and table_list:
+            lines.append(f"\n--- [3. TABLE DATA: '{table_key}' ({len(table_list)} Tables/Rows)] ---")
+            for t_idx, table_item in enumerate(table_list):
+                lines.append(f"\n  ==========================================================================")
+                lines.append(f"  ► Table {t_idx+1}:")
+                lines.append(f"      left_label   : '{table_item.get('left_label', '')}'")
+                lines.append(f"      right_label  : '{table_item.get('right_label', '')}'")
+                lines.append(f"      year_label   : '{table_item.get('year_label', '')}'")
+                lines.append(f"      academic_year: '{table_item.get('academic_year', '')}'")
+                lines.append(f"      num_s_l      : '{table_item.get('num_s_l', '')}'")
+                lines.append(f"      num_s_r      : '{table_item.get('num_s_r', '')}'")
+                lines.append(f"      year_s_l     : '{table_item.get('year_s_l', '')}'")
+                lines.append(f"      year_s_r     : '{table_item.get('year_s_r', '')}'")
+                lines.append(f"      stage_s_l    : '{table_item.get('stage_s_l', '')}'")
+                lines.append(f"      stage_s_r    : '{table_item.get('stage_s_r', '')}'")
+                lines.append(f"      stage_text   : '{table_item.get('stage_text', '')}'")
 
-            self.generated_file_path = out_file
-            UI.notify(f"تم إصدار وتوليد الوثيقة بنجاح: {os.path.basename(out_file)}", type="positive")
+                rows = table_item.get("rows", [])
+                lines.append(f"\n      --- Courses ({len(rows)} Rows) ---")
+                lines.append(f"      {'#':<3} | {'LEFT SUBJECT (المادة الأولى)':<35} | {'MARK':<6} | {'UNIT':<5} || {'RIGHT SUBJECT (المادة الثانية)':<35} | {'MARK':<6} | {'UNIT':<5}")
+                lines.append(f"      {'-'*3} | {'-'*35} | {'-'*6} | {'-'*5} || {'-'*35} | {'-'*6} | {'-'*5}")
+                for r_idx, r in enumerate(rows):
+                    l_subj = str(r.get('left_name') or r.get('left_subj') or '')
+                    l_mark = str(r.get('left_mark') or '')
+                    l_unit = str(r.get('left_unit') or '')
+                    r_subj = str(r.get('right_name') or r.get('right_subj') or '')
+                    r_mark = str(r.get('right_mark') or '')
+                    r_unit = str(r.get('right_unit') or '')
+                    lines.append(
+                        f"      {r_idx+1:<3} | {l_subj:<35} | {l_mark:<6} | {l_unit:<5} || {r_subj:<35} | {r_mark:<6} | {r_unit:<5}"
+                    )
 
-            # Trigger automatic browser download
-            ui.download(out_file, filename=os.path.basename(out_file))
-            return True
-        except Exception as err:
-            log.error(f"Error generating certificate: {err}")
-            UI.notify(err, type="negative")
-            return False
+    lines.append(banner)
+    full_output = "\n".join(lines)
+
+    # Print to console stdout so it displays immediately in terminal
+    print(full_output, flush=True)
+    # Log to system logger
+    log.info(full_output)
+
+
+def generate_docx(self, tpl_name: str, options: dict) -> bool:
+    """Generates Word document from template and returns True on success."""
+    tpl_path = os.path.join("templets", tpl_name)
+    if not os.path.exists(tpl_path):
+        UI.notify(f"قالب الوثيقة غير موجود: {tpl_name}", type="negative")
+        return False
+
+    if not self.student_full_data:
+        UI.notify("لم يتم تحميل بيانات الطالب", type="warning")
+        return False
+
+    options.update({
+        "opt_seq": self.sw_seq.value,
+        "opt_rank": self.sw_rank.value,
+        "rank_val": (self.inp_rank_val.value or "").strip(),
+        "rank_total": (self.inp_rank_total.value or "").strip(),
+        "rank_avg": (self.inp_rank_avg.value or "").strip(),
+        "opt_summer": self.sw_summer.value,
+        "summer_year": (self.inp_summer_year.value or "").strip(),
+        "opt_postpone": self.sw_postpone.value,
+        "postpone_years": (self.inp_postpone_years.value or "").strip(),
+        "opt_second_trial": self.sw_second.value,
+        "second_trial_subjects": (self.inp_second_subjects.value or "").strip(),
+    })
+
+    try:
+        ctx = build_certificate_context(self.student_full_data, options)
+
+        # Print all context variables line-by-line to terminal & log
+        print_certificate_context(ctx)
+
+        # Ensure output directory exists
+        out_dir = os.path.abspath("certificates")
+        os.makedirs(out_dir, exist_ok=True)
+
+        student_name = ctx.get("student_name", "Student")
+        safe_student = re.sub(r'[\\/*?:"<>|]', "", student_name).strip() or "Student"
+        safe_tpl = re.sub(r'[\\/*?:"<>|]', "", os.path.splitext(tpl_name)[0]).strip()
+        out_file = os.path.join(out_dir, f"{safe_tpl} - {safe_student}.docx")
+
+        doc = DocxTemplate(tpl_path)
+        doc.render(ctx)
+        doc.save(out_file)
+
+        self.generated_file_path = out_file
+        UI.notify(f"تم إصدار وتوليد الوثيقة بنجاح: {os.path.basename(out_file)}", type="positive")
+
+        # Trigger automatic browser download
+        ui.download(out_file, filename=os.path.basename(out_file))
+        return True
+    except Exception as err:
+        log.error(f"Error generating certificate: {err}")
+        UI.notify(err, type="negative")
+        return False
     def show_in_app_print_dialog(self, pdf_path: str | None, html_path: str | None, docx_path: str):
         """
         Opens a modern in-app modal dialog featuring live document preview,

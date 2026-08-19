@@ -1653,23 +1653,27 @@ class AcademicPeriodRepository(BaseRepository):
     def get_by_student(self, student_id: int) -> list[dict]:
         if not is_online():
             return sqlite_read_all(
-                "SELECT id, student_id, academic_year, study_system_id, stage_number, semester_num FROM ("
-                "  SELECT id, student_id, academic_year, study_system_id, stage_number, semester_num FROM academic_periods "
+                "SELECT id, student_id, academic_year, study_system_id, stage_number, semester_num, COALESCE(result_status, 'PASSED') AS result_status FROM ("
+                "  SELECT id, student_id, academic_year, study_system_id, stage_number, semester_num, result_status FROM academic_periods "
                 "  UNION ALL "
-                "  SELECT id, student_id, academic_year, study_system_id, stage_number, semester_num FROM local_academic_periods"
-                ") WHERE student_id = ? ORDER BY stage_number",
+                "  SELECT id, student_id, academic_year, study_system_id, stage_number, semester_num, result_status FROM local_academic_periods"
+                ") WHERE student_id = ? ORDER BY stage_number, semester_num",
                 (student_id,)
             )
         try:
             resp = requests.get(f"{self.api_url}/academic-periods/by-student/{student_id}", timeout=5.0)
             if resp.status_code == 200:
-                return resp.json()
+                res = resp.json()
+                for r in res:
+                    if not r.get("result_status"):
+                        r["result_status"] = "PASSED"
+                return res
             return []
         except Exception as e:
             log_system(f"API request failed: {e}", "WARNING")
             return []
 
-    def insert(self, student_id: int, year: str, sys_id: int, stage: int, semester_num: int = 1) -> int:
+    def insert(self, student_id: int, year: str, sys_id: int, stage: int, semester_num: int = 1, result_status: str = "PASSED") -> int:
         if not is_online():
             return log_offline_insert("academic_periods", {
                 "student_id": student_id,
@@ -1677,6 +1681,7 @@ class AcademicPeriodRepository(BaseRepository):
                 "study_system_id": sys_id,
                 "stage_number": stage,
                 "semester_num": semester_num,
+                "result_status": result_status,
             })
         try:
             payload = {
@@ -1684,7 +1689,8 @@ class AcademicPeriodRepository(BaseRepository):
                 "academic_year": str(year),
                 "study_system_id": sys_id,
                 "stage_number": stage,
-                "semester_num": semester_num
+                "semester_num": semester_num,
+                "result_status": result_status,
             }
             resp = requests.post(f"{self.api_url}/academic-periods", json=payload, timeout=5.0)
             if resp.status_code == 200:
@@ -1694,6 +1700,37 @@ class AcademicPeriodRepository(BaseRepository):
         except Exception as e:
             log_system(f"API request failed: {e}", "WARNING")
             raise
+
+    def update_status(self, period_id: int, result_status: str) -> None:
+        if not is_online():
+            conn = get_local_connection()
+            try:
+                if period_id < 0:
+                    conn.execute("UPDATE local_academic_periods SET result_status = ? WHERE id = ?", (result_status, period_id))
+                else:
+                    conn.execute("UPDATE academic_periods SET result_status = ? WHERE id = ?", (result_status, period_id))
+                conn.commit()
+            finally:
+                conn.close()
+            return
+        try:
+            resp = requests.patch(
+                f"{self.api_url}/academic-periods/{period_id}/status",
+                json={"result_status": result_status},
+                timeout=5.0
+            )
+            if resp.status_code != 200:
+                # Direct DB connection fallback
+                from db import get_connection as get_mysql_conn
+                m_conn = get_mysql_conn()
+                try:
+                    with m_conn.cursor() as cur:
+                        cur.execute("UPDATE academic_periods SET result_status = %s WHERE id = %s", (result_status, period_id))
+                    m_conn.commit()
+                finally:
+                    m_conn.close()
+        except Exception as e:
+            log_system(f"API update_status failed: {e}", "WARNING")
 
     def delete(self, period_id: int) -> None:
         if not is_online():
@@ -1882,7 +1919,7 @@ class CertificateRepository(BaseRepository):
                 
             # Signatories
             data["all_personnel"] = sqlite_read_all(
-                "SELECT * FROM personnel WHERE is_active = 1 ORDER BY display_order"
+                "SELECT * FROM personnel WHERE is_active = 1 AND display_order >= 1 ORDER BY display_order ASC"
             )
             data["front_signatories"] = [p for p in data["all_personnel"] if 1 <= p.get("display_order", 0) <= 4]
             data["back_signatories"] = [p for p in data["all_personnel"] if p.get("display_order", 0) >= 5]

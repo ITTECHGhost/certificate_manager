@@ -120,18 +120,18 @@ _TABLE_REGISTRY: dict[str, dict] = {
         "local_table": "local_academic_periods",
         "columns": [
             "student_id", "academic_year", "study_system_id",
-            "stage_number", "semester_num",
+            "stage_number", "semester_num", "result_status",
         ],
         "sp_name": None,  # uses raw INSERT (no SP in current repo)
         "sp_args": [],
         "insert_sql": (
             "INSERT INTO academic_periods "
-            "(student_id, academic_year, study_system_id, stage_number, semester_num) "
-            "VALUES (%s, %s, %s, %s, %s)"
+            "(student_id, academic_year, study_system_id, stage_number, semester_num, result_status) "
+            "VALUES (%s, %s, %s, %s, %s, %s)"
         ),
         "insert_keys": [
             "student_id", "academic_year", "study_system_id",
-            "stage_number", "semester_num",
+            "stage_number", "semester_num", "result_status",
         ],
         "fk_cascades": [
             ("local_enrollments", "period_id"),
@@ -291,9 +291,19 @@ def init_local_db() -> None:
                 academic_year   TEXT,
                 study_system_id INTEGER,
                 stage_number    INTEGER,
-                semester_num    INTEGER
+                semester_num    INTEGER,
+                result_status   TEXT DEFAULT 'PASSED'
             )
         """)
+
+        # Self-healing column check for local_academic_periods
+        try:
+            cur.execute("PRAGMA table_info(local_academic_periods)")
+            lap_cols = [r[1] for r in cur.fetchall()]
+            if "result_status" not in lap_cols:
+                cur.execute("ALTER TABLE local_academic_periods ADD COLUMN result_status TEXT DEFAULT 'PASSED'")
+        except Exception as _e:
+            pass
 
         cur.execute("""
             CREATE TABLE IF NOT EXISTS local_enrollments (

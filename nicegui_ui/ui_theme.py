@@ -58,7 +58,7 @@ class Styles:
 
     # ── Body & Layout ───────────────────────────────────────────────────────
     BODY       = "m-0 p-0 overflow-hidden select-none"
-    LAYOUT_ROW = "w-full h-screen flex-nowrap m-0 p-0 gap-0"
+    LAYOUT_ROW = "w-full max-w-full h-screen flex-nowrap m-0 p-0 gap-0 overflow-hidden"
 
     # ── Sidebar ─────────────────────────────────────────────────────────────
     SIDEBAR_COL_EXPANDED = (
@@ -91,8 +91,8 @@ class Styles:
     HEADER_BAR = "app-header-bar w-full h-16 px-6 flex items-center justify-between shrink-0"
 
     # ── Main Content Area ───────────────────────────────────────────────────
-    MAIN_SCROLL = "app-main-area flex-1 h-full p-5"
-    MAIN_COL    = "w-full gap-5"
+    MAIN_SCROLL = "app-main-area flex-1 min-w-0 max-w-full h-full p-5 overflow-x-hidden"
+    MAIN_COL    = "w-full max-w-full min-w-0 gap-5 overflow-hidden"
 
     # ── Page Header ─────────────────────────────────────────────────────────
     PAGE_HEADER_ROW  = "w-full justify-between items-end"
@@ -189,15 +189,15 @@ QUICK_ACTIONS: list[dict] = [
 # ── Theme Switching Functions ───────────────────────────────────────────────
 
 def set_dark_mode(enable: bool, dark_inst=None) -> None:
-    """Enables or disables dark mode for Quasar and syncs the 'dark' CSS class to body and documentElement."""
+    """Enables or disables dark mode for Quasar and syncs the 'dark' and 'body--dark' CSS classes to body and documentElement."""
     from nicegui import ui
     dark = dark_inst or ui.dark_mode()
     if enable:
         dark.enable()
-        ui.run_javascript("document.body.classList.add('dark'); document.documentElement.classList.add('dark');")
+        ui.run_javascript("document.body.classList.add('dark', 'body--dark'); document.documentElement.classList.add('dark', 'body--dark');")
     else:
         dark.disable()
-        ui.run_javascript("document.body.classList.remove('dark'); document.documentElement.classList.remove('dark');")
+        ui.run_javascript("document.body.classList.remove('dark', 'body--dark'); document.documentElement.classList.remove('dark', 'body--dark');")
 
 
 def set_accent(accent_name: str) -> None:

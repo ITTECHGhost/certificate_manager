@@ -22959,3 +22959,543 @@ RuntimeError: The parent element this slot belongs to has been deleted.
 2026-08-16 00:14:18 [INFO] _pywebviewready event fired
 2026-08-16 00:14:18 [INFO] loaded event fired
 2026-08-16 00:14:18 [INFO] loaded event fired
+2026-08-16 09:24:47 [INFO] SYSTEM STARTUP DIAGNOSTIC CHECK STARTED
+2026-08-16 09:24:49 [WARNING] [CHECK 1/4] FastAPI Connection Check ... [OFFLINE MODE]
+2026-08-16 09:24:49 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-08-16 09:24:49 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-08-16 09:24:49 [OK] [CHECK 2/4] SQLite Replica Database Connection ... [OK]
+2026-08-16 09:24:49 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-08-16 09:24:49 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-08-16 09:24:49 [OK] [CHECK 3/4] Authentication & Core SP Checks ... [OFFLINE MODE]
+2026-08-16 09:24:49 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-08-16 09:24:49 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-08-16 09:24:49 [OK] [CHECK 4/4] Sync Engine & Local Replica Check ... [OK]
+2026-08-16 09:24:49 [OK] Status: OFFLINE MODE ACTIVE. PROCEEDING TO LOGIN/DASHBOARD.
+2026-08-16 09:24:53 [INFO] Using WinForms / Chromium
+2026-08-16 09:24:53 [INFO] Using WinForms / Chromium
+2026-08-16 09:24:57 [INFO] before_load event fired. injecting pywebview object
+2026-08-16 09:24:57 [INFO] before_load event fired. injecting pywebview object
+2026-08-16 09:24:57 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-16 09:24:57 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-16 09:24:57 [INFO] _pywebviewready event fired
+2026-08-16 09:24:57 [INFO] _pywebviewready event fired
+2026-08-16 09:24:57 [INFO] loaded event fired
+2026-08-16 09:24:57 [INFO] loaded event fired
+2026-08-16 09:25:02 [INFO] before_load event fired. injecting pywebview object
+2026-08-16 09:25:02 [INFO] before_load event fired. injecting pywebview object
+2026-08-16 09:25:02 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-16 09:25:02 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-16 09:25:02 [INFO] _pywebviewready event fired
+2026-08-16 09:25:02 [INFO] _pywebviewready event fired
+2026-08-16 09:25:02 [INFO] loaded event fired
+2026-08-16 09:25:02 [INFO] loaded event fired
+2026-08-16 09:56:51 [INFO] SYSTEM STARTUP DIAGNOSTIC CHECK STARTED
+2026-08-16 09:56:53 [WARNING] [CHECK 1/4] FastAPI Connection Check ... [OFFLINE MODE]
+2026-08-16 09:56:53 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-08-16 09:56:53 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-08-16 09:56:53 [OK] [CHECK 2/4] SQLite Replica Database Connection ... [OK]
+2026-08-16 09:56:53 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-08-16 09:56:53 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-08-16 09:56:53 [OK] [CHECK 3/4] Authentication & Core SP Checks ... [OFFLINE MODE]
+2026-08-16 09:56:53 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-08-16 09:56:53 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-08-16 09:56:53 [OK] [CHECK 4/4] Sync Engine & Local Replica Check ... [OK]
+2026-08-16 09:56:53 [OK] Status: OFFLINE MODE ACTIVE. PROCEEDING TO LOGIN/DASHBOARD.
+2026-08-16 09:56:57 [INFO] Using WinForms / Chromium
+2026-08-16 09:56:57 [INFO] Using WinForms / Chromium
+2026-08-16 09:57:02 [INFO] before_load event fired. injecting pywebview object
+2026-08-16 09:57:02 [INFO] before_load event fired. injecting pywebview object
+2026-08-16 09:57:02 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-16 09:57:02 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-16 09:57:03 [INFO] _pywebviewready event fired
+2026-08-16 09:57:03 [INFO] _pywebviewready event fired
+2026-08-16 09:57:03 [INFO] loaded event fired
+2026-08-16 09:57:03 [INFO] loaded event fired
+2026-08-16 09:57:08 [INFO] before_load event fired. injecting pywebview object
+2026-08-16 09:57:08 [INFO] before_load event fired. injecting pywebview object
+2026-08-16 09:57:08 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-16 09:57:08 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-16 09:57:08 [INFO] _pywebviewready event fired
+2026-08-16 09:57:08 [INFO] _pywebviewready event fired
+2026-08-16 09:57:08 [INFO] loaded event fired
+2026-08-16 09:57:08 [INFO] loaded event fired
+2026-08-16 09:57:40 [INFO] === CERTIFICATE CONTEXT VARIABLES PASSED TO WORD DOCXTPL ===
+2026-08-16 09:57:40 [INFO] === CERTIFICATE CONTEXT VARIABLES PASSED TO WORD DOCXTPL ===
+2026-08-16 09:57:40 [INFO]   Title: من يهمه الأمر
+2026-08-16 09:57:40 [INFO]   Title: من يهمه الأمر
+2026-08-16 09:57:40 [INFO]   student_name: اديان عبدالامير فخري احمد
+2026-08-16 09:57:40 [INFO]   student_name: اديان عبدالامير فخري احمد
+2026-08-16 09:57:40 [INFO]   Birthday: ١٩٩٩-١١-١١
+2026-08-16 09:57:40 [INFO]   Birthday: ١٩٩٩-١١-١١
+2026-08-16 09:57:40 [INFO]   Birthplace: البصرة
+2026-08-16 09:57:40 [INFO]   Birthplace: البصرة
+2026-08-16 09:57:40 [INFO]   Nationality: العراق
+2026-08-16 09:57:40 [INFO]   Nationality: العراق
+2026-08-16 09:57:40 [INFO]   admission_year: ٢٠١٥
+2026-08-16 09:57:40 [INFO]   admission_year: ٢٠١٥
+2026-08-16 09:57:40 [INFO]   graduation_year: 
+2026-08-16 09:57:40 [INFO]   graduation_year: 
+2026-08-16 09:57:40 [INFO]   department_id: علوم الحاسوب
+2026-08-16 09:57:40 [INFO]   department_id: علوم الحاسوب
+2026-08-16 09:57:40 [INFO]   study_type: الصباحية
+2026-08-16 09:57:40 [INFO]   study_type: الصباحية
+2026-08-16 09:57:40 [INFO]   graduation_date: ٢٠٢٠-١١-١٧
+2026-08-16 09:57:40 [INFO]   graduation_date: ٢٠٢٠-١١-١٧
+2026-08-16 09:57:40 [INFO]   graduation_semester: الأول
+2026-08-16 09:57:40 [INFO]   graduation_semester: الأول
+2026-08-16 09:57:40 [INFO]   average: ٦٦.٨٩٦
+2026-08-16 09:57:40 [INFO]   average: ٦٦.٨٩٦
+2026-08-16 09:57:40 [INFO]   Grade: متوسط
+2026-08-16 09:57:40 [INFO]   Grade: متوسط
+2026-08-16 09:57:40 [INFO]   sequence_ON: True
+2026-08-16 09:57:40 [INFO]   sequence_ON: True
+2026-08-16 09:57:40 [INFO]   Failure_ON: False
+2026-08-16 09:57:40 [INFO]   Failure_ON: False
+2026-08-16 09:57:40 [INFO]   Passed_ON: True
+2026-08-16 09:57:40 [INFO]   Passed_ON: True
+2026-08-16 09:57:40 [INFO]   Summer_ON: False
+2026-08-16 09:57:40 [INFO]   Summer_ON: False
+2026-08-16 09:57:40 [INFO]   Sequence_of_Graduation: ٦٤
+2026-08-16 09:57:40 [INFO]   Sequence_of_Graduation: ٦٤
+2026-08-16 09:57:40 [INFO]   num_students: ٨٩
+2026-08-16 09:57:40 [INFO]   num_students: ٨٩
+2026-08-16 09:57:40 [INFO]   Average_of_First_Student: 
+2026-08-16 09:57:40 [INFO]   Average_of_First_Student: 
+2026-08-16 09:57:40 [INFO]   Summer_Training_year: 
+2026-08-16 09:57:40 [INFO]   Summer_Training_year: 
+2026-08-16 09:57:40 [INFO]   Postponement_and_Failure_Years: 
+2026-08-16 09:57:40 [INFO]   Postponement_and_Failure_Years: 
+2026-08-16 09:57:40 [INFO]   Subjects_Passed_with_Second_Trial: البرمجة 1، البرمجة 2، المعالجات المايكروية، نظرية الاحتمالات و الإحصاء، البرمجة المرئية، الذكاء الاصطناعي، بحوث العمليات
+2026-08-16 09:57:40 [INFO]   Subjects_Passed_with_Second_Trial: البرمجة 1، البرمجة 2، المعالجات المايكروية، نظرية الاحتمالات و الإحصاء، البرمجة المرئية، الذكاء الاصطناعي، بحوث العمليات
+2026-08-16 09:57:40 [INFO]   order_number: ١٥٧١٠/١٣/٣
+2026-08-16 09:57:40 [INFO]   order_number: ١٥٧١٠/١٣/٣
+2026-08-16 09:57:40 [INFO]   order_date: ٢٠٢٠-١١-١٧
+2026-08-16 09:57:40 [INFO]   order_date: ٢٠٢٠-١١-١٧
+2026-08-16 09:57:40 [INFO]   paired_semesters (2 table rows):
+2026-08-16 09:57:40 [INFO]   paired_semesters (2 table rows):
+2026-08-16 09:57:40 [INFO]     Table 1: left_label='٢٠١٦', right_label='٢٠١٧', num_s_l='١', num_s_r='٢', year_s_l='١', year_s_r='٢', courses_left=12
+2026-08-16 09:57:40 [INFO]     Table 1: left_label='٢٠١٦', right_label='٢٠١٧', num_s_l='١', num_s_r='٢', year_s_l='١', year_s_r='٢', courses_left=12
+2026-08-16 09:57:40 [INFO]     Table 2: left_label='٢٠١٨', right_label='٢٠١٩', num_s_l='٣', num_s_r='٤', year_s_l='٣', year_s_r='٤', courses_left=14
+2026-08-16 09:57:40 [INFO]     Table 2: left_label='٢٠١٨', right_label='٢٠١٩', num_s_l='٣', num_s_r='٤', year_s_l='٣', year_s_r='٤', courses_left=14
+2026-08-16 09:57:41 [INFO]   paired_years (2 table rows):
+2026-08-16 09:57:41 [INFO]   paired_years (2 table rows):
+2026-08-16 09:57:41 [INFO]     Table 1: left_label='٢٠١٦', right_label='٢٠١٧', num_s_l='١', num_s_r='٢', year_s_l='١', year_s_r='٢', courses_left=12
+2026-08-16 09:57:41 [INFO]     Table 1: left_label='٢٠١٦', right_label='٢٠١٧', num_s_l='١', num_s_r='٢', year_s_l='١', year_s_r='٢', courses_left=12
+2026-08-16 09:57:41 [INFO]     Table 2: left_label='٢٠١٨', right_label='٢٠١٩', num_s_l='٣', num_s_r='٤', year_s_l='٣', year_s_r='٤', courses_left=14
+2026-08-16 09:57:41 [INFO]     Table 2: left_label='٢٠١٨', right_label='٢٠١٩', num_s_l='٣', num_s_r='٤', year_s_l='٣', year_s_r='٤', courses_left=14
+2026-08-16 09:57:41 [INFO]   semesters (2 table rows):
+2026-08-16 09:57:41 [INFO]   semesters (2 table rows):
+2026-08-16 09:57:41 [INFO]     Table 1: left_label='٢٠١٦', right_label='٢٠١٧', num_s_l='١', num_s_r='٢', year_s_l='١', year_s_r='٢', courses_left=12
+2026-08-16 09:57:41 [INFO]     Table 1: left_label='٢٠١٦', right_label='٢٠١٧', num_s_l='١', num_s_r='٢', year_s_l='١', year_s_r='٢', courses_left=12
+2026-08-16 09:57:41 [INFO]     Table 2: left_label='٢٠١٨', right_label='٢٠١٩', num_s_l='٣', num_s_r='٤', year_s_l='٣', year_s_r='٤', courses_left=14
+2026-08-16 09:57:41 [INFO]     Table 2: left_label='٢٠١٨', right_label='٢٠١٩', num_s_l='٣', num_s_r='٤', year_s_l='٣', year_s_r='٤', courses_left=14
+2026-08-16 09:57:41 [INFO]   sig1_name: رائدة سالم خضير
+2026-08-16 09:57:41 [INFO]   sig1_name: رائدة سالم خضير
+2026-08-16 09:57:41 [INFO]   sig1_title: الأستاذ الدكتور
+2026-08-16 09:57:41 [INFO]   sig1_title: الأستاذ الدكتور
+2026-08-16 09:57:41 [INFO]   sig1_resp: معاون العميد للشوون العلمية والدراسات العليا
+2026-08-16 09:57:41 [INFO]   sig1_resp: معاون العميد للشوون العلمية والدراسات العليا
+2026-08-16 09:57:41 [INFO]   sig2_name: أسراء فاضل عبد
+2026-08-16 09:57:41 [INFO]   sig2_name: أسراء فاضل عبد
+2026-08-16 09:57:41 [INFO]   sig2_title:  
+2026-08-16 09:57:41 [INFO]   sig2_title:  
+2026-08-16 09:57:41 [INFO]   sig2_resp: مسؤول وحدة الوثائق
+2026-08-16 09:57:41 [INFO]   sig2_resp: مسؤول وحدة الوثائق
+2026-08-16 09:57:41 [INFO]   sig3_name: نغم باسل محمود
+2026-08-16 09:57:41 [INFO]   sig3_name: نغم باسل محمود
+2026-08-16 09:57:41 [INFO]   sig3_title:  
+2026-08-16 09:57:41 [INFO]   sig3_title:  
+2026-08-16 09:57:41 [INFO]   sig3_resp: منظم الوثيقة
+2026-08-16 09:57:41 [INFO]   sig3_resp: منظم الوثيقة
+2026-08-16 09:57:41 [INFO]   sig4_name: حيدر خزعل محبس
+2026-08-16 09:57:41 [INFO]   sig4_name: حيدر خزعل محبس
+2026-08-16 09:57:41 [INFO]   sig4_title: الأستاذ المساعد
+2026-08-16 09:57:41 [INFO]   sig4_title: الأستاذ المساعد
+2026-08-16 09:57:41 [INFO]   sig4_resp: مساعد رئيس الجامعة للشؤون العلمية
+2026-08-16 09:57:41 [INFO]   sig4_resp: مساعد رئيس الجامعة للشؤون العلمية
+2026-08-16 09:57:41 [INFO]   sig5_name: هشام كاظم هاشم
+2026-08-16 09:57:41 [INFO]   sig5_name: هشام كاظم هاشم
+2026-08-16 09:57:41 [INFO]   sig5_title: الأستاذ الدكتور
+2026-08-16 09:57:41 [INFO]   sig5_title: الأستاذ الدكتور
+2026-08-16 09:57:41 [INFO]   sig5_resp: العميد
+2026-08-16 09:57:41 [INFO]   sig5_resp: العميد
+2026-08-16 09:57:41 [INFO]   sig6_name: مرتجى علي ساري
+2026-08-16 09:57:41 [INFO]   sig6_name: مرتجى علي ساري
+2026-08-16 09:57:41 [INFO]   sig6_title: المدرس الدكتور
+2026-08-16 09:57:41 [INFO]   sig6_title: المدرس الدكتور
+2026-08-16 09:57:41 [INFO]   sig6_resp: مدير التسجيل
+2026-08-16 09:57:41 [INFO]   sig6_resp: مدير التسجيل
+2026-08-16 09:57:41 [INFO]   sig7_name: 
+2026-08-16 09:57:41 [INFO]   sig7_name: 
+2026-08-16 09:57:41 [INFO]   sig7_title: 
+2026-08-16 09:57:41 [INFO]   sig7_title: 
+2026-08-16 09:57:41 [INFO]   sig7_resp: 
+2026-08-16 09:57:41 [INFO]   sig7_resp: 
+2026-08-16 09:57:41 [INFO]   sig8_name: 
+2026-08-16 09:57:41 [INFO]   sig8_name: 
+2026-08-16 09:57:41 [INFO]   sig8_title: 
+2026-08-16 09:57:41 [INFO]   sig8_title: 
+2026-08-16 09:57:41 [INFO]   sig8_resp: 
+2026-08-16 09:57:41 [INFO]   sig8_resp: 
+2026-08-16 09:57:41 [INFO]   sig9_name: 
+2026-08-16 09:57:41 [INFO]   sig9_name: 
+2026-08-16 09:57:41 [INFO]   sig9_title: 
+2026-08-16 09:57:41 [INFO]   sig9_title: 
+2026-08-16 09:57:41 [INFO]   sig9_resp: 
+2026-08-16 09:57:41 [INFO]   sig9_resp: 
+2026-08-16 09:57:41 [INFO]   sig10_name: 
+2026-08-16 09:57:41 [INFO]   sig10_name: 
+2026-08-16 09:57:41 [INFO]   sig10_title: 
+2026-08-16 09:57:41 [INFO]   sig10_title: 
+2026-08-16 09:57:41 [INFO]   sig10_resp: 
+2026-08-16 09:57:41 [INFO]   sig10_resp: 
+2026-08-16 10:18:42 [INFO] SYSTEM STARTUP DIAGNOSTIC CHECK STARTED
+2026-08-16 10:18:44 [WARNING] [CHECK 1/4] FastAPI Connection Check ... [OFFLINE MODE]
+2026-08-16 10:18:44 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-08-16 10:18:44 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-08-16 10:18:44 [OK] [CHECK 2/4] SQLite Replica Database Connection ... [OK]
+2026-08-16 10:18:44 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-08-16 10:18:44 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-08-16 10:18:44 [OK] [CHECK 3/4] Authentication & Core SP Checks ... [OFFLINE MODE]
+2026-08-16 10:18:44 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-08-16 10:18:44 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-08-16 10:18:44 [OK] [CHECK 4/4] Sync Engine & Local Replica Check ... [OK]
+2026-08-16 10:18:44 [OK] Status: OFFLINE MODE ACTIVE. PROCEEDING TO LOGIN/DASHBOARD.
+2026-08-16 10:18:47 [INFO] Using WinForms / Chromium
+2026-08-16 10:18:47 [INFO] Using WinForms / Chromium
+2026-08-16 10:18:51 [INFO] before_load event fired. injecting pywebview object
+2026-08-16 10:18:51 [INFO] before_load event fired. injecting pywebview object
+2026-08-16 10:18:51 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-16 10:18:51 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-16 10:18:51 [INFO] _pywebviewready event fired
+2026-08-16 10:18:51 [INFO] _pywebviewready event fired
+2026-08-16 10:18:51 [INFO] loaded event fired
+2026-08-16 10:18:51 [INFO] loaded event fired
+2026-08-16 10:19:03 [INFO] before_load event fired. injecting pywebview object
+2026-08-16 10:19:03 [INFO] before_load event fired. injecting pywebview object
+2026-08-16 10:19:03 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-16 10:19:03 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-16 10:19:03 [INFO] _pywebviewready event fired
+2026-08-16 10:19:03 [INFO] _pywebviewready event fired
+2026-08-16 10:19:03 [INFO] loaded event fired
+2026-08-16 10:19:03 [INFO] loaded event fired
+2026-08-16 10:19:18 [INFO] Sync queue is empty — nothing to do.
+2026-08-16 10:19:18 [INFO] Sync queue is empty — nothing to do.
+2026-08-16 10:52:00 [INFO] before_load event fired. injecting pywebview object
+2026-08-16 10:52:00 [INFO] before_load event fired. injecting pywebview object
+2026-08-16 10:52:00 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-16 10:52:00 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-16 10:52:01 [INFO] _pywebviewready event fired
+2026-08-16 10:52:01 [INFO] _pywebviewready event fired
+2026-08-16 10:52:01 [INFO] loaded event fired
+2026-08-16 10:52:01 [INFO] loaded event fired
+2026-08-16 10:56:17 [INFO] SYSTEM STARTUP DIAGNOSTIC CHECK STARTED
+2026-08-16 10:56:19 [WARNING] [CHECK 1/4] FastAPI Connection Check ... [OFFLINE MODE]
+2026-08-16 10:56:19 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-08-16 10:56:19 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-08-16 10:56:19 [OK] [CHECK 2/4] SQLite Replica Database Connection ... [OK]
+2026-08-16 10:56:19 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-08-16 10:56:19 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-08-16 10:56:19 [OK] [CHECK 3/4] Authentication & Core SP Checks ... [OFFLINE MODE]
+2026-08-16 10:56:19 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-08-16 10:56:19 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-08-16 10:56:19 [OK] [CHECK 4/4] Sync Engine & Local Replica Check ... [OK]
+2026-08-16 10:56:19 [OK] Status: OFFLINE MODE ACTIVE. PROCEEDING TO LOGIN/DASHBOARD.
+2026-08-16 10:56:21 [INFO] Using WinForms / Chromium
+2026-08-16 10:56:21 [INFO] Using WinForms / Chromium
+2026-08-16 10:56:24 [INFO] before_load event fired. injecting pywebview object
+2026-08-16 10:56:24 [INFO] before_load event fired. injecting pywebview object
+2026-08-16 10:56:24 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-16 10:56:24 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-16 10:56:24 [INFO] _pywebviewready event fired
+2026-08-16 10:56:24 [INFO] _pywebviewready event fired
+2026-08-16 10:56:24 [INFO] loaded event fired
+2026-08-16 10:56:24 [INFO] loaded event fired
+2026-08-16 10:56:29 [INFO] before_load event fired. injecting pywebview object
+2026-08-16 10:56:29 [INFO] before_load event fired. injecting pywebview object
+2026-08-16 10:56:29 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-16 10:56:29 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-16 10:56:29 [INFO] _pywebviewready event fired
+2026-08-16 10:56:29 [INFO] _pywebviewready event fired
+2026-08-16 10:56:29 [INFO] loaded event fired
+2026-08-16 10:56:29 [INFO] loaded event fired
+2026-08-16 10:57:19 [INFO] Sync queue is empty — nothing to do.
+2026-08-16 10:57:19 [INFO] Sync queue is empty — nothing to do.
+2026-08-16 11:13:31 [INFO] SYSTEM STARTUP DIAGNOSTIC CHECK STARTED
+2026-08-16 11:13:31 [OK] [CHECK 1/4] FastAPI Connection Check ... [OK]
+2026-08-16 11:13:31 [OK] [CHECK 2/4] MySQL Database Connection ... [OK]
+2026-08-16 11:13:31 [OK] [CHECK 3/4] Authentication & Core SP Checks ... [OK]
+2026-08-16 11:13:31 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-08-16 11:13:31 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-08-16 11:13:31 [OK] [CHECK 4/4] Sync Engine & Local Replica Check ... [OK]
+2026-08-16 11:13:31 [OK] Status: ALL CHECKS PASSED. PROCEEDING TO LOGIN/DASHBOARD.
+2026-08-16 11:13:34 [INFO] Using WinForms / Chromium
+2026-08-16 11:13:34 [INFO] Using WinForms / Chromium
+2026-08-16 11:13:37 [INFO] before_load event fired. injecting pywebview object
+2026-08-16 11:13:37 [INFO] before_load event fired. injecting pywebview object
+2026-08-16 11:13:37 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-16 11:13:37 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-16 11:13:37 [INFO] _pywebviewready event fired
+2026-08-16 11:13:37 [INFO] _pywebviewready event fired
+2026-08-16 11:13:37 [INFO] loaded event fired
+2026-08-16 11:13:37 [INFO] loaded event fired
+2026-08-16 11:13:43 [INFO] before_load event fired. injecting pywebview object
+2026-08-16 11:13:43 [INFO] before_load event fired. injecting pywebview object
+2026-08-16 11:13:43 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-16 11:13:43 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-16 11:13:43 [INFO] _pywebviewready event fired
+2026-08-16 11:13:43 [INFO] _pywebviewready event fired
+2026-08-16 11:13:43 [INFO] loaded event fired
+2026-08-16 11:13:43 [INFO] loaded event fired
+2026-08-16 11:13:47 [INFO] before_load event fired. injecting pywebview object
+2026-08-16 11:13:47 [INFO] before_load event fired. injecting pywebview object
+2026-08-16 11:13:47 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-16 11:13:47 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-16 11:13:47 [INFO] _pywebviewready event fired
+2026-08-16 11:13:47 [INFO] _pywebviewready event fired
+2026-08-16 11:13:47 [INFO] loaded event fired
+2026-08-16 11:13:47 [INFO] loaded event fired
+2026-08-16 11:14:02 [INFO] SYSTEM STARTUP DIAGNOSTIC CHECK STARTED
+2026-08-16 11:14:02 [OK] [CHECK 1/4] FastAPI Connection Check ... [OK]
+2026-08-16 11:14:02 [OK] [CHECK 2/4] MySQL Database Connection ... [OK]
+2026-08-16 11:14:02 [OK] [CHECK 3/4] Authentication & Core SP Checks ... [OK]
+2026-08-16 11:14:02 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-08-16 11:14:02 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-08-16 11:14:02 [OK] [CHECK 4/4] Sync Engine & Local Replica Check ... [OK]
+2026-08-16 11:14:02 [OK] Status: ALL CHECKS PASSED. PROCEEDING TO LOGIN/DASHBOARD.
+2026-08-16 11:14:04 [INFO] Using WinForms / Chromium
+2026-08-16 11:14:04 [INFO] Using WinForms / Chromium
+2026-08-16 11:14:06 [INFO] before_load event fired. injecting pywebview object
+2026-08-16 11:14:06 [INFO] before_load event fired. injecting pywebview object
+2026-08-16 11:14:06 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-16 11:14:06 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-16 11:14:06 [INFO] _pywebviewready event fired
+2026-08-16 11:14:06 [INFO] _pywebviewready event fired
+2026-08-16 11:14:06 [INFO] loaded event fired
+2026-08-16 11:14:06 [INFO] loaded event fired
+2026-08-16 11:14:28 [INFO] before_load event fired. injecting pywebview object
+2026-08-16 11:14:28 [INFO] before_load event fired. injecting pywebview object
+2026-08-16 11:14:28 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-16 11:14:28 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-16 11:14:28 [INFO] _pywebviewready event fired
+2026-08-16 11:14:28 [INFO] _pywebviewready event fired
+2026-08-16 11:14:28 [INFO] loaded event fired
+2026-08-16 11:14:28 [INFO] loaded event fired
+2026-08-16 11:15:53 [WARNING] http://127.0.0.1:2323/.well-known/appspecific/com.chrome.devtools.json not found
+2026-08-16 11:15:53 [WARNING] http://127.0.0.1:2323/.well-known/appspecific/com.chrome.devtools.json not found
+2026-08-16 11:21:39 [INFO] SYSTEM STARTUP DIAGNOSTIC CHECK STARTED
+2026-08-16 11:21:39 [OK] [CHECK 1/4] FastAPI Connection Check ... [OK]
+2026-08-16 11:21:39 [OK] [CHECK 2/4] MySQL Database Connection ... [OK]
+2026-08-16 11:21:39 [OK] [CHECK 3/4] Authentication & Core SP Checks ... [OK]
+2026-08-16 11:21:39 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-08-16 11:21:39 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-08-16 11:21:39 [OK] [CHECK 4/4] Sync Engine & Local Replica Check ... [OK]
+2026-08-16 11:21:39 [OK] Status: ALL CHECKS PASSED. PROCEEDING TO LOGIN/DASHBOARD.
+2026-08-16 11:21:41 [INFO] Using WinForms / Chromium
+2026-08-16 11:21:41 [INFO] Using WinForms / Chromium
+2026-08-16 11:21:44 [INFO] before_load event fired. injecting pywebview object
+2026-08-16 11:21:44 [INFO] before_load event fired. injecting pywebview object
+2026-08-16 11:21:44 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-16 11:21:44 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-16 11:21:44 [INFO] _pywebviewready event fired
+2026-08-16 11:21:44 [INFO] _pywebviewready event fired
+2026-08-16 11:21:44 [INFO] loaded event fired
+2026-08-16 11:21:44 [INFO] loaded event fired
+2026-08-16 11:21:55 [INFO] before_load event fired. injecting pywebview object
+2026-08-16 11:21:55 [INFO] before_load event fired. injecting pywebview object
+2026-08-16 11:21:55 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-16 11:21:55 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-16 11:21:55 [INFO] _pywebviewready event fired
+2026-08-16 11:21:55 [INFO] _pywebviewready event fired
+2026-08-16 11:21:55 [INFO] loaded event fired
+2026-08-16 11:21:55 [INFO] loaded event fired
+2026-08-16 11:26:27 [INFO] SYSTEM STARTUP DIAGNOSTIC CHECK STARTED
+2026-08-16 11:26:27 [OK] [CHECK 1/4] FastAPI Connection Check ... [OK]
+2026-08-16 11:26:27 [OK] [CHECK 2/4] MySQL Database Connection ... [OK]
+2026-08-16 11:26:27 [OK] [CHECK 3/4] Authentication & Core SP Checks ... [OK]
+2026-08-16 11:26:27 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-08-16 11:26:27 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-08-16 11:26:27 [OK] [CHECK 4/4] Sync Engine & Local Replica Check ... [OK]
+2026-08-16 11:26:27 [OK] Status: ALL CHECKS PASSED. PROCEEDING TO LOGIN/DASHBOARD.
+2026-08-16 11:26:30 [INFO] Using WinForms / Chromium
+2026-08-16 11:26:30 [INFO] Using WinForms / Chromium
+2026-08-16 11:26:33 [INFO] before_load event fired. injecting pywebview object
+2026-08-16 11:26:33 [INFO] before_load event fired. injecting pywebview object
+2026-08-16 11:26:33 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-16 11:26:33 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-16 11:26:33 [INFO] _pywebviewready event fired
+2026-08-16 11:26:33 [INFO] _pywebviewready event fired
+2026-08-16 11:26:33 [INFO] loaded event fired
+2026-08-16 11:26:33 [INFO] loaded event fired
+2026-08-16 11:26:45 [INFO] before_load event fired. injecting pywebview object
+2026-08-16 11:26:45 [INFO] before_load event fired. injecting pywebview object
+2026-08-16 11:26:45 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-16 11:26:45 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-16 11:26:45 [INFO] _pywebviewready event fired
+2026-08-16 11:26:45 [INFO] _pywebviewready event fired
+2026-08-16 11:26:45 [INFO] loaded event fired
+2026-08-16 11:26:45 [INFO] loaded event fired
+2026-08-17 11:08:23 [INFO] SYSTEM STARTUP DIAGNOSTIC CHECK STARTED
+2026-08-17 11:08:23 [OK] [CHECK 1/4] FastAPI Connection Check ... [OK]
+2026-08-17 11:08:23 [OK] [CHECK 2/4] MySQL Database Connection ... [OK]
+2026-08-17 11:08:23 [OK] [CHECK 3/4] Authentication & Core SP Checks ... [OK]
+2026-08-17 11:08:23 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-08-17 11:08:23 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-08-17 11:08:23 [OK] [CHECK 4/4] Sync Engine & Local Replica Check ... [OK]
+2026-08-17 11:08:23 [OK] Status: ALL CHECKS PASSED. PROCEEDING TO LOGIN/DASHBOARD.
+2026-08-17 11:08:26 [INFO] Using WinForms / Chromium
+2026-08-17 11:08:26 [INFO] Using WinForms / Chromium
+2026-08-17 11:08:30 [INFO] before_load event fired. injecting pywebview object
+2026-08-17 11:08:30 [INFO] before_load event fired. injecting pywebview object
+2026-08-17 11:08:30 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-17 11:08:30 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-17 11:08:31 [INFO] _pywebviewready event fired
+2026-08-17 11:08:31 [INFO] _pywebviewready event fired
+2026-08-17 11:08:31 [INFO] loaded event fired
+2026-08-17 11:08:31 [INFO] loaded event fired
+2026-08-17 11:08:35 [INFO] before_load event fired. injecting pywebview object
+2026-08-17 11:08:35 [INFO] before_load event fired. injecting pywebview object
+2026-08-17 11:08:35 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-17 11:08:35 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-17 11:08:35 [INFO] _pywebviewready event fired
+2026-08-17 11:08:35 [INFO] _pywebviewready event fired
+2026-08-17 11:08:35 [INFO] loaded event fired
+2026-08-17 11:08:35 [INFO] loaded event fired
+2026-08-17 11:09:34 [INFO] === CERTIFICATE CONTEXT VARIABLES PASSED TO WORD DOCXTPL ===
+2026-08-17 11:09:34 [INFO] === CERTIFICATE CONTEXT VARIABLES PASSED TO WORD DOCXTPL ===
+2026-08-17 11:09:34 [INFO]   Title: من يهمه الأمر
+2026-08-17 11:09:34 [INFO]   Title: من يهمه الأمر
+2026-08-17 11:09:34 [INFO]   student_name: اديان عبدالامير فخري احمد
+2026-08-17 11:09:34 [INFO]   student_name: اديان عبدالامير فخري احمد
+2026-08-17 11:09:34 [INFO]   Birthday: 
+2026-08-17 11:09:34 [INFO]   Birthday: 
+2026-08-17 11:09:34 [INFO]   Birthplace: البصرة
+2026-08-17 11:09:34 [INFO]   Birthplace: البصرة
+2026-08-17 11:09:34 [INFO]   Nationality: العراق
+2026-08-17 11:09:34 [INFO]   Nationality: العراق
+2026-08-17 11:09:34 [INFO]   admission_year: ٢٠١٥
+2026-08-17 11:09:34 [INFO]   admission_year: ٢٠١٥
+2026-08-17 11:09:34 [INFO]   graduation_year: ٢٠٢٠
+2026-08-17 11:09:34 [INFO]   graduation_year: ٢٠٢٠
+2026-08-17 11:09:34 [INFO]   department_id: علوم الحاسوب
+2026-08-17 11:09:34 [INFO]   department_id: علوم الحاسوب
+2026-08-17 11:09:34 [INFO]   study_type: الصباحية
+2026-08-17 11:09:34 [INFO]   study_type: الصباحية
+2026-08-17 11:09:34 [INFO]   graduation_date: ٢٠٢٠-١١-١٧
+2026-08-17 11:09:34 [INFO]   graduation_date: ٢٠٢٠-١١-١٧
+2026-08-17 11:09:34 [INFO]   graduation_semester: الأول
+2026-08-17 11:09:34 [INFO]   graduation_semester: الأول
+2026-08-17 11:09:34 [INFO]   average: ٦٦.٨٩٦
+2026-08-17 11:09:34 [INFO]   average: ٦٦.٨٩٦
+2026-08-17 11:09:34 [INFO]   Grade: متوسط
+2026-08-17 11:09:34 [INFO]   Grade: متوسط
+2026-08-17 11:09:34 [INFO]   sequence_ON: True
+2026-08-17 11:09:34 [INFO]   sequence_ON: True
+2026-08-17 11:09:34 [INFO]   Failure_ON: False
+2026-08-17 11:09:34 [INFO]   Failure_ON: False
+2026-08-17 11:09:34 [INFO]   Passed_ON: True
+2026-08-17 11:09:34 [INFO]   Passed_ON: True
+2026-08-17 11:09:34 [INFO]   Summer_ON: True
+2026-08-17 11:09:34 [INFO]   Summer_ON: True
+2026-08-17 11:09:34 [INFO]   Sequence_of_Graduation: ٤٦
+2026-08-17 11:09:34 [INFO]   Sequence_of_Graduation: ٤٦
+2026-08-17 11:09:34 [INFO]   num_students: ٥٨
+2026-08-17 11:09:34 [INFO]   num_students: ٥٨
+2026-08-17 11:09:34 [INFO]   Average_of_First_Student: ٨٦.٤٢
+2026-08-17 11:09:34 [INFO]   Average_of_First_Student: ٨٦.٤٢
+2026-08-17 11:09:34 [INFO]   Summer_Training_year: ٢٠١٩
+2026-08-17 11:09:34 [INFO]   Summer_Training_year: ٢٠١٩
+2026-08-17 11:09:34 [INFO]   Postponement_and_Failure_Years: 
+2026-08-17 11:09:34 [INFO]   Postponement_and_Failure_Years: 
+2026-08-17 11:09:34 [INFO]   Subjects_Passed_with_Second_Trial: البرمجة 1، البرمجة 2، المعالجات المايكروية، نظرية الاحتمالات و الإحصاء، البرمجة المرئية، الذكاء الاصطناعي، بحوث العمليات
+2026-08-17 11:09:34 [INFO]   Subjects_Passed_with_Second_Trial: البرمجة 1، البرمجة 2، المعالجات المايكروية، نظرية الاحتمالات و الإحصاء، البرمجة المرئية، الذكاء الاصطناعي، بحوث العمليات
+2026-08-17 11:09:34 [INFO]   order_number: ١٥٧١٠/١٣/٣
+2026-08-17 11:09:34 [INFO]   order_number: ١٥٧١٠/١٣/٣
+2026-08-17 11:09:34 [INFO]   order_date: ٢٠٢٠-١١-١٧
+2026-08-17 11:09:34 [INFO]   order_date: ٢٠٢٠-١١-١٧
+2026-08-17 11:09:34 [INFO]   paired_semesters (2 table rows):
+2026-08-17 11:09:34 [INFO]   paired_semesters (2 table rows):
+2026-08-17 11:09:34 [INFO]     Table 1: left_label='٢٠١٦', right_label='٢٠١٧', num_s_l='١', num_s_r='٢', year_s_l='١', year_s_r='٢', courses_left=12
+2026-08-17 11:09:34 [INFO]     Table 1: left_label='٢٠١٦', right_label='٢٠١٧', num_s_l='١', num_s_r='٢', year_s_l='١', year_s_r='٢', courses_left=12
+2026-08-17 11:09:34 [INFO]     Table 2: left_label='٢٠١٨', right_label='٢٠١٩', num_s_l='٢', num_s_r='٤', year_s_l='٢', year_s_r='٤', courses_left=14
+2026-08-17 11:09:34 [INFO]     Table 2: left_label='٢٠١٨', right_label='٢٠١٩', num_s_l='٢', num_s_r='٤', year_s_l='٢', year_s_r='٤', courses_left=14
+2026-08-17 11:09:34 [INFO]   paired_years (2 table rows):
+2026-08-17 11:09:34 [INFO]   paired_years (2 table rows):
+2026-08-17 11:09:34 [INFO]     Table 1: left_label='٢٠١٦', right_label='٢٠١٧', num_s_l='١', num_s_r='٢', year_s_l='١', year_s_r='٢', courses_left=12
+2026-08-17 11:09:34 [INFO]     Table 1: left_label='٢٠١٦', right_label='٢٠١٧', num_s_l='١', num_s_r='٢', year_s_l='١', year_s_r='٢', courses_left=12
+2026-08-17 11:09:34 [INFO]     Table 2: left_label='٢٠١٨', right_label='٢٠١٩', num_s_l='٢', num_s_r='٤', year_s_l='٢', year_s_r='٤', courses_left=14
+2026-08-17 11:09:34 [INFO]     Table 2: left_label='٢٠١٨', right_label='٢٠١٩', num_s_l='٢', num_s_r='٤', year_s_l='٢', year_s_r='٤', courses_left=14
+2026-08-17 11:09:34 [INFO]   semesters (2 table rows):
+2026-08-17 11:09:34 [INFO]   semesters (2 table rows):
+2026-08-17 11:09:34 [INFO]     Table 1: left_label='٢٠١٦', right_label='٢٠١٧', num_s_l='١', num_s_r='٢', year_s_l='١', year_s_r='٢', courses_left=12
+2026-08-17 11:09:34 [INFO]     Table 1: left_label='٢٠١٦', right_label='٢٠١٧', num_s_l='١', num_s_r='٢', year_s_l='١', year_s_r='٢', courses_left=12
+2026-08-17 11:09:34 [INFO]     Table 2: left_label='٢٠١٨', right_label='٢٠١٩', num_s_l='٢', num_s_r='٤', year_s_l='٢', year_s_r='٤', courses_left=14
+2026-08-17 11:09:34 [INFO]     Table 2: left_label='٢٠١٨', right_label='٢٠١٩', num_s_l='٢', num_s_r='٤', year_s_l='٢', year_s_r='٤', courses_left=14
+2026-08-17 11:09:34 [INFO]   sig1_name: حيدر خزعل محبس
+2026-08-17 11:09:34 [INFO]   sig1_name: حيدر خزعل محبس
+2026-08-17 11:09:34 [INFO]   sig1_title: الأستاذ المساعد
+2026-08-17 11:09:34 [INFO]   sig1_title: الأستاذ المساعد
+2026-08-17 11:09:34 [INFO]   sig1_resp: مساعد رئيس الجامعة للشؤون العلمية
+2026-08-17 11:09:34 [INFO]   sig1_resp: مساعد رئيس الجامعة للشؤون العلمية
+2026-08-17 11:09:34 [INFO]   sig2_name: هشام كاظم هاشم
+2026-08-17 11:09:34 [INFO]   sig2_name: هشام كاظم هاشم
+2026-08-17 11:09:34 [INFO]   sig2_title: الأستاذ الدكتور
+2026-08-17 11:09:34 [INFO]   sig2_title: الأستاذ الدكتور
+2026-08-17 11:09:34 [INFO]   sig2_resp: العميد
+2026-08-17 11:09:34 [INFO]   sig2_resp: العميد
+2026-08-17 11:09:34 [INFO]   sig3_name: رائدة سالم خضير
+2026-08-17 11:09:34 [INFO]   sig3_name: رائدة سالم خضير
+2026-08-17 11:09:34 [INFO]   sig3_title: الأستاذ الدكتور
+2026-08-17 11:09:34 [INFO]   sig3_title: الأستاذ الدكتور
+2026-08-17 11:09:34 [INFO]   sig3_resp: معاون العميد للشوون العلمية والدراسات العليا
+2026-08-17 11:09:34 [INFO]   sig3_resp: معاون العميد للشوون العلمية والدراسات العليا
+2026-08-17 11:09:34 [INFO]   sig4_name: مرتجى علي ساري
+2026-08-17 11:09:34 [INFO]   sig4_name: مرتجى علي ساري
+2026-08-17 11:09:34 [INFO]   sig4_title: المدرس الدكتور
+2026-08-17 11:09:34 [INFO]   sig4_title: المدرس الدكتور
+2026-08-17 11:09:34 [INFO]   sig4_resp: مدير التسجيل
+2026-08-17 11:09:34 [INFO]   sig4_resp: مدير التسجيل
+2026-08-17 11:09:34 [INFO]   sig5_name: أسراء فاضل عبد
+2026-08-17 11:09:34 [INFO]   sig5_name: أسراء فاضل عبد
+2026-08-17 11:09:34 [INFO]   sig5_title: 
+2026-08-17 11:09:34 [INFO]   sig5_title: 
+2026-08-17 11:09:34 [INFO]   sig5_resp: مسؤول وحدة الوثائق
+2026-08-17 11:09:34 [INFO]   sig5_resp: مسؤول وحدة الوثائق
+2026-08-17 11:09:34 [INFO]   sig6_name: نغم باسل محمود
+2026-08-17 11:09:34 [INFO]   sig6_name: نغم باسل محمود
+2026-08-17 11:09:34 [INFO]   sig6_title: 
+2026-08-17 11:09:34 [INFO]   sig6_title: 
+2026-08-17 11:09:34 [INFO]   sig6_resp: منظم الوثيقة
+2026-08-17 11:09:34 [INFO]   sig6_resp: منظم الوثيقة
+2026-08-17 11:09:34 [INFO]   sig7_name: 
+2026-08-17 11:09:34 [INFO]   sig7_name: 
+2026-08-17 11:09:34 [INFO]   sig7_title: 
+2026-08-17 11:09:34 [INFO]   sig7_title: 
+2026-08-17 11:09:34 [INFO]   sig7_resp: 
+2026-08-17 11:09:34 [INFO]   sig7_resp: 
+2026-08-17 11:09:34 [INFO]   sig8_name: 
+2026-08-17 11:09:34 [INFO]   sig8_name: 
+2026-08-17 11:09:34 [INFO]   sig8_title: 
+2026-08-17 11:09:34 [INFO]   sig8_title: 
+2026-08-17 11:09:34 [INFO]   sig8_resp: 
+2026-08-17 11:09:34 [INFO]   sig8_resp: 
+2026-08-17 11:09:34 [INFO]   sig9_name: 
+2026-08-17 11:09:34 [INFO]   sig9_name: 
+2026-08-17 11:09:34 [INFO]   sig9_title: 
+2026-08-17 11:09:34 [INFO]   sig9_title: 
+2026-08-17 11:09:34 [INFO]   sig9_resp: 
+2026-08-17 11:09:34 [INFO]   sig9_resp: 
+2026-08-17 11:09:34 [INFO]   sig10_name: 
+2026-08-17 11:09:34 [INFO]   sig10_name: 
+2026-08-17 11:09:34 [INFO]   sig10_title: 
+2026-08-17 11:09:34 [INFO]   sig10_title: 
+2026-08-17 11:09:34 [INFO]   sig10_resp: 
+2026-08-17 11:09:34 [INFO]   sig10_resp: 
+2026-08-17 12:26:34 [INFO] before_load event fired. injecting pywebview object
+2026-08-17 12:26:34 [INFO] before_load event fired. injecting pywebview object
+2026-08-17 12:26:34 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-17 12:26:34 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-17 12:26:34 [INFO] _pywebviewready event fired
+2026-08-17 12:26:34 [INFO] _pywebviewready event fired
+2026-08-17 12:26:35 [INFO] loaded event fired
+2026-08-17 12:26:35 [INFO] loaded event fired

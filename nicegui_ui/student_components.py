@@ -46,11 +46,57 @@ def calculate_stage(db_year: str, admission_year: str | int | None) -> int:
     return 1
 
 
+RESULT_STATUS_MAP = {
+    "PASSED": {
+        "label_ar": "ناجح",
+        "label_en": "Passed",
+        "badge_class": "bg-emerald-500/10 text-emerald-500 border border-emerald-500/30",
+        "icon": "check_circle",
+    },
+    "CARRIED_OVER": {
+        "label_ar": "عبور (تحميل)",
+        "label_en": "Carried Over",
+        "badge_class": "bg-amber-500/10 text-amber-500 border border-amber-500/30",
+        "icon": "published_with_changes",
+    },
+    "EXCEPTIONAL_PASS": {
+        "label_ar": "قرار وزاري",
+        "label_en": "Ministerial Pass",
+        "badge_class": "bg-indigo-500/10 text-indigo-400 border border-indigo-500/30",
+        "icon": "gavel",
+    },
+    "FAILED_REPEAT": {
+        "label_ar": "راسب (إعادة)",
+        "label_en": "Failed Repeat",
+        "badge_class": "bg-rose-500/10 text-rose-500 border border-rose-500/30",
+        "icon": "cancel",
+    },
+    "DEFERRED": {
+        "label_ar": "تأجيل دراسي",
+        "label_en": "Deferred",
+        "badge_class": "bg-slate-500/10 text-slate-400 border border-slate-500/30",
+        "icon": "pause_circle",
+    },
+    "DISMISSED": {
+        "label_ar": "ترقين قيد",
+        "label_en": "Dismissed",
+        "badge_class": "bg-red-900/20 text-red-400 border border-red-800/40",
+        "icon": "block",
+    },
+}
+
+ROUND_OPTIONS = {
+    1: "الدور الأول / Round 1",
+    2: "الدور الثاني / Round 2",
+    3: "الدور الثالث / Round 3",
+}
+
+
 class CourseEnrollmentView:
     """
     Full dedicated view for managing course enrollments & scores for an academic period.
-    All controls (course select, score, round display, save, delete) are aligned strictly in single rows with zero overflow.
-    Prevents duplicate course enrollments, blocks re-enrolling in passed courses, displays non-editable Round badges,
+    All controls (course select, score, round dropdown, save, delete) are aligned strictly in single rows with zero overflow.
+    Prevents duplicate course enrollments, blocks re-enrolling in passed courses, offers editable Attempt Round dropdowns,
     and enforces pass requirement (score >= 50) on 3rd attempt (Round 3).
     """
     def __init__(self, repo, parent_container, on_back):
@@ -110,9 +156,6 @@ class CourseEnrollmentView:
             if not c_id:
                 return 1
             attempts = student_course_attempts.get(c_id, 0)
-            # 0 previous attempts -> Round 1
-            # 1 previous attempt  -> Round 2
-            # 2+ previous attempts -> Round 3
             return min(3, max(1, attempts + 1))
 
         with self.parent:
@@ -178,24 +221,17 @@ class CourseEnrollmentView:
                         initial_round = get_suggested_round(initial_cid)
 
                         with ui.row().classes("w-full gap-3 items-end flex-nowrap"):
-                            def format_round_text(r_num: int) -> str:
-                                return "الدور الأول / Round 1" if r_num == 1 else ("الدور الثاني / Round 2" if r_num == 2 else "الدور الثالث / Round 3")
-
                             def on_course_change(e):
                                 sel_id = e.value if hasattr(e, 'value') else e
                                 if sel_id:
                                     sug_r = get_suggested_round(sel_id)
-                                    round_badge.text = format_round_text(sug_r)
+                                    round_select.value = sug_r
 
                             course_select = UI.select("اختيار المادة / Select Course", course_opts, value=initial_cid, with_input=True, on_change=on_course_change).classes("flex-1 min-w-0 text-sm")
-                            score_input = UI.text_input("الدرجة / Score", value="").classes("text-sm").style("width: 110px; min-width: 110px; max-width: 110px;")
+                            score_input = UI.text_input("الدرجة / Score", value="").classes("text-sm").style("width: 100px; min-width: 100px; max-width: 100px;")
 
-                            # Display Round as non-editable badge label
-                            with ui.column().classes("gap-1 shrink-0").style("width: 160px; min-width: 160px; max-width: 160px;"):
-                                ui.label("الدور / Attempt").classes("text-xs font-semibold app-text-muted")
-                                round_badge = ui.label(format_round_text(initial_round)).classes(
-                                    "text-sm font-bold px-3 py-2 rounded-xl bg-[var(--bg-card)] border border-[var(--border-default)] app-text-accent text-center w-full shadow-sm"
-                                )
+                            # Editable Round / Attempt Dropdown List
+                            round_select = UI.select("الدور / Attempt", ROUND_OPTIONS, value=initial_round).classes("text-sm").style("width: 160px; min-width: 160px; max-width: 160px;")
 
                             def submit_add_course():
                                 cid = course_select.value
@@ -229,7 +265,7 @@ class CourseEnrollmentView:
                                     ui.notify("يرجى إدخال درجة صالحة (0-100)", type="warning")
                                     return
 
-                                r_val = get_suggested_round(cid)
+                                r_val = int(round_select.value or 1)
                                 # Validate 3rd attempt: MUST be >= 50
                                 if r_val == 3 and s_val < 50:
                                     ui.notify(
@@ -281,7 +317,6 @@ class CourseEnrollmentView:
 
                             round_str = str(enr.get("passed_round") or "1")
                             r_num = int(round_str) if round_str.isdigit() else 1
-                            r_disp_text = "الدور الأول" if r_num == 1 else ("الدور الثاني" if r_num == 2 else "الدور الثالث")
 
                             c_ar = enr.get("course_name_ar") or enr.get("name_ar") or "مادة"
                             c_en = enr.get("course_name_en") or enr.get("name_en") or ""
@@ -295,27 +330,26 @@ class CourseEnrollmentView:
                                         ui.label(c_en).classes("text-xs text-slate-400 font-mono truncate")
 
                                 with ui.row().classes("items-center gap-3 shrink-0 flex-nowrap"):
-                                    score_inp = UI.text_input(label="الدرجة / Score", value=disp_score).classes("text-center text-sm").style("width: 100px; min-width: 100px; max-width: 100px;")
+                                    score_inp = UI.text_input(label="الدرجة / Score", value=disp_score).classes("text-center text-sm").style("width: 90px; min-width: 90px; max-width: 90px;")
 
-                                    # Display Round as non-editable badge label
-                                    with ui.column().classes("gap-0.5 items-center shrink-0").style("width: 110px; min-width: 110px; max-width: 110px;"):
-                                        ui.label("الدور / Attempt").classes("text-[10px] app-text-muted font-semibold")
-                                        ui.label(r_disp_text).classes("text-xs font-bold px-2 py-1.5 rounded-lg bg-[var(--bg-card)] border border-[var(--border-default)] app-text-accent text-center w-full shadow-sm")
+                                    # Editable Round / Attempt Dropdown List for each enrolled course
+                                    round_sel = UI.select(label="الدور / Attempt", options=ROUND_OPTIONS, value=r_num).classes("text-sm").style("width: 150px; min-width: 150px; max-width: 150px;")
 
-                                    def save_enr(e_id=eid, s_inp=score_inp, cur_r=r_num):
+                                    def save_enr(e_id=eid, s_inp=score_inp, r_sel=round_sel):
                                         try:
                                             s_val = float(s_inp.value.strip())
                                             if not (0 <= s_val <= 100):
                                                 ui.notify("الدرجة يجب أن تكون بين 0 و100", type="warning")
                                                 return
+                                            sel_r = int(r_sel.value or 1)
                                             # Validate 3rd attempt: MUST be >= 50
-                                            if cur_r == 3 and s_val < 50:
+                                            if sel_r == 3 and s_val < 50:
                                                 ui.notify(
                                                     "في المحاولة الثالثة (الدور الثالث)، يجب أن تكون الدرجة 50 أو أعلى (ناجح) لأنه لا يُسمح بفرص إضافية! / On 3rd attempt, score must be >= 50.",
                                                     type="warning"
                                                 )
                                                 return
-                                            self.enroll_repo.update(e_id, s_val, cur_r)
+                                            self.enroll_repo.update(e_id, s_val, sel_r)
                                             ui.notify("تم حفظ التعديلات بنجاح", type="positive")
                                             self.render(period, student_data)
                                         except OfflineModeError as err:
@@ -575,11 +609,30 @@ class StudentProfileView:
         refresh_callback
     ):
         with ui.column().classes("flex-1 p-4 rounded-lg border border-[var(--border-default)] app-card-header gap-3 min-w-[260px]"):
-            with ui.row().classes("w-full justify-between items-center pb-2 border-b border-[var(--border-default)]"):
+            with ui.row().classes("w-full justify-between items-center pb-2 border-b border-[var(--border-default)] gap-2 flex-wrap"):
                 ui.label(sem_title).classes("font-bold text-sm app-text-accent")
 
                 if period:
-                    with ui.row().classes("gap-2"):
+                    cur_status = period.get("result_status") or "PASSED"
+                    status_info = RESULT_STATUS_MAP.get(cur_status, RESULT_STATUS_MAP["PASSED"])
+
+                    # Period Status Badge Chip
+                    with ui.row().classes(f"items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold {status_info['badge_class']}"):
+                        ui.icon(status_info["icon"], size="14px")
+                        ui.label(f"{status_info['label_ar']} / {status_info['label_en']}")
+
+                    # Editable Status Select Dropdown
+                    status_opts = {k: f"{v['label_ar']} / {v['label_en']}" for k, v in RESULT_STATUS_MAP.items()}
+                    def on_status_change(e, p_id=period["id"]):
+                        new_st = e.value if hasattr(e, "value") else e
+                        if new_st:
+                            self.period_repo.update_status(p_id, new_st)
+                            ui.notify(f"تم تغيير حالة الفترة إلى: {RESULT_STATUS_MAP.get(new_st, {}).get('label_ar', new_st)}", type="positive")
+                            refresh_callback()
+
+                    UI.select("", status_opts, value=cur_status, on_change=on_status_change).classes("text-xs w-36 shrink-0")
+
+                    with ui.row().classes("gap-2 items-center"):
                         UI.secondary_button(
                             "📝 الدرجات",
                             on_click=lambda p=period: self.on_manage_courses(p, student_data) if self.on_manage_courses else None
