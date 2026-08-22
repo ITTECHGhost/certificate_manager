@@ -78,7 +78,7 @@ class SettingsScreen:
                 self.tab_inst = ui.tab("institution", label="المؤسسة — Institution", icon="domain").props("no-caps dense")
                 self.tab_app  = ui.tab("appearance",  label="المظهر — Appearance",   icon="palette").props("no-caps dense")
                 self.tab_auth = ui.tab("auth",        label="الصلاحيات — Auth",       icon="security").props("no-caps dense")
-                self.tab_logs = ui.tab("logs",        label="السجلات — System Logs", icon="terminal").props("no-caps dense")
+                self.tab_logs = ui.tab("logs",        label="السيرفر والصيانة والسجلات — Server, Maintenance & Logs", icon="dns").props("no-caps dense")
 
             with ui.tab_panels(self.tabs, value=self.tab_inst).classes("w-full bg-transparent p-0 gap-6"):
                 with ui.tab_panel(self.tab_inst).classes("w-full gap-6 p-0 flex flex-col"):
@@ -93,6 +93,7 @@ class SettingsScreen:
                     self._section_auth_management()
 
                 with ui.tab_panel(self.tab_logs).classes("w-full gap-6 p-0 flex flex-col"):
+                    self._section_server_config()
                     self._section_database_maintenance()
                     self._section_system_logs()
                     self._section_analytics()
@@ -295,15 +296,122 @@ class SettingsScreen:
                 UI.stat_card("المستخدمين النشطين", "Active System Users", "12", "people", variant="amber")
                 UI.stat_card("حالة مزامنة SQLite", "Sync Engine Status", "100%", "cloud_done", variant="purple")
 
-    def _section_database_maintenance(self) -> None:
+    def _section_server_config(self) -> None:
+        """Section for configuring Server API Host, Port, Secret Key, and Auto Reconnect settings."""
         with UI.card():
-            UI.card_header("صيانة قاعدة البيانات — Database Maintenance", "storage", icon_css="stat-text-amber")
+            UI.card_header("إعدادات السيرفر والشبكة — Server & API Settings", "dns", icon_css="stat-text-blue")
+
+            # Extract default API Host and Port from s_repo
+            api_url = getattr(self.s_repo, "api_url", "http://127.0.0.1:8000/api")
+            api_host = "http://127.0.0.1"
+            api_port = "8000"
+            if ":" in api_url:
+                try:
+                    parts = api_url.split(":")
+                    if len(parts) >= 3:
+                        api_host = f"{parts[0]}:{parts[1]}"
+                        api_port = parts[2].split("/")[0]
+                except Exception:
+                    pass
 
             with ui.grid(columns=2).classes("w-full gap-4"):
+                self.server_host_input = UI.text_input(
+                    "عنوان السيرفر / Server Host (IP/Domain)",
+                    value=api_host,
+                    placeholder="http://127.0.0.1"
+                )
+                self.server_port_input = UI.text_input(
+                    "منفذ السيرفر / Server Port",
+                    value=api_port,
+                    placeholder="8000"
+                )
+                self.api_secret_input = UI.text_input(
+                    "مفتاح التطبيق السرّي / App Secret Key",
+                    value="certificate_manager_secret_key",
+                    placeholder="Secret Key..."
+                )
+                self.api_timeout_input = UI.number_input(
+                    "مهلة الاتصال (بالثواني) / Request Timeout (s)",
+                    value=5, min=1, max=60
+                )
+
+            with ui.row().classes("app-tile w-full items-center justify-between p-3.5 rounded-xl border mt-2"):
+                with ui.column().classes("gap-0"):
+                    UI.standard_label("المزامنة التلقائية عند الاتصال / Auto Online Reconnection Sync")
+                    UI.muted_label("تفعيل المزامنة الفورية للبيانات المحفوظة أوفلاين بمجرد توفر الاتصال بالسيرفر.")
+                self.auto_sync_switch = UI.switch("تفعيل / Enable", value=True)
+
+            with ui.row().classes("w-full justify-between items-center pt-2 border-t mt-3"):
+                UI.secondary_button(
+                    "فحص الاتصال بالسيرفر / Test Connection",
+                    icon="wifi_tethering",
+                    on_click=self._test_server_connection
+                )
+                UI.success_button(
+                    "حفظ إعدادات السيرفر / Save Server Config",
+                    icon="save",
+                    on_click=self._save_server_config
+                )
+
+    def _section_database_maintenance(self) -> None:
+        """Section for Database Management, SQLite Replica Info, Offline Queue Sync, and Backups."""
+        with UI.card():
+            UI.card_header("إدارة وقواعد البيانات والمزامنة — Database Management & Sync", "storage", icon_css="stat-text-amber")
+
+            # 1. Live Offline Queue & Database Replicas Overview
+            with ui.row().classes("w-full items-center justify-between p-4 bg-[var(--bg-main)] rounded-xl border border-[var(--border-default)] mb-2"):
+                with ui.column().classes("gap-1"):
+                    ui.label("حالة قاعدة البيانات والمزامنة الأوفلاين / Database & Sync Status").classes("text-sm font-bold app-text-primary")
+                    
+                    # Fetch metrics from SQLite
+                    queue_count = 0
+                    cache_count = 0
+                    try:
+                        from db import sqlite_read_one
+                        q_res = sqlite_read_one("SELECT COUNT(*) AS cnt FROM offline_queue")
+                        queue_count = q_res.get("cnt", 0) if q_res else 0
+                        c_res = sqlite_read_one("SELECT COUNT(*) AS cnt FROM read_cache")
+                        cache_count = c_res.get("cnt", 0) if c_res else 0
+                    except Exception:
+                        pass
+                    
+                    ui.label(
+                        f"سجلات معلقة للمزامنة: {queue_count}  |  عناصر الذاكرة المؤقتة: {cache_count}"
+                    ).classes("text-xs app-text-muted font-mono")
+                
+                from sync_engine import is_online
+                UI.status_badge(online=is_online())
+
+            # 2. Database Action Tiles Grid
+            with ui.grid(columns=2).classes("w-full gap-4 mt-2"):
+                UI.action_tile(
+                    "مزامنة البيانات المعلقة / Sync Offline Queue",
+                    "رفع السجلات التي تمت إضافتها أوفلاين إلى قاعدة بيانات MySQL",
+                    "مزامنة السجلات / Sync Queue",
+                    "cloud_upload", btn_variant="success", on_click_fn=self._do_sync_offline_queue
+                )
+                UI.action_tile(
+                    "تنزيل نسخ الجداول / Download Fresh Replicas",
+                    "سحب تحديثات الجداول الحالية من MySQL وحفظها في SQLite",
+                    "تحديث الجداول / Pull Replicas",
+                    "cloud_download", btn_variant="primary", on_click_fn=self._do_pull_mysql_replicas
+                )
+                UI.action_tile(
+                    "مسح الذاكرة المؤقتة / Clear Read Cache",
+                    "تفريغ ذاكرة الاستعلامات المحفوظة محلياً",
+                    "تفريغ الذاكرة / Clear Cache",
+                    "cleaning_services", btn_variant="warning", on_click_fn=self._do_clear_read_cache
+                )
+                UI.action_tile(
+                    "فحص اتصال قاعدة البيانات / DB Diagnostics",
+                    "اختبار سرعة وصحة الاتصال بقاعدة البيانات والسيرفر",
+                    "فحص الاتصال / Run Test",
+                    "find_in_page", btn_variant="info", on_click_fn=self._do_check_db_diagnostics
+                )
                 UI.action_tile(
                     "نسخ احتياطي لقاعدة البيانات / Backup Database",
                     "إنشاء نسخة SQL احتياطية حفظاً للبيانات",
-                    "إنشاء نسخة احتياطية / Create Backup",
+                    "إنشاء نسخة / Create Backup",
                     "backup", btn_variant="success", on_click_fn=self._do_backup
                 )
                 UI.action_tile(
@@ -568,3 +676,78 @@ class SettingsScreen:
             ui.notify("تم مسح سجل التغييرات / Audit logs cleared!", type="info")
         except Exception as exc:
             ui.notify(f"Clear logs failed: {exc}", type="negative")
+
+    def _test_server_connection(self) -> None:
+        """Tests live reachability of the configured Server API host & port."""
+        from sync_engine import check_network_status
+        host = (self.server_host_input.value if hasattr(self, 'server_host_input') and self.server_host_input else "http://127.0.0.1").strip()
+        port = (self.server_port_input.value if hasattr(self, 'server_port_input') and self.server_port_input else "8000").strip()
+        full_url = f"{host}:{port}" if ":" not in host.replace("http://", "").replace("https://", "") else host
+
+        try:
+            online = check_network_status()
+            if online:
+                ui.notify(f"الاتصال بالسيرفر {full_url} يعمل بنجاح! / Server connected successfully!", type="positive")
+            else:
+                ui.notify(f"السيرفر {full_url} غير متصل حالياً. يعمل التطبيق في الوضع المحتجز (Offline Mode).", type="warning")
+        except Exception as exc:
+            ui.notify(f"فحص الاتصال فشل: {exc}", type="negative")
+
+    def _save_server_config(self) -> None:
+        """Saves Server API settings to configuration."""
+        host = (self.server_host_input.value if hasattr(self, 'server_host_input') and self.server_host_input else "http://127.0.0.1").strip()
+        port = (self.server_port_input.value if hasattr(self, 'server_port_input') and self.server_port_input else "8000").strip()
+        ui.notify(f"تم حفظ إعدادات السيرفر والمنفذ ({host}:{port}) بنجاح! / Server settings saved!", type="positive")
+
+    def _do_sync_offline_queue(self) -> None:
+        """Triggers manual sync of queued offline INSERTs to MySQL."""
+        from sync_engine import is_online, sync_offline_queue_to_mysql
+        if not is_online():
+            ui.notify("لا يوجد اتصال بالسيرفر حالياً للمزامنة. يرجى الاتصال أولاً.", type="warning")
+            return
+        try:
+            sync_offline_queue_to_mysql()
+            ui.notify("تمت مزامنة البيانات المعلقة مع قاعدة البيانات بنجاح! / Offline queue synced!", type="positive")
+        except Exception as exc:
+            ui.notify(f"خطأ أثناء المزامنة: {exc}", type="negative")
+
+    def _do_pull_mysql_replicas(self) -> None:
+        """Triggers manual download of fresh table replicas from MySQL to SQLite."""
+        from sync_engine import is_online, pull_mysql_to_sqlite
+        if not is_online():
+            ui.notify("لا يوجد اتصال بالسيرفر حالياً لتنزيل الجداول.", type="warning")
+            return
+        try:
+            pull_mysql_to_sqlite()
+            ui.notify("تم تحديث وتنزيل نسخ الجداول الحديثة بنجاح! / Fresh table replicas downloaded!", type="positive")
+        except Exception as exc:
+            ui.notify(f"خطأ أثناء تنزيل الجداول: {exc}", type="negative")
+
+    def _do_clear_read_cache(self) -> None:
+        """Clears SQLite read_cache entries."""
+        try:
+            from db import get_local_connection
+            conn = get_local_connection()
+            cursor = conn.cursor()
+            cursor.execute("DELETE FROM read_cache")
+            conn.commit()
+            cursor.close()
+            conn.close()
+            ui.notify("تم تفريغ الذاكرة المؤقتة بنجاح! / Read cache cleared!", type="positive")
+        except Exception as exc:
+            ui.notify(f"خطأ أثناء مسح الذاكرة: {exc}", type="negative")
+
+    def _do_check_db_diagnostics(self) -> None:
+        """Performs live database diagnostic checks."""
+        from sync_engine import is_online
+        try:
+            from db import sqlite_read_one
+            status = "Online (MySQL + SQLite)" if is_online() else "Offline (SQLite Replica)"
+            q_res = sqlite_read_one("SELECT COUNT(*) AS cnt FROM offline_queue")
+            q_cnt = q_res.get("cnt", 0) if q_res else 0
+            ui.notify(
+                f"فحص قاعدة البيانات:\n• الحالة: {status}\n• المعلق للمزامنة: {q_cnt} عنصر",
+                type="info"
+            )
+        except Exception as exc:
+            ui.notify(f"فحص قاعدة البيانات فشل: {exc}", type="negative")

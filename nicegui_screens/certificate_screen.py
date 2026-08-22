@@ -180,7 +180,7 @@ def convert_docx_to_html(docx_path: str) -> str | None:
         pythoncom.CoUninitialize()
 
 
-def to_arabic_num(val: Any, is_english: bool = False) -> str:
+def to_arabic_num(val: str | int | float | None, is_english: bool = False) -> str:
     """Helper to convert standard ASCII digits (0-9) to Eastern Arabic numerals (٠-٩) when generating Arabic certificates."""
     if val is None:
         return ""
@@ -191,11 +191,43 @@ def to_arabic_num(val: Any, is_english: bool = False) -> str:
     return s
 
 
+def format_date_rtl(val: str | None, is_english: bool = False) -> str:
+    """Formats YYYY-MM-DD date strings into DD-MM-YYYY order with Eastern Arabic numerals for RTL display."""
+    if not val:
+        return ""
+    s = str(val).strip()
+    match = re.match(r"^(\d{4})[-/](\d{1,2})[-/](\d{1,2})$", s)
+    if match:
+        y, m, d = match.groups()
+        s = f"{d.zfill(2)}-{m.zfill(2)}-{y}"
+    return to_arabic_num(s, is_english)
+
+
+def format_academic_year_ltr(val: str | None, is_english: bool = False) -> str:
+    """
+    Ensures academic year range is strictly LTR ordered (smaller year on the left: e.g. 2016-2017 / ٢٠١٦-٢٠١٧).
+    Uses Left-to-Right Mark (\u200e) to prevent RTL text reversal in Word tables.
+    """
+    if not val:
+        return ""
+    s = str(val).strip()
+    years = re.findall(r"\d{4}", s)
+    if len(years) >= 2:
+        y1, y2 = int(years[0]), int(years[1])
+        smaller, larger = min(y1, y2), max(y1, y2)
+        formatted = f"{smaller}-{larger}"
+        return f"\u200e{to_arabic_num(formatted, is_english)}\u200e"
+    return to_arabic_num(s, is_english)
+
+
 def get_subj_display(enr: dict, is_english: bool) -> str:
-    """Formats course name, appending attempt round indicator (2) or (3) for retaken courses."""
+    """Formats course name, appending attempt round indicator (*) for retaken courses."""
     if not enr:
         return ""
-    name = enr.get("course_name_en" if is_english else "course_name_ar") or enr.get("subject_name", "")
+    if is_english:
+        name = enr.get("course_name_en") or enr.get("subject_name_en") or enr.get("name_en") or enr.get("subject_name") or ""
+    else:
+        name = enr.get("course_name_ar") or enr.get("subject_name_ar") or enr.get("name_ar") or enr.get("subject_name") or ""
     if not name:
         return ""
     pr = str(enr.get("passed_round") or "1").strip()
@@ -208,8 +240,7 @@ def get_subj_display(enr: dict, is_english: bool) -> str:
         attempt = int(tot)
 
     if attempt > 1:
-        att_num_str = to_arabic_num(attempt, is_english)
-        return f"{name} ({att_num_str})"
+        return f"{name}*"
     return name
 
 
@@ -269,38 +300,62 @@ def build_certificate_context(data: dict, options: dict) -> dict:
     is_annual = (period_disp == "year")
     
     for i in range(0, len(group_lists), 2):
-        left_courses = group_lists[i]
-        right_courses = group_lists[i + 1] if i + 1 < len(group_lists) else []
+        pair_idx = i // 2
+        first_stg_default = pair_idx * 2 + 1
+        second_stg_default = pair_idx * 2 + 2
+
+        if is_english:
+            # In English LTR tables, Column 1 is on the LEFT and Column 2 is on the RIGHT.
+            # Therefore, Stage 1 (2016-2017) goes to the LEFT, and Stage 2 (2017-2018) goes to the RIGHT.
+            left_courses = group_lists[i]
+            right_courses = group_lists[i + 1] if i + 1 < len(group_lists) else []
+            
+            right_c = right_courses[0] if right_courses else {}
+            left_c = left_courses[0] if left_courses else {}
+            
+            stg_left_raw = left_c.get("stage_number")
+            stg_right_raw = right_c.get("stage_number")
+            
+            stg_left = stg_left_raw if (stg_left_raw and int(stg_left_raw) > pair_idx * 2) else first_stg_default
+            stg_right = stg_right_raw if (stg_right_raw and int(stg_right_raw) > pair_idx * 2) else (second_stg_default if right_courses else (stg_left + 1))
+        else:
+            # In Arabic RTL tables, Column 1 is on the RIGHT and Column 2 is on the LEFT.
+            # Therefore, Stage 1 (2016-2017) goes to the RIGHT, and Stage 2 (2017-2018) goes to the LEFT.
+            right_courses = group_lists[i]
+            left_courses = group_lists[i + 1] if i + 1 < len(group_lists) else []
+            
+            right_c = right_courses[0] if right_courses else {}
+            left_c = left_courses[0] if left_courses else {}
+            
+            stg_right_raw = right_c.get("stage_number")
+            stg_left_raw = left_c.get("stage_number")
+            
+            stg_right = stg_right_raw if (stg_right_raw and int(stg_right_raw) > pair_idx * 2) else first_stg_default
+            stg_left = stg_left_raw if (stg_left_raw and int(stg_left_raw) > pair_idx * 2) else (second_stg_default if left_courses else (stg_right + 1))
         
-        left_c = left_courses[0] if left_courses else {}
-        right_c = right_courses[0] if right_courses else {}
-        
-        stg_left = left_c.get("stage_number") or 1
-        stg_right = right_c.get("stage_number") or 2
-        
-        ay_left = left_c.get("academic_year_formatted") or left_c.get("academic_year", "")
         ay_right = right_c.get("academic_year_formatted") or right_c.get("academic_year", "")
+        ay_left = left_c.get("academic_year_formatted") or left_c.get("academic_year", "")
         
-        sem_left = left_c.get("semester_num") or 1
-        sem_right = right_c.get("semester_num") or 2
+        sem_right = right_c.get("semester_num") or 1
+        sem_left = left_c.get("semester_num") or 2
         
-        stg_num_left_str = to_arabic_num(stg_left, is_english)
         stg_num_right_str = to_arabic_num(stg_right, is_english)
-        stg_text_left = (stage_names_en if is_english else stage_names_ar).get(int(stg_left) if str(stg_left).isdigit() else 1, str(stg_left))
-        stg_text_right = (stage_names_en if is_english else stage_names_ar).get(int(stg_right) if str(stg_right).isdigit() else 2, str(stg_right))
+        stg_num_left_str = to_arabic_num(stg_left, is_english) if left_courses else ""
+        stg_text_right = (stage_names_en if is_english else stage_names_ar).get(int(stg_right) if str(stg_right).isdigit() else 1, str(stg_right))
+        stg_text_left = (stage_names_en if is_english else stage_names_ar).get(int(stg_left) if str(stg_left).isdigit() else 2, str(stg_left)) if left_courses else ""
         
-        left_year_disp = to_arabic_num(ay_left, is_english)
-        right_year_disp = to_arabic_num(ay_right, is_english)
+        right_year_disp = format_academic_year_ltr(ay_right, is_english)
+        left_year_disp = format_academic_year_ltr(ay_left, is_english) if left_courses else ""
         
         doc_rows = []
-        for left, right in zip_longest(left_courses, right_courses, fillvalue={}):
-            lname = get_subj_display(left, is_english) if left else ""
+        for right, left in zip_longest(right_courses, left_courses, fillvalue={}):
             rname = get_subj_display(right, is_english) if right else ""
+            lname = get_subj_display(left, is_english) if left else ""
             
-            lmark = to_arabic_num(left.get("mark", ""), is_english) if left else ""
-            lunit = to_arabic_num(left.get("unit", ""), is_english) if left else ""
             rmark = to_arabic_num(right.get("mark", ""), is_english) if right else ""
             runit = to_arabic_num(right.get("unit", ""), is_english) if right else ""
+            lmark = to_arabic_num(left.get("mark", ""), is_english) if left else ""
+            lunit = to_arabic_num(left.get("unit", ""), is_english) if left else ""
             
             doc_rows.append({
                 "left_name": lname, "left_subj": lname,
@@ -313,8 +368,12 @@ def build_certificate_context(data: dict, options: dict) -> dict:
             paired_semesters.append({
                 "left_label": left_year_disp,
                 "right_label": right_year_disp,
-                "year_label": left_year_disp,
-                "academic_year": left_year_disp,
+                "year_left_label": left_year_disp,
+                "year_right_label": right_year_disp,
+                "year_label_l": left_year_disp,
+                "year_label_r": right_year_disp,
+                "year_label": right_year_disp,
+                "academic_year": right_year_disp,
                 "rows": doc_rows,
                 "num_s_l": stg_num_left_str,
                 "num_s_r": stg_num_right_str,
@@ -324,38 +383,48 @@ def build_certificate_context(data: dict, options: dict) -> dict:
                 "stage_s_r": stg_num_right_str,
                 "stage_l": stg_num_left_str,
                 "stage_r": stg_num_right_str,
-                "stage": stg_num_left_str,
-                "stage_num": stg_num_left_str,
-                "stage_text": stg_text_left,
-                "stage_name": stg_text_left,
+                "stage": stg_num_right_str,
+                "stage_num": stg_num_right_str,
+                "stage_num_l": stg_num_left_str,
+                "stage_num_r": stg_num_right_str,
+                "stage_text": stg_text_right,
+                "stage_name": stg_text_right,
                 "stage_name_l": stg_text_left,
                 "stage_name_r": stg_text_right,
             })
         else:
-            left_sem_label = "First Semester" if is_english else "الفصل الأول"
-            right_sem_label = "Second Semester" if is_english else "الفصل الثاني"
-            row_year_display = f"العام الدراسي {left_year_disp}" if left_year_disp else ""
+            right_sem_label = "First Semester" if is_english else "الفصل الأول"
+            left_sem_label = "Second Semester" if is_english else "الفصل الثاني"
+            row_year_display = f"العام الدراسي {right_year_disp}" if right_year_disp else ""
             
             paired_semesters.append({
                 "left_label": left_sem_label,
                 "right_label": right_sem_label,
+                "year_left_label": left_year_disp,
+                "year_right_label": right_year_disp,
+                "year_label_l": left_year_disp,
+                "year_label_r": right_year_disp,
                 "year_label": row_year_display,
-                "academic_year": left_year_disp,
+                "academic_year": right_year_disp,
                 "rows": doc_rows,
-                "num_s_l": to_arabic_num(sem_left, is_english),
-                "num_s_r": to_arabic_num(sem_right, is_english),
+                "num_s_l": stg_num_left_str,
+                "num_s_r": stg_num_right_str,
+                "sem_num_l": to_arabic_num(sem_left, is_english),
+                "sem_num_r": to_arabic_num(sem_right, is_english),
                 "year_s_l": stg_num_left_str,
-                "year_s_r": stg_num_left_str,
+                "year_s_r": stg_num_right_str,
                 "stage_s_l": stg_num_left_str,
-                "stage_s_r": stg_num_left_str,
+                "stage_s_r": stg_num_right_str,
                 "stage_l": stg_num_left_str,
-                "stage_r": stg_num_left_str,
-                "stage": stg_num_left_str,
-                "stage_num": stg_num_left_str,
-                "stage_text": stg_text_left,
-                "stage_name": stg_text_left,
+                "stage_r": stg_num_right_str,
+                "stage": stg_num_right_str,
+                "stage_num": stg_num_right_str,
+                "stage_num_l": stg_num_left_str,
+                "stage_num_r": stg_num_right_str,
+                "stage_text": stg_text_right,
+                "stage_name": stg_text_right,
                 "stage_name_l": stg_text_left,
-                "stage_name_r": stg_text_left,
+                "stage_name_r": stg_text_right,
             })
 
     # Academic Grade Calculation
@@ -379,17 +448,45 @@ def build_certificate_context(data: dict, options: dict) -> dict:
     ord_num = (options.get("order_num") or data.get("order_number") or "") if options.get("opt_order") else ""
     ord_date = (options.get("order_date") or data.get("order_date") or "") if options.get("opt_order") else ""
 
+    first_pair = paired_semesters[0] if paired_semesters else {}
+
+    second_subjects = options.get("second_trial_subjects") or ""
+    if is_english and data.get("courses_grouped"):
+        second_en = []
+        for c in data.get("courses_grouped", []):
+            pr = str(c.get("passed_round") or "1").strip()
+            isr = c.get("is_second_round", 0)
+            if pr in ('2', '3') or isr == 1 or pr in (2, 3):
+                cname = c.get("subject_name_en") or c.get("course_name_en") or c.get("name_en") or c.get("subject_name")
+                if cname and cname not in second_en:
+                    second_en.append(cname)
+        if second_en:
+            second_subjects = ", ".join(second_en)
+
+    raw_title = (options.get("to_title") or "").strip()
+    if is_english:
+        if not raw_title or raw_title == "من يهمه الأمر":
+            title_val = "Whom it May Concern"
+        else:
+            title_val = raw_title
+    else:
+        if not raw_title or raw_title == "Whom it May Concern":
+            title_val = "من يهمه الأمر"
+        else:
+            title_val = raw_title
+
     ctx = {
-        "Title": options.get("to_title") or ("Whom it May Concern" if is_english else "من يهمه الأمر"),
+        "Title": title_val,
+        "to_title": title_val,
         "student_name": data.get("full_name_en" if is_english else "full_name_ar", ""),
-        "Birthday": to_arabic_num(data.get("date_of_birth") or "", is_english),
+        "Birthday": format_date_rtl(data.get("date_of_birth") or "", is_english),
         "Birthplace": data.get("birthplace_en" if is_english else "birthplace_ar") or data.get("birthplace_other", ""),
         "Nationality": data.get("nationality_en" if is_english else "nationality_ar", ""),
         "admission_year": to_arabic_num(data.get("admission_year") or "", is_english),
         "graduation_year": to_arabic_num(data.get("graduation_year") or "", is_english),
         "department_id": data.get("dept_name_en" if is_english else "dept_name_ar", ""),
         "study_type": study_type_disp,
-        "graduation_date": to_arabic_num(data.get("graduation_date") or "", is_english),
+        "graduation_date": format_date_rtl(data.get("graduation_date") or "", is_english),
         "graduation_semester": grad_sem_text,
         "average": to_arabic_num(avg_str, is_english),
         "Grade": grade,
@@ -402,9 +499,15 @@ def build_certificate_context(data: dict, options: dict) -> dict:
         "Average_of_First_Student": to_arabic_num(top_avg, is_english),
         "Summer_Training_year": to_arabic_num(options.get("summer_year") or "", is_english),
         "Postponement_and_Failure_Years": to_arabic_num(options.get("postpone_years") or "", is_english),
-        "Subjects_Passed_with_Second_Trial": options.get("second_trial_subjects") or "",
+        "Subjects_Passed_with_Second_Trial": second_subjects,
         "order_number": to_arabic_num(ord_num, is_english),
-        "order_date": to_arabic_num(ord_date, is_english),
+        "order_date": format_date_rtl(ord_date, is_english),
+        "num_s_r": first_pair.get("num_s_r", ""),
+        "num_s_l": first_pair.get("num_s_l", ""),
+        "stage_s_r": first_pair.get("stage_s_r", ""),
+        "stage_s_l": first_pair.get("stage_s_l", ""),
+        "year_right_label": first_pair.get("year_right_label", ""),
+        "year_left_label": first_pair.get("year_left_label", ""),
         "paired_semesters": paired_semesters,
         "paired_years": paired_semesters,
         "semesters": paired_semesters,
@@ -772,6 +875,8 @@ class CertificateScreen:
                             icon="print",
                             on_click=self.print_certificate
                         ).classes("flex-1 py-3 text-base")
+                        self.btn_open.disable()
+                        self.btn_open.set_visibility(False)
 
                         UI.primary_button("العودة لبيانات الطالب", icon="arrow_forward", on_click=self.show_info_view).classes("px-6 py-3 text-sm")
 
@@ -1174,21 +1279,29 @@ class CertificateScreen:
             "second_trial_subjects": (self.inp_second_subjects.value or "").strip(),
         }
         return self.generate_docx(tpl_name, options)
+
+    # Set to True to enable verbose printing of docxtpl context variables in the terminal/log
+    ENABLE_CONTEXT_LOGGING: bool = False
+
     @staticmethod
-    def print_certificate_context(ctx: dict) -> None:
+    def print_certificate_context(ctx: dict, enabled: bool = False) -> None:
         """
         Prints every variable passed to Word (docxtpl) line by line to standard output (terminal)
         and system logs so the user can track every data field step by step.
+        Set `ENABLE_CONTEXT_LOGGING = True` or pass `enabled=True` to activate in the future.
         """
+        if not (enabled or CertificateScreen.ENABLE_CONTEXT_LOGGING):
+            return
+
         banner = "=" * 80
-        lines = [
+        log_lines = [
             "",
             banner,
             "  === WORD DOCXTPL CONTEXT VARIABLES TRACKING LOG ===",
             banner,
             "\n--- [1. TOP-LEVEL SCALAR VARIABLES & METADATA] ---",
         ]
-    
+
         scalars = {}
         lists_and_dicts = {}
         for k, v in ctx.items():
@@ -1196,64 +1309,70 @@ class CertificateScreen:
                 lists_and_dicts[k] = v
             else:
                 scalars[k] = v
-                lines.append(f"  • {k:<30} = {repr(v)}")
-    
+                log_lines.append(f"  • {k:<30} = {repr(v)}")
+
         # Signatories
         signatories = ctx.get("signatories")
         if isinstance(signatories, list):
-            lines.append(f"\n--- [2. SIGNATORIES ({len(signatories)} Total)] ---")
+            log_lines.append(f"\n--- [2. SIGNATORIES ({len(signatories)} Total)] ---")
             for idx, sig in enumerate(signatories):
                 if isinstance(sig, dict):
-                    lines.append(
+                    log_lines.append(
                         f"  ► Signatory {idx+1}: name='{sig.get('name')}', title='{sig.get('title')}', order={sig.get('order')}"
                     )
                 else:
-                    lines.append(f"  ► Signatory {idx+1}: {sig}")
-    
+                    log_lines.append(f"  ► Signatory {idx+1}: {sig}")
+
         # Tables & Paired Semesters / Years
+        printed_table_ids = set()
         for table_key in ("paired_semesters", "paired_years", "semesters"):
             table_list = ctx.get(table_key)
             if isinstance(table_list, list) and table_list:
-                lines.append(f"\n--- [3. TABLE DATA: '{table_key}' ({len(table_list)} Tables/Rows)] ---")
+                if id(table_list) in printed_table_ids:
+                    log_lines.append(f"\n--- [3. TABLE DATA: '{table_key}' (Same data as paired_semesters — skipped duplicate print)] ---")
+                    continue
+                printed_table_ids.add(id(table_list))
+                log_lines.append(f"\n--- [3. TABLE DATA: '{table_key}' ({len(table_list)} Tables/Rows)] ---")
                 for t_idx, table_item in enumerate(table_list):
-                    lines.append(f"\n  ==========================================================================")
-                    lines.append(f"  ► Table {t_idx+1}:")
-                    lines.append(f"      left_label   : '{table_item.get('left_label', '')}'")
-                    lines.append(f"      right_label  : '{table_item.get('right_label', '')}'")
-                    lines.append(f"      year_label   : '{table_item.get('year_label', '')}'")
-                    lines.append(f"      academic_year: '{table_item.get('academic_year', '')}'")
-                    lines.append(f"      num_s_l      : '{table_item.get('num_s_l', '')}'")
-                    lines.append(f"      num_s_r      : '{table_item.get('num_s_r', '')}'")
-                    lines.append(f"      year_s_l     : '{table_item.get('year_s_l', '')}'")
-                    lines.append(f"      year_s_r     : '{table_item.get('year_s_r', '')}'")
-                    lines.append(f"      stage_s_l    : '{table_item.get('stage_s_l', '')}'")
-                    lines.append(f"      stage_s_r    : '{table_item.get('stage_s_r', '')}'")
-                    lines.append(f"      stage_text   : '{table_item.get('stage_text', '')}'")
-    
+                    log_lines.append("\n  ==========================================================================")
+                    log_lines.append(f"  ► Table {t_idx+1}:")
+                    log_lines.append(f"      left_label       : '{table_item.get('left_label', '')}'")
+                    log_lines.append(f"      right_label      : '{table_item.get('right_label', '')}'")
+                    log_lines.append(f"      year_left_label  : '{table_item.get('year_left_label', '')}'")
+                    log_lines.append(f"      year_right_label : '{table_item.get('year_right_label', '')}'")
+                    log_lines.append(f"      year_label       : '{table_item.get('year_label', '')}'")
+                    log_lines.append(f"      academic_year    : '{table_item.get('academic_year', '')}'")
+                    log_lines.append(f"      num_s_l          : '{table_item.get('num_s_l', '')}'")
+                    log_lines.append(f"      num_s_r          : '{table_item.get('num_s_r', '')}'")
+                    log_lines.append(f"      year_s_l         : '{table_item.get('year_s_l', '')}'")
+                    log_lines.append(f"      year_s_r         : '{table_item.get('year_s_r', '')}'")
+                    log_lines.append(f"      stage_s_l        : '{table_item.get('stage_s_l', '')}'")
+                    log_lines.append(f"      stage_s_r        : '{table_item.get('stage_s_r', '')}'")
+                    log_lines.append(f"      stage_text       : '{table_item.get('stage_text', '')}'")
+
                     rows = table_item.get("rows", [])
-                    lines.append(f"\n      --- Courses ({len(rows)} Rows) ---")
-                    lines.append(f"      {'#':<3} | {'LEFT SUBJECT (المادة الأولى)':<35} | {'MARK':<6} | {'UNIT':<5} || {'RIGHT SUBJECT (المادة الثانية)':<35} | {'MARK':<6} | {'UNIT':<5}")
-                    lines.append(f"      {'-'*3} | {'-'*35} | {'-'*6} | {'-'*5} || {'-'*35} | {'-'*6} | {'-'*5}")
-                    for r_idx, r in enumerate(rows):
-                        l_subj = str(r.get('left_name') or r.get('left_subj') or '')
-                        l_mark = str(r.get('left_mark') or '')
-                        l_unit = str(r.get('left_unit') or '')
-                        r_subj = str(r.get('right_name') or r.get('right_subj') or '')
-                        r_mark = str(r.get('right_mark') or '')
-                        r_unit = str(r.get('right_unit') or '')
-                        lines.append(
-                            f"      {r_idx+1:<3} | {l_subj:<35} | {l_mark:<6} | {l_unit:<5} || {r_subj:<35} | {r_mark:<6} | {r_unit:<5}"
-                        )
-    
-        lines.append(banner)
-        full_output = "\n".join(lines)
-    
-        # Print to console stdout so it displays immediately in terminal
+                    if isinstance(rows, list) and rows:
+                        log_lines.append(f"\n      --- Courses ({len(rows)} Rows) ---")
+                        log_lines.append(f"      {'#':<3} | {'RIGHT SUBJECT':<35} | {'MARK':<6} | {'UNIT':<5} || {'LEFT SUBJECT':<35} | {'MARK':<6} | {'UNIT':<5}")
+                        log_lines.append("      " + "-" * 105)
+                        for r_idx, r in enumerate(rows):
+                            if isinstance(r, dict):
+                                r_subj = str(r.get('right_name') or r.get('right_subj') or '')
+                                r_mark = str(r.get('right_mark') or '')
+                                r_unit = str(r.get('right_unit') or '')
+                                l_subj = str(r.get('left_name') or r.get('left_subj') or '')
+                                l_mark = str(r.get('left_mark') or '')
+                                l_unit = str(r.get('left_unit') or '')
+                                log_lines.append(
+                                    f"      {r_idx+1:<3} | {r_subj:<35} | {r_mark:<6} | {r_unit:<5} || {l_subj:<35} | {l_mark:<6} | {l_unit:<5}"
+                                )
+
+        log_lines.append(banner)
+        full_output = "\n".join(log_lines)
+
         print(full_output, flush=True)
-        # Log to system logger
         log.info(full_output)
-    
-    
+
     def generate_docx(self, tpl_name: str, options: dict) -> bool:
         """Generates Word document from template and returns True on success."""
         tpl_path = os.path.join("templets", tpl_name)
@@ -1267,6 +1386,7 @@ class CertificateScreen:
     
         # options is already fully populated by generate_certificate
     
+        out_file = ""
         try:
             ctx = build_certificate_context(self.student_full_data, options)
     
@@ -1292,9 +1412,26 @@ class CertificateScreen:
             # Trigger automatic browser download
             ui.download(out_file, filename=os.path.basename(out_file))
             return True
+        except PermissionError as pe:
+            log.error(f"Permission denied while saving certificate file {out_file}: {pe}")
+            UI.notify(
+                "الملف مفتوح حالياً في برنامج Word! يرجى إغلاق ملف الوثيقة المفتوح وإعادة التوليد.\n"
+                "Permission denied: The certificate document is open in Microsoft Word. Please close Word and try again.",
+                type="warning"
+            )
+            return False
         except Exception as err:
-            log.error(f"Error generating certificate: {err}")
-            UI.notify(err, type="negative")
+            err_str = str(err)
+            if "Permission denied" in err_str or "[Errno 13]" in err_str or ("13" in err_str and "Permission" in err_str):
+                log.error(f"Permission denied saving document: {err}")
+                UI.notify(
+                    "الملف مفتوح حالياً في برنامج Word! يرجى إغلاق ملف الوثيقة المفتوح وإعادة المحاولة.\n"
+                    "The certificate document is open in Word. Please close Word and try again.",
+                    type="warning"
+                )
+            else:
+                log.error(f"Error generating certificate: {err}")
+                UI.notify(f"خطأ أثناء توليد الوثيقة: {err}", type="negative")
             return False
     def show_in_app_print_dialog(self, pdf_path: str | None, html_path: str | None, docx_path: str):
         """

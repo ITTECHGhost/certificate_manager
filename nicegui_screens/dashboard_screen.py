@@ -82,23 +82,26 @@ class MainAppShell:
         except Exception as exc:
             log.warning(f"[MainAppShell] Failed to fetch counts: {exc}")
 
-        # Fetch recent students
+        # Fetch recent students (from last added ID to the first)
         try:
-            self.recent_students = self.student_repo.get_all_paginated(limit=5) or []
-        except Exception:
+            raw_stds = self.student_repo.get_all_paginated(limit=10) or []
+            raw_stds.sort(key=lambda x: int(x.get("id") or 0), reverse=True)
+            self.recent_students = raw_stds[:5]
+        except Exception as exc:
+            log.warning(f"[MainAppShell] Failed to fetch recent students: {exc}")
             self.recent_students = []
 
         # Fallback sample data if DB is empty
         if not self.recent_students:
             self.recent_students = [
-                {"full_name_ar": "علي حسن أحمد", "dept_name_ar": "علوم الحاسوب", "admission_year": "2023-2024", "status": "مستمر"},
-                {"full_name_ar": "سارة محمود علي", "dept_name_ar": "نظم المعلومات", "admission_year": "2023-2024", "status": "مستمر"},
-                {"full_name_ar": "منى يوسف حسين", "dept_name_ar": "أمن الشبكات", "admission_year": "2022-2023", "status": "متخرج"},
+                {"id": 3, "full_name_ar": "علي حسن أحمد", "dept_name_ar": "علوم الحاسوب", "admission_year": "2023-2024", "status": "مستمر"},
+                {"id": 2, "full_name_ar": "سارة محمود علي", "dept_name_ar": "نظم المعلومات", "admission_year": "2023-2024", "status": "مستمر"},
+                {"id": 1, "full_name_ar": "منى يوسف حسين", "dept_name_ar": "أمن الشبكات", "admission_year": "2022-2023", "status": "متخرج"},
             ]
 
-        # Fetch recent certificates (students with graduation orders)
+        # Fetch recent certificates (students with graduation orders / printed certificates)
         try:
-            self.recent_certificates = self.student_repo.get_recent_graduates(limit=5)
+            self.recent_certificates = self.student_repo.get_recent_graduates(limit=5) or []
         except Exception as exc:
             log.warning(f"[MainAppShell] Failed to fetch recent certificates: {exc}")
             self.recent_certificates = []
@@ -106,9 +109,9 @@ class MainAppShell:
         # Fallback sample data if DB is empty
         if not self.recent_certificates:
             self.recent_certificates = [
-                {"full_name_ar": "حسين فلاح مهدي", "dept_name_ar": "علوم الحاسوب", "order_number": "1042 / 2024", "issue_date": "2024-06-15"},
-                {"full_name_ar": "زينب عبد الكاظم", "dept_name_ar": "نظم المعلومات", "order_number": "988 / 2024", "issue_date": "2024-06-12"},
-                {"full_name_ar": "أحمد جاسم محمد", "dept_name_ar": "أمن الشبكات", "order_number": "854 / 2024", "issue_date": "2024-06-01"},
+                {"id": 10, "full_name_ar": "حسين فلاح مهدي", "dept_name_ar": "علوم الحاسوب", "order_number": "1042 / 2024", "issue_date": "2024-06-15"},
+                {"id": 9, "full_name_ar": "زينب عبد الكاظم", "dept_name_ar": "نظم المعلومات", "order_number": "988 / 2024", "issue_date": "2024-06-12"},
+                {"id": 8, "full_name_ar": "أحمد جاسم محمد", "dept_name_ar": "أمن الشبكات", "order_number": "854 / 2024", "issue_date": "2024-06-01"},
             ]
 
     # =========================================================================
@@ -284,25 +287,24 @@ class MainAppShell:
           a. Cancel Button (`UI.ghost_button`)
           b. Logout Confirm Button (`UI.danger_button`)
         """
-        with ui.dialog() as dialog, UI.card():
-            dialog_card_classes = "p-6 gap-4 min-w-[340px] max-w-sm rounded-2xl"
-            
-            with ui.column().classes(dialog_card_classes):
+        with ui.dialog() as dialog:
+            with ui.card().classes("app-card p-6 gap-4 w-[460px] max-w-[90vw] rounded-2xl shadow-2xl overflow-hidden mx-auto"):
                 # Modal Header
-                with ui.row().classes("items-center gap-3 w-full border-b pb-3"):
+                with ui.row().classes("items-center gap-3 w-full border-b pb-3.5"):
                     ui.icon("logout", size="md").classes("app-text-danger")
-                    with ui.column().classes("gap-0"):
-                        ui.label("تأكيد تسجيل الخروج").classes("app-text-primary text-base font-bold")
-                        ui.label("Logout Confirmation").classes("app-text-muted text-xs")
+                    with ui.column().classes("gap-0 min-w-0 flex-1"):
+                        ui.label("تأكيد تسجيل الخروج").classes("app-text-primary text-base font-bold leading-tight")
+                        ui.label("Logout Confirmation").classes("app-text-muted text-xs leading-tight")
 
                 # Modal Body Message
-                ui.label("هل أنت تأكد من رغبتك في تسجيل الخروج؟").classes("app-text-primary text-sm font-semibold mt-2")
-                ui.label("Are you sure you want to log out?").classes("app-text-muted text-xs mb-2")
+                with ui.column().classes("w-full gap-1 my-1"):
+                    ui.label("هل أنت تأكد من رغبتك في تسجيل الخروج؟").classes("app-text-primary text-sm font-semibold")
+                    ui.label("Are you sure you want to log out?").classes("app-text-muted text-xs")
 
                 # Modal Actions Footer Row
-                with ui.row().classes("w-full justify-end gap-3 pt-2 border-t"):
+                with ui.row().classes("w-full items-center justify-end gap-3 pt-3 border-t mt-1"):
                     # Cancel Button
-                    UI.ghost_button("إلغاء / Cancel", on_click=dialog.close).classes("px-4 py-2 text-xs")
+                    UI.ghost_button("إلغاء / Cancel", on_click=dialog.close).classes("px-4 py-2 text-xs font-semibold")
                     
                     def _confirm():
                         dialog.close()
@@ -312,7 +314,7 @@ class MainAppShell:
                         ui.navigate.to("/")
 
                     # Confirm Logout Button (Red Danger Button)
-                    UI.danger_button("تسجيل الخروج / Logout", icon="logout", on_click=_confirm).classes("px-4 py-2 text-xs font-bold")
+                    UI.danger_button("تسجيل الخروج / Logout", icon="logout", on_click=_confirm).classes("px-5 py-2 text-xs font-bold")
 
         dialog.open()
 
@@ -619,15 +621,16 @@ class MainAppShell:
                 # [TAB BAR: NAVIGATION TABS FOR TABLES]
                 with ui.tabs().classes("w-full app-tabs").props("dense shrink inline-label mobile-arrows outside-arrows") as tabs:
                     # Tab 1 Button (Recent Students)
-                    tab_students = ui.tab(
-                        "أحدث الطلاب المضافين  —  Recent Students",
-                        icon="person_add"
-                    )
+                    with ui.tab(name="tab_students", icon="person_add") as tab_students:
+                        with ui.column().classes("gap-0 items-start justify-center text-right py-0.5"):
+                            ui.label("أحدث الطلاب المضافين").classes("font-bold text-sm leading-tight")
+                            ui.label("Recent Students").classes("font-normal text-xs opacity-75 leading-tight")
+
                     # Tab 2 Button (Recent Certificates)
-                    tab_certs = ui.tab(
-                        "أحدث الشهادات الصادرة  —  Recent Certificates",
-                        icon="workspace_premium"
-                    )
+                    with ui.tab(name="tab_certs", icon="workspace_premium") as tab_certs:
+                        with ui.column().classes("gap-0 items-start justify-center text-right py-0.5"):
+                            ui.label("أحدث الشهادات الصادرة").classes("font-bold text-sm leading-tight")
+                            ui.label("Recent Certificates").classes("font-normal text-xs opacity-75 leading-tight")
 
                 # [TAB PANELS CONTAINER]
                 with ui.tab_panels(tabs, value=tab_students).classes("w-full p-0 bg-transparent"):
@@ -635,23 +638,26 @@ class MainAppShell:
                     # ── TAB 1 VIEW: RECENT STUDENTS TABLE ────────────────────
                     with ui.tab_panel(tab_students).classes("w-full p-0 pt-2 bg-transparent"):
                         cols_s = [
-                            {"name": "name",   "label": "اسم الطالب / Student Name", "field": "name",   "align": "right", "headerClasses": "text-slate-600 dark:text-slate-400 font-bold bg-transparent"},
-                            {"name": "dept",   "label": "القسم / Department",        "field": "dept",   "align": "right", "headerClasses": "text-slate-600 dark:text-slate-400 font-bold bg-transparent"},
+                            {"name": "name",   "label": "اسم الطالب / Student Name", "field": "name",   "align": "right",  "headerClasses": "text-slate-600 dark:text-slate-400 font-bold bg-transparent"},
+                            {"name": "dept",   "label": "القسم / Department",        "field": "dept",   "align": "right",  "headerClasses": "text-slate-600 dark:text-slate-400 font-bold bg-transparent"},
                             {"name": "year",   "label": "سنة القبول / Batch",        "field": "year",   "align": "center", "headerClasses": "text-slate-600 dark:text-slate-400 font-bold bg-transparent"},
-                            {"name": "status", "label": "الحالة / Status",           "field": "status", "align": "left", "headerClasses": "text-slate-600 dark:text-slate-400 font-bold bg-transparent"},
+                            {"name": "status", "label": "الحالة / Status",           "field": "status", "align": "center", "headerClasses": "text-slate-600 dark:text-slate-400 font-bold bg-transparent"},
+                            {"name": "action", "label": "إصدار / Issue",             "field": "action", "align": "center", "headerClasses": "text-slate-600 dark:text-slate-400 font-bold bg-transparent"},
                         ]
                         rows_s = [
                             {
-                                "name":   s.get("full_name_ar") or s.get("full_name_en") or "طالب جديد",
-                                "dept":   s.get("dept_name_ar") or "قسم عام",
-                                "year":   s.get("admission_year") or "2023-2024",
-                                "status": s.get("status") or "مستمر",
+                                "id":       s.get("id"),
+                                "name":     s.get("full_name_ar") or s.get("full_name_en") or "طالب جديد",
+                                "dept":     s.get("dept_name_ar") or "قسم عام",
+                                "year":     s.get("admission_year") or "2023-2024",
+                                "status":   s.get("status") or "مستمر",
+                                "raw_data": s,
                             }
                             for s in self.recent_students
                         ]
                         # [TABLE: STUDENTS DATA TABLE]
                         s_table = ui.table(
-                            columns=cols_s, rows=rows_s, row_key="name"
+                            columns=cols_s, rows=rows_s, row_key="id"
                         ).classes(Styles.TABLE_CLASSES).props("flat separator='horizontal'")
                         
                         # Status Column Template Slot
@@ -662,27 +668,77 @@ class MainAppShell:
                             </q-td>
                         ''')
 
+                        # Action Column Template Slot
+                        s_table.add_slot("body-cell-action", '''
+                            <q-td :props="props" class="text-center">
+                                <q-btn
+                                    dense flat round
+                                    icon="workspace_premium"
+                                    color="primary"
+                                    class="app-btn-secondary"
+                                    @click="$parent.$emit('issue_cert', props.row)"
+                                >
+                                    <q-tooltip class="bg-slate-800 text-white font-bold">إصدار وثيقة للطالب / Issue Certificate</q-tooltip>
+                                </q-btn>
+                            </q-td>
+                        ''')
+                        s_table.on('issue_cert', lambda e: self._go_to_cert_for_student(e.args.get('raw_data', e.args)))
+
                     # ── TAB 2 VIEW: RECENT CERTIFICATES TABLE ────────────────
                     with ui.tab_panel(tab_certs).classes("w-full p-0 pt-2 bg-transparent"):
                         cols_c = [
-                            {"name": "name",  "label": "اسم الطالب / Student Name", "field": "name",  "align": "right", "headerClasses": "text-slate-600 dark:text-slate-400 font-bold bg-transparent"},
-                            {"name": "dept",  "label": "القسم / Department",        "field": "dept",  "align": "right", "headerClasses": "text-slate-600 dark:text-slate-400 font-bold bg-transparent"},
-                            {"name": "order", "label": "رقم الأمر / Order No",      "field": "order", "align": "center", "headerClasses": "text-slate-600 dark:text-slate-400 font-bold bg-transparent"},
-                            {"name": "date",  "label": "التاريخ / Date Issued",      "field": "date",  "align": "left", "headerClasses": "text-slate-600 dark:text-slate-400 font-bold bg-transparent"},
+                            {"name": "name",   "label": "اسم الطالب / Student Name", "field": "name",   "align": "right",  "headerClasses": "text-slate-600 dark:text-slate-400 font-bold bg-transparent"},
+                            {"name": "dept",   "label": "القسم / Department",        "field": "dept",   "align": "right",  "headerClasses": "text-slate-600 dark:text-slate-400 font-bold bg-transparent"},
+                            {"name": "order",  "label": "رقم الأمر / Order No",      "field": "order",  "align": "center", "headerClasses": "text-slate-600 dark:text-slate-400 font-bold bg-transparent"},
+                            {"name": "date",   "label": "التاريخ / Date Issued",      "field": "date",   "align": "left",   "headerClasses": "text-slate-600 dark:text-slate-400 font-bold bg-transparent"},
+                            {"name": "action", "label": "إصدار / Issue",             "field": "action", "align": "center", "headerClasses": "text-slate-600 dark:text-slate-400 font-bold bg-transparent"},
                         ]
                         rows_c = [
                             {
-                                "name":  c.get("full_name_ar") or c.get("student_name") or "طالب متخرج",
-                                "dept":  c.get("dept_name_ar") or "قسم عام",
-                                "order": c.get("order_number") or "1024 / 2024",
-                                "date":  c.get("issue_date") or c.get("created_at") or "2024-06-15",
+                                "id":       c.get("id"),
+                                "name":     c.get("full_name_ar") or c.get("student_name") or "طالب متخرج",
+                                "dept":     c.get("dept_name_ar") or "قسم عام",
+                                "order":    c.get("order_number") or "1024 / 2024",
+                                "date":     c.get("issue_date") or c.get("created_at") or "2024-06-15",
+                                "raw_data": c,
                             }
                             for c in self.recent_certificates
                         ]
                         # [TABLE: CERTIFICATES DATA TABLE]
-                        ui.table(
-                            columns=cols_c, rows=rows_c, row_key="name"
+                        c_table = ui.table(
+                            columns=cols_c, rows=rows_c, row_key="id"
                         ).classes(Styles.TABLE_CLASSES).props("flat separator='horizontal'")
+
+                        # Action Column Template Slot
+                        c_table.add_slot("body-cell-action", '''
+                            <q-td :props="props" class="text-center">
+                                <q-btn
+                                    dense flat round
+                                    icon="workspace_premium"
+                                    color="primary"
+                                    class="app-btn-secondary"
+                                    @click="$parent.$emit('issue_cert', props.row)"
+                                >
+                                    <q-tooltip class="bg-slate-800 text-white font-bold">إصدار وثيقة للطالب / Issue Certificate</q-tooltip>
+                                </q-btn>
+                            </q-td>
+                        ''')
+                        c_table.on('issue_cert', lambda e: self._go_to_cert_for_student(e.args.get('raw_data', e.args)))
+
+    def _go_to_cert_for_student(self, raw_student: dict) -> None:
+        """Directs user to the Certificate Screen pre-loaded with the clicked student."""
+        sid = raw_student.get("id")
+        student_obj = None
+        if sid:
+            try:
+                student_obj = self.student_repo.get_by_id(int(sid))
+            except Exception as exc:
+                log.warning(f"Failed to fetch student by id {sid}: {exc}")
+        if not student_obj:
+            student_obj = raw_student
+            
+        self._last_cert_student = student_obj
+        self._switch_screen("certificate")
 
     # =========================================================================
     # 7. PLACEHOLDER VIEW DEFINITION
