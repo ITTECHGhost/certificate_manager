@@ -8,7 +8,7 @@ import logging
 import sqlite3
 import requests
 from typing import Any, List, Dict, Optional, Union, cast
-from api_config import API_URL
+from api_config import API_URL, get_api_url
 from db import get_connection
 from sync_engine import (
     is_online, log_offline_insert,
@@ -46,8 +46,16 @@ class OfflineModeError(Exception):
 class BaseRepository:
     """Base repository with online/offline routing for MySQL SPs."""
     
-    def __init__(self, api_url: str = API_URL):
-        self.api_url = api_url
+    def __init__(self, api_url: str | None = None):
+        self._api_url = api_url
+
+    @property
+    def api_url(self) -> str:
+        return self._api_url or get_api_url()
+
+    @api_url.setter
+    def api_url(self, value: str) -> None:
+        self._api_url = value
         
     def _call_write(self, proc_name: str, args: tuple = ()) -> int | None:
         """Execute a write procedure (INSERT/UPDATE/DELETE) and commit.
@@ -1021,10 +1029,18 @@ def search_students_sqlite(db_path: str, search_term: str, limit: int = 25, offs
 
 
 class StudentRepository(BaseRepository):
-    def __init__(self, api_url: str = API_URL, local_db_path: str = DB_PATH):
+    def __init__(self, api_url: str | None = None, local_db_path: str = DB_PATH):
         super().__init__(api_url)
-        self.api_base_url = api_url
+        self._api_base_url = api_url
         self.local_db_path = local_db_path
+
+    @property
+    def api_base_url(self) -> str:
+        return self._api_base_url or get_api_url()
+
+    @api_base_url.setter
+    def api_base_url(self, value: str) -> None:
+        self._api_base_url = value
 
     def search_students_paginated(self, query: str = "", limit: int = 25, offset: int = 0) -> List[Dict[str, Any]]:
         """Paginated student search route supporting online API endpoint with offline SQLite fallback."""

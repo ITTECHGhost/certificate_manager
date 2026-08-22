@@ -67,3 +67,8 @@ _cfg = load_server_config()
 API_HOST = _cfg["host"]
 API_PORT = _cfg["port"]
 API_URL = _cfg["api_url"]
+
+def get_api_url() -> str:
+    """Returns the current dynamic API URL."""
+    return API_URL
+

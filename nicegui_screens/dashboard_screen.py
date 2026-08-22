@@ -634,17 +634,11 @@ class MainAppShell:
                             ui.label("أحدث الطلاب المضافين").classes("font-bold text-sm leading-tight")
                             ui.label("Recent Students").classes("font-normal text-xs opacity-75 leading-tight")
 
-                    # Tab 2 Button (Recent Issued Certificates)
+                    # Tab 2 Button (Issued & Printed Certificates - MERGED)
                     with ui.tab(name="tab_certs", label="", icon="workspace_premium") as tab_certs:
                         with ui.column().classes("gap-0 items-start justify-center text-right py-0.5"):
-                            ui.label("أحدث الشهادات الصادرة").classes("font-bold text-sm leading-tight")
-                            ui.label("Issued Certificates").classes("font-normal text-xs opacity-75 leading-tight")
-
-                    # Tab 3 Button (Printed Certificates)
-                    with ui.tab(name="tab_printed", label="", icon="print") as tab_printed:
-                        with ui.column().classes("gap-0 items-start justify-center text-right py-0.5"):
-                            ui.label("الشهادات المطبوعة").classes("font-bold text-sm leading-tight")
-                            ui.label("Printed Certificates").classes("font-normal text-xs opacity-75 leading-tight")
+                            ui.label("الشهادات الصادرة والمطبوعة").classes("font-bold text-sm leading-tight")
+                            ui.label("Issued & Printed Certificates").classes("font-normal text-xs opacity-75 leading-tight")
 
                 # [TAB PANELS CONTAINER]
                 with ui.tab_panels(tabs, value=tab_students).classes("w-full p-0 bg-transparent"):
@@ -698,15 +692,24 @@ class MainAppShell:
                         ''')
                         s_table.on('issue_cert', lambda e: self._go_to_cert_for_student(e.args.get('raw_data', e.args)))
 
-                    # ── TAB 2 VIEW: RECENT ISSUED CERTIFICATES TABLE ─────────
+                    # ── TAB 2 VIEW: ISSUED & PRINTED CERTIFICATES TABLE (MERGED) ─
                     with ui.tab_panel(tab_certs).classes("w-full p-0 pt-2 bg-transparent"):
                         cols_c = [
                             {"name": "name",   "label": "اسم الطالب / Student Name", "field": "name",   "align": "right",  "headerClasses": "text-slate-600 dark:text-slate-400 font-bold bg-transparent"},
                             {"name": "dept",   "label": "القسم / Department",        "field": "dept",   "align": "right",  "headerClasses": "text-slate-600 dark:text-slate-400 font-bold bg-transparent"},
                             {"name": "order",  "label": "رقم الأمر / Order No",      "field": "order",  "align": "center", "headerClasses": "text-slate-600 dark:text-slate-400 font-bold bg-transparent"},
-                            {"name": "date",   "label": "التاريخ / Date Issued",      "field": "date",   "align": "left",   "headerClasses": "text-slate-600 dark:text-slate-400 font-bold bg-transparent"},
+                            {"name": "date",   "label": "التاريخ / Date",             "field": "date",   "align": "left",   "headerClasses": "text-slate-600 dark:text-slate-400 font-bold bg-transparent"},
                             {"name": "action", "label": "إصدار / Issue",             "field": "action", "align": "center", "headerClasses": "text-slate-600 dark:text-slate-400 font-bold bg-transparent"},
                         ]
+                        
+                        combined_certs_data = []
+                        seen_ids = set()
+                        for c in (self.recent_certificates + getattr(self, "recent_printed_certificates", [])):
+                            cid = c.get("id")
+                            if cid and cid not in seen_ids:
+                                seen_ids.add(cid)
+                                combined_certs_data.append(c)
+
                         rows_c = [
                             {
                                 "id":       c.get("id"),
@@ -716,9 +719,9 @@ class MainAppShell:
                                 "date":     c.get("issue_date") or c.get("created_at") or "2024-06-15",
                                 "raw_data": c,
                             }
-                            for c in self.recent_certificates
+                            for c in (combined_certs_data or self.recent_certificates)
                         ]
-                        # [TABLE: CERTIFICATES DATA TABLE]
+                        # [TABLE: ISSUED & PRINTED CERTIFICATES DATA TABLE]
                         c_table = ui.table(
                             columns=cols_c, rows=rows_c, row_key="id"
                         ).classes(Styles.TABLE_CLASSES).props("flat separator='horizontal'")
@@ -738,45 +741,6 @@ class MainAppShell:
                             </q-td>
                         ''')
                         c_table.on('issue_cert', lambda e: self._go_to_cert_for_student(e.args.get('raw_data', e.args)))
-
-                    # ── TAB 3 VIEW: PRINTED CERTIFICATES TABLE ───────────────
-                    with ui.tab_panel(tab_printed).classes("w-full p-0 pt-2 bg-transparent"):
-                        cols_p = [
-                            {"name": "name",   "label": "اسم الطالب / Student Name", "field": "name",   "align": "right",  "headerClasses": "text-slate-600 dark:text-slate-400 font-bold bg-transparent"},
-                            {"name": "dept",   "label": "القسم / Department",        "field": "dept",   "align": "right",  "headerClasses": "text-slate-600 dark:text-slate-400 font-bold bg-transparent"},
-                            {"name": "order",  "label": "رقم الأمر / Order No",      "field": "order",  "align": "center", "headerClasses": "text-slate-600 dark:text-slate-400 font-bold bg-transparent"},
-                            {"name": "date",   "label": "التاريخ / Print Date",      "field": "date",   "align": "left",   "headerClasses": "text-slate-600 dark:text-slate-400 font-bold bg-transparent"},
-                            {"name": "action", "label": "عرض / View",                "field": "action", "align": "center", "headerClasses": "text-slate-600 dark:text-slate-400 font-bold bg-transparent"},
-                        ]
-                        rows_p = [
-                            {
-                                "id":       p.get("id"),
-                                "name":     p.get("full_name_ar") or p.get("student_name") or "طالب مطبوع",
-                                "dept":     p.get("dept_name_ar") or "قسم عام",
-                                "order":    p.get("order_number") or "1024 / 2024",
-                                "date":     p.get("issue_date") or p.get("created_at") or "2024-06-15",
-                                "raw_data": p,
-                            }
-                            for p in getattr(self, "recent_printed_certificates", self.recent_certificates)
-                        ]
-                        p_table = ui.table(
-                            columns=cols_p, rows=rows_p, row_key="id"
-                        ).classes(Styles.TABLE_CLASSES).props("flat separator='horizontal'")
-
-                        p_table.add_slot("body-cell-action", '''
-                            <q-td :props="props" class="text-center">
-                                <q-btn
-                                    dense flat round
-                                    icon="print"
-                                    color="primary"
-                                    class="app-btn-secondary"
-                                    @click="$parent.$emit('issue_cert', props.row)"
-                                >
-                                    <q-tooltip class="bg-slate-800 text-white font-bold">عرض وطباعة وثيقة الطالب / View & Print Certificate</q-tooltip>
-                                </q-btn>
-                            </q-td>
-                        ''')
-                        p_table.on('issue_cert', lambda e: self._go_to_cert_for_student(e.args.get('raw_data', e.args)))
 
     def _go_to_cert_for_student(self, raw_student: dict) -> None:
         """Directs user to the Certificate Screen pre-loaded with the clicked student."""

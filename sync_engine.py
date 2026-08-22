@@ -42,7 +42,7 @@ import threading
 from datetime import date, datetime
 from pathlib import Path
 import requests
-from api_config import API_URL
+from api_config import API_URL, get_api_url
 
 log = logging.getLogger(__name__)
 
@@ -64,7 +64,7 @@ def set_online(status: bool) -> None:
     _is_online = status
 
 
-def check_network_status() -> bool:
+def check_network_status(target_url: str | None = None) -> bool:
     """
     Attempt a fast, low-timeout HTTP GET request to the FastAPI server ping endpoint.
 
@@ -72,8 +72,9 @@ def check_network_status() -> bool:
     This function is called every ~8 seconds from the UI polling loop.
     It does NOT update the cached flag — the caller must call set_online().
     """
+    url = target_url or get_api_url()
     try:
-        response = requests.get(f"{API_URL}/ping", timeout=2.0)
+        response = requests.get(f"{url}/ping", timeout=2.0)
         return response.status_code == 200
     except requests.RequestException:
         return False
@@ -1118,7 +1119,7 @@ def sync_offline_queue_to_mysql(mysql_conn=None) -> dict:
                 try:
                     payload = _json_loads(row["payload"])
                     emp_id = row["temp_id"]
-                    resp = requests.put(f"{API_URL}/settings/appearance/{emp_id}", json=payload, timeout=5.0)
+                    resp = requests.put(f"{get_api_url()}/settings/appearance/{emp_id}", json=payload, timeout=5.0)
                     if resp.status_code == 200:
                         sqlite_conn.execute("DELETE FROM sync_queue WHERE id = ?", (row["id"],))
                         sqlite_conn.commit()
@@ -1147,7 +1148,7 @@ def sync_offline_queue_to_mysql(mysql_conn=None) -> dict:
 
         # 2. POST the payload to the API
         try:
-            response = requests.post(f"{API_URL}/sync", json=payload, timeout=10.0)
+            response = requests.post(f"{get_api_url()}/sync", json=payload, timeout=10.0)
             if response.status_code != 200:
                 log.error("API sync request failed with status %d: %s", response.status_code, response.text)
                 return {"synced": 0, "failed": len(queue_rows), "id_map": {}}

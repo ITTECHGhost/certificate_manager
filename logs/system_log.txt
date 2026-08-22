@@ -28107,3 +28107,33 @@ AttributeError: 'CertificateScreen' object has no attribute 'generate_and_open_w
 2026-08-22 23:02:03 [INFO] _pywebviewready event fired
 2026-08-22 23:02:03 [INFO] loaded event fired
 2026-08-22 23:02:03 [INFO] loaded event fired
+2026-08-22 23:06:21 [INFO] SYSTEM STARTUP DIAGNOSTIC CHECK STARTED
+2026-08-22 23:06:23 [WARNING] [CHECK 1/4] FastAPI Connection Check ... [OFFLINE MODE]
+2026-08-22 23:06:23 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-08-22 23:06:23 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-08-22 23:06:23 [OK] [CHECK 2/4] SQLite Replica Database Connection ... [OK]
+2026-08-22 23:06:23 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-08-22 23:06:23 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-08-22 23:06:23 [OK] [CHECK 3/4] Authentication & Core SP Checks ... [OFFLINE MODE]
+2026-08-22 23:06:23 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-08-22 23:06:23 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-08-22 23:06:23 [OK] [CHECK 4/4] Sync Engine & Local Replica Check ... [OK]
+2026-08-22 23:06:23 [OK] Status: OFFLINE MODE ACTIVE. PROCEEDING TO LOGIN/DASHBOARD.
+2026-08-22 23:06:27 [INFO] Using WinForms / Chromium
+2026-08-22 23:06:27 [INFO] Using WinForms / Chromium
+2026-08-22 23:06:32 [INFO] before_load event fired. injecting pywebview object
+2026-08-22 23:06:32 [INFO] before_load event fired. injecting pywebview object
+2026-08-22 23:06:32 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-22 23:06:32 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-22 23:06:32 [INFO] _pywebviewready event fired
+2026-08-22 23:06:32 [INFO] _pywebviewready event fired
+2026-08-22 23:06:32 [INFO] loaded event fired
+2026-08-22 23:06:32 [INFO] loaded event fired
+2026-08-22 23:06:36 [INFO] before_load event fired. injecting pywebview object
+2026-08-22 23:06:36 [INFO] before_load event fired. injecting pywebview object
+2026-08-22 23:06:36 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-22 23:06:36 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-22 23:06:36 [INFO] _pywebviewready event fired
+2026-08-22 23:06:36 [INFO] _pywebviewready event fired
+2026-08-22 23:06:36 [INFO] loaded event fired
+2026-08-22 23:06:36 [INFO] loaded event fired

@@ -695,14 +695,13 @@ class SettingsScreen:
     def _test_server_connection(self) -> None:
         """Tests live reachability of the configured Server API host & port."""
         from sync_engine import check_network_status
-        from api_config import API_URL
         host = (self.server_host_input.value if hasattr(self, 'server_host_input') and self.server_host_input else "127.0.0.1")
         port = (self.server_port_input.value if hasattr(self, 'server_port_input') and self.server_port_input else "2030")
         clean_host = str(host).replace("http://", "").replace("https://", "").strip().rstrip("/")
         full_url = f"http://{clean_host}:{port}"
 
         try:
-            online = check_network_status()
+            online = check_network_status(target_url=full_url)
             if online:
                 ui.notify(f"الاتصال بالسيرفر {full_url} يعمل بنجاح! / Server connected successfully!", type="positive")
             else:
@@ -713,6 +712,7 @@ class SettingsScreen:
     def _save_server_config(self) -> None:
         """Saves Server API settings locally to server_config.json."""
         from api_config import save_server_config
+        from sync_engine import check_network_status, set_online
         host = (self.server_host_input.value if hasattr(self, 'server_host_input') and self.server_host_input else "127.0.0.1")
         port = (self.server_port_input.value if hasattr(self, 'server_port_input') and self.server_port_input else "2030")
         secret = (self.api_secret_input.value if hasattr(self, 'api_secret_input') and self.api_secret_input else "certificate_manager_secret_key")
@@ -727,6 +727,9 @@ class SettingsScreen:
             if hasattr(self, 'student_repo') and self.student_repo:
                 self.student_repo.api_url = cfg["api_url"]
                 self.student_repo.api_base_url = cfg["api_url"]
+
+            # Re-evaluate network status for the new URL immediately
+            set_online(check_network_status(target_url=cfg["api_url"]))
 
             ui.notify(f"تم حفظ إعدادات السيرفر والمنفذ ({cfg['api_url']}) محلياً في server_config.json بنجاح!", type="positive")
             self._test_server_connection()
