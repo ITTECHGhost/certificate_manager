@@ -82,11 +82,9 @@ class MainAppShell:
         except Exception as exc:
             log.warning(f"[MainAppShell] Failed to fetch counts: {exc}")
 
-        # Fetch recent students (from last added ID to the first)
+        # 1. Fetch recent students (from last added ID to the first)
         try:
-            raw_stds = self.student_repo.get_all_paginated(limit=10) or []
-            raw_stds.sort(key=lambda x: int(x.get("id") or 0), reverse=True)
-            self.recent_students = raw_stds[:5]
+            self.recent_students = self.student_repo.get_last_added_students(limit=5) or []
         except Exception as exc:
             log.warning(f"[MainAppShell] Failed to fetch recent students: {exc}")
             self.recent_students = []
@@ -99,9 +97,9 @@ class MainAppShell:
                 {"id": 1, "full_name_ar": "منى يوسف حسين", "dept_name_ar": "أمن الشبكات", "admission_year": "2022-2023", "status": "متخرج"},
             ]
 
-        # Fetch recent certificates (students with graduation orders / printed certificates)
+        # 2. Fetch recent issued certificates (students linked to a graduation order)
         try:
-            self.recent_certificates = self.student_repo.get_recent_graduates(limit=5) or []
+            self.recent_certificates = self.student_repo.get_recent_issued_certificates(limit=5) or []
         except Exception as exc:
             log.warning(f"[MainAppShell] Failed to fetch recent certificates: {exc}")
             self.recent_certificates = []
@@ -113,6 +111,16 @@ class MainAppShell:
                 {"id": 9, "full_name_ar": "زينب عبد الكاظم", "dept_name_ar": "نظم المعلومات", "order_number": "988 / 2024", "issue_date": "2024-06-12"},
                 {"id": 8, "full_name_ar": "أحمد جاسم محمد", "dept_name_ar": "أمن الشبكات", "order_number": "854 / 2024", "issue_date": "2024-06-01"},
             ]
+
+        # 3. Fetch recent printed certificates
+        try:
+            self.recent_printed_certificates = self.student_repo.get_recent_printed_certificates(limit=5) or []
+        except Exception as exc:
+            log.warning(f"[MainAppShell] Failed to fetch printed certificates: {exc}")
+            self.recent_printed_certificates = []
+
+        if not self.recent_printed_certificates:
+            self.recent_printed_certificates = list(self.recent_certificates)
 
     # =========================================================================
     # 1. ROOT LAYOUT CONTAINER DEFINITION
@@ -621,16 +629,22 @@ class MainAppShell:
                 # [TAB BAR: NAVIGATION TABS FOR TABLES]
                 with ui.tabs().classes("w-full app-tabs").props("dense shrink inline-label mobile-arrows outside-arrows") as tabs:
                     # Tab 1 Button (Recent Students)
-                    with ui.tab(name="tab_students", icon="person_add") as tab_students:
+                    with ui.tab(name="tab_students", label="", icon="person_add") as tab_students:
                         with ui.column().classes("gap-0 items-start justify-center text-right py-0.5"):
                             ui.label("أحدث الطلاب المضافين").classes("font-bold text-sm leading-tight")
                             ui.label("Recent Students").classes("font-normal text-xs opacity-75 leading-tight")
 
-                    # Tab 2 Button (Recent Certificates)
-                    with ui.tab(name="tab_certs", icon="workspace_premium") as tab_certs:
+                    # Tab 2 Button (Recent Issued Certificates)
+                    with ui.tab(name="tab_certs", label="", icon="workspace_premium") as tab_certs:
                         with ui.column().classes("gap-0 items-start justify-center text-right py-0.5"):
                             ui.label("أحدث الشهادات الصادرة").classes("font-bold text-sm leading-tight")
-                            ui.label("Recent Certificates").classes("font-normal text-xs opacity-75 leading-tight")
+                            ui.label("Issued Certificates").classes("font-normal text-xs opacity-75 leading-tight")
+
+                    # Tab 3 Button (Printed Certificates)
+                    with ui.tab(name="tab_printed", label="", icon="print") as tab_printed:
+                        with ui.column().classes("gap-0 items-start justify-center text-right py-0.5"):
+                            ui.label("الشهادات المطبوعة").classes("font-bold text-sm leading-tight")
+                            ui.label("Printed Certificates").classes("font-normal text-xs opacity-75 leading-tight")
 
                 # [TAB PANELS CONTAINER]
                 with ui.tab_panels(tabs, value=tab_students).classes("w-full p-0 bg-transparent"):
@@ -684,7 +698,7 @@ class MainAppShell:
                         ''')
                         s_table.on('issue_cert', lambda e: self._go_to_cert_for_student(e.args.get('raw_data', e.args)))
 
-                    # ── TAB 2 VIEW: RECENT CERTIFICATES TABLE ────────────────
+                    # ── TAB 2 VIEW: RECENT ISSUED CERTIFICATES TABLE ─────────
                     with ui.tab_panel(tab_certs).classes("w-full p-0 pt-2 bg-transparent"):
                         cols_c = [
                             {"name": "name",   "label": "اسم الطالب / Student Name", "field": "name",   "align": "right",  "headerClasses": "text-slate-600 dark:text-slate-400 font-bold bg-transparent"},
@@ -724,6 +738,45 @@ class MainAppShell:
                             </q-td>
                         ''')
                         c_table.on('issue_cert', lambda e: self._go_to_cert_for_student(e.args.get('raw_data', e.args)))
+
+                    # ── TAB 3 VIEW: PRINTED CERTIFICATES TABLE ───────────────
+                    with ui.tab_panel(tab_printed).classes("w-full p-0 pt-2 bg-transparent"):
+                        cols_p = [
+                            {"name": "name",   "label": "اسم الطالب / Student Name", "field": "name",   "align": "right",  "headerClasses": "text-slate-600 dark:text-slate-400 font-bold bg-transparent"},
+                            {"name": "dept",   "label": "القسم / Department",        "field": "dept",   "align": "right",  "headerClasses": "text-slate-600 dark:text-slate-400 font-bold bg-transparent"},
+                            {"name": "order",  "label": "رقم الأمر / Order No",      "field": "order",  "align": "center", "headerClasses": "text-slate-600 dark:text-slate-400 font-bold bg-transparent"},
+                            {"name": "date",   "label": "التاريخ / Print Date",      "field": "date",   "align": "left",   "headerClasses": "text-slate-600 dark:text-slate-400 font-bold bg-transparent"},
+                            {"name": "action", "label": "عرض / View",                "field": "action", "align": "center", "headerClasses": "text-slate-600 dark:text-slate-400 font-bold bg-transparent"},
+                        ]
+                        rows_p = [
+                            {
+                                "id":       p.get("id"),
+                                "name":     p.get("full_name_ar") or p.get("student_name") or "طالب مطبوع",
+                                "dept":     p.get("dept_name_ar") or "قسم عام",
+                                "order":    p.get("order_number") or "1024 / 2024",
+                                "date":     p.get("issue_date") or p.get("created_at") or "2024-06-15",
+                                "raw_data": p,
+                            }
+                            for p in getattr(self, "recent_printed_certificates", self.recent_certificates)
+                        ]
+                        p_table = ui.table(
+                            columns=cols_p, rows=rows_p, row_key="id"
+                        ).classes(Styles.TABLE_CLASSES).props("flat separator='horizontal'")
+
+                        p_table.add_slot("body-cell-action", '''
+                            <q-td :props="props" class="text-center">
+                                <q-btn
+                                    dense flat round
+                                    icon="print"
+                                    color="primary"
+                                    class="app-btn-secondary"
+                                    @click="$parent.$emit('issue_cert', props.row)"
+                                >
+                                    <q-tooltip class="bg-slate-800 text-white font-bold">عرض وطباعة وثيقة الطالب / View & Print Certificate</q-tooltip>
+                                </q-btn>
+                            </q-td>
+                        ''')
+                        p_table.on('issue_cert', lambda e: self._go_to_cert_for_student(e.args.get('raw_data', e.args)))
 
     def _go_to_cert_for_student(self, raw_student: dict) -> None:
         """Directs user to the Certificate Screen pre-loaded with the clicked student."""

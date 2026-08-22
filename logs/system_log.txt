@@ -28043,3 +28043,67 @@ AttributeError: 'CertificateScreen' object has no attribute 'generate_and_open_w
 2026-08-22 22:03:19 [INFO] _pywebviewready event fired
 2026-08-22 22:03:19 [INFO] loaded event fired
 2026-08-22 22:03:19 [INFO] loaded event fired
+2026-08-22 22:05:13 [INFO] before_load event fired. injecting pywebview object
+2026-08-22 22:05:13 [INFO] before_load event fired. injecting pywebview object
+2026-08-22 22:05:13 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-22 22:05:13 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-22 22:05:13 [INFO] _pywebviewready event fired
+2026-08-22 22:05:13 [INFO] _pywebviewready event fired
+2026-08-22 22:05:13 [INFO] loaded event fired
+2026-08-22 22:05:13 [INFO] loaded event fired
+2026-08-22 22:24:55 [INFO] SYSTEM STARTUP DIAGNOSTIC CHECK STARTED
+2026-08-22 22:24:55 [OK] [CHECK 1/4] FastAPI Connection Check ... [OK]
+2026-08-22 22:24:55 [OK] [CHECK 2/4] MySQL Database Connection ... [OK]
+2026-08-22 22:24:55 [OK] [CHECK 3/4] Authentication & Core SP Checks ... [OK]
+2026-08-22 22:24:55 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-08-22 22:24:55 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-08-22 22:24:55 [OK] [CHECK 4/4] Sync Engine & Local Replica Check ... [OK]
+2026-08-22 22:24:55 [OK] Status: ALL CHECKS PASSED. PROCEEDING TO LOGIN/DASHBOARD.
+2026-08-22 22:24:58 [INFO] Using WinForms / Chromium
+2026-08-22 22:24:58 [INFO] Using WinForms / Chromium
+2026-08-22 22:25:03 [INFO] before_load event fired. injecting pywebview object
+2026-08-22 22:25:03 [INFO] before_load event fired. injecting pywebview object
+2026-08-22 22:25:03 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-22 22:25:03 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-22 22:25:03 [INFO] _pywebviewready event fired
+2026-08-22 22:25:03 [INFO] _pywebviewready event fired
+2026-08-22 22:25:03 [INFO] loaded event fired
+2026-08-22 22:25:03 [INFO] loaded event fired
+2026-08-22 22:25:08 [INFO] before_load event fired. injecting pywebview object
+2026-08-22 22:25:08 [INFO] before_load event fired. injecting pywebview object
+2026-08-22 22:25:08 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-22 22:25:08 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-22 22:25:08 [INFO] _pywebviewready event fired
+2026-08-22 22:25:08 [INFO] _pywebviewready event fired
+2026-08-22 22:25:08 [INFO] loaded event fired
+2026-08-22 22:25:08 [INFO] loaded event fired
+2026-08-22 22:33:04 [INFO] Sync queue is empty — nothing to do.
+2026-08-22 22:33:04 [INFO] Sync queue is empty — nothing to do.
+2026-08-22 22:33:20 [INFO] Sync queue is empty — nothing to do.
+2026-08-22 22:33:20 [INFO] Sync queue is empty — nothing to do.
+2026-08-22 23:01:51 [INFO] SYSTEM STARTUP DIAGNOSTIC CHECK STARTED
+2026-08-22 23:01:51 [OK] [CHECK 1/4] FastAPI Connection Check ... [OK]
+2026-08-22 23:01:51 [OK] [CHECK 2/4] MySQL Database Connection ... [OK]
+2026-08-22 23:01:51 [OK] [CHECK 3/4] Authentication & Core SP Checks ... [OK]
+2026-08-22 23:01:51 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-08-22 23:01:51 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-08-22 23:01:51 [OK] [CHECK 4/4] Sync Engine & Local Replica Check ... [OK]
+2026-08-22 23:01:51 [OK] Status: ALL CHECKS PASSED. PROCEEDING TO LOGIN/DASHBOARD.
+2026-08-22 23:01:54 [INFO] Using WinForms / Chromium
+2026-08-22 23:01:54 [INFO] Using WinForms / Chromium
+2026-08-22 23:01:59 [INFO] before_load event fired. injecting pywebview object
+2026-08-22 23:01:59 [INFO] before_load event fired. injecting pywebview object
+2026-08-22 23:01:59 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-22 23:01:59 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-22 23:01:59 [INFO] _pywebviewready event fired
+2026-08-22 23:01:59 [INFO] _pywebviewready event fired
+2026-08-22 23:02:00 [INFO] loaded event fired
+2026-08-22 23:02:00 [INFO] loaded event fired
+2026-08-22 23:02:03 [INFO] before_load event fired. injecting pywebview object
+2026-08-22 23:02:03 [INFO] before_load event fired. injecting pywebview object
+2026-08-22 23:02:03 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-22 23:02:03 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-22 23:02:03 [INFO] _pywebviewready event fired
+2026-08-22 23:02:03 [INFO] _pywebviewready event fired
+2026-08-22 23:02:03 [INFO] loaded event fired
+2026-08-22 23:02:03 [INFO] loaded event fired

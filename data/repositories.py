@@ -7,7 +7,7 @@ import hashlib
 import logging
 import sqlite3
 import requests
-from typing import Any, List, Dict, Optional, Union
+from typing import Any, List, Dict, Optional, Union, cast
 from api_config import API_URL
 from db import get_connection
 from sync_engine import (
@@ -65,7 +65,7 @@ class BaseRepository:
             # Extract LAST_INSERT_ID() if the SP returns a rowset with 'new_id'
             for result in cur.stored_results():
                 row = result.fetchone()
-                if row and 'new_id' in row:
+                if isinstance(row, dict) and 'new_id' in row:
                     return row['new_id']
             return None
         finally:
@@ -1052,24 +1052,82 @@ class StudentRepository(BaseRepository):
 
         return search_students_sqlite(self.local_db_path, query, limit, offset)
 
-    def get_recent_graduates(self, limit: int = 5) -> list[dict]:
-        """Fetch recently graduated students (students linked to a graduation order)."""
+    def get_last_added_students(self, limit: int = 5) -> list[dict]:
+        """Fetch the most recently added students (ordered by id DESC)."""
         query = (
-            "SELECT s.full_name_ar, s.full_name_en, "
+            "SELECT s.id, s.full_name_ar, s.full_name_en, s.admission_year, s.status, "
+            "d.name_ar AS dept_name_ar "
+            "FROM ("
+            "  SELECT id, full_name_ar, full_name_en, CAST(admission_year AS TEXT) AS admission_year, status, department_id FROM students "
+            "  UNION ALL "
+            "  SELECT id, full_name_ar, full_name_en, CAST(admission_year AS TEXT) AS admission_year, 'مستمر' AS status, department_id FROM local_students"
+            ") s "
+            "LEFT JOIN departments d ON s.department_id = d.id "
+            "ORDER BY s.id DESC LIMIT ?"
+        )
+        try:
+            return sqlite_read_all(query, (limit,))
+        except Exception as exc:
+            log.warning(f"Error fetching last added students: {exc}")
+            return []
+
+    def get_recent_issued_certificates(self, limit: int = 5) -> list[dict]:
+        """Fetch recently issued certificates from issued_certificates table (or graduation orders fallback)."""
+        query_ic = (
+            "SELECT ic.id, ic.student_id, ic.to_title, ic.template_type, ic.issue_date, "
+            "s.full_name_ar, s.full_name_en, d.name_ar AS dept_name_ar "
+            "FROM issued_certificates ic "
+            "JOIN students s ON ic.student_id = s.id "
+            "LEFT JOIN departments d ON s.department_id = d.id "
+            "ORDER BY ic.issue_date DESC, ic.id DESC LIMIT ?"
+        )
+        try:
+            res = sqlite_read_all(query_ic, (limit,))
+            if res:
+                return res
+        except Exception:
+            pass
+
+        # Fallback to graduation orders if issued_certificates table is empty
+        query_fallback = (
+            "SELECT s.id, s.full_name_ar, s.full_name_en, "
             "d.name_ar AS dept_name_ar, o.order_number, o.order_date AS issue_date "
             "FROM ("
-            "  SELECT full_name_ar, full_name_en, department_id, order_id, id FROM students "
+            "  SELECT id, full_name_ar, full_name_en, department_id, order_id FROM students WHERE order_id IS NOT NULL "
             "  UNION ALL "
-            "  SELECT full_name_ar, full_name_en, department_id, order_id, id FROM local_students"
+            "  SELECT id, full_name_ar, full_name_en, department_id, order_id FROM local_students WHERE order_id IS NOT NULL"
             ") s "
             "JOIN departments d ON s.department_id = d.id "
             "JOIN graduation_orders o ON s.order_id = o.id "
             "ORDER BY o.order_date DESC, s.id DESC LIMIT ?"
         )
         try:
+            return sqlite_read_all(query_fallback, (limit,))
+        except Exception:
+            return []
+
+    def get_recent_printed_certificates(self, limit: int = 5) -> list[dict]:
+        """Fetch recently printed certificates."""
+        query = (
+            "SELECT s.id, s.full_name_ar, s.full_name_en, "
+            "d.name_ar AS dept_name_ar, o.order_number, COALESCE(o.order_date, '2024-01-01') AS issue_date "
+            "FROM ("
+            "  SELECT id, full_name_ar, full_name_en, department_id, order_id FROM students WHERE order_id IS NOT NULL "
+            "  UNION ALL "
+            "  SELECT id, full_name_ar, full_name_en, department_id, order_id FROM local_students WHERE order_id IS NOT NULL"
+            ") s "
+            "JOIN departments d ON s.department_id = d.id "
+            "JOIN graduation_orders o ON s.order_id = o.id "
+            "ORDER BY s.id DESC LIMIT ?"
+        )
+        try:
             return sqlite_read_all(query, (limit,))
         except Exception:
             return []
+
+    def get_recent_graduates(self, limit: int = 5) -> list[dict]:
+        """Fetch recently graduated students (students linked to a graduation order)."""
+        return self.get_recent_issued_certificates(limit=limit)
 
     def _inject_missing_graduation_numbers(self, students_list: list[dict]) -> list[dict]:
         """Supplemental fetch for columns omitted by legacy Stored Procedures."""
@@ -1387,7 +1445,7 @@ class StudentRepository(BaseRepository):
         except Exception as e:
             log_system(f"API request failed: {e}", "WARNING")
 
-    def search_unlinked(self, name_query: str = "", dept_id: int | None = None, year: int | None = None, limit: int = 50) -> list[dict]:
+    def search_unlinked(self, name_query: str = "", dept_id: int | None = None, year: int | None = None, limit: int = 50) -> list[dict[str, Any]]:
         if is_online():
             try:
                 resp = requests.get(
@@ -1440,7 +1498,7 @@ class StudentRepository(BaseRepository):
             cur.close()
             conn.close()
             if rows:
-                return rows
+                return cast(list[dict[str, Any]], rows)
         except Exception as err:
             log_system(f"Direct MySQL query failed, falling back to SQLite: {err}", "WARNING")
 

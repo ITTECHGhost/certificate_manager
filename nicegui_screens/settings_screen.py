@@ -75,10 +75,29 @@ class SettingsScreen:
         """Build the settings screen layout using clean tabbed panels."""
         with ui.column().classes("w-full max-w-full min-w-0 gap-6 pb-12 overflow-hidden"):
             with ui.tabs().classes("w-full max-w-full min-w-0 app-tabs border-b border-[var(--border-default)]").props("dense shrink inline-label mobile-arrows outside-arrows") as self.tabs:
-                self.tab_inst = ui.tab("institution", label="المؤسسة — Institution", icon="domain").props("no-caps dense")
-                self.tab_app  = ui.tab("appearance",  label="المظهر — Appearance",   icon="palette").props("no-caps dense")
-                self.tab_auth = ui.tab("auth",        label="الصلاحيات — Auth",       icon="security").props("no-caps dense")
-                self.tab_logs = ui.tab("logs",        label="السيرفر والصيانة والسجلات — Server, Maintenance & Logs", icon="dns").props("no-caps dense")
+                # Tab 1: Institution
+                with ui.tab(name="institution", label="", icon="domain") as self.tab_inst:
+                    with ui.column().classes("gap-0 items-start justify-center text-right py-0.5"):
+                        ui.label("المؤسسة").classes("font-bold text-sm leading-tight")
+                        ui.label("Institution").classes("font-normal text-xs opacity-75 leading-tight")
+
+                # Tab 2: Appearance
+                with ui.tab(name="appearance", label="", icon="palette") as self.tab_app:
+                    with ui.column().classes("gap-0 items-start justify-center text-right py-0.5"):
+                        ui.label("المظهر والسمات").classes("font-bold text-sm leading-tight")
+                        ui.label("Appearance").classes("font-normal text-xs opacity-75 leading-tight")
+
+                # Tab 3: Auth & Account
+                with ui.tab(name="auth", label="", icon="security") as self.tab_auth:
+                    with ui.column().classes("gap-0 items-start justify-center text-right py-0.5"):
+                        ui.label("الصلاحيات والحساب").classes("font-bold text-sm leading-tight")
+                        ui.label("Auth & Account").classes("font-normal text-xs opacity-75 leading-tight")
+
+                # Tab 4: Server, Maintenance & Logs
+                with ui.tab(name="logs", label="", icon="dns") as self.tab_logs:
+                    with ui.column().classes("gap-0 items-start justify-center text-right py-0.5"):
+                        ui.label("السيرفر والصيانة والسجلات").classes("font-bold text-sm leading-tight")
+                        ui.label("Server, Maintenance & Logs").classes("font-normal text-xs opacity-75 leading-tight")
 
             with ui.tab_panels(self.tabs, value=self.tab_inst).classes("w-full bg-transparent p-0 gap-6"):
                 with ui.tab_panel(self.tab_inst).classes("w-full gap-6 p-0 flex flex-col"):
@@ -301,18 +320,14 @@ class SettingsScreen:
         with UI.card():
             UI.card_header("إعدادات السيرفر والشبكة — Server & API Settings", "dns", icon_css="stat-text-blue")
 
-            # Extract default API Host and Port from s_repo
-            api_url = getattr(self.s_repo, "api_url", "http://127.0.0.1:8000/api")
-            api_host = "http://127.0.0.1"
-            api_port = "8000"
-            if ":" in api_url:
-                try:
-                    parts = api_url.split(":")
-                    if len(parts) >= 3:
-                        api_host = f"{parts[0]}:{parts[1]}"
-                        api_port = parts[2].split("/")[0]
-                except Exception:
-                    pass
+            from api_config import load_server_config
+            cfg = load_server_config()
+
+            api_host = f"http://{cfg.get('host', '127.0.0.1')}"
+            api_port = str(cfg.get('port', 2030))
+            api_secret = cfg.get('secret', 'certificate_manager_secret_key')
+            api_timeout = int(cfg.get('timeout', 5))
+            auto_sync = bool(cfg.get('auto_sync', True))
 
             with ui.grid(columns=2).classes("w-full gap-4"):
                 self.server_host_input = UI.text_input(
@@ -323,23 +338,23 @@ class SettingsScreen:
                 self.server_port_input = UI.text_input(
                     "منفذ السيرفر / Server Port",
                     value=api_port,
-                    placeholder="8000"
+                    placeholder="2030"
                 )
                 self.api_secret_input = UI.text_input(
                     "مفتاح التطبيق السرّي / App Secret Key",
-                    value="certificate_manager_secret_key",
+                    value=api_secret,
                     placeholder="Secret Key..."
                 )
                 self.api_timeout_input = UI.number_input(
                     "مهلة الاتصال (بالثواني) / Request Timeout (s)",
-                    value=5, min=1, max=60
+                    value=api_timeout, min=1, max=60
                 )
 
             with ui.row().classes("app-tile w-full items-center justify-between p-3.5 rounded-xl border mt-2"):
                 with ui.column().classes("gap-0"):
                     UI.standard_label("المزامنة التلقائية عند الاتصال / Auto Online Reconnection Sync")
                     UI.muted_label("تفعيل المزامنة الفورية للبيانات المحفوظة أوفلاين بمجرد توفر الاتصال بالسيرفر.")
-                self.auto_sync_switch = UI.switch("تفعيل / Enable", value=True)
+                self.auto_sync_switch = UI.switch("تفعيل / Enable", value=auto_sync)
 
             with ui.row().classes("w-full justify-between items-center pt-2 border-t mt-3"):
                 UI.secondary_button(
@@ -680,9 +695,11 @@ class SettingsScreen:
     def _test_server_connection(self) -> None:
         """Tests live reachability of the configured Server API host & port."""
         from sync_engine import check_network_status
-        host = (self.server_host_input.value if hasattr(self, 'server_host_input') and self.server_host_input else "http://127.0.0.1").strip()
-        port = (self.server_port_input.value if hasattr(self, 'server_port_input') and self.server_port_input else "8000").strip()
-        full_url = f"{host}:{port}" if ":" not in host.replace("http://", "").replace("https://", "") else host
+        from api_config import API_URL
+        host = (self.server_host_input.value if hasattr(self, 'server_host_input') and self.server_host_input else "127.0.0.1")
+        port = (self.server_port_input.value if hasattr(self, 'server_port_input') and self.server_port_input else "2030")
+        clean_host = str(host).replace("http://", "").replace("https://", "").strip().rstrip("/")
+        full_url = f"http://{clean_host}:{port}"
 
         try:
             online = check_network_status()
@@ -694,10 +711,27 @@ class SettingsScreen:
             ui.notify(f"فحص الاتصال فشل: {exc}", type="negative")
 
     def _save_server_config(self) -> None:
-        """Saves Server API settings to configuration."""
-        host = (self.server_host_input.value if hasattr(self, 'server_host_input') and self.server_host_input else "http://127.0.0.1").strip()
-        port = (self.server_port_input.value if hasattr(self, 'server_port_input') and self.server_port_input else "8000").strip()
-        ui.notify(f"تم حفظ إعدادات السيرفر والمنفذ ({host}:{port}) بنجاح! / Server settings saved!", type="positive")
+        """Saves Server API settings locally to server_config.json."""
+        from api_config import save_server_config
+        host = (self.server_host_input.value if hasattr(self, 'server_host_input') and self.server_host_input else "127.0.0.1")
+        port = (self.server_port_input.value if hasattr(self, 'server_port_input') and self.server_port_input else "2030")
+        secret = (self.api_secret_input.value if hasattr(self, 'api_secret_input') and self.api_secret_input else "certificate_manager_secret_key")
+        timeout = (self.api_timeout_input.value if hasattr(self, 'api_timeout_input') and self.api_timeout_input else 5)
+        auto_sync = (self.auto_sync_switch.value if hasattr(self, 'auto_sync_switch') and self.auto_sync_switch else True)
+
+        try:
+            cfg = save_server_config(host=host, port=port, secret=secret, timeout=timeout, auto_sync=auto_sync)
+            # Update active repository instances with the new URL
+            if hasattr(self, 's_repo') and self.s_repo:
+                self.s_repo.api_url = cfg["api_url"]
+            if hasattr(self, 'student_repo') and self.student_repo:
+                self.student_repo.api_url = cfg["api_url"]
+                self.student_repo.api_base_url = cfg["api_url"]
+
+            ui.notify(f"تم حفظ إعدادات السيرفر والمنفذ ({cfg['api_url']}) محلياً في server_config.json بنجاح!", type="positive")
+            self._test_server_connection()
+        except Exception as exc:
+            ui.notify(f"خطأ أثناء حفظ إعدادات السيرفر: {exc}", type="negative")
 
     def _do_sync_offline_queue(self) -> None:
         """Triggers manual sync of queued offline INSERTs to MySQL."""

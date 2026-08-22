@@ -508,6 +508,18 @@ def init_local_db() -> None:
             )
         """)
 
+        cur.execute("""
+            CREATE TABLE IF NOT EXISTS issued_certificates (
+                id             INTEGER PRIMARY KEY AUTOINCREMENT,
+                student_id     INTEGER NOT NULL,
+                to_title       TEXT NOT NULL DEFAULT 'من يهمه الأمر',
+                template_type  TEXT NOT NULL DEFAULT 'ARABIC',
+                issue_date     TEXT NOT NULL,
+                created_at     TEXT DEFAULT CURRENT_TIMESTAMP,
+                UNIQUE(student_id, issue_date, to_title, template_type)
+            )
+        """)
+
         # Self-healing migration: drop obsolete settings_id column if it exists
         try:
             cur.execute("PRAGMA table_info(personnel)")
@@ -609,6 +621,7 @@ _REPLICA_TABLES: list[tuple[str, str]] = [
     ("enrollments",         "SELECT * FROM enrollments"),
     ("student_supervisors", "SELECT * FROM student_supervisors"),
     ("thesis_records",      "SELECT * FROM thesis_records"),
+    ("issued_certificates", "SELECT * FROM issued_certificates"),
 ]
 
 

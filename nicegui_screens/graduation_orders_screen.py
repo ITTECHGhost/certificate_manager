@@ -222,45 +222,56 @@ class GraduationOrdersScreen:
 
         linked_cnt = row.get("linked_count", 0)
 
-        with ui.row().classes("w-full items-center justify-between p-4 rounded-xl bg-[var(--bg-card)] border border-[var(--border-default)] gap-4 flex-nowrap overflow-hidden hover:border-[var(--color-accent)] transition-all shadow-sm"):
-            # Left Info Column: Order Number & Date
-            with ui.row().classes("items-center gap-4 flex-1 min-w-0"):
-                ui.icon("description", size="md").classes("app-text-accent shrink-0")
-                with ui.column().classes("gap-0 min-w-0 flex-1"):
-                    ui.label(f"أمر تخرج رقم: {order_num}").classes("font-bold text-base app-text-primary truncate")
-                    ui.label(f"تاريخ الأمر: {order_date}  •  القسم: {dept_name}").classes("text-xs text-slate-400 font-mono truncate")
+        with ui.column().classes("w-full p-4 rounded-xl bg-[var(--bg-card)] border border-[var(--border-default)] gap-3 hover:border-[var(--color-accent)] transition-all shadow-sm"):
+            # Top Row: Order Number & Date + Action Buttons
+            with ui.row().classes("w-full items-center justify-between gap-4 flex-wrap"):
+                with ui.row().classes("items-center gap-3 min-w-0 flex-1"):
+                    ui.icon("description", size="md").classes("app-text-accent shrink-0")
+                    with ui.column().classes("gap-0.5 min-w-0 flex-1"):
+                        ui.label(f"أمر تخرج رقم: {order_num}").classes("font-bold text-base app-text-primary")
+                        ui.label(f"تاريخ الأمر: {order_date}").classes("text-xs text-slate-400 font-mono")
 
-            # Center Info Badges: Year, Study Type, Semester, Linked Students
-            with ui.row().classes("items-center gap-3 shrink-0 flex-nowrap"):
-                with ui.column().classes("items-center gap-0 shrink-0"):
-                    ui.label("الدفعة").classes("text-[10px] app-text-muted font-semibold")
-                    ui.label(str(grad_year)).classes("text-xs font-bold px-2.5 py-1 rounded-lg bg-[var(--bg-card)] border border-[var(--border-default)] app-text-accent")
+                # Right Action Buttons
+                with ui.row().classes("items-center gap-2 shrink-0"):
+                    UI.primary_button(
+                        "تعديل وربط الطلاب / Edit & Link Students",
+                        icon="edit",
+                        on_click=lambda r=row: self.show_edit_view(row=r, mode="edit")
+                    ).classes("text-xs px-3.5 py-1.5")
 
-                with ui.column().classes("items-center gap-0 shrink-0"):
-                    ui.label("الدراسة").classes("text-[10px] app-text-muted font-semibold")
-                    ui.label(st_type_disp).classes("text-xs font-bold px-2.5 py-1 rounded-lg bg-[var(--bg-card)] border border-[var(--border-default)] app-text-primary")
+                    UI.danger_button(
+                        "Delete / حذف",
+                        icon="delete",
+                        on_click=lambda r=row: self.confirm_delete(r)
+                    ).classes("text-xs px-3 py-1.5")
 
-                with ui.column().classes("items-center gap-0 shrink-0"):
-                    ui.label("الفصل").classes("text-[10px] app-text-muted font-semibold")
-                    ui.label(sem_disp).classes("text-xs font-bold px-2.5 py-1 rounded-lg bg-[var(--bg-card)] border border-[var(--border-default)] app-text-primary")
+            # Bottom Row: Badges Details (Department, Batch, Study Mode, Semester, Linked Count)
+            with ui.row().classes("w-full items-center justify-between pt-2.5 border-t border-[var(--border-default)] gap-3 flex-wrap"):
+                with ui.row().classes("items-center gap-2 min-w-0 flex-1 flex-wrap"):
+                    # Department Chip
+                    with ui.row().classes("items-center gap-1.5 px-3 py-1 rounded-lg bg-[var(--bg-main)] border border-[var(--border-default)]"):
+                        ui.icon("domain", size="xs").classes("app-text-accent")
+                        ui.label(f"القسم: {dept_name}").classes("text-xs font-semibold app-text-primary")
 
-                with ui.column().classes("items-center gap-0 shrink-0"):
-                    ui.label("الطلاب المرتبطون").classes("text-[10px] app-text-muted font-semibold")
-                    ui.label(f"👥 {linked_cnt} طالب").classes("text-xs font-bold px-2.5 py-1 rounded-lg bg-emerald-500/10 border border-emerald-500/30 text-emerald-400")
+                    # Batch Chip
+                    with ui.row().classes("items-center gap-1.5 px-3 py-1 rounded-lg bg-[var(--bg-main)] border border-[var(--border-default)]"):
+                        ui.icon("calendar_today", size="xs").classes("app-text-accent")
+                        ui.label(f"الدفعة: {grad_year}").classes("text-xs font-bold app-text-accent")
 
-            # Right Action Buttons: Combined Edit & Link Students, Delete
-            with ui.row().classes("items-center gap-2 shrink-0 flex-nowrap"):
-                UI.primary_button(
-                    "تعديل وربط الطلاب / Edit & Link Students",
-                    icon="edit",
-                    on_click=lambda r=row: self.show_edit_view(row=r, mode="edit")
-                ).classes("text-xs px-3 py-1.5")
+                    # Study Mode Chip
+                    with ui.row().classes("items-center gap-1.5 px-3 py-1 rounded-lg bg-[var(--bg-main)] border border-[var(--border-default)]"):
+                        ui.icon("schedule", size="xs").classes("app-text-primary")
+                        ui.label(f"الدراسة: {st_type_disp}").classes("text-xs font-semibold app-text-primary")
 
-                UI.danger_button(
-                    "Delete / حذف",
-                    icon="delete",
-                    on_click=lambda r=row: self.confirm_delete(r)
-                ).classes("text-xs px-3 py-1.5")
+                    # Semester Chip
+                    with ui.row().classes("items-center gap-1.5 px-3 py-1 rounded-lg bg-[var(--bg-main)] border border-[var(--border-default)]"):
+                        ui.icon("event", size="xs").classes("app-text-primary")
+                        ui.label(f"الفصل: {sem_disp}").classes("text-xs font-semibold app-text-primary")
+
+                # Linked Students Badge
+                with ui.row().classes("items-center gap-1.5 px-3 py-1 rounded-lg bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 shrink-0"):
+                    ui.icon("people", size="xs").classes("text-emerald-400")
+                    ui.label(f"الطلاب المرتبطون: {linked_cnt} طالب").classes("text-xs font-bold")
 
     def go_prev(self):
         self.current_offset = max(0, self.current_offset - self.current_limit)
