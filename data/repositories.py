@@ -1832,8 +1832,22 @@ class EnrollmentRepository(BaseRepository):
 # ---------------------------------------------------------------------------
 class CertificateRepository(BaseRepository):
     
-    def get_full_certificate_data(self, student_id: int) -> dict | None:
+    def get_full_certificate_data(self, student_id: int, grouping_mode: str = "DEFAULT") -> dict | None:
         if not is_online():
+            response_data = {
+                "settings": [],
+                "student_info": [],
+                "ranking": [],
+                "signers": [],
+                "academic_timeline": [],
+                "courses_grouped": []
+            }
+            
+            # 0. Settings
+            settings = sqlite_read_one("SELECT * FROM university_settings WHERE id = 1")
+            if settings: response_data["settings"] = [settings]
+            
+            # 1. Student Info
             student = sqlite_read_one(
                 "SELECT s.*, "
                 "       d.name_ar AS dept_name_ar, d.name_en AS dept_name_en, "
@@ -1841,16 +1855,18 @@ class CertificateRepository(BaseRepository):
                 "       ss.calculation_rule, ss.calculation_weights, ss.period_display, ss.study_day_type AS study_type, "
                 "       c.name_ar AS nationality_ar, c.name_en AS nationality_en, "
                 "       g.name_ar AS birthplace_ar, g.name_en AS birthplace_en, "
-                "       o.order_number, o.order_date "
+                "       o.order_number, o.order_date, o.num_students AS order_num_students "
                 "FROM ("
-                "  SELECT id, full_name_ar, full_name_en, gender, sequence_number, postgraduation_number, date_of_birth, "
+                "  SELECT id AS student_id, full_name_ar, full_name_en, gender, sequence_number, postgraduation_number, date_of_birth, "
                 "         birthplace_id, birthplace_other, nationality_id, department_id, study_system_id, degree_level, "
-                "         order_id, CAST(admission_year AS TEXT) AS admission_year, summer_training_data, average, graduation_date, graduation_semester "
+                "         order_id, CAST(admission_year AS TEXT) AS admission_year, summer_training_data, average, graduation_date, graduation_semester, "
+                "         CAST(strftime('%Y', graduation_date) AS INTEGER) AS graduation_year "
                 "  FROM students "
                 "  UNION ALL "
-                "  SELECT id, full_name_ar, full_name_en, gender, sequence_number, postgraduation_number, date_of_birth, "
+                "  SELECT id AS student_id, full_name_ar, full_name_en, gender, sequence_number, postgraduation_number, date_of_birth, "
                 "         birthplace_id, birthplace_other, nationality_id, department_id, study_system_id, degree_level, "
-                "         order_id, CAST(admission_year AS TEXT) AS admission_year, summer_training_data, average, graduation_date, graduation_semester "
+                "         order_id, CAST(admission_year AS TEXT) AS admission_year, summer_training_data, average, graduation_date, graduation_semester, "
+                "         CAST(strftime('%Y', graduation_date) AS INTEGER) AS graduation_year "
                 "  FROM local_students"
                 ") s "
                 "LEFT JOIN departments d    ON s.department_id   = d.id "
@@ -1858,140 +1874,133 @@ class CertificateRepository(BaseRepository):
                 "LEFT JOIN countries c      ON s.nationality_id  = c.id "
                 "LEFT JOIN governorates g   ON s.birthplace_id   = g.id "
                 "LEFT JOIN graduation_orders o ON s.order_id = o.id "
-                "WHERE s.id = ?",
+                "WHERE s.student_id = ?",
                 (student_id,)
             )
             if not student:
                 return None
+            response_data["student_info"] = [student]
             
-            data = student
+            # 2. Ranking
+            dept_id = student.get("department_id")
+            grad_year = student.get("graduation_year")
+            avg = student.get("average") or 0.0
             
-            # Class Rank
             rank_row = sqlite_read_one(
-                "SELECT COUNT(*) + 1 as rank FROM students "
+                "SELECT COUNT(*) + 1 as class_rank FROM students "
                 "WHERE department_id = ? AND strftime('%Y', graduation_date) = ? AND average > ? AND average IS NOT NULL",
-                (data.get("department_id"), data.get("graduation_year"), data.get("average", 0) or 0)
+                (dept_id, str(grad_year), avg)
             )
-            # Total Graduates
             total_row = sqlite_read_one(
-                "SELECT COUNT(*) as total FROM students "
+                "SELECT COUNT(*) as total_graduates FROM students "
                 "WHERE department_id = ? AND strftime('%Y', graduation_date) = ? AND average IS NOT NULL",
-                (data.get("department_id"), data.get("graduation_year"))
+                (dept_id, str(grad_year))
             )
-            data["rank"] = data.get("sequence_number") or (rank_row["rank"] if rank_row else 1)
-            data["total_graduates"] = data.get("postgraduation_number") or (total_row["total"] if total_row else 1)
-            
-            # Top Average
             top_row = sqlite_read_one(
-                "SELECT MAX(average) as top_avg FROM students "
+                "SELECT MAX(average) as top_average FROM students "
                 "WHERE department_id = ? AND strftime('%Y', graduation_date) = ?",
-                (data.get("department_id"), data.get("graduation_year"))
+                (dept_id, str(grad_year))
             )
-            data["top_average"] = top_row["top_avg"] if top_row else None
+            response_data["ranking"] = [{
+                "class_rank": rank_row["class_rank"] if rank_row else 1,
+                "total_graduates": total_row["total_graduates"] if total_row else 1,
+                "top_average": top_row["top_average"] if top_row else 0.0
+            }]
             
-            # Fetch Academic Periods and Enrollments
-            periods = sqlite_read_all(
-                "SELECT id, student_id, academic_year, study_system_id, stage_number, semester_num FROM ("
-                "  SELECT id, student_id, academic_year, study_system_id, stage_number, semester_num FROM academic_periods "
-                "  UNION ALL "
-                "  SELECT id, student_id, academic_year, study_system_id, stage_number, semester_num FROM local_academic_periods"
-                ") WHERE student_id = ? ORDER BY academic_year ASC, semester_num ASC",
+            # 3. Signers
+            signers = sqlite_read_all(
+                "SELECT id, name_ar, name_en, academic_title_ar, academic_title_en, "
+                "       responsibility_ar, responsibility_en, display_order, "
+                "       1 AS is_signature, display_order AS page_location, "
+                "       COALESCE(personnel_role, 'signer') AS personnel_role "
+                "FROM personnel WHERE is_active = 1 AND display_order > 0 ORDER BY display_order ASC, id ASC"
+            )
+            response_data["signers"] = signers
+            
+            # 4. Academic Timeline
+            timeline = sqlite_read_all(
+                "SELECT MIN(ap.id) AS primary_period_id, "
+                "       CASE WHEN ap.academic_year IS NULL OR ap.academic_year = '' THEN '' "
+                "            WHEN ap.academic_year LIKE '%-%' THEN ap.academic_year "
+                "            ELSE ap.academic_year || ' - ' || CAST(CAST(ap.academic_year AS INTEGER) + 1 AS TEXT) "
+                "       END AS academic_year, "
+                "       MAX(ap.stage_number) AS stage_number, "
+                "       COALESCE(ap.semester_num, 1) AS semester_num, "
+                "       GROUP_CONCAT(COALESCE(ap.result_status, 'PASSED')) AS result_status "
+                "FROM (SELECT * FROM academic_periods UNION ALL SELECT * FROM local_academic_periods) ap "
+                "WHERE ap.student_id = ? "
+                "GROUP BY ap.academic_year, ap.semester_num "
+                "ORDER BY ap.academic_year ASC, ap.semester_num ASC",
                 (student_id,)
             )
-            data["periods"] = []
-            for p in periods:
-                enrollments = sqlite_read_all(
-                    "SELECT e.id, e.period_id, e.course_id, e.score, e.passed_round, "
-                    "       CASE WHEN e.passed_round != '1' THEN 1 ELSE 0 END AS is_second_round, "
-                    "       c.name_ar AS course_name_ar, c.name_en AS course_name_en, c.credit_hours "
-                    "FROM ("
-                    "  SELECT id, period_id, course_id, score, passed_round FROM enrollments "
-                    "  UNION ALL "
-                    "  SELECT id, period_id, course_id, score, passed_round FROM local_enrollments"
-                    ") e "
-                    "JOIN courses c ON e.course_id = c.id "
-                    "WHERE e.period_id = ? "
-                    "ORDER BY c.name_ar",
-                    (p["id"],)
-                )
-                p["enrollments"] = enrollments
-                data["periods"].append(p)
-                
-            # Signatories
-            data["all_personnel"] = sqlite_read_all(
-                "SELECT * FROM personnel WHERE is_active = 1 AND display_order >= 1 ORDER BY display_order ASC"
+            response_data["academic_timeline"] = timeline
+            
+            # 5. Courses (Fallback grouping logic if offline)
+            courses = sqlite_read_all(
+                "SELECT CASE WHEN ap.academic_year IS NULL OR ap.academic_year = '' THEN '' "
+                "            WHEN ap.academic_year LIKE '%-%' THEN ap.academic_year "
+                "            ELSE ap.academic_year || ' - ' || CAST(CAST(ap.academic_year AS INTEGER) + 1 AS TEXT) "
+                "       END AS academic_year_formatted, "
+                "       ap.academic_year, ap.stage_number, COALESCE(ap.semester_num, 1) AS semester_num, "
+                "       COALESCE(c.name_ar, '') AS subject_name, COALESCE(c.credit_hours, 0) AS unit, "
+                "       COALESCE(e.score, 0.0) AS mark, COALESCE(e.passed_round, 1) AS passed_round, "
+                "       ap.stage_number || '_' || COALESCE(ap.semester_num, 1) AS grouping_key "
+                "FROM (SELECT * FROM academic_periods UNION ALL SELECT * FROM local_academic_periods) ap "
+                "JOIN (SELECT * FROM enrollments UNION ALL SELECT * FROM local_enrollments) e ON e.period_id = ap.id "
+                "JOIN courses c ON e.course_id = c.id "
+                "WHERE ap.student_id = ? "
+                "ORDER BY ap.stage_number ASC, COALESCE(ap.semester_num, 1) ASC, c.name_ar ASC",
+                (student_id,)
             )
-            data["front_signatories"] = [p for p in data["all_personnel"] if 1 <= p.get("display_order", 0) <= 4]
-            data["back_signatories"] = [p for p in data["all_personnel"] if p.get("display_order", 0) >= 5]
-            
-            # Settings
-            settings = sqlite_read_one("SELECT * FROM university_settings WHERE id = 1")
-            if settings:
-                data["univ_name_ar"] = settings.get("univ_name_ar")
-                data["univ_name_en"] = settings.get("univ_name_en")
-                data["college_name_ar"] = settings.get("college_name_ar")
-                data["college_name_en"] = settings.get("college_name_en")
-                
-            # Postgraduate isolation
-            data["thesis"] = None
-            data["supervisors"] = []
-            degree_level = data.get("degree_level", 1)
-            if degree_level in [3, 4, "Master", "PhD"]:
-                try:
-                    data["thesis"] = sqlite_read_all("SELECT * FROM thesis_records WHERE student_id = ?", (student_id,))
-                except Exception:
-                    data["thesis"] = []
-                try:
-                    data["supervisors"] = sqlite_read_all(
-                        "SELECT ss.*, p.name_ar as personnel_name_ar, p.name_en as personnel_name_en "
-                        "FROM student_supervisors ss "
-                        "JOIN personnel p ON ss.personnel_id = p.id "
-                        "WHERE ss.student_id = ?",
-                        (student_id,)
-                    )
-                except Exception:
-                    data["supervisors"] = []
-            return data
+            response_data["courses_grouped"] = courses
 
-        try:
-            resp = requests.get(f"{self.api_url}/certificates/{student_id}", timeout=5.0)
-            if resp.status_code == 200:
-                rowsets = resp.json()
-            else:
+        else:
+            try:
+                resp = requests.get(f"{self.api_url}/certificates/{student_id}?grouping_mode={grouping_mode}", timeout=5.0)
+                if resp.status_code == 200:
+                    response_data = resp.json()
+                else:
+                    return None
+            except Exception as e:
+                log_system(f"API request failed: {e}", "WARNING")
                 return None
-        except Exception as e:
-            log_system(f"API request failed: {e}", "WARNING")
-            return None
-        
-        if not rowsets or not rowsets[0]:
-            return None
             
-        data = rowsets[0][0]
+        if not response_data or not response_data.get("student_info"):
+            return None
+
+        data = response_data["student_info"][0] if response_data.get("student_info") else {}
         
-        if len(rowsets) > 1 and rowsets[1]:
-            analytics = rowsets[1][0]
+        if response_data.get("ranking") and response_data["ranking"][0]:
+            analytics = response_data["ranking"][0]
             data["rank"] = data.get("sequence_number") or analytics.get("class_rank", 1)
-            data["total_graduates"] = data.get("postgraduation_number") or analytics.get("total_graduates", 1)
+            order_count = data.get("order_num_students")
+            if not order_count and data.get("order_id"):
+                try:
+                    ord_r = sqlite_read_one("SELECT num_students FROM graduation_orders WHERE id = ?", (data.get("order_id"),))
+                    if ord_r and ord_r.get("num_students"):
+                        order_count = ord_r.get("num_students")
+                except Exception:
+                    pass
+
+            data["order_num_students"] = order_count
+            data["db_total_graduates"] = analytics.get("total_graduates", 1)
+            data["total_graduates"] = order_count or data.get("postgraduation_number") or analytics.get("total_graduates", 1)
             data["top_average"] = analytics.get("top_average")
             
-        data["periods"] = []
-        if len(rowsets) > 3:
-            periods = rowsets[2]
-            enrollments = rowsets[3]
-            for p in periods:
-                p["enrollments"] = [e for e in enrollments if e["period_id"] == p["id"]]
-                data["periods"].append(p)
-                
-        if len(rowsets) > 4: data["front_signatories"] = rowsets[4]
-        if len(rowsets) > 5: data["back_signatories"] = rowsets[5]
-            
-        if len(rowsets) > 6 and rowsets[6]:
-            settings = rowsets[6][0]
+        data["academic_timeline"] = response_data.get("academic_timeline", [])
+        data["courses_grouped"] = response_data.get("courses_grouped", [])
+        
+        signers = response_data.get("signers", [])
+        data["front_signatories"] = [p for p in signers if 1 <= p.get("display_order", 0) <= 4]
+        data["back_signatories"] = [p for p in signers if p.get("display_order", 0) >= 5]
+        
+        if response_data.get("settings") and response_data["settings"][0]:
+            settings = response_data["settings"][0]
             data["univ_name_ar"] = settings.get("univ_name_ar")
             data["univ_name_en"] = settings.get("univ_name_en")
             data["college_name_ar"] = settings.get("college_name_ar")
             data["college_name_en"] = settings.get("college_name_en")
-
+            
         # POSTGRADUATE ISOLATION BLOCK
         data["thesis"] = None
         data["supervisors"] = []

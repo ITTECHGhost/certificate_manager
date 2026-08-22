@@ -516,7 +516,11 @@ class MainAppShell:
             elif self.current_screen == "settings":
                 SettingsScreen()
             elif self.current_screen == "students":
-                self._active_students_screen = StudentsScreen()
+                def _on_issue_cert_handler(student_dict):
+                    self._last_cert_student = student_dict
+                    self._switch_screen("certificate")
+
+                self._active_students_screen = StudentsScreen(on_issue_certificate=_on_issue_cert_handler)
             elif self.current_screen == "orders":
                 GraduationOrdersScreen()
             elif self.current_screen == "departments":
@@ -613,15 +617,15 @@ class MainAppShell:
             # [CARD: TABBED TABLE PANEL]
             with UI.card(Styles.TABLE_PANEL):
                 # [TAB BAR: NAVIGATION TABS FOR TABLES]
-                with ui.tabs().classes("w-full app-tabs") as tabs:
+                with ui.tabs().classes("w-full app-tabs").props("dense shrink inline-label mobile-arrows outside-arrows") as tabs:
                     # Tab 1 Button (Recent Students)
                     tab_students = ui.tab(
-                        "Recent Students Added  —  أحدث الطلاب المضافين",
+                        "أحدث الطلاب المضافين  —  Recent Students",
                         icon="person_add"
                     )
                     # Tab 2 Button (Recent Certificates)
                     tab_certs = ui.tab(
-                        "Recent Certificates Printed  —  أحدث الشهادات الصادرة",
+                        "أحدث الشهادات الصادرة  —  Recent Certificates",
                         icon="workspace_premium"
                     )
 
@@ -631,10 +635,10 @@ class MainAppShell:
                     # ── TAB 1 VIEW: RECENT STUDENTS TABLE ────────────────────
                     with ui.tab_panel(tab_students).classes("w-full p-0 pt-2 bg-transparent"):
                         cols_s = [
-                            {"name": "name",   "label": "Student Name / اسم الطالب", "field": "name",   "align": "left", "headerClasses": "text-slate-600 dark:text-slate-400 font-bold bg-transparent"},
-                            {"name": "dept",   "label": "Department / القسم",        "field": "dept",   "align": "left", "headerClasses": "text-slate-600 dark:text-slate-400 font-bold bg-transparent"},
-                            {"name": "year",   "label": "Batch / سنة القبول",        "field": "year",   "align": "center", "headerClasses": "text-slate-600 dark:text-slate-400 font-bold bg-transparent"},
-                            {"name": "status", "label": "Status / الحالة",           "field": "status", "align": "right", "headerClasses": "text-slate-600 dark:text-slate-400 font-bold bg-transparent"},
+                            {"name": "name",   "label": "اسم الطالب / Student Name", "field": "name",   "align": "right", "headerClasses": "text-slate-600 dark:text-slate-400 font-bold bg-transparent"},
+                            {"name": "dept",   "label": "القسم / Department",        "field": "dept",   "align": "right", "headerClasses": "text-slate-600 dark:text-slate-400 font-bold bg-transparent"},
+                            {"name": "year",   "label": "سنة القبول / Batch",        "field": "year",   "align": "center", "headerClasses": "text-slate-600 dark:text-slate-400 font-bold bg-transparent"},
+                            {"name": "status", "label": "الحالة / Status",           "field": "status", "align": "left", "headerClasses": "text-slate-600 dark:text-slate-400 font-bold bg-transparent"},
                         ]
                         rows_s = [
                             {
@@ -661,10 +665,10 @@ class MainAppShell:
                     # ── TAB 2 VIEW: RECENT CERTIFICATES TABLE ────────────────
                     with ui.tab_panel(tab_certs).classes("w-full p-0 pt-2 bg-transparent"):
                         cols_c = [
-                            {"name": "name",  "label": "Student Name / اسم الطالب", "field": "name",  "align": "left", "headerClasses": "text-slate-600 dark:text-slate-400 font-bold bg-transparent"},
-                            {"name": "dept",  "label": "Department / القسم",        "field": "dept",  "align": "left", "headerClasses": "text-slate-600 dark:text-slate-400 font-bold bg-transparent"},
-                            {"name": "order", "label": "Order No / رقم الأمر",      "field": "order", "align": "center", "headerClasses": "text-slate-600 dark:text-slate-400 font-bold bg-transparent"},
-                            {"name": "date",  "label": "Date Issued / التاريخ",      "field": "date",  "align": "right", "headerClasses": "text-slate-600 dark:text-slate-400 font-bold bg-transparent"},
+                            {"name": "name",  "label": "اسم الطالب / Student Name", "field": "name",  "align": "right", "headerClasses": "text-slate-600 dark:text-slate-400 font-bold bg-transparent"},
+                            {"name": "dept",  "label": "القسم / Department",        "field": "dept",  "align": "right", "headerClasses": "text-slate-600 dark:text-slate-400 font-bold bg-transparent"},
+                            {"name": "order", "label": "رقم الأمر / Order No",      "field": "order", "align": "center", "headerClasses": "text-slate-600 dark:text-slate-400 font-bold bg-transparent"},
+                            {"name": "date",  "label": "التاريخ / Date Issued",      "field": "date",  "align": "left", "headerClasses": "text-slate-600 dark:text-slate-400 font-bold bg-transparent"},
                         ]
                         rows_c = [
                             {

@@ -372,12 +372,13 @@ class CourseEnrollmentView:
 
 
 class StudentProfileView:
-    def __init__(self, repo, parent_container, on_back, on_edit=None, on_manage_courses=None):
+    def __init__(self, repo, parent_container, on_back, on_edit=None, on_manage_courses=None, on_issue_certificate=None):
         self.repo = repo
         self.parent = parent_container
         self.on_back = on_back
         self.on_edit = on_edit
         self.on_manage_courses = on_manage_courses
+        self.on_issue_certificate = on_issue_certificate
         self.period_repo = AcademicPeriodRepository()
         self.enroll_repo = EnrollmentRepository()
         self.course_repo = CourseRepository()
@@ -388,11 +389,11 @@ class StudentProfileView:
             
         student_id = student_data.get("id") or student_data.get("student_id")
         student_row = student_data
-        if student_id and not student_data.get("dept_name_ar"):
+        if student_id:
             try:
                 fetched = self.repo.get_by_id(student_id)
                 if fetched:
-                    student_row = fetched
+                    student_row = {**student_data, **fetched}
             except Exception as e:
                 log.warning(f"Could not fetch full student details: {e}")
 
@@ -418,15 +419,28 @@ class StudentProfileView:
                             def _go_cert_profile():
                                 on_back_to_cert(data)
                             UI.primary_button(
-                                '📄 العودة إلى وثيقة الطالب / Back to Certificate',
+                                'العودة إلى وثيقة الطالب / Back to Certificate',
                                 icon='description',
                                 on_click=_go_cert_profile
                             ).classes('text-xs px-4 py-2 font-bold')
-                        UI.secondary_button(
-                            'Edit Student / تعديل البيانات',
+                        else:
+                            def _go_cert():
+                                if self.on_issue_certificate:
+                                    self.on_issue_certificate(data)
+                                else:
+                                    UI.notify("الانتقال إلى إعدادات الوثيقة...", type="info")
+
+                            UI.primary_button(
+                                'إصدار الوثيقة / Issue Certificate',
+                                icon='workspace_premium',
+                                on_click=_go_cert
+                            ).classes('text-xs px-4 py-2 font-bold shadow-sm')
+
+                        UI.primary_button(
+                            'تعديل البيانات / Edit Student',
                             icon='edit',
                             on_click=lambda: self.on_edit(data, on_back_to_cert=on_back_to_cert) if self.on_edit else ui.notify("Edit handler not connected", type="warning")
-                        )
+                        ).classes('text-xs px-4 py-2 font-bold')
                     
                 # Tabs
                 with ui.tabs().classes('w-full border-b border-[var(--border-default)] app-text-primary shrink-0') as tabs:
@@ -691,10 +705,15 @@ class StudentProfileView:
                         
                         c_ar = enr.get("course_name_ar") or enr.get("name_ar") or "مادة"
                         c_en = enr.get("course_name_en") or enr.get("name_en") or ""
+                        pr = str(enr.get("passed_round", "1"))
+                        is_2nd = (pr in ('2', '3') or enr.get("is_second_round"))
 
                         with ui.row().classes("w-full justify-between items-center p-2 rounded bg-[var(--bg-card)] gap-2"):
                             with ui.column().classes("flex-1 min-w-0 text-right gap-0"):
-                                ui.label(c_ar).classes("font-bold text-sm app-text-primary truncate")
+                                with ui.row().classes("items-center gap-2"):
+                                    ui.label(c_ar).classes("font-bold text-sm app-text-primary truncate")
+                                    if is_2nd:
+                                        ui.label("الدور الثاني").classes("px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-amber-500/20 text-amber-400 border border-amber-500/30 shrink-0")
                                 if c_en:
                                     ui.label(c_en).classes("text-xs text-slate-400 font-mono truncate")
                             ui.label(f":  {display_score}").classes("font-bold text-sm app-text-accent shrink-0")
@@ -859,7 +878,7 @@ class StudentFormView:
                     with ui.row().classes('w-full gap-4'):
                         self.average = UI.text_input("Average / المعدل (50-100)").classes('flex-1')
                         self.sequence = UI.text_input("Sequence Number / رقم التسلسل").classes('flex-1')
-                        self.postgrad_num = UI.text_input("Postgrad Decree / رقم الأمر الوثيقي/العالي").classes('flex-1')
+                        self.postgrad_num = UI.text_input("إجمالي الخريجين (الدفعة) / Total Postgrad Students").classes('flex-1')
 
                     with ui.row().classes('w-full gap-4'):
                         self.summer_training = UI.text_input("Summer Training / التدريب الصيفي").classes('w-full')

@@ -105,11 +105,11 @@ if __name__ in {"__main__", "__mp_main__"}:
         app.native.start_args['debug'] = True
 
     ui.run(
-        native      = use_native,
+        native      = use_native, #False,
         port        = 2323,
         window_size = screen_size if use_native else None,
         title       = "Certificate Manager",
-        reload      = False,
+        reload      = False, #True,
         dark        = None,
         storage_secret = "certificate_manager_secret_key"
     )

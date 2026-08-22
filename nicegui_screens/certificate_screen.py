@@ -195,7 +195,7 @@ def get_subj_display(enr: dict, is_english: bool) -> str:
     """Formats course name, appending attempt round indicator (2) or (3) for retaken courses."""
     if not enr:
         return ""
-    name = enr.get("course_name_en" if is_english else "course_name_ar", "")
+    name = enr.get("course_name_en" if is_english else "course_name_ar") or enr.get("subject_name", "")
     if not name:
         return ""
     pr = str(enr.get("passed_round") or "1").strip()
@@ -250,108 +250,76 @@ def build_certificate_context(data: dict, options: dict) -> dict:
     else:
         study_type_disp = "Morning" if is_english else "الصباحية"
 
-    # 4. Consolidate course history by Academic Year
-    periods = consolidate_course_history(data.get("periods", []))
-    non_empty_periods = [p for p in periods if p.get("enrollments")]
-    if not non_empty_periods:
-        non_empty_periods = periods
-
-    is_annual = (period_disp == "year")
-    num_periods = len(non_empty_periods)
-    paired_semesters = []
-
-    # Group periods by Academic Year ('academic_year')
+    # 4. Consolidate course history by Grouping Key from Backend
+    courses_grouped = data.get("courses_grouped", [])
+    
     from collections import OrderedDict
-    year_groups = OrderedDict()
-    for p in non_empty_periods:
-        ay = p.get("academic_year", "")
-        if ay not in year_groups:
-            year_groups[ay] = []
-        year_groups[ay].append(p)
-
+    groups_in_order = OrderedDict()
+    for c in courses_grouped:
+        gkey = str(c.get("grouping_key", ""))
+        if gkey not in groups_in_order:
+            groups_in_order[gkey] = []
+        groups_in_order[gkey].append(c)
+        
+    group_lists = list(groups_in_order.values())
+    paired_semesters = []
+    
     stage_names_ar = {1: "الأولى", 2: "الثانية", 3: "الثالثة", 4: "الرابعة", 5: "الخامسة", 6: "السادسة"}
     stage_names_en = {1: "First", 2: "Second", 3: "Third", 4: "Fourth", 5: "Fifth", 6: "Sixth"}
-
-    if is_annual:
-        # Annual System (Year-Based): Combine both periods of the same year into 1 column per year.
-        # Pair 2 Academic Years per row: Left = Year 1 (Stage 1), Right = Year 2 (Stage 2)
-        from collections import OrderedDict
-        year_summary_list = []
-        year_groups = OrderedDict()
-        for p in non_empty_periods:
-            ay = p.get("academic_year", "")
-            if ay not in year_groups:
-                year_groups[ay] = []
-            year_groups[ay].append(p)
-
-        for year_idx, (ay, p_list) in enumerate(year_groups.items()):
-            stg_raw = p_list[0].get("stage_number") if p_list else None
-            try:
-                stg_val = int(stg_raw) if stg_raw is not None and int(stg_raw) > 0 else (year_idx + 1)
-            except (ValueError, TypeError):
-                stg_val = year_idx + 1
-
-            # Combine all courses from all periods of this year into a single course list
-            combined_courses = []
-            for p in p_list:
-                combined_courses.extend(p.get("enrollments", []))
-
-            year_summary_list.append({
-                "academic_year": ay,
-                "stage_num": stg_val,
-                "courses": combined_courses,
+    is_annual = (period_disp == "year")
+    
+    for i in range(0, len(group_lists), 2):
+        left_courses = group_lists[i]
+        right_courses = group_lists[i + 1] if i + 1 < len(group_lists) else []
+        
+        left_c = left_courses[0] if left_courses else {}
+        right_c = right_courses[0] if right_courses else {}
+        
+        stg_left = left_c.get("stage_number") or 1
+        stg_right = right_c.get("stage_number") or 2
+        
+        ay_left = left_c.get("academic_year_formatted") or left_c.get("academic_year", "")
+        ay_right = right_c.get("academic_year_formatted") or right_c.get("academic_year", "")
+        
+        sem_left = left_c.get("semester_num") or 1
+        sem_right = right_c.get("semester_num") or 2
+        
+        stg_num_left_str = to_arabic_num(stg_left, is_english)
+        stg_num_right_str = to_arabic_num(stg_right, is_english)
+        stg_text_left = (stage_names_en if is_english else stage_names_ar).get(int(stg_left) if str(stg_left).isdigit() else 1, str(stg_left))
+        stg_text_right = (stage_names_en if is_english else stage_names_ar).get(int(stg_right) if str(stg_right).isdigit() else 2, str(stg_right))
+        
+        left_year_disp = to_arabic_num(ay_left, is_english)
+        right_year_disp = to_arabic_num(ay_right, is_english)
+        
+        doc_rows = []
+        for left, right in zip_longest(left_courses, right_courses, fillvalue={}):
+            lname = get_subj_display(left, is_english) if left else ""
+            rname = get_subj_display(right, is_english) if right else ""
+            
+            lmark = to_arabic_num(left.get("mark", ""), is_english) if left else ""
+            lunit = to_arabic_num(left.get("unit", ""), is_english) if left else ""
+            rmark = to_arabic_num(right.get("mark", ""), is_english) if right else ""
+            runit = to_arabic_num(right.get("unit", ""), is_english) if right else ""
+            
+            doc_rows.append({
+                "left_name": lname, "left_subj": lname,
+                "left_mark": lmark, "left_unit": lunit,
+                "right_name": rname, "right_subj": rname,
+                "right_mark": rmark, "right_unit": runit,
             })
-
-        # Pair the academic years 2-by-2 into rows (e.g. 2016 Stage 1 Left | 2017 Stage 2 Right)
-        num_years = len(year_summary_list)
-        for i in range(0, num_years, 2):
-            y_left = year_summary_list[i]
-            y_right = year_summary_list[i + 1] if i + 1 < num_years else None
-
-            left_courses = y_left["courses"] if y_left else []
-            right_courses = y_right["courses"] if y_right else []
-
-            stg_left = y_left["stage_num"] if y_left else (i + 1)
-            stg_right = y_right["stage_num"] if y_right else (i + 2)
-
-            ay_left = y_left["academic_year"] if y_left else ""
-            ay_right = y_right["academic_year"] if y_right else ""
-
-            stg_num_left_str = to_arabic_num(stg_left, is_english)
-            stg_num_right_str = to_arabic_num(stg_right, is_english)
-            stg_text_left = (stage_names_en if is_english else stage_names_ar).get(stg_left, stg_num_left_str)
-            stg_text_right = (stage_names_en if is_english else stage_names_ar).get(stg_right, stg_num_right_str)
-
-            left_year_disp = to_arabic_num(ay_left, is_english)
-            right_year_disp = to_arabic_num(ay_right, is_english)
-
-            doc_rows = []
-            for left, right in zip_longest(left_courses, right_courses, fillvalue={}):
-                lname = get_subj_display(left, is_english)
-                rname = get_subj_display(right, is_english)
-
-                lmark = to_arabic_num(left.get("score", ""), is_english) if left else ""
-                lunit = to_arabic_num(left.get("credit_hours", ""), is_english) if left else ""
-                rmark = to_arabic_num(right.get("score", ""), is_english) if right else ""
-                runit = to_arabic_num(right.get("credit_hours", ""), is_english) if right else ""
-
-                doc_rows.append({
-                    "left_name": lname, "left_subj": lname,
-                    "left_mark": lmark, "left_unit": lunit,
-                    "right_name": rname, "right_subj": rname,
-                    "right_mark": rmark, "right_unit": runit,
-                })
-
+            
+        if is_annual:
             paired_semesters.append({
                 "left_label": left_year_disp,
                 "right_label": right_year_disp,
                 "year_label": left_year_disp,
                 "academic_year": left_year_disp,
                 "rows": doc_rows,
-                "num_s_l": stg_num_left_str,       # 1, 3
-                "num_s_r": stg_num_right_str,      # 2, 4
-                "year_s_l": stg_num_left_str,      # 1, 3
-                "year_s_r": stg_num_right_str,     # 2, 4
+                "num_s_l": stg_num_left_str,
+                "num_s_r": stg_num_right_str,
+                "year_s_l": stg_num_left_str,
+                "year_s_r": stg_num_right_str,
                 "stage_s_l": stg_num_left_str,
                 "stage_s_r": stg_num_right_str,
                 "stage_l": stg_num_left_str,
@@ -363,83 +331,31 @@ def build_certificate_context(data: dict, options: dict) -> dict:
                 "stage_name_l": stg_text_left,
                 "stage_name_r": stg_text_right,
             })
-    else:
-        # Semester System: Semester 1 on Left, Semester 2 on Right for each Academic Year
-        from collections import OrderedDict
-        year_groups = OrderedDict()
-        for p in non_empty_periods:
-            ay = p.get("academic_year", "")
-            if ay not in year_groups:
-                year_groups[ay] = []
-            year_groups[ay].append(p)
-
-        for year_idx, (ay, p_list) in enumerate(year_groups.items()):
-            stg_raw = p_list[0].get("stage_number") if p_list else None
-            try:
-                stg_val = int(stg_raw) if stg_raw is not None and int(stg_raw) > 0 else (year_idx + 1)
-            except (ValueError, TypeError):
-                stg_val = year_idx + 1
-
-            stage_num_str = to_arabic_num(stg_val, is_english)
-            stage_text = (stage_names_en if is_english else stage_names_ar).get(stg_val, stage_num_str)
-
-            if len(p_list) >= 2:
-                left_period = p_list[0]
-                right_period = p_list[1]
-                left_courses = left_period.get("enrollments", [])
-                right_courses = right_period.get("enrollments", [])
-            elif len(p_list) == 1:
-                single_p = p_list[0]
-                all_c = single_p.get("enrollments", [])
-                half = (len(all_c) + 1) // 2
-                left_courses = all_c[:half]
-                right_courses = all_c[half:]
-                left_period = single_p
-                right_period = single_p
-            else:
-                left_courses, right_courses = [], []
-
+        else:
             left_sem_label = "First Semester" if is_english else "الفصل الأول"
             right_sem_label = "Second Semester" if is_english else "الفصل الثاني"
-            row_year_display = f"العام الدراسي {to_arabic_num(ay, is_english)}" if ay else ""
-
-            doc_rows = []
-            for left, right in zip_longest(left_courses, right_courses, fillvalue={}):
-                lname = get_subj_display(left, is_english)
-                rname = get_subj_display(right, is_english)
-
-                lmark = to_arabic_num(left.get("score", ""), is_english) if left else ""
-                lunit = to_arabic_num(left.get("credit_hours", ""), is_english) if left else ""
-                rmark = to_arabic_num(right.get("score", ""), is_english) if right else ""
-                runit = to_arabic_num(right.get("credit_hours", ""), is_english) if right else ""
-
-                doc_rows.append({
-                    "left_name": lname, "left_subj": lname,
-                    "left_mark": lmark, "left_unit": lunit,
-                    "right_name": rname, "right_subj": rname,
-                    "right_mark": rmark, "right_unit": runit,
-                })
-
+            row_year_display = f"العام الدراسي {left_year_disp}" if left_year_disp else ""
+            
             paired_semesters.append({
                 "left_label": left_sem_label,
                 "right_label": right_sem_label,
                 "year_label": row_year_display,
-                "academic_year": to_arabic_num(ay, is_english),
+                "academic_year": left_year_disp,
                 "rows": doc_rows,
-                "num_s_l": to_arabic_num(1, is_english),
-                "num_s_r": to_arabic_num(2 if len(p_list) >= 2 else 1, is_english),
-                "year_s_l": stage_num_str,
-                "year_s_r": stage_num_str,
-                "stage_s_l": stage_num_str,
-                "stage_s_r": stage_num_str,
-                "stage_l": stage_num_str,
-                "stage_r": stage_num_str,
-                "stage": stage_num_str,
-                "stage_num": stage_num_str,
-                "stage_text": stage_text,
-                "stage_name": stage_text,
-                "stage_name_l": stage_text,
-                "stage_name_r": stage_text,
+                "num_s_l": to_arabic_num(sem_left, is_english),
+                "num_s_r": to_arabic_num(sem_right, is_english),
+                "year_s_l": stg_num_left_str,
+                "year_s_r": stg_num_left_str,
+                "stage_s_l": stg_num_left_str,
+                "stage_s_r": stg_num_left_str,
+                "stage_l": stg_num_left_str,
+                "stage_r": stg_num_left_str,
+                "stage": stg_num_left_str,
+                "stage_num": stg_num_left_str,
+                "stage_text": stg_text_left,
+                "stage_name": stg_text_left,
+                "stage_name_l": stg_text_left,
+                "stage_name_r": stg_text_left,
             })
 
     # Academic Grade Calculation
@@ -611,6 +527,7 @@ class CertificateScreen:
         self.selected_student = None
         self.student_full_data = None
         self.generated_file_path = None
+        self.current_grouping_mode = "DEFAULT"
 
         self.templates_dir = "templets"
         if not os.path.exists(self.templates_dir):
@@ -633,6 +550,8 @@ class CertificateScreen:
                 self.template_sel.value = filtered_templates[0] if filtered_templates else None
                 self.template_sel.update()
             self.show_info_view()
+            if hasattr(self, "render_preview_grid"):
+                self.render_preview_grid()
 
     def get_templates(self, data: dict = None) -> list[str]:
         """
@@ -723,7 +642,7 @@ class CertificateScreen:
                             ui.label("إعدادات طباعة وثيقة الطالب وقوالب Word").classes("text-lg font-bold app-text-primary")
                             ui.label("ضبط الخيارات المستثناة، الأمر الجامعي، الترتيب وتخصيص القالب").classes("text-xs app-text-muted")
 
-                        UI.secondary_button("⬅️ العودة لبيانات الطالب", icon="arrow_forward", on_click=self.show_info_view).classes("text-xs px-4 py-2 font-bold")
+                        UI.primary_button("العودة لبيانات الطالب / Back to Student", icon="arrow_forward", on_click=self.show_info_view).classes("text-xs px-4 py-2 font-bold")
 
                     # Row 1: Template Selector + Issued To + Edit Student (3 Components in 1 Row)
                     with ui.row().classes("w-full gap-4 items-center"):
@@ -739,8 +658,29 @@ class CertificateScreen:
                             value="من يهمه الأمر",
                             placeholder="اسم الجهة الموجه إليها..."
                         ).classes("flex-1 text-sm")
+                        
+                        def on_grouping_change(e):
+                            if not hasattr(self, 'student_full_data') or not self.student_full_data: return
+                            student_id = self.student_full_data.get('student_id') or self.student_full_data.get('id')
+                            if not student_id: return
+                            self.student_full_data = self.cert_repo.get_full_certificate_data(student_id, e.value)
+                            if hasattr(self, "render_preview_grid"):
+                                self.render_preview_grid()
 
-                        UI.secondary_button("تعديل الطالب / Edit Student", icon="edit", on_click=self.handle_edit_student).classes("text-sm px-4 py-3.5 mt-2")
+                        GROUPING_OPTIONS = {
+                            "DEFAULT": "الافتراضي / Default",
+                            "BY_YEAR": "حسب السنة الدراسية / By Year",
+                            "BY_STAGE": "حسب المرحلة الدراسية / By Stage",
+                            "BY_CURRICULUM": "حسب الخطة الدراسية / By Curriculum"
+                        }
+                        self.grouping_sel = UI.select(
+                            "نمط التجميع / Grouping",
+                            options=GROUPING_OPTIONS,
+                            value="DEFAULT",
+                            on_change=on_grouping_change
+                        ).classes("flex-1 text-sm")
+
+                        UI.primary_button("تعديل الطالب / Edit", icon="edit", on_click=self.handle_edit_student).classes("text-sm px-4 py-3.5 mt-2")
 
                     ui.separator().classes("my-1")
 
@@ -752,12 +692,46 @@ class CertificateScreen:
                             self.inp_order_num = UI.text_input("رقم الأمر الجامعي / Order No", value="").classes("flex-1 text-sm")
                             self.inp_order_date = UI.text_input("تاريخ الأمر / Order Date", value="").classes("flex-1 text-sm")
 
-                    # Row 3: Graduation Rank Section (4 Components in 1 Row)
+                    # Row 3: Graduation Rank Section (5 Components in 1 Row)
                     with UI.card().classes("w-full p-4 gap-3 bg-[var(--bg-main)] rounded-xl border border-[var(--border-default)]"):
                         ui.label("بيانات تسلسل التخرج والترتيب — Graduation Rank").classes("text-xs font-bold app-text-accent")
                         with ui.row().classes("w-full gap-4 items-center"):
-                            self.sw_rank = UI.switch("تفعيل تسلسل التخرج / Enable Rank", value=False).classes("w-64")
+                            self.sw_rank = UI.switch("تفعيل تسلسل التخرج / Enable Rank", value=False).classes("w-52")
                             self.inp_rank_val = UI.text_input("تسلسل الطالب / Rank", value="").classes("flex-1 text-sm")
+
+                            def on_rank_source_change(e):
+                                if not hasattr(self, "student_full_data") or not self.student_full_data: return
+                                src = e.value
+                                order_cnt = self.student_full_data.get("order_num_students")
+                                custom_cnt = self.student_full_data.get("postgraduation_number")
+                                db_cnt = self.student_full_data.get("db_total_graduates")
+
+                                if src == "custom":
+                                    sel_val = custom_cnt if custom_cnt is not None and str(custom_cnt).strip() != "" else ""
+                                elif src == "order":
+                                    sel_val = order_cnt if order_cnt is not None and str(order_cnt).strip() != "" else ""
+                                elif src == "db":
+                                    sel_val = db_cnt if db_cnt is not None and str(db_cnt).strip() != "" else ""
+                                else:
+                                    sel_val = ""
+
+                                self.inp_rank_total.value = str(sel_val) if sel_val != "" else ""
+                                self.student_full_data["total_graduates"] = sel_val
+                                rank_v = self.inp_rank_val.value or self.student_full_data.get("rank")
+                                if hasattr(self, "rank_str_label") and self.rank_str_label:
+                                    self.rank_str_label.text = f"المرتبة {rank_v} من {sel_val} خريج" if rank_v and sel_val != "" else "—"
+
+                            self.rank_source_sel = UI.select(
+                                "مصدر العدد / Count Source",
+                                options={
+                                    "order": "الأمر الجامعي / Order Count",
+                                    "custom": "يدوي للطالب / Total Postgrad Students",
+                                    "db": "قاعدة البيانات / DB Count"
+                                },
+                                value="order",
+                                on_change=on_rank_source_change
+                            ).classes("flex-1 text-sm")
+
                             self.inp_rank_total = UI.text_input("إجمالي المتخرجين / Total", value="").classes("flex-1 text-sm")
                             self.inp_rank_avg = UI.text_input("معدل الطالب الأول / Top Avg", value="").classes("flex-1 text-sm")
 
@@ -779,6 +753,11 @@ class CertificateScreen:
                             self.inp_second_subjects = UI.text_input("مواد الدور الثاني / Subjects", value="").classes("w-full text-sm mt-1")
 
                     ui.separator().classes("my-2")
+                    
+                    # Row 4.5: Data Validation Grid
+                    with UI.card().classes("w-full p-4 gap-3 bg-[var(--bg-main)] rounded-xl border border-[var(--border-default)]"):
+                        ui.label("معاينة البيانات (للتدقيق فقط) — Data Preview").classes("text-xs font-bold app-text-accent")
+                        self.preview_grid_container = ui.column().classes("w-full max-h-[300px] overflow-y-auto")
 
                     # Row 5: Primary Action Buttons
                     with ui.row().classes("w-full gap-4 items-center pt-2"):
@@ -788,13 +767,13 @@ class CertificateScreen:
                             on_click=self.generate_and_open_word
                         ).classes("flex-1 py-3 text-base font-bold")
 
-                        self.btn_open = UI.secondary_button(
+                        self.btn_open = UI.primary_button(
                             "فتح المعاينة والطباعة",
                             icon="print",
                             on_click=self.print_certificate
                         ).classes("flex-1 py-3 text-base")
 
-                        UI.secondary_button("العودة لبيانات الطالب", icon="arrow_forward", on_click=self.show_info_view).classes("px-6 py-3 text-sm")
+                        UI.primary_button("العودة لبيانات الطالب", icon="arrow_forward", on_click=self.show_info_view).classes("px-6 py-3 text-sm")
 
     def show_info_view(self):
         self.view_print_options.set_visibility(False)
@@ -855,6 +834,32 @@ class CertificateScreen:
             log.error(f"Search failed: {e}")
             UI.notify(f"خطأ في البحث: {e}", type="negative")
 
+    def render_preview_grid(self):
+        if not hasattr(self, 'preview_grid_container'): return
+        self.preview_grid_container.clear()
+        
+        data = self.student_full_data
+        if not data: return
+        
+        courses = data.get("courses_grouped", [])
+        if not courses:
+            with self.preview_grid_container:
+                ui.label("لا توجد بيانات / No data").classes("text-xs app-text-muted italic")
+            return
+            
+        columns = [
+            {'name': 'academic_year', 'label': 'السنة / Year', 'field': 'academic_year_formatted', 'align': 'left'},
+            {'name': 'stage', 'label': 'المرحلة / Stage', 'field': 'stage_number', 'align': 'center'},
+            {'name': 'sem', 'label': 'الفصل / Sem', 'field': 'semester_num', 'align': 'center'},
+            {'name': 'subj', 'label': 'المادة / Subject', 'field': 'subject_name', 'align': 'left'},
+            {'name': 'mark', 'label': 'الدرجة / Mark', 'field': 'mark', 'align': 'center'},
+            {'name': 'unit', 'label': 'الوحدات / Units', 'field': 'unit', 'align': 'center'},
+            {'name': 'round', 'label': 'الدور / Round', 'field': 'passed_round', 'align': 'center'}
+        ]
+        
+        with self.preview_grid_container:
+            ui.table(columns=columns, rows=courses, row_key='subject_name').classes('w-full text-xs')
+
     def render_empty_student_info(self):
         self.student_info_container.clear()
         with self.student_info_container:
@@ -868,9 +873,12 @@ class CertificateScreen:
 
         self.selected_student = student_row
         student_id = student_row["id"]
+        self.current_grouping_mode = getattr(self, "current_grouping_mode", "DEFAULT")
 
         try:
-            self.student_full_data = self.cert_repo.get_full_certificate_data(student_id)
+            self.student_full_data = self.cert_repo.get_full_certificate_data(
+                student_id, grouping_mode=self.current_grouping_mode
+            )
             if not self.student_full_data:
                 UI.notify("لا توجد بيانات دراسية للطالب المحدد / No academic data found", type="warning")
                 return
@@ -887,8 +895,7 @@ class CertificateScreen:
             self.show_info_view()
         except Exception as e:
             log.error(f"Error loading student: {e}")
-            UI.notify(e, type="negative")
-            UI.notify(e, type="negative")
+            UI.notify(f"خطأ أثناء تحميل بيانات الطالب: {e}", type="negative")
 
     def handle_edit_student(self):
         """Triggers navigation to Students Management screen to edit selected student."""
@@ -902,19 +909,27 @@ class CertificateScreen:
 
     def update_student_ui(self):
         data = self.student_full_data
-        if not data:
-            return
+        if not data: return
 
         # ── 1. Auto Extract Second Trial Courses & Calculate Default Summer Training Year ──
         second_courses = []
-        for p in data.get("periods", []):
-            for enr in p.get("enrollments", []):
-                pr = str(enr.get("passed_round", "1"))
-                isr = enr.get("is_second_round", 0)
-                if pr in ('2', '3') or isr == 1:
-                    cname = enr.get("course_name_ar") or enr.get("course_name_en")
-                    if cname and cname not in second_courses:
-                        second_courses.append(cname)
+        for c in data.get("courses_grouped", []):
+            pr = str(c.get("passed_round") or "1").strip()
+            isr = c.get("is_second_round", 0)
+            if pr in ('2', '3') or isr == 1 or pr in (2, 3):
+                cname = c.get("subject_name") or c.get("course_name_ar") or c.get("course_name_en")
+                if cname and cname not in second_courses:
+                    second_courses.append(cname)
+
+        if not second_courses:
+            for p in data.get("periods", []):
+                for enr in p.get("enrollments", []):
+                    pr = str(enr.get("passed_round", "1"))
+                    isr = enr.get("is_second_round", 0)
+                    if pr in ('2', '3') or isr == 1:
+                        cname = enr.get("course_name_ar") or enr.get("course_name_en")
+                        if cname and cname not in second_courses:
+                            second_courses.append(cname)
 
         if second_courses:
             self.inp_second_subjects.value = "، ".join(second_courses)
@@ -966,7 +981,7 @@ class CertificateScreen:
                             "px-4 py-2 text-sm font-bold rounded-xl bg-[var(--bg-card)] border border-[var(--border-default)] app-text-accent shadow-sm"
                         )
                         UI.primary_button("خيارات وتوليد الوثيقة", icon="tune", on_click=self.show_options_view).classes("text-xs px-5 py-2.5 font-bold shadow-md")
-                        UI.secondary_button("تعديل الطالب / Edit Student", icon="edit", on_click=self.handle_edit_student).classes("text-xs px-4 py-2.5")
+                        UI.primary_button("تعديل الطالب / Edit Student", icon="edit", on_click=self.handle_edit_student).classes("text-xs px-4 py-2.5")
 
             # 4 Unified Non-Duplicated Key Metric Cards
             avg = data.get("average")
@@ -1027,42 +1042,102 @@ class CertificateScreen:
                         ui.icon("check_circle", size="xs").classes("text-emerald-400")
                         ui.label("استحقاق الدور الأول — الطالب اجتاز جميع المواد الدراسية من الدور الأول.").classes("text-sm")
 
-            # Academic Transcript Table Section (Cards Grouped by Academic Year)
-            ui.label("السجل الأكاديمي والدرجات — Academic Transcript").classes("text-lg font-extrabold app-text-primary mt-2 tracking-wide")
+            # Academic Transcript Table Section (Cards Grouped by Dynamic Grouping Mode)
+            period_disp = str(data.get("period_display") or "").lower().strip()
+            if "semester" in period_disp:
+                group_opts = {
+                    "DEFAULT": "حسب السنة الدراسية (الافتراضي)",
+                    "BY_SEMESTER_stage": "حسب المرحلة الدراسية"
+                }
+            else:
+                group_opts = {
+                    "DEFAULT": "حسب السنة الدراسية (الافتراضي)",
+                    "BY_PERIOD_STAGE": "حسب مرحلة القيد",
+                    "BY_CURRICULUM_STAGE": "حسب المرحلة الدراسية للمادة"
+                }
+
+            current_mode = getattr(self, "current_grouping_mode", "DEFAULT")
+            if current_mode not in group_opts:
+                current_mode = "DEFAULT"
+
+            async def on_grouping_change(e):
+                new_mode = str(getattr(e, 'value', e) or "DEFAULT")
+                self.current_grouping_mode = new_mode
+                if self.selected_student:
+                    try:
+                        self.student_full_data = self.cert_repo.get_full_certificate_data(
+                            self.selected_student["id"], grouping_mode=new_mode
+                        )
+                        self.update_student_ui()
+                    except Exception as exc:
+                        log.error(f"Error updating grouping: {exc}")
+                        UI.notify(f"خطأ في تحديث التجميع: {exc}", type="negative")
+
+            with ui.row().classes("w-full justify-between items-center mt-2 pb-1"):
+                ui.label("السجل الأكاديمي والدرجات — Academic Transcript").classes("text-lg font-extrabold app-text-primary tracking-wide")
+                
+                UI.select(
+                    "خيارات التجميع / Grouping Options",
+                    options=group_opts,
+                    value=current_mode,
+                    on_change=lambda e: on_grouping_change(e)
+                ).classes("w-72 text-xs")
+
             with ui.column().classes("w-full border border-[var(--border-default)] rounded-2xl p-5 bg-[var(--bg-main)] gap-5 max-h-[540px] overflow-y-auto"):
-                periods = consolidate_course_history(data.get("periods", []))
-                active_periods = [p for p in periods if p.get("enrollments")]
-                if not active_periods:
+                courses = data.get("courses_grouped", [])
+                if not courses:
                     ui.label("لا توجد سجلات دراسية / No course records").classes("text-sm app-text-muted italic p-4")
-                for p in active_periods:
-                    stg = p.get("stage_number", "")
-                    year = p.get("academic_year", "")
-                    enrs = p.get("enrollments", [])
+                else:
+                    grouped_data = {}
+                    for c in courses:
+                        k = c.get("grouping_key") or f"{c.get('stage_number', '')}_{c.get('semester_num', 1)}"
+                        if k not in grouped_data:
+                            grouped_data[k] = {
+                                "academic_year": c.get("academic_year_formatted") or c.get("academic_year", ""),
+                                "stage_number": c.get("stage_number", ""),
+                                "semester_num": c.get("semester_num", 1),
+                                "enrollments": []
+                            }
+                        grouped_data[k]["enrollments"].append(c)
 
-                    header_label = f"العام الدراسي ({year}) — المرحلة {stg}" if stg else f"العام الدراسي ({year})"
+                    with ui.grid(columns=2).classes("w-full gap-5 items-start"):
+                        for k, p in grouped_data.items():
+                            stg = p.get("stage_number", "")
+                            year = p.get("academic_year", "")
+                            sem = p.get("semester_num", 1)
+                            enrs = p.get("enrollments", [])
 
-                    with ui.column().classes("w-full gap-3 p-4 rounded-xl bg-[var(--bg-card)] border border-[var(--border-default)]"):
-                        with ui.row().classes("w-full justify-between items-center pb-2 border-b border-[var(--border-default)]"):
-                            ui.label(header_label).classes("text-sm font-extrabold app-text-accent tracking-wide")
-                            ui.label(f"عدد المواد: {len(enrs)}").classes("text-xs app-text-muted font-medium")
+                            parts = []
+                            if year:
+                                parts.append(f"العام الدراسي ({year})")
+                            if stg:
+                                parts.append(f"المرحلة {stg}")
+                            if "semester" in period_disp and sem:
+                                parts.append(f"الفصل {sem}")
+                            header_label = " — ".join(parts) if parts else f"المجموعة ({k})"
 
-                        with ui.column().classes("w-full gap-2.5"):
-                            for enr in enrs:
-                                cname = enr.get("course_name_ar") or enr.get("course_name_en") or ""
-                                score = enr.get("score", "—")
-                                units = enr.get("credit_hours", 0)
-                                pr = str(enr.get("passed_round", "1"))
-                                is_2nd = (pr in ('2', '3') or enr.get("is_second_round"))
+                            with ui.column().classes("w-full gap-3 p-4 rounded-xl bg-[var(--bg-card)] border border-[var(--border-default)] shadow-sm"):
+                                with ui.row().classes("w-full justify-between items-center pb-2 border-b border-[var(--border-default)]"):
+                                    ui.label(header_label).classes("text-sm font-extrabold app-text-accent tracking-wide")
+                                    ui.label(f"عدد المواد: {len(enrs)}").classes("text-xs app-text-muted font-medium")
 
-                                with ui.row().classes("w-full justify-between items-center text-sm py-2.5 px-4 rounded-xl bg-[var(--bg-main)] transition-all border border-[var(--border-default)] hover:border-amber-500/30"):
-                                    with ui.row().classes("items-center gap-3"):
-                                        ui.label(cname).classes("app-text-primary font-bold text-sm")
-                                        if is_2nd:
-                                            ui.label("الدور الثاني").classes("px-2.5 py-0.5 rounded-full text-xs font-extrabold bg-amber-500/20 text-amber-400 border border-amber-500/30")
+                                with ui.column().classes("w-full gap-2"):
+                                    for enr in enrs:
+                                        cname = enr.get("subject_name") or enr.get("course_name_ar") or enr.get("course_name_en") or ""
+                                        score = enr.get("mark", "—")
+                                        units = enr.get("unit", 0)
+                                        pr = str(enr.get("passed_round", "1"))
+                                        is_2nd = (pr in ('2', '3') or enr.get("is_second_round"))
 
-                                    with ui.row().classes("items-center gap-4"):
-                                        ui.label(f"الدرجة: {score}").classes("font-extrabold text-emerald-400 font-mono text-sm")
-                                        ui.label(f"{units} وحدات").classes("text-xs font-bold px-3 py-1 bg-[var(--bg-card)] rounded-lg text-slate-300 font-mono border border-[var(--border-default)]")
+                                        with ui.row().classes("w-full justify-between items-center text-sm py-2 px-3.5 rounded-xl bg-[var(--bg-main)] transition-all border border-[var(--border-default)] hover:border-amber-500/30"):
+                                            with ui.row().classes("items-center gap-2"):
+                                                ui.label(cname).classes("app-text-primary font-bold text-xs")
+                                                if is_2nd:
+                                                    ui.label("الدور الثاني").classes("px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-amber-500/20 text-amber-400 border border-amber-500/30")
+
+                                            with ui.row().classes("items-center gap-2"):
+                                                ui.label(f"الدرجة: {score}").classes("font-extrabold text-emerald-400 font-mono text-xs")
+                                                ui.label(f"{units} وحدات").classes("text-[10px] font-bold px-2 py-0.5 bg-[var(--bg-card)] rounded-lg text-slate-300 font-mono border border-[var(--border-default)]")
 
     def generate_certificate(self) -> bool:
         if not self.student_full_data:
@@ -1098,140 +1173,129 @@ class CertificateScreen:
             "opt_second_trial": self.sw_second.value,
             "second_trial_subjects": (self.inp_second_subjects.value or "").strip(),
         }
-
-def print_certificate_context(ctx: dict) -> None:
-    """
-    Prints every variable passed to Word (docxtpl) line by line to standard output (terminal)
-    and system logs so the user can track every data field step by step.
-    """
-    banner = "=" * 80
-    lines = [
-        "",
-        banner,
-        "  === WORD DOCXTPL CONTEXT VARIABLES TRACKING LOG ===",
-        banner,
-        "\n--- [1. TOP-LEVEL SCALAR VARIABLES & METADATA] ---",
-    ]
-
-    scalars = {}
-    lists_and_dicts = {}
-    for k, v in ctx.items():
-        if isinstance(v, (list, dict)):
-            lists_and_dicts[k] = v
-        else:
-            scalars[k] = v
-            lines.append(f"  • {k:<30} = {repr(v)}")
-
-    # Signatories
-    signatories = ctx.get("signatories")
-    if isinstance(signatories, list):
-        lines.append(f"\n--- [2. SIGNATORIES ({len(signatories)} Total)] ---")
-        for idx, sig in enumerate(signatories):
-            if isinstance(sig, dict):
-                lines.append(
-                    f"  ► Signatory {idx+1}: name='{sig.get('name')}', title='{sig.get('title')}', order={sig.get('order')}"
-                )
+        return self.generate_docx(tpl_name, options)
+    @staticmethod
+    def print_certificate_context(ctx: dict) -> None:
+        """
+        Prints every variable passed to Word (docxtpl) line by line to standard output (terminal)
+        and system logs so the user can track every data field step by step.
+        """
+        banner = "=" * 80
+        lines = [
+            "",
+            banner,
+            "  === WORD DOCXTPL CONTEXT VARIABLES TRACKING LOG ===",
+            banner,
+            "\n--- [1. TOP-LEVEL SCALAR VARIABLES & METADATA] ---",
+        ]
+    
+        scalars = {}
+        lists_and_dicts = {}
+        for k, v in ctx.items():
+            if isinstance(v, (list, dict)):
+                lists_and_dicts[k] = v
             else:
-                lines.append(f"  ► Signatory {idx+1}: {sig}")
-
-    # Tables & Paired Semesters / Years
-    for table_key in ("paired_semesters", "paired_years", "semesters"):
-        table_list = ctx.get(table_key)
-        if isinstance(table_list, list) and table_list:
-            lines.append(f"\n--- [3. TABLE DATA: '{table_key}' ({len(table_list)} Tables/Rows)] ---")
-            for t_idx, table_item in enumerate(table_list):
-                lines.append(f"\n  ==========================================================================")
-                lines.append(f"  ► Table {t_idx+1}:")
-                lines.append(f"      left_label   : '{table_item.get('left_label', '')}'")
-                lines.append(f"      right_label  : '{table_item.get('right_label', '')}'")
-                lines.append(f"      year_label   : '{table_item.get('year_label', '')}'")
-                lines.append(f"      academic_year: '{table_item.get('academic_year', '')}'")
-                lines.append(f"      num_s_l      : '{table_item.get('num_s_l', '')}'")
-                lines.append(f"      num_s_r      : '{table_item.get('num_s_r', '')}'")
-                lines.append(f"      year_s_l     : '{table_item.get('year_s_l', '')}'")
-                lines.append(f"      year_s_r     : '{table_item.get('year_s_r', '')}'")
-                lines.append(f"      stage_s_l    : '{table_item.get('stage_s_l', '')}'")
-                lines.append(f"      stage_s_r    : '{table_item.get('stage_s_r', '')}'")
-                lines.append(f"      stage_text   : '{table_item.get('stage_text', '')}'")
-
-                rows = table_item.get("rows", [])
-                lines.append(f"\n      --- Courses ({len(rows)} Rows) ---")
-                lines.append(f"      {'#':<3} | {'LEFT SUBJECT (المادة الأولى)':<35} | {'MARK':<6} | {'UNIT':<5} || {'RIGHT SUBJECT (المادة الثانية)':<35} | {'MARK':<6} | {'UNIT':<5}")
-                lines.append(f"      {'-'*3} | {'-'*35} | {'-'*6} | {'-'*5} || {'-'*35} | {'-'*6} | {'-'*5}")
-                for r_idx, r in enumerate(rows):
-                    l_subj = str(r.get('left_name') or r.get('left_subj') or '')
-                    l_mark = str(r.get('left_mark') or '')
-                    l_unit = str(r.get('left_unit') or '')
-                    r_subj = str(r.get('right_name') or r.get('right_subj') or '')
-                    r_mark = str(r.get('right_mark') or '')
-                    r_unit = str(r.get('right_unit') or '')
+                scalars[k] = v
+                lines.append(f"  • {k:<30} = {repr(v)}")
+    
+        # Signatories
+        signatories = ctx.get("signatories")
+        if isinstance(signatories, list):
+            lines.append(f"\n--- [2. SIGNATORIES ({len(signatories)} Total)] ---")
+            for idx, sig in enumerate(signatories):
+                if isinstance(sig, dict):
                     lines.append(
-                        f"      {r_idx+1:<3} | {l_subj:<35} | {l_mark:<6} | {l_unit:<5} || {r_subj:<35} | {r_mark:<6} | {r_unit:<5}"
+                        f"  ► Signatory {idx+1}: name='{sig.get('name')}', title='{sig.get('title')}', order={sig.get('order')}"
                     )
-
-    lines.append(banner)
-    full_output = "\n".join(lines)
-
-    # Print to console stdout so it displays immediately in terminal
-    print(full_output, flush=True)
-    # Log to system logger
-    log.info(full_output)
-
-
-def generate_docx(self, tpl_name: str, options: dict) -> bool:
-    """Generates Word document from template and returns True on success."""
-    tpl_path = os.path.join("templets", tpl_name)
-    if not os.path.exists(tpl_path):
-        UI.notify(f"قالب الوثيقة غير موجود: {tpl_name}", type="negative")
-        return False
-
-    if not self.student_full_data:
-        UI.notify("لم يتم تحميل بيانات الطالب", type="warning")
-        return False
-
-    options.update({
-        "opt_seq": self.sw_seq.value,
-        "opt_rank": self.sw_rank.value,
-        "rank_val": (self.inp_rank_val.value or "").strip(),
-        "rank_total": (self.inp_rank_total.value or "").strip(),
-        "rank_avg": (self.inp_rank_avg.value or "").strip(),
-        "opt_summer": self.sw_summer.value,
-        "summer_year": (self.inp_summer_year.value or "").strip(),
-        "opt_postpone": self.sw_postpone.value,
-        "postpone_years": (self.inp_postpone_years.value or "").strip(),
-        "opt_second_trial": self.sw_second.value,
-        "second_trial_subjects": (self.inp_second_subjects.value or "").strip(),
-    })
-
-    try:
-        ctx = build_certificate_context(self.student_full_data, options)
-
-        # Print all context variables line-by-line to terminal & log
-        print_certificate_context(ctx)
-
-        # Ensure output directory exists
-        out_dir = os.path.abspath("certificates")
-        os.makedirs(out_dir, exist_ok=True)
-
-        student_name = ctx.get("student_name", "Student")
-        safe_student = re.sub(r'[\\/*?:"<>|]', "", student_name).strip() or "Student"
-        safe_tpl = re.sub(r'[\\/*?:"<>|]', "", os.path.splitext(tpl_name)[0]).strip()
-        out_file = os.path.join(out_dir, f"{safe_tpl} - {safe_student}.docx")
-
-        doc = DocxTemplate(tpl_path)
-        doc.render(ctx)
-        doc.save(out_file)
-
-        self.generated_file_path = out_file
-        UI.notify(f"تم إصدار وتوليد الوثيقة بنجاح: {os.path.basename(out_file)}", type="positive")
-
-        # Trigger automatic browser download
-        ui.download(out_file, filename=os.path.basename(out_file))
-        return True
-    except Exception as err:
-        log.error(f"Error generating certificate: {err}")
-        UI.notify(err, type="negative")
-        return False
+                else:
+                    lines.append(f"  ► Signatory {idx+1}: {sig}")
+    
+        # Tables & Paired Semesters / Years
+        for table_key in ("paired_semesters", "paired_years", "semesters"):
+            table_list = ctx.get(table_key)
+            if isinstance(table_list, list) and table_list:
+                lines.append(f"\n--- [3. TABLE DATA: '{table_key}' ({len(table_list)} Tables/Rows)] ---")
+                for t_idx, table_item in enumerate(table_list):
+                    lines.append(f"\n  ==========================================================================")
+                    lines.append(f"  ► Table {t_idx+1}:")
+                    lines.append(f"      left_label   : '{table_item.get('left_label', '')}'")
+                    lines.append(f"      right_label  : '{table_item.get('right_label', '')}'")
+                    lines.append(f"      year_label   : '{table_item.get('year_label', '')}'")
+                    lines.append(f"      academic_year: '{table_item.get('academic_year', '')}'")
+                    lines.append(f"      num_s_l      : '{table_item.get('num_s_l', '')}'")
+                    lines.append(f"      num_s_r      : '{table_item.get('num_s_r', '')}'")
+                    lines.append(f"      year_s_l     : '{table_item.get('year_s_l', '')}'")
+                    lines.append(f"      year_s_r     : '{table_item.get('year_s_r', '')}'")
+                    lines.append(f"      stage_s_l    : '{table_item.get('stage_s_l', '')}'")
+                    lines.append(f"      stage_s_r    : '{table_item.get('stage_s_r', '')}'")
+                    lines.append(f"      stage_text   : '{table_item.get('stage_text', '')}'")
+    
+                    rows = table_item.get("rows", [])
+                    lines.append(f"\n      --- Courses ({len(rows)} Rows) ---")
+                    lines.append(f"      {'#':<3} | {'LEFT SUBJECT (المادة الأولى)':<35} | {'MARK':<6} | {'UNIT':<5} || {'RIGHT SUBJECT (المادة الثانية)':<35} | {'MARK':<6} | {'UNIT':<5}")
+                    lines.append(f"      {'-'*3} | {'-'*35} | {'-'*6} | {'-'*5} || {'-'*35} | {'-'*6} | {'-'*5}")
+                    for r_idx, r in enumerate(rows):
+                        l_subj = str(r.get('left_name') or r.get('left_subj') or '')
+                        l_mark = str(r.get('left_mark') or '')
+                        l_unit = str(r.get('left_unit') or '')
+                        r_subj = str(r.get('right_name') or r.get('right_subj') or '')
+                        r_mark = str(r.get('right_mark') or '')
+                        r_unit = str(r.get('right_unit') or '')
+                        lines.append(
+                            f"      {r_idx+1:<3} | {l_subj:<35} | {l_mark:<6} | {l_unit:<5} || {r_subj:<35} | {r_mark:<6} | {r_unit:<5}"
+                        )
+    
+        lines.append(banner)
+        full_output = "\n".join(lines)
+    
+        # Print to console stdout so it displays immediately in terminal
+        print(full_output, flush=True)
+        # Log to system logger
+        log.info(full_output)
+    
+    
+    def generate_docx(self, tpl_name: str, options: dict) -> bool:
+        """Generates Word document from template and returns True on success."""
+        tpl_path = os.path.join("templets", tpl_name)
+        if not os.path.exists(tpl_path):
+            UI.notify(f"قالب الوثيقة غير موجود: {tpl_name}", type="negative")
+            return False
+    
+        if not self.student_full_data:
+            UI.notify("لم يتم تحميل بيانات الطالب", type="warning")
+            return False
+    
+        # options is already fully populated by generate_certificate
+    
+        try:
+            ctx = build_certificate_context(self.student_full_data, options)
+    
+            # Print all context variables line-by-line to terminal & log
+            self.print_certificate_context(ctx)
+    
+            # Ensure output directory exists
+            out_dir = os.path.abspath("certificates")
+            os.makedirs(out_dir, exist_ok=True)
+    
+            student_name = ctx.get("student_name", "Student")
+            safe_student = re.sub(r'[\\/*?:"<>|]', "", student_name).strip() or "Student"
+            safe_tpl = re.sub(r'[\\/*?:"<>|]', "", os.path.splitext(tpl_name)[0]).strip()
+            out_file = os.path.join(out_dir, f"{safe_tpl} - {safe_student}.docx")
+    
+            doc = DocxTemplate(tpl_path)
+            doc.render(ctx)
+            doc.save(out_file)
+    
+            self.generated_file_path = out_file
+            UI.notify(f"تم إصدار وتوليد الوثيقة بنجاح: {os.path.basename(out_file)}", type="positive")
+    
+            # Trigger automatic browser download
+            ui.download(out_file, filename=os.path.basename(out_file))
+            return True
+        except Exception as err:
+            log.error(f"Error generating certificate: {err}")
+            UI.notify(err, type="negative")
+            return False
     def show_in_app_print_dialog(self, pdf_path: str | None, html_path: str | None, docx_path: str):
         """
         Opens a modern in-app modal dialog featuring live document preview,

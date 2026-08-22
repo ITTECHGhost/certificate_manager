@@ -297,6 +297,7 @@ textarea,
   font-family: var(--font-primary, 'Arial', 'Segoe UI', 'Roboto', 'Cairo', 'Tahoma', 'Noto Sans Arabic', 'times new roman') !important;
 }
 
+html,
 body {
   font-size: var(--font-size-base, 13px);
   background-color: var(--surface-main) !important;
@@ -407,57 +408,71 @@ body.body--dark .app-login-card:hover,
 
 
 /* ── 4c. Buttons ────────────────────────────────────────────────────────── */
+.q-btn .q-icon {
+  color: inherit !important;
+}
+
+.q-btn__content {
+  gap: 8px !important;
+}
+
 .app-btn-primary {
   background-color: var(--accent-primary) !important;
-  color: white !important;
+  color: #ffffff !important;
   box-shadow: 0 4px 14px var(--accent-shadow);
-  transition: background-color 0.2s, box-shadow 0.2s;
+  transition: background-color 0.2s, box-shadow 0.2s, color 0.2s;
 }
 
 .app-btn-primary:hover {
   background-color: var(--accent-hover) !important;
   box-shadow: 0 6px 20px var(--accent-shadow);
+  color: #ffffff !important;
 }
 
 .app-btn-secondary {
   background-color: var(--btn-secondary-bg) !important;
   color: var(--btn-secondary-text) !important;
   border: 1px solid var(--border-default) !important;
-  transition: background-color 0.2s, color 0.2s, border-color 0.2s;
+  transition: background-color 0.2s, color 0.2s, border-color 0.2s, box-shadow 0.2s;
 }
 
 .app-btn-secondary:hover {
   background-color: var(--btn-secondary-bg-hover) !important;
+  color: var(--accent-text) !important;
+  border-color: var(--accent-soft-border, var(--border-strong)) !important;
 }
 
 .app-btn-success {
   background-color: var(--btn-success-bg) !important;
-  color: white !important;
+  color: #ffffff !important;
   transition: background-color 0.2s;
 }
 
 .app-btn-success:hover {
   background-color: var(--btn-success-bg-hover) !important;
+  color: #ffffff !important;
 }
 
 .app-btn-danger {
   background-color: var(--btn-danger-bg) !important;
-  color: white !important;
+  color: #ffffff !important;
   transition: background-color 0.2s;
 }
 
 .app-btn-danger:hover {
   background-color: var(--btn-danger-bg-hover) !important;
+  color: #ffffff !important;
 }
 
 .app-btn-warning {
   background-color: var(--btn-warning-bg) !important;
-  color: white !important;
+  color: #ffffff !important;
   transition: background-color 0.2s;
 }
 
 .app-btn-warning:hover {
   background-color: var(--btn-warning-bg-hover) !important;
+  color: #ffffff !important;
 }
 
 .app-btn-ghost {
@@ -468,17 +483,20 @@ body.body--dark .app-login-card:hover,
 
 .app-btn-ghost:hover {
   background-color: var(--btn-ghost-bg-hover) !important;
+  color: var(--accent-text) !important;
 }
 
 .app-btn-icon {
   background-color: var(--btn-secondary-bg) !important;
   color: var(--btn-secondary-text) !important;
   border: 1px solid var(--border-default) !important;
-  transition: background-color 0.2s, color 0.2s;
+  transition: background-color 0.2s, color 0.2s, border-color 0.2s;
 }
 
 .app-btn-icon:hover {
   background-color: var(--btn-secondary-bg-hover) !important;
+  color: var(--accent-text) !important;
+  border-color: var(--accent-soft-border, var(--border-strong)) !important;
 }
 
 
@@ -869,6 +887,28 @@ body.body--dark .stat-text-purple,
   font-size: 13px !important;
 }
 
+/* Table Cell Alignment Overrides for RTL */
+.app-table th.text-right,
+.app-table td.text-right,
+.q-table th.text-right,
+.q-table td.text-right {
+  text-align: right !important;
+}
+
+.app-table th.text-left,
+.app-table td.text-left,
+.q-table th.text-left,
+.q-table td.text-left {
+  text-align: left !important;
+}
+
+.app-table th.text-center,
+.app-table td.text-center,
+.q-table th.text-center,
+.q-table td.text-center {
+  text-align: center !important;
+}
+
 
 /* ── 4j. Tabs ───────────────────────────────────────────────────────────── */
 .app-tabs {
@@ -955,6 +995,109 @@ body.body--dark .app-status-offline,
 
 .app-menu-item-danger:hover {
   background-color: rgba(239, 68, 68, 0.2) !important;
+}
+
+/* ── Quasar Dropdown Menu & Select Item Mode Overrides ──────────────────── */
+
+/* Dark Mode Popup Menu / Select Dropdown Options */
+body.body--dark .q-menu,
+.body--dark .q-menu,
+body.dark .q-menu,
+.dark .q-menu {
+  background-color: #1e293b !important;
+  border: 1px solid #334155 !important;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5) !important;
+  color: #f8fafc !important;
+}
+
+body.body--dark .q-menu .q-item,
+.body--dark .q-menu .q-item,
+body.dark .q-menu .q-item,
+.dark .q-menu .q-item {
+  color: #f8fafc !important;
+}
+
+body.body--dark .q-menu .q-item__label,
+.body--dark .q-menu .q-item__label,
+body.dark .q-menu .q-item__label,
+.dark .q-menu .q-item__label {
+  color: #f8fafc !important;
+  font-weight: 500 !important;
+}
+
+body.body--dark .q-menu .q-item--active,
+.body--dark .q-menu .q-item--active,
+body.dark .q-menu .q-item--active,
+.dark .q-menu .q-item--active,
+body.body--dark .q-menu .q-item:hover,
+.body--dark .q-menu .q-item:hover,
+body.dark .q-menu .q-item:hover,
+.dark .q-menu .q-item:hover {
+  background-color: var(--accent-soft-bg, rgba(59, 130, 246, 0.2)) !important;
+  color: var(--accent-active-text, #60a5fa) !important;
+}
+
+body.body--dark .q-menu .q-item--active .q-item__label,
+.body--dark .q-menu .q-item--active .q-item__label,
+body.dark .q-menu .q-item--active .q-item__label,
+.dark .q-menu .q-item--active .q-item__label,
+body.body--dark .q-menu .q-item:hover .q-item__label,
+.body--dark .q-menu .q-item:hover .q-item__label,
+body.dark .q-menu .q-item:hover .q-item__label,
+.dark .q-menu .q-item:hover .q-item__label {
+  color: var(--accent-active-text, #60a5fa) !important;
+  font-weight: 700 !important;
+}
+
+/* Light Mode Popup Menu / Select Dropdown Options */
+body:not(.body--dark) .q-menu {
+  background-color: #ffffff !important;
+  border: 1px solid #cbd5e1 !important;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.12) !important;
+  color: #0f172a !important;
+}
+
+body:not(.body--dark) .q-menu .q-item {
+  color: #0f172a !important;
+}
+
+body:not(.body--dark) .q-menu .q-item__label {
+  color: #0f172a !important;
+  font-weight: 500 !important;
+}
+
+body:not(.body--dark) .q-menu .q-item--active,
+body:not(.body--dark) .q-menu .q-item:hover {
+  background-color: #f1f5f9 !important;
+  color: var(--accent-text, #2563eb) !important;
+}
+
+body:not(.body--dark) .q-menu .q-item--active .q-item__label,
+body:not(.body--dark) .q-menu .q-item:hover .q-item__label {
+  color: var(--accent-text, #2563eb) !important;
+  font-weight: 700 !important;
+}
+
+/* Quasar Field Icons & Dropdown Arrows */
+body.body--dark .q-field__marginal,
+.body--dark .q-field__marginal,
+body.dark .q-field__marginal,
+.dark .q-field__marginal {
+  color: var(--text-muted, #94a3b8) !important;
+}
+
+body:not(.body--dark) .q-field__marginal {
+  color: var(--text-muted, #64748b) !important;
+}
+
+/* Dialog Modals in Dark Mode */
+body.body--dark .q-dialog .q-card,
+.body--dark .q-dialog .q-card,
+body.dark .q-dialog .q-card,
+.dark .q-dialog .q-card {
+  background-color: var(--surface-card, #1e293b) !important;
+  color: var(--text-primary, #f8fafc) !important;
+  border: 1px solid var(--border-default, #334155) !important;
 }
 
 
@@ -1081,6 +1224,67 @@ body:not(.body--dark) .q-field__input {
   font-weight: 500 !important;
 }
 
+/* Quasar Button & Utility Color Mapping to Dynamic User Preference CSS Variables */
+.bg-primary,
+.q-btn.bg-primary,
+.q-btn--standard.bg-primary {
+  background-color: var(--accent-primary) !important;
+  color: #ffffff !important;
+}
+
+.text-primary,
+.q-btn--flat.text-primary .q-btn__content {
+  color: var(--accent-text) !important;
+}
+
+.bg-secondary,
+.q-btn.bg-secondary,
+.q-btn--standard.bg-secondary {
+  background-color: var(--btn-secondary-bg) !important;
+  color: var(--btn-secondary-text) !important;
+}
+
+.bg-positive,
+.q-btn.bg-positive,
+.q-btn--standard.bg-positive {
+  background-color: var(--btn-success-bg) !important;
+  color: #ffffff !important;
+}
+
+.bg-negative,
+.q-btn.bg-negative,
+.q-btn--standard.bg-negative {
+  background-color: var(--btn-danger-bg) !important;
+  color: #ffffff !important;
+}
+
+.bg-warning,
+.q-btn.bg-warning,
+.q-btn--standard.bg-warning {
+  background-color: var(--btn-warning-bg) !important;
+  color: #ffffff !important;
+}
+
+.q-btn.bg-primary:hover,
+.q-btn--standard.bg-primary:hover {
+  background-color: var(--accent-hover) !important;
+}
+
+.q-btn.bg-secondary:hover,
+.q-btn--standard.bg-secondary:hover {
+  background-color: var(--btn-secondary-bg-hover) !important;
+}
+
+.q-btn.bg-positive:hover,
+.q-btn--standard.bg-positive:hover {
+  background-color: var(--btn-success-bg-hover) !important;
+}
+
+.q-btn.bg-negative:hover,
+.q-btn--standard.bg-negative:hover {
+  background-color: var(--btn-danger-bg-hover) !important;
+}
+
 /* ═══════════════════════════════════════════════════════════════════════════
    7. QUASAR NOTIFICATION POPUP STYLING
    ═══════════════════════════════════════════════════════════════════════════ */
@@ -1134,42 +1338,47 @@ body:not(.body--dark) .q-field__input {
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
-   8. COMPACT TAB HEADER OVERRIDES
+   8. TAB HEADER OVERRIDES
    ═══════════════════════════════════════════════════════════════════════════ */
 
 .app-tabs,
 .q-tabs {
   max-width: 100% !important;
   min-width: 0 !important;
-  overflow: hidden !important;
+  width: 100% !important;
 }
 
 .app-tabs .q-tabs__content,
 .q-tabs__content {
   max-width: 100% !important;
   min-width: 0 !important;
+  flex-wrap: nowrap !important;
 }
 
 .app-tabs .q-tab,
 .q-tab {
-  min-height: 36px !important;
-  height: 36px !important;
-  padding: 4px 12px !important;
-  font-size: 12px !important;
-  max-width: 220px !important;
-  flex-shrink: 1 !important;
+  min-height: 38px !important;
+  height: 38px !important;
+  padding: 4px 16px !important;
+  font-size: 13px !important;
+  max-width: max-content !important;
+  width: auto !important;
+  flex-shrink: 0 !important;
+  border-radius: 10px 10px 0 0 !important;
 }
 
 .app-tabs .q-tab__label,
 .q-tab__label {
-  font-size: 12px !important;
+  font-size: 13px !important;
   white-space: nowrap !important;
-  overflow: hidden !important;
-  text-overflow: ellipsis !important;
+  overflow: visible !important;
+  text-overflow: clip !important;
   font-weight: 600 !important;
 }
 
 .app-tabs .q-icon,
 .q-tab .q-icon {
   font-size: 18px !important;
+  margin-right: 6px !important;
+  margin-left: 6px !important;
 }

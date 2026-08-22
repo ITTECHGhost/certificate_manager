@@ -217,33 +217,33 @@ class SettingsScreen:
                 self.theme_select = UI.select(
                     "الوضع (فاتح/داكن) / Theme Mode",
                     options=["System", "Light", "Dark"],
-                    value=saved_theme
+                    value=saved_theme,
+                    on_change=self._on_theme_select_change
                 )
-                self.theme_select.on("update:model-value", self._on_theme_select_change)
 
                 self.accent_select = UI.select(
                     "اللون الأساسي / Accent Color",
                     options=valid_accents,
-                    value=saved_accent
+                    value=saved_accent,
+                    on_change=self._on_accent_select_change
                 )
-                self.accent_select.on("update:model-value", self._on_accent_select_change)
 
                 self.font_select = UI.select(
                     "نوع الخط / Font Family",
                     options=["Arial", "Segoe UI", "Roboto", "Cairo", "Tahoma", "Noto Sans Arabic", "times new roman"],
-                    value=saved_font
+                    value=saved_font,
+                    on_change=self._on_font_select_change
                 )
-                self.font_select.on("update:model-value", self._on_font_select_change)
 
                 self.font_size_input = UI.number_input(
                     "حجم الخط الأساسي / Base Font Size",
-                    value=saved_size, min=10, max=24
+                    value=saved_size, min=10, max=24,
+                    on_change=self._on_font_size_change
                 )
-                self.font_size_input.on("update:model-value", self._on_font_size_change)
 
             with ui.row().classes("app-tile w-full items-center justify-between p-3 rounded-xl border"):
                 UI.standard_label("اتجاه الواجهة من اليمين إلى اليسار / Arabic RTL Layout")
-                self.rtl_switch = UI.switch("تفعيل RTL / Enable RTL", value=bool(saved_rtl))
+                self.rtl_switch = UI.switch("تفعيل RTL / Enable RTL", value=bool(saved_rtl), on_change=self._on_rtl_switch_change)
 
             UI.success_button(
                 "حفظ وتطبيق المظهر / Save Appearance",
@@ -337,11 +337,26 @@ class SettingsScreen:
                     "app-text-success text-xs font-semibold mt-1"
                 )
 
+    def _get_event_value(self, e, element, default_val):
+        if e is not None:
+            if hasattr(e, "value") and e.value is not None:
+                return e.value
+            elif hasattr(e, "args"):
+                args = e.args
+                if isinstance(args, (str, int, float)):
+                    return args
+                elif isinstance(args, (list, tuple)) and len(args) > 0:
+                    return args[0]
+        if element is not None and element.value is not None:
+            return element.value
+        return default_val
+
     def _on_theme_select_change(self, e=None) -> None:
         """Live theme switch when Theme Mode dropdown option changes."""
         from nicegui_ui.ui_theme import is_windows_dark_mode, set_dark_mode
         from nicegui_ui.state import log_state
-        val = str((self.theme_select.value if self.theme_select else None) or "Dark")
+        raw_val = self._get_event_value(e, self.theme_select, "Dark")
+        val = str(raw_val or "Dark")
         if val == "Dark":
             set_dark_mode(True)
         elif val == "Light":
@@ -387,23 +402,41 @@ class SettingsScreen:
     def _on_accent_select_change(self, e=None) -> None:
         """Live accent palette switch when Accent Color dropdown option changes."""
         from nicegui_ui.ui_theme import set_accent
-        val = str((self.accent_select.value if self.accent_select else None) or "blue")
+        raw_val = self._get_event_value(e, self.accent_select, "blue")
+        val = str(raw_val or "blue")
         set_accent(val)
+        self.session.update_preferences(accent_color=val)
         ui.notify(f"تم تغيير اللون الأساسي / Accent set to {val}!", type="info")
 
     def _on_font_select_change(self, e=None) -> None:
         """Live font family switch when Font Family dropdown option changes."""
         from nicegui_ui.ui_theme import set_font_family
-        val = str((self.font_select.value if self.font_select else None) or "Segoe UI")
+        raw_val = self._get_event_value(e, self.font_select, "Segoe UI")
+        val = str(raw_val or "Segoe UI")
         set_font_family(val)
+        self.session.update_preferences(font_family=val)
         ui.notify(f"تم تغيير نوع الخط إلى {val} / Font family set to {val}!", type="info")
 
     def _on_font_size_change(self, e=None) -> None:
         """Live base font size scale when Base Font Size number input changes."""
         from nicegui_ui.ui_theme import set_font_size
         try:
-            val = int((self.font_size_input.value if self.font_size_input else None) or 13)
+            raw_val = self._get_event_value(e, self.font_size_input, 13)
+            val = int(raw_val or 13)
             set_font_size(val)
+            self.session.update_preferences(font_size_base=val)
+        except Exception:
+            pass
+
+    def _on_rtl_switch_change(self, e=None) -> None:
+        """Live RTL / LTR layout direction switch when RTL toggle is changed."""
+        from nicegui_ui.ui_theme import set_rtl
+        try:
+            raw_val = self._get_event_value(e, self.rtl_switch, True)
+            val = bool(raw_val)
+            set_rtl(val)
+            self.session.update_preferences(is_arabic_rtl=1 if val else 0)
+            ui.notify(f"تم تغيير اتجاه الواجهة إلى {'اليمين (RTL)' if val else 'اليسار (LTR)'} / Layout set to {'RTL' if val else 'LTR'}!", type="info")
         except Exception:
             pass
 
@@ -466,6 +499,9 @@ class SettingsScreen:
                 dark_mode.disable()
             else:
                 dark_mode.auto()
+
+            from nicegui_ui.ui_theme import set_rtl
+            set_rtl(bool(rtl_val))
 
             mysql_result = "success"
             try:

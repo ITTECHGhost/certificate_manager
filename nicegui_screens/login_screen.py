@@ -47,23 +47,10 @@ class LoginScreen:
         # Explicitly allow unsafe-eval for Vue's runtime compiler in PyWebView
         ui.add_head_html('<meta http-equiv="Content-Security-Policy" content="default-src * \'unsafe-inline\' \'unsafe-eval\' data: blob:; script-src * \'unsafe-inline\' \'unsafe-eval\'; style-src * \'unsafe-inline\';">')
 
-        # 2. Main 2-Column Split Container
+        # 2. Main 2-Column Split Container (Login Card on Right, Logo on Left in RTL)
         with ui.row().classes("w-full h-screen flex-nowrap m-0 p-0 gap-0"):
 
-            # --- LEFT COLUMN: University Logo Area ---
-            with ui.column().classes(
-                "app-login-bg w-1/2 md:w-3/5 h-full items-center justify-center p-8"
-            ):
-                if os.path.exists("csit.png"):
-                    ui.image("csit.png").classes(
-                        "app-login-logo w-[340px] max-w-full h-auto object-contain"
-                    )
-                else:
-                    ui.label("UNIVERSITY LOGO").classes(
-                        "app-text-faint text-4xl font-extrabold tracking-wider text-center"
-                    )
-
-            # --- RIGHT COLUMN: Login Card Form Area ---
+            # --- RIGHT COLUMN (in RTL): Login Card Form Area ---
             with ui.column().classes(
                 "app-login-right w-1/2 md:w-2/5 h-full items-center justify-center p-6 relative"
             ):
@@ -81,50 +68,50 @@ class LoginScreen:
 
                     # Title & Subtitle
                     with ui.column().classes("w-full items-center gap-1 text-center mt-2"):
-                        ui.label("SYSTEM LOGIN / تسجيل الدخول").classes(
+                        ui.label("تسجيل الدخول / SYSTEM LOGIN").classes(
                             "app-login-title text-[1.2rem] font-bold tracking-wide"
+                        )
+                        ui.label("يرجى إدخال بيانات الاعتماد الخاصة بك للوصول").classes(
+                            "app-login-subtitle text-[11px] font-bold"
                         )
                         ui.label("Enter credentials to access the system").classes(
                             "app-login-subtitle text-[11px] font-medium -mb-0.5"
-                        )
-                        ui.label("يرجى إدخال بيانات الاعتماد الخاصة بك للوصول").classes(
-                            "app-login-subtitle text-[11px] font-medium"
                         )
 
                     # Username Input Group
                     with ui.column().classes("w-full gap-1 mt-3"):
                         with ui.row().classes("w-full justify-between items-end px-1"):
-                            ui.label("Username").classes("app-text-muted text-xs font-medium")
                             ui.label("اسم المستخدم").classes("app-text-secondary text-xs font-bold")
+                            ui.label("Username").classes("app-text-muted text-xs font-medium")
 
                         self.username_input = ui.input(
-                            placeholder="Enter Username"
+                            placeholder="أدخل اسم المستخدم / Enter Username"
                         ).classes(
                             "w-full app-input"
                         ).props(
-                            'outlined dense input-class="font-semibold text-left"'
+                            'outlined dense input-class="font-semibold text-right"'
                         )
                         with self.username_input.add_slot('prepend'):
-                            ui.icon('person_outline', size='sm').classes("app-text-faint mr-1")
+                            ui.icon('person_outline', size='sm').classes("app-text-faint ml-1")
                         self.username_input.on('keydown.enter', self.handle_login)
 
                     # Password Input Group
                     with ui.column().classes("w-full gap-1"):
                         with ui.row().classes("w-full justify-between items-end px-1"):
-                            ui.label("Password").classes("app-text-muted text-xs font-medium")
                             ui.label("كلمة المرور").classes("app-text-secondary text-xs font-bold")
+                            ui.label("Password").classes("app-text-muted text-xs font-medium")
 
                         self.password_input = ui.input(
-                            placeholder="Enter Password",
+                            placeholder="أدخل كلمة المرور / Enter Password",
                             password=True,
                             password_toggle_button=True
                         ).classes(
                             "w-full app-input"
                         ).props(
-                            'outlined dense input-class="font-semibold text-left"'
+                            'outlined dense input-class="font-semibold text-right"'
                         )
                         with self.password_input.add_slot('prepend'):
-                            ui.icon('key', size='sm').classes("app-text-faint mr-1")
+                            ui.icon('key', size='sm').classes("app-text-faint ml-1")
                         self.password_input.on('keydown.enter', self.handle_login)
 
                     # Error Feedback Label
@@ -138,8 +125,8 @@ class LoginScreen:
                         "app-btn-primary w-full text-sm py-3 rounded-xl font-bold "
                         "normal-case mt-2 cursor-pointer flex-row justify-between px-6"
                     ):
-                        ui.label("SIGN IN / تسجيل الدخول")
-                        ui.icon("arrow_forward", size="sm")
+                        ui.label("تسجيل الدخول / SIGN IN")
+                        ui.icon("arrow_back", size="sm")
 
                 # Bottom Actions (Theme Toggle)
                 with ui.row().classes("w-[440px] max-w-full justify-end items-center mt-6 px-2"):
@@ -151,6 +138,19 @@ class LoginScreen:
                             on_change=lambda e: set_dark_mode(e.value, self.dark_mode)
                         ).props("dense size=sm").bind_value(self.dark_mode, 'value')
                         ui.icon("dark_mode", size="xs").classes("app-text-faint")
+
+            # --- LEFT COLUMN (in RTL): University Logo Area ---
+            with ui.column().classes(
+                "app-login-bg w-1/2 md:w-3/5 h-full items-center justify-center p-8"
+            ):
+                if os.path.exists("csit.png"):
+                    ui.image("csit.png").classes(
+                        "app-login-logo w-[340px] max-w-full h-auto object-contain"
+                    )
+                else:
+                    ui.label("UNIVERSITY LOGO").classes(
+                        "app-text-faint text-4xl font-extrabold tracking-wider text-center"
+                    )
 
     def _toggle_theme(self, is_dark: bool) -> None:
         """Explicitly enables/disables dark mode."""

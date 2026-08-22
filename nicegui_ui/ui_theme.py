@@ -13,6 +13,10 @@
 
 import sys
 import winreg
+import logging
+from typing import Optional
+
+log = logging.getLogger(__name__)
 
 
 def is_windows_dark_mode() -> bool:
@@ -227,10 +231,35 @@ def set_font_size(size_base: int) -> None:
     ui.run_javascript(f"document.documentElement.style.setProperty('--font-size-base', '{size}px'); document.documentElement.style.fontSize = '{size}px';")
 
 
-def inject_global_styles():
-    """Reads theme.css and injects Tailwind config and global styles into the page head."""
+def set_rtl(enable: bool) -> None:
+    """Live-update document layout direction (RTL / LTR) on document body and root element."""
     from nicegui import ui
+    direction = "rtl" if enable else "ltr"
+    ui.run_javascript(f"""
+        document.documentElement.setAttribute('dir', '{direction}');
+        document.body.setAttribute('dir', '{direction}');
+        document.documentElement.style.direction = '{direction}';
+        document.body.style.direction = '{direction}';
+        if (window.Quasar && window.Quasar.lang) {{
+            window.Quasar.lang.set({{ rtl: {'true' if enable else 'false'} }});
+        }}
+    """)
+
+
+def inject_global_styles(is_rtl: Optional[bool] = None):
+    """Reads theme.css and injects Tailwind config and global styles into the page head following user preferences."""
+    from nicegui import ui
+    from nicegui_ui.state import app_session
     import os
+
+    if is_rtl is None:
+        try:
+            is_rtl = bool(app_session.preferences.get("is_arabic_rtl", 1))
+        except Exception:
+            is_rtl = True
+
+    dir_val = 'rtl' if is_rtl else 'ltr'
+    js_bool = 'true' if is_rtl else 'false'
 
     css_path = os.path.join(os.path.dirname(__file__), 'theme.css')
     try:
@@ -239,14 +268,22 @@ def inject_global_styles():
 
         ui.add_head_html(f"""
         <script>
+        document.documentElement.setAttribute('dir', '{dir_val}');
+        if (document.body) {{
+            document.body.setAttribute('dir', '{dir_val}');
+            document.body.style.direction = '{dir_val}';
+        }}
+        document.documentElement.style.direction = '{dir_val}';
         window.tailwind = window.tailwind || {{}};
         window.tailwind.config = window.tailwind.config || {{}};
         window.tailwind.config.darkMode = ['class', '.body--dark'];
+        if (window.Quasar && window.Quasar.lang) {{
+            window.Quasar.lang.set({{ rtl: {js_bool} }});
+        }}
         </script>
         <style>
         {css}
         </style>
         """)
-    except Exception as e:
-        print(f"[Theme] Failed to load theme.css: {e}")
-
+    except Exception as exc:
+        log.warning(f"[inject_global_styles] Error loading theme.css: {exc}")

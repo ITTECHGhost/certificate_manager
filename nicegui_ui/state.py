@@ -88,9 +88,9 @@ class UserSessionState:
         return str(self.preferences.get("accent_color", "blue")).lower().replace("-", "_")
 
     def apply_theme_mode(self) -> None:
-        """Apply active user preference theme mode, accent color, font family, and font size to NiceGUI."""
+        """Apply active user preference theme mode, accent color, font family, font size, and layout direction to NiceGUI."""
         try:
-            from nicegui_ui.ui_theme import is_windows_dark_mode, set_dark_mode, set_accent, set_font_family, set_font_size
+            from nicegui_ui.ui_theme import is_windows_dark_mode, set_dark_mode, set_accent, set_font_family, set_font_size, set_rtl
             mode = self.theme_mode
             if mode == "dark":
                 set_dark_mode(True)
@@ -107,6 +107,10 @@ class UserSessionState:
             font_size = int(self.preferences.get("font_size_base") or 13)
             set_font_family(font_family)
             set_font_size(font_size)
+
+            # Sync RTL layout direction
+            rtl = bool(self.preferences.get("is_arabic_rtl", 1))
+            set_rtl(rtl)
         except Exception as exc:
             log.warning("Could not apply theme mode: %s", exc)
 

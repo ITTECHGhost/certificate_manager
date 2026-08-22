@@ -12,8 +12,16 @@
 - `templets/`: Word document templates (`.docx`) for certificate generation.
 - `themes/`: JSON theme files for `customtkinter` styling.
 - `tools/`: Utility scripts — `migrate_mysql.py` (SQLite→MySQL migration).
+- `export_db.py`: Database export utility script. Generates `sql/schema.sql`, `sql/SP.sql`, and `sql/SQLite.sql`.
+- `sql/`: Folder containing database export files (`schema.sql`, `SP.sql`, `SQLite.sql`).
 - `local_cache.db`: Auto-generated SQLite database for offline mode. Contains sync queue, temp ID counter, SP result cache, and replica tables for all major MySQL tables.
 - `system_log.txt`: Centralized log file for all system-level diagnostic activities (startup health checks, database initialization, network status transitions, and sync engine runs).
 - `activity_log.txt`: Centralized log file for all user activities (login/logout attempts, authentication verification methods, student additions/edits, and certificate generations).
 
 > **AGENT RULE:** When investigating system behavior, errors, or tracing recent actions (e.g., failed logins, API/SP failures, offline fallback triggers), ALWAYS search `system_log.txt` and `activity_log.txt` to gather context on what actually happened during runtime.
+
+## Strict Rules & Execution Directives
+1. **Do not make assumptions about database and MySQL is off-limits**: You are NOT to make any changes directly to the MySQL database. You can only ask the user to make the changes or provide SQL code for the user to execute.
+2. **Database inspection protocol**: In case you need to inspect or check the MySQL database, run `export_db.py` then check `sql/schema.sql`, `sql/SP.sql`, and `sql/SQLite.sql`.
+3. **FastAPI code checking order**: For checking FastAPI code, check `C:\AppServ\www\certificate_manager_api\main.py` first, then check `certificate_manager_api\main.py` (which is the copy of the main file saved for GitHub).
+4. **Strict Instruction Following**: Follow user instructions strictly without making assumptions, breaking existing work, or performing unauthorized actions.

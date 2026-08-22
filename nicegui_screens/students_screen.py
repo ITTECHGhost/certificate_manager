@@ -16,8 +16,9 @@ from nicegui_ui.student_components import StudentProfileView, StudentFormView, C
 from data.repositories import StudentRepository
 
 class StudentsScreen:
-    def __init__(self) -> None:
+    def __init__(self, on_issue_certificate=None) -> None:
         self.repo = StudentRepository()
+        self.on_issue_certificate = on_issue_certificate
         self.search_input = None
         self.table = None
         self.limit_select = None
@@ -48,7 +49,8 @@ class StudentsScreen:
             self.main_container, 
             on_back=self.show_list_view, 
             on_edit=self.form_view.render_edit,
-            on_manage_courses=self.enrollment_view.render
+            on_manage_courses=self.enrollment_view.render,
+            on_issue_certificate=self.on_issue_certificate
         )
         
         self.show_list_view()
@@ -70,17 +72,17 @@ class StudentsScreen:
                         ).classes("flex-1").props('debounce="300"')
                         self.search_input.on("keydown.enter", lambda: self.perform_search(reset_offset=True))
 
-                        ui.button(
+                        UI.primary_button(
                             "Search / بحث",
                             icon="search",
                             on_click=lambda: self.perform_search(reset_offset=True)
-                        ).props("color=primary").classes("h-12 px-4 shadow-sm")
+                        ).classes("h-12 px-4 shadow-sm")
 
-                    ui.button(
+                    UI.success_button(
                         "Add Student / إضافة طالب", 
                         icon="person_add", 
                         on_click=self.form_view.render_add
-                    ).props("color=positive").classes("h-12 px-4 shadow-sm")
+                    ).classes("h-12 px-4 shadow-sm")
 
                 columns = [
                     {"name": "name_ar", "label": "Name / الاسم", "field": "name_ar", "align": "right", "sortable": True},
@@ -108,8 +110,8 @@ class StudentsScreen:
                 self.table.add_slot("body-cell-name_ar", """
                     <q-td :props="props">
                         <div class="flex flex-col text-right leading-tight">
-                            <span class="font-bold text-slate-100 text-sm">{{ props.row.name_ar }}</span>
-                            <span class="text-xs text-slate-400 font-mono" dir="ltr">{{ props.row.name_en }}</span>
+                            <span class="font-bold app-text-primary text-sm">{{ props.row.name_ar }}</span>
+                            <span class="text-xs app-text-muted font-mono" dir="ltr">{{ props.row.name_en }}</span>
                         </div>
                     </q-td>
                 """)
@@ -124,29 +126,29 @@ class StudentsScreen:
                 self.table.on("view_profile", self._on_view_profile)
 
                 # Pagination & Rows-Per-Page Controls Footer
-                with ui.row().classes("w-full items-center justify-between mt-4 px-2 py-2 border-t border-slate-700/50"):
+                with ui.row().classes("w-full items-center justify-between mt-4 px-2 py-2 border-t border-[var(--border-default)]"):
                     with ui.row().classes("items-center gap-3"):
-                        ui.label("Rows per page / عدد الصفوف:").classes("text-sm text-slate-300 font-medium")
+                        ui.label("Rows per page / عدد الصفوف:").classes("text-sm app-text-muted font-medium")
                         self.limit_select = ui.select(
                             options=[25, 50, 100],
                             value=self.current_limit,
                             on_change=self._on_limit_change
                         ).props("dense options-dense outlined").classes("w-24")
 
-                    self.page_info_label = ui.label("").classes("text-sm font-semibold text-slate-300")
+                    self.page_info_label = ui.label("").classes("text-sm font-semibold app-text-primary")
 
                     with ui.row().classes("items-center gap-2"):
-                        self.prev_btn = ui.button(
+                        self.prev_btn = UI.primary_button(
                             "Previous / السابق",
                             icon="chevron_right",
                             on_click=self._prev_page
-                        ).props("color=primary dense outlined")
+                        ).props("dense outlined")
 
-                        self.next_btn = ui.button(
+                        self.next_btn = UI.primary_button(
                             "Next / التالي",
                             icon="chevron_left",
                             on_click=self._next_page
-                        ).props("color=primary dense outlined")
+                        ).props("dense outlined")
 
                 self._update_pagination_controls(len(initial_data))
 

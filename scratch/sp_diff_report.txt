@@ -1,0 +1,387 @@
+Total procedures in test_SPs.sql: 9
+Total procedures in SP.sql: 59
+
+===========================================================================
+PROCEDURE: sp_GetCertificate_AcademicCourses
+===========================================================================
+Status: DIFFERENCES DETECTED
+--- sql/test_SPs.sql (Backup)
++++ sql/SP.sql (Live Database)
+@@ -1,14 +1,22 @@
+ DECLARE v_period_display VARCHAR(50);
+-SELECT
+-LOWER(COALESCE(ss.period_display, 'year')) INTO v_period_display
+-FROM
+-students s
++SELECT LOWER(COALESCE(ss.period_display, 'year'))
++INTO v_period_display
++FROM students s
+ LEFT JOIN study_systems ss ON s.study_system_id = ss.id
+-WHERE
+-s.id = p_student_id
+-LIMIT
+-1;
++WHERE s.id = p_student_id
++LIMIT 1;
+ IF v_period_display = 'semester' THEN
+-IF p_grouping_mode = 'BY_SEMESTER_stage' THEN CALL sp_GetCertificate_Courses_Semester_ByStage (p_student_id);
++IF p_grouping_mode = 'BY_SEMESTER_stage' THEN
++CALL sp_GetCertificate_Courses_Semester_ByStage(p_student_id);
+ ELSE
+-CALL sp_GetCertificate_Courses_Semester_ByYear (p_student_id);
++CALL sp_GetCertificate_Courses_Semester_ByYear(p_student_id);
++END IF;
++ELSE
++IF p_grouping_mode = 'BY_PERIOD_STAGE' THEN
++CALL sp_GetCertificate_Courses_Yearly_ByPeriodStage(p_student_id);
++ELSEIF p_grouping_mode = 'BY_CURRICULUM_STAGE' THEN
++CALL sp_GetCertificate_Courses_Yearly_ByCurriculumStage(p_student_id);
++ELSE
++CALL sp_GetCertificate_Courses_Yearly_ByAcademicYear(p_student_id);
++END IF;
++END IF;
+
+
+===========================================================================
+PROCEDURE: sp_GetCertificate_AcademicTimeline
+===========================================================================
+Status: DIFFERENCES DETECTED
+--- sql/test_SPs.sql (Backup)
++++ sql/SP.sql (Live Database)
+@@ -1,43 +1,25 @@
+ SELECT
+ MIN(ap.id) AS primary_period_id,
+ CASE
+-WHEN ap.academic_year IS NULL
+-OR ap.academic_year = '' THEN ''
++WHEN ap.academic_year IS NULL OR ap.academic_year = '' THEN ''
+ WHEN ap.academic_year LIKE '%-%' THEN ap.academic_year
+-ELSE CONCAT (
+-ap.academic_year,
+-' - ',
+-CAST(ap.academic_year AS UNSIGNED) + 1
+-)
++ELSE CONCAT(ap.academic_year, ' - ', CAST(ap.academic_year AS UNSIGNED) + 1)
+ END AS academic_year,
+ (
+-SELECT
+-ap_sub.stage_number
+-FROM
+-academic_periods ap_sub
++SELECT ap_sub.stage_number
++FROM academic_periods ap_sub
+ LEFT JOIN enrollments e_sub ON e_sub.period_id = ap_sub.id
+-WHERE
+-ap_sub.student_id = p_student_id
++WHERE ap_sub.student_id = p_student_id
+ AND ap_sub.academic_year = ap.academic_year
+ AND COALESCE(ap_sub.semester_num, 1) = COALESCE(ap.semester_num, 1)
+-GROUP BY
+-ap_sub.stage_number
+-ORDER BY
+-COUNT(e_sub.id) DESC,
+-ap_sub.stage_number DESC
+-LIMIT
+-1
++GROUP BY ap_sub.stage_number
++ORDER BY COUNT(e_sub.id) DESC, ap_sub.stage_number DESC
++LIMIT 1
+ ) AS stage_number,
+ COALESCE(ap.semester_num, 1) AS semester_num,
+-GROUP_CONCAT (
+-DISTINCT COALESCE(ap.result_status, 'PASSED')
+-ORDER BY
+-ap.result_status ASC SEPARATOR ' / '
+-) AS result_status
+-FROM
+-academic_periods ap
+-WHERE
+-ap.student_id = p_student_id
++GROUP_CONCAT(DISTINCT COALESCE(ap.result_status, 'PASSED') ORDER BY ap.result_status ASC SEPARATOR ' / ') AS result_status
++FROM academic_periods ap
++WHERE ap.student_id = p_student_id
+ GROUP BY
+ ap.academic_year,
+ ap.semester_num
+
+
+===========================================================================
+PROCEDURE: sp_GetCertificate_Courses_Semester_ByStage
+===========================================================================
+Status: DIFFERENCES DETECTED
+--- sql/test_SPs.sql (Backup)
++++ sql/SP.sql (Live Database)
+@@ -1,13 +1,8 @@
+ SELECT
+ CASE
+-WHEN ap.academic_year IS NULL
+-OR ap.academic_year = '' THEN ''
++WHEN ap.academic_year IS NULL OR ap.academic_year = '' THEN ''
+ WHEN ap.academic_year LIKE '%-%' THEN ap.academic_year
+-ELSE CONCAT (
+-ap.academic_year,
+-' - ',
+-CAST(ap.academic_year AS UNSIGNED) + 1
+-)
++ELSE CONCAT(ap.academic_year, ' - ', CAST(ap.academic_year AS UNSIGNED) + 1)
+ END AS academic_year_formatted,
+ ap.academic_year,
+ ap.stage_number,
+@@ -16,17 +11,11 @@
+ COALESCE(c.credit_hours, 0) AS unit,
+ COALESCE(e.score, 0.0) AS mark,
+ COALESCE(e.passed_round, 1) AS passed_round,
+-CONCAT (
+-ap.stage_number,
+-'_',
+-COALESCE(ap.semester_num, 1)
+-) AS grouping_key
+-FROM
+-academic_periods ap
++CONCAT(ap.stage_number, '_', COALESCE(ap.semester_num, 1)) AS grouping_key
++FROM academic_periods ap
+ JOIN enrollments e ON e.period_id = ap.id
+ JOIN courses c ON e.course_id = c.id
+-WHERE
+-ap.student_id = p_student_id
++WHERE ap.student_id = p_student_id
+ ORDER BY
+ ap.stage_number ASC,
+ COALESCE(ap.semester_num, 1) ASC,
+
+
+===========================================================================
+PROCEDURE: sp_GetCertificate_Courses_Semester_ByYear
+===========================================================================
+Status: DIFFERENCES DETECTED
+--- sql/test_SPs.sql (Backup)
++++ sql/SP.sql (Live Database)
+@@ -1,13 +1,8 @@
+ SELECT
+ CASE
+-WHEN ap.academic_year IS NULL
+-OR ap.academic_year = '' THEN ''
++WHEN ap.academic_year IS NULL OR ap.academic_year = '' THEN ''
+ WHEN ap.academic_year LIKE '%-%' THEN ap.academic_year
+-ELSE CONCAT (
+-ap.academic_year,
+-' - ',
+-CAST(ap.academic_year AS UNSIGNED) + 1
+-)
++ELSE CONCAT(ap.academic_year, ' - ', CAST(ap.academic_year AS UNSIGNED) + 1)
+ END AS academic_year_formatted,
+ ap.academic_year,
+ ap.stage_number,
+@@ -16,17 +11,11 @@
+ COALESCE(c.credit_hours, 0) AS unit,
+ COALESCE(e.score, 0.0) AS mark,
+ COALESCE(e.passed_round, 1) AS passed_round,
+-CONCAT (
+-ap.academic_year,
+-'_',
+-COALESCE(ap.semester_num, 1)
+-) AS grouping_key
+-FROM
+-academic_periods ap
++CONCAT(ap.academic_year, '_', COALESCE(ap.semester_num, 1)) AS grouping_key
++FROM academic_periods ap
+ JOIN enrollments e ON e.period_id = ap.id
+ JOIN courses c ON e.course_id = c.id
+-WHERE
+-ap.student_id = p_student_id
++WHERE ap.student_id = p_student_id
+ ORDER BY
+ ap.academic_year ASC,
+ COALESCE(ap.semester_num, 1) ASC,
+
+
+===========================================================================
+PROCEDURE: sp_GetCertificate_Courses_Yearly_ByAcademicYear
+===========================================================================
+Status: DIFFERENCES DETECTED
+--- sql/test_SPs.sql (Backup)
++++ sql/SP.sql (Live Database)
+@@ -1,34 +1,22 @@
+ SELECT
+ CASE
+-WHEN ap.academic_year IS NULL
+-OR ap.academic_year = '' THEN ''
++WHEN ap.academic_year IS NULL OR ap.academic_year = '' THEN ''
+ WHEN ap.academic_year LIKE '%-%' THEN ap.academic_year
+-ELSE CONCAT (
+-ap.academic_year,
+-' - ',
+-CAST(ap.academic_year AS UNSIGNED) + 1
+-)
++ELSE CONCAT(ap.academic_year, ' - ', CAST(ap.academic_year AS UNSIGNED) + 1)
+ END AS academic_year_formatted,
+ ap.academic_year,
+-ap.stage_number AS period_stage,
+-COALESCE(c.stage_number, ap.stage_number) AS course_curriculum_stage,
++ap.stage_number,
+ COALESCE(ap.semester_num, 1) AS semester_num,
+ COALESCE(c.name_ar, '') AS subject_name,
+ COALESCE(c.credit_hours, 0) AS unit,
+ COALESCE(e.score, 0.0) AS mark,
+ COALESCE(e.passed_round, 1) AS passed_round,
+-CASE
+-WHEN COALESCE(c.stage_number, ap.stage_number) < ap.stage_number THEN 'عبور'
+-ELSE 'أساسي'
+-END AS course_type,
+ ap.academic_year AS grouping_key
+-FROM
+-academic_periods ap
++FROM academic_periods ap
+ JOIN enrollments e ON e.period_id = ap.id
+ JOIN courses c ON e.course_id = c.id
+-WHERE
+-ap.student_id = p_student_id
++WHERE ap.student_id = p_student_id
+ ORDER BY
+ ap.academic_year ASC,
+-COALESCE(ap.semester_num, 1) ASC,
++ap.stage_number ASC,
+ c.name_ar ASC;
+
+
+===========================================================================
+PROCEDURE: sp_GetCertificate_Courses_Yearly_ByCurriculumStage
+===========================================================================
+Status: DIFFERENCES DETECTED
+--- sql/test_SPs.sql (Backup)
++++ sql/SP.sql (Live Database)
+@@ -1,34 +1,22 @@
+ SELECT
+ CASE
+-WHEN ap.academic_year IS NULL
+-OR ap.academic_year = '' THEN ''
++WHEN ap.academic_year IS NULL OR ap.academic_year = '' THEN ''
+ WHEN ap.academic_year LIKE '%-%' THEN ap.academic_year
+-ELSE CONCAT (
+-ap.academic_year,
+-' - ',
+-CAST(ap.academic_year AS UNSIGNED) + 1
+-)
++ELSE CONCAT(ap.academic_year, ' - ', CAST(ap.academic_year AS UNSIGNED) + 1)
+ END AS academic_year_formatted,
+ ap.academic_year,
+-ap.stage_number AS period_stage,
+-COALESCE(c.stage_number, ap.stage_number) AS course_curriculum_stage,
++COALESCE(c.stage_number, ap.stage_number) AS stage_number,
+ COALESCE(ap.semester_num, 1) AS semester_num,
+ COALESCE(c.name_ar, '') AS subject_name,
+ COALESCE(c.credit_hours, 0) AS unit,
+ COALESCE(e.score, 0.0) AS mark,
+ COALESCE(e.passed_round, 1) AS passed_round,
+-CASE
+-WHEN COALESCE(c.stage_number, ap.stage_number) < ap.stage_number THEN 'عبور'
+-ELSE 'أساسي'
+-END AS course_type,
+ CAST(COALESCE(c.stage_number, ap.stage_number) AS CHAR) AS grouping_key
+-FROM
+-academic_periods ap
++FROM academic_periods ap
+ JOIN enrollments e ON e.period_id = ap.id
+ JOIN courses c ON e.course_id = c.id
+-WHERE
+-ap.student_id = p_student_id
++WHERE ap.student_id = p_student_id
+ ORDER BY
+ COALESCE(c.stage_number, ap.stage_number) ASC,
+-COALESCE(ap.semester_num, 1) ASC,
++ap.academic_year ASC,
+ c.name_ar ASC;
+
+
+===========================================================================
+PROCEDURE: sp_GetCertificate_Courses_Yearly_ByPeriodStage
+===========================================================================
+Status: DIFFERENCES DETECTED
+--- sql/test_SPs.sql (Backup)
++++ sql/SP.sql (Live Database)
+@@ -1,34 +1,22 @@
+ SELECT
+ CASE
+-WHEN ap.academic_year IS NULL
+-OR ap.academic_year = '' THEN ''
++WHEN ap.academic_year IS NULL OR ap.academic_year = '' THEN ''
+ WHEN ap.academic_year LIKE '%-%' THEN ap.academic_year
+-ELSE CONCAT (
+-ap.academic_year,
+-' - ',
+-CAST(ap.academic_year AS UNSIGNED) + 1
+-)
++ELSE CONCAT(ap.academic_year, ' - ', CAST(ap.academic_year AS UNSIGNED) + 1)
+ END AS academic_year_formatted,
+ ap.academic_year,
+-ap.stage_number AS period_stage,
+-COALESCE(c.stage_number, ap.stage_number) AS course_curriculum_stage,
++ap.stage_number,
+ COALESCE(ap.semester_num, 1) AS semester_num,
+ COALESCE(c.name_ar, '') AS subject_name,
+ COALESCE(c.credit_hours, 0) AS unit,
+ COALESCE(e.score, 0.0) AS mark,
+ COALESCE(e.passed_round, 1) AS passed_round,
+-CASE
+-WHEN COALESCE(c.stage_number, ap.stage_number) < ap.stage_number THEN 'عبور'
+-ELSE 'أساسي'
+-END AS course_type,
+ CAST(ap.stage_number AS CHAR) AS grouping_key
+-FROM
+-academic_periods ap
++FROM academic_periods ap
+ JOIN enrollments e ON e.period_id = ap.id
+ JOIN courses c ON e.course_id = c.id
+-WHERE
+-ap.student_id = p_student_id
++WHERE ap.student_id = p_student_id
+ ORDER BY
+ ap.stage_number ASC,
+-COALESCE(ap.semester_num, 1) ASC,
++ap.academic_year ASC,
+ c.name_ar ASC;
+
+
+===========================================================================
+PROCEDURE: sp_GetCertificate_Signers
+===========================================================================
+Status: DIFFERENCES DETECTED
+--- sql/test_SPs.sql (Backup)
++++ sql/SP.sql (Live Database)
+@@ -10,11 +10,6 @@
+ TRUE AS is_signature,
+ COALESCE(display_order, 0) AS page_location,
+ COALESCE(personnel_role, 'signer') AS personnel_role
+-FROM
+-personnel
+-WHERE
+-is_active = 1
+-AND display_order > 0
+-ORDER BY
+-display_order ASC,
+-id ASC;
++FROM personnel
++WHERE is_active = 1 AND display_order > 0
++ORDER BY display_order ASC, id ASC;
+
+
+===========================================================================
+PROCEDURE: sp_GetCertificate_UniversitySettings
+===========================================================================
+Status: DIFFERENCES DETECTED
+--- sql/test_SPs.sql (Backup)
++++ sql/SP.sql (Live Database)
+@@ -1,8 +1,4 @@
+-SELECT
+-*
+-FROM
+-university_settings
+-ORDER BY
+-id ASC
+-LIMIT
+-1;
++SELECT *
++FROM university_settings
++ORDER BY id ASC
++LIMIT 1;
+

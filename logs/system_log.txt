@@ -23499,3 +23499,3313 @@ RuntimeError: The parent element this slot belongs to has been deleted.
 2026-08-17 12:26:34 [INFO] _pywebviewready event fired
 2026-08-17 12:26:35 [INFO] loaded event fired
 2026-08-17 12:26:35 [INFO] loaded event fired
+2026-08-19 20:55:58 [INFO] SYSTEM STARTUP DIAGNOSTIC CHECK STARTED
+2026-08-19 20:55:58 [OK] [CHECK 1/4] FastAPI Connection Check ... [OK]
+2026-08-19 20:55:58 [OK] [CHECK 2/4] MySQL Database Connection ... [OK]
+2026-08-19 20:55:58 [OK] [CHECK 3/4] Authentication & Core SP Checks ... [OK]
+2026-08-19 20:55:59 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-08-19 20:55:59 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-08-19 20:55:59 [OK] [CHECK 4/4] Sync Engine & Local Replica Check ... [OK]
+2026-08-19 20:55:59 [OK] Status: ALL CHECKS PASSED. PROCEEDING TO LOGIN/DASHBOARD.
+2026-08-19 20:56:04 [INFO] Using WinForms / Chromium
+2026-08-19 20:56:04 [INFO] Using WinForms / Chromium
+2026-08-19 20:56:11 [INFO] before_load event fired. injecting pywebview object
+2026-08-19 20:56:11 [INFO] before_load event fired. injecting pywebview object
+2026-08-19 20:56:11 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-19 20:56:11 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-19 20:56:11 [INFO] _pywebviewready event fired
+2026-08-19 20:56:11 [INFO] _pywebviewready event fired
+2026-08-19 20:56:11 [INFO] loaded event fired
+2026-08-19 20:56:11 [INFO] loaded event fired
+2026-08-19 20:56:17 [INFO] before_load event fired. injecting pywebview object
+2026-08-19 20:56:17 [INFO] before_load event fired. injecting pywebview object
+2026-08-19 20:56:17 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-19 20:56:17 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-19 20:56:17 [INFO] _pywebviewready event fired
+2026-08-19 20:56:17 [INFO] _pywebviewready event fired
+2026-08-19 20:56:17 [INFO] loaded event fired
+2026-08-19 20:56:17 [INFO] loaded event fired
+2026-08-19 20:56:26 [ERROR] 'CertificateScreen' object has no attribute 'generate_and_open_word'
+Traceback (most recent call last):
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\events.py", line 474, in handle_event
+    result = cast(Callable[[], Any], handler)()
+  File "f:\CR_PY\certificate_manager\nicegui_screens\dashboard_screen.py", line 597, in <lambda>
+    (lambda t=action["target"]: self._switch_screen(t))
+                                ~~~~~~~~~~~~~~~~~~~^^^
+  File "f:\CR_PY\certificate_manager\nicegui_screens\dashboard_screen.py", line 508, in _switch_screen
+    self._render_active_screen()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "f:\CR_PY\certificate_manager\nicegui_screens\dashboard_screen.py", line 540, in _render_active_screen
+    self._active_certificate_screen = CertificateScreen(
+                                      ~~~~~~~~~~~~~~~~~^
+        on_edit_student=_on_edit_student_handler,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        initial_student=last_st
+        ^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "f:\CR_PY\certificate_manager\nicegui_screens\certificate_screen.py", line 536, in __init__
+    self.build_ui()
+    ~~~~~~~~~~~~~^^
+  File "f:\CR_PY\certificate_manager\nicegui_screens\certificate_screen.py", line 726, in build_ui
+    on_click=self.generate_and_open_word
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'CertificateScreen' object has no attribute 'generate_and_open_word'
+2026-08-19 20:56:26 [ERROR] 'CertificateScreen' object has no attribute 'generate_and_open_word'
+Traceback (most recent call last):
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\events.py", line 474, in handle_event
+    result = cast(Callable[[], Any], handler)()
+  File "f:\CR_PY\certificate_manager\nicegui_screens\dashboard_screen.py", line 597, in <lambda>
+    (lambda t=action["target"]: self._switch_screen(t))
+                                ~~~~~~~~~~~~~~~~~~~^^^
+  File "f:\CR_PY\certificate_manager\nicegui_screens\dashboard_screen.py", line 508, in _switch_screen
+    self._render_active_screen()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "f:\CR_PY\certificate_manager\nicegui_screens\dashboard_screen.py", line 540, in _render_active_screen
+    self._active_certificate_screen = CertificateScreen(
+                                      ~~~~~~~~~~~~~~~~~^
+        on_edit_student=_on_edit_student_handler,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        initial_student=last_st
+        ^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "f:\CR_PY\certificate_manager\nicegui_screens\certificate_screen.py", line 536, in __init__
+    self.build_ui()
+    ~~~~~~~~~~~~~^^
+  File "f:\CR_PY\certificate_manager\nicegui_screens\certificate_screen.py", line 726, in build_ui
+    on_click=self.generate_and_open_word
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'CertificateScreen' object has no attribute 'generate_and_open_word'
+2026-08-19 21:15:11 [INFO] SYSTEM STARTUP DIAGNOSTIC CHECK STARTED
+2026-08-19 21:15:11 [OK] [CHECK 1/4] FastAPI Connection Check ... [OK]
+2026-08-19 21:15:11 [OK] [CHECK 2/4] MySQL Database Connection ... [OK]
+2026-08-19 21:15:11 [OK] [CHECK 3/4] Authentication & Core SP Checks ... [OK]
+2026-08-19 21:15:11 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-08-19 21:15:11 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-08-19 21:15:11 [OK] [CHECK 4/4] Sync Engine & Local Replica Check ... [OK]
+2026-08-19 21:15:11 [OK] Status: ALL CHECKS PASSED. PROCEEDING TO LOGIN/DASHBOARD.
+2026-08-19 21:15:15 [INFO] Using WinForms / Chromium
+2026-08-19 21:15:15 [INFO] Using WinForms / Chromium
+2026-08-19 21:15:19 [INFO] before_load event fired. injecting pywebview object
+2026-08-19 21:15:19 [INFO] before_load event fired. injecting pywebview object
+2026-08-19 21:15:19 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-19 21:15:19 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-19 21:15:19 [INFO] _pywebviewready event fired
+2026-08-19 21:15:19 [INFO] _pywebviewready event fired
+2026-08-19 21:15:19 [INFO] loaded event fired
+2026-08-19 21:15:19 [INFO] loaded event fired
+2026-08-19 21:15:25 [INFO] before_load event fired. injecting pywebview object
+2026-08-19 21:15:25 [INFO] before_load event fired. injecting pywebview object
+2026-08-19 21:15:25 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-19 21:15:25 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-19 21:15:25 [INFO] _pywebviewready event fired
+2026-08-19 21:15:25 [INFO] _pywebviewready event fired
+2026-08-19 21:15:25 [INFO] loaded event fired
+2026-08-19 21:15:25 [INFO] loaded event fired
+2026-08-20 09:55:35 [INFO] SYSTEM STARTUP DIAGNOSTIC CHECK STARTED
+2026-08-20 09:55:36 [OK] [CHECK 1/4] FastAPI Connection Check ... [OK]
+2026-08-20 09:55:36 [OK] [CHECK 2/4] MySQL Database Connection ... [OK]
+2026-08-20 09:55:36 [OK] [CHECK 3/4] Authentication & Core SP Checks ... [OK]
+2026-08-20 09:55:36 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-08-20 09:55:36 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-08-20 09:55:36 [OK] [CHECK 4/4] Sync Engine & Local Replica Check ... [OK]
+2026-08-20 09:55:36 [OK] Status: ALL CHECKS PASSED. PROCEEDING TO LOGIN/DASHBOARD.
+2026-08-20 09:55:40 [INFO] Using WinForms / Chromium
+2026-08-20 09:55:40 [INFO] Using WinForms / Chromium
+2026-08-20 09:55:40 [INFO] 1 change detected
+2026-08-20 09:55:40 [INFO] 1 change detected
+2026-08-20 09:55:40 [INFO] 1 change detected
+2026-08-20 09:55:40 [INFO] 1 change detected
+2026-08-20 09:55:41 [INFO] 1 change detected
+2026-08-20 09:55:41 [INFO] 1 change detected
+2026-08-20 09:55:41 [INFO] 1 change detected
+2026-08-20 09:55:41 [INFO] 1 change detected
+2026-08-20 09:55:42 [INFO] 1 change detected
+2026-08-20 09:55:42 [INFO] 1 change detected
+2026-08-20 09:55:42 [INFO] 1 change detected
+2026-08-20 09:55:42 [INFO] 1 change detected
+2026-08-20 09:55:42 [INFO] 1 change detected
+2026-08-20 09:55:42 [INFO] 1 change detected
+2026-08-20 09:55:43 [INFO] 1 change detected
+2026-08-20 09:55:43 [INFO] 1 change detected
+2026-08-20 09:55:43 [INFO] 1 change detected
+2026-08-20 09:55:43 [INFO] 1 change detected
+2026-08-20 09:55:43 [INFO] 1 change detected
+2026-08-20 09:55:43 [INFO] 1 change detected
+2026-08-20 09:55:44 [INFO] 1 change detected
+2026-08-20 09:55:44 [INFO] 1 change detected
+2026-08-20 09:55:44 [INFO] 1 change detected
+2026-08-20 09:55:44 [INFO] 1 change detected
+2026-08-20 09:55:44 [INFO] 1 change detected
+2026-08-20 09:55:44 [INFO] 1 change detected
+2026-08-20 09:55:45 [INFO] 1 change detected
+2026-08-20 09:55:45 [INFO] 1 change detected
+2026-08-20 09:55:45 [INFO] before_load event fired. injecting pywebview object
+2026-08-20 09:55:45 [INFO] before_load event fired. injecting pywebview object
+2026-08-20 09:55:45 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-20 09:55:45 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-20 09:55:45 [INFO] 1 change detected
+2026-08-20 09:55:45 [INFO] 1 change detected
+2026-08-20 09:55:45 [INFO] _pywebviewready event fired
+2026-08-20 09:55:45 [INFO] _pywebviewready event fired
+2026-08-20 09:55:45 [INFO] loaded event fired
+2026-08-20 09:55:45 [INFO] loaded event fired
+2026-08-20 09:55:46 [INFO] 1 change detected
+2026-08-20 09:55:46 [INFO] 1 change detected
+2026-08-20 09:55:46 [INFO] 1 change detected
+2026-08-20 09:55:46 [INFO] 1 change detected
+2026-08-20 09:55:46 [INFO] 1 change detected
+2026-08-20 09:55:46 [INFO] 1 change detected
+2026-08-20 09:55:47 [INFO] 1 change detected
+2026-08-20 09:55:47 [INFO] 1 change detected
+2026-08-20 09:55:47 [INFO] 1 change detected
+2026-08-20 09:55:47 [INFO] 1 change detected
+2026-08-20 09:55:47 [INFO] 1 change detected
+2026-08-20 09:55:47 [INFO] 1 change detected
+2026-08-20 09:55:48 [INFO] 1 change detected
+2026-08-20 09:55:48 [INFO] 1 change detected
+2026-08-20 09:55:48 [INFO] 1 change detected
+2026-08-20 09:55:48 [INFO] 1 change detected
+2026-08-20 09:55:48 [INFO] 1 change detected
+2026-08-20 09:55:48 [INFO] 1 change detected
+2026-08-20 09:55:49 [INFO] 1 change detected
+2026-08-20 09:55:49 [INFO] 1 change detected
+2026-08-20 09:55:49 [INFO] 1 change detected
+2026-08-20 09:55:49 [INFO] 1 change detected
+2026-08-20 09:55:50 [INFO] 1 change detected
+2026-08-20 09:55:50 [INFO] 1 change detected
+2026-08-20 09:55:50 [INFO] 1 change detected
+2026-08-20 09:55:50 [INFO] 1 change detected
+2026-08-20 09:55:50 [INFO] 1 change detected
+2026-08-20 09:55:50 [INFO] 1 change detected
+2026-08-20 09:55:51 [INFO] 1 change detected
+2026-08-20 09:55:51 [INFO] 1 change detected
+2026-08-20 09:55:51 [INFO] 1 change detected
+2026-08-20 09:55:51 [INFO] 1 change detected
+2026-08-20 09:55:51 [INFO] 1 change detected
+2026-08-20 09:55:51 [INFO] 1 change detected
+2026-08-20 09:55:52 [INFO] 1 change detected
+2026-08-20 09:55:52 [INFO] 1 change detected
+2026-08-20 09:55:52 [INFO] 1 change detected
+2026-08-20 09:55:52 [INFO] 1 change detected
+2026-08-20 09:55:52 [INFO] 2 changes detected
+2026-08-20 09:55:52 [INFO] 2 changes detected
+2026-08-20 09:55:53 [INFO] 3 changes detected
+2026-08-20 09:55:53 [INFO] 3 changes detected
+2026-08-20 09:55:53 [INFO] 5 changes detected
+2026-08-20 09:55:53 [INFO] 5 changes detected
+2026-08-20 09:55:54 [INFO] before_load event fired. injecting pywebview object
+2026-08-20 09:55:54 [INFO] before_load event fired. injecting pywebview object
+2026-08-20 09:55:54 [INFO] 1 change detected
+2026-08-20 09:55:54 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-20 09:55:54 [INFO] 1 change detected
+2026-08-20 09:55:54 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-20 09:55:54 [INFO] _pywebviewready event fired
+2026-08-20 09:55:54 [INFO] _pywebviewready event fired
+2026-08-20 09:55:54 [INFO] loaded event fired
+2026-08-20 09:55:54 [INFO] loaded event fired
+2026-08-20 09:55:54 [INFO] 1 change detected
+2026-08-20 09:55:54 [INFO] 1 change detected
+2026-08-20 09:55:54 [INFO] 1 change detected
+2026-08-20 09:55:54 [INFO] 1 change detected
+2026-08-20 09:55:55 [INFO] 1 change detected
+2026-08-20 09:55:55 [INFO] 1 change detected
+2026-08-20 09:55:55 [INFO] 1 change detected
+2026-08-20 09:55:55 [INFO] 1 change detected
+2026-08-20 09:55:55 [INFO] 1 change detected
+2026-08-20 09:55:55 [INFO] 1 change detected
+2026-08-20 09:55:56 [INFO] 1 change detected
+2026-08-20 09:55:56 [INFO] 1 change detected
+2026-08-20 09:55:56 [INFO] 1 change detected
+2026-08-20 09:55:56 [INFO] 1 change detected
+2026-08-20 09:55:56 [INFO] 1 change detected
+2026-08-20 09:55:56 [INFO] 1 change detected
+2026-08-20 09:55:57 [INFO] 1 change detected
+2026-08-20 09:55:57 [INFO] 1 change detected
+2026-08-20 09:55:57 [INFO] 1 change detected
+2026-08-20 09:55:57 [INFO] 1 change detected
+2026-08-20 09:55:57 [INFO] 1 change detected
+2026-08-20 09:55:57 [INFO] 1 change detected
+2026-08-20 09:55:58 [INFO] 1 change detected
+2026-08-20 09:55:58 [INFO] 1 change detected
+2026-08-20 09:55:58 [INFO] 1 change detected
+2026-08-20 09:55:58 [INFO] 1 change detected
+2026-08-20 09:55:59 [INFO] 1 change detected
+2026-08-20 09:55:59 [INFO] 1 change detected
+2026-08-20 09:55:59 [INFO] 1 change detected
+2026-08-20 09:55:59 [INFO] 1 change detected
+2026-08-20 09:55:59 [INFO] 1 change detected
+2026-08-20 09:55:59 [INFO] 1 change detected
+2026-08-20 09:56:00 [INFO] 1 change detected
+2026-08-20 09:56:00 [INFO] 1 change detected
+2026-08-20 09:56:00 [INFO] 1 change detected
+2026-08-20 09:56:00 [INFO] 1 change detected
+2026-08-20 09:56:00 [INFO] 1 change detected
+2026-08-20 09:56:00 [INFO] 1 change detected
+2026-08-20 09:56:01 [INFO] 1 change detected
+2026-08-20 09:56:01 [INFO] 1 change detected
+2026-08-20 09:56:01 [INFO] 1 change detected
+2026-08-20 09:56:01 [INFO] 1 change detected
+2026-08-20 09:56:01 [INFO] 1 change detected
+2026-08-20 09:56:01 [INFO] 1 change detected
+2026-08-20 09:56:02 [INFO] 1 change detected
+2026-08-20 09:56:02 [INFO] 1 change detected
+2026-08-20 09:56:02 [INFO] 1 change detected
+2026-08-20 09:56:02 [INFO] 1 change detected
+2026-08-20 09:56:03 [INFO] 1 change detected
+2026-08-20 09:56:03 [INFO] 1 change detected
+2026-08-20 09:56:03 [INFO] 1 change detected
+2026-08-20 09:56:03 [INFO] 1 change detected
+2026-08-20 09:56:03 [INFO] 1 change detected
+2026-08-20 09:56:03 [INFO] 1 change detected
+2026-08-20 09:56:04 [INFO] 1 change detected
+2026-08-20 09:56:04 [INFO] 1 change detected
+2026-08-20 09:56:04 [INFO] 1 change detected
+2026-08-20 09:56:04 [INFO] 1 change detected
+2026-08-20 09:56:04 [INFO] 1 change detected
+2026-08-20 09:56:04 [INFO] 1 change detected
+2026-08-20 09:56:05 [INFO] 1 change detected
+2026-08-20 09:56:05 [INFO] 1 change detected
+2026-08-20 09:56:05 [INFO] 1 change detected
+2026-08-20 09:56:05 [INFO] 1 change detected
+2026-08-20 09:56:05 [INFO] 1 change detected
+2026-08-20 09:56:05 [INFO] 1 change detected
+2026-08-20 09:56:06 [INFO] 1 change detected
+2026-08-20 09:56:06 [INFO] 1 change detected
+2026-08-20 09:56:06 [INFO] 1 change detected
+2026-08-20 09:56:06 [INFO] 1 change detected
+2026-08-20 09:56:07 [INFO] 1 change detected
+2026-08-20 09:56:07 [INFO] 1 change detected
+2026-08-20 09:56:07 [INFO] 1 change detected
+2026-08-20 09:56:07 [INFO] 1 change detected
+2026-08-20 09:56:07 [INFO] 1 change detected
+2026-08-20 09:56:07 [INFO] 1 change detected
+2026-08-20 09:56:08 [INFO] 1 change detected
+2026-08-20 09:56:08 [INFO] 1 change detected
+2026-08-20 09:56:08 [INFO] 1 change detected
+2026-08-20 09:56:08 [INFO] 1 change detected
+2026-08-20 09:56:08 [INFO] 1 change detected
+2026-08-20 09:56:08 [INFO] 1 change detected
+2026-08-20 09:56:09 [INFO] 1 change detected
+2026-08-20 09:56:09 [INFO] 1 change detected
+2026-08-20 09:56:09 [INFO] 1 change detected
+2026-08-20 09:56:09 [INFO] 1 change detected
+2026-08-20 09:56:09 [INFO] 1 change detected
+2026-08-20 09:56:09 [INFO] 1 change detected
+2026-08-20 09:56:10 [INFO] 1 change detected
+2026-08-20 09:56:10 [INFO] 1 change detected
+2026-08-20 09:56:10 [INFO] 1 change detected
+2026-08-20 09:56:10 [INFO] 1 change detected
+2026-08-20 09:56:11 [INFO] 1 change detected
+2026-08-20 09:56:11 [INFO] 1 change detected
+2026-08-20 09:56:11 [INFO] 1 change detected
+2026-08-20 09:56:11 [INFO] 1 change detected
+2026-08-20 09:56:11 [INFO] 1 change detected
+2026-08-20 09:56:11 [INFO] 1 change detected
+2026-08-20 09:56:12 [INFO] 1 change detected
+2026-08-20 09:56:12 [INFO] 1 change detected
+2026-08-20 09:56:12 [INFO] 1 change detected
+2026-08-20 09:56:12 [INFO] 1 change detected
+2026-08-20 09:56:12 [INFO] 1 change detected
+2026-08-20 09:56:12 [INFO] 1 change detected
+2026-08-20 09:56:13 [INFO] 1 change detected
+2026-08-20 09:56:13 [INFO] 1 change detected
+2026-08-20 09:56:13 [INFO] 1 change detected
+2026-08-20 09:56:13 [INFO] 1 change detected
+2026-08-20 09:56:13 [INFO] 1 change detected
+2026-08-20 09:56:13 [INFO] 1 change detected
+2026-08-20 09:56:14 [INFO] 1 change detected
+2026-08-20 09:56:14 [INFO] 1 change detected
+2026-08-20 09:56:14 [INFO] 1 change detected
+2026-08-20 09:56:14 [INFO] 1 change detected
+2026-08-20 09:56:15 [INFO] 1 change detected
+2026-08-20 09:56:15 [INFO] 1 change detected
+2026-08-20 09:56:15 [INFO] 1 change detected
+2026-08-20 09:56:15 [INFO] 1 change detected
+2026-08-20 09:56:15 [INFO] 1 change detected
+2026-08-20 09:56:15 [INFO] 1 change detected
+2026-08-20 09:56:16 [INFO] 1 change detected
+2026-08-20 09:56:16 [INFO] 1 change detected
+2026-08-20 09:56:16 [INFO] 1 change detected
+2026-08-20 09:56:16 [INFO] 1 change detected
+2026-08-20 09:56:16 [INFO] 1 change detected
+2026-08-20 09:56:16 [INFO] 1 change detected
+2026-08-20 09:56:17 [INFO] 1 change detected
+2026-08-20 09:56:17 [INFO] 1 change detected
+2026-08-20 09:56:17 [INFO] 1 change detected
+2026-08-20 09:56:17 [INFO] 1 change detected
+2026-08-20 09:56:17 [INFO] 1 change detected
+2026-08-20 09:56:17 [INFO] 1 change detected
+2026-08-20 09:56:18 [INFO] 1 change detected
+2026-08-20 09:56:18 [INFO] 1 change detected
+2026-08-20 09:56:18 [INFO] 1 change detected
+2026-08-20 09:56:18 [INFO] 1 change detected
+2026-08-20 09:56:19 [INFO] 1 change detected
+2026-08-20 09:56:19 [INFO] 1 change detected
+2026-08-20 09:56:19 [INFO] 1 change detected
+2026-08-20 09:56:19 [INFO] 1 change detected
+2026-08-20 09:56:19 [INFO] 1 change detected
+2026-08-20 09:56:19 [INFO] 1 change detected
+2026-08-20 09:56:20 [INFO] 1 change detected
+2026-08-20 09:56:20 [INFO] 1 change detected
+2026-08-20 09:56:20 [INFO] 1 change detected
+2026-08-20 09:56:20 [INFO] 1 change detected
+2026-08-20 09:56:20 [INFO] 1 change detected
+2026-08-20 09:56:20 [INFO] 1 change detected
+2026-08-20 09:56:21 [INFO] 1 change detected
+2026-08-20 09:56:21 [INFO] 1 change detected
+2026-08-20 09:56:21 [INFO] 1 change detected
+2026-08-20 09:56:21 [INFO] 1 change detected
+2026-08-20 09:56:21 [INFO] 1 change detected
+2026-08-20 09:56:21 [INFO] 1 change detected
+2026-08-20 09:56:22 [INFO] 1 change detected
+2026-08-20 09:56:22 [INFO] 1 change detected
+2026-08-20 09:56:22 [INFO] 1 change detected
+2026-08-20 09:56:22 [INFO] 1 change detected
+2026-08-20 09:56:23 [INFO] 1 change detected
+2026-08-20 09:56:23 [INFO] 1 change detected
+2026-08-20 09:56:23 [INFO] 1 change detected
+2026-08-20 09:56:23 [INFO] 1 change detected
+2026-08-20 09:56:23 [INFO] 1 change detected
+2026-08-20 09:56:23 [INFO] 1 change detected
+2026-08-20 09:56:24 [INFO] 1 change detected
+2026-08-20 09:56:24 [INFO] 1 change detected
+2026-08-20 09:56:24 [INFO] 1 change detected
+2026-08-20 09:56:24 [INFO] 1 change detected
+2026-08-20 09:56:24 [INFO] 1 change detected
+2026-08-20 09:56:24 [INFO] 1 change detected
+2026-08-20 09:56:25 [INFO] 1 change detected
+2026-08-20 09:56:25 [INFO] 1 change detected
+2026-08-20 09:56:25 [INFO] 1 change detected
+2026-08-20 09:56:25 [INFO] 1 change detected
+2026-08-20 09:56:25 [INFO] 1 change detected
+2026-08-20 09:56:25 [INFO] 1 change detected
+2026-08-20 09:56:26 [INFO] 1 change detected
+2026-08-20 09:56:26 [INFO] 1 change detected
+2026-08-20 09:56:26 [INFO] 1 change detected
+2026-08-20 09:56:26 [INFO] 1 change detected
+2026-08-20 09:56:27 [INFO] 1 change detected
+2026-08-20 09:56:27 [INFO] 1 change detected
+2026-08-20 09:56:27 [INFO] 1 change detected
+2026-08-20 09:56:27 [INFO] 1 change detected
+2026-08-20 09:56:27 [INFO] 1 change detected
+2026-08-20 09:56:27 [INFO] 1 change detected
+2026-08-20 09:56:28 [INFO] 1 change detected
+2026-08-20 09:56:28 [INFO] 1 change detected
+2026-08-20 09:56:28 [INFO] 1 change detected
+2026-08-20 09:56:28 [INFO] 1 change detected
+2026-08-20 09:56:28 [INFO] 1 change detected
+2026-08-20 09:56:28 [INFO] 1 change detected
+2026-08-20 09:56:29 [INFO] 1 change detected
+2026-08-20 09:56:29 [INFO] 1 change detected
+2026-08-20 09:56:29 [INFO] 1 change detected
+2026-08-20 09:56:29 [INFO] 1 change detected
+2026-08-20 09:56:29 [INFO] 1 change detected
+2026-08-20 09:56:29 [INFO] 1 change detected
+2026-08-20 09:56:30 [INFO] 1 change detected
+2026-08-20 09:56:30 [INFO] 1 change detected
+2026-08-20 09:56:30 [INFO] 1 change detected
+2026-08-20 09:56:30 [INFO] 1 change detected
+2026-08-20 09:56:31 [INFO] 1 change detected
+2026-08-20 09:56:31 [INFO] 1 change detected
+2026-08-20 09:56:31 [INFO] 1 change detected
+2026-08-20 09:56:31 [INFO] 1 change detected
+2026-08-20 09:56:31 [INFO] 1 change detected
+2026-08-20 09:56:31 [INFO] 1 change detected
+2026-08-20 09:56:32 [INFO] 1 change detected
+2026-08-20 09:56:32 [INFO] 1 change detected
+2026-08-20 09:56:32 [INFO] 1 change detected
+2026-08-20 09:56:32 [INFO] 1 change detected
+2026-08-20 09:56:32 [INFO] 1 change detected
+2026-08-20 09:56:32 [INFO] 1 change detected
+2026-08-20 09:56:33 [INFO] 1 change detected
+2026-08-20 09:56:33 [INFO] 1 change detected
+2026-08-20 09:56:33 [INFO] 1 change detected
+2026-08-20 09:56:33 [INFO] 1 change detected
+2026-08-20 09:56:33 [INFO] 1 change detected
+2026-08-20 09:56:33 [INFO] 1 change detected
+2026-08-20 09:56:34 [INFO] 1 change detected
+2026-08-20 09:56:34 [INFO] 1 change detected
+2026-08-20 09:56:34 [INFO] 1 change detected
+2026-08-20 09:56:34 [INFO] 1 change detected
+2026-08-20 09:56:35 [INFO] 1 change detected
+2026-08-20 09:56:35 [INFO] 1 change detected
+2026-08-20 09:56:35 [INFO] 1 change detected
+2026-08-20 09:56:35 [INFO] 1 change detected
+2026-08-20 09:56:35 [INFO] 1 change detected
+2026-08-20 09:56:35 [INFO] 1 change detected
+2026-08-20 09:56:36 [INFO] 1 change detected
+2026-08-20 09:56:36 [INFO] 1 change detected
+2026-08-20 09:56:36 [INFO] 1 change detected
+2026-08-20 09:56:36 [INFO] 1 change detected
+2026-08-20 09:56:36 [INFO] 1 change detected
+2026-08-20 09:56:36 [INFO] 1 change detected
+2026-08-20 09:56:37 [INFO] 1 change detected
+2026-08-20 09:56:37 [INFO] 1 change detected
+2026-08-20 09:56:37 [INFO] 1 change detected
+2026-08-20 09:56:37 [INFO] 1 change detected
+2026-08-20 09:56:37 [INFO] 1 change detected
+2026-08-20 09:56:37 [INFO] 1 change detected
+2026-08-20 09:56:38 [INFO] 1 change detected
+2026-08-20 09:56:38 [INFO] 1 change detected
+2026-08-20 09:56:38 [INFO] 1 change detected
+2026-08-20 09:56:38 [INFO] 1 change detected
+2026-08-20 09:56:39 [INFO] 1 change detected
+2026-08-20 09:56:39 [INFO] 1 change detected
+2026-08-20 09:56:39 [INFO] 1 change detected
+2026-08-20 09:56:39 [INFO] 1 change detected
+2026-08-20 09:56:39 [INFO] 1 change detected
+2026-08-20 09:56:39 [INFO] 1 change detected
+2026-08-20 09:56:40 [INFO] 1 change detected
+2026-08-20 09:56:40 [INFO] 1 change detected
+2026-08-20 09:56:40 [INFO] 1 change detected
+2026-08-20 09:56:40 [INFO] 1 change detected
+2026-08-20 09:56:40 [INFO] 1 change detected
+2026-08-20 09:56:40 [INFO] 1 change detected
+2026-08-20 09:56:41 [INFO] 1 change detected
+2026-08-20 09:56:41 [INFO] 1 change detected
+2026-08-20 09:56:41 [INFO] 1 change detected
+2026-08-20 09:56:41 [INFO] 1 change detected
+2026-08-20 09:56:41 [INFO] 1 change detected
+2026-08-20 09:56:41 [INFO] 1 change detected
+2026-08-20 09:56:42 [INFO] 1 change detected
+2026-08-20 09:56:42 [INFO] 1 change detected
+2026-08-20 09:56:42 [INFO] 1 change detected
+2026-08-20 09:56:42 [INFO] 1 change detected
+2026-08-20 09:56:43 [INFO] 1 change detected
+2026-08-20 09:56:43 [INFO] 1 change detected
+2026-08-20 09:56:43 [INFO] 1 change detected
+2026-08-20 09:56:43 [INFO] 1 change detected
+2026-08-20 09:56:43 [INFO] 1 change detected
+2026-08-20 09:56:43 [INFO] 1 change detected
+2026-08-20 09:56:44 [INFO] 1 change detected
+2026-08-20 09:56:44 [INFO] 1 change detected
+2026-08-20 09:56:44 [INFO] 1 change detected
+2026-08-20 09:56:44 [INFO] 1 change detected
+2026-08-20 09:56:44 [INFO] 1 change detected
+2026-08-20 09:56:44 [INFO] 1 change detected
+2026-08-20 09:56:45 [INFO] 1 change detected
+2026-08-20 09:56:45 [INFO] 1 change detected
+2026-08-20 09:56:45 [INFO] 1 change detected
+2026-08-20 09:56:45 [INFO] 1 change detected
+2026-08-20 09:56:45 [INFO] 1 change detected
+2026-08-20 09:56:45 [INFO] 1 change detected
+2026-08-20 09:56:46 [INFO] 1 change detected
+2026-08-20 09:56:46 [INFO] 1 change detected
+2026-08-20 09:56:46 [INFO] 1 change detected
+2026-08-20 09:56:46 [INFO] 1 change detected
+2026-08-20 09:56:46 [INFO] 1 change detected
+2026-08-20 09:56:46 [INFO] 1 change detected
+2026-08-20 09:56:47 [INFO] 1 change detected
+2026-08-20 09:56:47 [INFO] 1 change detected
+2026-08-20 09:56:47 [INFO] 1 change detected
+2026-08-20 09:56:47 [INFO] 1 change detected
+2026-08-20 09:56:48 [INFO] 1 change detected
+2026-08-20 09:56:48 [INFO] 1 change detected
+2026-08-20 09:56:48 [INFO] 1 change detected
+2026-08-20 09:56:48 [INFO] 1 change detected
+2026-08-20 09:56:48 [INFO] 1 change detected
+2026-08-20 09:56:48 [INFO] 1 change detected
+2026-08-20 09:56:49 [INFO] 1 change detected
+2026-08-20 09:56:49 [INFO] 1 change detected
+2026-08-20 09:56:49 [INFO] 1 change detected
+2026-08-20 09:56:49 [INFO] 1 change detected
+2026-08-20 09:56:49 [INFO] 1 change detected
+2026-08-20 09:56:49 [INFO] 1 change detected
+2026-08-20 09:56:50 [INFO] 1 change detected
+2026-08-20 09:56:50 [INFO] 1 change detected
+2026-08-20 09:56:50 [INFO] 1 change detected
+2026-08-20 09:56:50 [INFO] 1 change detected
+2026-08-20 09:56:50 [INFO] 1 change detected
+2026-08-20 09:56:50 [INFO] 1 change detected
+2026-08-20 09:56:51 [INFO] 1 change detected
+2026-08-20 09:56:51 [INFO] 1 change detected
+2026-08-20 09:56:51 [INFO] 1 change detected
+2026-08-20 09:56:51 [INFO] 1 change detected
+2026-08-20 09:56:52 [INFO] 1 change detected
+2026-08-20 09:56:52 [INFO] 1 change detected
+2026-08-20 09:56:52 [INFO] 1 change detected
+2026-08-20 09:56:52 [INFO] 1 change detected
+2026-08-20 09:56:52 [INFO] 1 change detected
+2026-08-20 09:56:52 [INFO] 1 change detected
+2026-08-20 09:56:53 [INFO] 1 change detected
+2026-08-20 09:56:53 [INFO] 1 change detected
+2026-08-20 09:56:53 [INFO] 1 change detected
+2026-08-20 09:56:53 [INFO] 1 change detected
+2026-08-20 09:56:53 [INFO] 1 change detected
+2026-08-20 09:56:53 [INFO] 1 change detected
+2026-08-20 09:56:54 [INFO] 1 change detected
+2026-08-20 09:56:54 [INFO] 1 change detected
+2026-08-20 09:56:54 [INFO] 1 change detected
+2026-08-20 09:56:54 [INFO] 1 change detected
+2026-08-20 09:56:54 [INFO] 1 change detected
+2026-08-20 09:56:54 [INFO] 1 change detected
+2026-08-20 09:56:55 [INFO] 1 change detected
+2026-08-20 09:56:55 [INFO] 1 change detected
+2026-08-20 09:56:55 [INFO] 1 change detected
+2026-08-20 09:56:55 [INFO] 1 change detected
+2026-08-20 09:56:55 [INFO] 1 change detected
+2026-08-20 09:56:55 [INFO] 1 change detected
+2026-08-20 09:56:56 [INFO] 1 change detected
+2026-08-20 09:56:56 [INFO] 1 change detected
+2026-08-20 09:56:56 [INFO] 1 change detected
+2026-08-20 09:56:56 [INFO] 1 change detected
+2026-08-20 09:56:57 [INFO] 1 change detected
+2026-08-20 09:56:57 [INFO] 1 change detected
+2026-08-20 09:56:57 [INFO] 1 change detected
+2026-08-20 09:56:57 [INFO] 1 change detected
+2026-08-20 09:56:57 [INFO] 1 change detected
+2026-08-20 09:56:57 [INFO] 1 change detected
+2026-08-20 09:56:58 [INFO] 1 change detected
+2026-08-20 09:56:58 [INFO] 1 change detected
+2026-08-20 09:56:58 [INFO] 1 change detected
+2026-08-20 09:56:58 [INFO] 1 change detected
+2026-08-20 09:56:58 [INFO] 1 change detected
+2026-08-20 09:56:58 [INFO] 1 change detected
+2026-08-20 09:56:59 [INFO] 1 change detected
+2026-08-20 09:56:59 [INFO] 1 change detected
+2026-08-20 09:56:59 [INFO] 1 change detected
+2026-08-20 09:56:59 [INFO] 1 change detected
+2026-08-20 09:56:59 [INFO] 1 change detected
+2026-08-20 09:56:59 [INFO] 1 change detected
+2026-08-20 09:57:00 [INFO] 1 change detected
+2026-08-20 09:57:00 [INFO] 1 change detected
+2026-08-20 09:57:00 [INFO] 1 change detected
+2026-08-20 09:57:00 [INFO] 1 change detected
+2026-08-20 09:57:01 [INFO] 1 change detected
+2026-08-20 09:57:01 [INFO] 1 change detected
+2026-08-20 09:57:01 [INFO] 1 change detected
+2026-08-20 09:57:01 [INFO] 1 change detected
+2026-08-20 09:57:01 [INFO] 1 change detected
+2026-08-20 09:57:01 [INFO] 1 change detected
+2026-08-20 09:57:02 [INFO] 1 change detected
+2026-08-20 09:57:02 [INFO] 1 change detected
+2026-08-20 09:57:02 [INFO] 1 change detected
+2026-08-20 09:57:02 [INFO] 1 change detected
+2026-08-20 09:57:02 [INFO] 1 change detected
+2026-08-20 09:57:02 [INFO] 1 change detected
+2026-08-20 09:57:03 [INFO] 1 change detected
+2026-08-20 09:57:03 [INFO] 1 change detected
+2026-08-20 09:57:03 [INFO] 1 change detected
+2026-08-20 09:57:03 [INFO] 1 change detected
+2026-08-20 09:57:03 [INFO] 1 change detected
+2026-08-20 09:57:03 [INFO] 1 change detected
+2026-08-20 09:57:04 [INFO] 1 change detected
+2026-08-20 09:57:04 [INFO] 1 change detected
+2026-08-20 09:57:04 [INFO] 1 change detected
+2026-08-20 09:57:04 [INFO] 1 change detected
+2026-08-20 09:57:04 [INFO] 1 change detected
+2026-08-20 09:57:04 [INFO] 1 change detected
+2026-08-20 09:57:05 [INFO] 1 change detected
+2026-08-20 09:57:05 [INFO] 1 change detected
+2026-08-20 09:57:05 [INFO] 1 change detected
+2026-08-20 09:57:05 [INFO] 1 change detected
+2026-08-20 09:57:06 [INFO] 1 change detected
+2026-08-20 09:57:06 [INFO] 1 change detected
+2026-08-20 09:57:06 [INFO] 1 change detected
+2026-08-20 09:57:06 [INFO] 1 change detected
+2026-08-20 09:57:06 [INFO] 1 change detected
+2026-08-20 09:57:06 [INFO] 1 change detected
+2026-08-20 09:57:07 [INFO] 1 change detected
+2026-08-20 09:57:07 [INFO] 1 change detected
+2026-08-20 09:57:07 [INFO] 1 change detected
+2026-08-20 09:57:07 [INFO] 1 change detected
+2026-08-20 09:57:07 [INFO] 1 change detected
+2026-08-20 09:57:07 [INFO] 1 change detected
+2026-08-20 09:57:08 [INFO] 1 change detected
+2026-08-20 09:57:08 [INFO] 1 change detected
+2026-08-20 09:57:08 [INFO] 1 change detected
+2026-08-20 09:57:08 [INFO] 1 change detected
+2026-08-20 09:57:08 [INFO] 1 change detected
+2026-08-20 09:57:08 [INFO] 1 change detected
+2026-08-20 09:57:09 [INFO] 1 change detected
+2026-08-20 09:57:09 [INFO] 1 change detected
+2026-08-20 09:57:09 [INFO] 1 change detected
+2026-08-20 09:57:09 [INFO] 1 change detected
+2026-08-20 09:57:10 [INFO] 1 change detected
+2026-08-20 09:57:10 [INFO] 1 change detected
+2026-08-20 09:57:10 [INFO] 1 change detected
+2026-08-20 09:57:10 [INFO] 1 change detected
+2026-08-20 09:57:10 [INFO] 1 change detected
+2026-08-20 09:57:10 [INFO] 1 change detected
+2026-08-20 09:57:11 [INFO] 1 change detected
+2026-08-20 09:57:11 [INFO] 1 change detected
+2026-08-20 09:57:11 [INFO] 1 change detected
+2026-08-20 09:57:11 [INFO] 1 change detected
+2026-08-20 09:57:11 [INFO] 1 change detected
+2026-08-20 09:57:11 [INFO] 1 change detected
+2026-08-20 09:57:12 [INFO] 1 change detected
+2026-08-20 09:57:12 [INFO] 1 change detected
+2026-08-20 09:57:12 [INFO] 1 change detected
+2026-08-20 09:57:12 [INFO] 1 change detected
+2026-08-20 09:57:12 [INFO] 1 change detected
+2026-08-20 09:57:12 [INFO] 1 change detected
+2026-08-20 09:57:13 [INFO] 1 change detected
+2026-08-20 09:57:13 [INFO] 1 change detected
+2026-08-20 09:57:13 [INFO] 1 change detected
+2026-08-20 09:57:13 [INFO] 1 change detected
+2026-08-20 09:57:14 [INFO] 1 change detected
+2026-08-20 09:57:14 [INFO] 1 change detected
+2026-08-20 09:57:14 [INFO] 1 change detected
+2026-08-20 09:57:14 [INFO] 1 change detected
+2026-08-20 09:57:14 [INFO] 1 change detected
+2026-08-20 09:57:14 [INFO] 1 change detected
+2026-08-20 09:57:15 [INFO] 1 change detected
+2026-08-20 09:57:15 [INFO] 1 change detected
+2026-08-20 09:57:15 [INFO] 1 change detected
+2026-08-20 09:57:15 [INFO] 1 change detected
+2026-08-20 09:57:15 [INFO] 1 change detected
+2026-08-20 09:57:15 [INFO] 1 change detected
+2026-08-20 09:57:16 [INFO] 1 change detected
+2026-08-20 09:57:16 [INFO] 1 change detected
+2026-08-20 09:57:16 [INFO] 1 change detected
+2026-08-20 09:57:16 [INFO] 1 change detected
+2026-08-20 09:57:17 [INFO] 1 change detected
+2026-08-20 09:57:17 [INFO] 1 change detected
+2026-08-20 09:57:17 [INFO] 1 change detected
+2026-08-20 09:57:17 [INFO] 1 change detected
+2026-08-20 09:57:17 [INFO] 1 change detected
+2026-08-20 09:57:17 [INFO] 1 change detected
+2026-08-20 09:57:18 [INFO] 1 change detected
+2026-08-20 09:57:18 [INFO] 1 change detected
+2026-08-20 09:57:18 [INFO] 1 change detected
+2026-08-20 09:57:18 [INFO] 1 change detected
+2026-08-20 09:57:18 [INFO] 1 change detected
+2026-08-20 09:57:18 [INFO] 1 change detected
+2026-08-20 09:57:19 [INFO] 1 change detected
+2026-08-20 09:57:19 [INFO] 1 change detected
+2026-08-20 09:57:19 [INFO] 1 change detected
+2026-08-20 09:57:19 [INFO] 1 change detected
+2026-08-20 09:57:19 [INFO] 1 change detected
+2026-08-20 09:57:19 [INFO] 1 change detected
+2026-08-20 09:57:20 [INFO] 1 change detected
+2026-08-20 09:57:20 [INFO] 1 change detected
+2026-08-20 09:57:20 [INFO] 1 change detected
+2026-08-20 09:57:20 [INFO] 1 change detected
+2026-08-20 09:57:20 [INFO] 1 change detected
+2026-08-20 09:57:20 [INFO] 1 change detected
+2026-08-20 09:57:21 [INFO] 1 change detected
+2026-08-20 09:57:21 [INFO] 1 change detected
+2026-08-20 09:57:21 [INFO] 1 change detected
+2026-08-20 09:57:21 [INFO] 1 change detected
+2026-08-20 09:57:22 [INFO] 1 change detected
+2026-08-20 09:57:22 [INFO] 1 change detected
+2026-08-20 09:57:22 [INFO] 1 change detected
+2026-08-20 09:57:22 [INFO] 1 change detected
+2026-08-20 09:57:22 [INFO] 1 change detected
+2026-08-20 09:57:22 [INFO] 1 change detected
+2026-08-20 09:57:23 [INFO] 1 change detected
+2026-08-20 09:57:23 [INFO] 1 change detected
+2026-08-20 09:57:23 [INFO] 1 change detected
+2026-08-20 09:57:23 [INFO] 1 change detected
+2026-08-20 09:57:23 [INFO] 1 change detected
+2026-08-20 09:57:23 [INFO] 1 change detected
+2026-08-20 09:57:24 [INFO] 1 change detected
+2026-08-20 09:57:24 [INFO] 1 change detected
+2026-08-20 09:57:24 [INFO] 1 change detected
+2026-08-20 09:57:24 [INFO] 1 change detected
+2026-08-20 09:57:24 [INFO] 1 change detected
+2026-08-20 09:57:24 [INFO] 1 change detected
+2026-08-20 09:57:25 [INFO] 1 change detected
+2026-08-20 09:57:25 [INFO] 1 change detected
+2026-08-20 09:57:25 [INFO] 1 change detected
+2026-08-20 09:57:25 [INFO] 1 change detected
+2026-08-20 09:57:26 [INFO] 1 change detected
+2026-08-20 09:57:26 [INFO] 1 change detected
+2026-08-20 09:57:26 [INFO] 1 change detected
+2026-08-20 09:57:26 [INFO] 1 change detected
+2026-08-20 09:57:26 [INFO] 1 change detected
+2026-08-20 09:57:26 [INFO] 1 change detected
+2026-08-20 09:57:27 [INFO] 1 change detected
+2026-08-20 09:57:27 [INFO] 1 change detected
+2026-08-20 09:57:27 [INFO] 1 change detected
+2026-08-20 09:57:27 [INFO] 1 change detected
+2026-08-20 09:57:27 [INFO] 1 change detected
+2026-08-20 09:57:27 [INFO] 1 change detected
+2026-08-20 09:57:28 [INFO] 1 change detected
+2026-08-20 09:57:28 [INFO] 1 change detected
+2026-08-20 09:57:28 [INFO] 1 change detected
+2026-08-20 09:57:28 [INFO] 1 change detected
+2026-08-20 09:57:28 [INFO] 1 change detected
+2026-08-20 09:57:28 [INFO] 1 change detected
+2026-08-20 09:57:29 [INFO] 1 change detected
+2026-08-20 09:57:29 [INFO] 1 change detected
+2026-08-20 09:57:29 [INFO] 1 change detected
+2026-08-20 09:57:29 [INFO] 1 change detected
+2026-08-20 09:57:30 [INFO] 1 change detected
+2026-08-20 09:57:30 [INFO] 1 change detected
+2026-08-20 09:57:30 [INFO] 1 change detected
+2026-08-20 09:57:30 [INFO] 1 change detected
+2026-08-20 09:57:30 [INFO] 1 change detected
+2026-08-20 09:57:30 [INFO] 1 change detected
+2026-08-20 09:57:31 [INFO] 1 change detected
+2026-08-20 09:57:31 [INFO] 1 change detected
+2026-08-20 09:57:31 [INFO] 1 change detected
+2026-08-20 09:57:31 [INFO] 1 change detected
+2026-08-20 09:57:31 [INFO] 1 change detected
+2026-08-20 09:57:31 [INFO] 1 change detected
+2026-08-20 09:57:32 [INFO] 1 change detected
+2026-08-20 09:57:32 [INFO] 1 change detected
+2026-08-20 09:57:32 [INFO] 1 change detected
+2026-08-20 09:57:32 [INFO] 1 change detected
+2026-08-20 09:57:32 [INFO] 1 change detected
+2026-08-20 09:57:32 [INFO] 1 change detected
+2026-08-20 09:57:33 [INFO] 1 change detected
+2026-08-20 09:57:33 [INFO] 1 change detected
+2026-08-20 09:57:33 [INFO] 1 change detected
+2026-08-20 09:57:33 [INFO] 1 change detected
+2026-08-20 09:57:34 [INFO] 1 change detected
+2026-08-20 09:57:34 [INFO] 1 change detected
+2026-08-20 09:57:34 [INFO] 1 change detected
+2026-08-20 09:57:34 [INFO] 1 change detected
+2026-08-20 09:57:34 [INFO] 1 change detected
+2026-08-20 09:57:34 [INFO] 1 change detected
+2026-08-20 09:57:35 [INFO] 1 change detected
+2026-08-20 09:57:35 [INFO] 1 change detected
+2026-08-20 09:57:35 [INFO] 1 change detected
+2026-08-20 09:57:35 [INFO] 1 change detected
+2026-08-20 09:57:35 [INFO] 1 change detected
+2026-08-20 09:57:35 [INFO] 1 change detected
+2026-08-20 09:57:36 [INFO] 1 change detected
+2026-08-20 09:57:36 [INFO] 1 change detected
+2026-08-20 09:57:36 [INFO] 1 change detected
+2026-08-20 09:57:36 [INFO] 1 change detected
+2026-08-20 09:57:36 [INFO] 1 change detected
+2026-08-20 09:57:36 [INFO] 1 change detected
+2026-08-20 09:57:37 [INFO] 1 change detected
+2026-08-20 09:57:37 [INFO] 1 change detected
+2026-08-20 09:57:37 [INFO] 1 change detected
+2026-08-20 09:57:37 [INFO] 1 change detected
+2026-08-20 09:57:37 [INFO] 1 change detected
+2026-08-20 09:57:37 [INFO] 1 change detected
+2026-08-20 09:57:38 [INFO] 1 change detected
+2026-08-20 09:57:38 [INFO] 1 change detected
+2026-08-20 09:57:38 [INFO] 1 change detected
+2026-08-20 09:57:38 [INFO] 1 change detected
+2026-08-20 09:57:39 [INFO] 1 change detected
+2026-08-20 09:57:39 [INFO] 1 change detected
+2026-08-20 09:57:39 [INFO] 1 change detected
+2026-08-20 09:57:39 [INFO] 1 change detected
+2026-08-20 09:57:39 [INFO] 1 change detected
+2026-08-20 09:57:39 [INFO] 1 change detected
+2026-08-20 09:57:40 [INFO] 1 change detected
+2026-08-20 09:57:40 [INFO] 1 change detected
+2026-08-20 09:57:40 [INFO] 1 change detected
+2026-08-20 09:57:40 [INFO] 1 change detected
+2026-08-20 09:57:40 [INFO] 1 change detected
+2026-08-20 09:57:40 [INFO] 1 change detected
+2026-08-20 09:57:41 [INFO] 1 change detected
+2026-08-20 09:57:41 [INFO] 1 change detected
+2026-08-20 09:57:41 [INFO] 1 change detected
+2026-08-20 09:57:41 [INFO] 1 change detected
+2026-08-20 09:57:41 [INFO] 1 change detected
+2026-08-20 09:57:41 [INFO] 1 change detected
+2026-08-20 09:57:42 [INFO] 2 changes detected
+2026-08-20 09:57:42 [INFO] 2 changes detected
+2026-08-20 09:57:42 [INFO] 1 change detected
+2026-08-20 09:57:42 [INFO] 1 change detected
+2026-08-20 09:57:43 [INFO] 1 change detected
+2026-08-20 09:57:43 [INFO] 1 change detected
+2026-08-20 09:57:43 [INFO] 8 changes detected
+2026-08-20 09:57:43 [INFO] 8 changes detected
+2026-08-20 09:57:43 [INFO] 1 change detected
+2026-08-20 09:57:43 [INFO] 1 change detected
+2026-08-20 09:57:44 [INFO] 1 change detected
+2026-08-20 09:57:44 [INFO] 1 change detected
+2026-08-20 09:57:44 [INFO] 1 change detected
+2026-08-20 09:57:44 [INFO] 1 change detected
+2026-08-20 09:57:44 [INFO] 1 change detected
+2026-08-20 09:57:44 [INFO] 1 change detected
+2026-08-20 09:57:45 [INFO] 1 change detected
+2026-08-20 09:57:45 [INFO] 1 change detected
+2026-08-20 09:57:45 [INFO] 1 change detected
+2026-08-20 09:57:45 [INFO] 1 change detected
+2026-08-20 09:57:45 [INFO] 1 change detected
+2026-08-20 09:57:45 [INFO] 1 change detected
+2026-08-20 09:57:46 [INFO] 1 change detected
+2026-08-20 09:57:46 [INFO] 1 change detected
+2026-08-20 09:57:46 [INFO] 1 change detected
+2026-08-20 09:57:46 [INFO] 1 change detected
+2026-08-20 09:57:46 [INFO] 1 change detected
+2026-08-20 09:57:47 [INFO] 1 change detected
+2026-08-20 09:57:47 [INFO] 1 change detected
+2026-08-20 09:57:47 [INFO] 1 change detected
+2026-08-20 09:57:47 [INFO] 1 change detected
+2026-08-20 09:57:47 [INFO] 1 change detected
+2026-08-20 09:57:48 [INFO] 1 change detected
+2026-08-20 09:57:48 [INFO] 1 change detected
+2026-08-20 09:57:48 [INFO] 1 change detected
+2026-08-20 09:57:48 [INFO] 1 change detected
+2026-08-20 09:57:48 [INFO] 1 change detected
+2026-08-20 09:57:48 [INFO] 1 change detected
+2026-08-20 09:57:49 [INFO] 1 change detected
+2026-08-20 09:57:49 [INFO] 1 change detected
+2026-08-20 09:57:49 [INFO] 1 change detected
+2026-08-20 09:57:49 [INFO] 1 change detected
+2026-08-20 09:57:49 [INFO] 1 change detected
+2026-08-20 09:57:49 [INFO] 1 change detected
+2026-08-20 09:57:50 [INFO] 1 change detected
+2026-08-20 09:57:50 [INFO] 1 change detected
+2026-08-20 09:57:50 [INFO] 1 change detected
+2026-08-20 09:57:50 [INFO] 1 change detected
+2026-08-20 09:57:50 [INFO] 1 change detected
+2026-08-20 09:57:50 [INFO] 1 change detected
+2026-08-20 09:57:51 [INFO] 1 change detected
+2026-08-20 09:57:51 [INFO] 1 change detected
+2026-08-20 09:57:51 [INFO] 1 change detected
+2026-08-20 09:57:51 [INFO] 1 change detected
+2026-08-20 09:57:52 [INFO] 1 change detected
+2026-08-20 09:57:52 [INFO] 1 change detected
+2026-08-20 09:57:52 [INFO] 1 change detected
+2026-08-20 09:57:52 [INFO] 1 change detected
+2026-08-20 09:57:52 [INFO] 1 change detected
+2026-08-20 09:57:52 [INFO] 1 change detected
+2026-08-20 09:57:53 [INFO] 1 change detected
+2026-08-20 09:57:53 [INFO] 1 change detected
+2026-08-20 09:57:53 [INFO] 1 change detected
+2026-08-20 09:57:53 [INFO] 1 change detected
+2026-08-20 09:57:53 [INFO] 1 change detected
+2026-08-20 09:57:53 [INFO] 1 change detected
+2026-08-20 09:57:54 [INFO] 1 change detected
+2026-08-20 09:57:54 [INFO] 1 change detected
+2026-08-20 09:57:54 [INFO] 1 change detected
+2026-08-20 09:57:54 [INFO] 1 change detected
+2026-08-20 09:57:54 [INFO] 1 change detected
+2026-08-20 09:57:54 [INFO] 1 change detected
+2026-08-20 09:57:55 [INFO] 1 change detected
+2026-08-20 09:57:55 [INFO] 1 change detected
+2026-08-20 09:57:55 [INFO] 1 change detected
+2026-08-20 09:57:55 [INFO] 1 change detected
+2026-08-20 09:57:56 [INFO] 1 change detected
+2026-08-20 09:57:56 [INFO] 1 change detected
+2026-08-20 09:57:56 [INFO] 1 change detected
+2026-08-20 09:57:56 [INFO] 1 change detected
+2026-08-20 09:57:56 [INFO] 1 change detected
+2026-08-20 09:57:56 [INFO] 1 change detected
+2026-08-20 09:57:57 [INFO] 1 change detected
+2026-08-20 09:57:57 [INFO] 1 change detected
+2026-08-20 09:57:57 [INFO] 1 change detected
+2026-08-20 09:57:57 [INFO] 1 change detected
+2026-08-20 09:57:57 [INFO] 1 change detected
+2026-08-20 09:57:57 [INFO] 1 change detected
+2026-08-20 09:57:58 [INFO] 1 change detected
+2026-08-20 09:57:58 [INFO] 1 change detected
+2026-08-20 09:57:58 [INFO] 1 change detected
+2026-08-20 09:57:58 [INFO] 1 change detected
+2026-08-20 09:57:58 [INFO] 1 change detected
+2026-08-20 09:57:58 [INFO] 1 change detected
+2026-08-20 09:57:59 [INFO] 1 change detected
+2026-08-20 09:57:59 [INFO] 1 change detected
+2026-08-20 09:57:59 [INFO] 1 change detected
+2026-08-20 09:57:59 [INFO] 1 change detected
+2026-08-20 09:57:59 [INFO] 1 change detected
+2026-08-20 09:57:59 [INFO] 1 change detected
+2026-08-20 09:58:00 [INFO] 1 change detected
+2026-08-20 09:58:00 [INFO] 1 change detected
+2026-08-20 09:58:00 [INFO] 1 change detected
+2026-08-20 09:58:00 [INFO] 1 change detected
+2026-08-20 09:58:01 [INFO] 1 change detected
+2026-08-20 09:58:01 [INFO] 1 change detected
+2026-08-20 09:58:01 [INFO] 1 change detected
+2026-08-20 09:58:01 [INFO] 1 change detected
+2026-08-20 09:58:01 [INFO] 1 change detected
+2026-08-20 09:58:01 [INFO] 1 change detected
+2026-08-20 09:58:02 [INFO] 1 change detected
+2026-08-20 09:58:02 [INFO] 1 change detected
+2026-08-20 09:58:02 [INFO] 1 change detected
+2026-08-20 09:58:02 [INFO] 1 change detected
+2026-08-20 09:58:02 [INFO] 1 change detected
+2026-08-20 09:58:02 [INFO] 1 change detected
+2026-08-20 09:58:03 [INFO] 1 change detected
+2026-08-20 09:58:03 [INFO] 1 change detected
+2026-08-20 09:58:03 [INFO] 1 change detected
+2026-08-20 09:58:03 [INFO] 1 change detected
+2026-08-20 09:58:03 [INFO] 1 change detected
+2026-08-20 09:58:03 [INFO] 1 change detected
+2026-08-20 09:58:04 [INFO] 1 change detected
+2026-08-20 09:58:04 [INFO] 1 change detected
+2026-08-20 09:58:04 [INFO] 1 change detected
+2026-08-20 09:58:04 [INFO] 1 change detected
+2026-08-20 09:58:05 [INFO] 1 change detected
+2026-08-20 09:58:05 [INFO] 1 change detected
+2026-08-20 09:58:05 [INFO] 1 change detected
+2026-08-20 09:58:05 [INFO] 1 change detected
+2026-08-20 09:58:05 [INFO] 1 change detected
+2026-08-20 09:58:05 [INFO] 1 change detected
+2026-08-20 09:58:06 [INFO] 1 change detected
+2026-08-20 09:58:06 [INFO] 1 change detected
+2026-08-20 09:58:06 [INFO] 1 change detected
+2026-08-20 09:58:06 [INFO] 1 change detected
+2026-08-20 09:58:06 [INFO] 1 change detected
+2026-08-20 09:58:06 [INFO] 1 change detected
+2026-08-20 09:58:07 [INFO] 1 change detected
+2026-08-20 09:58:07 [INFO] 1 change detected
+2026-08-20 09:58:07 [INFO] 1 change detected
+2026-08-20 09:58:07 [INFO] 1 change detected
+2026-08-20 09:58:08 [INFO] 1 change detected
+2026-08-20 09:58:08 [INFO] 1 change detected
+2026-08-20 09:58:08 [INFO] 1 change detected
+2026-08-20 09:58:08 [INFO] 1 change detected
+2026-08-20 09:58:08 [INFO] 1 change detected
+2026-08-20 09:58:08 [INFO] 1 change detected
+2026-08-20 09:58:09 [INFO] 1 change detected
+2026-08-20 09:58:09 [INFO] 1 change detected
+2026-08-20 09:58:09 [INFO] 1 change detected
+2026-08-20 09:58:09 [INFO] 1 change detected
+2026-08-20 09:58:09 [INFO] 1 change detected
+2026-08-20 09:58:09 [INFO] 1 change detected
+2026-08-20 09:58:10 [INFO] 1 change detected
+2026-08-20 09:58:10 [INFO] 1 change detected
+2026-08-20 09:58:10 [INFO] 1 change detected
+2026-08-20 09:58:10 [INFO] 1 change detected
+2026-08-20 09:58:11 [INFO] 1 change detected
+2026-08-20 09:58:11 [INFO] 1 change detected
+2026-08-20 09:58:11 [INFO] 1 change detected
+2026-08-20 09:58:11 [INFO] 1 change detected
+2026-08-20 09:58:11 [INFO] 1 change detected
+2026-08-20 09:58:11 [INFO] 1 change detected
+2026-08-20 09:58:12 [INFO] 1 change detected
+2026-08-20 09:58:12 [INFO] 1 change detected
+2026-08-20 09:58:12 [INFO] 1 change detected
+2026-08-20 09:58:12 [INFO] 1 change detected
+2026-08-20 09:58:12 [INFO] 1 change detected
+2026-08-20 09:58:12 [INFO] 1 change detected
+2026-08-20 09:58:13 [INFO] 1 change detected
+2026-08-20 09:58:13 [INFO] 1 change detected
+2026-08-20 09:58:13 [INFO] 1 change detected
+2026-08-20 09:58:13 [INFO] 1 change detected
+2026-08-20 09:58:13 [INFO] 1 change detected
+2026-08-20 09:58:13 [INFO] 1 change detected
+2026-08-20 09:58:14 [INFO] 1 change detected
+2026-08-20 09:58:14 [INFO] 1 change detected
+2026-08-20 09:58:14 [INFO] 1 change detected
+2026-08-20 09:58:14 [INFO] 1 change detected
+2026-08-20 09:58:15 [INFO] 1 change detected
+2026-08-20 09:58:15 [INFO] 1 change detected
+2026-08-20 09:58:15 [INFO] 1 change detected
+2026-08-20 09:58:15 [INFO] 1 change detected
+2026-08-20 09:58:15 [INFO] 1 change detected
+2026-08-20 09:58:15 [INFO] 1 change detected
+2026-08-20 09:58:16 [INFO] 1 change detected
+2026-08-20 09:58:16 [INFO] 1 change detected
+2026-08-20 09:58:16 [INFO] 1 change detected
+2026-08-20 09:58:16 [INFO] 1 change detected
+2026-08-20 09:58:16 [INFO] 1 change detected
+2026-08-20 09:58:16 [INFO] 1 change detected
+2026-08-20 09:58:17 [INFO] 1 change detected
+2026-08-20 09:58:17 [INFO] 1 change detected
+2026-08-20 09:58:17 [INFO] 1 change detected
+2026-08-20 09:58:17 [INFO] 1 change detected
+2026-08-20 09:58:17 [INFO] 1 change detected
+2026-08-20 09:58:17 [INFO] 1 change detected
+2026-08-20 09:58:18 [INFO] 1 change detected
+2026-08-20 09:58:18 [INFO] 1 change detected
+2026-08-20 09:58:18 [INFO] 1 change detected
+2026-08-20 09:58:18 [INFO] 1 change detected
+2026-08-20 09:58:19 [INFO] 1 change detected
+2026-08-20 09:58:19 [INFO] 1 change detected
+2026-08-20 09:58:19 [INFO] 1 change detected
+2026-08-20 09:58:19 [INFO] 1 change detected
+2026-08-20 09:58:19 [INFO] 1 change detected
+2026-08-20 09:58:19 [INFO] 1 change detected
+2026-08-20 09:58:20 [INFO] 1 change detected
+2026-08-20 09:58:20 [INFO] 1 change detected
+2026-08-20 09:58:20 [INFO] 1 change detected
+2026-08-20 09:58:20 [INFO] 1 change detected
+2026-08-20 09:58:20 [INFO] 1 change detected
+2026-08-20 09:58:20 [INFO] 1 change detected
+2026-08-20 09:58:21 [INFO] 1 change detected
+2026-08-20 09:58:21 [INFO] 1 change detected
+2026-08-20 09:58:21 [INFO] 1 change detected
+2026-08-20 09:58:21 [INFO] 1 change detected
+2026-08-20 09:58:21 [INFO] 1 change detected
+2026-08-20 09:58:21 [INFO] 1 change detected
+2026-08-20 09:58:22 [INFO] 1 change detected
+2026-08-20 09:58:22 [INFO] 1 change detected
+2026-08-20 09:58:22 [INFO] 1 change detected
+2026-08-20 09:58:22 [INFO] 1 change detected
+2026-08-20 09:58:23 [INFO] 1 change detected
+2026-08-20 09:58:23 [INFO] 1 change detected
+2026-08-20 09:58:23 [INFO] 1 change detected
+2026-08-20 09:58:23 [INFO] 1 change detected
+2026-08-20 09:58:23 [INFO] 1 change detected
+2026-08-20 09:58:23 [INFO] 1 change detected
+2026-08-20 09:58:24 [INFO] 1 change detected
+2026-08-20 09:58:24 [INFO] 1 change detected
+2026-08-20 09:58:24 [INFO] 1 change detected
+2026-08-20 09:58:24 [INFO] 1 change detected
+2026-08-20 09:58:24 [INFO] 1 change detected
+2026-08-20 09:58:24 [INFO] 1 change detected
+2026-08-20 09:58:25 [INFO] 1 change detected
+2026-08-20 09:58:25 [INFO] 1 change detected
+2026-08-20 09:58:25 [INFO] 1 change detected
+2026-08-20 09:58:25 [INFO] 1 change detected
+2026-08-20 09:58:25 [INFO] 2 changes detected
+2026-08-20 09:58:25 [INFO] 2 changes detected
+2026-08-20 09:58:28 [INFO] 1 change detected
+2026-08-20 09:58:28 [INFO] 1 change detected
+2026-08-20 09:58:28 [INFO] 1 change detected
+2026-08-20 09:58:28 [INFO] 1 change detected
+2026-08-20 09:58:29 [INFO] 1 change detected
+2026-08-20 09:58:29 [INFO] 1 change detected
+2026-08-20 09:58:29 [INFO] 1 change detected
+2026-08-20 09:58:29 [INFO] 1 change detected
+2026-08-20 09:58:29 [INFO] 1 change detected
+2026-08-20 09:58:29 [INFO] 1 change detected
+2026-08-20 09:58:30 [INFO] 1 change detected
+2026-08-20 09:58:30 [INFO] 1 change detected
+2026-08-20 09:58:30 [INFO] 1 change detected
+2026-08-20 09:58:30 [INFO] 1 change detected
+2026-08-20 09:58:30 [INFO] 1 change detected
+2026-08-20 09:58:30 [INFO] 1 change detected
+2026-08-20 09:58:31 [INFO] 1 change detected
+2026-08-20 09:58:31 [INFO] 1 change detected
+2026-08-20 09:58:31 [INFO] 1 change detected
+2026-08-20 09:58:31 [INFO] 1 change detected
+2026-08-20 09:58:31 [INFO] 1 change detected
+2026-08-20 09:58:31 [INFO] 1 change detected
+2026-08-20 09:58:32 [INFO] 1 change detected
+2026-08-20 09:58:32 [INFO] 1 change detected
+2026-08-20 09:58:32 [INFO] 1 change detected
+2026-08-20 09:58:32 [INFO] 1 change detected
+2026-08-20 09:58:32 [INFO] 1 change detected
+2026-08-20 09:58:32 [INFO] 1 change detected
+2026-08-20 09:58:33 [INFO] 1 change detected
+2026-08-20 09:58:33 [INFO] 1 change detected
+2026-08-20 09:58:33 [INFO] 1 change detected
+2026-08-20 09:58:33 [INFO] 1 change detected
+2026-08-20 09:58:34 [INFO] 1 change detected
+2026-08-20 09:58:34 [INFO] 1 change detected
+2026-08-20 09:58:34 [INFO] 1 change detected
+2026-08-20 09:58:34 [INFO] 1 change detected
+2026-08-20 09:58:34 [INFO] 1 change detected
+2026-08-20 09:58:34 [INFO] 1 change detected
+2026-08-20 09:58:35 [INFO] 1 change detected
+2026-08-20 09:58:35 [INFO] 1 change detected
+2026-08-20 09:58:35 [INFO] 1 change detected
+2026-08-20 09:58:35 [INFO] 1 change detected
+2026-08-20 09:58:35 [INFO] 1 change detected
+2026-08-20 09:58:35 [INFO] 1 change detected
+2026-08-20 10:00:41 [INFO] SYSTEM STARTUP DIAGNOSTIC CHECK STARTED
+2026-08-20 10:00:41 [OK] [CHECK 1/4] FastAPI Connection Check ... [OK]
+2026-08-20 10:00:41 [OK] [CHECK 2/4] MySQL Database Connection ... [OK]
+2026-08-20 10:00:41 [OK] [CHECK 3/4] Authentication & Core SP Checks ... [OK]
+2026-08-20 10:00:41 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-08-20 10:00:41 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-08-20 10:00:41 [OK] [CHECK 4/4] Sync Engine & Local Replica Check ... [OK]
+2026-08-20 10:00:41 [OK] Status: ALL CHECKS PASSED. PROCEEDING TO LOGIN/DASHBOARD.
+2026-08-20 10:00:44 [INFO] Using WinForms / Chromium
+2026-08-20 10:00:44 [INFO] Using WinForms / Chromium
+2026-08-20 10:00:48 [INFO] before_load event fired. injecting pywebview object
+2026-08-20 10:00:48 [INFO] before_load event fired. injecting pywebview object
+2026-08-20 10:00:48 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-20 10:00:48 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-20 10:00:48 [INFO] _pywebviewready event fired
+2026-08-20 10:00:48 [INFO] _pywebviewready event fired
+2026-08-20 10:00:48 [INFO] loaded event fired
+2026-08-20 10:00:48 [INFO] loaded event fired
+2026-08-20 10:00:54 [INFO] before_load event fired. injecting pywebview object
+2026-08-20 10:00:54 [INFO] before_load event fired. injecting pywebview object
+2026-08-20 10:00:54 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-20 10:00:54 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-20 10:00:54 [INFO] _pywebviewready event fired
+2026-08-20 10:00:54 [INFO] _pywebviewready event fired
+2026-08-20 10:00:54 [INFO] loaded event fired
+2026-08-20 10:00:54 [INFO] loaded event fired
+2026-08-20 11:41:16 [INFO] SYSTEM STARTUP DIAGNOSTIC CHECK STARTED
+2026-08-20 11:41:16 [OK] [CHECK 1/4] FastAPI Connection Check ... [OK]
+2026-08-20 11:41:16 [OK] [CHECK 2/4] MySQL Database Connection ... [OK]
+2026-08-20 11:41:16 [OK] [CHECK 3/4] Authentication & Core SP Checks ... [OK]
+2026-08-20 11:41:16 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-08-20 11:41:16 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-08-20 11:41:16 [OK] [CHECK 4/4] Sync Engine & Local Replica Check ... [OK]
+2026-08-20 11:41:16 [OK] Status: ALL CHECKS PASSED. PROCEEDING TO LOGIN/DASHBOARD.
+2026-08-20 11:41:19 [INFO] Using WinForms / Chromium
+2026-08-20 11:41:19 [INFO] Using WinForms / Chromium
+2026-08-20 11:41:22 [INFO] before_load event fired. injecting pywebview object
+2026-08-20 11:41:22 [INFO] before_load event fired. injecting pywebview object
+2026-08-20 11:41:22 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-20 11:41:22 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-20 11:41:22 [INFO] _pywebviewready event fired
+2026-08-20 11:41:22 [INFO] _pywebviewready event fired
+2026-08-20 11:41:22 [INFO] loaded event fired
+2026-08-20 11:41:22 [INFO] loaded event fired
+2026-08-20 11:41:26 [INFO] before_load event fired. injecting pywebview object
+2026-08-20 11:41:26 [INFO] before_load event fired. injecting pywebview object
+2026-08-20 11:41:26 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-20 11:41:26 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-20 11:41:26 [INFO] _pywebviewready event fired
+2026-08-20 11:41:26 [INFO] _pywebviewready event fired
+2026-08-20 11:41:26 [INFO] loaded event fired
+2026-08-20 11:41:26 [INFO] loaded event fired
+2026-08-20 13:10:14 [INFO] SYSTEM STARTUP DIAGNOSTIC CHECK STARTED
+2026-08-20 13:10:14 [OK] [CHECK 1/4] FastAPI Connection Check ... [OK]
+2026-08-20 13:10:14 [OK] [CHECK 2/4] MySQL Database Connection ... [OK]
+2026-08-20 13:10:15 [OK] [CHECK 3/4] Authentication & Core SP Checks ... [OK]
+2026-08-20 13:10:15 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-08-20 13:10:15 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-08-20 13:10:15 [OK] [CHECK 4/4] Sync Engine & Local Replica Check ... [OK]
+2026-08-20 13:10:15 [OK] Status: ALL CHECKS PASSED. PROCEEDING TO LOGIN/DASHBOARD.
+2026-08-20 13:10:17 [INFO] Using WinForms / Chromium
+2026-08-20 13:10:17 [INFO] Using WinForms / Chromium
+2026-08-20 13:10:22 [INFO] before_load event fired. injecting pywebview object
+2026-08-20 13:10:22 [INFO] before_load event fired. injecting pywebview object
+2026-08-20 13:10:22 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-20 13:10:22 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-20 13:10:22 [INFO] _pywebviewready event fired
+2026-08-20 13:10:22 [INFO] _pywebviewready event fired
+2026-08-20 13:10:22 [INFO] loaded event fired
+2026-08-20 13:10:22 [INFO] loaded event fired
+2026-08-20 13:10:27 [INFO] before_load event fired. injecting pywebview object
+2026-08-20 13:10:27 [INFO] before_load event fired. injecting pywebview object
+2026-08-20 13:10:27 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-20 13:10:27 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-20 13:10:27 [INFO] _pywebviewready event fired
+2026-08-20 13:10:27 [INFO] _pywebviewready event fired
+2026-08-20 13:10:27 [INFO] loaded event fired
+2026-08-20 13:10:27 [INFO] loaded event fired
+2026-08-20 13:18:45 [INFO] 
+================================================================================
+  === WORD DOCXTPL CONTEXT VARIABLES TRACKING LOG ===
+================================================================================
+
+--- [1. TOP-LEVEL SCALAR VARIABLES & METADATA] ---
+  • Title                          = 'من يهمه الأمر'
+  • student_name                   = 'دانيا احمد شهاب احمد'
+  • Birthday                       = ''
+  • Birthplace                     = 'البصرة'
+  • Nationality                    = 'العراق'
+  • admission_year                 = '٢٠١٥'
+  • graduation_year                = '٢٠٢٠'
+  • department_id                  = 'علوم الحاسوب'
+  • study_type                     = 'الصباحية'
+  • graduation_date                = '٢٠٢٠-١١-١٧'
+  • graduation_semester            = 'الأول'
+  • average                        = '٦٤.٨١٦'
+  • Grade                          = 'متوسط'
+  • sequence_ON                    = True
+  • Failure_ON                     = False
+  • Passed_ON                      = True
+  • Summer_ON                      = True
+  • Sequence_of_Graduation         = '٥٥'
+  • num_students                   = '٥٨'
+  • Average_of_First_Student       = '٨٦.٤٢'
+  • Summer_Training_year           = '٢٠١٩'
+  • Postponement_and_Failure_Years = ''
+  • Subjects_Passed_with_Second_Trial = 'أخلاقيات الحاسوب، البرمجة 2، النظرية الاحتسابية، البرمجة كائنية التوجه، شبكات الحاسوب 2، برمجة الألعاب'
+  • order_number                   = '١٥٧١٠/١٣/٣'
+  • order_date                     = '٢٠٢٠-١١-١٧'
+  • sig1_name                      = 'حيدر خزعل محبس'
+  • sig1_title                     = 'الأستاذ المساعد'
+  • sig1_resp                      = 'مساعد رئيس الجامعة للشؤون العلمية'
+  • sig2_name                      = 'هشام كاظم هاشم'
+  • sig2_title                     = 'الأستاذ الدكتور'
+  • sig2_resp                      = 'العميد'
+  • sig3_name                      = 'رائدة سالم خضير'
+  • sig3_title                     = 'الأستاذ الدكتور'
+  • sig3_resp                      = 'معاون العميد للشوون العلمية والدراسات العليا'
+  • sig4_name                      = 'مرتجى علي ساري'
+  • sig4_title                     = 'المدرس الدكتور'
+  • sig4_resp                      = 'مدير التسجيل'
+  • sig5_name                      = 'أسراء فاضل عبد'
+  • sig5_title                     = ''
+  • sig5_resp                      = 'مسؤول وحدة الوثائق'
+  • sig6_name                      = 'نغم باسل محمود'
+  • sig6_title                     = ''
+  • sig6_resp                      = 'منظم الوثيقة'
+  • sig7_name                      = ''
+  • sig7_title                     = ''
+  • sig7_resp                      = ''
+  • sig8_name                      = ''
+  • sig8_title                     = ''
+  • sig8_resp                      = ''
+  • sig9_name                      = ''
+  • sig9_title                     = ''
+  • sig9_resp                      = ''
+  • sig10_name                     = ''
+  • sig10_title                    = ''
+  • sig10_resp                     = ''
+
+--- [3. TABLE DATA: 'paired_semesters' (5 Tables/Rows)] ---
+
+  ==========================================================================
+  ► Table 1:
+      left_label   : 'الفصل الأول'
+      right_label  : 'الفصل الثاني'
+      year_label   : 'العام الدراسي ٢٠١٥ - ٢٠١٦'
+      academic_year: '٢٠١٥ - ٢٠١٦'
+      num_s_l      : '١'
+      num_s_r      : '٢'
+      year_s_l     : '١'
+      year_s_r     : '١'
+      stage_s_l    : '١'
+      stage_s_r    : '١'
+      stage_text   : 'الأولى'
+
+      --- Courses (7 Rows) ---
+      #   | LEFT SUBJECT (المادة الأولى)        | MARK   | UNIT  || RIGHT SUBJECT (المادة الثانية)      | MARK   | UNIT 
+      --- | ----------------------------------- | ------ | ----- || ----------------------------------- | ------ | -----
+      1   | إسعافات أولية                       | ٧٨.٠   | ٢     || أخلاقيات الحاسوب (٢)                | ٥٣.٠   | ٢    
+      2   | البرمجة 1                           | ٥٦.٠   | ٤     || الديمقراطية                         | ٨٣.٠   | ١    
+      3   | التصميم المنطقي                     | ٥٣.٠   | ٣     || اللغة الانكليزية 1                  | ٧٥.٠   | ٢    
+      4   | الرياضيات للحاسوب                   | ٦٠.٠   | ٣     || تطبيقات الحاسوب                     | ٦١.٠   | ٢    
+      5   | اللغة العربية                       | ٦٣.٠   | ٢     || مبادئ تكنولوجيا المعلومات           | ٥٠.٠   | ٣    
+      6   | رياضة                               | ٧١.٠   | ١     || هياكل متقطعة                        | ٥٠.٠   | ٣    
+      7   | مهارات الحاسوب                      | ٥٨.٠   | ٢     ||                                     |        |      
+
+  ==========================================================================
+  ► Table 2:
+      left_label   : 'الفصل الأول'
+      right_label  : 'الفصل الثاني'
+      year_label   : 'العام الدراسي ٢٠١٦ - ٢٠١٧'
+      academic_year: '٢٠١٦ - ٢٠١٧'
+      num_s_l      : '١'
+      num_s_r      : '٢'
+      year_s_l     : '١'
+      year_s_r     : '١'
+      stage_s_l    : '١'
+      stage_s_r    : '١'
+      stage_text   : 'الأولى'
+
+      --- Courses (6 Rows) ---
+      #   | LEFT SUBJECT (المادة الأولى)        | MARK   | UNIT  || RIGHT SUBJECT (المادة الثانية)      | MARK   | UNIT 
+      --- | ----------------------------------- | ------ | ----- || ----------------------------------- | ------ | -----
+      1   | البرمجة 2 (٢)                       | ٥٠.٠   | ٤     || البرمجة المرئية                     | ٥٠.٠   | ٣    
+      2   | حقوق الإنسان                        | ٥٣.٠   | ١     || الرسم بالحاسوب ثنائي الأبعاد        | ٧٤.٠   | ٣    
+      3   | طرق عددية                           | ٦٧.٠   | ٣     || المتحكم المنطقي المبرمج             | ٦٢.٠   | ٣    
+      4   | معالجات مايكروية ولغة التجميع       | ٥٦.٠   | ٣     || النظرية الاحتسابية (٢)              | ٦١.٠   | ٣    
+      5   | نظرية الاحتمالات و الإحصاء          | ٥٠.٠   | ٣     || تطبيقات الحاسوب في الاعمال          | ٦٤.٠   | ٢    
+      6   |                                     |        |       || تفاعل الانسان مع الحاسوب            | ٧٩.٠   | ٢    
+
+  ==========================================================================
+  ► Table 3:
+      left_label   : 'الفصل الأول'
+      right_label  : 'الفصل الثاني'
+      year_label   : 'العام الدراسي ٢٠١٧ - ٢٠١٨'
+      academic_year: '٢٠١٧ - ٢٠١٨'
+      num_s_l      : '١'
+      num_s_r      : '٢'
+      year_s_l     : '٢'
+      year_s_r     : '٢'
+      stage_s_l    : '٢'
+      stage_s_r    : '٢'
+      stage_text   : 'الثانية'
+
+      --- Courses (6 Rows) ---
+      #   | LEFT SUBJECT (المادة الأولى)        | MARK   | UNIT  || RIGHT SUBJECT (المادة الثانية)      | MARK   | UNIT 
+      --- | ----------------------------------- | ------ | ----- || ----------------------------------- | ------ | -----
+      1   | أساسيات قواعد البيانات              | ٥٣.٠   | ٣     || أساسيات الذكاء الاصطناعي            | ٥٠.٠   | ٣    
+      2   | البرمجة كائنية التوجه (٢)           | ٦٦.٠   | ٣     || المترجمات                           | ٥٨.٠   | ٤    
+      3   | بحوث العمليات                       | ٦٠.٠   | ٣     || تصميم المواقع                       | ٥٦.٠   | ٣    
+      4   | شبكات الحاسوب 1                     | ٦٣.٠   | ٣     || نمذجة الحاسوب و محاكاته             | ٧٨.٠   | ٣    
+      5   | فلسفة                               | ٥٩.٠   | ٢     || هياكل البيانات 1                    | ٥٦.٠   | ٣    
+      6   | هندسة البرامجيات                    | ٦٢.٠   | ٣     ||                                     |        |      
+
+  ==========================================================================
+  ► Table 4:
+      left_label   : 'الفصل الأول'
+      right_label  : 'الفصل الثاني'
+      year_label   : 'العام الدراسي ٢٠١٨ - ٢٠١٩'
+      academic_year: '٢٠١٨ - ٢٠١٩'
+      num_s_l      : '١'
+      num_s_r      : '٢'
+      year_s_l     : '٤'
+      year_s_r     : '٤'
+      stage_s_l    : '٤'
+      stage_s_r    : '٤'
+      stage_text   : 'الرابعة'
+
+      --- Courses (8 Rows) ---
+      #   | LEFT SUBJECT (المادة الأولى)        | MARK   | UNIT  || RIGHT SUBJECT (المادة الثانية)      | MARK   | UNIT 
+      --- | ----------------------------------- | ------ | ----- || ----------------------------------- | ------ | -----
+      1   | الأعمال الالكترونية                 | ٥٣.٠   | ٢     || أمنية الشبكات                       | ٨٣.٠   | ٣    
+      2   | التنقيب عن البيانات                 | ٥٠.٠   | ٢     || التمثيل المرئي للبيانات             | ٧٦.٠   | ٣    
+      3   | تصميم المواقع المتقدم               | ٥٨.٠   | ٣     || الذكاء الحاسوبي                     | ٦٨.٠   | ٣    
+      4   | شبكات الحاسوب 2 (٢)                 | ٧٥.٠   | ٣     || المشروع 1                           | ٨٩.٠   | ٢    
+      5   | مواضيع مختارة                       | ٥٥.٠   | ٣     || الوسائط المتعددة                    | ٦٨.٠   | ٣    
+      6   | نظم التشغيل                         | ٥١.٠   | ٣     || برمجة الألعاب (٢)                   | ٦٢.٠   | ٢    
+      7   |                                     |        |       || قواعد البيانات الموزعة              | ٦٤.٠   | ٣    
+      8   |                                     |        |       || نظم التشغيل المتقدم                 | ٥٦.٠   | ٢    
+
+  ==========================================================================
+  ► Table 5:
+      left_label   : 'الفصل الأول'
+      right_label  : 'الفصل الثاني'
+      year_label   : 'العام الدراسي ٢٠١٩ - ٢٠٢٠'
+      academic_year: '٢٠١٩ - ٢٠٢٠'
+      num_s_l      : '١'
+      num_s_r      : '٢'
+      year_s_l     : '٤'
+      year_s_r     : '٤'
+      stage_s_l    : '٤'
+      stage_s_r    : '٤'
+      stage_text   : 'الرابعة'
+
+      --- Courses (4 Rows) ---
+      #   | LEFT SUBJECT (المادة الأولى)        | MARK   | UNIT  || RIGHT SUBJECT (المادة الثانية)      | MARK   | UNIT 
+      --- | ----------------------------------- | ------ | ----- || ----------------------------------- | ------ | -----
+      1   | الحوسبة السحابية                    | ٧٨.٠   | ٢     ||                                     |        |      
+      2   | تطبيقات النقال                      | ٩٨.٠   | ٣     ||                                     |        |      
+      3   | مهارات الاتصال                      | ٨٧.٠   | ٢     ||                                     |        |      
+      4   | نظرية المعلومات                     | ٧٧.٠   | ٣     ||                                     |        |      
+
+--- [3. TABLE DATA: 'paired_years' (5 Tables/Rows)] ---
+
+  ==========================================================================
+  ► Table 1:
+      left_label   : 'الفصل الأول'
+      right_label  : 'الفصل الثاني'
+      year_label   : 'العام الدراسي ٢٠١٥ - ٢٠١٦'
+      academic_year: '٢٠١٥ - ٢٠١٦'
+      num_s_l      : '١'
+      num_s_r      : '٢'
+      year_s_l     : '١'
+      year_s_r     : '١'
+      stage_s_l    : '١'
+      stage_s_r    : '١'
+      stage_text   : 'الأولى'
+
+      --- Courses (7 Rows) ---
+      #   | LEFT SUBJECT (المادة الأولى)        | MARK   | UNIT  || RIGHT SUBJECT (المادة الثانية)      | MARK   | UNIT 
+      --- | ----------------------------------- | ------ | ----- || ----------------------------------- | ------ | -----
+      1   | إسعافات أولية                       | ٧٨.٠   | ٢     || أخلاقيات الحاسوب (٢)                | ٥٣.٠   | ٢    
+      2   | البرمجة 1                           | ٥٦.٠   | ٤     || الديمقراطية                         | ٨٣.٠   | ١    
+      3   | التصميم المنطقي                     | ٥٣.٠   | ٣     || اللغة الانكليزية 1                  | ٧٥.٠   | ٢    
+      4   | الرياضيات للحاسوب                   | ٦٠.٠   | ٣     || تطبيقات الحاسوب                     | ٦١.٠   | ٢    
+      5   | اللغة العربية                       | ٦٣.٠   | ٢     || مبادئ تكنولوجيا المعلومات           | ٥٠.٠   | ٣    
+      6   | رياضة                               | ٧١.٠   | ١     || هياكل متقطعة                        | ٥٠.٠   | ٣    
+      7   | مهارات الحاسوب                      | ٥٨.٠   | ٢     ||                                     |        |      
+
+  ==========================================================================
+  ► Table 2:
+      left_label   : 'الفصل الأول'
+      right_label  : 'الفصل الثاني'
+      year_label   : 'العام الدراسي ٢٠١٦ - ٢٠١٧'
+      academic_year: '٢٠١٦ - ٢٠١٧'
+      num_s_l      : '١'
+      num_s_r      : '٢'
+      year_s_l     : '١'
+      year_s_r     : '١'
+      stage_s_l    : '١'
+      stage_s_r    : '١'
+      stage_text   : 'الأولى'
+
+      --- Courses (6 Rows) ---
+      #   | LEFT SUBJECT (المادة الأولى)        | MARK   | UNIT  || RIGHT SUBJECT (المادة الثانية)      | MARK   | UNIT 
+      --- | ----------------------------------- | ------ | ----- || ----------------------------------- | ------ | -----
+      1   | البرمجة 2 (٢)                       | ٥٠.٠   | ٤     || البرمجة المرئية                     | ٥٠.٠   | ٣    
+      2   | حقوق الإنسان                        | ٥٣.٠   | ١     || الرسم بالحاسوب ثنائي الأبعاد        | ٧٤.٠   | ٣    
+      3   | طرق عددية                           | ٦٧.٠   | ٣     || المتحكم المنطقي المبرمج             | ٦٢.٠   | ٣    
+      4   | معالجات مايكروية ولغة التجميع       | ٥٦.٠   | ٣     || النظرية الاحتسابية (٢)              | ٦١.٠   | ٣    
+      5   | نظرية الاحتمالات و الإحصاء          | ٥٠.٠   | ٣     || تطبيقات الحاسوب في الاعمال          | ٦٤.٠   | ٢    
+      6   |                                     |        |       || تفاعل الانسان مع الحاسوب            | ٧٩.٠   | ٢    
+
+  ==========================================================================
+  ► Table 3:
+      left_label   : 'الفصل الأول'
+      right_label  : 'الفصل الثاني'
+      year_label   : 'العام الدراسي ٢٠١٧ - ٢٠١٨'
+      academic_year: '٢٠١٧ - ٢٠١٨'
+      num_s_l      : '١'
+      num_s_r      : '٢'
+      year_s_l     : '٢'
+      year_s_r     : '٢'
+      stage_s_l    : '٢'
+      stage_s_r    : '٢'
+      stage_text   : 'الثانية'
+
+      --- Courses (6 Rows) ---
+      #   | LEFT SUBJECT (المادة الأولى)        | MARK   | UNIT  || RIGHT SUBJECT (المادة الثانية)      | MARK   | UNIT 
+      --- | ----------------------------------- | ------ | ----- || ----------------------------------- | ------ | -----
+      1   | أساسيات قواعد البيانات              | ٥٣.٠   | ٣     || أساسيات الذكاء الاصطناعي            | ٥٠.٠   | ٣    
+      2   | البرمجة كائنية التوجه (٢)           | ٦٦.٠   | ٣     || المترجمات                           | ٥٨.٠   | ٤    
+      3   | بحوث العمليات                       | ٦٠.٠   | ٣     || تصميم المواقع                       | ٥٦.٠   | ٣    
+      4   | شبكات الحاسوب 1                     | ٦٣.٠   | ٣     || نمذجة الحاسوب و محاكاته             | ٧٨.٠   | ٣    
+      5   | فلسفة                               | ٥٩.٠   | ٢     || هياكل البيانات 1                    | ٥٦.٠   | ٣    
+      6   | هندسة البرامجيات                    | ٦٢.٠   | ٣     ||                                     |        |      
+
+  ==========================================================================
+  ► Table 4:
+      left_label   : 'الفصل الأول'
+      right_label  : 'الفصل الثاني'
+      year_label   : 'العام الدراسي ٢٠١٨ - ٢٠١٩'
+      academic_year: '٢٠١٨ - ٢٠١٩'
+      num_s_l      : '١'
+      num_s_r      : '٢'
+      year_s_l     : '٤'
+      year_s_r     : '٤'
+      stage_s_l    : '٤'
+      stage_s_r    : '٤'
+      stage_text   : 'الرابعة'
+
+      --- Courses (8 Rows) ---
+      #   | LEFT SUBJECT (المادة الأولى)        | MARK   | UNIT  || RIGHT SUBJECT (المادة الثانية)      | MARK   | UNIT 
+      --- | ----------------------------------- | ------ | ----- || ----------------------------------- | ------ | -----
+      1   | الأعمال الالكترونية                 | ٥٣.٠   | ٢     || أمنية الشبكات                       | ٨٣.٠   | ٣    
+      2   | التنقيب عن البيانات                 | ٥٠.٠   | ٢     || التمثيل المرئي للبيانات             | ٧٦.٠   | ٣    
+      3   | تصميم المواقع المتقدم               | ٥٨.٠   | ٣     || الذكاء الحاسوبي                     | ٦٨.٠   | ٣    
+      4   | شبكات الحاسوب 2 (٢)                 | ٧٥.٠   | ٣     || المشروع 1                           | ٨٩.٠   | ٢    
+      5   | مواضيع مختارة                       | ٥٥.٠   | ٣     || الوسائط المتعددة                    | ٦٨.٠   | ٣    
+      6   | نظم التشغيل                         | ٥١.٠   | ٣     || برمجة الألعاب (٢)                   | ٦٢.٠   | ٢    
+      7   |                                     |        |       || قواعد البيانات الموزعة              | ٦٤.٠   | ٣    
+      8   |                                     |        |       || نظم التشغيل المتقدم                 | ٥٦.٠   | ٢    
+
+  ==========================================================================
+  ► Table 5:
+      left_label   : 'الفصل الأول'
+      right_label  : 'الفصل الثاني'
+      year_label   : 'العام الدراسي ٢٠١٩ - ٢٠٢٠'
+      academic_year: '٢٠١٩ - ٢٠٢٠'
+      num_s_l      : '١'
+      num_s_r      : '٢'
+      year_s_l     : '٤'
+      year_s_r     : '٤'
+      stage_s_l    : '٤'
+      stage_s_r    : '٤'
+      stage_text   : 'الرابعة'
+
+      --- Courses (4 Rows) ---
+      #   | LEFT SUBJECT (المادة الأولى)        | MARK   | UNIT  || RIGHT SUBJECT (المادة الثانية)      | MARK   | UNIT 
+      --- | ----------------------------------- | ------ | ----- || ----------------------------------- | ------ | -----
+      1   | الحوسبة السحابية                    | ٧٨.٠   | ٢     ||                                     |        |      
+      2   | تطبيقات النقال                      | ٩٨.٠   | ٣     ||                                     |        |      
+      3   | مهارات الاتصال                      | ٨٧.٠   | ٢     ||                                     |        |      
+      4   | نظرية المعلومات                     | ٧٧.٠   | ٣     ||                                     |        |      
+
+--- [3. TABLE DATA: 'semesters' (5 Tables/Rows)] ---
+
+  ==========================================================================
+  ► Table 1:
+      left_label   : 'الفصل الأول'
+      right_label  : 'الفصل الثاني'
+      year_label   : 'العام الدراسي ٢٠١٥ - ٢٠١٦'
+      academic_year: '٢٠١٥ - ٢٠١٦'
+      num_s_l      : '١'
+      num_s_r      : '٢'
+      year_s_l     : '١'
+      year_s_r     : '١'
+      stage_s_l    : '١'
+      stage_s_r    : '١'
+      stage_text   : 'الأولى'
+
+      --- Courses (7 Rows) ---
+      #   | LEFT SUBJECT (المادة الأولى)        | MARK   | UNIT  || RIGHT SUBJECT (المادة الثانية)      | MARK   | UNIT 
+      --- | ----------------------------------- | ------ | ----- || ----------------------------------- | ------ | -----
+      1   | إسعافات أولية                       | ٧٨.٠   | ٢     || أخلاقيات الحاسوب (٢)                | ٥٣.٠   | ٢    
+      2   | البرمجة 1                           | ٥٦.٠   | ٤     || الديمقراطية                         | ٨٣.٠   | ١    
+      3   | التصميم المنطقي                     | ٥٣.٠   | ٣     || اللغة الانكليزية 1                  | ٧٥.٠   | ٢    
+      4   | الرياضيات للحاسوب                   | ٦٠.٠   | ٣     || تطبيقات الحاسوب                     | ٦١.٠   | ٢    
+      5   | اللغة العربية                       | ٦٣.٠   | ٢     || مبادئ تكنولوجيا المعلومات           | ٥٠.٠   | ٣    
+      6   | رياضة                               | ٧١.٠   | ١     || هياكل متقطعة                        | ٥٠.٠   | ٣    
+      7   | مهارات الحاسوب                      | ٥٨.٠   | ٢     ||                                     |        |      
+
+  ==========================================================================
+  ► Table 2:
+      left_label   : 'الفصل الأول'
+      right_label  : 'الفصل الثاني'
+      year_label   : 'العام الدراسي ٢٠١٦ - ٢٠١٧'
+      academic_year: '٢٠١٦ - ٢٠١٧'
+      num_s_l      : '١'
+      num_s_r      : '٢'
+      year_s_l     : '١'
+      year_s_r     : '١'
+      stage_s_l    : '١'
+      stage_s_r    : '١'
+      stage_text   : 'الأولى'
+
+      --- Courses (6 Rows) ---
+      #   | LEFT SUBJECT (المادة الأولى)        | MARK   | UNIT  || RIGHT SUBJECT (المادة الثانية)      | MARK   | UNIT 
+      --- | ----------------------------------- | ------ | ----- || ----------------------------------- | ------ | -----
+      1   | البرمجة 2 (٢)                       | ٥٠.٠   | ٤     || البرمجة المرئية                     | ٥٠.٠   | ٣    
+      2   | حقوق الإنسان                        | ٥٣.٠   | ١     || الرسم بالحاسوب ثنائي الأبعاد        | ٧٤.٠   | ٣    
+      3   | طرق عددية                           | ٦٧.٠   | ٣     || المتحكم المنطقي المبرمج             | ٦٢.٠   | ٣    
+      4   | معالجات مايكروية ولغة التجميع       | ٥٦.٠   | ٣     || النظرية الاحتسابية (٢)              | ٦١.٠   | ٣    
+      5   | نظرية الاحتمالات و الإحصاء          | ٥٠.٠   | ٣     || تطبيقات الحاسوب في الاعمال          | ٦٤.٠   | ٢    
+      6   |                                     |        |       || تفاعل الانسان مع الحاسوب            | ٧٩.٠   | ٢    
+
+  ==========================================================================
+  ► Table 3:
+      left_label   : 'الفصل الأول'
+      right_label  : 'الفصل الثاني'
+      year_label   : 'العام الدراسي ٢٠١٧ - ٢٠١٨'
+      academic_year: '٢٠١٧ - ٢٠١٨'
+      num_s_l      : '١'
+      num_s_r      : '٢'
+      year_s_l     : '٢'
+      year_s_r     : '٢'
+      stage_s_l    : '٢'
+      stage_s_r    : '٢'
+      stage_text   : 'الثانية'
+
+      --- Courses (6 Rows) ---
+      #   | LEFT SUBJECT (المادة الأولى)        | MARK   | UNIT  || RIGHT SUBJECT (المادة الثانية)      | MARK   | UNIT 
+      --- | ----------------------------------- | ------ | ----- || ----------------------------------- | ------ | -----
+      1   | أساسيات قواعد البيانات              | ٥٣.٠   | ٣     || أساسيات الذكاء الاصطناعي            | ٥٠.٠   | ٣    
+      2   | البرمجة كائنية التوجه (٢)           | ٦٦.٠   | ٣     || المترجمات                           | ٥٨.٠   | ٤    
+      3   | بحوث العمليات                       | ٦٠.٠   | ٣     || تصميم المواقع                       | ٥٦.٠   | ٣    
+      4   | شبكات الحاسوب 1                     | ٦٣.٠   | ٣     || نمذجة الحاسوب و محاكاته             | ٧٨.٠   | ٣    
+      5   | فلسفة                               | ٥٩.٠   | ٢     || هياكل البيانات 1                    | ٥٦.٠   | ٣    
+      6   | هندسة البرامجيات                    | ٦٢.٠   | ٣     ||                                     |        |      
+
+  ==========================================================================
+  ► Table 4:
+      left_label   : 'الفصل الأول'
+      right_label  : 'الفصل الثاني'
+      year_label   : 'العام الدراسي ٢٠١٨ - ٢٠١٩'
+      academic_year: '٢٠١٨ - ٢٠١٩'
+      num_s_l      : '١'
+      num_s_r      : '٢'
+      year_s_l     : '٤'
+      year_s_r     : '٤'
+      stage_s_l    : '٤'
+      stage_s_r    : '٤'
+      stage_text   : 'الرابعة'
+
+      --- Courses (8 Rows) ---
+      #   | LEFT SUBJECT (المادة الأولى)        | MARK   | UNIT  || RIGHT SUBJECT (المادة الثانية)      | MARK   | UNIT 
+      --- | ----------------------------------- | ------ | ----- || ----------------------------------- | ------ | -----
+      1   | الأعمال الالكترونية                 | ٥٣.٠   | ٢     || أمنية الشبكات                       | ٨٣.٠   | ٣    
+      2   | التنقيب عن البيانات                 | ٥٠.٠   | ٢     || التمثيل المرئي للبيانات             | ٧٦.٠   | ٣    
+      3   | تصميم المواقع المتقدم               | ٥٨.٠   | ٣     || الذكاء الحاسوبي                     | ٦٨.٠   | ٣    
+      4   | شبكات الحاسوب 2 (٢)                 | ٧٥.٠   | ٣     || المشروع 1                           | ٨٩.٠   | ٢    
+      5   | مواضيع مختارة                       | ٥٥.٠   | ٣     || الوسائط المتعددة                    | ٦٨.٠   | ٣    
+      6   | نظم التشغيل                         | ٥١.٠   | ٣     || برمجة الألعاب (٢)                   | ٦٢.٠   | ٢    
+      7   |                                     |        |       || قواعد البيانات الموزعة              | ٦٤.٠   | ٣    
+      8   |                                     |        |       || نظم التشغيل المتقدم                 | ٥٦.٠   | ٢    
+
+  ==========================================================================
+  ► Table 5:
+      left_label   : 'الفصل الأول'
+      right_label  : 'الفصل الثاني'
+      year_label   : 'العام الدراسي ٢٠١٩ - ٢٠٢٠'
+      academic_year: '٢٠١٩ - ٢٠٢٠'
+      num_s_l      : '١'
+      num_s_r      : '٢'
+      year_s_l     : '٤'
+      year_s_r     : '٤'
+      stage_s_l    : '٤'
+      stage_s_r    : '٤'
+      stage_text   : 'الرابعة'
+
+      --- Courses (4 Rows) ---
+      #   | LEFT SUBJECT (المادة الأولى)        | MARK   | UNIT  || RIGHT SUBJECT (المادة الثانية)      | MARK   | UNIT 
+      --- | ----------------------------------- | ------ | ----- || ----------------------------------- | ------ | -----
+      1   | الحوسبة السحابية                    | ٧٨.٠   | ٢     ||                                     |        |      
+      2   | تطبيقات النقال                      | ٩٨.٠   | ٣     ||                                     |        |      
+      3   | مهارات الاتصال                      | ٨٧.٠   | ٢     ||                                     |        |      
+      4   | نظرية المعلومات                     | ٧٧.٠   | ٣     ||                                     |        |      
+================================================================================
+2026-08-20 13:18:45 [INFO] 
+================================================================================
+  === WORD DOCXTPL CONTEXT VARIABLES TRACKING LOG ===
+================================================================================
+
+--- [1. TOP-LEVEL SCALAR VARIABLES & METADATA] ---
+  • Title                          = 'من يهمه الأمر'
+  • student_name                   = 'دانيا احمد شهاب احمد'
+  • Birthday                       = ''
+  • Birthplace                     = 'البصرة'
+  • Nationality                    = 'العراق'
+  • admission_year                 = '٢٠١٥'
+  • graduation_year                = '٢٠٢٠'
+  • department_id                  = 'علوم الحاسوب'
+  • study_type                     = 'الصباحية'
+  • graduation_date                = '٢٠٢٠-١١-١٧'
+  • graduation_semester            = 'الأول'
+  • average                        = '٦٤.٨١٦'
+  • Grade                          = 'متوسط'
+  • sequence_ON                    = True
+  • Failure_ON                     = False
+  • Passed_ON                      = True
+  • Summer_ON                      = True
+  • Sequence_of_Graduation         = '٥٥'
+  • num_students                   = '٥٨'
+  • Average_of_First_Student       = '٨٦.٤٢'
+  • Summer_Training_year           = '٢٠١٩'
+  • Postponement_and_Failure_Years = ''
+  • Subjects_Passed_with_Second_Trial = 'أخلاقيات الحاسوب، البرمجة 2، النظرية الاحتسابية، البرمجة كائنية التوجه، شبكات الحاسوب 2، برمجة الألعاب'
+  • order_number                   = '١٥٧١٠/١٣/٣'
+  • order_date                     = '٢٠٢٠-١١-١٧'
+  • sig1_name                      = 'حيدر خزعل محبس'
+  • sig1_title                     = 'الأستاذ المساعد'
+  • sig1_resp                      = 'مساعد رئيس الجامعة للشؤون العلمية'
+  • sig2_name                      = 'هشام كاظم هاشم'
+  • sig2_title                     = 'الأستاذ الدكتور'
+  • sig2_resp                      = 'العميد'
+  • sig3_name                      = 'رائدة سالم خضير'
+  • sig3_title                     = 'الأستاذ الدكتور'
+  • sig3_resp                      = 'معاون العميد للشوون العلمية والدراسات العليا'
+  • sig4_name                      = 'مرتجى علي ساري'
+  • sig4_title                     = 'المدرس الدكتور'
+  • sig4_resp                      = 'مدير التسجيل'
+  • sig5_name                      = 'أسراء فاضل عبد'
+  • sig5_title                     = ''
+  • sig5_resp                      = 'مسؤول وحدة الوثائق'
+  • sig6_name                      = 'نغم باسل محمود'
+  • sig6_title                     = ''
+  • sig6_resp                      = 'منظم الوثيقة'
+  • sig7_name                      = ''
+  • sig7_title                     = ''
+  • sig7_resp                      = ''
+  • sig8_name                      = ''
+  • sig8_title                     = ''
+  • sig8_resp                      = ''
+  • sig9_name                      = ''
+  • sig9_title                     = ''
+  • sig9_resp                      = ''
+  • sig10_name                     = ''
+  • sig10_title                    = ''
+  • sig10_resp                     = ''
+
+--- [3. TABLE DATA: 'paired_semesters' (5 Tables/Rows)] ---
+
+  ==========================================================================
+  ► Table 1:
+      left_label   : 'الفصل الأول'
+      right_label  : 'الفصل الثاني'
+      year_label   : 'العام الدراسي ٢٠١٥ - ٢٠١٦'
+      academic_year: '٢٠١٥ - ٢٠١٦'
+      num_s_l      : '١'
+      num_s_r      : '٢'
+      year_s_l     : '١'
+      year_s_r     : '١'
+      stage_s_l    : '١'
+      stage_s_r    : '١'
+      stage_text   : 'الأولى'
+
+      --- Courses (7 Rows) ---
+      #   | LEFT SUBJECT (المادة الأولى)        | MARK   | UNIT  || RIGHT SUBJECT (المادة الثانية)      | MARK   | UNIT 
+      --- | ----------------------------------- | ------ | ----- || ----------------------------------- | ------ | -----
+      1   | إسعافات أولية                       | ٧٨.٠   | ٢     || أخلاقيات الحاسوب (٢)                | ٥٣.٠   | ٢    
+      2   | البرمجة 1                           | ٥٦.٠   | ٤     || الديمقراطية                         | ٨٣.٠   | ١    
+      3   | التصميم المنطقي                     | ٥٣.٠   | ٣     || اللغة الانكليزية 1                  | ٧٥.٠   | ٢    
+      4   | الرياضيات للحاسوب                   | ٦٠.٠   | ٣     || تطبيقات الحاسوب                     | ٦١.٠   | ٢    
+      5   | اللغة العربية                       | ٦٣.٠   | ٢     || مبادئ تكنولوجيا المعلومات           | ٥٠.٠   | ٣    
+      6   | رياضة                               | ٧١.٠   | ١     || هياكل متقطعة                        | ٥٠.٠   | ٣    
+      7   | مهارات الحاسوب                      | ٥٨.٠   | ٢     ||                                     |        |      
+
+  ==========================================================================
+  ► Table 2:
+      left_label   : 'الفصل الأول'
+      right_label  : 'الفصل الثاني'
+      year_label   : 'العام الدراسي ٢٠١٦ - ٢٠١٧'
+      academic_year: '٢٠١٦ - ٢٠١٧'
+      num_s_l      : '١'
+      num_s_r      : '٢'
+      year_s_l     : '١'
+      year_s_r     : '١'
+      stage_s_l    : '١'
+      stage_s_r    : '١'
+      stage_text   : 'الأولى'
+
+      --- Courses (6 Rows) ---
+      #   | LEFT SUBJECT (المادة الأولى)        | MARK   | UNIT  || RIGHT SUBJECT (المادة الثانية)      | MARK   | UNIT 
+      --- | ----------------------------------- | ------ | ----- || ----------------------------------- | ------ | -----
+      1   | البرمجة 2 (٢)                       | ٥٠.٠   | ٤     || البرمجة المرئية                     | ٥٠.٠   | ٣    
+      2   | حقوق الإنسان                        | ٥٣.٠   | ١     || الرسم بالحاسوب ثنائي الأبعاد        | ٧٤.٠   | ٣    
+      3   | طرق عددية                           | ٦٧.٠   | ٣     || المتحكم المنطقي المبرمج             | ٦٢.٠   | ٣    
+      4   | معالجات مايكروية ولغة التجميع       | ٥٦.٠   | ٣     || النظرية الاحتسابية (٢)              | ٦١.٠   | ٣    
+      5   | نظرية الاحتمالات و الإحصاء          | ٥٠.٠   | ٣     || تطبيقات الحاسوب في الاعمال          | ٦٤.٠   | ٢    
+      6   |                                     |        |       || تفاعل الانسان مع الحاسوب            | ٧٩.٠   | ٢    
+
+  ==========================================================================
+  ► Table 3:
+      left_label   : 'الفصل الأول'
+      right_label  : 'الفصل الثاني'
+      year_label   : 'العام الدراسي ٢٠١٧ - ٢٠١٨'
+      academic_year: '٢٠١٧ - ٢٠١٨'
+      num_s_l      : '١'
+      num_s_r      : '٢'
+      year_s_l     : '٢'
+      year_s_r     : '٢'
+      stage_s_l    : '٢'
+      stage_s_r    : '٢'
+      stage_text   : 'الثانية'
+
+      --- Courses (6 Rows) ---
+      #   | LEFT SUBJECT (المادة الأولى)        | MARK   | UNIT  || RIGHT SUBJECT (المادة الثانية)      | MARK   | UNIT 
+      --- | ----------------------------------- | ------ | ----- || ----------------------------------- | ------ | -----
+      1   | أساسيات قواعد البيانات              | ٥٣.٠   | ٣     || أساسيات الذكاء الاصطناعي            | ٥٠.٠   | ٣    
+      2   | البرمجة كائنية التوجه (٢)           | ٦٦.٠   | ٣     || المترجمات                           | ٥٨.٠   | ٤    
+      3   | بحوث العمليات                       | ٦٠.٠   | ٣     || تصميم المواقع                       | ٥٦.٠   | ٣    
+      4   | شبكات الحاسوب 1                     | ٦٣.٠   | ٣     || نمذجة الحاسوب و محاكاته             | ٧٨.٠   | ٣    
+      5   | فلسفة                               | ٥٩.٠   | ٢     || هياكل البيانات 1                    | ٥٦.٠   | ٣    
+      6   | هندسة البرامجيات                    | ٦٢.٠   | ٣     ||                                     |        |      
+
+  ==========================================================================
+  ► Table 4:
+      left_label   : 'الفصل الأول'
+      right_label  : 'الفصل الثاني'
+      year_label   : 'العام الدراسي ٢٠١٨ - ٢٠١٩'
+      academic_year: '٢٠١٨ - ٢٠١٩'
+      num_s_l      : '١'
+      num_s_r      : '٢'
+      year_s_l     : '٤'
+      year_s_r     : '٤'
+      stage_s_l    : '٤'
+      stage_s_r    : '٤'
+      stage_text   : 'الرابعة'
+
+      --- Courses (8 Rows) ---
+      #   | LEFT SUBJECT (المادة الأولى)        | MARK   | UNIT  || RIGHT SUBJECT (المادة الثانية)      | MARK   | UNIT 
+      --- | ----------------------------------- | ------ | ----- || ----------------------------------- | ------ | -----
+      1   | الأعمال الالكترونية                 | ٥٣.٠   | ٢     || أمنية الشبكات                       | ٨٣.٠   | ٣    
+      2   | التنقيب عن البيانات                 | ٥٠.٠   | ٢     || التمثيل المرئي للبيانات             | ٧٦.٠   | ٣    
+      3   | تصميم المواقع المتقدم               | ٥٨.٠   | ٣     || الذكاء الحاسوبي                     | ٦٨.٠   | ٣    
+      4   | شبكات الحاسوب 2 (٢)                 | ٧٥.٠   | ٣     || المشروع 1                           | ٨٩.٠   | ٢    
+      5   | مواضيع مختارة                       | ٥٥.٠   | ٣     || الوسائط المتعددة                    | ٦٨.٠   | ٣    
+      6   | نظم التشغيل                         | ٥١.٠   | ٣     || برمجة الألعاب (٢)                   | ٦٢.٠   | ٢    
+      7   |                                     |        |       || قواعد البيانات الموزعة              | ٦٤.٠   | ٣    
+      8   |                                     |        |       || نظم التشغيل المتقدم                 | ٥٦.٠   | ٢    
+
+  ==========================================================================
+  ► Table 5:
+      left_label   : 'الفصل الأول'
+      right_label  : 'الفصل الثاني'
+      year_label   : 'العام الدراسي ٢٠١٩ - ٢٠٢٠'
+      academic_year: '٢٠١٩ - ٢٠٢٠'
+      num_s_l      : '١'
+      num_s_r      : '٢'
+      year_s_l     : '٤'
+      year_s_r     : '٤'
+      stage_s_l    : '٤'
+      stage_s_r    : '٤'
+      stage_text   : 'الرابعة'
+
+      --- Courses (4 Rows) ---
+      #   | LEFT SUBJECT (المادة الأولى)        | MARK   | UNIT  || RIGHT SUBJECT (المادة الثانية)      | MARK   | UNIT 
+      --- | ----------------------------------- | ------ | ----- || ----------------------------------- | ------ | -----
+      1   | الحوسبة السحابية                    | ٧٨.٠   | ٢     ||                                     |        |      
+      2   | تطبيقات النقال                      | ٩٨.٠   | ٣     ||                                     |        |      
+      3   | مهارات الاتصال                      | ٨٧.٠   | ٢     ||                                     |        |      
+      4   | نظرية المعلومات                     | ٧٧.٠   | ٣     ||                                     |        |      
+
+--- [3. TABLE DATA: 'paired_years' (5 Tables/Rows)] ---
+
+  ==========================================================================
+  ► Table 1:
+      left_label   : 'الفصل الأول'
+      right_label  : 'الفصل الثاني'
+      year_label   : 'العام الدراسي ٢٠١٥ - ٢٠١٦'
+      academic_year: '٢٠١٥ - ٢٠١٦'
+      num_s_l      : '١'
+      num_s_r      : '٢'
+      year_s_l     : '١'
+      year_s_r     : '١'
+      stage_s_l    : '١'
+      stage_s_r    : '١'
+      stage_text   : 'الأولى'
+
+      --- Courses (7 Rows) ---
+      #   | LEFT SUBJECT (المادة الأولى)        | MARK   | UNIT  || RIGHT SUBJECT (المادة الثانية)      | MARK   | UNIT 
+      --- | ----------------------------------- | ------ | ----- || ----------------------------------- | ------ | -----
+      1   | إسعافات أولية                       | ٧٨.٠   | ٢     || أخلاقيات الحاسوب (٢)                | ٥٣.٠   | ٢    
+      2   | البرمجة 1                           | ٥٦.٠   | ٤     || الديمقراطية                         | ٨٣.٠   | ١    
+      3   | التصميم المنطقي                     | ٥٣.٠   | ٣     || اللغة الانكليزية 1                  | ٧٥.٠   | ٢    
+      4   | الرياضيات للحاسوب                   | ٦٠.٠   | ٣     || تطبيقات الحاسوب                     | ٦١.٠   | ٢    
+      5   | اللغة العربية                       | ٦٣.٠   | ٢     || مبادئ تكنولوجيا المعلومات           | ٥٠.٠   | ٣    
+      6   | رياضة                               | ٧١.٠   | ١     || هياكل متقطعة                        | ٥٠.٠   | ٣    
+      7   | مهارات الحاسوب                      | ٥٨.٠   | ٢     ||                                     |        |      
+
+  ==========================================================================
+  ► Table 2:
+      left_label   : 'الفصل الأول'
+      right_label  : 'الفصل الثاني'
+      year_label   : 'العام الدراسي ٢٠١٦ - ٢٠١٧'
+      academic_year: '٢٠١٦ - ٢٠١٧'
+      num_s_l      : '١'
+      num_s_r      : '٢'
+      year_s_l     : '١'
+      year_s_r     : '١'
+      stage_s_l    : '١'
+      stage_s_r    : '١'
+      stage_text   : 'الأولى'
+
+      --- Courses (6 Rows) ---
+      #   | LEFT SUBJECT (المادة الأولى)        | MARK   | UNIT  || RIGHT SUBJECT (المادة الثانية)      | MARK   | UNIT 
+      --- | ----------------------------------- | ------ | ----- || ----------------------------------- | ------ | -----
+      1   | البرمجة 2 (٢)                       | ٥٠.٠   | ٤     || البرمجة المرئية                     | ٥٠.٠   | ٣    
+      2   | حقوق الإنسان                        | ٥٣.٠   | ١     || الرسم بالحاسوب ثنائي الأبعاد        | ٧٤.٠   | ٣    
+      3   | طرق عددية                           | ٦٧.٠   | ٣     || المتحكم المنطقي المبرمج             | ٦٢.٠   | ٣    
+      4   | معالجات مايكروية ولغة التجميع       | ٥٦.٠   | ٣     || النظرية الاحتسابية (٢)              | ٦١.٠   | ٣    
+      5   | نظرية الاحتمالات و الإحصاء          | ٥٠.٠   | ٣     || تطبيقات الحاسوب في الاعمال          | ٦٤.٠   | ٢    
+      6   |                                     |        |       || تفاعل الانسان مع الحاسوب            | ٧٩.٠   | ٢    
+
+  ==========================================================================
+  ► Table 3:
+      left_label   : 'الفصل الأول'
+      right_label  : 'الفصل الثاني'
+      year_label   : 'العام الدراسي ٢٠١٧ - ٢٠١٨'
+      academic_year: '٢٠١٧ - ٢٠١٨'
+      num_s_l      : '١'
+      num_s_r      : '٢'
+      year_s_l     : '٢'
+      year_s_r     : '٢'
+      stage_s_l    : '٢'
+      stage_s_r    : '٢'
+      stage_text   : 'الثانية'
+
+      --- Courses (6 Rows) ---
+      #   | LEFT SUBJECT (المادة الأولى)        | MARK   | UNIT  || RIGHT SUBJECT (المادة الثانية)      | MARK   | UNIT 
+      --- | ----------------------------------- | ------ | ----- || ----------------------------------- | ------ | -----
+      1   | أساسيات قواعد البيانات              | ٥٣.٠   | ٣     || أساسيات الذكاء الاصطناعي            | ٥٠.٠   | ٣    
+      2   | البرمجة كائنية التوجه (٢)           | ٦٦.٠   | ٣     || المترجمات                           | ٥٨.٠   | ٤    
+      3   | بحوث العمليات                       | ٦٠.٠   | ٣     || تصميم المواقع                       | ٥٦.٠   | ٣    
+      4   | شبكات الحاسوب 1                     | ٦٣.٠   | ٣     || نمذجة الحاسوب و محاكاته             | ٧٨.٠   | ٣    
+      5   | فلسفة                               | ٥٩.٠   | ٢     || هياكل البيانات 1                    | ٥٦.٠   | ٣    
+      6   | هندسة البرامجيات                    | ٦٢.٠   | ٣     ||                                     |        |      
+
+  ==========================================================================
+  ► Table 4:
+      left_label   : 'الفصل الأول'
+      right_label  : 'الفصل الثاني'
+      year_label   : 'العام الدراسي ٢٠١٨ - ٢٠١٩'
+      academic_year: '٢٠١٨ - ٢٠١٩'
+      num_s_l      : '١'
+      num_s_r      : '٢'
+      year_s_l     : '٤'
+      year_s_r     : '٤'
+      stage_s_l    : '٤'
+      stage_s_r    : '٤'
+      stage_text   : 'الرابعة'
+
+      --- Courses (8 Rows) ---
+      #   | LEFT SUBJECT (المادة الأولى)        | MARK   | UNIT  || RIGHT SUBJECT (المادة الثانية)      | MARK   | UNIT 
+      --- | ----------------------------------- | ------ | ----- || ----------------------------------- | ------ | -----
+      1   | الأعمال الالكترونية                 | ٥٣.٠   | ٢     || أمنية الشبكات                       | ٨٣.٠   | ٣    
+      2   | التنقيب عن البيانات                 | ٥٠.٠   | ٢     || التمثيل المرئي للبيانات             | ٧٦.٠   | ٣    
+      3   | تصميم المواقع المتقدم               | ٥٨.٠   | ٣     || الذكاء الحاسوبي                     | ٦٨.٠   | ٣    
+      4   | شبكات الحاسوب 2 (٢)                 | ٧٥.٠   | ٣     || المشروع 1                           | ٨٩.٠   | ٢    
+      5   | مواضيع مختارة                       | ٥٥.٠   | ٣     || الوسائط المتعددة                    | ٦٨.٠   | ٣    
+      6   | نظم التشغيل                         | ٥١.٠   | ٣     || برمجة الألعاب (٢)                   | ٦٢.٠   | ٢    
+      7   |                                     |        |       || قواعد البيانات الموزعة              | ٦٤.٠   | ٣    
+      8   |                                     |        |       || نظم التشغيل المتقدم                 | ٥٦.٠   | ٢    
+
+  ==========================================================================
+  ► Table 5:
+      left_label   : 'الفصل الأول'
+      right_label  : 'الفصل الثاني'
+      year_label   : 'العام الدراسي ٢٠١٩ - ٢٠٢٠'
+      academic_year: '٢٠١٩ - ٢٠٢٠'
+      num_s_l      : '١'
+      num_s_r      : '٢'
+      year_s_l     : '٤'
+      year_s_r     : '٤'
+      stage_s_l    : '٤'
+      stage_s_r    : '٤'
+      stage_text   : 'الرابعة'
+
+      --- Courses (4 Rows) ---
+      #   | LEFT SUBJECT (المادة الأولى)        | MARK   | UNIT  || RIGHT SUBJECT (المادة الثانية)      | MARK   | UNIT 
+      --- | ----------------------------------- | ------ | ----- || ----------------------------------- | ------ | -----
+      1   | الحوسبة السحابية                    | ٧٨.٠   | ٢     ||                                     |        |      
+      2   | تطبيقات النقال                      | ٩٨.٠   | ٣     ||                                     |        |      
+      3   | مهارات الاتصال                      | ٨٧.٠   | ٢     ||                                     |        |      
+      4   | نظرية المعلومات                     | ٧٧.٠   | ٣     ||                                     |        |      
+
+--- [3. TABLE DATA: 'semesters' (5 Tables/Rows)] ---
+
+  ==========================================================================
+  ► Table 1:
+      left_label   : 'الفصل الأول'
+      right_label  : 'الفصل الثاني'
+      year_label   : 'العام الدراسي ٢٠١٥ - ٢٠١٦'
+      academic_year: '٢٠١٥ - ٢٠١٦'
+      num_s_l      : '١'
+      num_s_r      : '٢'
+      year_s_l     : '١'
+      year_s_r     : '١'
+      stage_s_l    : '١'
+      stage_s_r    : '١'
+      stage_text   : 'الأولى'
+
+      --- Courses (7 Rows) ---
+      #   | LEFT SUBJECT (المادة الأولى)        | MARK   | UNIT  || RIGHT SUBJECT (المادة الثانية)      | MARK   | UNIT 
+      --- | ----------------------------------- | ------ | ----- || ----------------------------------- | ------ | -----
+      1   | إسعافات أولية                       | ٧٨.٠   | ٢     || أخلاقيات الحاسوب (٢)                | ٥٣.٠   | ٢    
+      2   | البرمجة 1                           | ٥٦.٠   | ٤     || الديمقراطية                         | ٨٣.٠   | ١    
+      3   | التصميم المنطقي                     | ٥٣.٠   | ٣     || اللغة الانكليزية 1                  | ٧٥.٠   | ٢    
+      4   | الرياضيات للحاسوب                   | ٦٠.٠   | ٣     || تطبيقات الحاسوب                     | ٦١.٠   | ٢    
+      5   | اللغة العربية                       | ٦٣.٠   | ٢     || مبادئ تكنولوجيا المعلومات           | ٥٠.٠   | ٣    
+      6   | رياضة                               | ٧١.٠   | ١     || هياكل متقطعة                        | ٥٠.٠   | ٣    
+      7   | مهارات الحاسوب                      | ٥٨.٠   | ٢     ||                                     |        |      
+
+  ==========================================================================
+  ► Table 2:
+      left_label   : 'الفصل الأول'
+      right_label  : 'الفصل الثاني'
+      year_label   : 'العام الدراسي ٢٠١٦ - ٢٠١٧'
+      academic_year: '٢٠١٦ - ٢٠١٧'
+      num_s_l      : '١'
+      num_s_r      : '٢'
+      year_s_l     : '١'
+      year_s_r     : '١'
+      stage_s_l    : '١'
+      stage_s_r    : '١'
+      stage_text   : 'الأولى'
+
+      --- Courses (6 Rows) ---
+      #   | LEFT SUBJECT (المادة الأولى)        | MARK   | UNIT  || RIGHT SUBJECT (المادة الثانية)      | MARK   | UNIT 
+      --- | ----------------------------------- | ------ | ----- || ----------------------------------- | ------ | -----
+      1   | البرمجة 2 (٢)                       | ٥٠.٠   | ٤     || البرمجة المرئية                     | ٥٠.٠   | ٣    
+      2   | حقوق الإنسان                        | ٥٣.٠   | ١     || الرسم بالحاسوب ثنائي الأبعاد        | ٧٤.٠   | ٣    
+      3   | طرق عددية                           | ٦٧.٠   | ٣     || المتحكم المنطقي المبرمج             | ٦٢.٠   | ٣    
+      4   | معالجات مايكروية ولغة التجميع       | ٥٦.٠   | ٣     || النظرية الاحتسابية (٢)              | ٦١.٠   | ٣    
+      5   | نظرية الاحتمالات و الإحصاء          | ٥٠.٠   | ٣     || تطبيقات الحاسوب في الاعمال          | ٦٤.٠   | ٢    
+      6   |                                     |        |       || تفاعل الانسان مع الحاسوب            | ٧٩.٠   | ٢    
+
+  ==========================================================================
+  ► Table 3:
+      left_label   : 'الفصل الأول'
+      right_label  : 'الفصل الثاني'
+      year_label   : 'العام الدراسي ٢٠١٧ - ٢٠١٨'
+      academic_year: '٢٠١٧ - ٢٠١٨'
+      num_s_l      : '١'
+      num_s_r      : '٢'
+      year_s_l     : '٢'
+      year_s_r     : '٢'
+      stage_s_l    : '٢'
+      stage_s_r    : '٢'
+      stage_text   : 'الثانية'
+
+      --- Courses (6 Rows) ---
+      #   | LEFT SUBJECT (المادة الأولى)        | MARK   | UNIT  || RIGHT SUBJECT (المادة الثانية)      | MARK   | UNIT 
+      --- | ----------------------------------- | ------ | ----- || ----------------------------------- | ------ | -----
+      1   | أساسيات قواعد البيانات              | ٥٣.٠   | ٣     || أساسيات الذكاء الاصطناعي            | ٥٠.٠   | ٣    
+      2   | البرمجة كائنية التوجه (٢)           | ٦٦.٠   | ٣     || المترجمات                           | ٥٨.٠   | ٤    
+      3   | بحوث العمليات                       | ٦٠.٠   | ٣     || تصميم المواقع                       | ٥٦.٠   | ٣    
+      4   | شبكات الحاسوب 1                     | ٦٣.٠   | ٣     || نمذجة الحاسوب و محاكاته             | ٧٨.٠   | ٣    
+      5   | فلسفة                               | ٥٩.٠   | ٢     || هياكل البيانات 1                    | ٥٦.٠   | ٣    
+      6   | هندسة البرامجيات                    | ٦٢.٠   | ٣     ||                                     |        |      
+
+  ==========================================================================
+  ► Table 4:
+      left_label   : 'الفصل الأول'
+      right_label  : 'الفصل الثاني'
+      year_label   : 'العام الدراسي ٢٠١٨ - ٢٠١٩'
+      academic_year: '٢٠١٨ - ٢٠١٩'
+      num_s_l      : '١'
+      num_s_r      : '٢'
+      year_s_l     : '٤'
+      year_s_r     : '٤'
+      stage_s_l    : '٤'
+      stage_s_r    : '٤'
+      stage_text   : 'الرابعة'
+
+      --- Courses (8 Rows) ---
+      #   | LEFT SUBJECT (المادة الأولى)        | MARK   | UNIT  || RIGHT SUBJECT (المادة الثانية)      | MARK   | UNIT 
+      --- | ----------------------------------- | ------ | ----- || ----------------------------------- | ------ | -----
+      1   | الأعمال الالكترونية                 | ٥٣.٠   | ٢     || أمنية الشبكات                       | ٨٣.٠   | ٣    
+      2   | التنقيب عن البيانات                 | ٥٠.٠   | ٢     || التمثيل المرئي للبيانات             | ٧٦.٠   | ٣    
+      3   | تصميم المواقع المتقدم               | ٥٨.٠   | ٣     || الذكاء الحاسوبي                     | ٦٨.٠   | ٣    
+      4   | شبكات الحاسوب 2 (٢)                 | ٧٥.٠   | ٣     || المشروع 1                           | ٨٩.٠   | ٢    
+      5   | مواضيع مختارة                       | ٥٥.٠   | ٣     || الوسائط المتعددة                    | ٦٨.٠   | ٣    
+      6   | نظم التشغيل                         | ٥١.٠   | ٣     || برمجة الألعاب (٢)                   | ٦٢.٠   | ٢    
+      7   |                                     |        |       || قواعد البيانات الموزعة              | ٦٤.٠   | ٣    
+      8   |                                     |        |       || نظم التشغيل المتقدم                 | ٥٦.٠   | ٢    
+
+  ==========================================================================
+  ► Table 5:
+      left_label   : 'الفصل الأول'
+      right_label  : 'الفصل الثاني'
+      year_label   : 'العام الدراسي ٢٠١٩ - ٢٠٢٠'
+      academic_year: '٢٠١٩ - ٢٠٢٠'
+      num_s_l      : '١'
+      num_s_r      : '٢'
+      year_s_l     : '٤'
+      year_s_r     : '٤'
+      stage_s_l    : '٤'
+      stage_s_r    : '٤'
+      stage_text   : 'الرابعة'
+
+      --- Courses (4 Rows) ---
+      #   | LEFT SUBJECT (المادة الأولى)        | MARK   | UNIT  || RIGHT SUBJECT (المادة الثانية)      | MARK   | UNIT 
+      --- | ----------------------------------- | ------ | ----- || ----------------------------------- | ------ | -----
+      1   | الحوسبة السحابية                    | ٧٨.٠   | ٢     ||                                     |        |      
+      2   | تطبيقات النقال                      | ٩٨.٠   | ٣     ||                                     |        |      
+      3   | مهارات الاتصال                      | ٨٧.٠   | ٢     ||                                     |        |      
+      4   | نظرية المعلومات                     | ٧٧.٠   | ٣     ||                                     |        |      
+================================================================================
+2026-08-20 20:15:28 [INFO] SYSTEM STARTUP DIAGNOSTIC CHECK STARTED
+2026-08-20 20:15:28 [OK] [CHECK 1/4] FastAPI Connection Check ... [OK]
+2026-08-20 20:15:28 [OK] [CHECK 2/4] MySQL Database Connection ... [OK]
+2026-08-20 20:15:28 [OK] [CHECK 3/4] Authentication & Core SP Checks ... [OK]
+2026-08-20 20:15:29 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-08-20 20:15:29 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-08-20 20:15:29 [OK] [CHECK 4/4] Sync Engine & Local Replica Check ... [OK]
+2026-08-20 20:15:29 [OK] Status: ALL CHECKS PASSED. PROCEEDING TO LOGIN/DASHBOARD.
+2026-08-20 20:15:33 [INFO] Using WinForms / Chromium
+2026-08-20 20:15:33 [INFO] Using WinForms / Chromium
+2026-08-20 20:15:38 [INFO] before_load event fired. injecting pywebview object
+2026-08-20 20:15:38 [INFO] before_load event fired. injecting pywebview object
+2026-08-20 20:15:38 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-20 20:15:38 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-20 20:15:38 [INFO] _pywebviewready event fired
+2026-08-20 20:15:38 [INFO] _pywebviewready event fired
+2026-08-20 20:15:38 [INFO] loaded event fired
+2026-08-20 20:15:38 [INFO] loaded event fired
+2026-08-20 20:15:44 [INFO] before_load event fired. injecting pywebview object
+2026-08-20 20:15:44 [INFO] before_load event fired. injecting pywebview object
+2026-08-20 20:15:44 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-20 20:15:44 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-20 20:15:44 [INFO] _pywebviewready event fired
+2026-08-20 20:15:44 [INFO] _pywebviewready event fired
+2026-08-20 20:15:44 [INFO] loaded event fired
+2026-08-20 20:15:44 [INFO] loaded event fired
+2026-08-20 20:26:07 [INFO] 
+================================================================================
+  === WORD DOCXTPL CONTEXT VARIABLES TRACKING LOG ===
+================================================================================
+
+--- [1. TOP-LEVEL SCALAR VARIABLES & METADATA] ---
+  • Title                          = 'من يهمه الأمر'
+  • student_name                   = 'اديان عبدالامير فخري احمد'
+  • Birthday                       = ''
+  • Birthplace                     = 'البصرة'
+  • Nationality                    = 'العراق'
+  • admission_year                 = '٢٠١٥'
+  • graduation_year                = '٢٠٢٠'
+  • department_id                  = 'علوم الحاسوب'
+  • study_type                     = 'الصباحية'
+  • graduation_date                = '٢٠٢٠-١١-١٧'
+  • graduation_semester            = 'الأول'
+  • average                        = '٦٦.٨٩٦'
+  • Grade                          = 'متوسط'
+  • sequence_ON                    = True
+  • Failure_ON                     = False
+  • Passed_ON                      = True
+  • Summer_ON                      = True
+  • Sequence_of_Graduation         = '٤٦'
+  • num_students                   = '٥٨'
+  • Average_of_First_Student       = '٨٦.٤٢'
+  • Summer_Training_year           = '٢٠١٩'
+  • Postponement_and_Failure_Years = ''
+  • Subjects_Passed_with_Second_Trial = 'البرمجة 1، البرمجة 2، المعالجات المايكروية، نظرية الاحتمالات و الإحصاء، البرمجة المرئية، الذكاء الاصطناعي، بحوث العمليات'
+  • order_number                   = '١٥٧١٠/١٣/٣'
+  • order_date                     = '٢٠٢٠-١١-١٧'
+  • sig1_name                      = 'حيدر خزعل محبس'
+  • sig1_title                     = 'الأستاذ المساعد'
+  • sig1_resp                      = 'مساعد رئيس الجامعة للشؤون العلمية'
+  • sig2_name                      = 'هشام كاظم هاشم'
+  • sig2_title                     = 'الأستاذ الدكتور'
+  • sig2_resp                      = 'العميد'
+  • sig3_name                      = 'رائدة سالم خضير'
+  • sig3_title                     = 'الأستاذ الدكتور'
+  • sig3_resp                      = 'معاون العميد للشوون العلمية والدراسات العليا'
+  • sig4_name                      = 'مرتجى علي ساري'
+  • sig4_title                     = 'المدرس الدكتور'
+  • sig4_resp                      = 'مدير التسجيل'
+  • sig5_name                      = 'أسراء فاضل عبد'
+  • sig5_title                     = ''
+  • sig5_resp                      = 'مسؤول وحدة الوثائق'
+  • sig6_name                      = 'نغم باسل محمود'
+  • sig6_title                     = ''
+  • sig6_resp                      = 'منظم الوثيقة'
+  • sig7_name                      = ''
+  • sig7_title                     = ''
+  • sig7_resp                      = ''
+  • sig8_name                      = ''
+  • sig8_title                     = ''
+  • sig8_resp                      = ''
+  • sig9_name                      = ''
+  • sig9_title                     = ''
+  • sig9_resp                      = ''
+  • sig10_name                     = ''
+  • sig10_title                    = ''
+  • sig10_resp                     = ''
+
+--- [3. TABLE DATA: 'paired_semesters' (2 Tables/Rows)] ---
+
+  ==========================================================================
+  ► Table 1:
+      left_label   : '٢٠١٦ - ٢٠١٧'
+      right_label  : '٢٠١٧ - ٢٠١٨'
+      year_label   : '٢٠١٦ - ٢٠١٧'
+      academic_year: '٢٠١٦ - ٢٠١٧'
+      num_s_l      : '١'
+      num_s_r      : '٢'
+      year_s_l     : '١'
+      year_s_r     : '٢'
+      stage_s_l    : '١'
+      stage_s_r    : '٢'
+      stage_text   : 'الأولى'
+
+      --- Courses (12 Rows) ---
+      #   | LEFT SUBJECT (المادة الأولى)        | MARK   | UNIT  || RIGHT SUBJECT (المادة الثانية)      | MARK   | UNIT 
+      --- | ----------------------------------- | ------ | ----- || ----------------------------------- | ------ | -----
+      1   | الإنكليزي 1                         | ٧٤.٠   | ٢     || البرمجة الكيانية 1                  | ٥٣.٠   | ٣    
+      2   | البرمجة 1 (٢)                       | ٥٠.٠   | ٤     || العربي                              | ٧٠.٠   | ٢    
+      3   | الديمقراطية وحقوق الانسان           | ٧٧.٠   | ٢     || المعالجات المايكروية (٢)            | ٥٠.٠   | ٣    
+      4   | الرياضيات                           | ٦٨.٠   | ٣     || رسم بالحاسوب                        | ٦٣.٠   | ٣    
+      5   | الصحة واللياقة                      | ٧٨.٠   | ٢     || نظرية الاحتمالات و الإحصاء (٢)      | ٥٣.٠   | ٣    
+      6   | مهارات الحاسوب                      | ٧٣.٠   | ٢     || البرمجة الكيانية 2                  | ٥١.٠   | ٣    
+      7   | الإنكليزي 2                         | ٧٠.٠   | ٢     || البرمجة المرئية (٢)                 | ٥٠.٠   | ٣    
+      8   | البرمجة 2 (٢)                       | ٥٢.٠   | ٤     || النظرية الاحتسابية                  | ٥٠.٠   | ٣    
+      9   | التصميم المنطقي                     | ٥٠.٠   | ٣     || طرق عددية                           | ٦٦.٠   | ٣    
+      10  | تطبيقات الحاسوب                     | ٥٤.٠   | ٢     || هياكل البيانات 1                    | ٦٣.٠   | ٣    
+      11  | مبادئ تكنولوجيا المعلومات           | ٦٣.٠   | ٣     ||                                     |        |      
+      12  | هياكل متقطعة                        | ٦٢.٠   | ٣     ||                                     |        |      
+
+  ==========================================================================
+  ► Table 2:
+      left_label   : '٢٠١٨ - ٢٠١٩'
+      right_label  : '٢٠١٩ - ٢٠٢٠'
+      year_label   : '٢٠١٨ - ٢٠١٩'
+      academic_year: '٢٠١٨ - ٢٠١٩'
+      num_s_l      : '١'
+      num_s_r      : '٢'
+      year_s_l     : '١'
+      year_s_r     : '٢'
+      stage_s_l    : '١'
+      stage_s_r    : '٢'
+      stage_text   : 'الأولى'
+
+      --- Courses (14 Rows) ---
+      #   | LEFT SUBJECT (المادة الأولى)        | MARK   | UNIT  || RIGHT SUBJECT (المادة الثانية)      | MARK   | UNIT 
+      --- | ----------------------------------- | ------ | ----- || ----------------------------------- | ------ | -----
+      1   | الذكاء الاصطناعي (٢)                | ٥٠.٠   | ٣     || التنقيب عن البيانات                 | ٨٩.٠   | ٢    
+      2   | برمجة المواقع 1                     | ٥٨.٠   | ٣     || الحوسبة السحابية                    | ٨٤.٠   | ٢    
+      3   | تحليل وتصميم النظم                  | ٥٠.٠   | ٣     || الذكاء الحاسوبي                     | ٦٨.٠   | ٣    
+      4   | شبكات الحاسوب 1                     | ٥٠.٠   | ٣     || الرؤية في الحاسوب                   | ٧٨.٠   | ٣    
+      5   | مفاهيم لغات البرمجة                 | ٥٠.٠   | ٢     || تطبيقات النقال                      | ٩٠.٠   | ٣    
+      6   | هندسة البرامجيات                    | ٦٥.٠   | ٣     || مشروع التخرج                        | ٨٣.٠   | ٢    
+      7   | هياكل البيانات 2                    | ٥٢.٠   | ٣     || نظم التشغيل                         | ٨٠.٠   | ٣    
+      8   | أخلاقيات الحاسوب                    | ٥٨.٠   | ٢     || المحاكاة بالحاسوب                   | ٨٠.٠   | ٣    
+      9   | المترجمات                           | ٦٣.٠   | ٤     || امنية الحاسوب                       | ٨٠.٠   | ٣    
+      10  | بحوث العمليات (٢)                   | ٥٠.٠   | ٣     || تفاعل الانسان مع الحاسوب            | ٨٠.٠   | ٣    
+      11  | برمجة المواقع 2                     | ٥٧.٠   | ٣     || مهارات اتصال                        | ٨٩.٠   | ٣    
+      12  | شبكات الحاسوب 2                     | ٥٠.٠   | ٣     || مواضيع مختارة                       | ٨٦.٠   | ٣    
+      13  | قواعد البيانات                      | ٥٥.٠   | ٣     || هندسة المعرفة                       | ٩٢.٠   | ٣    
+      14  | معمارية الحاسوب                     | ٥١.٠   | ٣     ||                                     |        |      
+
+--- [3. TABLE DATA: 'paired_years' (2 Tables/Rows)] ---
+
+  ==========================================================================
+  ► Table 1:
+      left_label   : '٢٠١٦ - ٢٠١٧'
+      right_label  : '٢٠١٧ - ٢٠١٨'
+      year_label   : '٢٠١٦ - ٢٠١٧'
+      academic_year: '٢٠١٦ - ٢٠١٧'
+      num_s_l      : '١'
+      num_s_r      : '٢'
+      year_s_l     : '١'
+      year_s_r     : '٢'
+      stage_s_l    : '١'
+      stage_s_r    : '٢'
+      stage_text   : 'الأولى'
+
+      --- Courses (12 Rows) ---
+      #   | LEFT SUBJECT (المادة الأولى)        | MARK   | UNIT  || RIGHT SUBJECT (المادة الثانية)      | MARK   | UNIT 
+      --- | ----------------------------------- | ------ | ----- || ----------------------------------- | ------ | -----
+      1   | الإنكليزي 1                         | ٧٤.٠   | ٢     || البرمجة الكيانية 1                  | ٥٣.٠   | ٣    
+      2   | البرمجة 1 (٢)                       | ٥٠.٠   | ٤     || العربي                              | ٧٠.٠   | ٢    
+      3   | الديمقراطية وحقوق الانسان           | ٧٧.٠   | ٢     || المعالجات المايكروية (٢)            | ٥٠.٠   | ٣    
+      4   | الرياضيات                           | ٦٨.٠   | ٣     || رسم بالحاسوب                        | ٦٣.٠   | ٣    
+      5   | الصحة واللياقة                      | ٧٨.٠   | ٢     || نظرية الاحتمالات و الإحصاء (٢)      | ٥٣.٠   | ٣    
+      6   | مهارات الحاسوب                      | ٧٣.٠   | ٢     || البرمجة الكيانية 2                  | ٥١.٠   | ٣    
+      7   | الإنكليزي 2                         | ٧٠.٠   | ٢     || البرمجة المرئية (٢)                 | ٥٠.٠   | ٣    
+      8   | البرمجة 2 (٢)                       | ٥٢.٠   | ٤     || النظرية الاحتسابية                  | ٥٠.٠   | ٣    
+      9   | التصميم المنطقي                     | ٥٠.٠   | ٣     || طرق عددية                           | ٦٦.٠   | ٣    
+      10  | تطبيقات الحاسوب                     | ٥٤.٠   | ٢     || هياكل البيانات 1                    | ٦٣.٠   | ٣    
+      11  | مبادئ تكنولوجيا المعلومات           | ٦٣.٠   | ٣     ||                                     |        |      
+      12  | هياكل متقطعة                        | ٦٢.٠   | ٣     ||                                     |        |      
+
+  ==========================================================================
+  ► Table 2:
+      left_label   : '٢٠١٨ - ٢٠١٩'
+      right_label  : '٢٠١٩ - ٢٠٢٠'
+      year_label   : '٢٠١٨ - ٢٠١٩'
+      academic_year: '٢٠١٨ - ٢٠١٩'
+      num_s_l      : '١'
+      num_s_r      : '٢'
+      year_s_l     : '١'
+      year_s_r     : '٢'
+      stage_s_l    : '١'
+      stage_s_r    : '٢'
+      stage_text   : 'الأولى'
+
+      --- Courses (14 Rows) ---
+      #   | LEFT SUBJECT (المادة الأولى)        | MARK   | UNIT  || RIGHT SUBJECT (المادة الثانية)      | MARK   | UNIT 
+      --- | ----------------------------------- | ------ | ----- || ----------------------------------- | ------ | -----
+      1   | الذكاء الاصطناعي (٢)                | ٥٠.٠   | ٣     || التنقيب عن البيانات                 | ٨٩.٠   | ٢    
+      2   | برمجة المواقع 1                     | ٥٨.٠   | ٣     || الحوسبة السحابية                    | ٨٤.٠   | ٢    
+      3   | تحليل وتصميم النظم                  | ٥٠.٠   | ٣     || الذكاء الحاسوبي                     | ٦٨.٠   | ٣    
+      4   | شبكات الحاسوب 1                     | ٥٠.٠   | ٣     || الرؤية في الحاسوب                   | ٧٨.٠   | ٣    
+      5   | مفاهيم لغات البرمجة                 | ٥٠.٠   | ٢     || تطبيقات النقال                      | ٩٠.٠   | ٣    
+      6   | هندسة البرامجيات                    | ٦٥.٠   | ٣     || مشروع التخرج                        | ٨٣.٠   | ٢    
+      7   | هياكل البيانات 2                    | ٥٢.٠   | ٣     || نظم التشغيل                         | ٨٠.٠   | ٣    
+      8   | أخلاقيات الحاسوب                    | ٥٨.٠   | ٢     || المحاكاة بالحاسوب                   | ٨٠.٠   | ٣    
+      9   | المترجمات                           | ٦٣.٠   | ٤     || امنية الحاسوب                       | ٨٠.٠   | ٣    
+      10  | بحوث العمليات (٢)                   | ٥٠.٠   | ٣     || تفاعل الانسان مع الحاسوب            | ٨٠.٠   | ٣    
+      11  | برمجة المواقع 2                     | ٥٧.٠   | ٣     || مهارات اتصال                        | ٨٩.٠   | ٣    
+      12  | شبكات الحاسوب 2                     | ٥٠.٠   | ٣     || مواضيع مختارة                       | ٨٦.٠   | ٣    
+      13  | قواعد البيانات                      | ٥٥.٠   | ٣     || هندسة المعرفة                       | ٩٢.٠   | ٣    
+      14  | معمارية الحاسوب                     | ٥١.٠   | ٣     ||                                     |        |      
+
+--- [3. TABLE DATA: 'semesters' (2 Tables/Rows)] ---
+
+  ==========================================================================
+  ► Table 1:
+      left_label   : '٢٠١٦ - ٢٠١٧'
+      right_label  : '٢٠١٧ - ٢٠١٨'
+      year_label   : '٢٠١٦ - ٢٠١٧'
+      academic_year: '٢٠١٦ - ٢٠١٧'
+      num_s_l      : '١'
+      num_s_r      : '٢'
+      year_s_l     : '١'
+      year_s_r     : '٢'
+      stage_s_l    : '١'
+      stage_s_r    : '٢'
+      stage_text   : 'الأولى'
+
+      --- Courses (12 Rows) ---
+      #   | LEFT SUBJECT (المادة الأولى)        | MARK   | UNIT  || RIGHT SUBJECT (المادة الثانية)      | MARK   | UNIT 
+      --- | ----------------------------------- | ------ | ----- || ----------------------------------- | ------ | -----
+      1   | الإنكليزي 1                         | ٧٤.٠   | ٢     || البرمجة الكيانية 1                  | ٥٣.٠   | ٣    
+      2   | البرمجة 1 (٢)                       | ٥٠.٠   | ٤     || العربي                              | ٧٠.٠   | ٢    
+      3   | الديمقراطية وحقوق الانسان           | ٧٧.٠   | ٢     || المعالجات المايكروية (٢)            | ٥٠.٠   | ٣    
+      4   | الرياضيات                           | ٦٨.٠   | ٣     || رسم بالحاسوب                        | ٦٣.٠   | ٣    
+      5   | الصحة واللياقة                      | ٧٨.٠   | ٢     || نظرية الاحتمالات و الإحصاء (٢)      | ٥٣.٠   | ٣    
+      6   | مهارات الحاسوب                      | ٧٣.٠   | ٢     || البرمجة الكيانية 2                  | ٥١.٠   | ٣    
+      7   | الإنكليزي 2                         | ٧٠.٠   | ٢     || البرمجة المرئية (٢)                 | ٥٠.٠   | ٣    
+      8   | البرمجة 2 (٢)                       | ٥٢.٠   | ٤     || النظرية الاحتسابية                  | ٥٠.٠   | ٣    
+      9   | التصميم المنطقي                     | ٥٠.٠   | ٣     || طرق عددية                           | ٦٦.٠   | ٣    
+      10  | تطبيقات الحاسوب                     | ٥٤.٠   | ٢     || هياكل البيانات 1                    | ٦٣.٠   | ٣    
+      11  | مبادئ تكنولوجيا المعلومات           | ٦٣.٠   | ٣     ||                                     |        |      
+      12  | هياكل متقطعة                        | ٦٢.٠   | ٣     ||                                     |        |      
+
+  ==========================================================================
+  ► Table 2:
+      left_label   : '٢٠١٨ - ٢٠١٩'
+      right_label  : '٢٠١٩ - ٢٠٢٠'
+      year_label   : '٢٠١٨ - ٢٠١٩'
+      academic_year: '٢٠١٨ - ٢٠١٩'
+      num_s_l      : '١'
+      num_s_r      : '٢'
+      year_s_l     : '١'
+      year_s_r     : '٢'
+      stage_s_l    : '١'
+      stage_s_r    : '٢'
+      stage_text   : 'الأولى'
+
+      --- Courses (14 Rows) ---
+      #   | LEFT SUBJECT (المادة الأولى)        | MARK   | UNIT  || RIGHT SUBJECT (المادة الثانية)      | MARK   | UNIT 
+      --- | ----------------------------------- | ------ | ----- || ----------------------------------- | ------ | -----
+      1   | الذكاء الاصطناعي (٢)                | ٥٠.٠   | ٣     || التنقيب عن البيانات                 | ٨٩.٠   | ٢    
+      2   | برمجة المواقع 1                     | ٥٨.٠   | ٣     || الحوسبة السحابية                    | ٨٤.٠   | ٢    
+      3   | تحليل وتصميم النظم                  | ٥٠.٠   | ٣     || الذكاء الحاسوبي                     | ٦٨.٠   | ٣    
+      4   | شبكات الحاسوب 1                     | ٥٠.٠   | ٣     || الرؤية في الحاسوب                   | ٧٨.٠   | ٣    
+      5   | مفاهيم لغات البرمجة                 | ٥٠.٠   | ٢     || تطبيقات النقال                      | ٩٠.٠   | ٣    
+      6   | هندسة البرامجيات                    | ٦٥.٠   | ٣     || مشروع التخرج                        | ٨٣.٠   | ٢    
+      7   | هياكل البيانات 2                    | ٥٢.٠   | ٣     || نظم التشغيل                         | ٨٠.٠   | ٣    
+      8   | أخلاقيات الحاسوب                    | ٥٨.٠   | ٢     || المحاكاة بالحاسوب                   | ٨٠.٠   | ٣    
+      9   | المترجمات                           | ٦٣.٠   | ٤     || امنية الحاسوب                       | ٨٠.٠   | ٣    
+      10  | بحوث العمليات (٢)                   | ٥٠.٠   | ٣     || تفاعل الانسان مع الحاسوب            | ٨٠.٠   | ٣    
+      11  | برمجة المواقع 2                     | ٥٧.٠   | ٣     || مهارات اتصال                        | ٨٩.٠   | ٣    
+      12  | شبكات الحاسوب 2                     | ٥٠.٠   | ٣     || مواضيع مختارة                       | ٨٦.٠   | ٣    
+      13  | قواعد البيانات                      | ٥٥.٠   | ٣     || هندسة المعرفة                       | ٩٢.٠   | ٣    
+      14  | معمارية الحاسوب                     | ٥١.٠   | ٣     ||                                     |        |      
+================================================================================
+2026-08-20 20:26:07 [INFO] 
+================================================================================
+  === WORD DOCXTPL CONTEXT VARIABLES TRACKING LOG ===
+================================================================================
+
+--- [1. TOP-LEVEL SCALAR VARIABLES & METADATA] ---
+  • Title                          = 'من يهمه الأمر'
+  • student_name                   = 'اديان عبدالامير فخري احمد'
+  • Birthday                       = ''
+  • Birthplace                     = 'البصرة'
+  • Nationality                    = 'العراق'
+  • admission_year                 = '٢٠١٥'
+  • graduation_year                = '٢٠٢٠'
+  • department_id                  = 'علوم الحاسوب'
+  • study_type                     = 'الصباحية'
+  • graduation_date                = '٢٠٢٠-١١-١٧'
+  • graduation_semester            = 'الأول'
+  • average                        = '٦٦.٨٩٦'
+  • Grade                          = 'متوسط'
+  • sequence_ON                    = True
+  • Failure_ON                     = False
+  • Passed_ON                      = True
+  • Summer_ON                      = True
+  • Sequence_of_Graduation         = '٤٦'
+  • num_students                   = '٥٨'
+  • Average_of_First_Student       = '٨٦.٤٢'
+  • Summer_Training_year           = '٢٠١٩'
+  • Postponement_and_Failure_Years = ''
+  • Subjects_Passed_with_Second_Trial = 'البرمجة 1، البرمجة 2، المعالجات المايكروية، نظرية الاحتمالات و الإحصاء، البرمجة المرئية، الذكاء الاصطناعي، بحوث العمليات'
+  • order_number                   = '١٥٧١٠/١٣/٣'
+  • order_date                     = '٢٠٢٠-١١-١٧'
+  • sig1_name                      = 'حيدر خزعل محبس'
+  • sig1_title                     = 'الأستاذ المساعد'
+  • sig1_resp                      = 'مساعد رئيس الجامعة للشؤون العلمية'
+  • sig2_name                      = 'هشام كاظم هاشم'
+  • sig2_title                     = 'الأستاذ الدكتور'
+  • sig2_resp                      = 'العميد'
+  • sig3_name                      = 'رائدة سالم خضير'
+  • sig3_title                     = 'الأستاذ الدكتور'
+  • sig3_resp                      = 'معاون العميد للشوون العلمية والدراسات العليا'
+  • sig4_name                      = 'مرتجى علي ساري'
+  • sig4_title                     = 'المدرس الدكتور'
+  • sig4_resp                      = 'مدير التسجيل'
+  • sig5_name                      = 'أسراء فاضل عبد'
+  • sig5_title                     = ''
+  • sig5_resp                      = 'مسؤول وحدة الوثائق'
+  • sig6_name                      = 'نغم باسل محمود'
+  • sig6_title                     = ''
+  • sig6_resp                      = 'منظم الوثيقة'
+  • sig7_name                      = ''
+  • sig7_title                     = ''
+  • sig7_resp                      = ''
+  • sig8_name                      = ''
+  • sig8_title                     = ''
+  • sig8_resp                      = ''
+  • sig9_name                      = ''
+  • sig9_title                     = ''
+  • sig9_resp                      = ''
+  • sig10_name                     = ''
+  • sig10_title                    = ''
+  • sig10_resp                     = ''
+
+--- [3. TABLE DATA: 'paired_semesters' (2 Tables/Rows)] ---
+
+  ==========================================================================
+  ► Table 1:
+      left_label   : '٢٠١٦ - ٢٠١٧'
+      right_label  : '٢٠١٧ - ٢٠١٨'
+      year_label   : '٢٠١٦ - ٢٠١٧'
+      academic_year: '٢٠١٦ - ٢٠١٧'
+      num_s_l      : '١'
+      num_s_r      : '٢'
+      year_s_l     : '١'
+      year_s_r     : '٢'
+      stage_s_l    : '١'
+      stage_s_r    : '٢'
+      stage_text   : 'الأولى'
+
+      --- Courses (12 Rows) ---
+      #   | LEFT SUBJECT (المادة الأولى)        | MARK   | UNIT  || RIGHT SUBJECT (المادة الثانية)      | MARK   | UNIT 
+      --- | ----------------------------------- | ------ | ----- || ----------------------------------- | ------ | -----
+      1   | الإنكليزي 1                         | ٧٤.٠   | ٢     || البرمجة الكيانية 1                  | ٥٣.٠   | ٣    
+      2   | البرمجة 1 (٢)                       | ٥٠.٠   | ٤     || العربي                              | ٧٠.٠   | ٢    
+      3   | الديمقراطية وحقوق الانسان           | ٧٧.٠   | ٢     || المعالجات المايكروية (٢)            | ٥٠.٠   | ٣    
+      4   | الرياضيات                           | ٦٨.٠   | ٣     || رسم بالحاسوب                        | ٦٣.٠   | ٣    
+      5   | الصحة واللياقة                      | ٧٨.٠   | ٢     || نظرية الاحتمالات و الإحصاء (٢)      | ٥٣.٠   | ٣    
+      6   | مهارات الحاسوب                      | ٧٣.٠   | ٢     || البرمجة الكيانية 2                  | ٥١.٠   | ٣    
+      7   | الإنكليزي 2                         | ٧٠.٠   | ٢     || البرمجة المرئية (٢)                 | ٥٠.٠   | ٣    
+      8   | البرمجة 2 (٢)                       | ٥٢.٠   | ٤     || النظرية الاحتسابية                  | ٥٠.٠   | ٣    
+      9   | التصميم المنطقي                     | ٥٠.٠   | ٣     || طرق عددية                           | ٦٦.٠   | ٣    
+      10  | تطبيقات الحاسوب                     | ٥٤.٠   | ٢     || هياكل البيانات 1                    | ٦٣.٠   | ٣    
+      11  | مبادئ تكنولوجيا المعلومات           | ٦٣.٠   | ٣     ||                                     |        |      
+      12  | هياكل متقطعة                        | ٦٢.٠   | ٣     ||                                     |        |      
+
+  ==========================================================================
+  ► Table 2:
+      left_label   : '٢٠١٨ - ٢٠١٩'
+      right_label  : '٢٠١٩ - ٢٠٢٠'
+      year_label   : '٢٠١٨ - ٢٠١٩'
+      academic_year: '٢٠١٨ - ٢٠١٩'
+      num_s_l      : '١'
+      num_s_r      : '٢'
+      year_s_l     : '١'
+      year_s_r     : '٢'
+      stage_s_l    : '١'
+      stage_s_r    : '٢'
+      stage_text   : 'الأولى'
+
+      --- Courses (14 Rows) ---
+      #   | LEFT SUBJECT (المادة الأولى)        | MARK   | UNIT  || RIGHT SUBJECT (المادة الثانية)      | MARK   | UNIT 
+      --- | ----------------------------------- | ------ | ----- || ----------------------------------- | ------ | -----
+      1   | الذكاء الاصطناعي (٢)                | ٥٠.٠   | ٣     || التنقيب عن البيانات                 | ٨٩.٠   | ٢    
+      2   | برمجة المواقع 1                     | ٥٨.٠   | ٣     || الحوسبة السحابية                    | ٨٤.٠   | ٢    
+      3   | تحليل وتصميم النظم                  | ٥٠.٠   | ٣     || الذكاء الحاسوبي                     | ٦٨.٠   | ٣    
+      4   | شبكات الحاسوب 1                     | ٥٠.٠   | ٣     || الرؤية في الحاسوب                   | ٧٨.٠   | ٣    
+      5   | مفاهيم لغات البرمجة                 | ٥٠.٠   | ٢     || تطبيقات النقال                      | ٩٠.٠   | ٣    
+      6   | هندسة البرامجيات                    | ٦٥.٠   | ٣     || مشروع التخرج                        | ٨٣.٠   | ٢    
+      7   | هياكل البيانات 2                    | ٥٢.٠   | ٣     || نظم التشغيل                         | ٨٠.٠   | ٣    
+      8   | أخلاقيات الحاسوب                    | ٥٨.٠   | ٢     || المحاكاة بالحاسوب                   | ٨٠.٠   | ٣    
+      9   | المترجمات                           | ٦٣.٠   | ٤     || امنية الحاسوب                       | ٨٠.٠   | ٣    
+      10  | بحوث العمليات (٢)                   | ٥٠.٠   | ٣     || تفاعل الانسان مع الحاسوب            | ٨٠.٠   | ٣    
+      11  | برمجة المواقع 2                     | ٥٧.٠   | ٣     || مهارات اتصال                        | ٨٩.٠   | ٣    
+      12  | شبكات الحاسوب 2                     | ٥٠.٠   | ٣     || مواضيع مختارة                       | ٨٦.٠   | ٣    
+      13  | قواعد البيانات                      | ٥٥.٠   | ٣     || هندسة المعرفة                       | ٩٢.٠   | ٣    
+      14  | معمارية الحاسوب                     | ٥١.٠   | ٣     ||                                     |        |      
+
+--- [3. TABLE DATA: 'paired_years' (2 Tables/Rows)] ---
+
+  ==========================================================================
+  ► Table 1:
+      left_label   : '٢٠١٦ - ٢٠١٧'
+      right_label  : '٢٠١٧ - ٢٠١٨'
+      year_label   : '٢٠١٦ - ٢٠١٧'
+      academic_year: '٢٠١٦ - ٢٠١٧'
+      num_s_l      : '١'
+      num_s_r      : '٢'
+      year_s_l     : '١'
+      year_s_r     : '٢'
+      stage_s_l    : '١'
+      stage_s_r    : '٢'
+      stage_text   : 'الأولى'
+
+      --- Courses (12 Rows) ---
+      #   | LEFT SUBJECT (المادة الأولى)        | MARK   | UNIT  || RIGHT SUBJECT (المادة الثانية)      | MARK   | UNIT 
+      --- | ----------------------------------- | ------ | ----- || ----------------------------------- | ------ | -----
+      1   | الإنكليزي 1                         | ٧٤.٠   | ٢     || البرمجة الكيانية 1                  | ٥٣.٠   | ٣    
+      2   | البرمجة 1 (٢)                       | ٥٠.٠   | ٤     || العربي                              | ٧٠.٠   | ٢    
+      3   | الديمقراطية وحقوق الانسان           | ٧٧.٠   | ٢     || المعالجات المايكروية (٢)            | ٥٠.٠   | ٣    
+      4   | الرياضيات                           | ٦٨.٠   | ٣     || رسم بالحاسوب                        | ٦٣.٠   | ٣    
+      5   | الصحة واللياقة                      | ٧٨.٠   | ٢     || نظرية الاحتمالات و الإحصاء (٢)      | ٥٣.٠   | ٣    
+      6   | مهارات الحاسوب                      | ٧٣.٠   | ٢     || البرمجة الكيانية 2                  | ٥١.٠   | ٣    
+      7   | الإنكليزي 2                         | ٧٠.٠   | ٢     || البرمجة المرئية (٢)                 | ٥٠.٠   | ٣    
+      8   | البرمجة 2 (٢)                       | ٥٢.٠   | ٤     || النظرية الاحتسابية                  | ٥٠.٠   | ٣    
+      9   | التصميم المنطقي                     | ٥٠.٠   | ٣     || طرق عددية                           | ٦٦.٠   | ٣    
+      10  | تطبيقات الحاسوب                     | ٥٤.٠   | ٢     || هياكل البيانات 1                    | ٦٣.٠   | ٣    
+      11  | مبادئ تكنولوجيا المعلومات           | ٦٣.٠   | ٣     ||                                     |        |      
+      12  | هياكل متقطعة                        | ٦٢.٠   | ٣     ||                                     |        |      
+
+  ==========================================================================
+  ► Table 2:
+      left_label   : '٢٠١٨ - ٢٠١٩'
+      right_label  : '٢٠١٩ - ٢٠٢٠'
+      year_label   : '٢٠١٨ - ٢٠١٩'
+      academic_year: '٢٠١٨ - ٢٠١٩'
+      num_s_l      : '١'
+      num_s_r      : '٢'
+      year_s_l     : '١'
+      year_s_r     : '٢'
+      stage_s_l    : '١'
+      stage_s_r    : '٢'
+      stage_text   : 'الأولى'
+
+      --- Courses (14 Rows) ---
+      #   | LEFT SUBJECT (المادة الأولى)        | MARK   | UNIT  || RIGHT SUBJECT (المادة الثانية)      | MARK   | UNIT 
+      --- | ----------------------------------- | ------ | ----- || ----------------------------------- | ------ | -----
+      1   | الذكاء الاصطناعي (٢)                | ٥٠.٠   | ٣     || التنقيب عن البيانات                 | ٨٩.٠   | ٢    
+      2   | برمجة المواقع 1                     | ٥٨.٠   | ٣     || الحوسبة السحابية                    | ٨٤.٠   | ٢    
+      3   | تحليل وتصميم النظم                  | ٥٠.٠   | ٣     || الذكاء الحاسوبي                     | ٦٨.٠   | ٣    
+      4   | شبكات الحاسوب 1                     | ٥٠.٠   | ٣     || الرؤية في الحاسوب                   | ٧٨.٠   | ٣    
+      5   | مفاهيم لغات البرمجة                 | ٥٠.٠   | ٢     || تطبيقات النقال                      | ٩٠.٠   | ٣    
+      6   | هندسة البرامجيات                    | ٦٥.٠   | ٣     || مشروع التخرج                        | ٨٣.٠   | ٢    
+      7   | هياكل البيانات 2                    | ٥٢.٠   | ٣     || نظم التشغيل                         | ٨٠.٠   | ٣    
+      8   | أخلاقيات الحاسوب                    | ٥٨.٠   | ٢     || المحاكاة بالحاسوب                   | ٨٠.٠   | ٣    
+      9   | المترجمات                           | ٦٣.٠   | ٤     || امنية الحاسوب                       | ٨٠.٠   | ٣    
+      10  | بحوث العمليات (٢)                   | ٥٠.٠   | ٣     || تفاعل الانسان مع الحاسوب            | ٨٠.٠   | ٣    
+      11  | برمجة المواقع 2                     | ٥٧.٠   | ٣     || مهارات اتصال                        | ٨٩.٠   | ٣    
+      12  | شبكات الحاسوب 2                     | ٥٠.٠   | ٣     || مواضيع مختارة                       | ٨٦.٠   | ٣    
+      13  | قواعد البيانات                      | ٥٥.٠   | ٣     || هندسة المعرفة                       | ٩٢.٠   | ٣    
+      14  | معمارية الحاسوب                     | ٥١.٠   | ٣     ||                                     |        |      
+
+--- [3. TABLE DATA: 'semesters' (2 Tables/Rows)] ---
+
+  ==========================================================================
+  ► Table 1:
+      left_label   : '٢٠١٦ - ٢٠١٧'
+      right_label  : '٢٠١٧ - ٢٠١٨'
+      year_label   : '٢٠١٦ - ٢٠١٧'
+      academic_year: '٢٠١٦ - ٢٠١٧'
+      num_s_l      : '١'
+      num_s_r      : '٢'
+      year_s_l     : '١'
+      year_s_r     : '٢'
+      stage_s_l    : '١'
+      stage_s_r    : '٢'
+      stage_text   : 'الأولى'
+
+      --- Courses (12 Rows) ---
+      #   | LEFT SUBJECT (المادة الأولى)        | MARK   | UNIT  || RIGHT SUBJECT (المادة الثانية)      | MARK   | UNIT 
+      --- | ----------------------------------- | ------ | ----- || ----------------------------------- | ------ | -----
+      1   | الإنكليزي 1                         | ٧٤.٠   | ٢     || البرمجة الكيانية 1                  | ٥٣.٠   | ٣    
+      2   | البرمجة 1 (٢)                       | ٥٠.٠   | ٤     || العربي                              | ٧٠.٠   | ٢    
+      3   | الديمقراطية وحقوق الانسان           | ٧٧.٠   | ٢     || المعالجات المايكروية (٢)            | ٥٠.٠   | ٣    
+      4   | الرياضيات                           | ٦٨.٠   | ٣     || رسم بالحاسوب                        | ٦٣.٠   | ٣    
+      5   | الصحة واللياقة                      | ٧٨.٠   | ٢     || نظرية الاحتمالات و الإحصاء (٢)      | ٥٣.٠   | ٣    
+      6   | مهارات الحاسوب                      | ٧٣.٠   | ٢     || البرمجة الكيانية 2                  | ٥١.٠   | ٣    
+      7   | الإنكليزي 2                         | ٧٠.٠   | ٢     || البرمجة المرئية (٢)                 | ٥٠.٠   | ٣    
+      8   | البرمجة 2 (٢)                       | ٥٢.٠   | ٤     || النظرية الاحتسابية                  | ٥٠.٠   | ٣    
+      9   | التصميم المنطقي                     | ٥٠.٠   | ٣     || طرق عددية                           | ٦٦.٠   | ٣    
+      10  | تطبيقات الحاسوب                     | ٥٤.٠   | ٢     || هياكل البيانات 1                    | ٦٣.٠   | ٣    
+      11  | مبادئ تكنولوجيا المعلومات           | ٦٣.٠   | ٣     ||                                     |        |      
+      12  | هياكل متقطعة                        | ٦٢.٠   | ٣     ||                                     |        |      
+
+  ==========================================================================
+  ► Table 2:
+      left_label   : '٢٠١٨ - ٢٠١٩'
+      right_label  : '٢٠١٩ - ٢٠٢٠'
+      year_label   : '٢٠١٨ - ٢٠١٩'
+      academic_year: '٢٠١٨ - ٢٠١٩'
+      num_s_l      : '١'
+      num_s_r      : '٢'
+      year_s_l     : '١'
+      year_s_r     : '٢'
+      stage_s_l    : '١'
+      stage_s_r    : '٢'
+      stage_text   : 'الأولى'
+
+      --- Courses (14 Rows) ---
+      #   | LEFT SUBJECT (المادة الأولى)        | MARK   | UNIT  || RIGHT SUBJECT (المادة الثانية)      | MARK   | UNIT 
+      --- | ----------------------------------- | ------ | ----- || ----------------------------------- | ------ | -----
+      1   | الذكاء الاصطناعي (٢)                | ٥٠.٠   | ٣     || التنقيب عن البيانات                 | ٨٩.٠   | ٢    
+      2   | برمجة المواقع 1                     | ٥٨.٠   | ٣     || الحوسبة السحابية                    | ٨٤.٠   | ٢    
+      3   | تحليل وتصميم النظم                  | ٥٠.٠   | ٣     || الذكاء الحاسوبي                     | ٦٨.٠   | ٣    
+      4   | شبكات الحاسوب 1                     | ٥٠.٠   | ٣     || الرؤية في الحاسوب                   | ٧٨.٠   | ٣    
+      5   | مفاهيم لغات البرمجة                 | ٥٠.٠   | ٢     || تطبيقات النقال                      | ٩٠.٠   | ٣    
+      6   | هندسة البرامجيات                    | ٦٥.٠   | ٣     || مشروع التخرج                        | ٨٣.٠   | ٢    
+      7   | هياكل البيانات 2                    | ٥٢.٠   | ٣     || نظم التشغيل                         | ٨٠.٠   | ٣    
+      8   | أخلاقيات الحاسوب                    | ٥٨.٠   | ٢     || المحاكاة بالحاسوب                   | ٨٠.٠   | ٣    
+      9   | المترجمات                           | ٦٣.٠   | ٤     || امنية الحاسوب                       | ٨٠.٠   | ٣    
+      10  | بحوث العمليات (٢)                   | ٥٠.٠   | ٣     || تفاعل الانسان مع الحاسوب            | ٨٠.٠   | ٣    
+      11  | برمجة المواقع 2                     | ٥٧.٠   | ٣     || مهارات اتصال                        | ٨٩.٠   | ٣    
+      12  | شبكات الحاسوب 2                     | ٥٠.٠   | ٣     || مواضيع مختارة                       | ٨٦.٠   | ٣    
+      13  | قواعد البيانات                      | ٥٥.٠   | ٣     || هندسة المعرفة                       | ٩٢.٠   | ٣    
+      14  | معمارية الحاسوب                     | ٥١.٠   | ٣     ||                                     |        |      
+================================================================================
+2026-08-20 20:26:13 [ERROR] Error converting docx to pdf: Open.SaveAs
+2026-08-20 20:26:13 [ERROR] Error converting docx to pdf: Open.SaveAs
+2026-08-20 20:26:13 [ERROR] Error converting docx to html: Open.SaveAs
+2026-08-20 20:26:13 [ERROR] Error converting docx to html: Open.SaveAs
+2026-08-20 20:56:18 [INFO] SYSTEM STARTUP DIAGNOSTIC CHECK STARTED
+2026-08-20 20:56:18 [OK] [CHECK 1/4] FastAPI Connection Check ... [OK]
+2026-08-20 20:56:18 [OK] [CHECK 2/4] MySQL Database Connection ... [OK]
+2026-08-20 20:56:18 [OK] [CHECK 3/4] Authentication & Core SP Checks ... [OK]
+2026-08-20 20:56:18 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-08-20 20:56:18 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-08-20 20:56:18 [OK] [CHECK 4/4] Sync Engine & Local Replica Check ... [OK]
+2026-08-20 20:56:18 [OK] Status: ALL CHECKS PASSED. PROCEEDING TO LOGIN/DASHBOARD.
+2026-08-20 20:56:22 [INFO] Using WinForms / Chromium
+2026-08-20 20:56:22 [INFO] Using WinForms / Chromium
+2026-08-20 20:56:28 [INFO] before_load event fired. injecting pywebview object
+2026-08-20 20:56:28 [INFO] before_load event fired. injecting pywebview object
+2026-08-20 20:56:28 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-20 20:56:28 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-20 20:56:28 [INFO] _pywebviewready event fired
+2026-08-20 20:56:28 [INFO] _pywebviewready event fired
+2026-08-20 20:56:28 [INFO] loaded event fired
+2026-08-20 20:56:28 [INFO] loaded event fired
+2026-08-20 20:56:44 [INFO] before_load event fired. injecting pywebview object
+2026-08-20 20:56:44 [INFO] before_load event fired. injecting pywebview object
+2026-08-20 20:56:44 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-20 20:56:44 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-20 20:56:44 [INFO] _pywebviewready event fired
+2026-08-20 20:56:44 [INFO] _pywebviewready event fired
+2026-08-20 20:56:44 [INFO] loaded event fired
+2026-08-20 20:56:44 [INFO] loaded event fired
+2026-08-20 21:26:00 [INFO] SYSTEM STARTUP DIAGNOSTIC CHECK STARTED
+2026-08-20 21:26:00 [OK] [CHECK 1/4] FastAPI Connection Check ... [OK]
+2026-08-20 21:26:00 [OK] [CHECK 2/4] MySQL Database Connection ... [OK]
+2026-08-20 21:26:00 [OK] [CHECK 3/4] Authentication & Core SP Checks ... [OK]
+2026-08-20 21:26:00 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-08-20 21:26:00 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-08-20 21:26:00 [OK] [CHECK 4/4] Sync Engine & Local Replica Check ... [OK]
+2026-08-20 21:26:00 [OK] Status: ALL CHECKS PASSED. PROCEEDING TO LOGIN/DASHBOARD.
+2026-08-20 21:26:06 [INFO] Using WinForms / Chromium
+2026-08-20 21:26:06 [INFO] Using WinForms / Chromium
+2026-08-20 21:26:11 [INFO] before_load event fired. injecting pywebview object
+2026-08-20 21:26:11 [INFO] before_load event fired. injecting pywebview object
+2026-08-20 21:26:11 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-20 21:26:11 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-20 21:26:11 [INFO] _pywebviewready event fired
+2026-08-20 21:26:11 [INFO] _pywebviewready event fired
+2026-08-20 21:26:11 [INFO] loaded event fired
+2026-08-20 21:26:11 [INFO] loaded event fired
+2026-08-20 21:26:23 [INFO] before_load event fired. injecting pywebview object
+2026-08-20 21:26:23 [INFO] before_load event fired. injecting pywebview object
+2026-08-20 21:26:23 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-20 21:26:23 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-20 21:26:23 [INFO] _pywebviewready event fired
+2026-08-20 21:26:23 [INFO] _pywebviewready event fired
+2026-08-20 21:26:23 [INFO] loaded event fired
+2026-08-20 21:26:23 [INFO] loaded event fired
+2026-08-22 00:16:10 [INFO] SYSTEM STARTUP DIAGNOSTIC CHECK STARTED
+2026-08-22 00:16:10 [OK] [CHECK 1/4] FastAPI Connection Check ... [OK]
+2026-08-22 00:16:10 [OK] [CHECK 2/4] MySQL Database Connection ... [OK]
+2026-08-22 00:16:10 [OK] [CHECK 3/4] Authentication & Core SP Checks ... [OK]
+2026-08-22 00:16:10 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-08-22 00:16:10 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-08-22 00:16:10 [OK] [CHECK 4/4] Sync Engine & Local Replica Check ... [OK]
+2026-08-22 00:16:10 [OK] Status: ALL CHECKS PASSED. PROCEEDING TO LOGIN/DASHBOARD.
+2026-08-22 00:16:14 [INFO] Using WinForms / Chromium
+2026-08-22 00:16:14 [INFO] Using WinForms / Chromium
+2026-08-22 00:16:20 [INFO] before_load event fired. injecting pywebview object
+2026-08-22 00:16:20 [INFO] before_load event fired. injecting pywebview object
+2026-08-22 00:16:20 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-22 00:16:20 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-22 00:16:21 [INFO] _pywebviewready event fired
+2026-08-22 00:16:21 [INFO] _pywebviewready event fired
+2026-08-22 00:16:21 [INFO] loaded event fired
+2026-08-22 00:16:21 [INFO] loaded event fired
+2026-08-22 00:16:40 [INFO] before_load event fired. injecting pywebview object
+2026-08-22 00:16:40 [INFO] before_load event fired. injecting pywebview object
+2026-08-22 00:16:40 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-22 00:16:40 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-22 00:16:40 [INFO] _pywebviewready event fired
+2026-08-22 00:16:40 [INFO] _pywebviewready event fired
+2026-08-22 00:16:40 [INFO] loaded event fired
+2026-08-22 00:16:40 [INFO] loaded event fired
+2026-08-22 00:42:22 [INFO] SYSTEM STARTUP DIAGNOSTIC CHECK STARTED
+2026-08-22 00:42:22 [OK] [CHECK 1/4] FastAPI Connection Check ... [OK]
+2026-08-22 00:42:22 [OK] [CHECK 2/4] MySQL Database Connection ... [OK]
+2026-08-22 00:42:22 [OK] [CHECK 3/4] Authentication & Core SP Checks ... [OK]
+2026-08-22 00:42:22 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-08-22 00:42:22 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-08-22 00:42:22 [OK] [CHECK 4/4] Sync Engine & Local Replica Check ... [OK]
+2026-08-22 00:42:22 [OK] Status: ALL CHECKS PASSED. PROCEEDING TO LOGIN/DASHBOARD.
+2026-08-22 00:42:25 [INFO] Using WinForms / Chromium
+2026-08-22 00:42:25 [INFO] Using WinForms / Chromium
+2026-08-22 00:42:28 [INFO] before_load event fired. injecting pywebview object
+2026-08-22 00:42:28 [INFO] before_load event fired. injecting pywebview object
+2026-08-22 00:42:28 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-22 00:42:28 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-22 00:42:28 [INFO] _pywebviewready event fired
+2026-08-22 00:42:28 [INFO] _pywebviewready event fired
+2026-08-22 00:42:28 [INFO] loaded event fired
+2026-08-22 00:42:28 [INFO] loaded event fired
+2026-08-22 00:43:06 [INFO] before_load event fired. injecting pywebview object
+2026-08-22 00:43:06 [INFO] before_load event fired. injecting pywebview object
+2026-08-22 00:43:06 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-22 00:43:06 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-22 00:43:06 [INFO] _pywebviewready event fired
+2026-08-22 00:43:06 [INFO] _pywebviewready event fired
+2026-08-22 00:43:06 [INFO] loaded event fired
+2026-08-22 00:43:06 [INFO] loaded event fired
+2026-08-22 00:48:06 [INFO] SYSTEM STARTUP DIAGNOSTIC CHECK STARTED
+2026-08-22 00:48:06 [OK] [CHECK 1/4] FastAPI Connection Check ... [OK]
+2026-08-22 00:48:06 [OK] [CHECK 2/4] MySQL Database Connection ... [OK]
+2026-08-22 00:48:06 [OK] [CHECK 3/4] Authentication & Core SP Checks ... [OK]
+2026-08-22 00:48:06 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-08-22 00:48:06 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-08-22 00:48:06 [OK] [CHECK 4/4] Sync Engine & Local Replica Check ... [OK]
+2026-08-22 00:48:06 [OK] Status: ALL CHECKS PASSED. PROCEEDING TO LOGIN/DASHBOARD.
+2026-08-22 00:48:09 [INFO] Using WinForms / Chromium
+2026-08-22 00:48:09 [INFO] Using WinForms / Chromium
+2026-08-22 00:48:14 [INFO] before_load event fired. injecting pywebview object
+2026-08-22 00:48:14 [INFO] before_load event fired. injecting pywebview object
+2026-08-22 00:48:14 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-22 00:48:14 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-22 00:48:14 [INFO] _pywebviewready event fired
+2026-08-22 00:48:14 [INFO] _pywebviewready event fired
+2026-08-22 00:48:14 [INFO] loaded event fired
+2026-08-22 00:48:14 [INFO] loaded event fired
+2026-08-22 00:48:22 [INFO] before_load event fired. injecting pywebview object
+2026-08-22 00:48:22 [INFO] before_load event fired. injecting pywebview object
+2026-08-22 00:48:22 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-22 00:48:22 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-22 00:48:22 [INFO] _pywebviewready event fired
+2026-08-22 00:48:22 [INFO] _pywebviewready event fired
+2026-08-22 00:48:22 [INFO] loaded event fired
+2026-08-22 00:48:22 [INFO] loaded event fired
+2026-08-22 00:51:32 [INFO] SYSTEM STARTUP DIAGNOSTIC CHECK STARTED
+2026-08-22 00:51:32 [OK] [CHECK 1/4] FastAPI Connection Check ... [OK]
+2026-08-22 00:51:33 [OK] [CHECK 2/4] MySQL Database Connection ... [OK]
+2026-08-22 00:51:33 [OK] [CHECK 3/4] Authentication & Core SP Checks ... [OK]
+2026-08-22 00:51:33 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-08-22 00:51:33 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-08-22 00:51:33 [OK] [CHECK 4/4] Sync Engine & Local Replica Check ... [OK]
+2026-08-22 00:51:33 [OK] Status: ALL CHECKS PASSED. PROCEEDING TO LOGIN/DASHBOARD.
+2026-08-22 00:51:36 [INFO] Using WinForms / Chromium
+2026-08-22 00:51:36 [INFO] Using WinForms / Chromium
+2026-08-22 00:51:40 [INFO] before_load event fired. injecting pywebview object
+2026-08-22 00:51:40 [INFO] before_load event fired. injecting pywebview object
+2026-08-22 00:51:40 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-22 00:51:40 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-22 00:51:40 [INFO] _pywebviewready event fired
+2026-08-22 00:51:40 [INFO] _pywebviewready event fired
+2026-08-22 00:51:40 [INFO] loaded event fired
+2026-08-22 00:51:40 [INFO] loaded event fired
+2026-08-22 00:51:45 [INFO] before_load event fired. injecting pywebview object
+2026-08-22 00:51:45 [INFO] before_load event fired. injecting pywebview object
+2026-08-22 00:51:45 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-22 00:51:45 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-22 00:51:45 [INFO] _pywebviewready event fired
+2026-08-22 00:51:45 [INFO] _pywebviewready event fired
+2026-08-22 00:51:45 [INFO] loaded event fired
+2026-08-22 00:51:45 [INFO] loaded event fired
+2026-08-22 01:00:03 [INFO] SYSTEM STARTUP DIAGNOSTIC CHECK STARTED
+2026-08-22 01:00:03 [OK] [CHECK 1/4] FastAPI Connection Check ... [OK]
+2026-08-22 01:00:03 [OK] [CHECK 2/4] MySQL Database Connection ... [OK]
+2026-08-22 01:00:03 [OK] [CHECK 3/4] Authentication & Core SP Checks ... [OK]
+2026-08-22 01:00:03 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-08-22 01:00:03 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-08-22 01:00:03 [OK] [CHECK 4/4] Sync Engine & Local Replica Check ... [OK]
+2026-08-22 01:00:03 [OK] Status: ALL CHECKS PASSED. PROCEEDING TO LOGIN/DASHBOARD.
+2026-08-22 01:00:06 [INFO] Using WinForms / Chromium
+2026-08-22 01:00:06 [INFO] Using WinForms / Chromium
+2026-08-22 01:00:11 [INFO] before_load event fired. injecting pywebview object
+2026-08-22 01:00:11 [INFO] before_load event fired. injecting pywebview object
+2026-08-22 01:00:11 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-22 01:00:11 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-22 01:00:11 [INFO] _pywebviewready event fired
+2026-08-22 01:00:11 [INFO] _pywebviewready event fired
+2026-08-22 01:00:11 [INFO] loaded event fired
+2026-08-22 01:00:11 [INFO] loaded event fired
+2026-08-22 01:00:17 [INFO] before_load event fired. injecting pywebview object
+2026-08-22 01:00:17 [INFO] before_load event fired. injecting pywebview object
+2026-08-22 01:00:17 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-22 01:00:17 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-22 01:00:18 [INFO] _pywebviewready event fired
+2026-08-22 01:00:18 [INFO] _pywebviewready event fired
+2026-08-22 01:00:18 [INFO] loaded event fired
+2026-08-22 01:00:18 [INFO] loaded event fired
+2026-08-22 01:00:54 [WARNING] http://127.0.0.1:2323/.well-known/appspecific/com.chrome.devtools.json not found
+2026-08-22 01:00:54 [WARNING] http://127.0.0.1:2323/.well-known/appspecific/com.chrome.devtools.json not found
+2026-08-22 01:01:54 [WARNING] Failed to delete user data folder: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\IT_TECK\\AppData\\Local\\Temp\\tmpkyn3w8sh\\EBWebView\\Default\\shared_proto_db\\metadata\\000003.log'
+2026-08-22 01:01:54 [WARNING] Failed to delete user data folder: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\IT_TECK\\AppData\\Local\\Temp\\tmpkyn3w8sh\\EBWebView\\Default\\shared_proto_db\\metadata\\000003.log'
+2026-08-22 01:04:22 [INFO] SYSTEM STARTUP DIAGNOSTIC CHECK STARTED
+2026-08-22 01:04:22 [OK] [CHECK 1/4] FastAPI Connection Check ... [OK]
+2026-08-22 01:04:22 [OK] [CHECK 2/4] MySQL Database Connection ... [OK]
+2026-08-22 01:04:22 [OK] [CHECK 3/4] Authentication & Core SP Checks ... [OK]
+2026-08-22 01:04:23 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-08-22 01:04:23 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-08-22 01:04:23 [OK] [CHECK 4/4] Sync Engine & Local Replica Check ... [OK]
+2026-08-22 01:04:23 [OK] Status: ALL CHECKS PASSED. PROCEEDING TO LOGIN/DASHBOARD.
+2026-08-22 01:04:25 [INFO] Using WinForms / Chromium
+2026-08-22 01:04:25 [INFO] Using WinForms / Chromium
+2026-08-22 01:04:30 [INFO] before_load event fired. injecting pywebview object
+2026-08-22 01:04:30 [INFO] before_load event fired. injecting pywebview object
+2026-08-22 01:04:30 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-22 01:04:30 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-22 01:04:30 [INFO] _pywebviewready event fired
+2026-08-22 01:04:30 [INFO] _pywebviewready event fired
+2026-08-22 01:04:30 [INFO] loaded event fired
+2026-08-22 01:04:30 [INFO] loaded event fired
+2026-08-22 01:04:35 [INFO] before_load event fired. injecting pywebview object
+2026-08-22 01:04:35 [INFO] before_load event fired. injecting pywebview object
+2026-08-22 01:04:35 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-22 01:04:35 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-22 01:04:35 [INFO] _pywebviewready event fired
+2026-08-22 01:04:35 [INFO] _pywebviewready event fired
+2026-08-22 01:04:35 [INFO] loaded event fired
+2026-08-22 01:04:35 [INFO] loaded event fired
+2026-08-22 01:06:06 [WARNING] http://127.0.0.1:2323/.well-known/appspecific/com.chrome.devtools.json not found
+2026-08-22 01:06:06 [WARNING] http://127.0.0.1:2323/.well-known/appspecific/com.chrome.devtools.json not found
+2026-08-22 01:07:34 [WARNING] Failed to delete user data folder: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\IT_TECK\\AppData\\Local\\Temp\\tmphont05kh\\EBWebView\\Default\\shared_proto_db\\metadata\\000003.log'
+2026-08-22 01:07:34 [WARNING] Failed to delete user data folder: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\IT_TECK\\AppData\\Local\\Temp\\tmphont05kh\\EBWebView\\Default\\shared_proto_db\\metadata\\000003.log'
+2026-08-22 01:14:51 [INFO] SYSTEM STARTUP DIAGNOSTIC CHECK STARTED
+2026-08-22 01:14:51 [OK] [CHECK 1/4] FastAPI Connection Check ... [OK]
+2026-08-22 01:14:52 [OK] [CHECK 2/4] MySQL Database Connection ... [OK]
+2026-08-22 01:14:52 [OK] [CHECK 3/4] Authentication & Core SP Checks ... [OK]
+2026-08-22 01:14:52 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-08-22 01:14:52 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-08-22 01:14:52 [OK] [CHECK 4/4] Sync Engine & Local Replica Check ... [OK]
+2026-08-22 01:14:52 [OK] Status: ALL CHECKS PASSED. PROCEEDING TO LOGIN/DASHBOARD.
+2026-08-22 01:14:55 [INFO] Using WinForms / Chromium
+2026-08-22 01:14:55 [INFO] Using WinForms / Chromium
+2026-08-22 01:14:59 [INFO] before_load event fired. injecting pywebview object
+2026-08-22 01:14:59 [INFO] before_load event fired. injecting pywebview object
+2026-08-22 01:14:59 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-22 01:14:59 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-22 01:14:59 [INFO] _pywebviewready event fired
+2026-08-22 01:14:59 [INFO] _pywebviewready event fired
+2026-08-22 01:14:59 [INFO] loaded event fired
+2026-08-22 01:14:59 [INFO] loaded event fired
+2026-08-22 01:15:05 [INFO] before_load event fired. injecting pywebview object
+2026-08-22 01:15:05 [INFO] before_load event fired. injecting pywebview object
+2026-08-22 01:15:05 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-22 01:15:05 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-22 01:15:05 [INFO] _pywebviewready event fired
+2026-08-22 01:15:05 [INFO] _pywebviewready event fired
+2026-08-22 01:15:05 [INFO] loaded event fired
+2026-08-22 01:15:05 [INFO] loaded event fired
+2026-08-22 01:22:59 [INFO] SYSTEM STARTUP DIAGNOSTIC CHECK STARTED
+2026-08-22 01:22:59 [OK] [CHECK 1/4] FastAPI Connection Check ... [OK]
+2026-08-22 01:22:59 [OK] [CHECK 2/4] MySQL Database Connection ... [OK]
+2026-08-22 01:22:59 [OK] [CHECK 3/4] Authentication & Core SP Checks ... [OK]
+2026-08-22 01:23:00 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-08-22 01:23:00 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-08-22 01:23:00 [OK] [CHECK 4/4] Sync Engine & Local Replica Check ... [OK]
+2026-08-22 01:23:00 [OK] Status: ALL CHECKS PASSED. PROCEEDING TO LOGIN/DASHBOARD.
+2026-08-22 01:23:04 [INFO] Using WinForms / Chromium
+2026-08-22 01:23:04 [INFO] Using WinForms / Chromium
+2026-08-22 01:23:12 [INFO] before_load event fired. injecting pywebview object
+2026-08-22 01:23:12 [INFO] before_load event fired. injecting pywebview object
+2026-08-22 01:23:12 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-22 01:23:12 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-22 01:23:12 [INFO] _pywebviewready event fired
+2026-08-22 01:23:12 [INFO] _pywebviewready event fired
+2026-08-22 01:23:12 [INFO] loaded event fired
+2026-08-22 01:23:12 [INFO] loaded event fired
+2026-08-22 01:23:18 [INFO] before_load event fired. injecting pywebview object
+2026-08-22 01:23:18 [INFO] before_load event fired. injecting pywebview object
+2026-08-22 01:23:18 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-22 01:23:18 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-22 01:23:18 [INFO] _pywebviewready event fired
+2026-08-22 01:23:19 [INFO] _pywebviewready event fired
+2026-08-22 01:23:19 [INFO] loaded event fired
+2026-08-22 01:23:19 [INFO] loaded event fired
+2026-08-22 01:31:08 [INFO] 
+================================================================================
+  === WORD DOCXTPL CONTEXT VARIABLES TRACKING LOG ===
+================================================================================
+
+--- [1. TOP-LEVEL SCALAR VARIABLES & METADATA] ---
+  • Title                          = 'من يهمه الأمر'
+  • student_name                   = 'تست تست تست تست'
+  • Birthday                       = ''
+  • Birthplace                     = 'البصرة'
+  • Nationality                    = 'العراق'
+  • admission_year                 = '٢٠٢١'
+  • graduation_year                = '٢٠٢٥'
+  • department_id                  = 'علوم الحاسوب'
+  • study_type                     = 'الصباحية'
+  • graduation_date                = '٢٠٢٥-١٢-٠٥'
+  • graduation_semester            = 'الأول'
+  • average                        = '٩٥.٠٠٠'
+  • Grade                          = 'ممتاز'
+  • sequence_ON                    = True
+  • Failure_ON                     = False
+  • Passed_ON                      = True
+  • Summer_ON                      = True
+  • Sequence_of_Graduation         = '٢'
+  • num_students                   = '١٠٣'
+  • Average_of_First_Student       = '٩٩.٠'
+  • Summer_Training_year           = '٢٠٢٤'
+  • Postponement_and_Failure_Years = ''
+  • Subjects_Passed_with_Second_Trial = 'اللغة العربية، البرمجة 2، الصحة واللياقة'
+  • order_number                   = '٥٥٥٥٥٥٥/٥'
+  • order_date                     = '٢٠٢٥-١٢-٠٥'
+  • sig1_name                      = 'حيدر خزعل محبس'
+  • sig1_title                     = 'الأستاذ المساعد'
+  • sig1_resp                      = 'مساعد رئيس الجامعة للشؤون العلمية'
+  • sig2_name                      = 'هشام كاظم هاشم'
+  • sig2_title                     = 'الأستاذ الدكتور'
+  • sig2_resp                      = 'العميد'
+  • sig3_name                      = 'رائدة سالم خضير'
+  • sig3_title                     = 'الأستاذ الدكتور'
+  • sig3_resp                      = 'معاون العميد للشوون العلمية والدراسات العليا'
+  • sig4_name                      = 'مرتجى علي ساري'
+  • sig4_title                     = 'المدرس الدكتور'
+  • sig4_resp                      = 'مدير التسجيل'
+  • sig5_name                      = 'أسراء فاضل عبد'
+  • sig5_title                     = ''
+  • sig5_resp                      = 'مسؤول وحدة الوثائق'
+  • sig6_name                      = 'نغم باسل محمود'
+  • sig6_title                     = ''
+  • sig6_resp                      = 'منظم الوثيقة'
+  • sig7_name                      = ''
+  • sig7_title                     = ''
+  • sig7_resp                      = ''
+  • sig8_name                      = ''
+  • sig8_title                     = ''
+  • sig8_resp                      = ''
+  • sig9_name                      = ''
+  • sig9_title                     = ''
+  • sig9_resp                      = ''
+  • sig10_name                     = ''
+  • sig10_title                    = ''
+  • sig10_resp                     = ''
+
+--- [3. TABLE DATA: 'paired_semesters' (2 Tables/Rows)] ---
+
+  ==========================================================================
+  ► Table 1:
+      left_label   : '٢٠٢١-٢٠٢٢'
+      right_label  : '٢٠٢٢-٢٠٢٣'
+      year_label   : '٢٠٢١-٢٠٢٢'
+      academic_year: '٢٠٢١-٢٠٢٢'
+      num_s_l      : '١'
+      num_s_r      : '٢'
+      year_s_l     : '١'
+      year_s_r     : '٢'
+      stage_s_l    : '١'
+      stage_s_r    : '٢'
+      stage_text   : 'الأولى'
+
+      --- Courses (12 Rows) ---
+      #   | LEFT SUBJECT (المادة الأولى)        | MARK   | UNIT  || RIGHT SUBJECT (المادة الثانية)      | MARK   | UNIT 
+      --- | ----------------------------------- | ------ | ----- || ----------------------------------- | ------ | -----
+      1   | الإنكليزي 1                         | ٨٠.٠   | ٢     || أساسيات قواعد البيانات              | ٩٥.٠   | ٣    
+      2   | البرمجة 1                           | ٩٥.٠   | ٤     || البرمجة الكيانية 1                  | ٨٦.٠   | ٣    
+      3   | الرياضيات                           | ٩٥.٠   | ٣     || البرمجة المرئية                     | ٦٥.٠   | ٣    
+      4   | اللغة العربية                       | ٢٠.٠   | ٢     || الرسم بالحاسوب                      | ٧٥.٠   | ٣    
+      5   | تطبيقات الحاسوب                     | ٨٥.٠   | ٢     || العربي                              | ٨٧.٠   | ٢    
+      6   | حقوق الإنسان                        | ٩٥.٠   | ١     || البرمجة 2                           | ٢٠.٠   | ٤    
+      7   | الإسعافات الأولية                   | ١٠٠.٠  | ٢     || البرمجة الكيانية 2                  | ٩٢.٠   | ٣    
+      8   | الإنكليزي 2                         | ٧٠.٠   | ٢     || الديمقراطية وحقوق الانسان           | ٦٠.٠   | ٢    
+      9   | التصميم المنطقي                     | ٨٠.٠   | ٣     || الصحة واللياقة                      | ٣٠.٠   | ٢    
+      10  | الديمقراطية                         | ٩٠.٠   | ١     || النظرية الاحتسابية                  | ٦٠.٠   | ٣    
+      11  | الرياضة                             | ١٠٠.٠  | ١     ||                                     |        |      
+      12  | اللغة العربية (٢)                   | ٨٠.٠   | ٢     ||                                     |        |      
+
+  ==========================================================================
+  ► Table 2:
+      left_label   : '٢٠٢٣-٢٠٢٤'
+      right_label  : ''
+      year_label   : '٢٠٢٣-٢٠٢٤'
+      academic_year: '٢٠٢٣-٢٠٢٤'
+      num_s_l      : '١'
+      num_s_r      : '٢'
+      year_s_l     : '١'
+      year_s_r     : '٢'
+      stage_s_l    : '١'
+      stage_s_r    : '٢'
+      stage_text   : 'الأولى'
+
+      --- Courses (4 Rows) ---
+      #   | LEFT SUBJECT (المادة الأولى)        | MARK   | UNIT  || RIGHT SUBJECT (المادة الثانية)      | MARK   | UNIT 
+      --- | ----------------------------------- | ------ | ----- || ----------------------------------- | ------ | -----
+      1   | البرمجة 2 (٢)                       | ٥٠.٠   | ٤     ||                                     |        |      
+      2   | الرياضيات للحاسوب                   | ٦٠.٠   | ٣     ||                                     |        |      
+      3   | الصحة واللياقة (٢)                  | ٥٥.٠   | ٢     ||                                     |        |      
+      4   | الهياكل المتقطعة                    | ٩٠.٠   | ٣     ||                                     |        |      
+
+--- [3. TABLE DATA: 'paired_years' (2 Tables/Rows)] ---
+
+  ==========================================================================
+  ► Table 1:
+      left_label   : '٢٠٢١-٢٠٢٢'
+      right_label  : '٢٠٢٢-٢٠٢٣'
+      year_label   : '٢٠٢١-٢٠٢٢'
+      academic_year: '٢٠٢١-٢٠٢٢'
+      num_s_l      : '١'
+      num_s_r      : '٢'
+      year_s_l     : '١'
+      year_s_r     : '٢'
+      stage_s_l    : '١'
+      stage_s_r    : '٢'
+      stage_text   : 'الأولى'
+
+      --- Courses (12 Rows) ---
+      #   | LEFT SUBJECT (المادة الأولى)        | MARK   | UNIT  || RIGHT SUBJECT (المادة الثانية)      | MARK   | UNIT 
+      --- | ----------------------------------- | ------ | ----- || ----------------------------------- | ------ | -----
+      1   | الإنكليزي 1                         | ٨٠.٠   | ٢     || أساسيات قواعد البيانات              | ٩٥.٠   | ٣    
+      2   | البرمجة 1                           | ٩٥.٠   | ٤     || البرمجة الكيانية 1                  | ٨٦.٠   | ٣    
+      3   | الرياضيات                           | ٩٥.٠   | ٣     || البرمجة المرئية                     | ٦٥.٠   | ٣    
+      4   | اللغة العربية                       | ٢٠.٠   | ٢     || الرسم بالحاسوب                      | ٧٥.٠   | ٣    
+      5   | تطبيقات الحاسوب                     | ٨٥.٠   | ٢     || العربي                              | ٨٧.٠   | ٢    
+      6   | حقوق الإنسان                        | ٩٥.٠   | ١     || البرمجة 2                           | ٢٠.٠   | ٤    
+      7   | الإسعافات الأولية                   | ١٠٠.٠  | ٢     || البرمجة الكيانية 2                  | ٩٢.٠   | ٣    
+      8   | الإنكليزي 2                         | ٧٠.٠   | ٢     || الديمقراطية وحقوق الانسان           | ٦٠.٠   | ٢    
+      9   | التصميم المنطقي                     | ٨٠.٠   | ٣     || الصحة واللياقة                      | ٣٠.٠   | ٢    
+      10  | الديمقراطية                         | ٩٠.٠   | ١     || النظرية الاحتسابية                  | ٦٠.٠   | ٣    
+      11  | الرياضة                             | ١٠٠.٠  | ١     ||                                     |        |      
+      12  | اللغة العربية (٢)                   | ٨٠.٠   | ٢     ||                                     |        |      
+
+  ==========================================================================
+  ► Table 2:
+      left_label   : '٢٠٢٣-٢٠٢٤'
+      right_label  : ''
+      year_label   : '٢٠٢٣-٢٠٢٤'
+      academic_year: '٢٠٢٣-٢٠٢٤'
+      num_s_l      : '١'
+      num_s_r      : '٢'
+      year_s_l     : '١'
+      year_s_r     : '٢'
+      stage_s_l    : '١'
+      stage_s_r    : '٢'
+      stage_text   : 'الأولى'
+
+      --- Courses (4 Rows) ---
+      #   | LEFT SUBJECT (المادة الأولى)        | MARK   | UNIT  || RIGHT SUBJECT (المادة الثانية)      | MARK   | UNIT 
+      --- | ----------------------------------- | ------ | ----- || ----------------------------------- | ------ | -----
+      1   | البرمجة 2 (٢)                       | ٥٠.٠   | ٤     ||                                     |        |      
+      2   | الرياضيات للحاسوب                   | ٦٠.٠   | ٣     ||                                     |        |      
+      3   | الصحة واللياقة (٢)                  | ٥٥.٠   | ٢     ||                                     |        |      
+      4   | الهياكل المتقطعة                    | ٩٠.٠   | ٣     ||                                     |        |      
+
+--- [3. TABLE DATA: 'semesters' (2 Tables/Rows)] ---
+
+  ==========================================================================
+  ► Table 1:
+      left_label   : '٢٠٢١-٢٠٢٢'
+      right_label  : '٢٠٢٢-٢٠٢٣'
+      year_label   : '٢٠٢١-٢٠٢٢'
+      academic_year: '٢٠٢١-٢٠٢٢'
+      num_s_l      : '١'
+      num_s_r      : '٢'
+      year_s_l     : '١'
+      year_s_r     : '٢'
+      stage_s_l    : '١'
+      stage_s_r    : '٢'
+      stage_text   : 'الأولى'
+
+      --- Courses (12 Rows) ---
+      #   | LEFT SUBJECT (المادة الأولى)        | MARK   | UNIT  || RIGHT SUBJECT (المادة الثانية)      | MARK   | UNIT 
+      --- | ----------------------------------- | ------ | ----- || ----------------------------------- | ------ | -----
+      1   | الإنكليزي 1                         | ٨٠.٠   | ٢     || أساسيات قواعد البيانات              | ٩٥.٠   | ٣    
+      2   | البرمجة 1                           | ٩٥.٠   | ٤     || البرمجة الكيانية 1                  | ٨٦.٠   | ٣    
+      3   | الرياضيات                           | ٩٥.٠   | ٣     || البرمجة المرئية                     | ٦٥.٠   | ٣    
+      4   | اللغة العربية                       | ٢٠.٠   | ٢     || الرسم بالحاسوب                      | ٧٥.٠   | ٣    
+      5   | تطبيقات الحاسوب                     | ٨٥.٠   | ٢     || العربي                              | ٨٧.٠   | ٢    
+      6   | حقوق الإنسان                        | ٩٥.٠   | ١     || البرمجة 2                           | ٢٠.٠   | ٤    
+      7   | الإسعافات الأولية                   | ١٠٠.٠  | ٢     || البرمجة الكيانية 2                  | ٩٢.٠   | ٣    
+      8   | الإنكليزي 2                         | ٧٠.٠   | ٢     || الديمقراطية وحقوق الانسان           | ٦٠.٠   | ٢    
+      9   | التصميم المنطقي                     | ٨٠.٠   | ٣     || الصحة واللياقة                      | ٣٠.٠   | ٢    
+      10  | الديمقراطية                         | ٩٠.٠   | ١     || النظرية الاحتسابية                  | ٦٠.٠   | ٣    
+      11  | الرياضة                             | ١٠٠.٠  | ١     ||                                     |        |      
+      12  | اللغة العربية (٢)                   | ٨٠.٠   | ٢     ||                                     |        |      
+
+  ==========================================================================
+  ► Table 2:
+      left_label   : '٢٠٢٣-٢٠٢٤'
+      right_label  : ''
+      year_label   : '٢٠٢٣-٢٠٢٤'
+      academic_year: '٢٠٢٣-٢٠٢٤'
+      num_s_l      : '١'
+      num_s_r      : '٢'
+      year_s_l     : '١'
+      year_s_r     : '٢'
+      stage_s_l    : '١'
+      stage_s_r    : '٢'
+      stage_text   : 'الأولى'
+
+      --- Courses (4 Rows) ---
+      #   | LEFT SUBJECT (المادة الأولى)        | MARK   | UNIT  || RIGHT SUBJECT (المادة الثانية)      | MARK   | UNIT 
+      --- | ----------------------------------- | ------ | ----- || ----------------------------------- | ------ | -----
+      1   | البرمجة 2 (٢)                       | ٥٠.٠   | ٤     ||                                     |        |      
+      2   | الرياضيات للحاسوب                   | ٦٠.٠   | ٣     ||                                     |        |      
+      3   | الصحة واللياقة (٢)                  | ٥٥.٠   | ٢     ||                                     |        |      
+      4   | الهياكل المتقطعة                    | ٩٠.٠   | ٣     ||                                     |        |      
+================================================================================
+2026-08-22 01:31:08 [INFO] 
+================================================================================
+  === WORD DOCXTPL CONTEXT VARIABLES TRACKING LOG ===
+================================================================================
+
+--- [1. TOP-LEVEL SCALAR VARIABLES & METADATA] ---
+  • Title                          = 'من يهمه الأمر'
+  • student_name                   = 'تست تست تست تست'
+  • Birthday                       = ''
+  • Birthplace                     = 'البصرة'
+  • Nationality                    = 'العراق'
+  • admission_year                 = '٢٠٢١'
+  • graduation_year                = '٢٠٢٥'
+  • department_id                  = 'علوم الحاسوب'
+  • study_type                     = 'الصباحية'
+  • graduation_date                = '٢٠٢٥-١٢-٠٥'
+  • graduation_semester            = 'الأول'
+  • average                        = '٩٥.٠٠٠'
+  • Grade                          = 'ممتاز'
+  • sequence_ON                    = True
+  • Failure_ON                     = False
+  • Passed_ON                      = True
+  • Summer_ON                      = True
+  • Sequence_of_Graduation         = '٢'
+  • num_students                   = '١٠٣'
+  • Average_of_First_Student       = '٩٩.٠'
+  • Summer_Training_year           = '٢٠٢٤'
+  • Postponement_and_Failure_Years = ''
+  • Subjects_Passed_with_Second_Trial = 'اللغة العربية، البرمجة 2، الصحة واللياقة'
+  • order_number                   = '٥٥٥٥٥٥٥/٥'
+  • order_date                     = '٢٠٢٥-١٢-٠٥'
+  • sig1_name                      = 'حيدر خزعل محبس'
+  • sig1_title                     = 'الأستاذ المساعد'
+  • sig1_resp                      = 'مساعد رئيس الجامعة للشؤون العلمية'
+  • sig2_name                      = 'هشام كاظم هاشم'
+  • sig2_title                     = 'الأستاذ الدكتور'
+  • sig2_resp                      = 'العميد'
+  • sig3_name                      = 'رائدة سالم خضير'
+  • sig3_title                     = 'الأستاذ الدكتور'
+  • sig3_resp                      = 'معاون العميد للشوون العلمية والدراسات العليا'
+  • sig4_name                      = 'مرتجى علي ساري'
+  • sig4_title                     = 'المدرس الدكتور'
+  • sig4_resp                      = 'مدير التسجيل'
+  • sig5_name                      = 'أسراء فاضل عبد'
+  • sig5_title                     = ''
+  • sig5_resp                      = 'مسؤول وحدة الوثائق'
+  • sig6_name                      = 'نغم باسل محمود'
+  • sig6_title                     = ''
+  • sig6_resp                      = 'منظم الوثيقة'
+  • sig7_name                      = ''
+  • sig7_title                     = ''
+  • sig7_resp                      = ''
+  • sig8_name                      = ''
+  • sig8_title                     = ''
+  • sig8_resp                      = ''
+  • sig9_name                      = ''
+  • sig9_title                     = ''
+  • sig9_resp                      = ''
+  • sig10_name                     = ''
+  • sig10_title                    = ''
+  • sig10_resp                     = ''
+
+--- [3. TABLE DATA: 'paired_semesters' (2 Tables/Rows)] ---
+
+  ==========================================================================
+  ► Table 1:
+      left_label   : '٢٠٢١-٢٠٢٢'
+      right_label  : '٢٠٢٢-٢٠٢٣'
+      year_label   : '٢٠٢١-٢٠٢٢'
+      academic_year: '٢٠٢١-٢٠٢٢'
+      num_s_l      : '١'
+      num_s_r      : '٢'
+      year_s_l     : '١'
+      year_s_r     : '٢'
+      stage_s_l    : '١'
+      stage_s_r    : '٢'
+      stage_text   : 'الأولى'
+
+      --- Courses (12 Rows) ---
+      #   | LEFT SUBJECT (المادة الأولى)        | MARK   | UNIT  || RIGHT SUBJECT (المادة الثانية)      | MARK   | UNIT 
+      --- | ----------------------------------- | ------ | ----- || ----------------------------------- | ------ | -----
+      1   | الإنكليزي 1                         | ٨٠.٠   | ٢     || أساسيات قواعد البيانات              | ٩٥.٠   | ٣    
+      2   | البرمجة 1                           | ٩٥.٠   | ٤     || البرمجة الكيانية 1                  | ٨٦.٠   | ٣    
+      3   | الرياضيات                           | ٩٥.٠   | ٣     || البرمجة المرئية                     | ٦٥.٠   | ٣    
+      4   | اللغة العربية                       | ٢٠.٠   | ٢     || الرسم بالحاسوب                      | ٧٥.٠   | ٣    
+      5   | تطبيقات الحاسوب                     | ٨٥.٠   | ٢     || العربي                              | ٨٧.٠   | ٢    
+      6   | حقوق الإنسان                        | ٩٥.٠   | ١     || البرمجة 2                           | ٢٠.٠   | ٤    
+      7   | الإسعافات الأولية                   | ١٠٠.٠  | ٢     || البرمجة الكيانية 2                  | ٩٢.٠   | ٣    
+      8   | الإنكليزي 2                         | ٧٠.٠   | ٢     || الديمقراطية وحقوق الانسان           | ٦٠.٠   | ٢    
+      9   | التصميم المنطقي                     | ٨٠.٠   | ٣     || الصحة واللياقة                      | ٣٠.٠   | ٢    
+      10  | الديمقراطية                         | ٩٠.٠   | ١     || النظرية الاحتسابية                  | ٦٠.٠   | ٣    
+      11  | الرياضة                             | ١٠٠.٠  | ١     ||                                     |        |      
+      12  | اللغة العربية (٢)                   | ٨٠.٠   | ٢     ||                                     |        |      
+
+  ==========================================================================
+  ► Table 2:
+      left_label   : '٢٠٢٣-٢٠٢٤'
+      right_label  : ''
+      year_label   : '٢٠٢٣-٢٠٢٤'
+      academic_year: '٢٠٢٣-٢٠٢٤'
+      num_s_l      : '١'
+      num_s_r      : '٢'
+      year_s_l     : '١'
+      year_s_r     : '٢'
+      stage_s_l    : '١'
+      stage_s_r    : '٢'
+      stage_text   : 'الأولى'
+
+      --- Courses (4 Rows) ---
+      #   | LEFT SUBJECT (المادة الأولى)        | MARK   | UNIT  || RIGHT SUBJECT (المادة الثانية)      | MARK   | UNIT 
+      --- | ----------------------------------- | ------ | ----- || ----------------------------------- | ------ | -----
+      1   | البرمجة 2 (٢)                       | ٥٠.٠   | ٤     ||                                     |        |      
+      2   | الرياضيات للحاسوب                   | ٦٠.٠   | ٣     ||                                     |        |      
+      3   | الصحة واللياقة (٢)                  | ٥٥.٠   | ٢     ||                                     |        |      
+      4   | الهياكل المتقطعة                    | ٩٠.٠   | ٣     ||                                     |        |      
+
+--- [3. TABLE DATA: 'paired_years' (2 Tables/Rows)] ---
+
+  ==========================================================================
+  ► Table 1:
+      left_label   : '٢٠٢١-٢٠٢٢'
+      right_label  : '٢٠٢٢-٢٠٢٣'
+      year_label   : '٢٠٢١-٢٠٢٢'
+      academic_year: '٢٠٢١-٢٠٢٢'
+      num_s_l      : '١'
+      num_s_r      : '٢'
+      year_s_l     : '١'
+      year_s_r     : '٢'
+      stage_s_l    : '١'
+      stage_s_r    : '٢'
+      stage_text   : 'الأولى'
+
+      --- Courses (12 Rows) ---
+      #   | LEFT SUBJECT (المادة الأولى)        | MARK   | UNIT  || RIGHT SUBJECT (المادة الثانية)      | MARK   | UNIT 
+      --- | ----------------------------------- | ------ | ----- || ----------------------------------- | ------ | -----
+      1   | الإنكليزي 1                         | ٨٠.٠   | ٢     || أساسيات قواعد البيانات              | ٩٥.٠   | ٣    
+      2   | البرمجة 1                           | ٩٥.٠   | ٤     || البرمجة الكيانية 1                  | ٨٦.٠   | ٣    
+      3   | الرياضيات                           | ٩٥.٠   | ٣     || البرمجة المرئية                     | ٦٥.٠   | ٣    
+      4   | اللغة العربية                       | ٢٠.٠   | ٢     || الرسم بالحاسوب                      | ٧٥.٠   | ٣    
+      5   | تطبيقات الحاسوب                     | ٨٥.٠   | ٢     || العربي                              | ٨٧.٠   | ٢    
+      6   | حقوق الإنسان                        | ٩٥.٠   | ١     || البرمجة 2                           | ٢٠.٠   | ٤    
+      7   | الإسعافات الأولية                   | ١٠٠.٠  | ٢     || البرمجة الكيانية 2                  | ٩٢.٠   | ٣    
+      8   | الإنكليزي 2                         | ٧٠.٠   | ٢     || الديمقراطية وحقوق الانسان           | ٦٠.٠   | ٢    
+      9   | التصميم المنطقي                     | ٨٠.٠   | ٣     || الصحة واللياقة                      | ٣٠.٠   | ٢    
+      10  | الديمقراطية                         | ٩٠.٠   | ١     || النظرية الاحتسابية                  | ٦٠.٠   | ٣    
+      11  | الرياضة                             | ١٠٠.٠  | ١     ||                                     |        |      
+      12  | اللغة العربية (٢)                   | ٨٠.٠   | ٢     ||                                     |        |      
+
+  ==========================================================================
+  ► Table 2:
+      left_label   : '٢٠٢٣-٢٠٢٤'
+      right_label  : ''
+      year_label   : '٢٠٢٣-٢٠٢٤'
+      academic_year: '٢٠٢٣-٢٠٢٤'
+      num_s_l      : '١'
+      num_s_r      : '٢'
+      year_s_l     : '١'
+      year_s_r     : '٢'
+      stage_s_l    : '١'
+      stage_s_r    : '٢'
+      stage_text   : 'الأولى'
+
+      --- Courses (4 Rows) ---
+      #   | LEFT SUBJECT (المادة الأولى)        | MARK   | UNIT  || RIGHT SUBJECT (المادة الثانية)      | MARK   | UNIT 
+      --- | ----------------------------------- | ------ | ----- || ----------------------------------- | ------ | -----
+      1   | البرمجة 2 (٢)                       | ٥٠.٠   | ٤     ||                                     |        |      
+      2   | الرياضيات للحاسوب                   | ٦٠.٠   | ٣     ||                                     |        |      
+      3   | الصحة واللياقة (٢)                  | ٥٥.٠   | ٢     ||                                     |        |      
+      4   | الهياكل المتقطعة                    | ٩٠.٠   | ٣     ||                                     |        |      
+
+--- [3. TABLE DATA: 'semesters' (2 Tables/Rows)] ---
+
+  ==========================================================================
+  ► Table 1:
+      left_label   : '٢٠٢١-٢٠٢٢'
+      right_label  : '٢٠٢٢-٢٠٢٣'
+      year_label   : '٢٠٢١-٢٠٢٢'
+      academic_year: '٢٠٢١-٢٠٢٢'
+      num_s_l      : '١'
+      num_s_r      : '٢'
+      year_s_l     : '١'
+      year_s_r     : '٢'
+      stage_s_l    : '١'
+      stage_s_r    : '٢'
+      stage_text   : 'الأولى'
+
+      --- Courses (12 Rows) ---
+      #   | LEFT SUBJECT (المادة الأولى)        | MARK   | UNIT  || RIGHT SUBJECT (المادة الثانية)      | MARK   | UNIT 
+      --- | ----------------------------------- | ------ | ----- || ----------------------------------- | ------ | -----
+      1   | الإنكليزي 1                         | ٨٠.٠   | ٢     || أساسيات قواعد البيانات              | ٩٥.٠   | ٣    
+      2   | البرمجة 1                           | ٩٥.٠   | ٤     || البرمجة الكيانية 1                  | ٨٦.٠   | ٣    
+      3   | الرياضيات                           | ٩٥.٠   | ٣     || البرمجة المرئية                     | ٦٥.٠   | ٣    
+      4   | اللغة العربية                       | ٢٠.٠   | ٢     || الرسم بالحاسوب                      | ٧٥.٠   | ٣    
+      5   | تطبيقات الحاسوب                     | ٨٥.٠   | ٢     || العربي                              | ٨٧.٠   | ٢    
+      6   | حقوق الإنسان                        | ٩٥.٠   | ١     || البرمجة 2                           | ٢٠.٠   | ٤    
+      7   | الإسعافات الأولية                   | ١٠٠.٠  | ٢     || البرمجة الكيانية 2                  | ٩٢.٠   | ٣    
+      8   | الإنكليزي 2                         | ٧٠.٠   | ٢     || الديمقراطية وحقوق الانسان           | ٦٠.٠   | ٢    
+      9   | التصميم المنطقي                     | ٨٠.٠   | ٣     || الصحة واللياقة                      | ٣٠.٠   | ٢    
+      10  | الديمقراطية                         | ٩٠.٠   | ١     || النظرية الاحتسابية                  | ٦٠.٠   | ٣    
+      11  | الرياضة                             | ١٠٠.٠  | ١     ||                                     |        |      
+      12  | اللغة العربية (٢)                   | ٨٠.٠   | ٢     ||                                     |        |      
+
+  ==========================================================================
+  ► Table 2:
+      left_label   : '٢٠٢٣-٢٠٢٤'
+      right_label  : ''
+      year_label   : '٢٠٢٣-٢٠٢٤'
+      academic_year: '٢٠٢٣-٢٠٢٤'
+      num_s_l      : '١'
+      num_s_r      : '٢'
+      year_s_l     : '١'
+      year_s_r     : '٢'
+      stage_s_l    : '١'
+      stage_s_r    : '٢'
+      stage_text   : 'الأولى'
+
+      --- Courses (4 Rows) ---
+      #   | LEFT SUBJECT (المادة الأولى)        | MARK   | UNIT  || RIGHT SUBJECT (المادة الثانية)      | MARK   | UNIT 
+      --- | ----------------------------------- | ------ | ----- || ----------------------------------- | ------ | -----
+      1   | البرمجة 2 (٢)                       | ٥٠.٠   | ٤     ||                                     |        |      
+      2   | الرياضيات للحاسوب                   | ٦٠.٠   | ٣     ||                                     |        |      
+      3   | الصحة واللياقة (٢)                  | ٥٥.٠   | ٢     ||                                     |        |      
+      4   | الهياكل المتقطعة                    | ٩٠.٠   | ٣     ||                                     |        |      
+================================================================================
+2026-08-22 01:34:53 [WARNING] Failed to delete user data folder: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\IT_TECK\\AppData\\Local\\Temp\\tmpy30y0msh\\EBWebView\\Default\\shared_proto_db\\metadata\\000003.log'
+2026-08-22 01:34:53 [WARNING] Failed to delete user data folder: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\IT_TECK\\AppData\\Local\\Temp\\tmpy30y0msh\\EBWebView\\Default\\shared_proto_db\\metadata\\000003.log'
+2026-08-22 01:55:09 [INFO] SYSTEM STARTUP DIAGNOSTIC CHECK STARTED
+2026-08-22 01:55:10 [OK] [CHECK 1/4] FastAPI Connection Check ... [OK]
+2026-08-22 01:55:10 [OK] [CHECK 2/4] MySQL Database Connection ... [OK]
+2026-08-22 01:55:10 [OK] [CHECK 3/4] Authentication & Core SP Checks ... [OK]
+2026-08-22 01:55:10 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-08-22 01:55:10 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-08-22 01:55:10 [OK] [CHECK 4/4] Sync Engine & Local Replica Check ... [OK]
+2026-08-22 01:55:10 [OK] Status: ALL CHECKS PASSED. PROCEEDING TO LOGIN/DASHBOARD.
+2026-08-22 01:55:14 [INFO] Using WinForms / Chromium
+2026-08-22 01:55:14 [INFO] Using WinForms / Chromium
+2026-08-22 01:55:20 [INFO] before_load event fired. injecting pywebview object
+2026-08-22 01:55:20 [INFO] before_load event fired. injecting pywebview object
+2026-08-22 01:55:20 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-22 01:55:20 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-22 01:55:20 [INFO] _pywebviewready event fired
+2026-08-22 01:55:20 [INFO] _pywebviewready event fired
+2026-08-22 01:55:20 [INFO] loaded event fired
+2026-08-22 01:55:20 [INFO] loaded event fired
+2026-08-22 01:55:27 [INFO] before_load event fired. injecting pywebview object
+2026-08-22 01:55:27 [INFO] before_load event fired. injecting pywebview object
+2026-08-22 01:55:27 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-22 01:55:27 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-22 01:55:27 [INFO] _pywebviewready event fired
+2026-08-22 01:55:27 [INFO] _pywebviewready event fired
+2026-08-22 01:55:27 [INFO] loaded event fired
+2026-08-22 01:55:27 [INFO] loaded event fired

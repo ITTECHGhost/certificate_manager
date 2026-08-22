@@ -1569,10 +1569,10 @@ def clear_audit_logs(conn = Depends(get_db)):
 
 # --- CERTIFICATES ENDPOINTS ---
 @app.get("/certificates/{student_id}")
-def get_certificate_data(student_id: int, conn = Depends(get_db)):
+def get_certificate_data(student_id: int, grouping_mode: str = "DEFAULT", conn = Depends(get_db)):
     cur = conn.cursor(dictionary=True)
     try:
-        cur.callproc("GetFullCertificateData", (student_id,))
+        cur.callproc("sp_GetFullCertificateData", (student_id, grouping_mode))
         datasets = []
         if hasattr(cur, "stored_results"):
             for result in cur.stored_results():
@@ -1582,7 +1582,24 @@ def get_certificate_data(student_id: int, conn = Depends(get_db)):
                 pass
         except Exception:
             pass
-        return decode_db_value(datasets)
+        
+        # sp_GetFullCertificateData order:
+        # 0: UniversitySettings
+        # 1: StudentInfo
+        # 2: Ranking
+        # 3: Signers
+        # 4: AcademicTimeline
+        # 5: AcademicCourses
+        
+        response_data = {
+            "settings": datasets[0] if len(datasets) > 0 else [],
+            "student_info": datasets[1] if len(datasets) > 1 else [],
+            "ranking": datasets[2] if len(datasets) > 2 else [],
+            "signers": datasets[3] if len(datasets) > 3 else [],
+            "academic_timeline": datasets[4] if len(datasets) > 4 else [],
+            "courses_grouped": datasets[5] if len(datasets) > 5 else [],
+        }
+        return decode_db_value(response_data)
     except Exception as exc:
         raise HTTPException(status_code=500, detail=str(exc))
     finally:

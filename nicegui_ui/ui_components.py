@@ -154,19 +154,16 @@ class UI:
         ).props("outlined")
 
     @staticmethod
-    def number_input(label: str, value: float = 0, min=None, max=None) -> ui.number:
+    def number_input(label: str, value: float = 0, min=None, max=None, on_change=None) -> ui.number:
         """Theme-aware number input. Colors via `.app-input` in theme.css."""
-        return ui.number(label=label, value=value, min=min, max=max).classes(
+        return ui.number(label=label, value=value, min=min, max=max, on_change=on_change).classes(
             "w-full app-input rounded-xl"
         ).props("outlined")
 
     @staticmethod
     def switch(label: str, value: bool = False, on_change=None) -> ui.switch:
         """Styled toggle switch."""
-        sw = ui.switch(label, value=value)
-        if on_change:
-            sw.on("change", lambda e: on_change(e.value))
-        return sw
+        return ui.switch(label, value=value, on_change=on_change)
 
     # ── Labels & Text ───────────────────────────────────────────────────────
 
