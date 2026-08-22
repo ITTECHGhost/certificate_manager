@@ -26809,3 +26809,14 @@ AttributeError: 'CertificateScreen' object has no attribute 'generate_and_open_w
 2026-08-22 01:55:27 [INFO] _pywebviewready event fired
 2026-08-22 01:55:27 [INFO] loaded event fired
 2026-08-22 01:55:27 [INFO] loaded event fired
+2026-08-22 20:59:36 [ERROR] UNHANDLED EXCEPTION:
+Traceback (most recent call last):
+  File "c:\Users\alhayat\Music\certificate_manager\main.py", line 14, in <module>
+    from nicegui_screens.dashboard_screen import DashboardScreen
+  File "c:\Users\alhayat\Music\certificate_manager\nicegui_screens\dashboard_screen.py", line 35, in <module>
+    from nicegui_screens.certificate_screen import CertificateScreen
+  File "c:\Users\alhayat\Music\certificate_manager\nicegui_screens\certificate_screen.py", line 183, in <module>
+    def to_arabic_num(val: Any, is_english: bool = False) -> str:
+                           ^^^
+NameError: name 'Any' is not defined. Did you mean: 'any'?
+
