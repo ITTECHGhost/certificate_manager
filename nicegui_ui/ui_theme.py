@@ -1,14 +1,5 @@
 # =============================================================================
 # nicegui_ui/ui_theme.py — Centralized Theme Tokens & Utilities
-#
-# This module provides:
-#   - Styles: structural layout tokens (widths, padding, flex, grid) + CSS hook
-#     class names. All visual styling (colors, backgrounds, borders, shadows)
-#     lives in theme.css via CSS custom properties.
-#   - Typography: structural font-size/weight tokens only.
-#   - set_dark_mode() / set_accent(): live theme + accent switching.
-#   - inject_global_styles(): injects theme.css + Tailwind config into page head.
-#   - is_windows_dark_mode(): OS mode detection.
 # =============================================================================
 
 import sys
@@ -34,7 +25,6 @@ def is_windows_dark_mode() -> bool:
 
 class Typography:
     """Structural typography tokens (sizes and weights only — no colors)."""
-
     APP_TITLE     = "text-lg font-bold"
     PAGE_TITLE    = "text-3xl font-semibold tracking-tight"
     PAGE_SUBTITLE = "text-sm"
@@ -54,28 +44,16 @@ ACCENT_OPTIONS: list[str] = ["blue", "green", "red", "orange", "purple"]
 class Styles:
     """
     Pre-composed class strings: CSS hook classes (visual) + Tailwind utilities (structural).
-
-    CSS hook classes (app-*) handle all visual styling via CSS custom properties
-    defined in theme.css. Tailwind classes handle structural layout only:
-    width, height, padding, margin, gap, flex, grid, rounded, overflow, etc.
     """
-
-    # ── Body & Layout ───────────────────────────────────────────────────────
     BODY       = "m-0 p-0 overflow-hidden select-none"
     LAYOUT_ROW = "w-full max-w-full h-screen flex-nowrap m-0 p-0 gap-0 overflow-hidden"
 
-    # ── Sidebar ─────────────────────────────────────────────────────────────
-    SIDEBAR_COL_EXPANDED = (
-        "app-sidebar w-64 h-full p-0 justify-between shrink-0"
-    )
-    SIDEBAR_COL_COLLAPSED = (
-        "app-sidebar w-20 h-full p-0 justify-between shrink-0 items-center"
-    )
+    SIDEBAR_COL_EXPANDED = "app-sidebar w-64 h-full p-0 justify-between shrink-0"
+    SIDEBAR_COL_COLLAPSED = "app-sidebar w-20 h-full p-0 justify-between shrink-0 items-center"
     SIDEBAR_HEADER    = "app-sidebar-header w-full h-16 px-4 flex items-center justify-between shrink-0"
     SIDEBAR_NAV_GROUP = "w-full flex-1 overflow-y-auto p-3 gap-1"
     SIDEBAR_APP_TITLE = "app-sidebar-title text-lg font-bold tracking-wide"
 
-    # ── Navigation Items ────────────────────────────────────────────────────
     _NAV      = "w-full items-center gap-3 px-3.5 py-2.5 rounded-xl border cursor-pointer"
     NAV_ITEM_ACTIVE   = f"{_NAV} app-nav-item--active"
     NAV_ITEM_INACTIVE = f"{_NAV} app-nav-item"
@@ -84,39 +62,32 @@ class Styles:
     NAV_ITEM_MINI_ACTIVE   = f"{_NAV_MINI} app-nav-item--active"
     NAV_ITEM_MINI_INACTIVE = f"{_NAV_MINI} app-nav-item"
 
-    # ── User Chip (sidebar) ─────────────────────────────────────────────────
     USER_CHIP      = "app-user-chip w-full items-center gap-3 p-3 rounded-xl border cursor-pointer"
     USER_CHIP_MINI = "app-user-chip w-full justify-center p-3 rounded-xl border cursor-pointer"
     USER_ICON          = "app-sidebar-icon"
     USER_NAME          = "app-sidebar-text text-sm font-semibold leading-tight truncate"
     USER_STATUS_ONLINE = "app-user-status text-xs font-medium leading-tight"
 
-    # ── Top Header Bar ──────────────────────────────────────────────────────
     HEADER_BAR = "app-header-bar w-full h-16 px-6 flex items-center justify-between shrink-0"
 
-    # ── Main Content Area ───────────────────────────────────────────────────
     MAIN_SCROLL = "app-main-area flex-1 min-w-0 max-w-full h-full p-5 overflow-x-hidden"
     MAIN_COL    = "w-full max-w-full min-w-0 gap-5 overflow-hidden"
 
-    # ── Page Header ─────────────────────────────────────────────────────────
     PAGE_HEADER_ROW  = "w-full justify-between items-end"
     PAGE_TITLE_COL   = "gap-1"
     PAGE_TITLE_LABEL = "app-text-primary text-3xl font-semibold tracking-tight"
     PAGE_SUB_LABEL   = "app-text-muted text-sm"
 
-    # ── Cards ───────────────────────────────────────────────────────────────
     CARD = "app-card w-full p-6 rounded-2xl gap-4"
     LOGIN_CARD = (
         "app-login-card login-card-glow w-[440px] max-w-full "
         "rounded-[24px] p-8 pt-10 gap-5 relative mt-8"
     )
 
-    # ── Stat Cards ──────────────────────────────────────────────────────────
     STAT_GRID     = "w-full grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4"
     STAT_CARD     = "app-stat-card p-5 rounded-2xl border gap-4"
     STAT_ICON_ROW = "w-full justify-between items-start"
 
-    # ── Action Buttons ──────────────────────────────────────────────────────
     ACTION_BTN_BASE = (
         "w-full font-medium rounded-xl px-4 py-3 "
         "shadow-none outline-none normal-case justify-start"
@@ -125,25 +96,19 @@ class Styles:
     ACTION_BTN_SUCCESS   = f"{ACTION_BTN_BASE} app-btn-success"
     ACTION_BTN_SECONDARY = f"{ACTION_BTN_BASE} app-btn-secondary"
 
-    # Backward-compatible aliases
     ACTION_BTN_BLUE    = ACTION_BTN_PRIMARY
     ACTION_BTN_EMERALD = ACTION_BTN_SUCCESS
     ACTION_BTN_SLATE   = ACTION_BTN_SECONDARY
 
-    # ── Refresh Button ──────────────────────────────────────────────────────
     REFRESH_BTN = "app-btn-secondary rounded-lg px-4 py-2 font-medium capitalize shadow-none outline-none"
 
-    # ── Tables ──────────────────────────────────────────────────────────────
     TABLE_CLASSES = "app-table w-full no-shadow border-none"
 
-    # ── Dashboard Panels ────────────────────────────────────────────────────
     BOTTOM_ROW    = "w-full gap-6 items-stretch flex-wrap xl:flex-nowrap"
     ACTIONS_PANEL = "app-card w-full xl:w-1/3 p-6 rounded-2xl gap-4"
     ACTIONS_TITLE = "app-text-primary text-lg font-bold mb-2"
     TABLE_PANEL   = "app-card w-full xl:flex-1 p-6 rounded-2xl gap-2"
     TABLE_TITLE   = "app-text-primary text-lg font-bold mb-2"
-
-    # ── Settings ────────────────────────────────────────────────────────────
     SETTINGS_CARD = CARD
 
 
@@ -182,18 +147,16 @@ QUICK_ACTIONS: list[dict] = [
         "target": "certificate",
     },
     {
-        "label_ar": "توليد تقرير",
-        "label_en": "Generate Report",
-        "icon":   "summarize",
-        "target": None,
+        "label_ar": "سجل الشهادات الصادرة",
+        "label_en": "Issued Certificates Log",
+        "icon":   "workspace_premium",
+        "target": "issued_certs",
     },
 ]
 
 
-# ── Theme Switching Functions ───────────────────────────────────────────────
-
 def set_dark_mode(enable: bool, dark_inst=None) -> None:
-    """Enables or disables dark mode for Quasar and syncs the 'dark' and 'body--dark' CSS classes to body and documentElement."""
+    """Enables or disables dark mode for Quasar."""
     from nicegui import ui
     dark = dark_inst or ui.dark_mode()
     if enable:

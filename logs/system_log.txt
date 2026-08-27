@@ -28163,3 +28163,662 @@ AttributeError: 'CertificateScreen' object has no attribute 'generate_and_open_w
 2026-08-22 23:12:00 [INFO] _pywebviewready event fired
 2026-08-22 23:12:00 [INFO] loaded event fired
 2026-08-22 23:12:00 [INFO] loaded event fired
+2026-08-23 09:01:22 [INFO] SYSTEM STARTUP DIAGNOSTIC CHECK STARTED
+2026-08-23 09:01:23 [OK] [CHECK 1/4] FastAPI Connection Check ... [OK]
+2026-08-23 09:01:23 [OK] [CHECK 2/4] MySQL Database Connection ... [OK]
+2026-08-23 09:01:23 [OK] [CHECK 3/4] Authentication & Core SP Checks ... [OK]
+2026-08-23 09:01:23 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-08-23 09:01:23 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-08-23 09:01:23 [OK] [CHECK 4/4] Sync Engine & Local Replica Check ... [OK]
+2026-08-23 09:01:23 [OK] Status: ALL CHECKS PASSED. PROCEEDING TO LOGIN/DASHBOARD.
+2026-08-23 09:01:26 [INFO] Using WinForms / Chromium
+2026-08-23 09:01:26 [INFO] Using WinForms / Chromium
+2026-08-23 09:01:31 [INFO] before_load event fired. injecting pywebview object
+2026-08-23 09:01:31 [INFO] before_load event fired. injecting pywebview object
+2026-08-23 09:01:31 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-23 09:01:31 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-23 09:01:31 [INFO] _pywebviewready event fired
+2026-08-23 09:01:31 [INFO] _pywebviewready event fired
+2026-08-23 09:01:31 [INFO] loaded event fired
+2026-08-23 09:01:31 [INFO] loaded event fired
+2026-08-23 09:01:36 [INFO] before_load event fired. injecting pywebview object
+2026-08-23 09:01:36 [INFO] before_load event fired. injecting pywebview object
+2026-08-23 09:01:36 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-23 09:01:36 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-23 09:01:36 [INFO] _pywebviewready event fired
+2026-08-23 09:01:36 [INFO] _pywebviewready event fired
+2026-08-23 09:01:36 [INFO] loaded event fired
+2026-08-23 09:01:36 [INFO] loaded event fired
+2026-08-23 10:28:38 [INFO] before_load event fired. injecting pywebview object
+2026-08-23 10:28:38 [INFO] before_load event fired. injecting pywebview object
+2026-08-23 10:28:38 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-23 10:28:38 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-23 10:28:40 [INFO] _pywebviewready event fired
+2026-08-23 10:28:40 [INFO] _pywebviewready event fired
+2026-08-23 10:28:40 [INFO] loaded event fired
+2026-08-23 10:28:40 [INFO] loaded event fired
+2026-08-23 11:41:53 [INFO] before_load event fired. injecting pywebview object
+2026-08-23 11:41:53 [INFO] before_load event fired. injecting pywebview object
+2026-08-23 11:41:53 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-23 11:41:53 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-23 11:41:54 [INFO] _pywebviewready event fired
+2026-08-23 11:41:54 [INFO] _pywebviewready event fired
+2026-08-23 11:41:54 [INFO] loaded event fired
+2026-08-23 11:41:54 [INFO] loaded event fired
+2026-08-23 12:45:21 [INFO] before_load event fired. injecting pywebview object
+2026-08-23 12:45:21 [INFO] before_load event fired. injecting pywebview object
+2026-08-23 12:45:21 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-23 12:45:21 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-23 12:45:21 [INFO] _pywebviewready event fired
+2026-08-23 12:45:21 [INFO] _pywebviewready event fired
+2026-08-23 12:45:21 [INFO] loaded event fired
+2026-08-23 12:45:21 [INFO] loaded event fired
+2026-08-24 11:53:24 [INFO] SYSTEM STARTUP DIAGNOSTIC CHECK STARTED
+2026-08-24 11:53:24 [OK] [CHECK 1/4] FastAPI Connection Check ... [OK]
+2026-08-24 11:53:24 [OK] [CHECK 2/4] MySQL Database Connection ... [OK]
+2026-08-24 11:53:24 [OK] [CHECK 3/4] Authentication & Core SP Checks ... [OK]
+2026-08-24 11:53:24 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-08-24 11:53:24 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-08-24 11:53:24 [OK] [CHECK 4/4] Sync Engine & Local Replica Check ... [OK]
+2026-08-24 11:53:24 [OK] Status: ALL CHECKS PASSED. PROCEEDING TO LOGIN/DASHBOARD.
+2026-08-24 11:53:28 [INFO] Using WinForms / Chromium
+2026-08-24 11:53:28 [INFO] Using WinForms / Chromium
+2026-08-24 11:53:34 [INFO] before_load event fired. injecting pywebview object
+2026-08-24 11:53:34 [INFO] before_load event fired. injecting pywebview object
+2026-08-24 11:53:34 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-24 11:53:34 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-24 11:53:34 [INFO] _pywebviewready event fired
+2026-08-24 11:53:34 [INFO] _pywebviewready event fired
+2026-08-24 11:53:34 [INFO] loaded event fired
+2026-08-24 11:53:34 [INFO] loaded event fired
+2026-08-24 11:53:39 [INFO] before_load event fired. injecting pywebview object
+2026-08-24 11:53:39 [INFO] before_load event fired. injecting pywebview object
+2026-08-24 11:53:39 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-24 11:53:39 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-24 11:53:39 [INFO] _pywebviewready event fired
+2026-08-24 11:53:39 [INFO] _pywebviewready event fired
+2026-08-24 11:53:39 [INFO] loaded event fired
+2026-08-24 11:53:39 [INFO] loaded event fired
+2026-08-24 12:04:47 [ERROR] 'GenericEventArguments' object has no attribute 'value'
+Traceback (most recent call last):
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\events.py", line 472, in handle_event
+    result = cast(Callable[[EventT], Any], handler)(arguments)
+  File "f:\CR_PY\certificate_manager\nicegui_screens\courses_screen.py", line 383, in toggle_c
+    if e.value:
+       ^^^^^^^
+AttributeError: 'GenericEventArguments' object has no attribute 'value'
+2026-08-24 12:04:47 [ERROR] 'GenericEventArguments' object has no attribute 'value'
+Traceback (most recent call last):
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\events.py", line 472, in handle_event
+    result = cast(Callable[[EventT], Any], handler)(arguments)
+  File "f:\CR_PY\certificate_manager\nicegui_screens\courses_screen.py", line 383, in toggle_c
+    if e.value:
+       ^^^^^^^
+AttributeError: 'GenericEventArguments' object has no attribute 'value'
+2026-08-24 12:04:47 [ERROR] 'GenericEventArguments' object has no attribute 'value'
+Traceback (most recent call last):
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\events.py", line 472, in handle_event
+    result = cast(Callable[[EventT], Any], handler)(arguments)
+  File "f:\CR_PY\certificate_manager\nicegui_screens\courses_screen.py", line 383, in toggle_c
+    if e.value:
+       ^^^^^^^
+AttributeError: 'GenericEventArguments' object has no attribute 'value'
+2026-08-24 12:04:47 [ERROR] 'GenericEventArguments' object has no attribute 'value'
+Traceback (most recent call last):
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\events.py", line 472, in handle_event
+    result = cast(Callable[[EventT], Any], handler)(arguments)
+  File "f:\CR_PY\certificate_manager\nicegui_screens\courses_screen.py", line 383, in toggle_c
+    if e.value:
+       ^^^^^^^
+AttributeError: 'GenericEventArguments' object has no attribute 'value'
+2026-08-24 12:04:48 [ERROR] 'GenericEventArguments' object has no attribute 'value'
+Traceback (most recent call last):
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\events.py", line 472, in handle_event
+    result = cast(Callable[[EventT], Any], handler)(arguments)
+  File "f:\CR_PY\certificate_manager\nicegui_screens\courses_screen.py", line 383, in toggle_c
+    if e.value:
+       ^^^^^^^
+AttributeError: 'GenericEventArguments' object has no attribute 'value'
+2026-08-24 12:04:48 [ERROR] 'GenericEventArguments' object has no attribute 'value'
+Traceback (most recent call last):
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\events.py", line 472, in handle_event
+    result = cast(Callable[[EventT], Any], handler)(arguments)
+  File "f:\CR_PY\certificate_manager\nicegui_screens\courses_screen.py", line 383, in toggle_c
+    if e.value:
+       ^^^^^^^
+AttributeError: 'GenericEventArguments' object has no attribute 'value'
+2026-08-24 12:04:48 [ERROR] 'GenericEventArguments' object has no attribute 'value'
+Traceback (most recent call last):
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\events.py", line 472, in handle_event
+    result = cast(Callable[[EventT], Any], handler)(arguments)
+  File "f:\CR_PY\certificate_manager\nicegui_screens\courses_screen.py", line 383, in toggle_c
+    if e.value:
+       ^^^^^^^
+AttributeError: 'GenericEventArguments' object has no attribute 'value'
+2026-08-24 12:04:48 [ERROR] 'GenericEventArguments' object has no attribute 'value'
+Traceback (most recent call last):
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\events.py", line 472, in handle_event
+    result = cast(Callable[[EventT], Any], handler)(arguments)
+  File "f:\CR_PY\certificate_manager\nicegui_screens\courses_screen.py", line 383, in toggle_c
+    if e.value:
+       ^^^^^^^
+AttributeError: 'GenericEventArguments' object has no attribute 'value'
+2026-08-24 12:04:49 [ERROR] 'GenericEventArguments' object has no attribute 'value'
+Traceback (most recent call last):
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\events.py", line 472, in handle_event
+    result = cast(Callable[[EventT], Any], handler)(arguments)
+  File "f:\CR_PY\certificate_manager\nicegui_screens\courses_screen.py", line 383, in toggle_c
+    if e.value:
+       ^^^^^^^
+AttributeError: 'GenericEventArguments' object has no attribute 'value'
+2026-08-24 12:04:49 [ERROR] 'GenericEventArguments' object has no attribute 'value'
+Traceback (most recent call last):
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\events.py", line 472, in handle_event
+    result = cast(Callable[[EventT], Any], handler)(arguments)
+  File "f:\CR_PY\certificate_manager\nicegui_screens\courses_screen.py", line 383, in toggle_c
+    if e.value:
+       ^^^^^^^
+AttributeError: 'GenericEventArguments' object has no attribute 'value'
+2026-08-24 12:04:50 [ERROR] 'GenericEventArguments' object has no attribute 'value'
+Traceback (most recent call last):
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\events.py", line 472, in handle_event
+    result = cast(Callable[[EventT], Any], handler)(arguments)
+  File "f:\CR_PY\certificate_manager\nicegui_screens\courses_screen.py", line 383, in toggle_c
+    if e.value:
+       ^^^^^^^
+AttributeError: 'GenericEventArguments' object has no attribute 'value'
+2026-08-24 12:04:50 [ERROR] 'GenericEventArguments' object has no attribute 'value'
+Traceback (most recent call last):
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\events.py", line 472, in handle_event
+    result = cast(Callable[[EventT], Any], handler)(arguments)
+  File "f:\CR_PY\certificate_manager\nicegui_screens\courses_screen.py", line 383, in toggle_c
+    if e.value:
+       ^^^^^^^
+AttributeError: 'GenericEventArguments' object has no attribute 'value'
+2026-08-24 12:04:52 [WARNING] API insert study routine warning: {"detail":"Not Found"}
+2026-08-24 12:05:13 [ERROR] 'GenericEventArguments' object has no attribute 'value'
+Traceback (most recent call last):
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\events.py", line 472, in handle_event
+    result = cast(Callable[[EventT], Any], handler)(arguments)
+  File "f:\CR_PY\certificate_manager\nicegui_screens\courses_screen.py", line 383, in toggle_c
+    if e.value:
+       ^^^^^^^
+AttributeError: 'GenericEventArguments' object has no attribute 'value'
+2026-08-24 12:05:13 [ERROR] 'GenericEventArguments' object has no attribute 'value'
+Traceback (most recent call last):
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\events.py", line 472, in handle_event
+    result = cast(Callable[[EventT], Any], handler)(arguments)
+  File "f:\CR_PY\certificate_manager\nicegui_screens\courses_screen.py", line 383, in toggle_c
+    if e.value:
+       ^^^^^^^
+AttributeError: 'GenericEventArguments' object has no attribute 'value'
+2026-08-24 12:05:13 [ERROR] 'GenericEventArguments' object has no attribute 'value'
+Traceback (most recent call last):
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\events.py", line 472, in handle_event
+    result = cast(Callable[[EventT], Any], handler)(arguments)
+  File "f:\CR_PY\certificate_manager\nicegui_screens\courses_screen.py", line 383, in toggle_c
+    if e.value:
+       ^^^^^^^
+AttributeError: 'GenericEventArguments' object has no attribute 'value'
+2026-08-24 12:05:13 [ERROR] 'GenericEventArguments' object has no attribute 'value'
+Traceback (most recent call last):
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\events.py", line 472, in handle_event
+    result = cast(Callable[[EventT], Any], handler)(arguments)
+  File "f:\CR_PY\certificate_manager\nicegui_screens\courses_screen.py", line 383, in toggle_c
+    if e.value:
+       ^^^^^^^
+AttributeError: 'GenericEventArguments' object has no attribute 'value'
+2026-08-24 12:05:14 [ERROR] 'GenericEventArguments' object has no attribute 'value'
+Traceback (most recent call last):
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\events.py", line 472, in handle_event
+    result = cast(Callable[[EventT], Any], handler)(arguments)
+  File "f:\CR_PY\certificate_manager\nicegui_screens\courses_screen.py", line 383, in toggle_c
+    if e.value:
+       ^^^^^^^
+AttributeError: 'GenericEventArguments' object has no attribute 'value'
+2026-08-24 12:05:14 [ERROR] 'GenericEventArguments' object has no attribute 'value'
+Traceback (most recent call last):
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\events.py", line 472, in handle_event
+    result = cast(Callable[[EventT], Any], handler)(arguments)
+  File "f:\CR_PY\certificate_manager\nicegui_screens\courses_screen.py", line 383, in toggle_c
+    if e.value:
+       ^^^^^^^
+AttributeError: 'GenericEventArguments' object has no attribute 'value'
+2026-08-24 12:05:15 [ERROR] 'GenericEventArguments' object has no attribute 'value'
+Traceback (most recent call last):
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\events.py", line 472, in handle_event
+    result = cast(Callable[[EventT], Any], handler)(arguments)
+  File "f:\CR_PY\certificate_manager\nicegui_screens\courses_screen.py", line 383, in toggle_c
+    if e.value:
+       ^^^^^^^
+AttributeError: 'GenericEventArguments' object has no attribute 'value'
+2026-08-24 12:05:15 [ERROR] 'GenericEventArguments' object has no attribute 'value'
+Traceback (most recent call last):
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\events.py", line 472, in handle_event
+    result = cast(Callable[[EventT], Any], handler)(arguments)
+  File "f:\CR_PY\certificate_manager\nicegui_screens\courses_screen.py", line 383, in toggle_c
+    if e.value:
+       ^^^^^^^
+AttributeError: 'GenericEventArguments' object has no attribute 'value'
+2026-08-24 12:05:16 [WARNING] API insert study routine warning: {"detail":"Not Found"}
+2026-08-24 12:11:03 [WARNING] API insert study routine warning: {"detail":"Not Found"}
+2026-08-24 12:17:30 [ERROR] UNHANDLED EXCEPTION:
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+    from data.repositories import get_connection; conn=get_connection(); cur=conn.cursor(dictionary=True); cur.callproc('GetAllStudyRoutines'); res=[]; [res.extend(r.fetchall()) for r in cur.stored_results()]; print('MySQL routines count:', len(res)); print(res)
+                                                                                                                                                                                                                                                            ~~~~~^^^^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\encodings\cp1252.py", line 19, in encode
+    return codecs.charmap_encode(input,self.errors,encoding_table)[0]
+           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeEncodeError: 'charmap' codec can't encode characters in position 23-27: character maps to <undefined>
+
+2026-08-24 12:17:38 [WARNING] API insert study routine warning: {"detail":"Not Found"}
+2026-08-24 12:19:17 [ERROR] UNHANDLED EXCEPTION:
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+    from data.repositories import StudyRoutineRepository; repo = StudyRoutineRepository(); print('Routines:', [(r['id'], r['name_ar']) for r in repo.get_all()])
+                                                                                           ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\encodings\cp1252.py", line 19, in encode
+    return codecs.charmap_encode(input,self.errors,encoding_table)[0]
+           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeEncodeError: 'charmap' codec can't encode characters in position 6-10: character maps to <undefined>
+
+2026-08-24 13:17:48 [INFO] SYSTEM STARTUP DIAGNOSTIC CHECK STARTED
+2026-08-24 13:17:48 [OK] [CHECK 1/4] FastAPI Connection Check ... [OK]
+2026-08-24 13:17:48 [OK] [CHECK 2/4] MySQL Database Connection ... [OK]
+2026-08-24 13:17:48 [OK] [CHECK 3/4] Authentication & Core SP Checks ... [OK]
+2026-08-24 13:17:48 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-08-24 13:17:48 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-08-24 13:17:48 [OK] [CHECK 4/4] Sync Engine & Local Replica Check ... [OK]
+2026-08-24 13:17:48 [OK] Status: ALL CHECKS PASSED. PROCEEDING TO LOGIN/DASHBOARD.
+2026-08-24 13:17:51 [INFO] Using WinForms / Chromium
+2026-08-24 13:17:51 [INFO] Using WinForms / Chromium
+2026-08-24 13:17:56 [INFO] before_load event fired. injecting pywebview object
+2026-08-24 13:17:56 [INFO] before_load event fired. injecting pywebview object
+2026-08-24 13:17:56 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-24 13:17:56 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-24 13:17:56 [INFO] _pywebviewready event fired
+2026-08-24 13:17:56 [INFO] _pywebviewready event fired
+2026-08-24 13:17:56 [INFO] loaded event fired
+2026-08-24 13:17:56 [INFO] loaded event fired
+2026-08-24 13:18:00 [INFO] before_load event fired. injecting pywebview object
+2026-08-24 13:18:00 [INFO] before_load event fired. injecting pywebview object
+2026-08-24 13:18:00 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-24 13:18:00 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-24 13:18:01 [INFO] _pywebviewready event fired
+2026-08-24 13:18:01 [INFO] _pywebviewready event fired
+2026-08-24 13:18:01 [INFO] loaded event fired
+2026-08-24 13:18:01 [INFO] loaded event fired
+2026-08-24 13:19:31 [ERROR] no such column: result_status
+Traceback (most recent call last):
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\events.py", line 472, in handle_event
+    result = cast(Callable[[EventT], Any], handler)(arguments)
+  File "f:\CR_PY\certificate_manager\nicegui_ui\student_components.py", line 704, in on_status_change
+    self.period_repo.update_status(p_id, str(new_st))
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^
+  File "f:\CR_PY\certificate_manager\data\repositories.py", line 1795, in update_status
+    conn.execute("UPDATE academic_periods SET result_status = ? WHERE id = ?", (result_status, period_id))
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+sqlite3.OperationalError: no such column: result_status
+2026-08-24 13:19:31 [ERROR] no such column: result_status
+Traceback (most recent call last):
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\events.py", line 472, in handle_event
+    result = cast(Callable[[EventT], Any], handler)(arguments)
+  File "f:\CR_PY\certificate_manager\nicegui_ui\student_components.py", line 704, in on_status_change
+    self.period_repo.update_status(p_id, str(new_st))
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^
+  File "f:\CR_PY\certificate_manager\data\repositories.py", line 1795, in update_status
+    conn.execute("UPDATE academic_periods SET result_status = ? WHERE id = ?", (result_status, period_id))
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+sqlite3.OperationalError: no such column: result_status
+2026-08-24 13:26:07 [ERROR] no such column: result_status
+Traceback (most recent call last):
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\events.py", line 472, in handle_event
+    result = cast(Callable[[EventT], Any], handler)(arguments)
+  File "f:\CR_PY\certificate_manager\nicegui_ui\student_components.py", line 704, in on_status_change
+    self.period_repo.update_status(p_id, str(new_st))
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^
+  File "f:\CR_PY\certificate_manager\data\repositories.py", line 1795, in update_status
+    conn.execute("UPDATE academic_periods SET result_status = ? WHERE id = ?", (result_status, period_id))
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+sqlite3.OperationalError: no such column: result_status
+2026-08-24 13:26:07 [ERROR] no such column: result_status
+Traceback (most recent call last):
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\events.py", line 472, in handle_event
+    result = cast(Callable[[EventT], Any], handler)(arguments)
+  File "f:\CR_PY\certificate_manager\nicegui_ui\student_components.py", line 704, in on_status_change
+    self.period_repo.update_status(p_id, str(new_st))
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^
+  File "f:\CR_PY\certificate_manager\data\repositories.py", line 1795, in update_status
+    conn.execute("UPDATE academic_periods SET result_status = ? WHERE id = ?", (result_status, period_id))
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+sqlite3.OperationalError: no such column: result_status
+2026-08-24 13:32:41 [ERROR] no such column: result_status
+Traceback (most recent call last):
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\events.py", line 472, in handle_event
+    result = cast(Callable[[EventT], Any], handler)(arguments)
+  File "f:\CR_PY\certificate_manager\nicegui_ui\student_components.py", line 704, in on_status_change
+    self.period_repo.update_status(p_id, str(new_st))
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^
+  File "f:\CR_PY\certificate_manager\data\repositories.py", line 1795, in update_status
+    conn.execute("UPDATE academic_periods SET result_status = ? WHERE id = ?", (result_status, period_id))
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+sqlite3.OperationalError: no such column: result_status
+2026-08-24 13:32:41 [ERROR] no such column: result_status
+Traceback (most recent call last):
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\events.py", line 472, in handle_event
+    result = cast(Callable[[EventT], Any], handler)(arguments)
+  File "f:\CR_PY\certificate_manager\nicegui_ui\student_components.py", line 704, in on_status_change
+    self.period_repo.update_status(p_id, str(new_st))
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^
+  File "f:\CR_PY\certificate_manager\data\repositories.py", line 1795, in update_status
+    conn.execute("UPDATE academic_periods SET result_status = ? WHERE id = ?", (result_status, period_id))
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+sqlite3.OperationalError: no such column: result_status
+2026-08-24 14:14:13 [INFO] SYSTEM STARTUP DIAGNOSTIC CHECK STARTED
+2026-08-24 14:14:13 [OK] [CHECK 1/4] FastAPI Connection Check ... [OK]
+2026-08-24 14:14:13 [OK] [CHECK 2/4] MySQL Database Connection ... [OK]
+2026-08-24 14:14:13 [OK] [CHECK 3/4] Authentication & Core SP Checks ... [OK]
+2026-08-24 14:14:13 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-08-24 14:14:13 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-08-24 14:14:13 [OK] [CHECK 4/4] Sync Engine & Local Replica Check ... [OK]
+2026-08-24 14:14:13 [OK] Status: ALL CHECKS PASSED. PROCEEDING TO LOGIN/DASHBOARD.
+2026-08-24 14:14:17 [INFO] Using WinForms / Chromium
+2026-08-24 14:14:17 [INFO] Using WinForms / Chromium
+2026-08-24 14:14:22 [INFO] before_load event fired. injecting pywebview object
+2026-08-24 14:14:22 [INFO] before_load event fired. injecting pywebview object
+2026-08-24 14:14:22 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-24 14:14:22 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-24 14:14:22 [INFO] _pywebviewready event fired
+2026-08-24 14:14:22 [INFO] _pywebviewready event fired
+2026-08-24 14:14:22 [INFO] loaded event fired
+2026-08-24 14:14:22 [INFO] loaded event fired
+2026-08-24 14:14:28 [INFO] before_load event fired. injecting pywebview object
+2026-08-24 14:14:28 [INFO] before_load event fired. injecting pywebview object
+2026-08-24 14:14:28 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-24 14:14:28 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-24 14:14:28 [INFO] _pywebviewready event fired
+2026-08-24 14:14:28 [INFO] _pywebviewready event fired
+2026-08-24 14:14:28 [INFO] loaded event fired
+2026-08-24 14:14:28 [INFO] loaded event fired
+2026-08-24 14:15:47 [ERROR] no such column: result_status
+Traceback (most recent call last):
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\events.py", line 472, in handle_event
+    result = cast(Callable[[EventT], Any], handler)(arguments)
+  File "f:\CR_PY\certificate_manager\nicegui_ui\student_components.py", line 706, in on_status_change
+    self.period_repo.update_status(p_id, str(new_st))
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^
+  File "f:\CR_PY\certificate_manager\data\repositories.py", line 1819, in update_status
+    conn.execute("UPDATE academic_periods SET result_status = ? WHERE id = ?", (result_status, period_id))
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+sqlite3.OperationalError: no such column: result_status
+2026-08-24 14:15:47 [ERROR] no such column: result_status
+Traceback (most recent call last):
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\events.py", line 472, in handle_event
+    result = cast(Callable[[EventT], Any], handler)(arguments)
+  File "f:\CR_PY\certificate_manager\nicegui_ui\student_components.py", line 706, in on_status_change
+    self.period_repo.update_status(p_id, str(new_st))
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^
+  File "f:\CR_PY\certificate_manager\data\repositories.py", line 1819, in update_status
+    conn.execute("UPDATE academic_periods SET result_status = ? WHERE id = ?", (result_status, period_id))
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+sqlite3.OperationalError: no such column: result_status
+2026-08-24 14:20:57 [WARNING] API delete study routine warning: {"detail":"Not Found"}
+2026-08-24 14:20:59 [WARNING] API delete study routine warning: {"detail":"Not Found"}
+2026-08-26 08:46:23 [INFO] SYSTEM STARTUP DIAGNOSTIC CHECK STARTED
+2026-08-26 08:46:23 [OK] [CHECK 1/4] FastAPI Connection Check ... [OK]
+2026-08-26 08:46:23 [OK] [CHECK 2/4] MySQL Database Connection ... [OK]
+2026-08-26 08:46:23 [OK] [CHECK 3/4] Authentication & Core SP Checks ... [OK]
+2026-08-26 08:46:23 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-08-26 08:46:23 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-08-26 08:46:23 [OK] [CHECK 4/4] Sync Engine & Local Replica Check ... [OK]
+2026-08-26 08:46:23 [OK] Status: ALL CHECKS PASSED. PROCEEDING TO LOGIN/DASHBOARD.
+2026-08-26 08:46:28 [INFO] Using WinForms / Chromium
+2026-08-26 08:46:28 [INFO] Using WinForms / Chromium
+2026-08-26 08:46:34 [INFO] before_load event fired. injecting pywebview object
+2026-08-26 08:46:34 [INFO] before_load event fired. injecting pywebview object
+2026-08-26 08:46:34 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-26 08:46:34 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-26 08:46:34 [INFO] _pywebviewready event fired
+2026-08-26 08:46:34 [INFO] _pywebviewready event fired
+2026-08-26 08:46:34 [INFO] loaded event fired
+2026-08-26 08:46:34 [INFO] loaded event fired
+2026-08-26 08:46:42 [INFO] before_load event fired. injecting pywebview object
+2026-08-26 08:46:42 [INFO] before_load event fired. injecting pywebview object
+2026-08-26 08:46:42 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-26 08:46:42 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-26 08:46:42 [INFO] _pywebviewready event fired
+2026-08-26 08:46:42 [INFO] _pywebviewready event fired
+2026-08-26 08:46:42 [INFO] loaded event fired
+2026-08-26 08:46:42 [INFO] loaded event fired
+2026-08-26 09:07:20 [INFO] before_load event fired. injecting pywebview object
+2026-08-26 09:07:20 [INFO] before_load event fired. injecting pywebview object
+2026-08-26 09:07:20 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-26 09:07:20 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-26 09:07:21 [INFO] _pywebviewready event fired
+2026-08-26 09:07:21 [INFO] _pywebviewready event fired
+2026-08-26 09:07:21 [INFO] loaded event fired
+2026-08-26 09:07:21 [INFO] loaded event fired
+2026-08-26 09:30:57 [INFO] before_load event fired. injecting pywebview object
+2026-08-26 09:30:57 [INFO] before_load event fired. injecting pywebview object
+2026-08-26 09:30:57 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-26 09:30:57 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-26 09:30:57 [INFO] Sync queue is empty — nothing to do.
+2026-08-26 09:30:57 [INFO] Sync queue is empty — nothing to do.
+2026-08-26 09:30:57 [INFO] _pywebviewready event fired
+2026-08-26 09:30:57 [INFO] _pywebviewready event fired
+2026-08-26 09:30:57 [INFO] loaded event fired
+2026-08-26 09:30:57 [INFO] loaded event fired
+2026-08-26 09:32:38 [WARNING] API delete study routine warning: {"detail":"Not Found"}
+2026-08-26 09:32:42 [WARNING] API delete study routine warning: {"detail":"Not Found"}
+2026-08-26 09:32:44 [WARNING] API delete study routine warning: {"detail":"Not Found"}
+2026-08-26 09:32:47 [WARNING] API delete study routine warning: {"detail":"Not Found"}
+2026-08-26 10:31:30 [INFO] before_load event fired. injecting pywebview object
+2026-08-26 10:31:30 [INFO] before_load event fired. injecting pywebview object
+2026-08-26 10:31:30 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-26 10:31:30 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-26 10:31:31 [INFO] _pywebviewready event fired
+2026-08-26 10:31:31 [INFO] _pywebviewready event fired
+2026-08-26 10:31:31 [INFO] loaded event fired
+2026-08-26 10:31:31 [INFO] loaded event fired
+2026-08-26 10:35:13 [INFO] SYSTEM STARTUP DIAGNOSTIC CHECK STARTED
+2026-08-26 10:35:13 [OK] [CHECK 1/4] FastAPI Connection Check ... [OK]
+2026-08-26 10:35:13 [OK] [CHECK 2/4] MySQL Database Connection ... [OK]
+2026-08-26 10:35:13 [OK] [CHECK 3/4] Authentication & Core SP Checks ... [OK]
+2026-08-26 10:35:13 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-08-26 10:35:13 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-08-26 10:35:13 [OK] [CHECK 4/4] Sync Engine & Local Replica Check ... [OK]
+2026-08-26 10:35:13 [OK] Status: ALL CHECKS PASSED. PROCEEDING TO LOGIN/DASHBOARD.
+2026-08-26 10:35:17 [INFO] Using WinForms / Chromium
+2026-08-26 10:35:17 [INFO] Using WinForms / Chromium
+2026-08-26 10:35:23 [INFO] before_load event fired. injecting pywebview object
+2026-08-26 10:35:23 [INFO] before_load event fired. injecting pywebview object
+2026-08-26 10:35:23 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-26 10:35:23 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-26 10:35:23 [INFO] _pywebviewready event fired
+2026-08-26 10:35:23 [INFO] _pywebviewready event fired
+2026-08-26 10:35:24 [INFO] loaded event fired
+2026-08-26 10:35:24 [INFO] loaded event fired
+2026-08-26 10:35:29 [INFO] before_load event fired. injecting pywebview object
+2026-08-26 10:35:29 [INFO] before_load event fired. injecting pywebview object
+2026-08-26 10:35:29 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-26 10:35:29 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-26 10:35:29 [INFO] _pywebviewready event fired
+2026-08-26 10:35:29 [INFO] _pywebviewready event fired
+2026-08-26 10:35:29 [INFO] loaded event fired
+2026-08-26 10:35:29 [INFO] loaded event fired
+2026-08-26 11:07:16 [ERROR] UNHANDLED EXCEPTION:
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+    from nicegui_screens.certificate_screen import consolidate_courses_for_certificate; mock_courses = [{'subject_name': 'مهارات الحاسوب', 'stage_number': 1, 'semester_num': 1, 'academic_year': '2020-2021', 'academic_year_formatted': '2020-2021', 'mark': 0.0, 'passed_round': 1}, {'subject_name': 'مهارات الحاسوب', 'stage_number': 2, 'semester_num': 1, 'academic_year': '2021-2022', 'academic_year_formatted': '2021-2022', 'mark': 65.0, 'passed_round': 1}, {'subject_name': 'الصحة واللياقة', 'stage_number': 1, 'semester_num': 1, 'academic_year': '2020-2021', 'academic_year_formatted': '2020-2021', 'mark': 0.0, 'passed_round': 1}]; res = consolidate_courses_for_certificate(mock_courses, is_annual=True); print('Consolidated result count:', len(res)); print('Course details:', res); assert len(res) == 1; assert res[0]['subject_name'] == 'مهارات الحاسوب'; assert res[0]['stage_number'] == 1; assert res[0]['mark'] == 65; print('Verification Rule A.2 PASSED!')
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\encodings\cp1252.py", line 19, in encode
+    return codecs.charmap_encode(input,self.errors,encoding_table)[0]
+           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeEncodeError: 'charmap' codec can't encode characters in position 19-24: character maps to <undefined>
+
+2026-08-26 11:27:21 [INFO] before_load event fired. injecting pywebview object
+2026-08-26 11:27:21 [INFO] before_load event fired. injecting pywebview object
+2026-08-26 11:27:21 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-26 11:27:21 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-26 11:27:21 [INFO] _pywebviewready event fired
+2026-08-26 11:27:21 [INFO] _pywebviewready event fired
+2026-08-26 11:27:21 [INFO] loaded event fired
+2026-08-26 11:27:22 [INFO] loaded event fired
+2026-08-26 11:35:30 [INFO] SYSTEM STARTUP DIAGNOSTIC CHECK STARTED
+2026-08-26 11:35:30 [OK] [CHECK 1/4] FastAPI Connection Check ... [OK]
+2026-08-26 11:35:31 [OK] [CHECK 2/4] MySQL Database Connection ... [OK]
+2026-08-26 11:35:31 [OK] [CHECK 3/4] Authentication & Core SP Checks ... [OK]
+2026-08-26 11:35:31 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-08-26 11:35:31 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-08-26 11:35:31 [OK] [CHECK 4/4] Sync Engine & Local Replica Check ... [OK]
+2026-08-26 11:35:31 [OK] Status: ALL CHECKS PASSED. PROCEEDING TO LOGIN/DASHBOARD.
+2026-08-26 11:35:34 [INFO] Using WinForms / Chromium
+2026-08-26 11:35:34 [INFO] Using WinForms / Chromium
+2026-08-26 11:35:37 [INFO] before_load event fired. injecting pywebview object
+2026-08-26 11:35:37 [INFO] before_load event fired. injecting pywebview object
+2026-08-26 11:35:37 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-26 11:35:37 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-26 11:35:37 [INFO] _pywebviewready event fired
+2026-08-26 11:35:37 [INFO] _pywebviewready event fired
+2026-08-26 11:35:38 [INFO] loaded event fired
+2026-08-26 11:35:38 [INFO] loaded event fired
+2026-08-26 11:35:42 [INFO] before_load event fired. injecting pywebview object
+2026-08-26 11:35:42 [INFO] before_load event fired. injecting pywebview object
+2026-08-26 11:35:42 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-26 11:35:42 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-26 11:35:42 [INFO] _pywebviewready event fired
+2026-08-26 11:35:42 [INFO] _pywebviewready event fired
+2026-08-26 11:35:42 [INFO] loaded event fired
+2026-08-26 11:35:42 [INFO] loaded event fired
+2026-08-26 11:39:10 [WARNING] http://127.0.0.1:2323/.well-known/appspecific/com.chrome.devtools.json not found
+2026-08-26 11:39:10 [WARNING] http://127.0.0.1:2323/.well-known/appspecific/com.chrome.devtools.json not found
+2026-08-26 11:47:25 [ERROR] 'GenericEventArguments' object has no attribute 'value'
+Traceback (most recent call last):
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\events.py", line 472, in handle_event
+    result = cast(Callable[[EventT], Any], handler)(arguments)
+  File "f:\CR_PY\certificate_manager\nicegui_screens\courses_screen.py", line 514, in _toggle
+    if e.value:
+       ^^^^^^^
+AttributeError: 'GenericEventArguments' object has no attribute 'value'
+2026-08-26 11:47:25 [ERROR] 'GenericEventArguments' object has no attribute 'value'
+Traceback (most recent call last):
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\events.py", line 472, in handle_event
+    result = cast(Callable[[EventT], Any], handler)(arguments)
+  File "f:\CR_PY\certificate_manager\nicegui_screens\courses_screen.py", line 514, in _toggle
+    if e.value:
+       ^^^^^^^
+AttributeError: 'GenericEventArguments' object has no attribute 'value'
+2026-08-26 11:48:01 [ERROR] 'GenericEventArguments' object has no attribute 'value'
+Traceback (most recent call last):
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\events.py", line 472, in handle_event
+    result = cast(Callable[[EventT], Any], handler)(arguments)
+  File "f:\CR_PY\certificate_manager\nicegui_screens\courses_screen.py", line 514, in _toggle
+    if e.value:
+       ^^^^^^^
+AttributeError: 'GenericEventArguments' object has no attribute 'value'
+2026-08-26 11:48:01 [ERROR] 'GenericEventArguments' object has no attribute 'value'
+Traceback (most recent call last):
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\events.py", line 472, in handle_event
+    result = cast(Callable[[EventT], Any], handler)(arguments)
+  File "f:\CR_PY\certificate_manager\nicegui_screens\courses_screen.py", line 514, in _toggle
+    if e.value:
+       ^^^^^^^
+AttributeError: 'GenericEventArguments' object has no attribute 'value'
+2026-08-26 12:03:02 [ERROR] Error loading student: int() argument must be a string, a bytes-like object or a real number, not 'NoneType'
+2026-08-26 12:03:02 [ERROR] Error loading student: int() argument must be a string, a bytes-like object or a real number, not 'NoneType'
+2026-08-26 12:03:19 [ERROR] Error loading student: int() argument must be a string, a bytes-like object or a real number, not 'NoneType'
+2026-08-26 12:03:19 [ERROR] Error loading student: int() argument must be a string, a bytes-like object or a real number, not 'NoneType'
+2026-08-26 12:32:45 [INFO] before_load event fired. injecting pywebview object
+2026-08-26 12:32:45 [INFO] before_load event fired. injecting pywebview object
+2026-08-26 12:32:45 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-26 12:32:45 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-26 12:32:45 [INFO] _pywebviewready event fired
+2026-08-26 12:32:45 [INFO] _pywebviewready event fired
+2026-08-26 12:32:45 [INFO] loaded event fired
+2026-08-26 12:32:45 [INFO] loaded event fired
+2026-08-26 12:33:23 [ERROR] Error loading student: int() argument must be a string, a bytes-like object or a real number, not 'NoneType'
+2026-08-26 12:33:23 [ERROR] Error loading student: int() argument must be a string, a bytes-like object or a real number, not 'NoneType'
+2026-08-26 12:36:16 [ERROR] Error loading student: int() argument must be a string, a bytes-like object or a real number, not 'NoneType'
+2026-08-26 12:36:16 [ERROR] Error loading student: int() argument must be a string, a bytes-like object or a real number, not 'NoneType'
+2026-08-26 12:36:48 [ERROR] UNHANDLED EXCEPTION:
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+    from nicegui_screens.certificate_screen import consolidate_courses_for_certificate; mock_courses = [{'subject_name': 'Test Course', 'stage_number': None, 'semester_num': None, 'academic_year': '2020-2021', 'mark': 75.0}]; res = consolidate_courses_for_certificate(mock_courses, is_annual=True); print('Result:', res)
+                                                                                                                                                                                                                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "F:\CR_PY\certificate_manager\nicegui_screens\certificate_screen.py", line 46, in consolidate_courses_for_certificate
+    group.sort(key=lambda x: (
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^
+        str(x.get("academic_year", "")),
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        int(x.get("stage_number", 1)),
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        int(x.get("semester_num", 1))
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ))
+    ^^
+  File "F:\CR_PY\certificate_manager\nicegui_screens\certificate_screen.py", line 48, in <lambda>
+    int(x.get("stage_number", 1)),
+    ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: int() argument must be a string, a bytes-like object or a real number, not 'NoneType'
+
+2026-08-26 12:40:55 [INFO] SYSTEM STARTUP DIAGNOSTIC CHECK STARTED
+2026-08-26 12:40:55 [OK] [CHECK 1/4] FastAPI Connection Check ... [OK]
+2026-08-26 12:40:55 [OK] [CHECK 2/4] MySQL Database Connection ... [OK]
+2026-08-26 12:40:55 [OK] [CHECK 3/4] Authentication & Core SP Checks ... [OK]
+2026-08-26 12:40:55 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-08-26 12:40:55 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-08-26 12:40:55 [OK] [CHECK 4/4] Sync Engine & Local Replica Check ... [OK]
+2026-08-26 12:40:55 [OK] Status: ALL CHECKS PASSED. PROCEEDING TO LOGIN/DASHBOARD.
+2026-08-26 12:40:59 [INFO] Using WinForms / Chromium
+2026-08-26 12:40:59 [INFO] Using WinForms / Chromium
+2026-08-26 12:41:04 [INFO] before_load event fired. injecting pywebview object
+2026-08-26 12:41:04 [INFO] before_load event fired. injecting pywebview object
+2026-08-26 12:41:04 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-26 12:41:04 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-26 12:41:04 [INFO] _pywebviewready event fired
+2026-08-26 12:41:04 [INFO] _pywebviewready event fired
+2026-08-26 12:41:04 [INFO] loaded event fired
+2026-08-26 12:41:04 [INFO] loaded event fired
+2026-08-26 12:41:10 [INFO] before_load event fired. injecting pywebview object
+2026-08-26 12:41:10 [INFO] before_load event fired. injecting pywebview object
+2026-08-26 12:41:10 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-26 12:41:10 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-26 12:41:10 [INFO] _pywebviewready event fired
+2026-08-26 12:41:10 [INFO] _pywebviewready event fired
+2026-08-26 12:41:10 [INFO] loaded event fired
+2026-08-26 12:41:10 [INFO] loaded event fired
+2026-08-26 12:57:14 [INFO] SYSTEM STARTUP DIAGNOSTIC CHECK STARTED
+2026-08-26 12:57:14 [OK] [CHECK 1/4] FastAPI Connection Check ... [OK]
+2026-08-26 12:57:14 [OK] [CHECK 2/4] MySQL Database Connection ... [OK]
+2026-08-26 12:57:14 [OK] [CHECK 3/4] Authentication & Core SP Checks ... [OK]
+2026-08-26 12:57:14 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-08-26 12:57:14 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-08-26 12:57:14 [OK] [CHECK 4/4] Sync Engine & Local Replica Check ... [OK]
+2026-08-26 12:57:14 [OK] Status: ALL CHECKS PASSED. PROCEEDING TO LOGIN/DASHBOARD.
+2026-08-26 12:57:18 [INFO] Using WinForms / Chromium
+2026-08-26 12:57:18 [INFO] Using WinForms / Chromium
+2026-08-26 12:57:22 [INFO] before_load event fired. injecting pywebview object
+2026-08-26 12:57:22 [INFO] before_load event fired. injecting pywebview object
+2026-08-26 12:57:22 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-26 12:57:22 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-26 12:57:22 [INFO] _pywebviewready event fired
+2026-08-26 12:57:22 [INFO] _pywebviewready event fired
+2026-08-26 12:57:22 [INFO] loaded event fired
+2026-08-26 12:57:22 [INFO] loaded event fired
+2026-08-26 12:57:29 [INFO] before_load event fired. injecting pywebview object
+2026-08-26 12:57:29 [INFO] before_load event fired. injecting pywebview object
+2026-08-26 12:57:29 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-26 12:57:29 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-26 12:57:29 [INFO] _pywebviewready event fired
+2026-08-26 12:57:29 [INFO] _pywebviewready event fired
+2026-08-26 12:57:29 [INFO] loaded event fired
+2026-08-26 12:57:29 [INFO] loaded event fired
+2026-08-27 11:44:55 [INFO] SYSTEM STARTUP DIAGNOSTIC CHECK STARTED
+2026-08-27 11:44:55 [OK] [CHECK 1/4] FastAPI Connection Check ... [OK]
+2026-08-27 11:44:56 [OK] [CHECK 2/4] MySQL Database Connection ... [OK]
+2026-08-27 11:44:56 [OK] [CHECK 3/4] Authentication & Core SP Checks ... [OK]
+2026-08-27 11:44:56 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-08-27 11:44:56 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-08-27 11:44:56 [OK] [CHECK 4/4] Sync Engine & Local Replica Check ... [OK]
+2026-08-27 11:44:56 [OK] Status: ALL CHECKS PASSED. PROCEEDING TO LOGIN/DASHBOARD.

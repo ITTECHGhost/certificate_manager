@@ -325,6 +325,29 @@ def init_local_db() -> None:
             )
         """)
 
+        # -- Predefined Study Routines & Template Courses tables --------------
+        cur.execute("""
+            CREATE TABLE IF NOT EXISTS study_routines (
+                id              INTEGER PRIMARY KEY AUTOINCREMENT,
+                name_ar         TEXT NOT NULL,
+                name_en         TEXT NOT NULL,
+                department_id   INTEGER NOT NULL,
+                study_system_id INTEGER NOT NULL DEFAULT 1,
+                stage_number    INTEGER NOT NULL DEFAULT 1,
+                semester_num    INTEGER NOT NULL DEFAULT 1,
+                created_at      TEXT DEFAULT CURRENT_TIMESTAMP
+            )
+        """)
+
+        cur.execute("""
+            CREATE TABLE IF NOT EXISTS study_routine_courses (
+                id              INTEGER PRIMARY KEY AUTOINCREMENT,
+                routine_id      INTEGER NOT NULL,
+                course_id       INTEGER NOT NULL,
+                UNIQUE(routine_id, course_id)
+            )
+        """)
+
         # -- Replica tables: full read-only mirrors of MySQL tables ----------
         # These are populated by pull_mysql_to_sqlite() whenever the app
         # is online, so that offline reads can query structured data.
@@ -379,11 +402,17 @@ def init_local_db() -> None:
                 academic_year   TEXT,
                 study_system_id INTEGER,
                 stage_number    INTEGER,
-                semester_num    INTEGER DEFAULT 1
+                semester_num    INTEGER DEFAULT 1,
+                result_status   TEXT DEFAULT 'PASSED'
             )
         """)
         try:
             cur.execute("ALTER TABLE academic_periods ADD COLUMN semester_num INTEGER DEFAULT 1;")
+        except sqlite3.OperationalError:
+            pass
+
+        try:
+            cur.execute("ALTER TABLE academic_periods ADD COLUMN result_status TEXT DEFAULT 'PASSED';")
         except sqlite3.OperationalError:
             pass
 
@@ -623,6 +652,8 @@ _REPLICA_TABLES: list[tuple[str, str]] = [
     ("student_supervisors", "SELECT * FROM student_supervisors"),
     ("thesis_records",      "SELECT * FROM thesis_records"),
     ("issued_certificates", "SELECT * FROM issued_certificates"),
+    ("study_routines",      "SELECT * FROM study_routines"),
+    ("study_routine_courses", "SELECT * FROM study_routine_courses"),
 ]
 
 

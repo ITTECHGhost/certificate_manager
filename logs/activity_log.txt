@@ -637,3 +637,32 @@
 2026-08-22 23:06:35 [OK] Authentication verified via MySQL Stored Procedure 'AuthenticateUser' for user '1' (ID: 1, Role: admin)
 2026-08-22 23:11:59 [INFO] Login attempt initiated for username: '1'
 2026-08-22 23:11:59 [OK] Authentication verified via MySQL Stored Procedure 'AuthenticateUser' for user '1' (ID: 1, Role: admin)
+2026-08-23 09:01:35 [INFO] Login attempt initiated for username: '1'
+2026-08-23 09:01:35 [OK] Authentication verified via MySQL Stored Procedure 'AuthenticateUser' for user '1' (ID: 1, Role: admin)
+2026-08-23 09:43:39 [INFO] تم إضافة طالب جديد: حسن نور حسين نور
+2026-08-23 09:45:02 [INFO] تم إضافة أمر جامعي جديد: 23149/13/3
+2026-08-23 09:45:09 [INFO] تم ربط الطالب ID: 2137 بالأمر الجامعي ID: 128
+2026-08-23 09:45:19 [INFO] تم فك ارتباط الطالب ID: 2137 بالأمر الجامعي
+2026-08-23 09:45:22 [INFO] تم ربط الطالب ID: 2137 بالأمر الجامعي ID: 128
+2026-08-23 10:32:15 [INFO] تم تحديث المظهر للمستخدم ID: 1
+2026-08-24 11:53:38 [INFO] Login attempt initiated for username: '1'
+2026-08-24 11:53:38 [OK] Authentication verified via MySQL Stored Procedure 'AuthenticateUser' for user '1' (ID: 1, Role: admin)
+2026-08-24 12:18:47 [INFO] تم إنشاء روتين دراسي جديد: خطة الهندسة الحاسوبية
+2026-08-24 12:19:10 [INFO] تم إنشاء روتين دراسي جديد: روتين هندسة البرمجيات
+2026-08-24 13:17:59 [INFO] Login attempt initiated for username: '1'
+2026-08-24 13:17:59 [OK] Authentication verified via MySQL Stored Procedure 'AuthenticateUser' for user '1' (ID: 1, Role: admin)
+2026-08-24 14:14:27 [INFO] Login attempt initiated for username: '1'
+2026-08-24 14:14:27 [OK] Authentication verified via MySQL Stored Procedure 'AuthenticateUser' for user '1' (ID: 1, Role: admin)
+2026-08-26 08:46:41 [INFO] Login attempt initiated for username: '1'
+2026-08-26 08:46:41 [OK] Authentication verified via MySQL Stored Procedure 'AuthenticateUser' for user '1' (ID: 1, Role: admin)
+2026-08-26 10:35:28 [INFO] Login attempt initiated for username: '1'
+2026-08-26 10:35:28 [OK] Authentication verified via MySQL Stored Procedure 'AuthenticateUser' for user '1' (ID: 1, Role: admin)
+2026-08-26 10:44:41 [INFO] تم تعديل بيانات الطالب ID: 2137
+2026-08-26 11:35:41 [INFO] Login attempt initiated for username: '1'
+2026-08-26 11:35:41 [OK] Authentication verified via MySQL Stored Procedure 'AuthenticateUser' for user '1' (ID: 1, Role: admin)
+2026-08-26 12:41:08 [INFO] Login attempt initiated for username: '1'
+2026-08-26 12:41:08 [OK] Authentication verified via MySQL Stored Procedure 'AuthenticateUser' for user '1' (ID: 1, Role: admin)
+2026-08-26 12:41:17 [INFO] تم تحديث المظهر للمستخدم ID: 1
+2026-08-26 12:41:19 [INFO] تم تحديث المظهر للمستخدم ID: 1
+2026-08-26 12:57:28 [INFO] Login attempt initiated for username: '1'
+2026-08-26 12:57:28 [OK] Authentication verified via MySQL Stored Procedure 'AuthenticateUser' for user '1' (ID: 1, Role: admin)

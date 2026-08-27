@@ -74,6 +74,18 @@ TABLE_REGISTRY: Dict[str, Dict[str, Any]] = {
             "period_id", "course_id", "score", "passed_round",
         ],
     },
+    "issued_certificates": {
+        "sp_name": "InsertIssuedCertificate",
+        "sp_args": ["student_id", "to_title", "template_type", "issue_date"],
+    },
+    "study_routines": {
+        "sp_name": "InsertStudyRoutine",
+        "sp_args": ["name_ar", "name_en", "department_id", "study_system_id", "stage_number", "semester_num"],
+    },
+    "study_routine_courses": {
+        "sp_name": "InsertStudyRoutineCourse",
+        "sp_args": ["routine_id", "course_id"],
+    },
 }
 
 # Request Validation Models
@@ -1906,8 +1918,325 @@ def api_update_user_appearance(payload: dict, conn = Depends(get_db)):
     except Exception as exc:
         conn.rollback()
         raise HTTPException(status_code=500, detail=str(exc))
+# ===========================================================================
+# Study Routines & Routine Courses Module
+# ===========================================================================
+
+class StudyRoutinePayload(BaseModel):
+    name_ar: str
+    name_en: str
+    department_id: int
+    study_system_id: Optional[int] = 1
+    stage_number: Optional[int] = 1
+    semester_num: Optional[int] = 1
+
+class RoutineCoursePayload(BaseModel):
+    routine_id: int
+    course_id: int
+
+
+@app.get("/api/study-routines")
+def get_all_study_routines(conn = Depends(get_db)):
+    try:
+        return execute_sp_fetchall(conn, "GetAllStudyRoutines")
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=str(exc))
+
+
+@app.get("/api/study-routines/{routine_id}")
+def get_study_routine_by_id(routine_id: int, conn = Depends(get_db)):
+    try:
+        row = execute_sp_fetchone(conn, "GetStudyRoutineById", (routine_id,))
+        if not row:
+            raise HTTPException(status_code=404, detail="Study routine not found")
+        return row
+    except HTTPException:
+        raise
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=str(exc))
+
+
+@app.post("/api/study-routines")
+def insert_study_routine(payload: StudyRoutinePayload, conn = Depends(get_db)):
+    cur = conn.cursor(dictionary=True)
+    try:
+        cur.callproc(
+            "InsertStudyRoutine",
+            (
+                payload.name_ar,
+                payload.name_en,
+                payload.department_id,
+                payload.study_system_id or 1,
+                payload.stage_number or 1,
+                payload.semester_num or 1,
+            )
+        )
+        real_id = None
+        if hasattr(cur, "stored_results"):
+            for result in cur.stored_results():
+                row = result.fetchone()
+                if row:
+                    if "new_id" in row:
+                        real_id = row["new_id"]
+                    elif "inserted_id" in row:
+                        real_id = row["inserted_id"]
+                    elif "id" in row:
+                        real_id = row["id"]
+                    break
+        try:
+            while cur.nextset():
+                pass
+        except Exception:
+            pass
+
+        if real_id is None:
+            cur.execute("SELECT LAST_INSERT_ID() AS new_id")
+            r = cur.fetchone()
+            if r:
+                real_id = r.get("new_id")
+
+        conn.commit()
+        return {"new_id": real_id, "inserted_id": real_id, "status": "success"}
+    except Exception as exc:
+        conn.rollback()
+        raise HTTPException(status_code=500, detail=str(exc))
     finally:
         cur.close()
+
+
+@app.put("/api/study-routines/{routine_id}")
+def update_study_routine(routine_id: int, payload: StudyRoutinePayload, conn = Depends(get_db)):
+    cur = conn.cursor(dictionary=True)
+    try:
+        cur.callproc(
+            "UpdateStudyRoutine",
+            (
+                routine_id,
+                payload.name_ar,
+                payload.name_en,
+                payload.department_id,
+                payload.study_system_id or 1,
+                payload.stage_number or 1,
+                payload.semester_num or 1,
+            )
+        )
+        try:
+            while cur.nextset():
+                pass
+        except Exception:
+            pass
+        conn.commit()
+        return {"status": "success"}
+    except Exception as exc:
+        conn.rollback()
+        raise HTTPException(status_code=500, detail=str(exc))
+    finally:
+        cur.close()
+
+
+@app.delete("/api/study-routines/{routine_id}")
+def delete_study_routine(routine_id: int, conn = Depends(get_db)):
+    cur = conn.cursor(dictionary=True)
+    try:
+        cur.callproc("DeleteStudyRoutine", (routine_id,))
+        try:
+            while cur.nextset():
+                pass
+        except Exception:
+            pass
+        conn.commit()
+        return {"status": "success"}
+    except Exception as exc:
+        conn.rollback()
+        raise HTTPException(status_code=500, detail=str(exc))
+    finally:
+        cur.close()
+
+
+# --- Routine Courses ---
+
+@app.get("/api/study-routine-courses/{routine_id}")
+def get_study_routine_courses(routine_id: int, conn = Depends(get_db)):
+    try:
+        return execute_sp_fetchall(conn, "GetStudyRoutineCourses", (routine_id,))
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=str(exc))
+
+
+@app.post("/api/study-routine-courses")
+def insert_study_routine_course(payload: RoutineCoursePayload, conn = Depends(get_db)):
+    cur = conn.cursor(dictionary=True)
+    try:
+        cur.callproc("InsertStudyRoutineCourse", (payload.routine_id, payload.course_id))
+        try:
+            while cur.nextset():
+                pass
+        except Exception:
+            pass
+        conn.commit()
+        return {"status": "success"}
+    except Exception as exc:
+        conn.rollback()
+        raise HTTPException(status_code=500, detail=str(exc))
+    finally:
+        cur.close()
+
+
+@app.delete("/api/study-routine-courses/{routine_id}/{course_id}")
+def delete_study_routine_course(routine_id: int, course_id: int, conn = Depends(get_db)):
+    cur = conn.cursor(dictionary=True)
+    try:
+        cur.callproc("DeleteStudyRoutineCourse", (routine_id, course_id))
+        try:
+            while cur.nextset():
+                pass
+        except Exception:
+            pass
+        conn.commit()
+        return {"status": "success"}
+    except Exception as exc:
+        conn.rollback()
+        raise HTTPException(status_code=500, detail=str(exc))
+    finally:
+        cur.close()
+
+
+# ===========================================================================
+# Issued Certificates Module
+# ===========================================================================
+
+class IssuedCertificatePayload(BaseModel):
+    student_id: int
+    to_title: Optional[str] = ""
+    template_type: Optional[str] = "graduation"
+    issue_date: Optional[str] = None
+
+
+@app.get("/api/issued-certificates")
+def get_all_issued_certificates(conn = Depends(get_db)):
+    try:
+        return execute_sp_fetchall(conn, "GetAllIssuedCertificates")
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=str(exc))
+
+
+@app.get("/api/issued-certificates/{cert_id}")
+def get_issued_certificate_by_id(cert_id: int, conn = Depends(get_db)):
+    try:
+        row = execute_sp_fetchone(conn, "GetIssuedCertificateById", (cert_id,))
+        if not row:
+            raise HTTPException(status_code=404, detail="Issued certificate not found")
+        return row
+    except HTTPException:
+        raise
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=str(exc))
+
+
+@app.get("/api/issued-certificates/by-student/{student_id}")
+def get_issued_certificates_by_student(student_id: int, conn = Depends(get_db)):
+    try:
+        return execute_sp_fetchall(conn, "GetIssuedCertificatesByStudent", (student_id,))
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=str(exc))
+
+
+@app.post("/api/issued-certificates")
+def insert_issued_certificate(payload: IssuedCertificatePayload, conn = Depends(get_db)):
+    from datetime import datetime
+    cur = conn.cursor(dictionary=True)
+    try:
+        issue_date = payload.issue_date or datetime.now().strftime("%Y-%m-%d")
+        cur.callproc(
+            "InsertIssuedCertificate",
+            (
+                payload.student_id,
+                payload.to_title or "",
+                payload.template_type or "graduation",
+                str(issue_date),
+            )
+        )
+        real_id = None
+        if hasattr(cur, "stored_results"):
+            for result in cur.stored_results():
+                row = result.fetchone()
+                if row:
+                    if "new_id" in row:
+                        real_id = row["new_id"]
+                    elif "inserted_id" in row:
+                        real_id = row["inserted_id"]
+                    elif "id" in row:
+                        real_id = row["id"]
+                    break
+        try:
+            while cur.nextset():
+                pass
+        except Exception:
+            pass
+
+        if real_id is None:
+            cur.execute("SELECT LAST_INSERT_ID() AS new_id")
+            r = cur.fetchone()
+            if r:
+                real_id = r.get("new_id")
+
+        conn.commit()
+        return {"new_id": real_id, "inserted_id": real_id, "status": "success"}
+    except Exception as exc:
+        conn.rollback()
+        raise HTTPException(status_code=500, detail=str(exc))
+    finally:
+        cur.close()
+
+
+@app.put("/api/issued-certificates/{cert_id}")
+def update_issued_certificate(cert_id: int, payload: IssuedCertificatePayload, conn = Depends(get_db)):
+    from datetime import datetime
+    cur = conn.cursor(dictionary=True)
+    try:
+        issue_date = payload.issue_date or datetime.now().strftime("%Y-%m-%d")
+        cur.callproc(
+            "UpdateIssuedCertificate",
+            (
+                cert_id,
+                payload.student_id,
+                payload.to_title or "",
+                payload.template_type or "graduation",
+                str(issue_date),
+            )
+        )
+        try:
+            while cur.nextset():
+                pass
+        except Exception:
+            pass
+        conn.commit()
+        return {"status": "success"}
+    except Exception as exc:
+        conn.rollback()
+        raise HTTPException(status_code=500, detail=str(exc))
+    finally:
+        cur.close()
+
+
+@app.delete("/api/issued-certificates/{cert_id}")
+def delete_issued_certificate(cert_id: int, conn = Depends(get_db)):
+    cur = conn.cursor(dictionary=True)
+    try:
+        cur.callproc("DeleteIssuedCertificate", (cert_id,))
+        try:
+            while cur.nextset():
+                pass
+        except Exception:
+            pass
+        conn.commit()
+        return {"status": "success"}
+    except Exception as exc:
+        conn.rollback()
+        raise HTTPException(status_code=500, detail=str(exc))
+    finally:
+        cur.close()
+
 
 if __name__ == "__main__":
     import uvicorn

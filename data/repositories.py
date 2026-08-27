@@ -15,7 +15,7 @@ from sync_engine import (
     cache_read_result, get_cached_read,
     sqlite_read_all, sqlite_read_one,
     pull_mysql_to_sqlite_background,
-    get_local_connection,
+    get_local_connection, generate_temp_id,
     DB_PATH,
 )
 
@@ -1074,7 +1074,8 @@ class StudentRepository(BaseRepository):
             "SELECT s.id, s.full_name_ar, s.full_name_en, s.admission_year, s.status, "
             "d.name_ar AS dept_name_ar "
             "FROM ("
-            "  SELECT id, full_name_ar, full_name_en, CAST(admission_year AS TEXT) AS admission_year, status, department_id FROM students "
+            "  SELECT id, full_name_ar, full_name_en, CAST(admission_year AS TEXT) AS admission_year, "
+            "  CASE WHEN order_id IS NOT NULL THEN 'متخرج' ELSE 'مستمر' END AS status, department_id FROM students "
             "  UNION ALL "
             "  SELECT id, full_name_ar, full_name_en, CAST(admission_year AS TEXT) AS admission_year, 'مستمر' AS status, department_id FROM local_students"
             ") s "
@@ -1084,11 +1085,21 @@ class StudentRepository(BaseRepository):
         try:
             return sqlite_read_all(query, (limit,))
         except Exception as exc:
-            log.warning(f"Error fetching last added students: {exc}")
+            log_system(f"Error fetching last added students: {exc}", "WARNING")
             return []
 
     def get_recent_issued_certificates(self, limit: int = 5) -> list[dict]:
         """Fetch recently issued certificates from issued_certificates table (or graduation orders fallback)."""
+        if is_online():
+            try:
+                resp = requests.get(f"{self.api_url}/issued-certificates", timeout=5.0)
+                if resp.status_code == 200:
+                    certs = resp.json()
+                    if certs:
+                        return certs[:limit]
+            except Exception as e:
+                log_system(f"Failed to fetch issued certificates via SP API: {e}", "WARNING")
+
         query_ic = (
             "SELECT ic.id, ic.student_id, ic.to_title, ic.template_type, ic.issue_date, "
             "s.full_name_ar, s.full_name_en, d.name_ar AS dept_name_ar "
@@ -1107,7 +1118,7 @@ class StudentRepository(BaseRepository):
         # Fallback to graduation orders if issued_certificates table is empty
         query_fallback = (
             "SELECT s.id, s.full_name_ar, s.full_name_en, "
-            "d.name_ar AS dept_name_ar, o.order_number, o.order_date AS issue_date "
+            "d.name_ar AS dept_name_ar, 'من يهمه الأمر' AS to_title, 'عربي' AS template_type, o.order_number, o.order_date AS issue_date "
             "FROM ("
             "  SELECT id, full_name_ar, full_name_en, department_id, order_id FROM students WHERE order_id IS NOT NULL "
             "  UNION ALL "
@@ -1658,9 +1669,9 @@ class StudentRepository(BaseRepository):
                 "sequence_number": data.get('sequence_number'),
                 "postgraduation_number": data.get('postgraduation_number'),
                 "date_of_birth": str(data.get('date_of_birth')) if data.get('date_of_birth') else None,
-                "birthplace_id": data.get('birthplace_id'),
+                "birthplace_id": data.get('birthplace_id', 2),
                 "birthplace_other": data.get('birthplace_other'),
-                "nationality_id": data.get('nationality_id', 1),
+                "nationality_id": data.get('nationality_id', 274),
                 "department_id": data.get('department_id'),
                 "study_system_id": data.get('study_system_id'),
                 "degree_level": data.get('degree_level', 1),
@@ -1725,8 +1736,38 @@ class StudentRepository(BaseRepository):
 
 class AcademicPeriodRepository(BaseRepository):
     def get_by_student(self, student_id: int) -> list[dict]:
-        if not is_online():
-            return sqlite_read_all(
+        periods = []
+        if is_online():
+            try:
+                resp = requests.get(f"{self.api_url}/academic-periods/by-student/{student_id}", timeout=3.0)
+                if resp.status_code == 200:
+                    periods = resp.json()
+            except Exception as e:
+                log_system(f"API request failed for get_by_student academic_periods: {e}", "WARNING")
+
+            if not periods:
+                try:
+                    from db import get_connection as get_mysql_conn
+                    m_conn = get_mysql_conn()
+                    try:
+                        cur = m_conn.cursor(dictionary=True)
+                        try:
+                            cur.execute(
+                                "SELECT id, student_id, academic_year, study_system_id, stage_number, semester_num, "
+                                "COALESCE(result_status, 'PASSED') AS result_status "
+                                "FROM academic_periods WHERE student_id = %s ORDER BY stage_number ASC, semester_num ASC",
+                                (student_id,)
+                            )
+                            periods = cur.fetchall() or []
+                        finally:
+                            cur.close()
+                    finally:
+                        m_conn.close()
+                except Exception as sp_err:
+                    log_system(f"MySQL direct read error for academic_periods: {sp_err}", "WARNING")
+
+        if not periods:
+            periods = sqlite_read_all(
                 "SELECT id, student_id, academic_year, study_system_id, stage_number, semester_num, COALESCE(result_status, 'PASSED') AS result_status FROM ("
                 "  SELECT id, student_id, academic_year, study_system_id, stage_number, semester_num, result_status FROM academic_periods "
                 "  UNION ALL "
@@ -1734,18 +1775,12 @@ class AcademicPeriodRepository(BaseRepository):
                 ") WHERE student_id = ? ORDER BY stage_number, semester_num",
                 (student_id,)
             )
-        try:
-            resp = requests.get(f"{self.api_url}/academic-periods/by-student/{student_id}", timeout=5.0)
-            if resp.status_code == 200:
-                res = resp.json()
-                for r in res:
-                    if not r.get("result_status"):
-                        r["result_status"] = "PASSED"
-                return res
-            return []
-        except Exception as e:
-            log_system(f"API request failed: {e}", "WARNING")
-            return []
+
+        for r in periods:
+            if not r.get("result_status"):
+                r["result_status"] = "PASSED"
+
+        return periods
 
     def insert(self, student_id: int, year: str, sys_id: int, stage: int, semester_num: int = 1, result_status: str = "PASSED") -> int:
         if not is_online():
@@ -1776,35 +1811,82 @@ class AcademicPeriodRepository(BaseRepository):
             raise
 
     def update_status(self, period_id: int, result_status: str) -> None:
-        if not is_online():
-            conn = get_local_connection()
-            try:
-                if period_id < 0:
+        conn = get_local_connection()
+        try:
+            if period_id < 0:
+                try:
                     conn.execute("UPDATE local_academic_periods SET result_status = ? WHERE id = ?", (result_status, period_id))
-                else:
+                except sqlite3.OperationalError as oe:
+                    if "no such column" in str(oe).lower():
+                        conn.execute("ALTER TABLE local_academic_periods ADD COLUMN result_status TEXT DEFAULT 'PASSED'")
+                        conn.execute("UPDATE local_academic_periods SET result_status = ? WHERE id = ?", (result_status, period_id))
+                    else:
+                        raise
+            else:
+                try:
                     conn.execute("UPDATE academic_periods SET result_status = ? WHERE id = ?", (result_status, period_id))
-                conn.commit()
-            finally:
-                conn.close()
+                except sqlite3.OperationalError as oe:
+                    if "no such column" in str(oe).lower():
+                        conn.execute("ALTER TABLE academic_periods ADD COLUMN result_status TEXT DEFAULT 'PASSED'")
+                        conn.execute("UPDATE academic_periods SET result_status = ? WHERE id = ?", (result_status, period_id))
+                    else:
+                        raise
+            conn.commit()
+        finally:
+            conn.close()
+
+        if not is_online():
             return
+
         try:
             resp = requests.patch(
                 f"{self.api_url}/academic-periods/{period_id}/status",
                 json={"result_status": result_status},
-                timeout=5.0
+                timeout=3.0
             )
             if resp.status_code != 200:
-                # Direct DB connection fallback
                 from db import get_connection as get_mysql_conn
                 m_conn = get_mysql_conn()
                 try:
-                    with m_conn.cursor() as cur:
+                    cur = m_conn.cursor()
+                    try:
                         cur.execute("UPDATE academic_periods SET result_status = %s WHERE id = %s", (result_status, period_id))
-                    m_conn.commit()
+                        m_conn.commit()
+                    finally:
+                        cur.close()
                 finally:
                     m_conn.close()
         except Exception as e:
             log_system(f"API update_status failed: {e}", "WARNING")
+
+    def update_stage(self, period_id: int, stage_number: int) -> None:
+        conn = get_local_connection()
+        try:
+            if period_id < 0:
+                conn.execute("UPDATE local_academic_periods SET stage_number = ? WHERE id = ?", (stage_number, period_id))
+            else:
+                conn.execute("UPDATE academic_periods SET stage_number = ? WHERE id = ?", (stage_number, period_id))
+            conn.commit()
+        finally:
+            conn.close()
+
+        if not is_online():
+            return
+
+        try:
+            from db import get_connection as get_mysql_conn
+            m_conn = get_mysql_conn()
+            try:
+                cur = m_conn.cursor()
+                try:
+                    cur.execute("UPDATE academic_periods SET stage_number = %s WHERE id = %s", (stage_number, period_id))
+                    m_conn.commit()
+                finally:
+                    cur.close()
+            finally:
+                m_conn.close()
+        except Exception as e:
+            log_system(f"API update_stage failed: {e}", "WARNING")
 
     def delete(self, period_id: int) -> None:
         if not is_online():
@@ -2539,7 +2621,444 @@ class DashboardRepository(BaseRepository):
 
 
 # ---------------------------------------------------------------------------
-# Module 13: Authentication
+# Module 14: Predefined Study Routines
 # ---------------------------------------------------------------------------
+
+class StudyRoutineRepository(BaseRepository):
+    def get_all(self, dept_id: int | None = None) -> list[dict]:
+        """Fetch all predefined study routines with their linked courses and department info (3-Tier Failover)."""
+        routines = []
+        if is_online():
+            try:
+                resp = requests.get(f"{self.api_url}/study-routines", timeout=3.0)
+                if resp.status_code == 200:
+                    routines = resp.json()
+            except Exception as e:
+                log_system(f"API request failed for get_all study routines: {e}", "WARNING")
+
+            if not routines:
+                try:
+                    routines = self._call_read_all("GetAllStudyRoutines")
+                except Exception as sp_err:
+                    log_system(f"SP GetAllStudyRoutines fallback error: {sp_err}", "WARNING")
+
+        if not routines:
+            where_clause = "WHERE sr.department_id = ?" if dept_id else ""
+            params = (dept_id,) if dept_id else ()
+            query = (
+                f"SELECT sr.*, d.name_ar AS dept_name_ar, d.name_en AS dept_name_en "
+                f"FROM study_routines sr "
+                f"LEFT JOIN departments d ON sr.department_id = d.id "
+                f"{where_clause} ORDER BY sr.id DESC"
+            )
+            routines = sqlite_read_all(query, params)
+
+        if dept_id:
+            routines = [r for r in routines if r.get("department_id") == dept_id]
+
+        for r in routines:
+            rid = r.get("id")
+            if rid:
+                courses = []
+                if is_online():
+                    try:
+                        c_resp = requests.get(f"{self.api_url}/study-routine-courses/{rid}", timeout=3.0)
+                        if c_resp.status_code == 200:
+                            courses = c_resp.json()
+                    except Exception:
+                        pass
+                    if not courses:
+                        try:
+                            courses = self._call_read_all("GetStudyRoutineCourses", (rid,))
+                        except Exception:
+                            pass
+                if not courses:
+                    c_query = (
+                        "SELECT c.id, c.name_ar, c.name_en, c.credit_hours, c.stage_number, c.semester_num "
+                        "FROM study_routine_courses src "
+                        "JOIN courses c ON src.course_id = c.id "
+                        "WHERE src.routine_id = ? ORDER BY c.stage_number ASC, c.semester_num ASC, c.name_ar ASC"
+                    )
+                    courses = sqlite_read_all(c_query, (rid,))
+                r["courses"] = courses
+                r["course_ids"] = [c["id"] for c in courses if isinstance(c, dict) and "id" in c]
+
+        return routines
+
+    def get_by_id(self, routine_id: int) -> dict | None:
+        """Fetch a single study routine with full course details."""
+        routines = self.get_all()
+        for r in routines:
+            if r.get("id") == routine_id:
+                return r
+        return None
+
+    def insert(self, data: dict) -> int:
+        """Create a new study routine and link its courses (3-Tier Failover)."""
+        name_ar = data.get("name_ar", "")
+        name_en = data.get("name_en", "")
+        dept_id = int(data.get("department_id") or 1)
+        sys_id = int(data.get("study_system_id") or 1)
+        stage = int(data.get("stage_number") or 1)
+        sem_num = int(data.get("semester_num") or 1)
+        course_ids = data.get("course_ids") or []
+
+        # 1. Always write to local SQLite cache first for instant consistency
+        local_id = None
+        try:
+            conn = get_local_connection()
+            try:
+                cur = conn.cursor()
+                cur.execute(
+                    "INSERT INTO study_routines (name_ar, name_en, department_id, study_system_id, stage_number, semester_num) "
+                    "VALUES (?, ?, ?, ?, ?, ?)",
+                    (name_ar, name_en, dept_id, sys_id, stage, sem_num)
+                )
+                local_id = cur.lastrowid
+                for cid in course_ids:
+                    cur.execute(
+                        "INSERT OR IGNORE INTO study_routine_courses (routine_id, course_id) VALUES (?, ?)",
+                        (local_id, cid)
+                    )
+                conn.commit()
+            finally:
+                conn.close()
+        except Exception as sq_err:
+            log_system(f"Local study_routines write warning: {sq_err}", "WARNING")
+
+        if not is_online():
+            log_offline_insert("study_routines", {
+                "name_ar": name_ar, "name_en": name_en, "department_id": dept_id,
+                "study_system_id": sys_id, "stage_number": stage, "semester_num": sem_num
+            })
+            for cid in course_ids:
+                log_offline_insert("study_routine_courses", {
+                    "routine_id": local_id, "course_id": cid
+                })
+            log_activity(f"تم إنشاء روتين دراسي جديد (أوفلاين): {name_ar}")
+            return local_id
+
+        # 2. When online, write via API or direct Stored Procedure
+        new_id = None
+        try:
+            payload = {
+                "name_ar": name_ar,
+                "name_en": name_en,
+                "department_id": dept_id,
+                "study_system_id": sys_id,
+                "stage_number": stage,
+                "semester_num": sem_num
+            }
+            resp = requests.post(f"{self.api_url}/study-routines", json=payload, timeout=3.0)
+            if resp.status_code == 200:
+                res_data = resp.json()
+                new_id = res_data.get("new_id") or res_data.get("inserted_id")
+        except Exception as e:
+            log_system(f"API request failed for insert study routine: {e}", "WARNING")
+
+        if not new_id:
+            try:
+                new_id = self._call_write("InsertStudyRoutine", (name_ar, name_en, dept_id, sys_id, stage, sem_num))
+            except Exception as sp_err:
+                log_system(f"SP InsertStudyRoutine error: {sp_err}", "WARNING")
+                new_id = local_id
+
+        target_id = new_id or local_id
+        for cid in course_ids:
+            try:
+                resp = requests.post(
+                    f"{self.api_url}/study-routine-courses",
+                    json={"routine_id": target_id, "course_id": cid},
+                    timeout=3.0
+                )
+                if resp.status_code != 200:
+                    self._call_write("InsertStudyRoutineCourse", (target_id, cid))
+            except Exception:
+                try:
+                    self._call_write("InsertStudyRoutineCourse", (target_id, cid))
+                except Exception:
+                    pass
+
+        log_activity(f"تم إنشاء روتين دراسي جديد: {name_ar}")
+        return target_id
+
+    def update(self, routine_id: int, data: dict) -> None:
+        """Update an existing study routine and sync its course associations (3-Tier Failover)."""
+        name_ar = data.get("name_ar", "")
+        name_en = data.get("name_en", "")
+        dept_id = int(data.get("department_id") or 1)
+        sys_id = int(data.get("study_system_id") or 1)
+        stage = int(data.get("stage_number") or 1)
+        sem_num = int(data.get("semester_num") or 1)
+        course_ids = data.get("course_ids") or []
+
+        # Local SQLite update
+        try:
+            conn = get_local_connection()
+            try:
+                cur = conn.cursor()
+                cur.execute(
+                    "UPDATE study_routines SET name_ar = ?, name_en = ?, department_id = ?, study_system_id = ?, stage_number = ?, semester_num = ? WHERE id = ?",
+                    (name_ar, name_en, dept_id, sys_id, stage, sem_num, routine_id)
+                )
+                cur.execute("DELETE FROM study_routine_courses WHERE routine_id = ?", (routine_id,))
+                for cid in course_ids:
+                    cur.execute(
+                        "INSERT OR IGNORE INTO study_routine_courses (routine_id, course_id) VALUES (?, ?)",
+                        (routine_id, cid)
+                    )
+                conn.commit()
+            finally:
+                conn.close()
+        except Exception as sq_err:
+            log_system(f"Local study_routines update warning: {sq_err}", "WARNING")
+
+        if not is_online():
+            log_activity(f"تم تعديل الروتين الدراسي (أوفلاين) ID: {routine_id}")
+            return
+
+        try:
+            payload = {
+                "name_ar": name_ar,
+                "name_en": name_en,
+                "department_id": dept_id,
+                "study_system_id": sys_id,
+                "stage_number": stage,
+                "semester_num": sem_num
+            }
+            resp = requests.put(f"{self.api_url}/study-routines/{routine_id}", json=payload, timeout=3.0)
+            if resp.status_code != 200:
+                self._call_write("UpdateStudyRoutine", (routine_id, name_ar, name_en, dept_id, sys_id, stage, sem_num))
+        except Exception as e:
+            try:
+                self._call_write("UpdateStudyRoutine", (routine_id, name_ar, name_en, dept_id, sys_id, stage, sem_num))
+            except Exception as sp_err:
+                log_system(f"SP UpdateStudyRoutine error: {sp_err}", "WARNING")
+
+        # Sync courses
+        for cid in course_ids:
+            try:
+                requests.post(
+                    f"{self.api_url}/study-routine-courses",
+                    json={"routine_id": routine_id, "course_id": cid},
+                    timeout=3.0
+                )
+            except Exception:
+                try:
+                    self._call_write("InsertStudyRoutineCourse", (routine_id, cid))
+                except Exception:
+                    pass
+
+        log_activity(f"تم تعديل بيانات الروتين الدراسي ID: {routine_id}")
+
+    def delete(self, routine_id: int) -> None:
+        """Delete a study routine and its linked course entries (3-Tier Failover)."""
+        try:
+            conn = get_local_connection()
+            try:
+                cur = conn.cursor()
+                cur.execute("DELETE FROM study_routine_courses WHERE routine_id = ?", (routine_id,))
+                cur.execute("DELETE FROM study_routines WHERE id = ?", (routine_id,))
+                conn.commit()
+            finally:
+                conn.close()
+        except Exception as sq_err:
+            log_system(f"Local study_routines delete warning: {sq_err}", "WARNING")
+
+        if not is_online():
+            log_activity(f"تم حذف الروتين الدراسي (أوفلاين) ID: {routine_id}")
+            return
+
+        try:
+            resp = requests.delete(f"{self.api_url}/study-routines/{routine_id}", timeout=5.0)
+            if resp.status_code == 200:
+                log_activity(f"تم حذف الروتين الدراسي ID: {routine_id} عبر SP")
+            else:
+                log_system(f"API delete study routine warning: {resp.text}", "WARNING")
+        except Exception as e:
+            log_system(f"API request failed for delete study routine: {e}", "WARNING")
+
+    def apply_routine_to_student(self, student_id: int, routine_id: int, academic_year: str = "") -> dict:
+        """
+        Applies a comprehensive 4-Year Routine to a student:
+        1. Reads the routine & courses across all 4 stages and semesters.
+        2. Groups courses by (stage_number, semester_num).
+        3. For each stage/semester group:
+           - Calculates academic year relative to student's admission year.
+           - Creates/finds matching academic_period for the student.
+           - Inserts all routine courses into enrollments (score=0.0, passed_round='1').
+        """
+        routine = self.get_by_id(routine_id)
+        if not routine:
+            raise ValueError(f"Routine {routine_id} not found")
+
+        sys_id = routine.get("study_system_id", 1)
+        courses = routine.get("courses", [])
+        if not courses:
+            return {"periods_affected": 0, "added_courses": 0}
+
+        student_repo = StudentRepository()
+        st = student_repo.get_by_id(student_id) or {}
+        adm_yr_raw = str(st.get("admission_year") or "2024").strip()
+        adm_yr = int(adm_yr_raw) if adm_yr_raw.isdigit() else 2024
+
+        period_repo = AcademicPeriodRepository()
+        enroll_repo = EnrollmentRepository()
+        existing_periods = period_repo.get_by_student(student_id) or []
+
+        # Map existing periods by (stage_number, semester_num)
+        period_map = {}
+        for p in existing_periods:
+            stg_num = p.get("stage_number")
+            sem_n = p.get("semester_num")
+            if stg_num and sem_n:
+                period_map[(stg_num, sem_n)] = p
+
+        # Group routine courses by (stage_number, semester_num)
+        courses_by_stage_sem = {}
+        for c in courses:
+            c_stg = int(c.get("stage_number") or 1)
+            c_sem = int(c.get("semester_num") or 1)
+            key = (c_stg, c_sem)
+            if key not in courses_by_stage_sem:
+                courses_by_stage_sem[key] = []
+            courses_by_stage_sem[key].append(c)
+
+        total_added_courses = 0
+
+        for (stg, sem), c_list in courses_by_stage_sem.items():
+            start_yr = adm_yr + (stg - 1)
+            calc_year = f"{start_yr}-{start_yr+1}"
+
+            target_period = period_map.get((stg, sem))
+            if not target_period:
+                try:
+                    period_id = period_repo.insert(
+                        student_id=student_id,
+                        year=calc_year,
+                        sys_id=sys_id,
+                        stage=stg,
+                        semester_num=sem
+                    )
+                    target_period = {"id": period_id, "stage_number": stg, "semester_num": sem}
+                    period_map[(stg, sem)] = target_period
+                except Exception as p_err:
+                    log_system(f"Failed to create academic period for Stage {stg} Sem {sem}: {p_err}", "WARNING")
+                    continue
+
+            pid = target_period["id"]
+            existing_enrs = enroll_repo.get_by_period(pid) or []
+            existing_cids = {e["course_id"] for e in existing_enrs if "course_id" in e}
+
+            for c in c_list:
+                cid = c["id"]
+                if cid not in existing_cids:
+                    try:
+                        enroll_repo.insert(period_id=pid, course_id=cid, score=0.0, is_second=1)
+                        total_added_courses += 1
+                    except Exception as err:
+                        log_system(f"Failed to add routine course {cid} to period {pid}: {err}", "WARNING")
+
+        log_activity(f"تم تطبيق الروتين الشامل ({routine.get('name_ar')}) على الطالب ID: {student_id} — تم إضافة {total_added_courses} مادة عبر {len(courses_by_stage_sem)} فترة دراسية")
+        return {"periods_affected": len(courses_by_stage_sem), "added_courses": total_added_courses}
+
+
+class IssuedCertificateRepository(BaseRepository):
+    def get_all(self) -> list[dict]:
+        if not is_online():
+            return sqlite_read_all(
+                "SELECT ic.id, ic.student_id, ic.to_title, ic.template_type, ic.issue_date, "
+                "s.full_name_ar, s.full_name_en, d.name_ar AS dept_name_ar "
+                "FROM issued_certificates ic "
+                "JOIN students s ON ic.student_id = s.id "
+                "LEFT JOIN departments d ON s.department_id = d.id "
+                "ORDER BY ic.issue_date DESC, ic.id DESC"
+            )
+        try:
+            resp = requests.get(f"{self.api_url}/issued-certificates", timeout=5.0)
+            if resp.status_code == 200:
+                return resp.json()
+            return []
+        except Exception as e:
+            log_system(f"API request failed: {e}", "WARNING")
+            return []
+
+    def get_by_student(self, student_id: int) -> list[dict]:
+        if not is_online():
+            return sqlite_read_all(
+                "SELECT ic.id, ic.student_id, ic.to_title, ic.template_type, ic.issue_date, "
+                "s.full_name_ar, s.full_name_en "
+                "FROM issued_certificates ic "
+                "JOIN students s ON ic.student_id = s.id "
+                "WHERE ic.student_id = ? "
+                "ORDER BY ic.issue_date DESC, ic.id DESC",
+                (student_id,)
+            )
+        try:
+            resp = requests.get(f"{self.api_url}/issued-certificates/by-student/{student_id}", timeout=5.0)
+            if resp.status_code == 200:
+                return resp.json()
+            return []
+        except Exception as e:
+            log_system(f"API request failed: {e}", "WARNING")
+            return []
+
+    def insert(self, student_id: int, to_title: str = "من يهمه الأمر", template_type: str = "graduation", issue_date: str = None) -> int:
+        if not issue_date:
+            from datetime import datetime
+            issue_date = datetime.now().strftime("%Y-%m-%d")
+
+        payload = {
+            "student_id": int(student_id),
+            "to_title": str(to_title or "من يهمه الأمر"),
+            "template_type": str(template_type or "graduation"),
+            "issue_date": str(issue_date)
+        }
+
+        # Local SQLite insertion for instant availability & offline support
+        local_id = -1
+        try:
+            conn = get_local_connection()
+            try:
+                cur = conn.execute(
+                    "INSERT INTO issued_certificates (student_id, to_title, template_type, issue_date) VALUES (?, ?, ?, ?)",
+                    (payload["student_id"], payload["to_title"], payload["template_type"], payload["issue_date"])
+                )
+                conn.commit()
+                local_id = cur.lastrowid
+            finally:
+                conn.close()
+        except Exception as sq_err:
+            log_system(f"Local issued_certificates write warning: {sq_err}", "WARNING")
+
+        if not is_online():
+            log_offline_insert("issued_certificates", payload)
+            return local_id
+
+        try:
+            resp = requests.post(f"{self.api_url}/issued-certificates", json=payload, timeout=5.0)
+            if resp.status_code == 200:
+                res_data = resp.json()
+                new_id = res_data.get("new_id") or res_data.get("inserted_id")
+                log_activity(f"تم تسجيل الوثيقة الصادرة بالطالب ID: {student_id} (الجهة: {to_title}) عبر SP")
+                return new_id or local_id
+            else:
+                log_system(f"API insert issued certificate warning: {resp.text}", "WARNING")
+                return local_id
+        except Exception as e:
+            log_system(f"API request failed for insert issued certificate: {e}", "WARNING")
+            return local_id
+
+    def delete(self, cert_id: int) -> None:
+        if not is_online():
+            raise OfflineModeError()
+        try:
+            resp = requests.delete(f"{self.api_url}/issued-certificates/{cert_id}", timeout=5.0)
+            if resp.status_code != 200:
+                raise RuntimeError(f"API delete failed: {resp.text}")
+        except Exception as e:
+            log_system(f"API request failed: {e}", "WARNING")
+            raise
+
 
 from repositories.auth_repository import AuthRepository

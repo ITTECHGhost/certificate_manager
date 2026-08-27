@@ -498,7 +498,11 @@ class MainAppShell:
 
     def _switch_screen(self, screen_key: str) -> None:
         """Handles navigation between screens when a sidebar button is clicked."""
-        self.current_screen = screen_key
+        if screen_key == "issued_certs":
+            self._default_dashboard_tab_name = "tab_certs"
+            self.current_screen = "home"
+        else:
+            self.current_screen = screen_key
 
         # Update active nav item highlighted styles in sidebar
         for row, _label_col, key in self._nav_labels:
@@ -695,11 +699,11 @@ class MainAppShell:
                     # ── TAB 2 VIEW: ISSUED & PRINTED CERTIFICATES TABLE (MERGED) ─
                     with ui.tab_panel(tab_certs).classes("w-full p-0 pt-2 bg-transparent"):
                         cols_c = [
-                            {"name": "name",   "label": "اسم الطالب / Student Name", "field": "name",   "align": "right",  "headerClasses": "text-slate-600 dark:text-slate-400 font-bold bg-transparent"},
-                            {"name": "dept",   "label": "القسم / Department",        "field": "dept",   "align": "right",  "headerClasses": "text-slate-600 dark:text-slate-400 font-bold bg-transparent"},
-                            {"name": "order",  "label": "رقم الأمر / Order No",      "field": "order",  "align": "center", "headerClasses": "text-slate-600 dark:text-slate-400 font-bold bg-transparent"},
-                            {"name": "date",   "label": "التاريخ / Date",             "field": "date",   "align": "left",   "headerClasses": "text-slate-600 dark:text-slate-400 font-bold bg-transparent"},
-                            {"name": "action", "label": "إصدار / Issue",             "field": "action", "align": "center", "headerClasses": "text-slate-600 dark:text-slate-400 font-bold bg-transparent"},
+                            {"name": "name",     "label": "اسم الطالب / Student Name", "field": "name",     "align": "right",  "headerClasses": "text-slate-600 dark:text-slate-400 font-bold bg-transparent"},
+                            {"name": "dept",     "label": "القسم / Department",        "field": "dept",     "align": "right",  "headerClasses": "text-slate-600 dark:text-slate-400 font-bold bg-transparent"},
+                            {"name": "to_title", "label": "الجهة الصادرة إليها / Issued To", "field": "to_title", "align": "center", "headerClasses": "text-slate-600 dark:text-slate-400 font-bold bg-transparent"},
+                            {"name": "date",     "label": "تاريخ الإصدار / Date",     "field": "date",     "align": "left",   "headerClasses": "text-slate-600 dark:text-slate-400 font-bold bg-transparent"},
+                            {"name": "action",   "label": "إصدار / Issue",             "field": "action",   "align": "center", "headerClasses": "text-slate-600 dark:text-slate-400 font-bold bg-transparent"},
                         ]
                         
                         combined_certs_data = []
@@ -715,8 +719,8 @@ class MainAppShell:
                                 "id":       c.get("id"),
                                 "name":     c.get("full_name_ar") or c.get("student_name") or "طالب متخرج",
                                 "dept":     c.get("dept_name_ar") or "قسم عام",
-                                "order":    c.get("order_number") or "1024 / 2024",
-                                "date":     c.get("issue_date") or c.get("created_at") or "2024-06-15",
+                                "to_title": c.get("to_title") or c.get("order_number") or "من يهمه الأمر",
+                                "date":     c.get("issue_date") or c.get("created_at") or "2026-08-24",
                                 "raw_data": c,
                             }
                             for c in (combined_certs_data or self.recent_certificates)

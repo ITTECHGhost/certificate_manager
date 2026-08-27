@@ -18,6 +18,153 @@ from nicegui_screens.graduation_orders_screen import extract_event_value
 log = logging.getLogger(__name__)
 
 
+def parse_stage_num(val, default: int = 1) -> int:
+    """Safely extracts integer stage number from int, float, or string (e.g. '2', 'Stage 2', 'المرحلة 2')."""
+    if val is None:
+        return default
+    if isinstance(val, (int, float)):
+        try:
+            return int(val)
+        except (ValueError, TypeError):
+            return default
+    s = str(val).strip()
+    if not s:
+        return default
+    match = re.search(r"\d+", s)
+    if match:
+        try:
+            return int(match.group())
+        except (ValueError, TypeError):
+            return default
+    return default
+
+
+def safe_int_val(v, default: int = 1) -> int:
+    return parse_stage_num(v, default)
+
+
+def consolidate_courses_for_certificate(courses_grouped: list, is_annual: bool = True) -> list:
+    """
+    Consolidates course records for certificate printing and transcript display:
+    1. EXCLUDES any failed courses (score/mark < 50.0) that were never passed.
+    2. Rule A (Annual study system):
+       - Carried-over ("accros" / عبور) courses appear in their original stage period card, but with their final PASSED degree.
+       - If a whole year/stage was FAILED_REPEAT, courses appear in the repeated stage period where they were passed.
+    3. Rule B (Semester study system):
+       - Failed courses appear ONLY in the semester period where they were eventually PASSED.
+    """
+    if not courses_grouped:
+        return []
+
+    from collections import defaultdict
+
+    course_groups = defaultdict(list)
+    for c in courses_grouped:
+        c_key = c.get("subject_name") or c.get("course_name_ar") or c.get("name_ar") or c.get("course_id")
+        if c_key:
+            course_groups[c_key].append(dict(c))
+
+    consolidated_list = []
+
+    for c_key, group in course_groups.items():
+        # Sort chronologically by academic_year, stage_number, semester_num
+        group.sort(key=lambda x: (
+            str(x.get("academic_year") or ""),
+            parse_stage_num(x.get("stage_number"), 1),
+            parse_stage_num(x.get("semester_num"), 1)
+        ))
+
+        # Filter for passing attempts (mark >= 50.0 or valid numeric degree >= 50)
+        passing_entries = []
+        for e in group:
+            mk = e.get("mark")
+            if mk is None:
+                mk = e.get("score")
+            if mk is not None:
+                try:
+                    if float(mk) >= 50.0:
+                        passing_entries.append(e)
+                except (ValueError, TypeError):
+                    if str(mk).strip() and str(mk) != "—":
+                        passing_entries.append(e)
+
+        # FAILED COURSES RULE: If student NEVER passed this course, EXCLUDE IT completely!
+        if not passing_entries:
+            continue
+
+        best_passed = passing_entries[-1]  # Latest passed attempt (highest/final degree)
+        earliest_attempt = group[0]         # First attempt
+
+        final_item = dict(best_passed)
+
+        # Ensure mark/score is set cleanly
+        best_mark = best_passed.get("mark") if best_passed.get("mark") is not None else best_passed.get("score")
+        if best_mark is not None:
+            try:
+                bm_float = float(best_mark)
+                final_item["mark"] = int(bm_float) if bm_float.is_integer() else round(bm_float, 2)
+                final_item["score"] = final_item["mark"]
+            except (ValueError, TypeError):
+                final_item["mark"] = best_mark
+                final_item["score"] = best_mark
+
+        if is_annual:
+            # Rule A.2: Annual System -> Place in ORIGINAL STAGE card with the PASSED degree!
+            orig_stg = parse_stage_num(earliest_attempt.get("stage_number") or best_passed.get("stage_number"), 1)
+            orig_year = earliest_attempt.get("academic_year") or best_passed.get("academic_year")
+            orig_year_fmt = earliest_attempt.get("academic_year_formatted") or best_passed.get("academic_year_formatted")
+
+            final_item["stage_number"] = orig_stg
+            if orig_year:
+                final_item["academic_year"] = orig_year
+            if orig_year_fmt:
+                final_item["academic_year_formatted"] = orig_year_fmt
+
+            sem_num = parse_stage_num(earliest_attempt.get("semester_num") or best_passed.get("semester_num"), 1)
+            final_item["semester_num"] = sem_num
+
+            # PRESERVE original grouping_key from backend if present, so grouping dropdown works correctly
+            backend_gkey = best_passed.get("grouping_key") or earliest_attempt.get("grouping_key")
+            final_item["grouping_key"] = backend_gkey or f"{orig_stg}_{sem_num}"
+        else:
+            # Rule B.1: Semester System -> Place ONLY in the SEMESTER period where course WAS PASSED!
+            pass_stg = parse_stage_num(best_passed.get("stage_number"), 1)
+            pass_sem = parse_stage_num(best_passed.get("semester_num"), 1)
+            pass_year = best_passed.get("academic_year")
+            pass_year_fmt = best_passed.get("academic_year_formatted")
+
+            final_item["stage_number"] = pass_stg
+            final_item["semester_num"] = pass_sem
+            if pass_year:
+                final_item["academic_year"] = pass_year
+            if pass_year_fmt:
+                final_item["academic_year_formatted"] = pass_year_fmt
+
+            # PRESERVE original grouping_key from backend if present, so grouping dropdown works correctly
+            backend_gkey = best_passed.get("grouping_key") or earliest_attempt.get("grouping_key")
+            final_item["grouping_key"] = backend_gkey or f"{pass_stg}_{pass_sem}"
+
+        # If retaken or passed in round 2/3, flag round info
+        if len(group) > 1 or str(best_passed.get("passed_round")) in ('2', '3') or best_passed.get("is_second_round"):
+            final_item["passed_round"] = best_passed.get("passed_round", "2")
+            final_item["is_second_round"] = 1
+        else:
+            final_item["passed_round"] = "1"
+            final_item["is_second_round"] = 0
+
+        consolidated_list.append(final_item)
+
+    # Sort consolidated list chronologically & by stage
+    consolidated_list.sort(key=lambda x: (
+        parse_stage_num(x.get("stage_number"), 1),
+        parse_stage_num(x.get("semester_num"), 1),
+        str(x.get("academic_year") or ""),
+        str(x.get("subject_name") or "")
+    ))
+
+    return consolidated_list
+
+
 def consolidate_course_history(periods: list) -> list:
     """
     Consolidates retaken/repeated course history across periods:
@@ -75,7 +222,8 @@ def consolidate_course_history(periods: list) -> list:
         ))
 
         first_enr = dict(group[0])  # Earliest attempt
-        target_period_id = first_enr["_period"]["id"]
+        stg_key = (int(first_enr["_period"].get("stage_number") or 1), int(first_enr["_period"].get("semester_num") or 1))
+        target_period_id = stage_primary_map.get(stg_key, first_enr["_period"]["id"])
 
         # Calculate total attempts and find highest/passing candidate
         total_attempts = len(group)
@@ -123,7 +271,15 @@ def consolidate_course_history(periods: list) -> list:
         if target_period_id in period_map:
             period_map[target_period_id]["enrollments"].append(first_enr)
 
-    return copied_periods
+    # Filter out empty FAILED_REPEAT periods that surrendered all their passed courses
+    final_periods = []
+    for p in copied_periods:
+        st_status = p.get("result_status") or "PASSED"
+        if st_status == "FAILED_REPEAT" and not p["enrollments"]:
+            continue
+        final_periods.append(p)
+
+    return final_periods
 
 
 def generate_pdf_from_docx(docx_path: str) -> str | None:
@@ -281,8 +437,11 @@ def build_certificate_context(data: dict, options: dict) -> dict:
     else:
         study_type_disp = "Morning" if is_english else "الصباحية"
 
-    # 4. Consolidate course history by Grouping Key from Backend
-    courses_grouped = data.get("courses_grouped", [])
+    # 4. Consolidate course history according to Rules A (Annual) & B (Semester)
+    period_disp = str(data.get("period_display") or "year").lower()
+    is_annual = (period_disp == "year")
+    raw_courses = data.get("courses_grouped", [])
+    courses_grouped = consolidate_courses_for_certificate(raw_courses, is_annual=is_annual)
     
     from collections import OrderedDict
     groups_in_order = OrderedDict()
@@ -1016,6 +1175,12 @@ class CertificateScreen:
         data = self.student_full_data
         if not data: return
 
+        period_disp = str(data.get("period_display") or "").lower().strip()
+        is_annual = ("semester" not in period_disp)
+
+        if data.get("courses_grouped"):
+            data["courses_grouped"] = consolidate_courses_for_certificate(data["courses_grouped"], is_annual=is_annual)
+
         # ── 1. Auto Extract Second Trial Courses & Calculate Default Summer Training Year ──
         second_courses = []
         for c in data.get("courses_grouped", []):
@@ -1043,9 +1208,25 @@ class CertificateScreen:
             self.inp_second_subjects.value = ""
             self.sw_second.value = False
 
-        # Default summer training year
-        summer_val = data.get("summer_training_data")
+        # Summer training year display (first checks student's saved summer_training_data, fallback to graduation_year - 1)
+        summer_val = data.get("summer_training_data") or data.get("summer_training")
+        if not summer_val and hasattr(self, "selected_student") and self.selected_student:
+            summer_val = self.selected_student.get("summer_training_data") or self.selected_student.get("summer_training")
+
+        if not summer_val and data.get("id"):
+            try:
+                st_row = self.student_repo.get_by_id(data.get("id"))
+                if st_row:
+                    summer_val = st_row.get("summer_training_data") or st_row.get("summer_training")
+            except Exception:
+                pass
+
         grad_year = data.get("graduation_year")
+        if not grad_year and data.get("graduation_date"):
+            gdate_str = str(data.get("graduation_date")).strip()
+            if len(gdate_str) >= 4 and gdate_str[:4].isdigit():
+                grad_year = gdate_str[:4]
+
         if summer_val and str(summer_val).strip():
             self.inp_summer_year.value = str(summer_val).strip()
             self.sw_summer.value = True
@@ -1405,10 +1586,27 @@ class CertificateScreen:
             doc = DocxTemplate(tpl_path)
             doc.render(ctx)
             doc.save(out_file)
-    
+
             self.generated_file_path = out_file
+
+            # Record issued certificate into database via Stored Procedure (InsertIssuedCertificate)
+            try:
+                student_id = self.student_full_data.get("id") or self.student_full_data.get("student_id")
+                if student_id:
+                    to_title = (self.to_input.value or "").strip() or "من يهمه الأمر"
+                    tpl_type = os.path.splitext(tpl_name)[0]
+                    from data.repositories import IssuedCertificateRepository
+                    IssuedCertificateRepository().insert(
+                        student_id=student_id,
+                        to_title=to_title,
+                        template_type=tpl_type
+                    )
+                    log.info(f"Successfully recorded issued certificate for student ID {student_id} via InsertIssuedCertificate SP.")
+            except Exception as sp_err:
+                log.error(f"Failed to record issued certificate into database via SP: {sp_err}")
+
             UI.notify(f"تم إصدار وتوليد الوثيقة بنجاح: {os.path.basename(out_file)}", type="positive")
-    
+
             # Trigger automatic browser download
             ui.download(out_file, filename=os.path.basename(out_file))
             return True
