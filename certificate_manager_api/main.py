@@ -1215,14 +1215,25 @@ def insert_academic_period(payload: AcademicPeriodPayload, conn = Depends(get_db
     finally:
         cur.close()
 
+STATUS_STR_TO_INT = {
+    "PASSED": 1, "1": 1, 1: 1,
+    "FAILED_REPEAT": 2, "FAILED": 2, "2": 2, 2: 2,
+    "EXCEPTIONAL_PASS": 3, "3": 3, 3: 3,
+    "CARRIED_OVER": 4, "4": 4, 4: 4,
+    "DEFERRED": 5, "5": 5, 5: 5,
+    "DISMISSED": 6, "6": 6, 6: 6,
+}
+
 @app.patch("/academic-periods/{period_id}/status")
 @app.patch("/api/periods/{period_id}/status")
 def update_academic_period_status(period_id: int, payload: AcademicPeriodStatusPayload, conn = Depends(get_db)):
     cur = conn.cursor()
     try:
-        cur.execute("UPDATE academic_periods SET result_status=%s WHERE id=%s", (payload.result_status, period_id))
+        raw_st = payload.result_status
+        code_val = STATUS_STR_TO_INT.get(raw_st, STATUS_STR_TO_INT.get(str(raw_st).strip().upper(), 1))
+        cur.execute("UPDATE academic_periods SET result_status=%s WHERE id=%s", (code_val, period_id))
         conn.commit()
-        return {"status": "success", "result_status": payload.result_status}
+        return {"status": "success", "result_status": code_val}
     except Exception as exc:
         conn.rollback()
         raise HTTPException(status_code=500, detail=str(exc))
@@ -1612,6 +1623,56 @@ def get_certificate_data(student_id: int, grouping_mode: str = "DEFAULT", conn =
             "courses_grouped": datasets[5] if len(datasets) > 5 else [],
         }
         return decode_db_value(response_data)
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=str(exc))
+    finally:
+        cur.close()
+
+
+class AcademicFlatRecord(BaseModel):
+    student_id: int
+    student_name_ar: str
+    study_system_ar: Optional[str] = ""
+    academic_year: Optional[str] = ""
+    stage_number: Optional[int] = 1
+    stage_name_ar: Optional[str] = ""
+    course_id: Optional[int] = 0
+    course_code: Optional[str] = ""
+    course_name_ar: Optional[str] = ""
+    course_name_en: Optional[str] = ""
+    units: Optional[float] = 0.0
+    mark: Optional[float] = 0.0
+    result_status_code: Optional[int] = 1
+    result_status_label: Optional[str] = "PASSED"
+
+
+@app.get("/certificates/flat-yearly/{student_id}", response_model=List[AcademicFlatRecord])
+def get_flat_yearly_certificate_courses(student_id: int, conn = Depends(get_db)):
+    cur = conn.cursor(dictionary=True)
+    try:
+        cur.callproc("sp_GetCertificate_Yearly_ByAcademicDefualte", (student_id,))
+        rows = []
+        if hasattr(cur, "stored_results"):
+            for result in cur.stored_results():
+                rows = result.fetchall()
+                break
+        try:
+            while cur.nextset():
+                pass
+        except Exception:
+            pass
+
+        decoded_rows = []
+        for r in rows:
+            decoded_item = {}
+            for k, v in r.items():
+                if isinstance(v, (bytearray, bytes)):
+                    decoded_item[k] = v.decode("utf-8")
+                else:
+                    decoded_item[k] = v
+            decoded_rows.append(decoded_item)
+
+        return decoded_rows
     except Exception as exc:
         raise HTTPException(status_code=500, detail=str(exc))
     finally:
@@ -2113,6 +2174,7 @@ class IssuedCertificatePayload(BaseModel):
 
 
 @app.get("/api/issued-certificates")
+@app.get("/issued-certificates")
 def get_all_issued_certificates(conn = Depends(get_db)):
     try:
         return execute_sp_fetchall(conn, "GetAllIssuedCertificates")
@@ -2120,7 +2182,27 @@ def get_all_issued_certificates(conn = Depends(get_db)):
         raise HTTPException(status_code=500, detail=str(exc))
 
 
+@app.get("/api/issued-certificates/report")
+@app.get("/issued-certificates/report")
+def get_issued_certificates_report(
+    start_date: Optional[str] = None,
+    end_date: Optional[str] = None,
+    department_id: Optional[int] = None,
+    template_type: Optional[str] = None,
+    conn = Depends(get_db)
+):
+    try:
+        return execute_sp_fetchall(
+            conn,
+            "GetIssuedCertificatesReport",
+            (start_date, end_date, department_id, template_type)
+        )
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=str(exc))
+
+
 @app.get("/api/issued-certificates/{cert_id}")
+@app.get("/issued-certificates/{cert_id}")
 def get_issued_certificate_by_id(cert_id: int, conn = Depends(get_db)):
     try:
         row = execute_sp_fetchone(conn, "GetIssuedCertificateById", (cert_id,))
@@ -2134,6 +2216,7 @@ def get_issued_certificate_by_id(cert_id: int, conn = Depends(get_db)):
 
 
 @app.get("/api/issued-certificates/by-student/{student_id}")
+@app.get("/issued-certificates/by-student/{student_id}")
 def get_issued_certificates_by_student(student_id: int, conn = Depends(get_db)):
     try:
         return execute_sp_fetchall(conn, "GetIssuedCertificatesByStudent", (student_id,))

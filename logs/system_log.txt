@@ -28840,3 +28840,627 @@ TypeError: int() argument must be a string, a bytes-like object or a real number
 2026-08-27 11:45:21 [INFO] _pywebviewready event fired
 2026-08-27 11:45:21 [INFO] loaded event fired
 2026-08-27 11:45:21 [INFO] loaded event fired
+2026-08-30 01:44:54 [INFO] SYSTEM STARTUP DIAGNOSTIC CHECK STARTED
+2026-08-30 01:44:54 [OK] [CHECK 1/4] FastAPI Connection Check ... [OK]
+2026-08-30 01:44:54 [OK] [CHECK 2/4] MySQL Database Connection ... [OK]
+2026-08-30 01:44:54 [OK] [CHECK 3/4] Authentication & Core SP Checks ... [OK]
+2026-08-30 01:44:55 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-08-30 01:44:55 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-08-30 01:44:55 [OK] [CHECK 4/4] Sync Engine & Local Replica Check ... [OK]
+2026-08-30 01:44:55 [OK] Status: ALL CHECKS PASSED. PROCEEDING TO LOGIN/DASHBOARD.
+2026-08-30 01:45:00 [INFO] Using WinForms / Chromium
+2026-08-30 01:45:00 [INFO] Using WinForms / Chromium
+2026-08-30 01:45:09 [INFO] before_load event fired. injecting pywebview object
+2026-08-30 01:45:09 [INFO] before_load event fired. injecting pywebview object
+2026-08-30 01:45:10 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-30 01:45:10 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-30 01:45:10 [INFO] _pywebviewready event fired
+2026-08-30 01:45:10 [INFO] _pywebviewready event fired
+2026-08-30 01:45:10 [INFO] loaded event fired
+2026-08-30 01:45:10 [INFO] loaded event fired
+2026-08-30 01:45:33 [INFO] before_load event fired. injecting pywebview object
+2026-08-30 01:45:33 [INFO] before_load event fired. injecting pywebview object
+2026-08-30 01:45:33 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-30 01:45:33 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-30 01:45:33 [INFO] _pywebviewready event fired
+2026-08-30 01:45:33 [INFO] _pywebviewready event fired
+2026-08-30 01:45:33 [INFO] loaded event fired
+2026-08-30 01:45:33 [INFO] loaded event fired
+2026-08-30 02:10:41 [INFO] SYSTEM STARTUP DIAGNOSTIC CHECK STARTED
+2026-08-30 02:10:43 [WARNING] [CHECK 1/4] FastAPI Connection Check ... [OFFLINE MODE]
+2026-08-30 02:10:43 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-08-30 02:10:43 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-08-30 02:10:43 [OK] [CHECK 2/4] SQLite Replica Database Connection ... [OK]
+2026-08-30 02:10:43 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-08-30 02:10:43 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-08-30 02:10:43 [OK] [CHECK 3/4] Authentication & Core SP Checks ... [OFFLINE MODE]
+2026-08-30 02:10:43 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-08-30 02:10:43 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-08-30 02:10:43 [OK] [CHECK 4/4] Sync Engine & Local Replica Check ... [OK]
+2026-08-30 02:10:43 [OK] Status: OFFLINE MODE ACTIVE. PROCEEDING TO LOGIN/DASHBOARD.
+2026-08-30 02:10:49 [INFO] Using WinForms / Chromium
+2026-08-30 02:10:49 [INFO] Using WinForms / Chromium
+2026-08-30 02:10:54 [INFO] before_load event fired. injecting pywebview object
+2026-08-30 02:10:54 [INFO] before_load event fired. injecting pywebview object
+2026-08-30 02:10:54 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-30 02:10:54 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-30 02:10:54 [INFO] _pywebviewready event fired
+2026-08-30 02:10:54 [INFO] _pywebviewready event fired
+2026-08-30 02:10:54 [INFO] loaded event fired
+2026-08-30 02:10:54 [INFO] loaded event fired
+2026-08-30 02:11:00 [INFO] before_load event fired. injecting pywebview object
+2026-08-30 02:11:00 [INFO] before_load event fired. injecting pywebview object
+2026-08-30 02:11:00 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-30 02:11:00 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-30 02:11:00 [INFO] _pywebviewready event fired
+2026-08-30 02:11:00 [INFO] _pywebviewready event fired
+2026-08-30 02:11:01 [INFO] loaded event fired
+2026-08-30 02:11:01 [INFO] loaded event fired
+2026-08-30 02:11:51 [INFO] Sync queue is empty — nothing to do.
+2026-08-30 02:11:51 [INFO] Sync queue is empty — nothing to do.
+2026-08-30 11:37:59 [INFO] SYSTEM STARTUP DIAGNOSTIC CHECK STARTED
+2026-08-30 11:37:59 [OK] [CHECK 1/4] FastAPI Connection Check ... [OK]
+2026-08-30 11:37:59 [OK] [CHECK 2/4] MySQL Database Connection ... [OK]
+2026-08-30 11:37:59 [OK] [CHECK 3/4] Authentication & Core SP Checks ... [OK]
+2026-08-30 11:37:59 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-08-30 11:37:59 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-08-30 11:37:59 [OK] [CHECK 4/4] Sync Engine & Local Replica Check ... [OK]
+2026-08-30 11:37:59 [OK] Status: ALL CHECKS PASSED. PROCEEDING TO LOGIN/DASHBOARD.
+2026-08-30 11:38:03 [INFO] Using WinForms / Chromium
+2026-08-30 11:38:03 [INFO] Using WinForms / Chromium
+2026-08-30 11:38:09 [INFO] before_load event fired. injecting pywebview object
+2026-08-30 11:38:09 [INFO] before_load event fired. injecting pywebview object
+2026-08-30 11:38:09 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-30 11:38:09 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-30 11:38:09 [INFO] _pywebviewready event fired
+2026-08-30 11:38:09 [INFO] _pywebviewready event fired
+2026-08-30 11:38:09 [INFO] loaded event fired
+2026-08-30 11:38:10 [INFO] loaded event fired
+2026-08-30 11:38:16 [INFO] before_load event fired. injecting pywebview object
+2026-08-30 11:38:16 [INFO] before_load event fired. injecting pywebview object
+2026-08-30 11:38:16 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-30 11:38:16 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-30 11:38:16 [INFO] _pywebviewready event fired
+2026-08-30 11:38:16 [INFO] _pywebviewready event fired
+2026-08-30 11:38:16 [INFO] loaded event fired
+2026-08-30 11:38:16 [INFO] loaded event fired
+2026-08-30 11:38:45 [ERROR] Invalid value: 1
+Traceback (most recent call last):
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\events.py", line 472, in handle_event
+    result = cast(Callable[[EventT], Any], handler)(arguments)
+  File "f:\CR_PY\certificate_manager\nicegui_screens\students_screen.py", line 266, in _on_view_profile
+    self.profile_view.render(row_data)
+    ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^
+  File "f:\CR_PY\certificate_manager\nicegui_ui\student_components.py", line 481, in render
+    self._render_periods_tab(student_id)
+    ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+  File "f:\CR_PY\certificate_manager\nicegui_ui\student_components.py", line 678, in _render_periods_tab
+    refresh_timeline()
+    ~~~~~~~~~~~~~~~~^^
+  File "f:\CR_PY\certificate_manager\nicegui_ui\student_components.py", line 643, in refresh_timeline
+    self._render_semester_box(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~^
+        sem_title="الفصل الأول / Term 1" if is_annual else "الفصل الأول / Semester 1",
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<6 lines>...
+        refresh_callback=refresh_timeline
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "f:\CR_PY\certificate_manager\nicegui_ui\student_components.py", line 713, in _render_semester_box
+    UI.select("", status_opts, value=cur_status, on_change=on_status_change).classes("text-xs w-44 shrink-0")
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "f:\CR_PY\certificate_manager\nicegui_ui\ui_components.py", line 152, in select
+    return ui.select(options=options, label=label, value=value, with_input=with_input, on_change=on_change).classes(
+           ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\defaults.py", line 64, in decorated
+    return original_func(*args, **kwargs)
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\elements\select.py", line 67, in __init__
+    super().__init__(label=label, options=options, value=value, on_change=on_change, validation=validation)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\elements\mixins\label_element.py", line 15, in __init__
+    super().__init__(**kwargs)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\elements\mixins\validation_element.py", line 20, in __init__
+    super().__init__(**kwargs)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\elements\choice_element.py", line 22, in __init__
+    raise ValueError(f'Invalid value: {value}')
+ValueError: Invalid value: 1
+2026-08-30 11:38:45 [ERROR] Invalid value: 1
+Traceback (most recent call last):
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\events.py", line 472, in handle_event
+    result = cast(Callable[[EventT], Any], handler)(arguments)
+  File "f:\CR_PY\certificate_manager\nicegui_screens\students_screen.py", line 266, in _on_view_profile
+    self.profile_view.render(row_data)
+    ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^
+  File "f:\CR_PY\certificate_manager\nicegui_ui\student_components.py", line 481, in render
+    self._render_periods_tab(student_id)
+    ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+  File "f:\CR_PY\certificate_manager\nicegui_ui\student_components.py", line 678, in _render_periods_tab
+    refresh_timeline()
+    ~~~~~~~~~~~~~~~~^^
+  File "f:\CR_PY\certificate_manager\nicegui_ui\student_components.py", line 643, in refresh_timeline
+    self._render_semester_box(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~^
+        sem_title="الفصل الأول / Term 1" if is_annual else "الفصل الأول / Semester 1",
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<6 lines>...
+        refresh_callback=refresh_timeline
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "f:\CR_PY\certificate_manager\nicegui_ui\student_components.py", line 713, in _render_semester_box
+    UI.select("", status_opts, value=cur_status, on_change=on_status_change).classes("text-xs w-44 shrink-0")
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "f:\CR_PY\certificate_manager\nicegui_ui\ui_components.py", line 152, in select
+    return ui.select(options=options, label=label, value=value, with_input=with_input, on_change=on_change).classes(
+           ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\defaults.py", line 64, in decorated
+    return original_func(*args, **kwargs)
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\elements\select.py", line 67, in __init__
+    super().__init__(label=label, options=options, value=value, on_change=on_change, validation=validation)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\elements\mixins\label_element.py", line 15, in __init__
+    super().__init__(**kwargs)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\elements\mixins\validation_element.py", line 20, in __init__
+    super().__init__(**kwargs)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\elements\choice_element.py", line 22, in __init__
+    raise ValueError(f'Invalid value: {value}')
+ValueError: Invalid value: 1
+2026-08-30 11:39:04 [ERROR] The parent element this slot belongs to has been deleted.
+Traceback (most recent call last):
+  File "f:\CR_PY\certificate_manager\nicegui_ui\student_components.py", line 633, in _on_stage_change
+    refresh_timeline()
+    ~~~~~~~~~~~~~~~~^^
+  File "f:\CR_PY\certificate_manager\nicegui_ui\student_components.py", line 643, in refresh_timeline
+    self._render_semester_box(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~^
+        sem_title="الفصل الأول / Term 1" if is_annual else "الفصل الأول / Semester 1",
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<6 lines>...
+        refresh_callback=refresh_timeline
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "f:\CR_PY\certificate_manager\nicegui_ui\student_components.py", line 713, in _render_semester_box
+    UI.select("", status_opts, value=cur_status, on_change=on_status_change).classes("text-xs w-44 shrink-0")
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "f:\CR_PY\certificate_manager\nicegui_ui\ui_components.py", line 152, in select
+    return ui.select(options=options, label=label, value=value, with_input=with_input, on_change=on_change).classes(
+           ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\defaults.py", line 64, in decorated
+    return original_func(*args, **kwargs)
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\elements\select.py", line 67, in __init__
+    super().__init__(label=label, options=options, value=value, on_change=on_change, validation=validation)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\elements\mixins\label_element.py", line 15, in __init__
+    super().__init__(**kwargs)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\elements\mixins\validation_element.py", line 20, in __init__
+    super().__init__(**kwargs)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\elements\choice_element.py", line 22, in __init__
+    raise ValueError(f'Invalid value: {value}')
+ValueError: Invalid value: 1
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\events.py", line 472, in handle_event
+    result = cast(Callable[[EventT], Any], handler)(arguments)
+  File "f:\CR_PY\certificate_manager\nicegui_ui\student_components.py", line 635, in _on_stage_change
+    ui.notify(f"Error updating stage: {stg_err}", type="negative")
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\functions\notify.py", line 52, in notify
+    client = context.client
+             ^^^^^^^^^^^^^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\context.py", line 41, in client
+    return self.slot.parent.client
+           ^^^^^^^^^^^^^^^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\slot.py", line 31, in parent
+    raise RuntimeError('The parent element this slot belongs to has been deleted.')
+RuntimeError: The parent element this slot belongs to has been deleted.
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\events.py", line 472, in handle_event
+    result = cast(Callable[[EventT], Any], handler)(arguments)
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\elements\mixins\value_element.py", line 50, in handle_change
+    self.set_value(self._event_args_to_value(e))
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\elements\mixins\value_element.py", line 133, in set_value
+    self.value = value
+    ^^^^^^^^^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\binding.py", line 285, in __set__
+    self._change_handler(owner, value)
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\elements\mixins\value_element.py", line 26, in <lambda>
+    on_change=lambda sender, value: cast(Self, sender)._handle_value_change(value))  # pylint: disable=protected-access
+                                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\elements\mixins\validation_element.py", line 94, in _handle_value_change
+    super()._handle_value_change(value)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\elements\mixins\value_element.py", line 147, in _handle_value_change
+    handle_event(handler, args)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\events.py", line 478, in handle_event
+    core.app.handle_exception(e)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~^^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\app\app.py", line 176, in handle_exception
+    if context.slot_stack and context.client is not None:
+                              ^^^^^^^^^^^^^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\context.py", line 41, in client
+    return self.slot.parent.client
+           ^^^^^^^^^^^^^^^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\slot.py", line 31, in parent
+    raise RuntimeError('The parent element this slot belongs to has been deleted.')
+RuntimeError: The parent element this slot belongs to has been deleted.
+2026-08-30 11:39:04 [ERROR] The parent element this slot belongs to has been deleted.
+Traceback (most recent call last):
+  File "f:\CR_PY\certificate_manager\nicegui_ui\student_components.py", line 633, in _on_stage_change
+    refresh_timeline()
+    ~~~~~~~~~~~~~~~~^^
+  File "f:\CR_PY\certificate_manager\nicegui_ui\student_components.py", line 643, in refresh_timeline
+    self._render_semester_box(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~^
+        sem_title="الفصل الأول / Term 1" if is_annual else "الفصل الأول / Semester 1",
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<6 lines>...
+        refresh_callback=refresh_timeline
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "f:\CR_PY\certificate_manager\nicegui_ui\student_components.py", line 713, in _render_semester_box
+    UI.select("", status_opts, value=cur_status, on_change=on_status_change).classes("text-xs w-44 shrink-0")
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "f:\CR_PY\certificate_manager\nicegui_ui\ui_components.py", line 152, in select
+    return ui.select(options=options, label=label, value=value, with_input=with_input, on_change=on_change).classes(
+           ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\defaults.py", line 64, in decorated
+    return original_func(*args, **kwargs)
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\elements\select.py", line 67, in __init__
+    super().__init__(label=label, options=options, value=value, on_change=on_change, validation=validation)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\elements\mixins\label_element.py", line 15, in __init__
+    super().__init__(**kwargs)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\elements\mixins\validation_element.py", line 20, in __init__
+    super().__init__(**kwargs)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\elements\choice_element.py", line 22, in __init__
+    raise ValueError(f'Invalid value: {value}')
+ValueError: Invalid value: 1
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\events.py", line 472, in handle_event
+    result = cast(Callable[[EventT], Any], handler)(arguments)
+  File "f:\CR_PY\certificate_manager\nicegui_ui\student_components.py", line 635, in _on_stage_change
+    ui.notify(f"Error updating stage: {stg_err}", type="negative")
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\functions\notify.py", line 52, in notify
+    client = context.client
+             ^^^^^^^^^^^^^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\context.py", line 41, in client
+    return self.slot.parent.client
+           ^^^^^^^^^^^^^^^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\slot.py", line 31, in parent
+    raise RuntimeError('The parent element this slot belongs to has been deleted.')
+RuntimeError: The parent element this slot belongs to has been deleted.
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\events.py", line 472, in handle_event
+    result = cast(Callable[[EventT], Any], handler)(arguments)
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\elements\mixins\value_element.py", line 50, in handle_change
+    self.set_value(self._event_args_to_value(e))
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\elements\mixins\value_element.py", line 133, in set_value
+    self.value = value
+    ^^^^^^^^^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\binding.py", line 285, in __set__
+    self._change_handler(owner, value)
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\elements\mixins\value_element.py", line 26, in <lambda>
+    on_change=lambda sender, value: cast(Self, sender)._handle_value_change(value))  # pylint: disable=protected-access
+                                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\elements\mixins\validation_element.py", line 94, in _handle_value_change
+    super()._handle_value_change(value)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\elements\mixins\value_element.py", line 147, in _handle_value_change
+    handle_event(handler, args)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\events.py", line 478, in handle_event
+    core.app.handle_exception(e)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~^^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\app\app.py", line 176, in handle_exception
+    if context.slot_stack and context.client is not None:
+                              ^^^^^^^^^^^^^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\context.py", line 41, in client
+    return self.slot.parent.client
+           ^^^^^^^^^^^^^^^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\slot.py", line 31, in parent
+    raise RuntimeError('The parent element this slot belongs to has been deleted.')
+RuntimeError: The parent element this slot belongs to has been deleted.
+2026-08-30 11:39:08 [ERROR] The parent element this slot belongs to has been deleted.
+Traceback (most recent call last):
+  File "f:\CR_PY\certificate_manager\nicegui_ui\student_components.py", line 633, in _on_stage_change
+    refresh_timeline()
+    ~~~~~~~~~~~~~~~~^^
+  File "f:\CR_PY\certificate_manager\nicegui_ui\student_components.py", line 643, in refresh_timeline
+    self._render_semester_box(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~^
+        sem_title="الفصل الأول / Term 1" if is_annual else "الفصل الأول / Semester 1",
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<6 lines>...
+        refresh_callback=refresh_timeline
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "f:\CR_PY\certificate_manager\nicegui_ui\student_components.py", line 713, in _render_semester_box
+    UI.select("", status_opts, value=cur_status, on_change=on_status_change).classes("text-xs w-44 shrink-0")
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "f:\CR_PY\certificate_manager\nicegui_ui\ui_components.py", line 152, in select
+    return ui.select(options=options, label=label, value=value, with_input=with_input, on_change=on_change).classes(
+           ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\defaults.py", line 64, in decorated
+    return original_func(*args, **kwargs)
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\elements\select.py", line 67, in __init__
+    super().__init__(label=label, options=options, value=value, on_change=on_change, validation=validation)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\elements\mixins\label_element.py", line 15, in __init__
+    super().__init__(**kwargs)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\elements\mixins\validation_element.py", line 20, in __init__
+    super().__init__(**kwargs)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\elements\choice_element.py", line 22, in __init__
+    raise ValueError(f'Invalid value: {value}')
+ValueError: Invalid value: 1
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\events.py", line 472, in handle_event
+    result = cast(Callable[[EventT], Any], handler)(arguments)
+  File "f:\CR_PY\certificate_manager\nicegui_ui\student_components.py", line 635, in _on_stage_change
+    ui.notify(f"Error updating stage: {stg_err}", type="negative")
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\functions\notify.py", line 52, in notify
+    client = context.client
+             ^^^^^^^^^^^^^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\context.py", line 41, in client
+    return self.slot.parent.client
+           ^^^^^^^^^^^^^^^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\slot.py", line 31, in parent
+    raise RuntimeError('The parent element this slot belongs to has been deleted.')
+RuntimeError: The parent element this slot belongs to has been deleted.
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\events.py", line 472, in handle_event
+    result = cast(Callable[[EventT], Any], handler)(arguments)
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\elements\mixins\value_element.py", line 50, in handle_change
+    self.set_value(self._event_args_to_value(e))
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\elements\mixins\value_element.py", line 133, in set_value
+    self.value = value
+    ^^^^^^^^^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\binding.py", line 285, in __set__
+    self._change_handler(owner, value)
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\elements\mixins\value_element.py", line 26, in <lambda>
+    on_change=lambda sender, value: cast(Self, sender)._handle_value_change(value))  # pylint: disable=protected-access
+                                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\elements\mixins\validation_element.py", line 94, in _handle_value_change
+    super()._handle_value_change(value)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\elements\mixins\value_element.py", line 147, in _handle_value_change
+    handle_event(handler, args)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\events.py", line 478, in handle_event
+    core.app.handle_exception(e)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~^^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\app\app.py", line 176, in handle_exception
+    if context.slot_stack and context.client is not None:
+                              ^^^^^^^^^^^^^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\context.py", line 41, in client
+    return self.slot.parent.client
+           ^^^^^^^^^^^^^^^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\slot.py", line 31, in parent
+    raise RuntimeError('The parent element this slot belongs to has been deleted.')
+RuntimeError: The parent element this slot belongs to has been deleted.
+2026-08-30 11:39:08 [ERROR] The parent element this slot belongs to has been deleted.
+Traceback (most recent call last):
+  File "f:\CR_PY\certificate_manager\nicegui_ui\student_components.py", line 633, in _on_stage_change
+    refresh_timeline()
+    ~~~~~~~~~~~~~~~~^^
+  File "f:\CR_PY\certificate_manager\nicegui_ui\student_components.py", line 643, in refresh_timeline
+    self._render_semester_box(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~^
+        sem_title="الفصل الأول / Term 1" if is_annual else "الفصل الأول / Semester 1",
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<6 lines>...
+        refresh_callback=refresh_timeline
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "f:\CR_PY\certificate_manager\nicegui_ui\student_components.py", line 713, in _render_semester_box
+    UI.select("", status_opts, value=cur_status, on_change=on_status_change).classes("text-xs w-44 shrink-0")
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "f:\CR_PY\certificate_manager\nicegui_ui\ui_components.py", line 152, in select
+    return ui.select(options=options, label=label, value=value, with_input=with_input, on_change=on_change).classes(
+           ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\defaults.py", line 64, in decorated
+    return original_func(*args, **kwargs)
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\elements\select.py", line 67, in __init__
+    super().__init__(label=label, options=options, value=value, on_change=on_change, validation=validation)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\elements\mixins\label_element.py", line 15, in __init__
+    super().__init__(**kwargs)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\elements\mixins\validation_element.py", line 20, in __init__
+    super().__init__(**kwargs)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\elements\choice_element.py", line 22, in __init__
+    raise ValueError(f'Invalid value: {value}')
+ValueError: Invalid value: 1
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\events.py", line 472, in handle_event
+    result = cast(Callable[[EventT], Any], handler)(arguments)
+  File "f:\CR_PY\certificate_manager\nicegui_ui\student_components.py", line 635, in _on_stage_change
+    ui.notify(f"Error updating stage: {stg_err}", type="negative")
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\functions\notify.py", line 52, in notify
+    client = context.client
+             ^^^^^^^^^^^^^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\context.py", line 41, in client
+    return self.slot.parent.client
+           ^^^^^^^^^^^^^^^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\slot.py", line 31, in parent
+    raise RuntimeError('The parent element this slot belongs to has been deleted.')
+RuntimeError: The parent element this slot belongs to has been deleted.
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\events.py", line 472, in handle_event
+    result = cast(Callable[[EventT], Any], handler)(arguments)
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\elements\mixins\value_element.py", line 50, in handle_change
+    self.set_value(self._event_args_to_value(e))
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\elements\mixins\value_element.py", line 133, in set_value
+    self.value = value
+    ^^^^^^^^^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\binding.py", line 285, in __set__
+    self._change_handler(owner, value)
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\elements\mixins\value_element.py", line 26, in <lambda>
+    on_change=lambda sender, value: cast(Self, sender)._handle_value_change(value))  # pylint: disable=protected-access
+                                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\elements\mixins\validation_element.py", line 94, in _handle_value_change
+    super()._handle_value_change(value)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\elements\mixins\value_element.py", line 147, in _handle_value_change
+    handle_event(handler, args)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\events.py", line 478, in handle_event
+    core.app.handle_exception(e)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~^^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\app\app.py", line 176, in handle_exception
+    if context.slot_stack and context.client is not None:
+                              ^^^^^^^^^^^^^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\context.py", line 41, in client
+    return self.slot.parent.client
+           ^^^^^^^^^^^^^^^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\slot.py", line 31, in parent
+    raise RuntimeError('The parent element this slot belongs to has been deleted.')
+RuntimeError: The parent element this slot belongs to has been deleted.
+2026-08-30 12:38:13 [INFO] before_load event fired. injecting pywebview object
+2026-08-30 12:38:13 [INFO] before_load event fired. injecting pywebview object
+2026-08-30 12:38:13 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-30 12:38:13 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-30 12:38:14 [INFO] _pywebviewready event fired
+2026-08-30 12:38:14 [INFO] _pywebviewready event fired
+2026-08-30 12:38:14 [INFO] loaded event fired
+2026-08-30 12:38:15 [INFO] loaded event fired
+2026-08-30 12:46:34 [INFO] before_load event fired. injecting pywebview object
+2026-08-30 12:46:34 [INFO] before_load event fired. injecting pywebview object
+2026-08-30 12:46:34 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-30 12:46:34 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-30 12:46:34 [INFO] _pywebviewready event fired
+2026-08-30 12:46:34 [INFO] _pywebviewready event fired
+2026-08-30 12:46:34 [INFO] loaded event fired
+2026-08-30 12:46:34 [INFO] loaded event fired
+2026-08-30 13:43:49 [INFO] SYSTEM STARTUP DIAGNOSTIC CHECK STARTED
+2026-08-30 13:43:49 [OK] [CHECK 1/4] FastAPI Connection Check ... [OK]
+2026-08-30 13:43:49 [OK] [CHECK 2/4] MySQL Database Connection ... [OK]
+2026-08-30 13:43:49 [OK] [CHECK 3/4] Authentication & Core SP Checks ... [OK]
+2026-08-30 13:43:49 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-08-30 13:43:49 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-08-30 13:43:49 [OK] [CHECK 4/4] Sync Engine & Local Replica Check ... [OK]
+2026-08-30 13:43:49 [OK] Status: ALL CHECKS PASSED. PROCEEDING TO LOGIN/DASHBOARD.
+2026-08-30 13:43:52 [INFO] Using WinForms / Chromium
+2026-08-30 13:43:52 [INFO] Using WinForms / Chromium
+2026-08-30 13:43:59 [INFO] before_load event fired. injecting pywebview object
+2026-08-30 13:43:59 [INFO] before_load event fired. injecting pywebview object
+2026-08-30 13:43:59 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-30 13:43:59 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-30 13:43:59 [INFO] _pywebviewready event fired
+2026-08-30 13:43:59 [INFO] _pywebviewready event fired
+2026-08-30 13:43:59 [INFO] loaded event fired
+2026-08-30 13:43:59 [INFO] loaded event fired
+2026-08-30 13:44:07 [INFO] before_load event fired. injecting pywebview object
+2026-08-30 13:44:07 [INFO] before_load event fired. injecting pywebview object
+2026-08-30 13:44:07 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-30 13:44:07 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-30 13:44:07 [INFO] _pywebviewready event fired
+2026-08-30 13:44:07 [INFO] _pywebviewready event fired
+2026-08-30 13:44:07 [INFO] loaded event fired
+2026-08-30 13:44:07 [INFO] loaded event fired
+2026-08-30 13:51:41 [WARNING] http://127.0.0.1:2323/.well-known/appspecific/com.chrome.devtools.json not found
+2026-08-30 13:51:41 [WARNING] http://127.0.0.1:2323/.well-known/appspecific/com.chrome.devtools.json not found
+2026-08-30 14:03:43 [INFO] SYSTEM STARTUP DIAGNOSTIC CHECK STARTED
+2026-08-30 14:03:43 [OK] [CHECK 1/4] FastAPI Connection Check ... [OK]
+2026-08-30 14:03:43 [OK] [CHECK 2/4] MySQL Database Connection ... [OK]
+2026-08-30 14:03:43 [OK] [CHECK 3/4] Authentication & Core SP Checks ... [OK]
+2026-08-30 14:03:43 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-08-30 14:03:43 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-08-30 14:03:43 [OK] [CHECK 4/4] Sync Engine & Local Replica Check ... [OK]
+2026-08-30 14:03:43 [OK] Status: ALL CHECKS PASSED. PROCEEDING TO LOGIN/DASHBOARD.
+2026-08-30 14:03:46 [INFO] Using WinForms / Chromium
+2026-08-30 14:03:46 [INFO] Using WinForms / Chromium
+2026-08-30 14:03:51 [INFO] before_load event fired. injecting pywebview object
+2026-08-30 14:03:51 [INFO] before_load event fired. injecting pywebview object
+2026-08-30 14:03:51 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-30 14:03:51 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-30 14:03:51 [INFO] _pywebviewready event fired
+2026-08-30 14:03:51 [INFO] _pywebviewready event fired
+2026-08-30 14:03:51 [INFO] loaded event fired
+2026-08-30 14:03:51 [INFO] loaded event fired
+2026-08-30 14:03:57 [INFO] before_load event fired. injecting pywebview object
+2026-08-30 14:03:57 [INFO] before_load event fired. injecting pywebview object
+2026-08-30 14:03:57 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-30 14:03:57 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-30 14:03:57 [INFO] _pywebviewready event fired
+2026-08-30 14:03:57 [INFO] _pywebviewready event fired
+2026-08-30 14:03:57 [INFO] loaded event fired
+2026-08-30 14:03:57 [INFO] loaded event fired
+2026-08-30 14:04:39 [WARNING] http://127.0.0.1:2323/.well-known/appspecific/com.chrome.devtools.json not found
+2026-08-30 14:04:39 [WARNING] http://127.0.0.1:2323/.well-known/appspecific/com.chrome.devtools.json not found
+2026-08-30 17:45:54 [INFO] SYSTEM STARTUP DIAGNOSTIC CHECK STARTED
+2026-08-30 17:45:54 [OK] [CHECK 1/4] FastAPI Connection Check ... [OK]
+2026-08-30 17:45:55 [OK] [CHECK 2/4] MySQL Database Connection ... [OK]
+2026-08-30 17:45:55 [OK] [CHECK 3/4] Authentication & Core SP Checks ... [OK]
+2026-08-30 17:45:55 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-08-30 17:45:55 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-08-30 17:45:55 [OK] [CHECK 4/4] Sync Engine & Local Replica Check ... [OK]
+2026-08-30 17:45:55 [OK] Status: ALL CHECKS PASSED. PROCEEDING TO LOGIN/DASHBOARD.
+2026-08-30 17:45:59 [INFO] Using WinForms / Chromium
+2026-08-30 17:45:59 [INFO] Using WinForms / Chromium
+2026-08-30 17:46:05 [INFO] before_load event fired. injecting pywebview object
+2026-08-30 17:46:05 [INFO] before_load event fired. injecting pywebview object
+2026-08-30 17:46:05 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-30 17:46:05 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-30 17:46:05 [INFO] _pywebviewready event fired
+2026-08-30 17:46:05 [INFO] _pywebviewready event fired
+2026-08-30 17:46:05 [INFO] loaded event fired
+2026-08-30 17:46:05 [INFO] loaded event fired
+2026-08-30 17:46:18 [INFO] before_load event fired. injecting pywebview object
+2026-08-30 17:46:18 [INFO] before_load event fired. injecting pywebview object
+2026-08-30 17:46:18 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-30 17:46:18 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-30 17:46:18 [INFO] _pywebviewready event fired
+2026-08-30 17:46:18 [INFO] _pywebviewready event fired
+2026-08-30 17:46:18 [INFO] loaded event fired
+2026-08-30 17:46:18 [INFO] loaded event fired

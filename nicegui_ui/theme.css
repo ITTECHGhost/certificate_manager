@@ -603,9 +603,23 @@ body.dark,
 /* --- Sidebar Container --- */
 .app-sidebar {
   background-color: var(--sidebar-bg) !important;
-  border-right: 1px solid var(--sidebar-border) !important;
+  border-inline-end: 1px solid var(--sidebar-border) !important;
   color: var(--sidebar-text-color) !important;
   transition: width 0.3s ease, background-color 0.3s, border-color 0.3s, color 0.3s;
+}
+
+[dir="rtl"] .app-sidebar,
+html[dir="rtl"] .app-sidebar,
+body[dir="rtl"] .app-sidebar {
+  border-left: 1px solid var(--sidebar-border) !important;
+  border-right: none !important;
+}
+
+[dir="ltr"] .app-sidebar,
+html[dir="ltr"] .app-sidebar,
+body[dir="ltr"] .app-sidebar {
+  border-right: 1px solid var(--sidebar-border) !important;
+  border-left: none !important;
 }
 
 .app-sidebar-header {

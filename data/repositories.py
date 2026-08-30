@@ -1133,6 +1133,95 @@ class StudentRepository(BaseRepository):
         except Exception:
             return []
 
+    def get_issued_certificates_report(
+        self,
+        start_date: str | None = None,
+        end_date: str | None = None,
+        department_id: int | None = None,
+        template_type: str | None = None
+    ) -> list[dict]:
+        """Calls GetIssuedCertificatesReport SP via API or SQLite offline fallback."""
+        if is_online():
+            try:
+                params = {}
+                if start_date: params["start_date"] = start_date
+                if end_date: params["end_date"] = end_date
+                if department_id: params["department_id"] = department_id
+                if template_type: params["template_type"] = template_type
+                resp = requests.get(f"{self.api_url}/issued-certificates/report", params=params, timeout=5.0)
+                if resp.status_code == 200:
+                    return resp.json()
+            except Exception as e:
+                log_system(f"Failed to fetch issued certificates report via SP API: {e}", "WARNING")
+
+        query = (
+            "SELECT ic.id AS certificate_id, ic.student_id, ic.to_title, ic.template_type, "
+            "ic.issue_date, ic.created_at, "
+            "s.full_name_ar AS student_name_ar, s.full_name_en AS student_name_en, "
+            "COALESCE(s.average, 0.0) AS average, d.id AS department_id, d.name_ar AS department_name_ar "
+            "FROM issued_certificates ic "
+            "LEFT JOIN students s ON ic.student_id = s.id "
+            "LEFT JOIN departments d ON s.department_id = d.id "
+            "WHERE (ic.issue_date >= ? OR ? IS NULL) "
+            "  AND (ic.issue_date <= ? OR ? IS NULL) "
+            "  AND (d.id = ? OR ? IS NULL OR ? = 0) "
+            "  AND (ic.template_type = ? OR ? IS NULL OR ? = '') "
+            "ORDER BY ic.issue_date DESC, d.name_ar ASC, s.full_name_ar ASC"
+        )
+        try:
+            return sqlite_read_all(
+                query,
+                (start_date, start_date, end_date, end_date, department_id, department_id, department_id, template_type, template_type, template_type)
+            )
+        except Exception as err:
+            log_system(f"Offline report query failed: {err}", "WARNING")
+            return []
+
+    def get_issued_certificates_by_student(self, student_id: int) -> list[dict]:
+        """Calls GetIssuedCertificatesByStudent SP via API or SQLite offline fallback."""
+        if is_online():
+            try:
+                resp = requests.get(f"{self.api_url}/issued-certificates/by-student/{student_id}", timeout=5.0)
+                if resp.status_code == 200:
+                    return resp.json()
+            except Exception as e:
+                log_system(f"API request failed for student issued certs: {e}", "WARNING")
+
+        query = (
+            "SELECT ic.id, ic.student_id, ic.to_title, ic.template_type, ic.issue_date, ic.created_at, "
+            "s.full_name_ar AS student_name_ar, s.full_name_en AS student_name_en "
+            "FROM issued_certificates ic "
+            "LEFT JOIN students s ON ic.student_id = s.id "
+            "WHERE ic.student_id = ? "
+            "ORDER BY ic.issue_date DESC"
+        )
+        try:
+            return sqlite_read_all(query, (student_id,))
+        except Exception:
+            return []
+
+    def get_issued_certificate_by_id(self, cert_id: int) -> dict | None:
+        """Calls GetIssuedCertificateById SP via API or SQLite offline fallback."""
+        if is_online():
+            try:
+                resp = requests.get(f"{self.api_url}/issued-certificates/{cert_id}", timeout=5.0)
+                if resp.status_code == 200:
+                    return resp.json()
+            except Exception as e:
+                log_system(f"API request failed for issued cert by id: {e}", "WARNING")
+
+        query = (
+            "SELECT ic.id, ic.student_id, ic.to_title, ic.template_type, ic.issue_date, ic.created_at, "
+            "s.full_name_ar AS student_name_ar, s.full_name_en AS student_name_en "
+            "FROM issued_certificates ic "
+            "LEFT JOIN students s ON ic.student_id = s.id "
+            "WHERE ic.id = ?"
+        )
+        try:
+            return sqlite_read_one(query, (cert_id,))
+        except Exception:
+            return None
+
     def get_recent_printed_certificates(self, limit: int = 5) -> list[dict]:
         """Fetch recently printed certificates."""
         query = (
@@ -1776,11 +1865,31 @@ class AcademicPeriodRepository(BaseRepository):
                 (student_id,)
             )
 
-        for r in periods:
-            if not r.get("result_status"):
-                r["result_status"] = "PASSED"
+        status_code_map = {
+            1: "PASSED", "1": "PASSED", "PASSED": "PASSED",
+            2: "FAILED_REPEAT", "2": "FAILED_REPEAT", "FAILED": "FAILED_REPEAT", "FAILED_REPEAT": "FAILED_REPEAT",
+            3: "EXCEPTIONAL_PASS", "3": "EXCEPTIONAL_PASS", "EXCEPTIONAL_PASS": "EXCEPTIONAL_PASS",
+            4: "CARRIED_OVER", "4": "CARRIED_OVER", "CARRIED_OVER": "CARRIED_OVER",
+            5: "DEFERRED", "5": "DEFERRED", "DEFERRED": "DEFERRED",
+            6: "DISMISSED", "6": "DISMISSED", "DISMISSED": "DISMISSED",
+        }
 
-        return periods
+        norm_periods = []
+        for r in periods:
+            if isinstance(r, dict):
+                raw_st = r.get("result_status")
+                r["result_status"] = status_code_map.get(raw_st, status_code_map.get(str(raw_st).strip(), "PASSED"))
+                norm_periods.append(r)
+            elif isinstance(r, (tuple, list)) and len(r) >= 7:
+                raw_st = r[6]
+                st_str = status_code_map.get(raw_st, status_code_map.get(str(raw_st).strip(), "PASSED"))
+                norm_periods.append({
+                    "id": r[0], "student_id": r[1], "academic_year": r[2],
+                    "study_system_id": r[3], "stage_number": r[4], "semester_num": r[5],
+                    "result_status": st_str
+                })
+
+        return norm_periods
 
     def insert(self, student_id: int, year: str, sys_id: int, stage: int, semester_num: int = 1, result_status: str = "PASSED") -> int:
         if not is_online():
@@ -1810,25 +1919,36 @@ class AcademicPeriodRepository(BaseRepository):
             log_system(f"API request failed: {e}", "WARNING")
             raise
 
-    def update_status(self, period_id: int, result_status: str) -> None:
+    def update_status(self, period_id: int, result_status: str | int) -> None:
+        status_to_code = {
+            "PASSED": 1, "1": 1, 1: 1,
+            "FAILED_REPEAT": 2, "FAILED": 2, "2": 2, 2: 2,
+            "EXCEPTIONAL_PASS": 3, "3": 3, 3: 3,
+            "CARRIED_OVER": 4, "4": 4, 4: 4,
+            "DEFERRED": 5, "5": 5, 5: 5,
+            "DISMISSED": 6, "6": 6, 6: 6,
+        }
+        st_code = status_to_code.get(result_status, status_to_code.get(str(result_status).strip().upper(), 1))
+        st_key = {1: "PASSED", 2: "FAILED_REPEAT", 3: "EXCEPTIONAL_PASS", 4: "CARRIED_OVER", 5: "DEFERRED", 6: "DISMISSED"}.get(st_code, "PASSED")
+
         conn = get_local_connection()
         try:
             if period_id < 0:
                 try:
-                    conn.execute("UPDATE local_academic_periods SET result_status = ? WHERE id = ?", (result_status, period_id))
+                    conn.execute("UPDATE local_academic_periods SET result_status = ? WHERE id = ?", (st_key, period_id))
                 except sqlite3.OperationalError as oe:
                     if "no such column" in str(oe).lower():
                         conn.execute("ALTER TABLE local_academic_periods ADD COLUMN result_status TEXT DEFAULT 'PASSED'")
-                        conn.execute("UPDATE local_academic_periods SET result_status = ? WHERE id = ?", (result_status, period_id))
+                        conn.execute("UPDATE local_academic_periods SET result_status = ? WHERE id = ?", (st_key, period_id))
                     else:
                         raise
             else:
                 try:
-                    conn.execute("UPDATE academic_periods SET result_status = ? WHERE id = ?", (result_status, period_id))
+                    conn.execute("UPDATE academic_periods SET result_status = ? WHERE id = ?", (st_key, period_id))
                 except sqlite3.OperationalError as oe:
                     if "no such column" in str(oe).lower():
                         conn.execute("ALTER TABLE academic_periods ADD COLUMN result_status TEXT DEFAULT 'PASSED'")
-                        conn.execute("UPDATE academic_periods SET result_status = ? WHERE id = ?", (result_status, period_id))
+                        conn.execute("UPDATE academic_periods SET result_status = ? WHERE id = ?", (st_key, period_id))
                     else:
                         raise
             conn.commit()
@@ -1841,7 +1961,7 @@ class AcademicPeriodRepository(BaseRepository):
         try:
             resp = requests.patch(
                 f"{self.api_url}/academic-periods/{period_id}/status",
-                json={"result_status": result_status},
+                json={"result_status": str(st_code)},
                 timeout=3.0
             )
             if resp.status_code != 200:
@@ -2173,6 +2293,78 @@ class CertificateRepository(BaseRepository):
             data["supervisors"] = supervisor_repo.get_by_student(student_id)
             
         return data
+
+    def get_flat_yearly_courses(self, student_id: int) -> list[dict]:
+        """
+        Fetches flat 14-column transcript courses via sp_GetCertificate_Yearly_ByAcademicDefualte (online)
+        or flat SQLite query (offline).
+        """
+        if is_online():
+            try:
+                resp = requests.get(f"{self.api_url}/certificates/flat-yearly/{student_id}", timeout=5.0)
+                if resp.status_code == 200:
+                    rows = resp.json()
+                    if isinstance(rows, list):
+                        return rows
+            except Exception as e:
+                log_system(f"API flat-yearly courses fetch failed: {e}", "WARNING")
+
+        query = (
+            "SELECT s.id AS student_id, "
+            "       COALESCE(s.full_name_ar, '') AS student_name_ar, "
+            "       COALESCE(ss.name_ar, '') AS study_system_ar, "
+            "       COALESCE(ap.academic_year, '') AS academic_year, "
+            "       COALESCE(ap.stage_number, 1) AS stage_number, "
+            "       'المرحلة ' || COALESCE(ap.stage_number, 1) AS stage_name_ar, "
+            "       c.id AS course_id, "
+            "       COALESCE(c.code, '') AS course_code, "
+            "       COALESCE(c.name_ar, '') AS course_name_ar, "
+            "       COALESCE(c.name_en, '') AS course_name_en, "
+            "       c.credit_hours AS units, "
+            "       e.score AS mark, "
+            "       CASE "
+            "           WHEN ap.result_status IN ('PASSED', '1', 1) THEN 1 "
+            "           WHEN ap.result_status IN ('FAILED_REPEAT', 'FAILED', '2', 2) THEN 2 "
+            "           WHEN ap.result_status IN ('EXCEPTIONAL_PASS', '3', 3) THEN 3 "
+            "           WHEN ap.result_status IN ('CARRIED_OVER', '4', 4) THEN 4 "
+            "           WHEN ap.result_status IN ('DEFERRED', '5', 5) THEN 5 "
+            "           WHEN ap.result_status IN ('DISMISSED', '6', 6) THEN 6 "
+            "           ELSE 1 "
+            "       END AS result_status_code, "
+            "       COALESCE(ap.result_status, 'PASSED') AS result_status_label "
+            "FROM (SELECT * FROM academic_periods UNION ALL SELECT * FROM local_academic_periods) ap "
+            "JOIN (SELECT * FROM enrollments UNION ALL SELECT * FROM local_enrollments) e ON e.period_id = ap.id "
+            "JOIN courses c ON e.course_id = c.id "
+            "JOIN (SELECT * FROM students UNION ALL SELECT * FROM local_students) s ON ap.student_id = s.id "
+            "LEFT JOIN study_systems ss ON s.study_system_id = ss.id "
+            "WHERE s.id = ? "
+            "ORDER BY ap.stage_number ASC, ap.academic_year ASC, c.name_ar ASC"
+        )
+        try:
+            raw_rows = sqlite_read_all(query, (student_id,)) or []
+            flat_records = []
+            for r in raw_rows:
+                if isinstance(r, dict):
+                    flat_records.append({
+                        "student_id": safe_cast(r.get("student_id", student_id)),
+                        "student_name_ar": str(r.get("student_name_ar", "")),
+                        "study_system_ar": str(r.get("study_system_ar", "")),
+                        "academic_year": str(r.get("academic_year", "")),
+                        "stage_number": safe_cast(r.get("stage_number", 1)),
+                        "stage_name_ar": str(r.get("stage_name_ar", "المرحلة الأولى")),
+                        "course_id": safe_cast(r.get("course_id", 0)),
+                        "course_code": str(r.get("course_code", "")),
+                        "course_name_ar": str(r.get("course_name_ar", "")),
+                        "course_name_en": str(r.get("course_name_en", "")),
+                        "units": safe_cast(r.get("units", 0)),
+                        "mark": safe_cast(r.get("mark", 0.0)),
+                        "result_status_code": safe_cast(r.get("result_status_code", 1)),
+                        "result_status_label": str(r.get("result_status_label", "PASSED")),
+                    })
+            return flat_records
+        except Exception as err:
+            log_system(f"SQLite flat yearly query failed: {err}", "WARNING")
+            return []
 
 # ---------------------------------------------------------------------------
 # Module 9: Graduation Orders

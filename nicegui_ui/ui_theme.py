@@ -105,9 +105,9 @@ class Styles:
     TABLE_CLASSES = "app-table w-full no-shadow border-none"
 
     BOTTOM_ROW    = "w-full gap-6 items-stretch flex-wrap xl:flex-nowrap"
-    ACTIONS_PANEL = "app-card w-full xl:w-1/3 p-6 rounded-2xl gap-4"
+    ACTIONS_PANEL = "app-card w-full xl:w-1/4 xl:max-w-[320px] p-5 rounded-2xl gap-3"
     ACTIONS_TITLE = "app-text-primary text-lg font-bold mb-2"
-    TABLE_PANEL   = "app-card w-full xl:flex-1 p-6 rounded-2xl gap-2"
+    TABLE_PANEL   = "app-card w-full xl:flex-1 min-w-0 p-6 rounded-2xl gap-2"
     TABLE_TITLE   = "app-text-primary text-lg font-bold mb-2"
     SETTINGS_CARD = CARD
 

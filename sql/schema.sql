@@ -14,12 +14,12 @@ CREATE TABLE `academic_periods` (
   `academic_year` varchar(9) NOT NULL,
   `stage_number` int(11) NOT NULL,
   `semester_num` int(5) NOT NULL DEFAULT '1',
-  `result_status` varchar(20) DEFAULT NULL COMMENT 'PASSED, CARRIED_OVER, EXCEPTIONAL_PASS, FAILED_REPEAT, DEFERRED, DISMISSED',
+  `result_status` int(11) DEFAULT '1' COMMENT '1: PASSED, 2: FAILED_REPEAT, 3: EXCEPTIONAL_PASS, 4: CARRIED_OVER, 5: DEFERRED, 6: DISMISSED',
   `study_system_id` int(11) NOT NULL DEFAULT '1',
   PRIMARY KEY (`id`),
   UNIQUE KEY `uq_period_precise` (`student_id`,`academic_year`,`stage_number`,`semester_num`),
   CONSTRAINT `academic_periods_ibfk_1` FOREIGN KEY (`student_id`) REFERENCES `students` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=1032 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=1041 DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
 -- Table structure for table `countries`
@@ -81,7 +81,7 @@ CREATE TABLE `enrollments` (
   KEY `course_id` (`course_id`),
   CONSTRAINT `enrollments_ibfk_1` FOREIGN KEY (`period_id`) REFERENCES `academic_periods` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `enrollments_ibfk_2` FOREIGN KEY (`course_id`) REFERENCES `courses` (`id`) ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=4126 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=4182 DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
 -- Table structure for table `governorates`
@@ -116,7 +116,23 @@ CREATE TABLE `graduation_orders` (
   UNIQUE KEY `idx_unique_grad_order_final` (`order_number`,`department_id`,`study_system_id`,`graduation_semester`),
   KEY `department_id` (`department_id`),
   CONSTRAINT `graduation_orders_ibfk_1` FOREIGN KEY (`department_id`) REFERENCES `departments` (`id`) ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=128 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=129 DEFAULT CHARSET=utf8;
+
+-- --------------------------------------------------------
+-- Table structure for table `issued_certificates`
+-- --------------------------------------------------------
+DROP TABLE IF EXISTS `issued_certificates`;
+CREATE TABLE `issued_certificates` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `student_id` int(11) NOT NULL,
+  `to_title` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'من يهمه الأمر',
+  `template_type` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'ARABIC',
+  `issue_date` date NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uq_student_cert_record` (`student_id`,`issue_date`,`to_title`,`template_type`),
+  CONSTRAINT `fk_issued_cert_student` FOREIGN KEY (`student_id`) REFERENCES `students` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
 -- Table structure for table `personnel`
@@ -211,7 +227,51 @@ CREATE TABLE `students` (
   CONSTRAINT `students_ibfk_3` FOREIGN KEY (`department_id`) REFERENCES `departments` (`id`) ON UPDATE CASCADE,
   CONSTRAINT `students_ibfk_4` FOREIGN KEY (`study_system_id`) REFERENCES `study_systems` (`id`) ON UPDATE CASCADE,
   CONSTRAINT `students_ibfk_5` FOREIGN KEY (`order_id`) REFERENCES `graduation_orders` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=2137 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=2138 DEFAULT CHARSET=utf8;
+
+-- --------------------------------------------------------
+-- Table structure for table `study_routine_courses`
+-- --------------------------------------------------------
+DROP TABLE IF EXISTS `study_routine_courses`;
+CREATE TABLE `study_routine_courses` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `period_id` int(11) NOT NULL,
+  `course_id` int(11) NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uq_routine_course` (`period_id`,`course_id`),
+  KEY `routine_id` (`period_id`),
+  KEY `course_id` (`course_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- --------------------------------------------------------
+-- Table structure for table `study_routine_period`
+-- --------------------------------------------------------
+DROP TABLE IF EXISTS `study_routine_period`;
+CREATE TABLE `study_routine_period` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `routine_id` int(11) NOT NULL,
+  `stage_number` int(10) NOT NULL,
+  `semester_num` int(10) NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `fk_srp_routine` (`routine_id`),
+  CONSTRAINT `fk_srp_routine` FOREIGN KEY (`routine_id`) REFERENCES `study_routines` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- --------------------------------------------------------
+-- Table structure for table `study_routines`
+-- --------------------------------------------------------
+DROP TABLE IF EXISTS `study_routines`;
+CREATE TABLE `study_routines` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `department_id` int(11) NOT NULL,
+  `study_system_id` int(11) NOT NULL DEFAULT '1',
+  `name_ar` varchar(50) NOT NULL DEFAULT '1',
+  `name_en` varchar(50) NOT NULL DEFAULT '1',
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `department_id` (`department_id`),
+  KEY `study_system_id` (`study_system_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------
 -- Table structure for table `study_systems`

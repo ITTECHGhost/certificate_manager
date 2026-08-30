@@ -1118,11 +1118,22 @@ class CertificateScreen:
             {'name': 'subj', 'label': 'المادة / Subject', 'field': 'subject_name', 'align': 'left'},
             {'name': 'mark', 'label': 'الدرجة / Mark', 'field': 'mark', 'align': 'center'},
             {'name': 'unit', 'label': 'الوحدات / Units', 'field': 'unit', 'align': 'center'},
-            {'name': 'round', 'label': 'الدور / Round', 'field': 'passed_round', 'align': 'center'}
+            {'name': 'status', 'label': 'الحالة / Status', 'field': 'result_status_label', 'align': 'center'}
         ]
         
+        normalized_courses = []
+        for idx, c in enumerate(courses):
+            c_copy = dict(c)
+            c_copy['row_id'] = c_copy.get('course_id') or idx
+            c_copy['subject_name'] = c_copy.get('course_name_ar') or c_copy.get('subject_name') or ''
+            c_copy['academic_year_formatted'] = c_copy.get('academic_year_formatted') or c_copy.get('academic_year') or ''
+            c_copy['unit'] = c_copy.get('units') if c_copy.get('units') is not None else c_copy.get('unit', 0)
+            c_copy['semester_num'] = c_copy.get('semester_num', 1)
+            c_copy['result_status_label'] = c_copy.get('result_status_label') or c_copy.get('result_status') or 'PASSED'
+            normalized_courses.append(c_copy)
+
         with self.preview_grid_container:
-            ui.table(columns=columns, rows=courses, row_key='subject_name').classes('w-full text-xs')
+            ui.table(columns=columns, rows=normalized_courses, row_key='row_id').classes('w-full text-xs')
 
     def render_empty_student_info(self):
         self.student_info_container.clear()

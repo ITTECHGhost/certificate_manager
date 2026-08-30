@@ -46,6 +46,25 @@ def calculate_stage(db_year: str, admission_year: str | int | None) -> int:
     return 1
 
 
+STATUS_CODE_MAP = {
+    1: "PASSED", "1": "PASSED", "PASSED": "PASSED",
+    2: "FAILED_REPEAT", "2": "FAILED_REPEAT", "FAILED": "FAILED_REPEAT", "FAILED_REPEAT": "FAILED_REPEAT",
+    3: "EXCEPTIONAL_PASS", "3": "EXCEPTIONAL_PASS", "EXCEPTIONAL_PASS": "EXCEPTIONAL_PASS",
+    4: "CARRIED_OVER", "4": "CARRIED_OVER", "CARRIED_OVER": "CARRIED_OVER",
+    5: "DEFERRED", "5": "DEFERRED", "DEFERRED": "DEFERRED",
+    6: "DISMISSED", "6": "DISMISSED", "DISMISSED": "DISMISSED",
+}
+
+STATUS_KEY_TO_CODE = {
+    "PASSED": 1,
+    "FAILED_REPEAT": 2,
+    "FAILED": 2,
+    "EXCEPTIONAL_PASS": 3,
+    "CARRIED_OVER": 4,
+    "DEFERRED": 5,
+    "DISMISSED": 6,
+}
+
 RESULT_STATUS_MAP = {
     "PASSED": {
         "label_ar": "ناجح",
@@ -492,16 +511,16 @@ class StudentProfileView:
         def refresh_timeline():
             periods_container.clear()
             with periods_container:
-                # Top Action Bar: Add Academic Year input & Stage Selector (Single Horizontal Row Layout)
-                with ui.row().classes("w-full items-center justify-between gap-3 p-4 rounded-xl app-card-header flex-nowrap overflow-x-auto"):
-                    with ui.row().classes("items-center gap-3 flex-1 flex-nowrap min-w-0"):
+                # Top Action Bar: Add Academic Year input & Stage Selector (Single Responsive Row Layout without horizontal scrollbar)
+                with ui.row().classes("w-full items-center justify-between gap-3 p-3.5 rounded-xl app-card-header flex-wrap"):
+                    with ui.row().classes("items-center gap-2 flex-wrap min-w-0 flex-1"):
                         year_input = UI.text_input(
                             label="السنة الدراسية (Academic Year)",
                             placeholder="مثال: 2024-2025"
-                        ).classes("w-56 text-sm shrink-0")
+                        ).classes("w-44 text-xs shrink-0")
                         
                         stage_add_opts = {1: "المرحلة الأولى (1)", 2: "المرحلة الثانية (2)", 3: "المرحلة الثالثة (3)", 4: "المرحلة الرابعة (4)"}
-                        stage_add_sel = UI.select("المرحلة الدراسية / Stage", options=stage_add_opts, value=1).classes("w-44 text-sm shrink-0")
+                        stage_add_sel = UI.select("المرحلة الدراسية / Stage", options=stage_add_opts, value=1).classes("w-40 text-xs shrink-0")
 
                         def on_add_year():
                             yr_str = year_input.value.strip() if year_input.value else ""
@@ -528,7 +547,7 @@ class StudentProfileView:
                             except Exception as err:
                                 ui.notify(f"Error adding year: {err}", type="negative")
 
-                        UI.success_button("إضافة سنة دراسية / Add Academic Year", icon="add", on_click=on_add_year).classes("text-sm px-4 py-2 shrink-0")
+                        UI.success_button("إضافة سنة دراسية / Add Academic Year", icon="add", on_click=on_add_year).classes("text-xs px-3 py-1.5 shrink-0")
 
                         def on_apply_routine_click():
                             from data.repositories import StudyRoutineRepository
@@ -567,7 +586,7 @@ class StudentProfileView:
                                     UI.secondary_button("إلغاء / Cancel", on_click=dialog.close).classes("text-sm px-4 py-2")
                             dialog.open()
 
-                        UI.primary_button("⚡ تطبيق روتين / Apply Routine", icon="bolt", on_click=on_apply_routine_click).classes("text-sm px-4 py-2 shrink-0")
+                        UI.primary_button("⚡ تطبيق روتين / Apply Routine", icon="bolt", on_click=on_apply_routine_click).classes("text-xs px-3 py-1.5 shrink-0")
 
                 # Fetch student periods
                 try:
@@ -632,13 +651,13 @@ class StudentProfileView:
                                             ui.notify(f"تم تحديث المرحلة الدراسية إلى: المرحلة {new_stg}", type="positive")
                                             refresh_timeline()
                                         except Exception as stg_err:
-                                            ui.notify(f"Error updating stage: {stg_err}", type="negative")
+                                            log.error(f"Error updating stage: {stg_err}")
                                     return _on_stage_change
 
                                 UI.select("", stage_card_map, value=int(stg_val or 1), on_change=make_stage_changer(yr_periods)).classes("text-xs w-44 shrink-0")
 
-                        # 3 Semester Columns Grid
-                        with ui.row().classes("w-full gap-4 flex-nowrap items-start"):
+                        # 3 Semester Columns Grid (Responsive without horizontal scrollbar)
+                        with ui.row().classes("w-full gap-3 items-start flex-wrap lg:flex-nowrap"):
                             # Col 1: Semester 1
                             self._render_semester_box(
                                 sem_title="الفصل الأول / Term 1" if is_annual else "الفصل الأول / Semester 1",
@@ -688,12 +707,13 @@ class StudentProfileView:
         student_data: dict,
         refresh_callback
     ):
-        with ui.column().classes("flex-1 p-4 rounded-lg border border-[var(--border-default)] app-card-header gap-3 min-w-[260px]"):
+        with ui.column().classes("flex-1 min-w-0 w-full lg:w-1/3 p-3.5 rounded-lg border border-[var(--border-default)] app-card-header gap-3"):
             with ui.row().classes("w-full justify-between items-center pb-2 border-b border-[var(--border-default)] gap-2 flex-wrap"):
                 ui.label(sem_title).classes("font-bold text-sm app-text-accent")
 
                 if period:
-                    cur_status = period.get("result_status") or "PASSED"
+                    raw_st = period.get("result_status")
+                    cur_status = STATUS_CODE_MAP.get(raw_st, STATUS_CODE_MAP.get(str(raw_st).strip(), "PASSED"))
                     status_info = RESULT_STATUS_MAP.get(cur_status, RESULT_STATUS_MAP["PASSED"])
 
                     # Period Status Badge Chip
@@ -706,11 +726,14 @@ class StudentProfileView:
                     def on_status_change(e, p_id=period["id"]):
                         new_st = e.value if hasattr(e, "value") else e
                         if new_st:
-                            self.period_repo.update_status(p_id, str(new_st))
-                            ui.notify(f"تم تغيير حالة الفترة إلى: {RESULT_STATUS_MAP.get(str(new_st), {}).get('label_ar', new_st)}", type="positive")
+                            st_key = STATUS_CODE_MAP.get(new_st, "PASSED")
+                            st_code = STATUS_KEY_TO_CODE.get(st_key, 1)
+                            self.period_repo.update_status(p_id, st_code)
+                            period["result_status"] = st_key
+                            ui.notify(f"تم تغيير حالة الفترة إلى: {RESULT_STATUS_MAP.get(st_key, {}).get('label_ar', st_key)}", type="positive")
                             refresh_callback()
 
-                    UI.select("", status_opts, value=cur_status, on_change=on_status_change).classes("text-xs w-44 shrink-0")
+                    UI.select("", status_opts, value=cur_status, on_change=on_status_change).classes("text-xs w-40 shrink-0")
 
                     with ui.row().classes("gap-2 items-center"):
                         UI.secondary_button(

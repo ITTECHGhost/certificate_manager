@@ -598,9 +598,9 @@ class MainAppShell:
         # [LAYOUT CONTAINER: BOTTOM FLEX ROW]
         with ui.row().classes(Styles.BOTTOM_ROW):
             
-            # ── 1. QUICK ACTIONS CARD PANEL (LEFT COLUMN / 1/3 WIDTH) ───────
+            # ── 1. QUICK ACTIONS CARD PANEL (COMPACT 1/4 WIDTH) ─────────────
             # [CARD: QUICK ACTIONS PANEL]
-            with ui.column().classes("app-card w-full xl:w-1/3 p-5 rounded-2xl gap-3 h-auto justify-start self-start"):
+            with ui.column().classes("app-card w-full xl:w-1/4 xl:max-w-[320px] p-5 rounded-2xl gap-3 h-auto justify-start self-start"):
                 # Card Header Label
                 UI.section_label("Quick Actions  —  إجراءات سريعة")
                 
@@ -609,7 +609,7 @@ class MainAppShell:
                     for action in QUICK_ACTIONS:
                         # [BUTTON / TILE: INDIVIDUAL QUICK ACTION ROW]
                         action_row = ui.row().classes(
-                            "app-action-item w-full items-center gap-3.5 px-4 py-3 rounded-xl cursor-pointer"
+                            "app-action-item w-full items-center gap-3 px-3.5 py-2.5 rounded-xl cursor-pointer"
                         ).on(
                             "click",
                             (lambda t=action["target"]: self._switch_screen(t))
@@ -627,7 +627,7 @@ class MainAppShell:
                             # Navigation Arrow Icon
                             ui.icon("arrow_back_ios", size="xs").classes("app-text-faint ml-auto opacity-60")
 
-            # ── 2. RECENT DATA TABBED TABLE CARD PANEL (RIGHT COLUMN / 2/3 WIDTH) 
+            # ── 2. RECENT DATA TABBED TABLE CARD PANEL (EXPANDED FLEX-1 WIDTH) ──────
             # [CARD: TABBED TABLE PANEL]
             with UI.card(Styles.TABLE_PANEL):
                 # [TAB BAR: NAVIGATION TABS FOR TABLES]
@@ -645,7 +645,9 @@ class MainAppShell:
                             ui.label("Issued & Printed Certificates").classes("font-normal text-xs opacity-75 leading-tight")
 
                 # [TAB PANELS CONTAINER]
-                with ui.tab_panels(tabs, value=tab_students).classes("w-full p-0 bg-transparent"):
+                initial_tab = tab_certs if getattr(self, "_default_dashboard_tab_name", None) == "tab_certs" else tab_students
+                self._default_dashboard_tab_name = "tab_students"
+                with ui.tab_panels(tabs, value=initial_tab).classes("w-full p-0 bg-transparent"):
                     
                     # ── TAB 1 VIEW: RECENT STUDENTS TABLE ────────────────────
                     with ui.tab_panel(tab_students).classes("w-full p-0 pt-2 bg-transparent"):
@@ -658,25 +660,29 @@ class MainAppShell:
                         ]
                         rows_s = [
                             {
-                                "id":       s.get("id"),
-                                "name":     s.get("full_name_ar") or s.get("full_name_en") or "طالب جديد",
-                                "dept":     s.get("dept_name_ar") or "قسم عام",
-                                "year":     s.get("admission_year") or "2023-2024",
-                                "status":   s.get("status") or "مستمر",
+                                "id":     s.get("id"),
+                                "name":   s.get("full_name_ar") or s.get("student_name_ar") or s.get("full_name_en") or "—",
+                                "dept":   s.get("dept_name_ar") or s.get("department_name_ar") or "—",
+                                "year":   s.get("admission_year") or s.get("graduation_year") or "—",
+                                "status": "متخرج" if s.get("order_id") or s.get("graduation_date") else "مستمر",
                                 "raw_data": s,
                             }
-                            for s in self.recent_students
+                            for s in (self.recent_students or [])
                         ]
-                        # [TABLE: STUDENTS DATA TABLE]
+                        # [TABLE: RECENT STUDENTS DATA TABLE]
                         s_table = ui.table(
                             columns=cols_s, rows=rows_s, row_key="id"
                         ).classes(Styles.TABLE_CLASSES).props("flat separator='horizontal'")
-                        
-                        # Status Column Template Slot
+
+                        # Status Column Badge Custom Template Slot
                         s_table.add_slot("body-cell-status", '''
-                            <q-td :props="props">
-                                <span v-if="props.value === 'مستمر'" class="text-emerald-600 dark:text-emerald-400 font-bold">{{ props.value }}</span>
-                                <span v-else class="text-slate-700 dark:text-slate-300 font-semibold">{{ props.value }}</span>
+                            <q-td :props="props" class="text-center">
+                                <q-badge
+                                    :color="props.row.status === 'متخرج' ? 'positive' : 'info'"
+                                    class="px-2.5 py-1 text-xs font-bold rounded-full shadow-sm"
+                                >
+                                    {{ props.row.status }}
+                                </q-badge>
                             </q-td>
                         ''')
 
@@ -709,18 +715,18 @@ class MainAppShell:
                         combined_certs_data = []
                         seen_ids = set()
                         for c in (self.recent_certificates + getattr(self, "recent_printed_certificates", [])):
-                            cid = c.get("id")
+                            cid = c.get("id") or c.get("certificate_id")
                             if cid and cid not in seen_ids:
                                 seen_ids.add(cid)
                                 combined_certs_data.append(c)
 
                         rows_c = [
                             {
-                                "id":       c.get("id"),
-                                "name":     c.get("full_name_ar") or c.get("student_name") or "طالب متخرج",
-                                "dept":     c.get("dept_name_ar") or "قسم عام",
+                                "id":       c.get("id") or c.get("certificate_id"),
+                                "name":     c.get("full_name_ar") or c.get("student_name_ar") or c.get("student_name") or "طالب متخرج",
+                                "dept":     c.get("dept_name_ar") or c.get("department_name_ar") or "قسم عام",
                                 "to_title": c.get("to_title") or c.get("order_number") or "من يهمه الأمر",
-                                "date":     c.get("issue_date") or c.get("created_at") or "2026-08-24",
+                                "date":     c.get("issue_date") or c.get("created_at") or "—",
                                 "raw_data": c,
                             }
                             for c in (combined_certs_data or self.recent_certificates)
