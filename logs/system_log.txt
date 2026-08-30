@@ -29464,3 +29464,37 @@ RuntimeError: The parent element this slot belongs to has been deleted.
 2026-08-30 17:46:18 [INFO] _pywebviewready event fired
 2026-08-30 17:46:18 [INFO] loaded event fired
 2026-08-30 17:46:18 [INFO] loaded event fired
+2026-08-30 18:30:15 [INFO] SYSTEM STARTUP DIAGNOSTIC CHECK STARTED
+2026-08-30 18:30:15 [OK] [CHECK 1/4] FastAPI Connection Check ... [OK]
+2026-08-30 18:30:15 [OK] [CHECK 2/4] MySQL Database Connection ... [OK]
+2026-08-30 18:30:15 [OK] [CHECK 3/4] Authentication & Core SP Checks ... [OK]
+2026-08-30 18:30:15 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-08-30 18:30:15 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-08-30 18:30:15 [OK] [CHECK 4/4] Sync Engine & Local Replica Check ... [OK]
+2026-08-30 18:30:15 [OK] Status: ALL CHECKS PASSED. PROCEEDING TO LOGIN/DASHBOARD.
+2026-08-30 18:30:21 [INFO] Using WinForms / Chromium
+2026-08-30 18:30:21 [INFO] Using WinForms / Chromium
+2026-08-30 18:30:26 [INFO] before_load event fired. injecting pywebview object
+2026-08-30 18:30:26 [INFO] before_load event fired. injecting pywebview object
+2026-08-30 18:30:26 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-30 18:30:26 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-30 18:30:26 [INFO] _pywebviewready event fired
+2026-08-30 18:30:26 [INFO] _pywebviewready event fired
+2026-08-30 18:30:26 [INFO] loaded event fired
+2026-08-30 18:30:26 [INFO] loaded event fired
+2026-08-30 18:30:59 [INFO] before_load event fired. injecting pywebview object
+2026-08-30 18:30:59 [INFO] before_load event fired. injecting pywebview object
+2026-08-30 18:30:59 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-30 18:30:59 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-30 18:30:59 [INFO] _pywebviewready event fired
+2026-08-30 18:30:59 [INFO] _pywebviewready event fired
+2026-08-30 18:31:00 [INFO] loaded event fired
+2026-08-30 18:31:00 [INFO] loaded event fired
+2026-08-30 21:05:22 [INFO] before_load event fired. injecting pywebview object
+2026-08-30 21:05:22 [INFO] before_load event fired. injecting pywebview object
+2026-08-30 21:05:22 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-30 21:05:22 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-08-30 21:05:23 [INFO] _pywebviewready event fired
+2026-08-30 21:05:23 [INFO] _pywebviewready event fired
+2026-08-30 21:05:23 [INFO] loaded event fired
+2026-08-30 21:05:23 [INFO] loaded event fired

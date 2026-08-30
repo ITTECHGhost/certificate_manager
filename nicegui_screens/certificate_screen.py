@@ -92,8 +92,9 @@ def consolidate_courses_for_certificate(courses_grouped: list, is_annual: bool =
         if not passing_entries:
             continue
 
-        best_passed = passing_entries[-1]  # Latest passed attempt (highest/final degree)
+        best_passed = passing_entries[-1]  # Latest passed attempt
         earliest_attempt = group[0]         # First attempt
+        latest_attempt = group[-1]         # Latest / retaken attempt
 
         final_item = dict(best_passed)
 
@@ -109,29 +110,28 @@ def consolidate_courses_for_certificate(courses_grouped: list, is_annual: bool =
                 final_item["score"] = best_mark
 
         if is_annual:
-            # Rule A.2: Annual System -> Place in ORIGINAL STAGE card with the PASSED degree!
-            orig_stg = parse_stage_num(earliest_attempt.get("stage_number") or best_passed.get("stage_number"), 1)
-            orig_year = earliest_attempt.get("academic_year") or best_passed.get("academic_year")
-            orig_year_fmt = earliest_attempt.get("academic_year_formatted") or best_passed.get("academic_year_formatted")
+            # Rule A: Annual System
+            # Passed courses in a failed year are placed into the retaken year period for that stage
+            pass_year = latest_attempt.get("academic_year") or best_passed.get("academic_year")
+            pass_year_fmt = latest_attempt.get("academic_year_formatted") or best_passed.get("academic_year_formatted")
+            stage_num = parse_stage_num(latest_attempt.get("stage_number") or best_passed.get("stage_number"), 1)
+            sem_num = parse_stage_num(best_passed.get("semester_num") or earliest_attempt.get("semester_num"), 1)
 
-            final_item["stage_number"] = orig_stg
-            if orig_year:
-                final_item["academic_year"] = orig_year
-            if orig_year_fmt:
-                final_item["academic_year_formatted"] = orig_year_fmt
-
-            sem_num = parse_stage_num(earliest_attempt.get("semester_num") or best_passed.get("semester_num"), 1)
+            final_item["stage_number"] = stage_num
             final_item["semester_num"] = sem_num
+            if pass_year:
+                final_item["academic_year"] = pass_year
+            if pass_year_fmt:
+                final_item["academic_year_formatted"] = pass_year_fmt
 
-            # PRESERVE original grouping_key from backend if present, so grouping dropdown works correctly
-            backend_gkey = best_passed.get("grouping_key") or earliest_attempt.get("grouping_key")
-            final_item["grouping_key"] = backend_gkey or f"{orig_stg}_{sem_num}"
+            backend_gkey = latest_attempt.get("grouping_key") or best_passed.get("grouping_key")
+            final_item["grouping_key"] = backend_gkey or f"{pass_year}_{stage_num}_{sem_num}"
         else:
-            # Rule B.1: Semester System -> Place ONLY in the SEMESTER period where course WAS PASSED!
-            pass_stg = parse_stage_num(best_passed.get("stage_number"), 1)
+            # Rule B: Semester System -> Place in retaken year period, maintaining semester matching (1 to 1, 2 to 2)
+            pass_year = latest_attempt.get("academic_year") or best_passed.get("academic_year")
+            pass_year_fmt = latest_attempt.get("academic_year_formatted") or best_passed.get("academic_year_formatted")
+            pass_stg = parse_stage_num(latest_attempt.get("stage_number") or best_passed.get("stage_number"), 1)
             pass_sem = parse_stage_num(best_passed.get("semester_num"), 1)
-            pass_year = best_passed.get("academic_year")
-            pass_year_fmt = best_passed.get("academic_year_formatted")
 
             final_item["stage_number"] = pass_stg
             final_item["semester_num"] = pass_sem
@@ -140,9 +140,8 @@ def consolidate_courses_for_certificate(courses_grouped: list, is_annual: bool =
             if pass_year_fmt:
                 final_item["academic_year_formatted"] = pass_year_fmt
 
-            # PRESERVE original grouping_key from backend if present, so grouping dropdown works correctly
-            backend_gkey = best_passed.get("grouping_key") or earliest_attempt.get("grouping_key")
-            final_item["grouping_key"] = backend_gkey or f"{pass_stg}_{pass_sem}"
+            backend_gkey = latest_attempt.get("grouping_key") or best_passed.get("grouping_key")
+            final_item["grouping_key"] = backend_gkey or f"{pass_year}_{pass_stg}_{pass_sem}"
 
         # If retaken or passed in round 2/3, flag round info
         if len(group) > 1 or str(best_passed.get("passed_round")) in ('2', '3') or best_passed.get("is_second_round"):
@@ -1350,7 +1349,8 @@ class CertificateScreen:
                 group_opts = {
                     "DEFAULT": "حسب السنة الدراسية (الافتراضي)",
                     "BY_PERIOD_STAGE": "حسب مرحلة القيد",
-                    "BY_CURRICULUM_STAGE": "حسب المرحلة الدراسية للمادة"
+                    "BY_CURRICULUM_STAGE": "حسب المرحلة الدراسية للمادة",
+                    "BY_ByAcademicYear": "حسب السنة الأكاديمية"
                 }
 
             current_mode = getattr(self, "current_grouping_mode", "DEFAULT")
@@ -1387,11 +1387,19 @@ class CertificateScreen:
                 else:
                     grouped_data = {}
                     for c in courses:
-                        k = c.get("grouping_key") or f"{c.get('stage_number', '')}_{c.get('semester_num', 1)}"
+                        stg_num = (
+                            c.get("stage_number")
+                            or c.get("period_stage")
+                            or c.get("course_curriculum_stage")
+                            or c.get("default_stage")
+                            or c.get("stages")
+                            or ""
+                        )
+                        k = c.get("grouping_key") or f"{c.get('academic_year', '')}_{stg_num}_{c.get('semester_num', 1)}"
                         if k not in grouped_data:
                             grouped_data[k] = {
                                 "academic_year": c.get("academic_year_formatted") or c.get("academic_year", ""),
-                                "stage_number": c.get("stage_number", ""),
+                                "stage_number": stg_num,
                                 "semester_num": c.get("semester_num", 1),
                                 "enrollments": []
                             }
