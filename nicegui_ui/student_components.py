@@ -511,82 +511,84 @@ class StudentProfileView:
         def refresh_timeline():
             periods_container.clear()
             with periods_container:
-                # Top Action Bar: Add Academic Year input & Stage Selector (Single Responsive Row Layout without horizontal scrollbar)
-                with ui.row().classes("w-full items-center justify-between gap-3 p-3.5 rounded-xl app-card-header flex-wrap"):
-                    with ui.row().classes("items-center gap-2 flex-wrap min-w-0 flex-1"):
+                # Top Action Bar: Add Academic Year input & Stage Selector in ONE SINGLE ROW
+                with ui.row().classes("w-full items-center justify-between gap-3 p-3 rounded-xl app-card-header flex-nowrap"):
+                    def on_add_year():
+                        yr_str = year_input.value.strip() if year_input.value else ""
+                        if not yr_str:
+                            ui.notify("يرجى إدخال السنة الدراسية / Enter Academic Year", type="warning")
+                            return
+                        
+                        db_yr = normalize_year(yr_str)
+                        try:
+                            selected_stg = int(stage_add_sel.value or calculate_stage(db_yr, adm_year))
+                        except Exception:
+                            selected_stg = calculate_stage(db_yr, adm_year)
+
+                        try:
+                            self.period_repo.insert(
+                                student_id=student_id,
+                                year=db_yr,
+                                sys_id=sys_id,
+                                stage=selected_stg,
+                                semester_num=1
+                            )
+                            ui.notify(f"تم إضافة السنة الدراسية للمرحلة {selected_stg} بنجاح / Academic Year added", type="positive")
+                            refresh_timeline()
+                        except Exception as err:
+                            ui.notify(f"Error adding year: {err}", type="negative")
+
+                    def on_apply_routine_click():
+                        from data.repositories import StudyRoutineRepository
+                        r_repo = StudyRoutineRepository()
+                        st_dept = student_data.get("department_id")
+                        routines = r_repo.get_all(st_dept) or r_repo.get_all() or []
+                        if not routines:
+                            ui.notify("لا توجد روتينات دراسية مضافة. يمكنك إنشاء روتين من صفحة (المواد الدراسية).", type="warning")
+                            return
+                        
+                        r_opts = {r["id"]: f"{r.get('name_ar')} — {r.get('dept_name_ar', '')} (مرحلة {r.get('stage_number')})" for r in routines}
+                        
+                        dialog = ui.dialog()
+                        with dialog, UI.card().classes("p-6 gap-6 w-full max-w-md bg-[var(--bg-card)] rounded-2xl border border-[var(--border-default)]"):
+                            ui.label("تطبيق روتين دراسي جاهز — Apply Study Routine").classes("text-lg font-bold app-text-primary border-b border-[var(--border-default)] pb-2 w-full")
+                            
+                            sel_r = UI.select("اختر الروتين الدراسي / Select Routine", options=r_opts, value=list(r_opts.keys())[0]).classes("w-full text-sm")
+                            yr_r_inp = UI.text_input("السنة الدراسية (اختياري) / Academic Year", value="", placeholder="مثال: 2024-2025").classes("w-full text-sm")
+
+                            with ui.row().classes("w-full justify-end gap-3 pt-2"):
+                                def do_apply():
+                                    rid = sel_r.value
+                                    if not rid:
+                                        ui.notify("يرجى اختيار روتين", type="warning")
+                                        return
+                                    try:
+                                        custom_yr = yr_r_inp.value.strip() if yr_r_inp.value else ""
+                                        res = r_repo.apply_routine_to_student(student_id, rid, academic_year=custom_yr)
+                                        ui.notify(f"تم تطبيق الروتين بنجاح وإضافة {res.get('added_courses', 0)} مادة!", type="positive")
+                                        dialog.close()
+                                        refresh_timeline()
+                                    except Exception as err:
+                                        ui.notify(f"خطأ أثناء تطبيق الروتين: {err}", type="negative")
+
+                                UI.success_button("تطبيق / Apply", icon="flash_on", on_click=do_apply).classes("text-sm px-4 py-2")
+                                UI.secondary_button("إلغاء / Cancel", on_click=dialog.close).classes("text-sm px-4 py-2")
+                        dialog.open()
+
+                    # Component 1 & 2: Inputs (Compact widths)
+                    with ui.row().classes("items-center gap-3 flex-nowrap shrink-0 min-w-0"):
                         year_input = UI.text_input(
                             label="السنة الدراسية (Academic Year)",
                             placeholder="مثال: 2024-2025"
-                        ).classes("w-44 text-xs shrink-0")
+                        ).props("dense").style("width: 220px !important;").classes("text-xs shrink-0")
                         
                         stage_add_opts = {1: "المرحلة الأولى (1)", 2: "المرحلة الثانية (2)", 3: "المرحلة الثالثة (3)", 4: "المرحلة الرابعة (4)"}
-                        stage_add_sel = UI.select("المرحلة الدراسية / Stage", options=stage_add_opts, value=1).classes("w-40 text-xs shrink-0")
+                        stage_add_sel = UI.select("المرحلة الدراسية / Stage", options=stage_add_opts, value=1).props("dense").style("width: 190px !important;").classes("text-xs shrink-0")
 
-                        def on_add_year():
-                            yr_str = year_input.value.strip() if year_input.value else ""
-                            if not yr_str:
-                                ui.notify("يرجى إدخال السنة الدراسية / Enter Academic Year", type="warning")
-                                return
-                            
-                            db_yr = normalize_year(yr_str)
-                            try:
-                                selected_stg = int(stage_add_sel.value or calculate_stage(db_yr, adm_year))
-                            except Exception:
-                                selected_stg = calculate_stage(db_yr, adm_year)
-
-                            try:
-                                self.period_repo.insert(
-                                    student_id=student_id,
-                                    year=db_yr,
-                                    sys_id=sys_id,
-                                    stage=selected_stg,
-                                    semester_num=1
-                                )
-                                ui.notify(f"تم إضافة السنة الدراسية للمرحلة {selected_stg} بنجاح / Academic Year added", type="positive")
-                                refresh_timeline()
-                            except Exception as err:
-                                ui.notify(f"Error adding year: {err}", type="negative")
-
-                        UI.success_button("إضافة سنة دراسية / Add Academic Year", icon="add", on_click=on_add_year).classes("text-xs px-3 py-1.5 shrink-0")
-
-                        def on_apply_routine_click():
-                            from data.repositories import StudyRoutineRepository
-                            r_repo = StudyRoutineRepository()
-                            st_dept = student_data.get("department_id")
-                            routines = r_repo.get_all(st_dept) or r_repo.get_all() or []
-                            if not routines:
-                                ui.notify("لا توجد روتينات دراسية مضافة. يمكنك إنشاء روتين من صفحة (المواد الدراسية).", type="warning")
-                                return
-                            
-                            r_opts = {r["id"]: f"{r.get('name_ar')} — {r.get('dept_name_ar', '')} (مرحلة {r.get('stage_number')})" for r in routines}
-                            
-                            dialog = ui.dialog()
-                            with dialog, UI.card().classes("p-6 gap-6 w-full max-w-md bg-[var(--bg-card)] rounded-2xl border border-[var(--border-default)]"):
-                                ui.label("تطبيق روتين دراسي جاهز — Apply Study Routine").classes("text-lg font-bold app-text-primary border-b border-[var(--border-default)] pb-2 w-full")
-                                
-                                sel_r = UI.select("اختر الروتين الدراسي / Select Routine", options=r_opts, value=list(r_opts.keys())[0]).classes("w-full text-sm")
-                                yr_r_inp = UI.text_input("السنة الدراسية (اختياري) / Academic Year", value="", placeholder="مثال: 2024-2025").classes("w-full text-sm")
-
-                                with ui.row().classes("w-full justify-end gap-3 pt-2"):
-                                    def do_apply():
-                                        rid = sel_r.value
-                                        if not rid:
-                                            ui.notify("يرجى اختيار روتين", type="warning")
-                                            return
-                                        try:
-                                            custom_yr = yr_r_inp.value.strip() if yr_r_inp.value else ""
-                                            res = r_repo.apply_routine_to_student(student_id, rid, academic_year=custom_yr)
-                                            ui.notify(f"تم تطبيق الروتين بنجاح وإضافة {res.get('added_courses', 0)} مادة!", type="positive")
-                                            dialog.close()
-                                            refresh_timeline()
-                                        except Exception as err:
-                                            ui.notify(f"خطأ أثناء تطبيق الروتين: {err}", type="negative")
-
-                                    UI.success_button("تطبيق / Apply", icon="flash_on", on_click=do_apply).classes("text-sm px-4 py-2")
-                                    UI.secondary_button("إلغاء / Cancel", on_click=dialog.close).classes("text-sm px-4 py-2")
-                            dialog.open()
-
-                        UI.primary_button("⚡ تطبيق روتين / Apply Routine", icon="bolt", on_click=on_apply_routine_click).classes("text-xs px-3 py-1.5 shrink-0")
+                    # Component 3 & 4: Action Buttons (Swapped Order)
+                    with ui.row().classes("items-center gap-2 flex-nowrap shrink-0"):
+                        UI.success_button("إضافة سنة دراسية / Add Academic Year", icon="add", on_click=on_add_year).classes("text-xs px-3 py-2 shrink-0")
+                        UI.primary_button("⚡ تطبيق روتين / Apply Routine", icon="bolt", on_click=on_apply_routine_click).classes("text-xs px-3 py-2 shrink-0")
 
                 # Fetch student periods
                 try:
@@ -778,37 +780,36 @@ class StudentProfileView:
                         on_click=add_p_and_open
                     ).classes("text-sm px-3 py-1.5")
 
-            # List Enrolled Courses with Arabic and English names (Failed courses highlighted in RED)
+            # List Enrolled Courses with Arabic and English names (Editable Score & Round)
             if enrollments:
                 with ui.column().classes("w-full gap-2 mt-1"):
                     for enr in enrollments:
+                        enr_id = enr.get("id")
                         score_val = enr.get("score")
                         is_failed = False
+                        raw_score = 0.0
                         if score_val is not None:
                             try:
                                 raw_score = float(score_val)
-                                display_score = f"{int(raw_score)}" if raw_score.is_integer() else f"{raw_score:.1f}"
                                 if raw_score < 50.0:
                                     is_failed = True
                             except Exception:
-                                display_score = str(score_val)
-                                if str(score_val).strip() in ("0", "F", "راسب", "راسب/إعادة"):
-                                    is_failed = True
-                        else:
-                            display_score = "—"
+                                pass
                         
                         c_ar = enr.get("course_name_ar") or enr.get("name_ar") or "مادة"
                         c_en = enr.get("course_name_en") or enr.get("name_en") or ""
                         pr = str(enr.get("passed_round", "1"))
+                        if pr not in ("0", "1", "2", "3"):
+                            pr = "1"
                         is_2nd = (pr in ('2', '3') or enr.get("is_second_round"))
 
                         card_style = "w-full justify-between items-center p-2 rounded gap-2 border border-rose-500/40 bg-rose-500/10" if is_failed else "w-full justify-between items-center p-2 rounded bg-[var(--bg-card)] gap-2"
                         title_style = "font-bold text-sm text-rose-400 truncate" if is_failed else "font-bold text-sm app-text-primary truncate"
-                        score_style = "font-extrabold text-sm text-rose-500 shrink-0" if is_failed else "font-bold text-sm app-text-accent shrink-0"
 
                         with ui.row().classes(card_style):
+                            # Course Title & Badges
                             with ui.column().classes("flex-1 min-w-0 text-right gap-0"):
-                                with ui.row().classes("items-center gap-2"):
+                                with ui.row().classes("items-center gap-2 flex-wrap"):
                                     ui.label(c_ar).classes(title_style)
                                     if is_failed:
                                         ui.label("راسب / Failed").classes("px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-rose-500/20 text-rose-400 border border-rose-500/40 shrink-0")
@@ -816,7 +817,38 @@ class StudentProfileView:
                                         ui.label("الدور الثاني").classes("px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-amber-500/20 text-amber-400 border border-amber-500/30 shrink-0")
                                 if c_en:
                                     ui.label(c_en).classes("text-xs text-slate-400 font-mono truncate")
-                            ui.label(f":  {display_score}").classes(score_style)
+
+                            # Editable Inputs: Attempt Dropdown & Score Field
+                            with ui.row().classes("items-center gap-2 shrink-0"):
+                                round_opts = {"1": "الدور الأول", "2": "الدور الثاني", "3": "الدور الثالث", "0": "عبور / تحميل"}
+                                
+                                # Inline save callback creator
+                                def make_updater(cur_eid):
+                                    def _on_save_val(e=None):
+                                        try:
+                                            s_num = float(s_field.value) if s_field.value is not None else 0.0
+                                            r_val = int(r_select.value or "1")
+                                            self.enroll_repo.update(cur_eid, s_num, r_val)
+                                            ui.notify("تم حفظ الدرجة والدور بنجاح / Saved!", type="positive", duration=1.5)
+                                            if callable(refresh_callback):
+                                                refresh_callback()
+                                        except Exception as err:
+                                            ui.notify(f"خطأ في الحفظ: {err}", type="negative")
+                                    return _on_save_val
+
+                                save_cb = make_updater(enr_id)
+
+                                r_select = ui.select(
+                                    options=round_opts,
+                                    value=pr,
+                                    on_change=save_cb
+                                ).props("dense outlined").style("width: 110px !important;").classes("text-xs shrink-0 app-input rounded-lg")
+
+                                s_field = ui.number(
+                                    value=int(raw_score) if raw_score.is_integer() else raw_score,
+                                    min=0, max=100, step=1,
+                                    on_change=save_cb
+                                ).props('dense outlined input-class="text-center font-bold text-sm"').style("width: 70px !important;").classes("text-xs shrink-0 app-input rounded-lg")
             else:
                 ui.label("لا توجد مواد / No courses").classes("text-sm app-text-muted italic text-center py-2 w-full")
 

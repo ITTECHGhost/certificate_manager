@@ -1,11 +1,15 @@
+import os
+import sys
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 from fastapi import FastAPI, HTTPException, Depends, APIRouter, status, Query
 from pydantic import BaseModel
 from typing import List, Dict, Any, Optional, Union
 import mysql.connector
 from mysql.connector import pooling
-import os
 import logging
 from contextlib import asynccontextmanager
+from db import get_connection
 
 # Configure logger
 logging.basicConfig(level=logging.INFO)
@@ -2317,8 +2321,279 @@ def delete_issued_certificate(cert_id: int, conn = Depends(get_db)):
     except Exception as exc:
         conn.rollback()
         raise HTTPException(status_code=500, detail=str(exc))
+@router.get("/certificates/{student_id}")
+def get_full_certificate(student_id: int, grouping_mode: str = Query("DEFAULT")):
+    conn = None
+    cur = None
+    try:
+        conn = get_connection()
+        cur = conn.cursor(dictionary=True)
+        cur.callproc("sp_GetFullCertificateData", (student_id, grouping_mode))
+        
+        keys = ["settings", "student_info", "ranking", "signers", "academic_timeline", "courses_grouped"]
+        result = {key: [] for key in keys}
+        
+        stored_results = list(cur.stored_results())
+        for idx, res in enumerate(stored_results):
+            if idx < len(keys):
+                result[keys[idx]] = res.fetchall()
+                
+        return result
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
     finally:
-        cur.close()
+        if cur:
+            try:
+                cur.close()
+            except Exception:
+                pass
+        if conn:
+            try:
+                conn.close()
+            except Exception:
+                pass
+
+
+@router.get("/certificates/flat-yearly/{student_id}")
+def get_flat_yearly_courses(student_id: int, grouping_mode: str = Query("DEFAULT")):
+    conn = None
+    cur = None
+    try:
+        conn = get_connection()
+        cur = conn.cursor(dictionary=True)
+        cur.callproc("sp_GetCertificate_AcademicCourses", (student_id, grouping_mode))
+        
+        for res in cur.stored_results():
+            return res.fetchall()
+            
+        return []
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+    finally:
+        if cur:
+            try:
+                cur.close()
+            except Exception:
+                pass
+        if conn:
+            try:
+                conn.close()
+            except Exception:
+                pass
+
+
+
+# Pydantic models for Issued Certificates
+class IssuedCertificateCreate(BaseModel):
+    student_id: int
+    to_title: Optional[str] = "من يهمه الأمر"
+    template_type: Optional[str] = "ARABIC"
+    issue_date: Optional[str] = None
+
+
+class IssuedCertificateUpdate(BaseModel):
+    student_id: Optional[int] = None
+    to_title: Optional[str] = None
+    template_type: Optional[str] = None
+    issue_date: Optional[str] = None
+
+
+@router.get("/issued-certificates/by-student/{student_id}")
+def get_issued_certificates_by_student(student_id: int):
+    conn = None
+    cur = None
+    try:
+        conn = get_connection()
+        cur = conn.cursor(dictionary=True)
+        cur.callproc("GetIssuedCertificatesByStudent", (student_id,))
+        for res in cur.stored_results():
+            return res.fetchall()
+        return []
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+    finally:
+        if cur:
+            try:
+                cur.close()
+            except Exception:
+                pass
+        if conn:
+            try:
+                conn.close()
+            except Exception:
+                pass
+
+
+@router.get("/issued-certificates/report")
+def get_issued_certificates_report(
+    start_date: Optional[str] = Query(None),
+    end_date: Optional[str] = Query(None),
+    department_id: Optional[int] = Query(None),
+    template_type: Optional[str] = Query(None)
+):
+    conn = None
+    cur = None
+    try:
+        conn = get_connection()
+        cur = conn.cursor(dictionary=True)
+        cur.callproc("GetIssuedCertificatesReport", (start_date, end_date, department_id, template_type))
+        for res in cur.stored_results():
+            return res.fetchall()
+        return []
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+    finally:
+        if cur:
+            try:
+                cur.close()
+            except Exception:
+                pass
+        if conn:
+            try:
+                conn.close()
+            except Exception:
+                pass
+
+
+@router.get("/issued-certificates/{cert_id}")
+def get_issued_certificate_by_id(cert_id: int):
+    conn = None
+    cur = None
+    try:
+        conn = get_connection()
+        cur = conn.cursor(dictionary=True)
+        cur.callproc("GetIssuedCertificateById", (cert_id,))
+        rows = []
+        for res in cur.stored_results():
+            rows = res.fetchall()
+            break
+        if not rows:
+            raise HTTPException(status_code=404, detail="Issued certificate not found")
+        return rows[0]
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+    finally:
+        if cur:
+            try:
+                cur.close()
+            except Exception:
+                pass
+        if conn:
+            try:
+                conn.close()
+            except Exception:
+                pass
+
+
+@router.post("/issued-certificates")
+def create_issued_certificate(payload: IssuedCertificateCreate):
+    conn = None
+    cur = None
+    try:
+        conn = get_connection()
+        cur = conn.cursor(dictionary=True)
+        cur.callproc("InsertIssuedCertificate", (
+            payload.student_id,
+            payload.to_title,
+            payload.template_type,
+            payload.issue_date
+        ))
+        new_id = None
+        for res in cur.stored_results():
+            rows = res.fetchall()
+            if rows:
+                row = rows[0]
+                if isinstance(row, dict):
+                    new_id = row.get("new_id") or row.get("id") or list(row.values())[0]
+                elif isinstance(row, (tuple, list)):
+                    new_id = row[0]
+        conn.commit()
+        return {"new_id": new_id}
+    except Exception as e:
+        if conn:
+            try:
+                conn.rollback()
+            except Exception:
+                pass
+        raise HTTPException(status_code=500, detail=str(e))
+    finally:
+        if cur:
+            try:
+                cur.close()
+            except Exception:
+                pass
+        if conn:
+            try:
+                conn.close()
+            except Exception:
+                pass
+
+
+@router.put("/issued-certificates/{cert_id}")
+def update_issued_certificate(cert_id: int, payload: IssuedCertificateUpdate):
+    conn = None
+    cur = None
+    try:
+        conn = get_connection()
+        cur = conn.cursor(dictionary=True)
+        cur.callproc("UpdateIssuedCertificate", (
+            cert_id,
+            payload.to_title,
+            payload.template_type,
+            payload.issue_date
+        ))
+        conn.commit()
+        return {"message": "Issued certificate updated successfully"}
+    except Exception as e:
+        if conn:
+            try:
+                conn.rollback()
+            except Exception:
+                pass
+        raise HTTPException(status_code=500, detail=str(e))
+    finally:
+        if cur:
+            try:
+                cur.close()
+            except Exception:
+                pass
+        if conn:
+            try:
+                conn.close()
+            except Exception:
+                pass
+
+
+@router.delete("/issued-certificates/{cert_id}")
+def delete_issued_certificate(cert_id: int):
+    conn = None
+    cur = None
+    try:
+        conn = get_connection()
+        cur = conn.cursor(dictionary=True)
+        cur.callproc("DeleteIssuedCertificate", (cert_id,))
+        conn.commit()
+        return {"message": "Issued certificate deleted successfully"}
+    except Exception as e:
+        if conn:
+            try:
+                conn.rollback()
+            except Exception:
+                pass
+        raise HTTPException(status_code=500, detail=str(e))
+    finally:
+        if cur:
+            try:
+                cur.close()
+            except Exception:
+                pass
+        if conn:
+            try:
+                conn.close()
+            except Exception:
+                pass
 
 
 if __name__ == "__main__":

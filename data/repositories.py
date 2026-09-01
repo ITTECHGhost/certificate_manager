@@ -898,20 +898,43 @@ class CourseRepository(BaseRepository):
             raise
 
     def update(self, course_id: int, data: dict) -> None:
+        payload = dict(data)
+        payload["credit_hours"] = int(payload.get("credit_hours", 3))
+        payload["stage_number"] = int(payload.get("stage_number", 1))
+        if "department_id" in payload and payload["department_id"] is not None:
+            payload["department_id"] = int(payload["department_id"])
+
         if not is_online():
-            raise OfflineModeError()
+            sq_conn = get_local_connection()
+            try:
+                sq_conn.execute(
+                    "UPDATE courses SET name_ar=?, name_en=?, credit_hours=?, department_id=?, stage_number=? WHERE id=?",
+                    (payload.get("name_ar"), payload.get("name_en"), payload["credit_hours"], payload.get("department_id"), payload["stage_number"], course_id)
+                )
+                sq_conn.commit()
+            finally:
+                sq_conn.close()
+            return
+
         try:
-            payload = dict(data)
-            payload["credit_hours"] = int(payload["credit_hours"])
-            payload["stage_number"] = int(payload["stage_number"])
-            if "department_id" in payload and payload["department_id"] is not None:
-                payload["department_id"] = int(payload["department_id"])
-                
             resp = requests.put(f"{self.api_url}/courses/{course_id}", json=payload, timeout=5.0)
             if resp.status_code == 200:
                 log_activity(f"تم تعديل بيانات المادة الدراسية ID: {course_id}")
             else:
                 raise RuntimeError(f"API update failed: {resp.text}")
+
+            # Sync local SQLite cache
+            sq_conn = get_local_connection()
+            try:
+                sq_conn.execute(
+                    "UPDATE courses SET name_ar=?, name_en=?, credit_hours=?, department_id=?, stage_number=? WHERE id=?",
+                    (payload.get("name_ar"), payload.get("name_en"), payload["credit_hours"], payload.get("department_id"), payload["stage_number"], course_id)
+                )
+                sq_conn.commit()
+            except Exception:
+                pass
+            finally:
+                sq_conn.close()
         except Exception as e:
             log_system(f"API request failed: {e}", "WARNING")
             raise
@@ -1089,49 +1112,9 @@ class StudentRepository(BaseRepository):
             return []
 
     def get_recent_issued_certificates(self, limit: int = 5) -> list[dict]:
-        """Fetch recently issued certificates from issued_certificates table (or graduation orders fallback)."""
-        if is_online():
-            try:
-                resp = requests.get(f"{self.api_url}/issued-certificates", timeout=5.0)
-                if resp.status_code == 200:
-                    certs = resp.json()
-                    if certs:
-                        return certs[:limit]
-            except Exception as e:
-                log_system(f"Failed to fetch issued certificates via SP API: {e}", "WARNING")
-
-        query_ic = (
-            "SELECT ic.id, ic.student_id, ic.to_title, ic.template_type, ic.issue_date, "
-            "s.full_name_ar, s.full_name_en, d.name_ar AS dept_name_ar "
-            "FROM issued_certificates ic "
-            "JOIN students s ON ic.student_id = s.id "
-            "LEFT JOIN departments d ON s.department_id = d.id "
-            "ORDER BY ic.issue_date DESC, ic.id DESC LIMIT ?"
-        )
-        try:
-            res = sqlite_read_all(query_ic, (limit,))
-            if res:
-                return res
-        except Exception:
-            pass
-
-        # Fallback to graduation orders if issued_certificates table is empty
-        query_fallback = (
-            "SELECT s.id, s.full_name_ar, s.full_name_en, "
-            "d.name_ar AS dept_name_ar, 'من يهمه الأمر' AS to_title, 'عربي' AS template_type, o.order_number, o.order_date AS issue_date "
-            "FROM ("
-            "  SELECT id, full_name_ar, full_name_en, department_id, order_id FROM students WHERE order_id IS NOT NULL "
-            "  UNION ALL "
-            "  SELECT id, full_name_ar, full_name_en, department_id, order_id FROM local_students WHERE order_id IS NOT NULL"
-            ") s "
-            "JOIN departments d ON s.department_id = d.id "
-            "JOIN graduation_orders o ON s.order_id = o.id "
-            "ORDER BY o.order_date DESC, s.id DESC LIMIT ?"
-        )
-        try:
-            return sqlite_read_all(query_fallback, (limit,))
-        except Exception:
-            return []
+        """Fetch recently issued certificates strictly from issued_certificates table (no graduation_orders fallback)."""
+        certs = IssuedCertificateRepository().get_all()
+        return certs[:limit] if certs else []
 
     def get_issued_certificates_report(
         self,
@@ -1223,23 +1206,8 @@ class StudentRepository(BaseRepository):
             return None
 
     def get_recent_printed_certificates(self, limit: int = 5) -> list[dict]:
-        """Fetch recently printed certificates."""
-        query = (
-            "SELECT s.id, s.full_name_ar, s.full_name_en, "
-            "d.name_ar AS dept_name_ar, o.order_number, COALESCE(o.order_date, '2024-01-01') AS issue_date "
-            "FROM ("
-            "  SELECT id, full_name_ar, full_name_en, department_id, order_id FROM students WHERE order_id IS NOT NULL "
-            "  UNION ALL "
-            "  SELECT id, full_name_ar, full_name_en, department_id, order_id FROM local_students WHERE order_id IS NOT NULL"
-            ") s "
-            "JOIN departments d ON s.department_id = d.id "
-            "JOIN graduation_orders o ON s.order_id = o.id "
-            "ORDER BY s.id DESC LIMIT ?"
-        )
-        try:
-            return sqlite_read_all(query, (limit,))
-        except Exception:
-            return []
+        """Fetch recently printed certificates strictly from issued_certificates table."""
+        return self.get_recent_issued_certificates(limit=limit)
 
     def get_recent_graduates(self, limit: int = 5) -> list[dict]:
         """Fetch recently graduated students (students linked to a graduation order)."""
@@ -2078,8 +2046,24 @@ class EnrollmentRepository(BaseRepository):
             raise
 
     def update(self, enrollment_id: int, score: float, is_second: int) -> None:
+        val = int(is_second)
+        if val == 2:
+            passed_round = '2'
+        elif val == 3:
+            passed_round = '3'
+        else:
+            passed_round = '1'
+
         if not is_online():
-            raise OfflineModeError()
+            sq_conn = get_local_connection()
+            try:
+                sq_conn.execute("UPDATE enrollments SET score = ?, passed_round = ? WHERE id = ?", (float(score), passed_round, enrollment_id))
+                sq_conn.execute("UPDATE local_enrollments SET score = ?, passed_round = ? WHERE id = ?", (float(score), passed_round, enrollment_id))
+                sq_conn.commit()
+            finally:
+                sq_conn.close()
+            return
+
         try:
             resp = requests.put(
                 f"{self.api_url}/enrollments/{enrollment_id}",
@@ -2088,6 +2072,16 @@ class EnrollmentRepository(BaseRepository):
             )
             if resp.status_code != 200:
                 raise RuntimeError(f"API update failed: {resp.text}")
+
+            # Also sync local SQLite cache
+            sq_conn = get_local_connection()
+            try:
+                sq_conn.execute("UPDATE enrollments SET score = ?, passed_round = ? WHERE id = ?", (float(score), passed_round, enrollment_id))
+                sq_conn.commit()
+            except Exception:
+                pass
+            finally:
+                sq_conn.close()
         except Exception as e:
             log_system(f"API request failed: {e}", "WARNING")
             raise
@@ -2109,137 +2103,31 @@ class EnrollmentRepository(BaseRepository):
 class CertificateRepository(BaseRepository):
     
     def get_full_certificate_data(self, student_id: int, grouping_mode: str = "DEFAULT") -> dict | None:
-        if not is_online():
-            response_data = {
-                "settings": [],
-                "student_info": [],
-                "ranking": [],
-                "signers": [],
-                "academic_timeline": [],
-                "courses_grouped": []
-            }
-            
-            # 0. Settings
-            settings = sqlite_read_one("SELECT * FROM university_settings WHERE id = 1")
-            if settings: response_data["settings"] = [settings]
-            
-            # 1. Student Info
-            student = sqlite_read_one(
-                "SELECT s.*, "
-                "       d.name_ar AS dept_name_ar, d.name_en AS dept_name_en, "
-                "       ss.name_ar AS study_system_name_ar, ss.name_en AS study_system_name_en, "
-                "       ss.calculation_rule, ss.calculation_weights, ss.period_display, ss.study_day_type AS study_type, "
-                "       c.name_ar AS nationality_ar, c.name_en AS nationality_en, "
-                "       g.name_ar AS birthplace_ar, g.name_en AS birthplace_en, "
-                "       o.order_number, o.order_date, o.num_students AS order_num_students "
-                "FROM ("
-                "  SELECT id AS student_id, full_name_ar, full_name_en, gender, sequence_number, postgraduation_number, date_of_birth, "
-                "         birthplace_id, birthplace_other, nationality_id, department_id, study_system_id, degree_level, "
-                "         order_id, CAST(admission_year AS TEXT) AS admission_year, summer_training_data, average, graduation_date, graduation_semester, "
-                "         CAST(strftime('%Y', graduation_date) AS INTEGER) AS graduation_year "
-                "  FROM students "
-                "  UNION ALL "
-                "  SELECT id AS student_id, full_name_ar, full_name_en, gender, sequence_number, postgraduation_number, date_of_birth, "
-                "         birthplace_id, birthplace_other, nationality_id, department_id, study_system_id, degree_level, "
-                "         order_id, CAST(admission_year AS TEXT) AS admission_year, summer_training_data, average, graduation_date, graduation_semester, "
-                "         CAST(strftime('%Y', graduation_date) AS INTEGER) AS graduation_year "
-                "  FROM local_students"
-                ") s "
-                "LEFT JOIN departments d    ON s.department_id   = d.id "
-                "LEFT JOIN study_systems ss ON s.study_system_id = ss.id "
-                "LEFT JOIN countries c      ON s.nationality_id  = c.id "
-                "LEFT JOIN governorates g   ON s.birthplace_id   = g.id "
-                "LEFT JOIN graduation_orders o ON s.order_id = o.id "
-                "WHERE s.student_id = ?",
-                (student_id,)
-            )
-            if not student:
-                return None
-            response_data["student_info"] = [student]
-            
-            # 2. Ranking
-            dept_id = student.get("department_id")
-            grad_year = student.get("graduation_year")
-            avg = student.get("average") or 0.0
-            
-            rank_row = sqlite_read_one(
-                "SELECT COUNT(*) + 1 as class_rank FROM students "
-                "WHERE department_id = ? AND strftime('%Y', graduation_date) = ? AND average > ? AND average IS NOT NULL",
-                (dept_id, str(grad_year), avg)
-            )
-            total_row = sqlite_read_one(
-                "SELECT COUNT(*) as total_graduates FROM students "
-                "WHERE department_id = ? AND strftime('%Y', graduation_date) = ? AND average IS NOT NULL",
-                (dept_id, str(grad_year))
-            )
-            top_row = sqlite_read_one(
-                "SELECT MAX(average) as top_average FROM students "
-                "WHERE department_id = ? AND strftime('%Y', graduation_date) = ?",
-                (dept_id, str(grad_year))
-            )
-            response_data["ranking"] = [{
-                "class_rank": rank_row["class_rank"] if rank_row else 1,
-                "total_graduates": total_row["total_graduates"] if total_row else 1,
-                "top_average": top_row["top_average"] if top_row else 0.0
-            }]
-            
-            # 3. Signers
-            signers = sqlite_read_all(
-                "SELECT id, name_ar, name_en, academic_title_ar, academic_title_en, "
-                "       responsibility_ar, responsibility_en, display_order, "
-                "       1 AS is_signature, display_order AS page_location, "
-                "       COALESCE(personnel_role, 'signer') AS personnel_role "
-                "FROM personnel WHERE is_active = 1 AND display_order > 0 ORDER BY display_order ASC, id ASC"
-            )
-            response_data["signers"] = signers
-            
-            # 4. Academic Timeline
-            timeline = sqlite_read_all(
-                "SELECT MIN(ap.id) AS primary_period_id, "
-                "       CASE WHEN ap.academic_year IS NULL OR ap.academic_year = '' THEN '' "
-                "            WHEN ap.academic_year LIKE '%-%' THEN ap.academic_year "
-                "            ELSE ap.academic_year || ' - ' || CAST(CAST(ap.academic_year AS INTEGER) + 1 AS TEXT) "
-                "       END AS academic_year, "
-                "       MAX(ap.stage_number) AS stage_number, "
-                "       COALESCE(ap.semester_num, 1) AS semester_num, "
-                "       GROUP_CONCAT(COALESCE(ap.result_status, 'PASSED')) AS result_status "
-                "FROM (SELECT * FROM academic_periods UNION ALL SELECT * FROM local_academic_periods) ap "
-                "WHERE ap.student_id = ? "
-                "GROUP BY ap.academic_year, ap.semester_num "
-                "ORDER BY ap.academic_year ASC, ap.semester_num ASC",
-                (student_id,)
-            )
-            response_data["academic_timeline"] = timeline
-            
-            # 5. Courses (Fallback grouping logic if offline)
-            courses = sqlite_read_all(
-                "SELECT CASE WHEN ap.academic_year IS NULL OR ap.academic_year = '' THEN '' "
-                "            WHEN ap.academic_year LIKE '%-%' THEN ap.academic_year "
-                "            ELSE ap.academic_year || ' - ' || CAST(CAST(ap.academic_year AS INTEGER) + 1 AS TEXT) "
-                "       END AS academic_year_formatted, "
-                "       ap.academic_year, ap.stage_number, COALESCE(ap.semester_num, 1) AS semester_num, "
-                "       COALESCE(c.name_ar, '') AS subject_name, COALESCE(c.credit_hours, 0) AS unit, "
-                "       COALESCE(e.score, 0.0) AS mark, COALESCE(e.passed_round, 1) AS passed_round, "
-                "       ap.stage_number || '_' || COALESCE(ap.semester_num, 1) AS grouping_key "
-                "FROM (SELECT * FROM academic_periods UNION ALL SELECT * FROM local_academic_periods) ap "
-                "JOIN (SELECT * FROM enrollments UNION ALL SELECT * FROM local_enrollments) e ON e.period_id = ap.id "
-                "JOIN courses c ON e.course_id = c.id "
-                "WHERE ap.student_id = ? "
-                "ORDER BY ap.stage_number ASC, COALESCE(ap.semester_num, 1) ASC, c.name_ar ASC",
-                (student_id,)
-            )
-            response_data["courses_grouped"] = courses
+        response_data = None
 
+        if not is_online():
+            try:
+                from data.query import get_offline_certificate_data
+                response_data = get_offline_certificate_data(student_id, grouping_mode)
+            except Exception as e:
+                log_system(f"Offline certificate query failed: {e}", "WARNING")
+                response_data = None
         else:
             try:
                 resp = requests.get(f"{self.api_url}/certificates/{student_id}?grouping_mode={grouping_mode}", timeout=5.0)
                 if resp.status_code == 200:
                     response_data = resp.json()
                 else:
-                    return None
+                    from data.query import get_offline_certificate_data
+                    response_data = get_offline_certificate_data(student_id, grouping_mode)
             except Exception as e:
-                log_system(f"API request failed: {e}", "WARNING")
-                return None
+                log_system(f"API request failed, falling back to offline: {e}", "WARNING")
+                try:
+                    from data.query import get_offline_certificate_data
+                    response_data = get_offline_certificate_data(student_id, grouping_mode)
+                except Exception as off_err:
+                    log_system(f"Offline fallback certificate query failed: {off_err}", "WARNING")
+                    response_data = None
             
         if not response_data or not response_data.get("student_info"):
             return None
@@ -2297,7 +2185,7 @@ class CertificateRepository(BaseRepository):
     def get_flat_yearly_courses(self, student_id: int) -> list[dict]:
         """
         Fetches flat 14-column transcript courses via sp_GetCertificate_Yearly_ByAcademicDefualte (online)
-        or flat SQLite query (offline).
+        or get_offline_flat_yearly_courses (offline fallback).
         """
         if is_online():
             try:
@@ -2309,61 +2197,11 @@ class CertificateRepository(BaseRepository):
             except Exception as e:
                 log_system(f"API flat-yearly courses fetch failed: {e}", "WARNING")
 
-        query = (
-            "SELECT s.id AS student_id, "
-            "       COALESCE(s.full_name_ar, '') AS student_name_ar, "
-            "       COALESCE(ss.name_ar, '') AS study_system_ar, "
-            "       COALESCE(ap.academic_year, '') AS academic_year, "
-            "       COALESCE(ap.stage_number, 1) AS stage_number, "
-            "       'المرحلة ' || COALESCE(ap.stage_number, 1) AS stage_name_ar, "
-            "       c.id AS course_id, "
-            "       COALESCE(c.code, '') AS course_code, "
-            "       COALESCE(c.name_ar, '') AS course_name_ar, "
-            "       COALESCE(c.name_en, '') AS course_name_en, "
-            "       c.credit_hours AS units, "
-            "       e.score AS mark, "
-            "       CASE "
-            "           WHEN ap.result_status IN ('PASSED', '1', 1) THEN 1 "
-            "           WHEN ap.result_status IN ('FAILED_REPEAT', 'FAILED', '2', 2) THEN 2 "
-            "           WHEN ap.result_status IN ('EXCEPTIONAL_PASS', '3', 3) THEN 3 "
-            "           WHEN ap.result_status IN ('CARRIED_OVER', '4', 4) THEN 4 "
-            "           WHEN ap.result_status IN ('DEFERRED', '5', 5) THEN 5 "
-            "           WHEN ap.result_status IN ('DISMISSED', '6', 6) THEN 6 "
-            "           ELSE 1 "
-            "       END AS result_status_code, "
-            "       COALESCE(ap.result_status, 'PASSED') AS result_status_label "
-            "FROM (SELECT * FROM academic_periods UNION ALL SELECT * FROM local_academic_periods) ap "
-            "JOIN (SELECT * FROM enrollments UNION ALL SELECT * FROM local_enrollments) e ON e.period_id = ap.id "
-            "JOIN courses c ON e.course_id = c.id "
-            "JOIN (SELECT * FROM students UNION ALL SELECT * FROM local_students) s ON ap.student_id = s.id "
-            "LEFT JOIN study_systems ss ON s.study_system_id = ss.id "
-            "WHERE s.id = ? "
-            "ORDER BY ap.stage_number ASC, ap.academic_year ASC, c.name_ar ASC"
-        )
         try:
-            raw_rows = sqlite_read_all(query, (student_id,)) or []
-            flat_records = []
-            for r in raw_rows:
-                if isinstance(r, dict):
-                    flat_records.append({
-                        "student_id": safe_cast(r.get("student_id", student_id)),
-                        "student_name_ar": str(r.get("student_name_ar", "")),
-                        "study_system_ar": str(r.get("study_system_ar", "")),
-                        "academic_year": str(r.get("academic_year", "")),
-                        "stage_number": safe_cast(r.get("stage_number", 1)),
-                        "stage_name_ar": str(r.get("stage_name_ar", "المرحلة الأولى")),
-                        "course_id": safe_cast(r.get("course_id", 0)),
-                        "course_code": str(r.get("course_code", "")),
-                        "course_name_ar": str(r.get("course_name_ar", "")),
-                        "course_name_en": str(r.get("course_name_en", "")),
-                        "units": safe_cast(r.get("units", 0)),
-                        "mark": safe_cast(r.get("mark", 0.0)),
-                        "result_status_code": safe_cast(r.get("result_status_code", 1)),
-                        "result_status_label": str(r.get("result_status_label", "PASSED")),
-                    })
-            return flat_records
-        except Exception as err:
-            log_system(f"SQLite flat yearly query failed: {err}", "WARNING")
+            from data.query import get_offline_flat_yearly_courses
+            return get_offline_flat_yearly_courses(student_id)
+        except Exception as e:
+            log_system(f"Offline flat-yearly courses query failed: {e}", "WARNING")
             return []
 
 # ---------------------------------------------------------------------------
@@ -3158,34 +2996,22 @@ class StudyRoutineRepository(BaseRepository):
 class IssuedCertificateRepository(BaseRepository):
     def get_all(self) -> list[dict]:
         if not is_online():
-            return sqlite_read_all(
-                "SELECT ic.id, ic.student_id, ic.to_title, ic.template_type, ic.issue_date, "
-                "s.full_name_ar, s.full_name_en, d.name_ar AS dept_name_ar "
-                "FROM issued_certificates ic "
-                "JOIN students s ON ic.student_id = s.id "
-                "LEFT JOIN departments d ON s.department_id = d.id "
-                "ORDER BY ic.issue_date DESC, ic.id DESC"
-            )
+            from data.query import get_offline_issued_certificates_report
+            return get_offline_issued_certificates_report()
         try:
-            resp = requests.get(f"{self.api_url}/issued-certificates", timeout=5.0)
+            resp = requests.get(f"{self.api_url}/issued-certificates/report", timeout=5.0)
             if resp.status_code == 200:
                 return resp.json()
             return []
         except Exception as e:
             log_system(f"API request failed: {e}", "WARNING")
-            return []
+            from data.query import get_offline_issued_certificates_report
+            return get_offline_issued_certificates_report()
 
     def get_by_student(self, student_id: int) -> list[dict]:
         if not is_online():
-            return sqlite_read_all(
-                "SELECT ic.id, ic.student_id, ic.to_title, ic.template_type, ic.issue_date, "
-                "s.full_name_ar, s.full_name_en "
-                "FROM issued_certificates ic "
-                "JOIN students s ON ic.student_id = s.id "
-                "WHERE ic.student_id = ? "
-                "ORDER BY ic.issue_date DESC, ic.id DESC",
-                (student_id,)
-            )
+            from data.query import get_offline_issued_certificates_by_student
+            return get_offline_issued_certificates_by_student(student_id)
         try:
             resp = requests.get(f"{self.api_url}/issued-certificates/by-student/{student_id}", timeout=5.0)
             if resp.status_code == 200:
@@ -3193,9 +3019,47 @@ class IssuedCertificateRepository(BaseRepository):
             return []
         except Exception as e:
             log_system(f"API request failed: {e}", "WARNING")
-            return []
+            from data.query import get_offline_issued_certificates_by_student
+            return get_offline_issued_certificates_by_student(student_id)
 
-    def insert(self, student_id: int, to_title: str = "من يهمه الأمر", template_type: str = "graduation", issue_date: str = None) -> int:
+    def get_by_id(self, cert_id: int) -> dict | None:
+        if not is_online():
+            from data.query import get_offline_issued_certificate_by_id
+            return get_offline_issued_certificate_by_id(cert_id)
+        try:
+            resp = requests.get(f"{self.api_url}/issued-certificates/{cert_id}", timeout=5.0)
+            if resp.status_code == 200:
+                return resp.json()
+            return None
+        except Exception as e:
+            log_system(f"API request failed: {e}", "WARNING")
+            from data.query import get_offline_issued_certificate_by_id
+            return get_offline_issued_certificate_by_id(cert_id)
+
+    def get_report(self, start_date=None, end_date=None, dept_id=None, template_type=None) -> list[dict]:
+        if not is_online():
+            from data.query import get_offline_issued_certificates_report
+            return get_offline_issued_certificates_report(
+                start_date=start_date, end_date=end_date, dept_id=dept_id, template_type=template_type
+            )
+        try:
+            params = {}
+            if start_date: params["start_date"] = start_date
+            if end_date: params["end_date"] = end_date
+            if dept_id is not None: params["department_id"] = dept_id
+            if template_type: params["template_type"] = template_type
+            resp = requests.get(f"{self.api_url}/issued-certificates/report", params=params, timeout=5.0)
+            if resp.status_code == 200:
+                return resp.json()
+            return []
+        except Exception as e:
+            log_system(f"API request failed: {e}", "WARNING")
+            from data.query import get_offline_issued_certificates_report
+            return get_offline_issued_certificates_report(
+                start_date=start_date, end_date=end_date, dept_id=dept_id, template_type=template_type
+            )
+
+    def insert(self, student_id: int, to_title: Optional[str] = "من يهمه الأمر", template_type: Optional[str] = "graduation", issue_date: Optional[str] = None) -> int:
         if not issue_date:
             from datetime import datetime
             issue_date = datetime.now().strftime("%Y-%m-%d")
@@ -3207,25 +3071,14 @@ class IssuedCertificateRepository(BaseRepository):
             "issue_date": str(issue_date)
         }
 
-        # Local SQLite insertion for instant availability & offline support
-        local_id = -1
-        try:
-            conn = get_local_connection()
-            try:
-                cur = conn.execute(
-                    "INSERT INTO issued_certificates (student_id, to_title, template_type, issue_date) VALUES (?, ?, ?, ?)",
-                    (payload["student_id"], payload["to_title"], payload["template_type"], payload["issue_date"])
-                )
-                conn.commit()
-                local_id = cur.lastrowid
-            finally:
-                conn.close()
-        except Exception as sq_err:
-            log_system(f"Local issued_certificates write warning: {sq_err}", "WARNING")
-
         if not is_online():
-            log_offline_insert("issued_certificates", payload)
-            return local_id
+            from data.query import insert_offline_issued_certificate
+            return insert_offline_issued_certificate(
+                student_id=payload["student_id"],
+                to_title=payload["to_title"],
+                template_type=payload["template_type"],
+                issue_date=payload["issue_date"]
+            )
 
         try:
             resp = requests.post(f"{self.api_url}/issued-certificates", json=payload, timeout=5.0)
@@ -3233,24 +3086,73 @@ class IssuedCertificateRepository(BaseRepository):
                 res_data = resp.json()
                 new_id = res_data.get("new_id") or res_data.get("inserted_id")
                 log_activity(f"تم تسجيل الوثيقة الصادرة بالطالب ID: {student_id} (الجهة: {to_title}) عبر SP")
-                return new_id or local_id
+                if new_id:
+                    return new_id
             else:
                 log_system(f"API insert issued certificate warning: {resp.text}", "WARNING")
-                return local_id
         except Exception as e:
             log_system(f"API request failed for insert issued certificate: {e}", "WARNING")
-            return local_id
+
+        from data.query import insert_offline_issued_certificate
+        return insert_offline_issued_certificate(
+            student_id=payload["student_id"],
+            to_title=payload["to_title"],
+            template_type=payload["template_type"],
+            issue_date=payload["issue_date"]
+        )
+
+    def update(self, cert_id: int, to_title: Optional[str] = None, template_type: Optional[str] = None, issue_date: Optional[str] = None) -> None:
+        payload = {}
+        if to_title is not None: payload["to_title"] = to_title
+        if template_type is not None: payload["template_type"] = template_type
+        if issue_date is not None: payload["issue_date"] = issue_date
+
+        if not is_online():
+            from data.query import update_offline_issued_certificate
+            update_offline_issued_certificate(
+                cert_id=cert_id,
+                to_title=payload.get("to_title"),
+                template_type=payload.get("template_type"),
+                issue_date=payload.get("issue_date")
+            )
+            return
+
+        try:
+            resp = requests.put(f"{self.api_url}/issued-certificates/{cert_id}", json=payload, timeout=5.0)
+            if resp.status_code != 200:
+                log_system(f"API update issued certificate warning: {resp.text}", "WARNING")
+                from data.query import update_offline_issued_certificate
+                update_offline_issued_certificate(
+                    cert_id=cert_id,
+                    to_title=payload.get("to_title"),
+                    template_type=payload.get("template_type"),
+                    issue_date=payload.get("issue_date")
+                )
+        except Exception as e:
+            log_system(f"API request failed for update issued certificate: {e}", "WARNING")
+            from data.query import update_offline_issued_certificate
+            update_offline_issued_certificate(
+                cert_id=cert_id,
+                to_title=payload.get("to_title"),
+                template_type=payload.get("template_type"),
+                issue_date=payload.get("issue_date")
+            )
 
     def delete(self, cert_id: int) -> None:
         if not is_online():
-            raise OfflineModeError()
+            from data.query import delete_offline_issued_certificate
+            delete_offline_issued_certificate(cert_id)
+            return
         try:
             resp = requests.delete(f"{self.api_url}/issued-certificates/{cert_id}", timeout=5.0)
             if resp.status_code != 200:
-                raise RuntimeError(f"API delete failed: {resp.text}")
+                log_system(f"API delete failed: {resp.text}", "WARNING")
+                from data.query import delete_offline_issued_certificate
+                delete_offline_issued_certificate(cert_id)
         except Exception as e:
             log_system(f"API request failed: {e}", "WARNING")
-            raise
+            from data.query import delete_offline_issued_certificate
+            delete_offline_issued_certificate(cert_id)
 
 
 from repositories.auth_repository import AuthRepository

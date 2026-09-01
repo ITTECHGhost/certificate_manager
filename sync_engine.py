@@ -155,6 +155,17 @@ _TABLE_REGISTRY: dict[str, dict] = {
         ],
         "fk_cascades": [],
     },
+    "issued_certificates": {
+        "local_table": "local_issued_certificates",
+        "columns": [
+            "student_id", "to_title", "template_type", "issue_date",
+        ],
+        "sp_name": "InsertIssuedCertificate",
+        "sp_args": [
+            "student_id", "to_title", "template_type", "issue_date",
+        ],
+        "fk_cascades": [],
+    },
 }
 
 
@@ -313,6 +324,17 @@ def init_local_db() -> None:
                 course_id    INTEGER NOT NULL,
                 score        REAL,
                 passed_round TEXT
+            )
+        """)
+
+        cur.execute("""
+            CREATE TABLE IF NOT EXISTS local_issued_certificates (
+                id            INTEGER PRIMARY KEY,
+                student_id    INTEGER NOT NULL,
+                to_title      TEXT DEFAULT 'من يهمه الأمر',
+                template_type TEXT DEFAULT 'ARABIC',
+                issue_date    TEXT,
+                created_at    TEXT DEFAULT CURRENT_TIMESTAMP
             )
         """)
 
@@ -657,7 +679,7 @@ _REPLICA_TABLES: list[tuple[str, str]] = [
 ]
 
 
-def pull_mysql_to_sqlite(mysql_conn, sqlite_conn=None) -> dict:
+def pull_mysql_to_sqlite(mysql_conn=None, sqlite_conn=None) -> dict:
     """
     Download a full read-only replica of essential MySQL tables into SQLite.
 
@@ -667,13 +689,21 @@ def pull_mysql_to_sqlite(mysql_conn, sqlite_conn=None) -> dict:
         3. INSERT INTO local_table (all fetched rows)
 
     Args:
-        mysql_conn: An open mysql.connector connection.
-        sqlite_conn: Optional pre-opened SQLite connection.
-                     If None, one is created internally.
+        mysql_conn: Optional open mysql.connector connection. If None, one is opened automatically.
+        sqlite_conn: Optional pre-opened SQLite connection. If None, one is created internally.
 
     Returns:
         {"tables_synced": int, "total_rows": int, "errors": list[str]}
     """
+    own_mysql = mysql_conn is None
+    if own_mysql:
+        try:
+            from db import get_connection
+            mysql_conn = get_connection()
+        except Exception as _conn_err:
+            log.warning("Cannot connect to MySQL to pull replica: %s", _conn_err)
+            return {"tables_synced": 0, "total_rows": 0, "errors": [str(_conn_err)]}
+
     own_sqlite = sqlite_conn is None
     if own_sqlite:
         sqlite_conn = _get_local_conn()
@@ -728,8 +758,13 @@ def pull_mysql_to_sqlite(mysql_conn, sqlite_conn=None) -> dict:
         my_cur.close()
 
     finally:
-        if own_sqlite:
+        if own_sqlite and sqlite_conn:
             sqlite_conn.close()
+        if own_mysql and mysql_conn:
+            try:
+                mysql_conn.close()
+            except Exception:
+                pass
 
     summary = {"tables_synced": tables_synced, "total_rows": total_rows, "errors": errors}
     log.info("Inbound sync complete: %s", summary)
@@ -746,7 +781,8 @@ def download_mysql_snapshot(mysql_conn, sqlite_conn):
         'university_settings', 'countries', 'governorates', 'settings',
         'departments', 'study_systems', 'personnel', 'courses',
         'graduation_orders', 'students', 'academic_periods', 'enrollments',
-        'student_supervisors', 'thesis_records'
+        'student_supervisors', 'thesis_records', 'issued_certificates',
+        'study_routines', 'study_routine_courses'
     ]
     my_cursor = mysql_conn.cursor(dictionary=True)
     sq_cursor = sqlite_conn.cursor()
@@ -1028,6 +1064,20 @@ def _resolve_temp_id(
         f"UPDATE {local_table} SET id = ? WHERE id = ?",
         (real_id, temp_id),
     )
+
+    # Move resolved record from local mirror table to primary replica table
+    try:
+        primary_table = table_name
+        sqlite_conn.execute(
+            f"INSERT OR REPLACE INTO {primary_table} SELECT * FROM {local_table} WHERE id = ?",
+            (real_id,)
+        )
+        sqlite_conn.execute(
+            f"DELETE FROM {local_table} WHERE id = ? OR id = ?",
+            (real_id, temp_id)
+        )
+    except Exception as _move_err:
+        log.debug("Move to primary table notice: %s", _move_err)
 
     # Cascade to child tables
     for child_table, fk_col in meta["fk_cascades"]:

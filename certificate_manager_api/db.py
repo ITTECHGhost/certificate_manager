@@ -86,6 +86,8 @@ def init_db() -> None:
 
         if "study_system_id" not in ap_cols:
             log.warning("Database schema warning: column 'study_system_id' is missing from 'academic_periods' table.")
+        if "result_status" not in ap_cols:
+            log.warning("Database schema warning: column 'result_status' is missing from 'academic_periods' table.")
 
         # Verify courses table columns
         cursor.execute("DESCRIBE courses")

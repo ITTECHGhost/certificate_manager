@@ -33,6 +33,7 @@ class CoursesScreen:
             log.warning(f"Failed to fetch departments for course filter: {err}")
             depts = []
             
+        self.depts_list = depts
         self.depts_map = {d["id"]: d for d in depts}
         filter_dept_opts = {0: "كل الأقسام / All Departments"}
         for d in depts:
@@ -47,69 +48,63 @@ class CoursesScreen:
                 # Panel 1: Course Catalog
                 with ui.tab_panel("courses").classes("w-full h-full p-0 gap-6 flex-col"):
                     with UI.card().classes("flex-1 gap-6 p-6 overflow-hidden flex-col w-full h-full"):
-                        # Header Bar
-                        with ui.row().classes("w-full justify-between items-center pb-4 border-b border-[var(--border-default)] app-card-header shrink-0"):
-                            with ui.row().classes("items-center gap-3"):
-                                ui.icon("book", size="md").classes("app-text-accent")
-                                with ui.column().classes("gap-0"):
-                                    ui.label("المواد الدراسية — Courses").classes("text-xl font-bold app-text-primary")
-                                    ui.label("إدارة المواد الدراسية الخاصة بالأقسام والمراحل").classes("text-xs app-text-muted")
-
+                        # Single Responsive Action & Filter Bar (All in One Row)
+                        with ui.row().classes("w-full items-center justify-between gap-2 p-2 rounded-xl border border-[var(--border-default)] bg-[var(--bg-card)] flex-nowrap shrink-0 overflow-x-auto"):
+                            # 1. Add Course Button
                             UI.success_button(
                                 "+ إضافة مادة / Add Course",
                                 icon="add",
                                 on_click=lambda: self.show_edit_view(mode="add")
-                            ).classes("text-sm px-5 py-2.5 shrink-0")
+                            ).classes("text-xs px-3 py-2 shrink-0")
 
-                        # Controls Row
-                        with ui.row().classes("w-full items-center justify-between gap-4 flex-wrap shrink-0"):
-                            with ui.row().classes("items-center gap-3 flex-1 min-w-[300px]"):
-                                def on_dept_change(e):
-                                    val = extract_event_value(e, default=0)
-                                    try:
-                                        self.filter_dept = int(val or 0)
-                                    except Exception:
-                                        self.filter_dept = 0
-                                    self.current_offset = 0
-                                    self._render_content()
+                            # 2. Department Filter Dropdown (Compact & Responsive Width)
+                            def on_dept_change(e):
+                                val = extract_event_value(e, default=0)
+                                try:
+                                    self.filter_dept = int(val or 0)
+                                except Exception:
+                                    self.filter_dept = 0
+                                self.current_offset = 0
+                                self._render_content()
 
-                                UI.select(
-                                    label="",
-                                    options=filter_dept_opts,
-                                    value=self.filter_dept,
-                                    on_change=on_dept_change
-                                ).classes("w-64 text-sm")
+                            UI.select(
+                                label="",
+                                options=filter_dept_opts,
+                                value=self.filter_dept,
+                                on_change=on_dept_change
+                            ).props("dense outlined").style("min-width: 130px; max-width: 170px;").classes("text-xs shrink-0 app-input rounded-lg")
 
-                                def on_search_change(e):
-                                    val = extract_event_value(e, default="")
-                                    self.search_term = str(val or "").strip().lower()
-                                    self.current_offset = 0
-                                    self._render_content()
+                            # 3. Search Field (Flexible & Responsive to fill remaining width)
+                            def on_search_change(e):
+                                val = extract_event_value(e, default="")
+                                self.search_term = str(val or "").strip().lower()
+                                self.current_offset = 0
+                                self._render_content()
 
-                                UI.text_input(
-                                    label="",
-                                    placeholder="بحث باسم المادة... / Search course name...",
-                                    on_change=on_search_change
-                                ).classes("flex-1 text-sm")
+                            UI.text_input(
+                                label="",
+                                placeholder="بحث باسم المادة... 🔍 / Search course...",
+                                on_change=on_search_change
+                            ).props('dense outlined icon="search"').classes("flex-1 text-xs app-input rounded-lg").style("min-width: 120px;")
 
-                            with ui.row().classes("items-center gap-2 shrink-0"):
-                                ui.label("عرض / Show:").classes("text-xs font-bold app-text-muted")
+                            # 4. Show Limit Dropdown (Compact Width)
+                            def on_limit_change(e):
+                                val = extract_event_value(e, default=25)
+                                try:
+                                    self.current_limit = int(val or 25)
+                                except Exception:
+                                    self.current_limit = 25
+                                self.current_offset = 0
+                                self._render_content()
 
-                                def on_limit_change(e):
-                                    val = extract_event_value(e, default=25)
-                                    try:
-                                        self.current_limit = int(val or 25)
-                                    except Exception:
-                                        self.current_limit = 25
-                                    self.current_offset = 0
-                                    self._render_content()
-
+                            with ui.row().classes("items-center gap-1 shrink-0 flex-nowrap"):
+                                ui.label("عرض:").classes("text-xs font-bold app-text-muted shrink-0")
                                 UI.select(
                                     label="",
                                     options={25: "25", 50: "50", 75: "75", 100: "100"},
                                     value=self.current_limit,
                                     on_change=on_limit_change
-                                ).classes("w-24 text-sm")
+                                ).props("dense outlined").style("width: 65px !important;").classes("text-xs shrink-0 app-input rounded-lg")
 
                         @ui.refreshable
                         def content_view():
@@ -209,12 +204,14 @@ class CoursesScreen:
                 next_btn.disable()
 
     def _render_card(self, row: dict):
-        dept = row.get("dept_name_ar") or "—"
-        if row.get("is_shared"):
-            dept = f"مشتركة ({dept})" if dept and dept != "—" else "مشتركة / Shared"
-            
-        stage = str(row.get("stage_number", "—"))
-        credits = str(row.get("credit_hours", "—"))
+        cid = row.get("id")
+        cur_dept = row.get("department_id")
+        cur_stage = int(row.get("stage_number", 1) or 1)
+        cur_credits = int(row.get("credit_hours", 3) or 3)
+
+        dept_opts = {d["id"]: d.get("name_ar", "") for d in getattr(self, "depts_list", [])}
+        if not dept_opts:
+            dept_opts = {cur_dept: row.get("dept_name_ar") or "قسم عام"} if cur_dept else {1: "علوم الحاسوب"}
 
         with ui.row().classes("w-full items-center justify-between p-4 rounded-xl bg-[var(--bg-card)] border border-[var(--border-default)] gap-4 flex-nowrap overflow-hidden hover:border-[var(--color-accent)] transition-all shadow-sm"):
             with ui.row().classes("items-center gap-4 flex-1 min-w-0"):
@@ -223,19 +220,50 @@ class CoursesScreen:
                     ui.label(row.get("name_ar") or "—").classes("font-bold text-base app-text-primary truncate")
                     ui.label(row.get("name_en") or "—").classes("text-xs text-slate-400 font-mono truncate")
 
+            # Single Row Metadata & Inline Editing Controls (Department, Stage, Credits)
             with ui.row().classes("items-center gap-3 shrink-0 flex-nowrap"):
-                with ui.column().classes("items-center gap-0 shrink-0"):
-                    ui.label("القسم / Department").classes("text-[10px] app-text-muted font-semibold")
-                    ui.label(dept).classes("text-xs font-bold px-2.5 py-1 rounded-lg bg-[var(--bg-card)] border border-[var(--border-default)] app-text-primary truncate max-w-[200px]")
+                def make_quick_saver(c_id, orig_row):
+                    def _on_change(e=None):
+                        try:
+                            up_data = dict(orig_row)
+                            if dept_sel.value:
+                                up_data["department_id"] = int(dept_sel.value)
+                            if stage_sel.value:
+                                up_data["stage_number"] = int(stage_sel.value)
+                            if credits_sel.value:
+                                up_data["credit_hours"] = int(credits_sel.value)
+                            
+                            self.repo.update(c_id, up_data)
+                            ui.notify("تم تعديل المادة بنجاح! / Course updated!", type="positive", duration=1.5)
+                            self._render_content()
+                        except Exception as err:
+                            ui.notify(f"خطأ أثناء التحديث: {err}", type="negative")
+                    return _on_change
 
-                with ui.column().classes("items-center gap-0 shrink-0"):
-                    ui.label("المرحلة / Stage").classes("text-[10px] app-text-muted font-semibold")
-                    ui.label(stage).classes("text-xs font-bold px-2.5 py-1 rounded-lg bg-[var(--bg-card)] border border-[var(--border-default)] app-text-primary")
+                quick_save_cb = make_quick_saver(cid, row)
 
-                with ui.column().classes("items-center gap-0 shrink-0"):
-                    ui.label("الوحدات / Credits").classes("text-[10px] app-text-muted font-semibold")
-                    ui.label(credits).classes("text-xs font-bold px-2.5 py-1 rounded-lg bg-[var(--bg-card)] border border-[var(--border-default)] app-text-accent")
+                dept_sel = UI.select(
+                    label="القسم / Department",
+                    options=dept_opts,
+                    value=cur_dept,
+                    on_change=quick_save_cb
+                ).props("dense outlined").style("width: 150px !important;").classes("text-xs shrink-0 app-input rounded-lg")
 
+                stage_sel = UI.select(
+                    label="المرحلة / Stage",
+                    options={1: "1", 2: "2", 3: "3", 4: "4"},
+                    value=cur_stage,
+                    on_change=quick_save_cb
+                ).props("dense outlined").style("width: 90px !important;").classes("text-xs shrink-0 app-input rounded-lg")
+
+                credits_sel = UI.select(
+                    label="الوحدات / Credits",
+                    options={1: "1", 2: "2", 3: "3", 4: "4", 5: "5", 6: "6"},
+                    value=cur_credits,
+                    on_change=quick_save_cb
+                ).props("dense outlined").style("width: 90px !important;").classes("text-xs shrink-0 app-input rounded-lg")
+
+            # Action Buttons
             with ui.row().classes("items-center gap-2 shrink-0 flex-nowrap"):
                 UI.primary_button(
                     "تعديل / Edit",

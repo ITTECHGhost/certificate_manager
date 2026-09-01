@@ -432,13 +432,16 @@ def build_certificate_context(data: dict, options: dict) -> dict:
     # 3. Study Type display formatting
     stype_raw = str(data.get("study_type") or "").strip().lower()
     if "even" in stype_raw or "مساء" in stype_raw or "night" in stype_raw:
-        study_type_disp = "Evening" if is_english else "المسائية"
+        study_type_disp = "Evening" if is_english else "الم�    # 4. Consolidate course history according to Rules A (Annual) & B (Semester)
+    grouping_mode = str(options.get("grouping_mode") or data.get("grouping_mode") or "DEFAULT").upper()
+    if "SEMESTER" in grouping_mode:
+        is_annual = False
+    elif any(k in grouping_mode for k in ("YEAR", "PERIOD", "CURRICULUM")):
+        is_annual = True
     else:
-        study_type_disp = "Morning" if is_english else "الصباحية"
+        period_disp = str(data.get("period_display") or "year").lower()
+        is_annual = (period_disp == "year")
 
-    # 4. Consolidate course history according to Rules A (Annual) & B (Semester)
-    period_disp = str(data.get("period_display") or "year").lower()
-    is_annual = (period_disp == "year")
     raw_courses = data.get("courses_grouped", [])
     courses_grouped = consolidate_courses_for_certificate(raw_courses, is_annual=is_annual)
     
@@ -450,13 +453,32 @@ def build_certificate_context(data: dict, options: dict) -> dict:
             groups_in_order[gkey] = []
         groups_in_order[gkey].append(c)
         
-    group_lists = list(groups_in_order.values())
+    def _group_sort_key(course_list):
+        if not course_list:
+            return ("", 0, 0)
+        c0 = course_list[0]
+        ay = str(c0.get("academic_year") or c0.get("academic_year_formatted") or "")
+        stg = parse_stage_num(c0.get("stage_number") or c0.get("period_stage"), 1)
+        sem = parse_stage_num(c0.get("semester_num"), 1)
+        return (ay, stg, sem)
+
+    # Sort group lists chronologically by academic_year ASC, stage ASC, semester ASC
+    group_lists = sorted(list(groups_in_order.values()), key=_group_sort_key)
     paired_semesters = []
     
     stage_names_ar = {1: "الأولى", 2: "الثانية", 3: "الثالثة", 4: "الرابعة", 5: "الخامسة", 6: "السادسة"}
     stage_names_en = {1: "First", 2: "Second", 3: "Third", 4: "Fourth", 5: "Fifth", 6: "Sixth"}
-    is_annual = (period_disp == "year")
     
+    def _extract_group_stage(course_list, default_val):
+        if not course_list:
+            return default_val
+        p_stages = [c.get("period_stage") for c in course_list if c.get("period_stage")]
+        if p_stages:
+            return max(p_stages, key=p_stages.count)
+        c0 = course_list[0]
+        stg = c0.get("period_stage") or c0.get("stage_number") or c0.get("course_curriculum_stage")
+        return stg if stg is not None else default_val
+
     for i in range(0, len(group_lists), 2):
         pair_idx = i // 2
         first_stg_default = pair_idx * 2 + 1
@@ -464,32 +486,24 @@ def build_certificate_context(data: dict, options: dict) -> dict:
 
         if is_english:
             # In English LTR tables, Column 1 is on the LEFT and Column 2 is on the RIGHT.
-            # Therefore, Stage 1 (2016-2017) goes to the LEFT, and Stage 2 (2017-2018) goes to the RIGHT.
             left_courses = group_lists[i]
             right_courses = group_lists[i + 1] if i + 1 < len(group_lists) else []
             
             right_c = right_courses[0] if right_courses else {}
             left_c = left_courses[0] if left_courses else {}
             
-            stg_left_raw = left_c.get("stage_number")
-            stg_right_raw = right_c.get("stage_number")
-            
-            stg_left = stg_left_raw if (stg_left_raw and int(stg_left_raw) > pair_idx * 2) else first_stg_default
-            stg_right = stg_right_raw if (stg_right_raw and int(stg_right_raw) > pair_idx * 2) else (second_stg_default if right_courses else (stg_left + 1))
+            stg_left = _extract_group_stage(left_courses, first_stg_default)
+            stg_right = _extract_group_stage(right_courses, second_stg_default if right_courses else (stg_left + 1))
         else:
             # In Arabic RTL tables, Column 1 is on the RIGHT and Column 2 is on the LEFT.
-            # Therefore, Stage 1 (2016-2017) goes to the RIGHT, and Stage 2 (2017-2018) goes to the LEFT.
             right_courses = group_lists[i]
             left_courses = group_lists[i + 1] if i + 1 < len(group_lists) else []
             
             right_c = right_courses[0] if right_courses else {}
             left_c = left_courses[0] if left_courses else {}
             
-            stg_right_raw = right_c.get("stage_number")
-            stg_left_raw = left_c.get("stage_number")
-            
-            stg_right = stg_right_raw if (stg_right_raw and int(stg_right_raw) > pair_idx * 2) else first_stg_default
-            stg_left = stg_left_raw if (stg_left_raw and int(stg_left_raw) > pair_idx * 2) else (second_stg_default if left_courses else (stg_right + 1))
+            stg_right = _extract_group_stage(right_courses, first_stg_default)
+            stg_left = _extract_group_stage(left_courses, second_stg_default if left_courses else (stg_right + 1))
         
         ay_right = right_c.get("academic_year_formatted") or right_c.get("academic_year", "")
         ay_left = left_c.get("academic_year_formatted") or left_c.get("academic_year", "")
@@ -526,6 +540,8 @@ def build_certificate_context(data: dict, options: dict) -> dict:
             paired_semesters.append({
                 "left_label": left_year_disp,
                 "right_label": right_year_disp,
+                "semester_right_label": f"المرحلة {stg_text_right}" if not is_english else f"Stage {stg_text_right}",
+                "semester_left_label": (f"المرحلة {stg_text_left}" if not is_english else f"Stage {stg_text_left}") if left_courses else "",
                 "year_left_label": left_year_disp,
                 "year_right_label": right_year_disp,
                 "year_label_l": left_year_disp,
@@ -553,11 +569,20 @@ def build_certificate_context(data: dict, options: dict) -> dict:
         else:
             right_sem_label = "First Semester" if is_english else "الفصل الأول"
             left_sem_label = "Second Semester" if is_english else "الفصل الثاني"
-            row_year_display = f"العام الدراسي {right_year_disp}" if right_year_disp else ""
+            if sem_right == 3: right_sem_label = "Summer Semester" if is_english else "الفصل الصيفي"
+            if sem_left == 3: left_sem_label = "Summer Semester" if is_english else "الفصل الصيفي"
+            
+            row_year_display = f"العام الدراسي {right_year_disp}" if (right_year_disp and not is_english) else (f"Academic Year {right_year_disp}" if right_year_disp else "")
             
             paired_semesters.append({
                 "left_label": left_sem_label,
                 "right_label": right_sem_label,
+                "semester_right_label": right_sem_label,
+                "semester_left_label": left_sem_label,
+                "sem_right_label": right_sem_label,
+                "sem_left_label": left_sem_label,
+                "right_semester_label": right_sem_label,
+                "left_semester_label": left_sem_label,
                 "year_left_label": left_year_disp,
                 "year_right_label": right_year_disp,
                 "year_label_l": left_year_disp,
@@ -578,6 +603,10 @@ def build_certificate_context(data: dict, options: dict) -> dict:
                 "stage": stg_num_right_str,
                 "stage_num": stg_num_right_str,
                 "stage_num_l": stg_num_left_str,
+                "stage_num_r": stg_num_right_str,
+                "stage_text": stg_text_right,
+                "stage_name": stg_text_right,
+            })g_num_left_str,
                 "stage_num_r": stg_num_right_str,
                 "stage_text": stg_text_right,
                 "stage_name": stg_text_right,
@@ -817,8 +846,8 @@ class CertificateScreen:
     def get_templates(self, data: dict = None) -> list[str]:
         """
         Returns docx templates filtered by the student's study system (semester vs year/annual).
-        If the student is semester-based ('semester'), returns only templates matching 'semester'.
-        If the student is annual/year-based ('year' / 'annual'), returns only templates matching 'year'.
+        If the student is semester-based ('semester'), returns templates matching 'semester' or 'sem'.
+        If the student is annual/year-based ('year' / 'annual'), returns templates matching 'year' or 'annual'.
         """
         try:
             files = [f for f in os.listdir(self.templates_dir) if f.endswith(".docx") and not f.startswith("~")]
@@ -832,14 +861,14 @@ class CertificateScreen:
             calc_rule = str(data.get("calculation_rule") or "").lower().strip()
 
             if "semester" in period_disp or "semester" in calc_rule:
-                system_key = "semester"
+                system_keys = ["semester", "sem"]
             elif "year" in period_disp or "annual" in calc_rule or "year" in calc_rule:
-                system_key = "year"
+                system_keys = ["year", "annual"]
             else:
-                system_key = None
+                system_keys = []
 
-            if system_key:
-                matching = [f for f in files if system_key in f.lower()]
+            if system_keys:
+                matching = [f for f in files if any(k in f.lower() for k in system_keys)]
                 if matching:
                     return matching
 
@@ -924,19 +953,22 @@ class CertificateScreen:
                             if not hasattr(self, 'student_full_data') or not self.student_full_data: return
                             student_id = self.student_full_data.get('student_id') or self.student_full_data.get('id')
                             if not student_id: return
-                            self.student_full_data = self.cert_repo.get_full_certificate_data(student_id, e.value)
-                            if hasattr(self, "render_preview_grid"):
-                                self.render_preview_grid()
+                            new_mode = getattr(e, 'value', e) or "DEFAULT"
+                            self.current_grouping_mode = new_mode
+                            self.student_full_data = self.cert_repo.get_full_certificate_data(student_id, grouping_mode=new_mode)
+                            self.update_student_ui()
 
-                        GROUPING_OPTIONS = {
-                            "DEFAULT": "الافتراضي / Default",
-                            "BY_YEAR": "حسب السنة الدراسية / By Year",
-                            "BY_STAGE": "حسب المرحلة الدراسية / By Stage",
-                            "BY_CURRICULUM": "حسب الخطة الدراسية / By Curriculum"
+                        grouping_options = {
+                            "DEFAULT": "الافتراضي - سنوي",
+                            "BY_PERIOD_STAGE": "سنوي - حسب المرحلة الدراسية",
+                            "BY_CURRICULUM_STAGE": "سنوي - حسب مرحلة المادة",
+                            "BY_ByAcademicYear": "سنوي - حسب سنة الإنجاز",
+                            "BY_SEMESTER_stage": "مقررات - حسب المرحلة",
+                            "BY_SEMESTER_year": "مقررات - حسب السنة"
                         }
                         self.grouping_sel = UI.select(
                             "نمط التجميع / Grouping",
-                            options=GROUPING_OPTIONS,
+                            options=grouping_options,
                             value="DEFAULT",
                             on_change=on_grouping_change
                         ).classes("flex-1 text-sm")
@@ -1014,11 +1046,6 @@ class CertificateScreen:
                             self.inp_second_subjects = UI.text_input("مواد الدور الثاني / Subjects", value="").classes("w-full text-sm mt-1")
 
                     ui.separator().classes("my-2")
-                    
-                    # Row 4.5: Data Validation Grid
-                    with UI.card().classes("w-full p-4 gap-3 bg-[var(--bg-main)] rounded-xl border border-[var(--border-default)]"):
-                        ui.label("معاينة البيانات (للتدقيق فقط) — Data Preview").classes("text-xs font-bold app-text-accent")
-                        self.preview_grid_container = ui.column().classes("w-full max-h-[300px] overflow-y-auto")
 
                     # Row 5: Primary Action Buttons
                     with ui.row().classes("w-full gap-4 items-center pt-2"):
@@ -1098,41 +1125,7 @@ class CertificateScreen:
             UI.notify(f"خطأ في البحث: {e}", type="negative")
 
     def render_preview_grid(self):
-        if not hasattr(self, 'preview_grid_container'): return
-        self.preview_grid_container.clear()
-        
-        data = self.student_full_data
-        if not data: return
-        
-        courses = data.get("courses_grouped", [])
-        if not courses:
-            with self.preview_grid_container:
-                ui.label("لا توجد بيانات / No data").classes("text-xs app-text-muted italic")
-            return
-            
-        columns = [
-            {'name': 'academic_year', 'label': 'السنة / Year', 'field': 'academic_year_formatted', 'align': 'left'},
-            {'name': 'stage', 'label': 'المرحلة / Stage', 'field': 'stage_number', 'align': 'center'},
-            {'name': 'sem', 'label': 'الفصل / Sem', 'field': 'semester_num', 'align': 'center'},
-            {'name': 'subj', 'label': 'المادة / Subject', 'field': 'subject_name', 'align': 'left'},
-            {'name': 'mark', 'label': 'الدرجة / Mark', 'field': 'mark', 'align': 'center'},
-            {'name': 'unit', 'label': 'الوحدات / Units', 'field': 'unit', 'align': 'center'},
-            {'name': 'status', 'label': 'الحالة / Status', 'field': 'result_status_label', 'align': 'center'}
-        ]
-        
-        normalized_courses = []
-        for idx, c in enumerate(courses):
-            c_copy = dict(c)
-            c_copy['row_id'] = c_copy.get('course_id') or idx
-            c_copy['subject_name'] = c_copy.get('course_name_ar') or c_copy.get('subject_name') or ''
-            c_copy['academic_year_formatted'] = c_copy.get('academic_year_formatted') or c_copy.get('academic_year') or ''
-            c_copy['unit'] = c_copy.get('units') if c_copy.get('units') is not None else c_copy.get('unit', 0)
-            c_copy['semester_num'] = c_copy.get('semester_num', 1)
-            c_copy['result_status_label'] = c_copy.get('result_status_label') or c_copy.get('result_status') or 'PASSED'
-            normalized_courses.append(c_copy)
-
-        with self.preview_grid_container:
-            ui.table(columns=columns, rows=normalized_courses, row_key='row_id').classes('w-full text-xs')
+        pass
 
     def render_empty_student_info(self):
         self.student_info_container.clear()
@@ -1151,13 +1144,53 @@ class CertificateScreen:
 
         try:
             self.student_full_data = self.cert_repo.get_full_certificate_data(
-                student_id, grouping_mode=self.current_grouping_mode
+                student_id, grouping_mode="DEFAULT"
             )
             if not self.student_full_data:
                 UI.notify("لا توجد بيانات دراسية للطالب المحدد / No academic data found", type="warning")
                 return
 
+            # Dynamic grouping options update based on student's study system (semester vs yearly)
+            semester_options = {
+                "BY_SEMESTER_stage": "مقررات - حسب المرحلة",
+                "BY_SEMESTER_year": "مقررات - حسب السنة"
+            }
+            yearly_options = {
+                "DEFAULT": "الافتراضي - سنوي",
+                "BY_PERIOD_STAGE": "سنوي - حسب المرحلة الدراسية",
+                "BY_CURRICULUM_STAGE": "سنوي - حسب مرحلة المادة",
+                "BY_ByAcademicYear": "سنوي - حسب سنة الإنجاز"
+            }
+
+            period_disp = str(self.student_full_data.get("period_display") or "").lower().strip()
+            if period_disp in ("year", "yearly"):
+                is_semester = False
+            elif period_disp == "semester":
+                is_semester = True
+            else:
+                sys_name = str(self.student_full_data.get("study_system_name_ar") or "").lower()
+                is_semester = "semester" in sys_name or ("فصل" in sys_name and "سنو" not in sys_name)
+
+            if is_semester:
+                target_opts = semester_options
+                default_val = "BY_SEMESTER_stage"
+            else:
+                target_opts = yearly_options
+                default_val = "DEFAULT"
+
+            self.current_grouping_mode = default_val
+
+            if default_val != "DEFAULT":
+                self.student_full_data = self.cert_repo.get_full_certificate_data(
+                    student_id, grouping_mode=default_val
+                )
+
             self.update_student_ui()
+
+            if hasattr(self, "grouping_sel") and self.grouping_sel:
+                self.grouping_sel.options = target_opts
+                self.grouping_sel.value = default_val
+                self.grouping_sel.update()
 
             # Filter template dropdown options dynamically based on student's study system (semester vs year)
             filtered_templates = self.get_templates(self.student_full_data)
@@ -1339,23 +1372,31 @@ class CertificateScreen:
                         ui.label("استحقاق الدور الأول — الطالب اجتاز جميع المواد الدراسية من الدور الأول.").classes("text-sm")
 
             # Academic Transcript Table Section (Cards Grouped by Dynamic Grouping Mode)
+            semester_options = {
+                "BY_SEMESTER_stage": "مقررات - حسب المرحلة",
+                "BY_SEMESTER_year": "مقررات - حسب السنة"
+            }
+            yearly_options = {
+                "DEFAULT": "الافتراضي - سنوي",
+                "BY_PERIOD_STAGE": "سنوي - حسب المرحلة الدراسية",
+                "BY_CURRICULUM_STAGE": "سنوي - حسب مرحلة المادة",
+                "BY_ByAcademicYear": "سنوي - حسب سنة الإنجاز"
+            }
+
             period_disp = str(data.get("period_display") or "").lower().strip()
-            if "semester" in period_disp:
-                group_opts = {
-                    "DEFAULT": "حسب السنة الدراسية (الافتراضي)",
-                    "BY_SEMESTER_stage": "حسب المرحلة الدراسية"
-                }
+            if period_disp in ("year", "yearly"):
+                is_semester = False
+            elif period_disp == "semester":
+                is_semester = True
             else:
-                group_opts = {
-                    "DEFAULT": "حسب السنة الدراسية (الافتراضي)",
-                    "BY_PERIOD_STAGE": "حسب مرحلة القيد",
-                    "BY_CURRICULUM_STAGE": "حسب المرحلة الدراسية للمادة",
-                    "BY_ByAcademicYear": "حسب السنة الأكاديمية"
-                }
+                sys_name = str(data.get("study_system_name_ar") or "").lower()
+                is_semester = "semester" in sys_name or ("فصل" in sys_name and "سنو" not in sys_name)
+
+            group_opts = semester_options if is_semester else yearly_options
 
             current_mode = getattr(self, "current_grouping_mode", "DEFAULT")
             if current_mode not in group_opts:
-                current_mode = "DEFAULT"
+                current_mode = "BY_SEMESTER_stage" if is_semester else "DEFAULT"
 
             async def on_grouping_change(e):
                 new_mode = str(getattr(e, 'value', e) or "DEFAULT")
@@ -1380,33 +1421,57 @@ class CertificateScreen:
                     on_change=lambda e: on_grouping_change(e)
                 ).classes("w-72 text-xs")
 
-            with ui.column().classes("w-full border border-[var(--border-default)] rounded-2xl p-5 bg-[var(--bg-main)] gap-5 max-h-[540px] overflow-y-auto"):
+            with ui.column().classes("w-full border border-[var(--border-default)] rounded-2xl p-5 bg-[var(--bg-main)] gap-5 h-auto"):
                 courses = data.get("courses_grouped", [])
                 if not courses:
                     ui.label("لا توجد سجلات دراسية / No course records").classes("text-sm app-text-muted italic p-4")
                 else:
                     grouped_data = {}
                     for c in courses:
-                        stg_num = (
-                            c.get("stage_number")
-                            or c.get("period_stage")
+                        pstg = (
+                            c.get("period_stage")
+                            or c.get("stage_number")
                             or c.get("course_curriculum_stage")
                             or c.get("default_stage")
                             or c.get("stages")
                             or ""
                         )
-                        k = c.get("grouping_key") or f"{c.get('academic_year', '')}_{stg_num}_{c.get('semester_num', 1)}"
+                        raw_yr = str(c.get("academic_year") or "")
+                        fmt_yr = str(c.get("academic_year_formatted") or raw_yr)
+                        sem_num = c.get("semester_num", 1)
+                        k = c.get("grouping_key") or f"{raw_yr}_{pstg}_{sem_num}"
                         if k not in grouped_data:
                             grouped_data[k] = {
-                                "academic_year": c.get("academic_year_formatted") or c.get("academic_year", ""),
-                                "stage_number": stg_num,
-                                "semester_num": c.get("semester_num", 1),
+                                "academic_year": fmt_yr,
+                                "raw_academic_year": raw_yr,
+                                "stage_number": pstg,
+                                "semester_num": sem_num,
                                 "enrollments": []
                             }
                         grouped_data[k]["enrollments"].append(c)
 
+                    for k, p in grouped_data.items():
+                        enrs = p.get("enrollments", [])
+                        p_stages = [c.get("period_stage") or c.get("stage_number") for c in enrs if c.get("period_stage") or c.get("stage_number")]
+                        if p_stages:
+                            p["stage_number"] = max(p_stages, key=p_stages.count)
+
+                    def _get_group_sort_key(p):
+                        yr = str(p.get("raw_academic_year") or p.get("academic_year") or "")
+                        try:
+                            s_num = int(p.get("stage_number", 0))
+                        except (ValueError, TypeError):
+                            s_num = 0
+                        try:
+                            m_num = int(p.get("semester_num", 1))
+                        except (ValueError, TypeError):
+                            m_num = 1
+                        return (yr, s_num, m_num)
+
+                    sorted_groups = sorted(grouped_data.values(), key=_get_group_sort_key)
+
                     with ui.grid(columns=2).classes("w-full gap-5 items-start"):
-                        for k, p in grouped_data.items():
+                        for p in sorted_groups:
                             stg = p.get("stage_number", "")
                             year = p.get("academic_year", "")
                             sem = p.get("semester_num", 1)
@@ -1600,7 +1665,9 @@ class CertificateScreen:
             student_name = ctx.get("student_name", "Student")
             safe_student = re.sub(r'[\\/*?:"<>|]', "", student_name).strip() or "Student"
             safe_tpl = re.sub(r'[\\/*?:"<>|]', "", os.path.splitext(tpl_name)[0]).strip()
-            out_file = os.path.join(out_dir, f"{safe_tpl} - {safe_student}.docx")
+            grouping_mode = getattr(self, "current_grouping_mode", "DEFAULT")
+            safe_grouping = re.sub(r'[\\/*?:"<>|]', "", str(grouping_mode)).strip()
+            out_file = os.path.join(out_dir, f"{safe_tpl} - {safe_student} - {safe_grouping}.docx")
     
             doc = DocxTemplate(tpl_path)
             doc.render(ctx)
