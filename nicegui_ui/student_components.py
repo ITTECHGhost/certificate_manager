@@ -803,24 +803,26 @@ class StudentProfileView:
                             pr = "1"
                         is_2nd = (pr in ('2', '3') or enr.get("is_second_round"))
 
-                        card_style = "w-full justify-between items-center p-2 rounded gap-2 border border-rose-500/40 bg-rose-500/10" if is_failed else "w-full justify-between items-center p-2 rounded bg-[var(--bg-card)] gap-2"
-                        title_style = "font-bold text-sm text-rose-400 truncate" if is_failed else "font-bold text-sm app-text-primary truncate"
+                        card_style = "w-full justify-between items-start p-3.5 rounded-xl gap-3 border border-rose-500/40 bg-rose-500/5 shadow-sm transition-all hover:shadow-md" if is_failed else "w-full justify-between items-start p-3.5 rounded-xl bg-[var(--bg-card)] gap-3 border border-[var(--border-default)] shadow-sm transition-all hover:shadow-md"
+                        title_style = "font-bold text-sm text-rose-500 truncate leading-tight" if is_failed else "font-bold text-sm app-text-primary truncate leading-tight"
 
                         with ui.row().classes(card_style):
                             # Course Title & Badges
-                            with ui.column().classes("flex-1 min-w-0 text-right gap-0"):
-                                with ui.row().classes("items-center gap-2 flex-wrap"):
-                                    ui.label(c_ar).classes(title_style)
-                                    if is_failed:
-                                        ui.label("راسب / Failed").classes("px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-rose-500/20 text-rose-400 border border-rose-500/40 shrink-0")
-                                    elif is_2nd:
-                                        ui.label("الدور الثاني").classes("px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-amber-500/20 text-amber-400 border border-amber-500/30 shrink-0")
+                            with ui.column().classes("flex-1 min-w-0 text-right gap-1"):
+                                ui.label(c_ar).classes(title_style)
                                 if c_en:
-                                    ui.label(c_en).classes("text-xs text-slate-400 font-mono truncate")
+                                    ui.label(c_en).classes("text-xs text-slate-400 font-mono truncate leading-tight")
+                                    
+                                # Badges row
+                                with ui.row().classes("items-center gap-2 mt-1 flex-wrap"):
+                                    if is_failed:
+                                        ui.label("راسب / Failed").classes("px-2.5 py-0.5 rounded-lg text-[10px] font-extrabold bg-rose-500/20 text-rose-500 border border-rose-500/30 shrink-0")
+                                    elif is_2nd:
+                                        ui.label("الدور الثاني").classes("px-2.5 py-0.5 rounded-lg text-[10px] font-extrabold bg-amber-500/20 text-amber-500 border border-amber-500/30 shrink-0")
 
-                            # Editable Inputs: Attempt Dropdown & Score Field
-                            with ui.row().classes("items-center gap-2 shrink-0"):
-                                round_opts = {"1": "الدور الأول", "2": "الدور الثاني", "3": "الدور الثالث", "0": "عبور / تحميل"}
+                            # Editable Inputs: Attempt Dropdown & Score Field stacked vertically
+                            with ui.column().classes("items-end gap-2 shrink-0 w-28"):
+                                round_opts = {"1": "الدور الأول", "2": "الدور الثاني", "3": "الدور الثالث", "0": "عبور/تحميل"}
                                 
                                 # Inline save callback creator
                                 def make_updater(cur_eid):
@@ -838,17 +840,17 @@ class StudentProfileView:
 
                                 save_cb = make_updater(enr_id)
 
-                                r_select = ui.select(
-                                    options=round_opts,
-                                    value=pr,
-                                    on_change=save_cb
-                                ).props("dense outlined").style("width: 110px !important;").classes("text-xs shrink-0 app-input rounded-lg")
-
                                 s_field = ui.number(
                                     value=int(raw_score) if raw_score.is_integer() else raw_score,
                                     min=0, max=100, step=1,
                                     on_change=save_cb
-                                ).props('dense outlined input-class="text-center font-bold text-sm"').style("width: 70px !important;").classes("text-xs shrink-0 app-input rounded-lg")
+                                ).props('dense outlined input-class="text-center font-bold text-sm"').classes("w-full text-xs app-input rounded-lg")
+
+                                r_select = ui.select(
+                                    options=round_opts,
+                                    value=pr,
+                                    on_change=save_cb
+                                ).props("dense outlined").classes("w-full text-xs app-input rounded-lg")
             else:
                 ui.label("لا توجد مواد / No courses").classes("text-sm app-text-muted italic text-center py-2 w-full")
 

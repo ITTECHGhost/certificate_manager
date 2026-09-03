@@ -615,14 +615,6 @@ class SettingsScreen:
             size_val = int((self.font_size_input.value if self.font_size_input else None) or 14)
             rtl_val = 1 if (self.rtl_switch.value if self.rtl_switch else True) else 0
 
-            dark_mode = ui.dark_mode()
-            if theme_val == "Dark":
-                dark_mode.enable()
-            elif theme_val == "Light":
-                dark_mode.disable()
-            else:
-                dark_mode.auto()
-
             from nicegui_ui.ui_theme import set_rtl
             set_rtl(bool(rtl_val))
 
@@ -647,14 +639,12 @@ class SettingsScreen:
                 is_arabic_rtl=rtl_val
             )
 
-            dark_val = getattr(dark_mode, 'value', None)
             log_state("THEME_SAVE", {
                 "target_value": theme_val,
                 "accent_color": accent_val,
                 "font_family": font_val,
                 "font_size_base": size_val,
                 "app_session_preferences": dict(self.session.preferences),
-                "ui_dark_mode_value": dark_val,
                 "mysql_update_result": mysql_result
             })
 

@@ -432,7 +432,11 @@ def build_certificate_context(data: dict, options: dict) -> dict:
     # 3. Study Type display formatting
     stype_raw = str(data.get("study_type") or "").strip().lower()
     if "even" in stype_raw or "مساء" in stype_raw or "night" in stype_raw:
-        study_type_disp = "Evening" if is_english else "الم�    # 4. Consolidate course history according to Rules A (Annual) & B (Semester)
+        study_type_disp = "Evening" if is_english else "المسائية"
+    else:
+        study_type_disp = "Morning" if is_english else "الصباحية"
+
+    # 4. Consolidate course history according to Rules A (Annual) & B (Semester)
     grouping_mode = str(options.get("grouping_mode") or data.get("grouping_mode") or "DEFAULT").upper()
     if "SEMESTER" in grouping_mode:
         is_annual = False
@@ -603,10 +607,6 @@ def build_certificate_context(data: dict, options: dict) -> dict:
                 "stage": stg_num_right_str,
                 "stage_num": stg_num_right_str,
                 "stage_num_l": stg_num_left_str,
-                "stage_num_r": stg_num_right_str,
-                "stage_text": stg_text_right,
-                "stage_name": stg_text_right,
-            })g_num_left_str,
                 "stage_num_r": stg_num_right_str,
                 "stage_text": stg_text_right,
                 "stage_name": stg_text_right,

@@ -158,7 +158,15 @@ QUICK_ACTIONS: list[dict] = [
 def set_dark_mode(enable: bool, dark_inst=None) -> None:
     """Enables or disables dark mode for Quasar."""
     from nicegui import ui
-    dark = dark_inst or ui.dark_mode()
+    
+    # Persist the instance on the client to prevent Python garbage collection from destroying it on the frontend
+    if dark_inst:
+        dark = dark_inst
+    else:
+        if not getattr(ui.context.client, '_theme_dark_mode', None):
+            setattr(ui.context.client, '_theme_dark_mode', ui.dark_mode())
+        dark = getattr(ui.context.client, '_theme_dark_mode')
+
     if enable:
         dark.enable()
         ui.run_javascript("document.body.classList.add('dark', 'body--dark'); document.documentElement.classList.add('dark', 'body--dark');")
