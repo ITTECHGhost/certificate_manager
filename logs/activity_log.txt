@@ -733,3 +733,5 @@
 2026-09-02 10:43:28 [INFO] تم تحديث المظهر للمستخدم ID: 1
 2026-09-02 10:43:39 [INFO] تم تحديث المظهر للمستخدم ID: 1
 2026-09-02 10:43:47 [INFO] تم تحديث المظهر للمستخدم ID: 1
+2026-09-03 11:39:00 [INFO] Login attempt initiated for username: '1'
+2026-09-03 11:39:01 [OK] Authentication verified via MySQL Stored Procedure 'AuthenticateUser' for user '1' (ID: 1, Role: admin)
