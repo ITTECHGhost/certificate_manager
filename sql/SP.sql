@@ -175,11 +175,17 @@ DELIMITER ;
 -- --------------------------------------------------------
 DELIMITER //
 DROP PROCEDURE IF EXISTS `DeleteStudyRoutine` //
-CREATE DEFINER=`root`@`localhost` PROCEDURE `DeleteStudyRoutine`(
-    IN p_id INT
+CREATE DEFINER=`root`@`localhost` PROCEDURE `DeleteStudyRoutine`(
+    IN p_id INT
 )
-BEGIN
-        DELETE FROM study_routines WHERE id = p_id;
+BEGIN
+    DELETE src FROM study_routine_courses src
+    JOIN study_routine_period srp ON src.period_id = srp.id
+    WHERE srp.routine_id = p_id;
+
+    DELETE FROM study_routine_period WHERE routine_id = p_id;
+
+    DELETE FROM study_routines WHERE id = p_id;
 END //
 DELIMITER ;
 
@@ -1218,6 +1224,26 @@ BEGIN
     LEFT JOIN study_systems ss ON sr.study_system_id = ss.id
     WHERE sr.id = p_id
     LIMIT 1;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `GetStudyRoutineById`(
+    IN p_id INT
+)
+BEGIN
+    SELECT 
+        sr.id,
+        COALESCE(sr.name_ar, '') AS name_ar,
+        COALESCE(sr.name_en, '') AS name_en,
+        COALESCE(sr.department_id, 1) AS department_id,
+        COALESCE(sr.study_system_id, 1) AS study_system_id,
+        COALESCE(sr.stage_number, 1) AS stage_number,
+        COALESCE(sr.semester_num, 1) AS semester_num,
+        sr.created_at,
+        COALESCE(d.name_ar, '') AS department_name_ar,
+        COALESCE(ss.name_ar, '') AS study_system_name_ar
+    FROM study_routines sr
+    LEFT JOIN departments d ON sr.department_id = d.id
+    LEFT JOIN study_systems ss ON sr.study_system_id = ss.id
+    WHERE sr.id = p_id
+    LIMIT 1;
 END //
 DELIMITER ;
 
@@ -1226,21 +1252,25 @@ DELIMITER ;
 -- --------------------------------------------------------
 DELIMITER //
 DROP PROCEDURE IF EXISTS `GetStudyRoutineCourses` //
-CREATE DEFINER=`root`@`localhost` PROCEDURE `GetStudyRoutineCourses`(
-    IN p_routine_id INT
+CREATE DEFINER=`root`@`localhost` PROCEDURE `GetStudyRoutineCourses`(
+    IN p_routine_id INT
 )
-BEGIN
-    SELECT 
-        src.id AS mapping_id,
-        src.routine_id,
-        src.course_id,
-        COALESCE(c.name_ar, '') AS course_name_ar,
-        COALESCE(c.name_en, '') AS course_name_en,
-        COALESCE(c.credit_hours, 0) AS credit_hours
-    FROM study_routine_courses src
-    JOIN courses c ON src.course_id = c.id
-    WHERE src.routine_id = p_routine_id
-    ORDER BY c.name_ar ASC;
+BEGIN
+    SELECT 
+        src.id AS mapping_id,
+        srp.routine_id,
+        src.period_id,
+        src.course_id,
+        COALESCE(c.name_ar, '') AS course_name_ar,
+        COALESCE(c.name_en, '') AS course_name_en,
+        COALESCE(c.credit_hours, 0) AS credit_hours,
+        COALESCE(srp.stage_number, c.stage_number, 1) AS stage_number,
+        COALESCE(srp.semester_num, c.semester_num, 1) AS semester_num
+    FROM study_routine_courses src
+    JOIN courses c ON src.course_id = c.id
+    JOIN study_routine_period srp ON src.period_id = srp.id
+    WHERE srp.routine_id = p_routine_id
+    ORDER BY srp.stage_number ASC, srp.semester_num ASC, c.name_ar ASC;
 END //
 DELIMITER ;
 
@@ -3492,6 +3522,49 @@ BEGIN
 
     
 
+END //
+DELIMITER ;
+
+-- --------------------------------------------------------
+-- Stored Procedure `UpdateStudyRoutine`
+-- --------------------------------------------------------
+DELIMITER //
+DROP PROCEDURE IF EXISTS `UpdateStudyRoutine` //
+CREATE DEFINER=`root`@`localhost` PROCEDURE `UpdateStudyRoutine`(
+    IN p_id INT,
+    IN p_name_ar VARCHAR(150),
+    IN p_name_en VARCHAR(150),
+    IN p_department_id INT,
+    IN p_study_system_id INT
+)
+BEGIN
+    DECLARE v_duplicate_count INT DEFAULT 0;
+    
+    -- Clean inputs to prevent whitespace duplication bypassing the check
+    SET p_name_ar = TRIM(p_name_ar);
+    SET p_name_en = TRIM(p_name_en);
+
+    -- Check if another routine has the exact same constraints
+    SELECT COUNT(*) INTO v_duplicate_count
+    FROM study_routines
+    WHERE name_ar = p_name_ar 
+      AND department_id = p_department_id 
+      AND study_system_id = p_study_system_id
+      AND id != p_id; -- Ignore the current routine being edited
+
+    IF v_duplicate_count > 0 THEN
+        -- Throw a clear database exception if a duplicate is found
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'Duplicate entry: A routine with this name already exists in this department and study system.';
+    ELSE
+        -- Safe to update
+        UPDATE study_routines SET 
+            name_ar = COALESCE(p_name_ar, name_ar),
+            name_en = COALESCE(p_name_en, name_en),
+            department_id = COALESCE(p_department_id, department_id),
+            study_system_id = COALESCE(p_study_system_id, study_system_id)
+        WHERE id = p_id;
+    END IF;
 END //
 DELIMITER ;
 

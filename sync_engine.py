@@ -366,9 +366,27 @@ def init_local_db() -> None:
                 id              INTEGER PRIMARY KEY AUTOINCREMENT,
                 routine_id      INTEGER NOT NULL,
                 course_id       INTEGER NOT NULL,
+                period_id       INTEGER DEFAULT 0,
                 UNIQUE(routine_id, course_id)
             )
         """)
+
+        cur.execute("""
+            CREATE TABLE IF NOT EXISTS study_routine_period (
+                id              INTEGER PRIMARY KEY AUTOINCREMENT,
+                routine_id      INTEGER NOT NULL,
+                stage_number    INTEGER NOT NULL DEFAULT 1,
+                semester_num    INTEGER NOT NULL DEFAULT 1
+            )
+        """)
+
+        try:
+            cur.execute("PRAGMA table_info(study_routine_courses)")
+            src_cols = [r[1] for r in cur.fetchall()]
+            if "period_id" not in src_cols:
+                cur.execute("ALTER TABLE study_routine_courses ADD COLUMN period_id INTEGER DEFAULT 0")
+        except Exception:
+            pass
 
         # -- Replica tables: full read-only mirrors of MySQL tables ----------
         # These are populated by pull_mysql_to_sqlite() whenever the app
@@ -675,6 +693,7 @@ _REPLICA_TABLES: list[tuple[str, str]] = [
     ("thesis_records",      "SELECT * FROM thesis_records"),
     ("issued_certificates", "SELECT * FROM issued_certificates"),
     ("study_routines",      "SELECT * FROM study_routines"),
+    ("study_routine_period", "SELECT * FROM study_routine_period"),
     ("study_routine_courses", "SELECT * FROM study_routine_courses"),
 ]
 

@@ -1,8 +1,9 @@
 import logging
 from nicegui import ui
 from nicegui_ui.ui_components import UI
-from data.repositories import CourseRepository, DepartmentRepository, StudyRoutineRepository, OfflineModeError
+from data.repositories import CourseRepository, DepartmentRepository, StudyRoutineRepository, StudySystemRepository, OfflineModeError
 from nicegui_screens.graduation_orders_screen import extract_event_value
+from nicegui_screens.study_routines_screen import StudyRoutinesController
 
 log = logging.getLogger(__name__)
 
@@ -113,28 +114,10 @@ class CoursesScreen:
                         content_view()
                         self._refresh_content = content_view
 
-                # Panel 2: Predefined Study Routines
+                # Panel 2: Predefined Study Routines (Master-Detail View)
                 with ui.tab_panel("routines").classes("w-full h-full p-0 gap-6 flex-col"):
-                    with UI.card().classes("flex-1 gap-6 p-6 overflow-hidden flex-col w-full h-full"):
-                        with ui.row().classes("w-full justify-between items-center pb-4 border-b border-[var(--border-default)] app-card-header shrink-0"):
-                            with ui.row().classes("items-center gap-3"):
-                                ui.icon("playlist_add_check", size="md").classes("app-text-accent")
-                                with ui.column().classes("gap-0"):
-                                    ui.label("الروتينات والخِطط الدراسية — Predefined Study Routines").classes("text-xl font-bold app-text-primary")
-                                    ui.label("إنشاء وتجهيز حُزم المواد لكل قسم ومرحلة وفصل دراسي لربطها للطلاب تلقائياً").classes("text-xs app-text-muted")
-
-                            UI.success_button(
-                                "+ إضافة روتين جديد / Add Routine",
-                                icon="add",
-                                on_click=lambda: self.show_routine_edit_dialog()
-                            ).classes("text-sm px-5 py-2.5 shrink-0")
-
-                        @ui.refreshable
-                        def routines_view():
-                            self._build_routines_list()
-
-                        routines_view()
-                        self._refresh_routines = routines_view
+                    ctrl = StudyRoutinesController(standalone=False)
+                    ctrl.render_master_detail_view()
 
     def _render_content(self):
         if hasattr(self, "_refresh_content"):

@@ -662,6 +662,35 @@ def build_certificate_context(data: dict, options: dict) -> dict:
         else:
             title_val = raw_title
 
+    from cert_repository import extract_failed_years, extract_attempts
+    raw_timeline = data.get("academic_timeline") or data.get("periods") or []
+    failed_years = extract_failed_years(raw_timeline, is_english=is_english)
+
+    user_postpone_text = (options.get("postpone_years") or "").strip()
+    if not failed_years and user_postpone_text:
+        failed_years = [{
+            "year_d": user_postpone_text,
+            "stage": "",
+            "state": "",
+            "year": user_postpone_text,
+            "status": "",
+            "academic_year": user_postpone_text
+        }]
+
+    raw_courses = data.get("courses_grouped") or data.get("courses") or []
+    attempts = extract_attempts(raw_courses, is_english=is_english)
+
+    user_second_text = (options.get("second_trial_subjects") or second_subjects or "").strip()
+    if not attempts and user_second_text:
+        attempts = [{
+            "year": "",
+            "stage": "",
+            "subjects": user_second_text,
+            "year_d": "",
+            "stage_text": "",
+            "academic_year": ""
+        }]
+
     ctx = {
         "Title": title_val,
         "to_title": title_val,
@@ -679,7 +708,13 @@ def build_certificate_context(data: dict, options: dict) -> dict:
         "Grade": grade,
         "sequence_ON": bool(options.get("opt_rank")),
         "Failure_ON": bool(options.get("opt_postpone")),
+        "failure_on": bool(options.get("opt_postpone")),
+        "FAILURE_ON": bool(options.get("opt_postpone")),
+        "failed_years": failed_years,
         "Passed_ON": bool(options.get("opt_second_trial")),
+        "passed_on": bool(options.get("opt_second_trial")),
+        "PASSED_ON": bool(options.get("opt_second_trial")),
+        "attempts": attempts,
         "Summer_ON": bool(options.get("opt_summer")),
         "Sequence_of_Graduation": to_arabic_num(seq_val, is_english),
         "num_students": to_arabic_num(num_stds, is_english),
@@ -1250,6 +1285,21 @@ class CertificateScreen:
         else:
             self.inp_second_subjects.value = ""
             self.sw_second.value = False
+
+        # ── Auto Extract Postponed & Failed Years ──
+        timeline = data.get("academic_timeline") or data.get("periods") or []
+        from cert_repository import extract_failed_years
+        failed_years_list = extract_failed_years(timeline, is_english=False)
+        if failed_years_list:
+            postpone_strs = []
+            for y in failed_years_list:
+                st_state = y.get("state") or "تأجيل"
+                postpone_strs.append(f"السنة {y.get('year_d')} / المرحلة {y.get('stage')} (سنة {st_state})")
+            self.inp_postpone_years.value = "؛ ".join(postpone_strs)
+            self.sw_postpone.value = True
+        else:
+            self.inp_postpone_years.value = ""
+            self.sw_postpone.value = False
 
         # Summer training year display (first checks student's saved summer_training_data, fallback to graduation_year - 1)
         summer_val = data.get("summer_training_data") or data.get("summer_training")

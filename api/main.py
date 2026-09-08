@@ -1319,14 +1319,17 @@ def insert_enrollment(payload: EnrollmentPayload, conn = Depends(get_db)):
         cur.close()
 
 @app.put("/enrollments/{enrollment_id}")
+@app.put("/api/enrollments/{enrollment_id}")
 def update_enrollment(enrollment_id: int, score: float, is_second: int, conn = Depends(get_db)):
     cur = conn.cursor()
     try:
-        val = is_second
+        val = int(is_second)
         if val == 2:
             passed_round = '2'
         elif val == 3:
             passed_round = '3'
+        elif val == 0:
+            passed_round = '0'
         else:
             passed_round = '1'
         query = "UPDATE enrollments SET score=%s, passed_round=%s WHERE id=%s"
@@ -1597,40 +1600,12 @@ def clear_audit_logs(conn = Depends(get_db)):
 # --- CERTIFICATES ENDPOINTS ---
 @app.get("/certificates/{student_id}")
 def get_certificate_data(student_id: int, grouping_mode: str = "DEFAULT", conn = Depends(get_db)):
-    cur = conn.cursor(dictionary=True)
     try:
-        cur.callproc("sp_GetFullCertificateData", (student_id, grouping_mode))
-        datasets = []
-        if hasattr(cur, "stored_results"):
-            for result in cur.stored_results():
-                datasets.append(result.fetchall())
-        try:
-            while cur.nextset():
-                pass
-        except Exception:
-            pass
-        
-        # sp_GetFullCertificateData order:
-        # 0: UniversitySettings
-        # 1: StudentInfo
-        # 2: Ranking
-        # 3: Signers
-        # 4: AcademicTimeline
-        # 5: AcademicCourses
-        
-        response_data = {
-            "settings": datasets[0] if len(datasets) > 0 else [],
-            "student_info": datasets[1] if len(datasets) > 1 else [],
-            "ranking": datasets[2] if len(datasets) > 2 else [],
-            "signers": datasets[3] if len(datasets) > 3 else [],
-            "academic_timeline": datasets[4] if len(datasets) > 4 else [],
-            "courses_grouped": datasets[5] if len(datasets) > 5 else [],
-        }
-        return decode_db_value(response_data)
+        from cert_repository import get_certificate_payload
+        payload = get_certificate_payload(student_id=student_id, grouping_mode=grouping_mode)
+        return decode_db_value(payload)
     except Exception as exc:
         raise HTTPException(status_code=500, detail=str(exc))
-    finally:
-        cur.close()
 
 
 class AcademicFlatRecord(BaseModel):
@@ -1654,7 +1629,10 @@ class AcademicFlatRecord(BaseModel):
 def get_flat_yearly_certificate_courses(student_id: int, conn = Depends(get_db)):
     cur = conn.cursor(dictionary=True)
     try:
-        cur.callproc("sp_GetCertificate_Yearly_ByAcademicDefualte", (student_id,))
+        try:
+            cur.callproc("sp_GetCertificate_Yearly_ByAcademicDefualte", (student_id,))
+        except Exception:
+            cur.callproc("sp_GetCertificate_Courses_Yearly_ByAcademicDefualte", (student_id,))
         rows = []
         if hasattr(cur, "stored_results"):
             for result in cur.stored_results():
@@ -2032,8 +2010,6 @@ def insert_study_routine(payload: StudyRoutinePayload, conn = Depends(get_db)):
                 payload.name_en,
                 payload.department_id,
                 payload.study_system_id or 1,
-                payload.stage_number or 1,
-                payload.semester_num or 1,
             )
         )
         real_id = None
@@ -2070,6 +2046,7 @@ def insert_study_routine(payload: StudyRoutinePayload, conn = Depends(get_db)):
 
 
 @app.put("/api/study-routines/{routine_id}")
+@app.put("/study-routines/{routine_id}")
 def update_study_routine(routine_id: int, payload: StudyRoutinePayload, conn = Depends(get_db)):
     cur = conn.cursor(dictionary=True)
     try:
@@ -2081,8 +2058,6 @@ def update_study_routine(routine_id: int, payload: StudyRoutinePayload, conn = D
                 payload.name_en,
                 payload.department_id,
                 payload.study_system_id or 1,
-                payload.stage_number or 1,
-                payload.semester_num or 1,
             )
         )
         try:
@@ -2091,15 +2066,24 @@ def update_study_routine(routine_id: int, payload: StudyRoutinePayload, conn = D
         except Exception:
             pass
         conn.commit()
-        return {"status": "success"}
+        return {"status": "success", "message": "Study routine updated successfully"}
+    except HTTPException:
+        raise
     except Exception as exc:
         conn.rollback()
-        raise HTTPException(status_code=500, detail=str(exc))
+        err_msg = str(exc)
+        if "Duplicate entry" in err_msg or "45000" in err_msg:
+            raise HTTPException(
+                status_code=400,
+                detail="Duplicate entry: A routine with this name already exists in this department and study system."
+            )
+        raise HTTPException(status_code=500, detail=err_msg)
     finally:
         cur.close()
 
 
 @app.delete("/api/study-routines/{routine_id}")
+@app.delete("/study-routines/{routine_id}")
 def delete_study_routine(routine_id: int, conn = Depends(get_db)):
     cur = conn.cursor(dictionary=True)
     try:
@@ -2152,6 +2136,148 @@ def delete_study_routine_course(routine_id: int, course_id: int, conn = Depends(
     cur = conn.cursor(dictionary=True)
     try:
         cur.callproc("DeleteStudyRoutineCourse", (routine_id, course_id))
+        try:
+            while cur.nextset():
+                pass
+        except Exception:
+            pass
+        conn.commit()
+        return {"status": "success"}
+    except Exception as exc:
+        conn.rollback()
+        raise HTTPException(status_code=500, detail=str(exc))
+    finally:
+        cur.close()
+
+
+class RoutinePeriodPayload(BaseModel):
+    routine_id: int
+    stage_number: int
+    semester_num: Optional[int] = 1
+
+
+class RoutinePeriodCoursePayload(BaseModel):
+    period_id: int
+    course_id: int
+
+
+@app.get("/api/study-routine-periods/{routine_id}")
+def get_study_routine_periods(routine_id: int, conn = Depends(get_db)):
+    try:
+        return execute_sp_fetchall(conn, "GetStudyRoutinePeriods", (routine_id,))
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=str(exc))
+
+
+@app.post("/api/study-routine-periods")
+def insert_study_routine_period(payload: RoutinePeriodPayload, conn = Depends(get_db)):
+    cur = conn.cursor(dictionary=True)
+    try:
+        cur.callproc(
+            "InsertStudyRoutinePeriod",
+            (payload.routine_id, payload.stage_number, payload.semester_num or 1)
+        )
+        real_id = None
+        if hasattr(cur, "stored_results"):
+            for result in cur.stored_results():
+                row = result.fetchone()
+                if row:
+                    real_id = row.get("new_id") or row.get("inserted_id") or row.get("id")
+                    break
+        try:
+            while cur.nextset():
+                pass
+        except Exception:
+            pass
+
+        if real_id is None:
+            cur.execute("SELECT LAST_INSERT_ID() AS new_id")
+            r = cur.fetchone()
+            if r:
+                real_id = r.get("new_id")
+
+        conn.commit()
+        return {"new_id": real_id, "inserted_id": real_id, "status": "success"}
+    except Exception as exc:
+        conn.rollback()
+        raise HTTPException(status_code=500, detail=str(exc))
+    finally:
+        cur.close()
+
+
+@app.put("/api/study-routine-periods/{period_id}")
+def update_study_routine_period(period_id: int, payload: RoutinePeriodPayload, conn = Depends(get_db)):
+    cur = conn.cursor(dictionary=True)
+    try:
+        cur.callproc(
+            "UpdateStudyRoutinePeriod",
+            (period_id, payload.stage_number, payload.semester_num or 1)
+        )
+        try:
+            while cur.nextset():
+                pass
+        except Exception:
+            pass
+        conn.commit()
+        return {"status": "success"}
+    except Exception as exc:
+        conn.rollback()
+        raise HTTPException(status_code=500, detail=str(exc))
+    finally:
+        cur.close()
+
+
+@app.delete("/api/study-routine-periods/{period_id}")
+def delete_study_routine_period(period_id: int, conn = Depends(get_db)):
+    cur = conn.cursor(dictionary=True)
+    try:
+        cur.callproc("DeleteStudyRoutinePeriod", (period_id,))
+        try:
+            while cur.nextset():
+                pass
+        except Exception:
+            pass
+        conn.commit()
+        return {"status": "success"}
+    except Exception as exc:
+        conn.rollback()
+        raise HTTPException(status_code=500, detail=str(exc))
+    finally:
+        cur.close()
+
+
+@app.get("/api/study-routine-period-courses/{period_id}")
+def get_study_routine_period_courses(period_id: int, conn = Depends(get_db)):
+    try:
+        return execute_sp_fetchall(conn, "GetStudyRoutinePeriodCourses", (period_id,))
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=str(exc))
+
+
+@app.post("/api/study-routine-period-courses")
+def insert_study_routine_period_course(payload: RoutinePeriodCoursePayload, conn = Depends(get_db)):
+    cur = conn.cursor(dictionary=True)
+    try:
+        cur.callproc("InsertStudyRoutinePeriodCourse", (payload.period_id, payload.course_id))
+        try:
+            while cur.nextset():
+                pass
+        except Exception:
+            pass
+        conn.commit()
+        return {"status": "success"}
+    except Exception as exc:
+        conn.rollback()
+        raise HTTPException(status_code=500, detail=str(exc))
+    finally:
+        cur.close()
+
+
+@app.delete("/api/study-routine-period-courses/{period_id}/{course_id}")
+def delete_study_routine_period_course(period_id: int, course_id: int, conn = Depends(get_db)):
+    cur = conn.cursor(dictionary=True)
+    try:
+        cur.callproc("DeleteStudyRoutinePeriodCourse", (period_id, course_id))
         try:
             while cur.nextset():
                 pass
@@ -2594,6 +2720,83 @@ def delete_issued_certificate(cert_id: int):
                 conn.close()
             except Exception:
                 pass
+
+
+# ---------------------------------------------------------------------------
+# Study Routines Endpoints
+# ---------------------------------------------------------------------------
+
+@app.get("/study-routines")
+def get_study_routines(conn = Depends(get_db)):
+    """Fetch all predefined study routines with department info."""
+    cur = conn.cursor(dictionary=True)
+    try:
+        cur.execute("""
+            SELECT sr.*, d.name_ar AS dept_name_ar, d.name_en AS dept_name_en,
+                   ss.name_ar AS system_name_ar, ss.name_en AS system_name_en
+            FROM study_routines sr
+            LEFT JOIN departments d ON sr.department_id = d.id
+            LEFT JOIN study_systems ss ON sr.study_system_id = ss.id
+            ORDER BY sr.id DESC
+        """)
+        routines = cur.fetchall() or []
+        return routines
+    except Exception as exc:
+        logger.error(f"Error fetching study routines: {exc}")
+        return []
+    finally:
+        cur.close()
+
+
+@app.get("/study-routines/{routine_id}")
+def get_study_routine_by_id(routine_id: int, conn = Depends(get_db)):
+    """Fetch a single study routine by ID."""
+    cur = conn.cursor(dictionary=True)
+    try:
+        cur.execute("""
+            SELECT sr.*, d.name_ar AS dept_name_ar, d.name_en AS dept_name_en,
+                   ss.name_ar AS system_name_ar, ss.name_en AS system_name_en
+            FROM study_routines sr
+            LEFT JOIN departments d ON sr.department_id = d.id
+            LEFT JOIN study_systems ss ON sr.study_system_id = ss.id
+            WHERE sr.id = %s
+        """, (routine_id,))
+        row = cur.fetchone()
+        if not row:
+            raise HTTPException(status_code=404, detail="Study routine not found")
+        return row
+    except HTTPException:
+        raise
+    except Exception as exc:
+        logger.error(f"Error fetching study routine {routine_id}: {exc}")
+        raise HTTPException(status_code=500, detail=str(exc))
+    finally:
+        cur.close()
+
+
+@app.get("/study-routine-courses/{routine_id}")
+def get_study_routine_courses_endpoint(routine_id: int, conn = Depends(get_db)):
+    """Fetch all courses assigned to a study routine across its periods."""
+    cur = conn.cursor(dictionary=True)
+    try:
+        cur.execute("""
+            SELECT c.id, c.name_ar, c.name_en, c.credit_hours,
+                   COALESCE(srp.stage_number, c.stage_number, 1) AS stage_number,
+                   COALESCE(srp.semester_num, c.semester_num, 1) AS semester_num,
+                   src.period_id
+            FROM study_routine_courses src
+            JOIN courses c ON src.course_id = c.id
+            JOIN study_routine_period srp ON src.period_id = srp.id
+            WHERE srp.routine_id = %s
+            ORDER BY stage_number ASC, semester_num ASC, c.name_ar ASC
+        """, (routine_id,))
+        courses = cur.fetchall() or []
+        return courses
+    except Exception as exc:
+        logger.error(f"Error fetching routine courses for {routine_id}: {exc}")
+        return []
+    finally:
+        cur.close()
 
 
 if __name__ == "__main__":

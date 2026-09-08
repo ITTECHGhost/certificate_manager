@@ -1396,3 +1396,63 @@ body:not(.body--dark) .q-field__input {
   margin-right: 6px !important;
   margin-left: 6px !important;
 }
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   9. QUASAR DIALOG & POPUP MENU DARK MODE FIXES
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+body.body--dark .q-dialog .q-card,
+.body--dark .q-dialog .q-card,
+.dark .q-dialog .q-card {
+    background-color: #1e293b !important;
+    border-color: #334155 !important;
+    color: #f8fafc !important;
+}
+
+body.body--dark .q-dialog .q-card .text-slate-800,
+.body--dark .q-dialog .q-card .text-slate-800,
+.dark .q-dialog .q-card .text-slate-800 {
+    color: #f8fafc !important;
+}
+
+body.body--dark .q-dialog .q-field__native,
+body.body--dark .q-dialog .q-field__input,
+body.body--dark .q-dialog .q-field__label,
+body.body--dark .q-dialog .q-item__label,
+.body--dark .q-dialog .q-field__native,
+.body--dark .q-dialog .q-field__input,
+.body--dark .q-dialog .q-field__label,
+.body--dark .q-dialog .q-item__label {
+    color: #f8fafc !important;
+}
+
+body.body--dark .q-dialog .q-field--outlined .q-field__control,
+.body--dark .q-dialog .q-field--outlined .q-field__control {
+    border-color: #334155 !important;
+    background-color: #0f172a !important;
+}
+
+body.body--dark .q-menu,
+.body--dark .q-menu,
+body.body--dark .q-option-group,
+.body--dark .q-option-group,
+.body--dark .q-select__dialog {
+    background-color: #1e293b !important;
+    color: #f8fafc !important;
+    border: 1px solid #334155 !important;
+}
+
+body.body--dark .q-menu .q-item,
+.body--dark .q-menu .q-item,
+body.body--dark .q-select__dialog .q-item,
+.body--dark .q-select__dialog .q-item {
+    color: #f8fafc !important;
+}
+
+body.body--dark .q-menu .q-item--active,
+body.body--dark .q-menu .q-item:hover,
+.body--dark .q-menu .q-item--active,
+.body--dark .q-menu .q-item:hover {
+    background-color: #334155 !important;
+    color: #38bdf8 !important;
+}

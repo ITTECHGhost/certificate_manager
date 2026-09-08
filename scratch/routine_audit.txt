@@ -1,0 +1,23 @@
+STUDY ROUTINE AUDIT REPORT
+Live DB Routine SPs: ['DeleteStudyRoutine', 'DeleteStudyRoutineCourse', 'DeleteStudyRoutinePeriod', 'DeleteStudyRoutinePeriodCourse', 'GetAllStudyRoutines', 'GetStudyRoutineById', 'GetStudyRoutineCourses', 'GetStudyRoutinePeriodCourses', 'GetStudyRoutinePeriods', 'InsertStudyRoutine', 'InsertStudyRoutineCourse', 'InsertStudyRoutinePeriod', 'InsertStudyRoutinePeriodCourse', 'UpdateStudyRoutine', 'UpdateStudyRoutinePeriod']
+Repo Routine SP Calls: ['GetAllStudyRoutines', 'GetStudyRoutineCourses', 'InsertStudyRoutine', 'UpdateStudyRoutine', 'InsertStudyRoutineCourse', 'GetStudyRoutinePeriods', 'GetStudyRoutinePeriodCourses', 'InsertStudyRoutinePeriod', 'InsertStudyRoutinePeriodCourse', 'DeleteStudyRoutinePeriod', 'DeleteStudyRoutinePeriodCourse']
+API Routine SP Calls: ['DeleteStudyRoutine', 'InsertStudyRoutineCourse', 'DeleteStudyRoutineCourse', 'DeleteStudyRoutinePeriod', 'InsertStudyRoutinePeriodCourse', 'DeleteStudyRoutinePeriodCourse']
+API Endpoints:
+Line 2006: @app.get("/api/study-routines")
+Line 2014: @app.get("/api/study-routines/{routine_id}")
+Line 2027: @app.post("/api/study-routines")
+Line 2075: @app.put("/api/study-routines/{routine_id}")
+Line 2105: @app.delete("/api/study-routines/{routine_id}")
+Line 2126: @app.get("/api/study-routine-courses/{routine_id}")
+Line 2134: @app.post("/api/study-routine-courses")
+Line 2153: @app.delete("/api/study-routine-courses/{routine_id}/{course_id}")
+Line 2183: @app.get("/api/study-routine-periods/{routine_id}")
+Line 2191: @app.post("/api/study-routine-periods")
+Line 2227: @app.put("/api/study-routine-periods/{period_id}")
+Line 2249: @app.delete("/api/study-routine-periods/{period_id}")
+Line 2268: @app.get("/api/study-routine-period-courses/{period_id}")
+Line 2276: @app.post("/api/study-routine-period-courses")
+Line 2295: @app.delete("/api/study-routine-period-courses/{period_id}/{course_id}")
+Line 2748: @app.get("/study-routines")
+Line 2770: @app.get("/study-routines/{routine_id}")
+Line 2796: @app.get("/study-routine-courses/{routine_id}")

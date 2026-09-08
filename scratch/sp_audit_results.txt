@@ -1,0 +1,117 @@
+================================================================================
+STORED PROCEDURE AUDIT REPORT
+================================================================================
+Total unique SPs referenced in Python code: 52
+Total SPs existing in Live MySQL DB: 98
+Total SPs defined in sql/SP.sql: 98
+
+--- 1. SPs USED IN CODE BUT MISSING IN LIVE DB (1) ---
+  [MISSING IN DB] sp_GetCertificate_Yearly_ByAcademicDefualte
+     at .\api\main.py:1658
+     at .\certificate_manager_api\main.py:1657
+
+--- 2. SPs USED IN CODE BUT MISSING IN sql/SP.sql (1) ---
+  [MISSING IN FILE] sp_GetCertificate_Courses_Yearly_ByAcademicDefualte
+
+--- 3. ALL SPs USED IN CODE (52) ---
+  - ClearAuditLogs: EXISTS in Live DB | EXISTS in sql/SP.sql
+  - DeleteDepartment: EXISTS in Live DB | EXISTS in sql/SP.sql
+  - DeleteGraduationOrder: EXISTS in Live DB | EXISTS in sql/SP.sql
+  - DeleteIssuedCertificate: EXISTS in Live DB | EXISTS in sql/SP.sql
+  - DeletePersonnel: EXISTS in Live DB | EXISTS in sql/SP.sql
+  - DeleteStudent: EXISTS in Live DB | EXISTS in sql/SP.sql
+  - DeleteStudentSupervisor: EXISTS in Live DB | EXISTS in sql/SP.sql
+  - DeleteStudyRoutine: EXISTS in Live DB | EXISTS in sql/SP.sql
+  - DeleteStudyRoutineCourse: EXISTS in Live DB | EXISTS in sql/SP.sql
+  - DeleteStudyRoutinePeriod: EXISTS in Live DB | EXISTS in sql/SP.sql
+  - DeleteStudyRoutinePeriodCourse: EXISTS in Live DB | EXISTS in sql/SP.sql
+  - DeleteStudySystem: EXISTS in Live DB | EXISTS in sql/SP.sql
+  - DeleteThesis: EXISTS in Live DB | EXISTS in sql/SP.sql
+  - GetAllStudyRoutines: EXISTS in Live DB | EXISTS in sql/SP.sql
+  - GetIssuedCertificateById: EXISTS in Live DB | EXISTS in sql/SP.sql
+  - GetIssuedCertificatesByStudent: EXISTS in Live DB | EXISTS in sql/SP.sql
+  - GetIssuedCertificatesReport: EXISTS in Live DB | EXISTS in sql/SP.sql
+  - GetStudyRoutineCourses: EXISTS in Live DB | EXISTS in sql/SP.sql
+  - GetStudyRoutinePeriodCourses: EXISTS in Live DB | EXISTS in sql/SP.sql
+  - GetStudyRoutinePeriods: EXISTS in Live DB | EXISTS in sql/SP.sql
+  - GetSupervisorsByStudent: EXISTS in Live DB | EXISTS in sql/SP.sql
+  - GetThesisByStudent: EXISTS in Live DB | EXISTS in sql/SP.sql
+  - Get_dashboard_counts: EXISTS in Live DB | EXISTS in sql/SP.sql
+  - InsertDepartment: EXISTS in Live DB | EXISTS in sql/SP.sql
+  - InsertGraduationOrder: EXISTS in Live DB | EXISTS in sql/SP.sql
+  - InsertIssuedCertificate: EXISTS in Live DB | EXISTS in sql/SP.sql
+  - InsertPersonnel: EXISTS in Live DB | EXISTS in sql/SP.sql
+  - InsertStudent: EXISTS in Live DB | EXISTS in sql/SP.sql
+  - InsertStudentSupervisor: EXISTS in Live DB | EXISTS in sql/SP.sql
+  - InsertStudyRoutine: EXISTS in Live DB | EXISTS in sql/SP.sql
+  - InsertStudyRoutineCourse: EXISTS in Live DB | EXISTS in sql/SP.sql
+  - InsertStudyRoutinePeriod: EXISTS in Live DB | EXISTS in sql/SP.sql
+  - InsertStudyRoutinePeriodCourse: EXISTS in Live DB | EXISTS in sql/SP.sql
+  - InsertStudySystem: EXISTS in Live DB | EXISTS in sql/SP.sql
+  - InsertThesis: EXISTS in Live DB | EXISTS in sql/SP.sql
+  - LinkStudentsToOrder: EXISTS in Live DB | EXISTS in sql/SP.sql
+  - UnlinkStudentFromOrder: EXISTS in Live DB | EXISTS in sql/SP.sql
+  - UpdateDepartment: EXISTS in Live DB | EXISTS in sql/SP.sql
+  - UpdateGraduationOrder: EXISTS in Live DB | EXISTS in sql/SP.sql
+  - UpdateIssuedCertificate: EXISTS in Live DB | EXISTS in sql/SP.sql
+  - UpdatePersonnel: EXISTS in Live DB | EXISTS in sql/SP.sql
+  - UpdateStudent: EXISTS in Live DB | EXISTS in sql/SP.sql
+  - UpdateStudentSupervisor: EXISTS in Live DB | EXISTS in sql/SP.sql
+  - UpdateStudyRoutine: EXISTS in Live DB | EXISTS in sql/SP.sql
+  - UpdateStudySystem: EXISTS in Live DB | EXISTS in sql/SP.sql
+  - UpdateThesis: EXISTS in Live DB | EXISTS in sql/SP.sql
+  - UpdateUserPreferences: EXISTS in Live DB | EXISTS in sql/SP.sql
+  - Update_User_Settings: EXISTS in Live DB | EXISTS in sql/SP.sql
+  - sp_GetCertificate_AcademicCourses: EXISTS in Live DB | EXISTS in sql/SP.sql
+  - sp_GetCertificate_Courses_Yearly_ByAcademicDefualte: EXISTS in Live DB | MISSING in sql/SP.sql
+  - sp_GetCertificate_Yearly_ByAcademicDefualte: MISSING in Live DB | EXISTS in sql/SP.sql
+  - sp_GetFullCertificateData: EXISTS in Live DB | EXISTS in sql/SP.sql
+
+--- 4. LIVE DB SPs NOT REFERENCED IN CODE (47) ---
+  - AuthenticateUser
+  - CountStudentsFiltered
+  - Create_Default_Settings
+  - GetAcademicPeriodsByStudent
+  - GetActivePersonnel
+  - GetActiveStudySystems
+  - GetAllCountries
+  - GetAllCourses
+  - GetAllDepartments
+  - GetAllGovernorates
+  - GetAllGraduationOrders
+  - GetAllIssuedCertificates
+  - GetAllPersonnel
+  - GetAllStudySystems
+  - GetCoursesByDepartment
+  - GetDepartmentByID
+  - GetEnrollmentsByPeriod
+  - GetFullCertificateData
+  - GetGraduationOrderByID
+  - GetPersonnelById
+  - GetStudentDossierByID
+  - GetStudentTranscriptByID
+  - GetStudentsByOrder
+  - GetStudentsPaginated
+  - GetStudyRoutineById
+  - GetStudySystemByID
+  - GetSystemSettings
+  - GetUserPreferences
+  - Get_User_Settings
+  - SearchStudentByName
+  - SearchStudentsBasic
+  - SearchStudentsPaginated
+  - UpdateStudyRoutinePeriod
+  - UpdateSystemSettings
+  - sp_GetCertificate_AcademicTimeline
+  - sp_GetCertificate_Courses_Semester_ByStage
+  - sp_GetCertificate_Courses_Semester_ByYear
+  - sp_GetCertificate_Courses_Yearly_ByAcademicYear
+  - sp_GetCertificate_Courses_Yearly_ByCurriculumStage
+  - sp_GetCertificate_Courses_Yearly_ByPeriodStage
+  - sp_GetCertificate_Ranking
+  - sp_GetCertificate_Signers
+  - sp_GetCertificate_StudentInfo
+  - sp_GetCertificate_UniversitySettings
+  - sp_GetCertificate_Yearly_ByAcademicYear
+  - sp_GetCertificate_Yearly_ByCurriculumStage
+  - sp_GetCertificate_Yearly_ByPeriodStage
