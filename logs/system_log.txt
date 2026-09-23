@@ -30621,3 +30621,876 @@ AttributeError: 'StudentRepository' object has no attribute 'get_all'
 2026-09-08 13:31:47 [INFO] loaded event fired
 2026-09-08 13:33:08 [INFO] Executing sp_GetFullCertificateData for student_id=2137, mode=DEFAULT...
 2026-09-08 13:33:08 [INFO] Executing sp_GetFullCertificateData for student_id=2137, mode=DEFAULT...
+2026-09-09 08:46:06 [INFO] SYSTEM STARTUP DIAGNOSTIC CHECK STARTED
+2026-09-09 08:46:08 [WARNING] [CHECK 1/4] FastAPI Connection Check ... [OFFLINE MODE]
+2026-09-09 08:46:08 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-09-09 08:46:08 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-09-09 08:46:08 [OK] [CHECK 2/4] SQLite Replica Database Connection ... [OK]
+2026-09-09 08:46:08 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-09-09 08:46:08 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-09-09 08:46:08 [OK] [CHECK 3/4] Authentication & Core SP Checks ... [OFFLINE MODE]
+2026-09-09 08:46:08 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-09-09 08:46:08 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-09-09 08:46:08 [OK] [CHECK 4/4] Sync Engine & Local Replica Check ... [OK]
+2026-09-09 08:46:08 [OK] Status: OFFLINE MODE ACTIVE. PROCEEDING TO LOGIN/DASHBOARD.
+2026-09-09 08:46:10 [INFO] Using WinForms / Chromium
+2026-09-09 08:46:10 [INFO] Using WinForms / Chromium
+2026-09-09 08:46:14 [INFO] before_load event fired. injecting pywebview object
+2026-09-09 08:46:14 [INFO] before_load event fired. injecting pywebview object
+2026-09-09 08:46:14 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-09-09 08:46:14 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-09-09 08:46:14 [INFO] _pywebviewready event fired
+2026-09-09 08:46:14 [INFO] _pywebviewready event fired
+2026-09-09 08:46:14 [INFO] loaded event fired
+2026-09-09 08:46:14 [INFO] loaded event fired
+2026-09-09 08:46:21 [INFO] before_load event fired. injecting pywebview object
+2026-09-09 08:46:21 [INFO] before_load event fired. injecting pywebview object
+2026-09-09 08:46:21 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-09-09 08:46:21 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-09-09 08:46:21 [INFO] _pywebviewready event fired
+2026-09-09 08:46:21 [INFO] _pywebviewready event fired
+2026-09-09 08:46:21 [INFO] loaded event fired
+2026-09-09 08:46:21 [INFO] loaded event fired
+2026-09-09 08:47:22 [INFO] Starting sync: 1 queued operations.
+2026-09-09 08:47:22 [INFO] Starting sync: 1 queued operations.
+2026-09-09 08:47:22 [ERROR] API sync request failed with status 500: {"detail":"Database synchronization failed: 1062 (23000): Duplicate entry '2137-2026-09-02-من يهمه الأمر-year - Temp - Ar - D - ' for key 'uq_student_cert_record'"}
+2026-09-09 08:47:22 [ERROR] API sync request failed with status 500: {"detail":"Database synchronization failed: 1062 (23000): Duplicate entry '2137-2026-09-02-من يهمه الأمر-year - Temp - Ar - D - ' for key 'uq_student_cert_record'"}
+2026-09-09 09:07:26 [INFO] SYSTEM STARTUP DIAGNOSTIC CHECK STARTED
+2026-09-09 09:07:26 [OK] [CHECK 1/4] FastAPI Connection Check ... [OK]
+2026-09-09 09:07:26 [OK] [CHECK 2/4] MySQL Database Connection ... [OK]
+2026-09-09 09:07:26 [OK] [CHECK 3/4] Authentication & Core SP Checks ... [OK]
+2026-09-09 09:07:26 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-09-09 09:07:26 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-09-09 09:07:26 [OK] [CHECK 4/4] Sync Engine & Local Replica Check ... [OK]
+2026-09-09 09:07:26 [OK] Status: ALL CHECKS PASSED. PROCEEDING TO LOGIN/DASHBOARD.
+2026-09-09 09:07:28 [INFO] Using WinForms / Chromium
+2026-09-09 09:07:28 [INFO] Using WinForms / Chromium
+2026-09-09 09:07:32 [INFO] before_load event fired. injecting pywebview object
+2026-09-09 09:07:32 [INFO] before_load event fired. injecting pywebview object
+2026-09-09 09:07:32 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-09-09 09:07:32 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-09-09 09:07:32 [INFO] _pywebviewready event fired
+2026-09-09 09:07:32 [INFO] _pywebviewready event fired
+2026-09-09 09:07:32 [INFO] loaded event fired
+2026-09-09 09:07:32 [INFO] loaded event fired
+2026-09-09 09:07:37 [INFO] before_load event fired. injecting pywebview object
+2026-09-09 09:07:37 [INFO] before_load event fired. injecting pywebview object
+2026-09-09 09:07:37 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-09-09 09:07:37 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-09-09 09:07:37 [INFO] _pywebviewready event fired
+2026-09-09 09:07:37 [INFO] _pywebviewready event fired
+2026-09-09 09:07:37 [INFO] loaded event fired
+2026-09-09 09:07:37 [INFO] loaded event fired
+2026-09-09 09:44:29 [INFO] SYSTEM STARTUP DIAGNOSTIC CHECK STARTED
+2026-09-09 09:44:29 [OK] [CHECK 1/4] FastAPI Connection Check ... [OK]
+2026-09-09 09:44:29 [OK] [CHECK 2/4] MySQL Database Connection ... [OK]
+2026-09-09 09:44:29 [OK] [CHECK 3/4] Authentication & Core SP Checks ... [OK]
+2026-09-09 09:44:29 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-09-09 09:44:29 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-09-09 09:44:29 [OK] [CHECK 4/4] Sync Engine & Local Replica Check ... [OK]
+2026-09-09 09:44:29 [OK] Status: ALL CHECKS PASSED. PROCEEDING TO LOGIN/DASHBOARD.
+2026-09-09 09:44:31 [INFO] Using WinForms / Chromium
+2026-09-09 09:44:31 [INFO] Using WinForms / Chromium
+2026-09-09 09:44:35 [INFO] before_load event fired. injecting pywebview object
+2026-09-09 09:44:35 [INFO] before_load event fired. injecting pywebview object
+2026-09-09 09:44:35 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-09-09 09:44:35 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-09-09 09:44:35 [INFO] _pywebviewready event fired
+2026-09-09 09:44:35 [INFO] _pywebviewready event fired
+2026-09-09 09:44:35 [INFO] loaded event fired
+2026-09-09 09:44:35 [INFO] loaded event fired
+2026-09-09 09:44:44 [INFO] before_load event fired. injecting pywebview object
+2026-09-09 09:44:44 [INFO] before_load event fired. injecting pywebview object
+2026-09-09 09:44:44 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-09-09 09:44:44 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-09-09 09:44:44 [INFO] _pywebviewready event fired
+2026-09-09 09:44:44 [INFO] _pywebviewready event fired
+2026-09-09 09:44:44 [INFO] loaded event fired
+2026-09-09 09:44:44 [INFO] loaded event fired
+2026-09-09 09:45:20 [INFO] Executing sp_GetFullCertificateData for student_id=2137, mode=DEFAULT...
+2026-09-09 09:45:20 [INFO] Executing sp_GetFullCertificateData for student_id=2137, mode=DEFAULT...
+2026-09-09 09:45:57 [INFO] Executing sp_GetFullCertificateData for student_id=2137, mode=DEFAULT...
+2026-09-09 09:45:57 [INFO] Executing sp_GetFullCertificateData for student_id=2137, mode=DEFAULT...
+2026-09-09 10:48:18 [INFO] SYSTEM STARTUP DIAGNOSTIC CHECK STARTED
+2026-09-09 10:48:18 [OK] [CHECK 1/4] FastAPI Connection Check ... [OK]
+2026-09-09 10:48:18 [OK] [CHECK 2/4] MySQL Database Connection ... [OK]
+2026-09-09 10:48:18 [OK] [CHECK 3/4] Authentication & Core SP Checks ... [OK]
+2026-09-09 10:48:18 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-09-09 10:48:18 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-09-09 10:48:18 [OK] [CHECK 4/4] Sync Engine & Local Replica Check ... [OK]
+2026-09-09 10:48:18 [OK] Status: ALL CHECKS PASSED. PROCEEDING TO LOGIN/DASHBOARD.
+2026-09-09 10:48:21 [INFO] Using WinForms / Chromium
+2026-09-09 10:48:21 [INFO] Using WinForms / Chromium
+2026-09-09 10:48:25 [INFO] before_load event fired. injecting pywebview object
+2026-09-09 10:48:25 [INFO] before_load event fired. injecting pywebview object
+2026-09-09 10:48:25 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-09-09 10:48:25 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-09-09 10:48:25 [INFO] _pywebviewready event fired
+2026-09-09 10:48:25 [INFO] _pywebviewready event fired
+2026-09-09 10:48:25 [INFO] loaded event fired
+2026-09-09 10:48:25 [INFO] loaded event fired
+2026-09-09 10:49:35 [INFO] before_load event fired. injecting pywebview object
+2026-09-09 10:49:35 [INFO] before_load event fired. injecting pywebview object
+2026-09-09 10:49:35 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-09-09 10:49:35 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-09-09 10:49:35 [INFO] _pywebviewready event fired
+2026-09-09 10:49:35 [INFO] _pywebviewready event fired
+2026-09-09 10:49:35 [INFO] loaded event fired
+2026-09-09 10:49:35 [INFO] loaded event fired
+2026-09-09 10:50:00 [INFO] Executing sp_GetFullCertificateData for student_id=2137, mode=DEFAULT...
+2026-09-09 10:50:00 [INFO] Executing sp_GetFullCertificateData for student_id=2137, mode=DEFAULT...
+2026-09-09 11:19:49 [INFO] Starting sync: 1 queued operations.
+2026-09-09 11:19:49 [INFO] Starting sync: 1 queued operations.
+2026-09-09 11:19:49 [ERROR] API sync request failed with status 500: {"detail":"Database synchronization failed: 1062 (23000): Duplicate entry '2137-2026-09-02-من يهمه الأمر-year - Temp - Ar - D - ' for key 'uq_student_cert_record'"}
+2026-09-09 11:19:49 [ERROR] API sync request failed with status 500: {"detail":"Database synchronization failed: 1062 (23000): Duplicate entry '2137-2026-09-02-من يهمه الأمر-year - Temp - Ar - D - ' for key 'uq_student_cert_record'"}
+2026-09-09 11:20:14 [INFO] SYSTEM STARTUP DIAGNOSTIC CHECK STARTED
+2026-09-09 11:20:14 [OK] [CHECK 1/4] FastAPI Connection Check ... [OK]
+2026-09-09 11:20:14 [OK] [CHECK 2/4] MySQL Database Connection ... [OK]
+2026-09-09 11:20:14 [OK] [CHECK 3/4] Authentication & Core SP Checks ... [OK]
+2026-09-09 11:20:14 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-09-09 11:20:14 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-09-09 11:20:14 [OK] [CHECK 4/4] Sync Engine & Local Replica Check ... [OK]
+2026-09-09 11:20:14 [OK] Status: ALL CHECKS PASSED. PROCEEDING TO LOGIN/DASHBOARD.
+2026-09-09 11:20:18 [INFO] Using WinForms / Chromium
+2026-09-09 11:20:18 [INFO] Using WinForms / Chromium
+2026-09-09 11:20:21 [INFO] before_load event fired. injecting pywebview object
+2026-09-09 11:20:21 [INFO] before_load event fired. injecting pywebview object
+2026-09-09 11:20:21 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-09-09 11:20:21 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-09-09 11:20:21 [INFO] _pywebviewready event fired
+2026-09-09 11:20:21 [INFO] _pywebviewready event fired
+2026-09-09 11:20:21 [INFO] loaded event fired
+2026-09-09 11:20:21 [INFO] loaded event fired
+2026-09-09 11:20:51 [INFO] before_load event fired. injecting pywebview object
+2026-09-09 11:20:51 [INFO] before_load event fired. injecting pywebview object
+2026-09-09 11:20:51 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-09-09 11:20:51 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-09-09 11:20:51 [INFO] _pywebviewready event fired
+2026-09-09 11:20:51 [INFO] _pywebviewready event fired
+2026-09-09 11:20:51 [INFO] loaded event fired
+2026-09-09 11:20:51 [INFO] loaded event fired
+2026-09-09 11:21:20 [INFO] Executing sp_GetFullCertificateData for student_id=2137, mode=DEFAULT...
+2026-09-09 11:21:20 [INFO] Executing sp_GetFullCertificateData for student_id=2137, mode=DEFAULT...
+2026-09-09 11:21:37 [INFO] Executing sp_GetFullCertificateData for student_id=12, mode=DEFAULT...
+2026-09-09 11:21:37 [INFO] Executing sp_GetFullCertificateData for student_id=12, mode=DEFAULT...
+2026-09-09 11:21:44 [INFO] Executing sp_GetFullCertificateData for student_id=2137, mode=DEFAULT...
+2026-09-09 11:21:44 [INFO] Executing sp_GetFullCertificateData for student_id=2137, mode=DEFAULT...
+2026-09-09 11:22:22 [ERROR] Error generating certificate: expected token 'end of print statement', got 'year'
+2026-09-09 11:22:22 [ERROR] Error generating certificate: expected token 'end of print statement', got 'year'
+2026-09-09 13:54:17 [INFO] SYSTEM STARTUP DIAGNOSTIC CHECK STARTED
+2026-09-09 13:54:17 [OK] [CHECK 1/4] FastAPI Connection Check ... [OK]
+2026-09-09 13:54:17 [OK] [CHECK 2/4] MySQL Database Connection ... [OK]
+2026-09-09 13:54:17 [OK] [CHECK 3/4] Authentication & Core SP Checks ... [OK]
+2026-09-09 13:54:17 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-09-09 13:54:17 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-09-09 13:54:17 [OK] [CHECK 4/4] Sync Engine & Local Replica Check ... [OK]
+2026-09-09 13:54:17 [OK] Status: ALL CHECKS PASSED. PROCEEDING TO LOGIN/DASHBOARD.
+2026-09-09 13:54:21 [INFO] Using WinForms / Chromium
+2026-09-09 13:54:21 [INFO] Using WinForms / Chromium
+2026-09-09 13:54:24 [INFO] before_load event fired. injecting pywebview object
+2026-09-09 13:54:24 [INFO] before_load event fired. injecting pywebview object
+2026-09-09 13:54:24 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-09-09 13:54:24 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-09-09 13:54:24 [INFO] _pywebviewready event fired
+2026-09-09 13:54:24 [INFO] _pywebviewready event fired
+2026-09-09 13:54:24 [INFO] loaded event fired
+2026-09-09 13:54:24 [INFO] loaded event fired
+2026-09-09 13:54:44 [INFO] before_load event fired. injecting pywebview object
+2026-09-09 13:54:44 [INFO] before_load event fired. injecting pywebview object
+2026-09-09 13:54:44 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-09-09 13:54:44 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-09-09 13:54:44 [INFO] _pywebviewready event fired
+2026-09-09 13:54:44 [INFO] _pywebviewready event fired
+2026-09-09 13:54:44 [INFO] loaded event fired
+2026-09-09 13:54:44 [INFO] loaded event fired
+2026-09-09 13:54:51 [INFO] Executing sp_GetFullCertificateData for student_id=2137, mode=DEFAULT...
+2026-09-09 13:54:51 [INFO] Executing sp_GetFullCertificateData for student_id=2137, mode=DEFAULT...
+2026-09-09 13:56:25 [INFO] Successfully recorded issued certificate for student ID 2137 via InsertIssuedCertificate SP.
+2026-09-09 13:56:25 [INFO] Successfully recorded issued certificate for student ID 2137 via InsertIssuedCertificate SP.
+2026-09-09 13:59:17 [INFO] Successfully recorded issued certificate for student ID 2137 via InsertIssuedCertificate SP.
+2026-09-09 13:59:17 [INFO] Successfully recorded issued certificate for student ID 2137 via InsertIssuedCertificate SP.
+2026-09-15 11:35:46 [INFO] SYSTEM STARTUP DIAGNOSTIC CHECK STARTED
+2026-09-15 11:35:46 [OK] [CHECK 1/4] FastAPI Connection Check ... [OK]
+2026-09-15 11:35:46 [OK] [CHECK 2/4] MySQL Database Connection ... [OK]
+2026-09-15 11:35:46 [OK] [CHECK 3/4] Authentication & Core SP Checks ... [OK]
+2026-09-15 11:35:46 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-09-15 11:35:46 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-09-15 11:35:46 [OK] [CHECK 4/4] Sync Engine & Local Replica Check ... [OK]
+2026-09-15 11:35:46 [OK] Status: ALL CHECKS PASSED. PROCEEDING TO LOGIN/DASHBOARD.
+2026-09-15 11:35:50 [INFO] Using WinForms / Chromium
+2026-09-15 11:35:50 [INFO] Using WinForms / Chromium
+2026-09-15 11:35:55 [INFO] before_load event fired. injecting pywebview object
+2026-09-15 11:35:55 [INFO] before_load event fired. injecting pywebview object
+2026-09-15 11:35:55 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-09-15 11:35:55 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-09-15 11:35:55 [INFO] _pywebviewready event fired
+2026-09-15 11:35:55 [INFO] _pywebviewready event fired
+2026-09-15 11:35:55 [INFO] loaded event fired
+2026-09-15 11:35:55 [INFO] loaded event fired
+2026-09-15 11:36:05 [INFO] before_load event fired. injecting pywebview object
+2026-09-15 11:36:05 [INFO] before_load event fired. injecting pywebview object
+2026-09-15 11:36:05 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-09-15 11:36:05 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-09-15 11:36:05 [INFO] _pywebviewready event fired
+2026-09-15 11:36:05 [INFO] _pywebviewready event fired
+2026-09-15 11:36:05 [INFO] loaded event fired
+2026-09-15 11:36:05 [INFO] loaded event fired
+2026-09-15 11:39:25 [INFO] Online Mode: Successfully fetched raw certificate payload via API for student_id=2137.
+2026-09-15 11:39:25 [INFO] Online Mode: Successfully fetched raw certificate payload via API for student_id=2137.
+2026-09-15 14:06:21 [INFO] SYSTEM STARTUP DIAGNOSTIC CHECK STARTED
+2026-09-15 14:06:21 [OK] [CHECK 1/4] FastAPI Connection Check ... [OK]
+2026-09-15 14:06:21 [OK] [CHECK 2/4] MySQL Database Connection ... [OK]
+2026-09-15 14:06:21 [OK] [CHECK 3/4] Authentication & Core SP Checks ... [OK]
+2026-09-15 14:06:21 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-09-15 14:06:21 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-09-15 14:06:21 [OK] [CHECK 4/4] Sync Engine & Local Replica Check ... [OK]
+2026-09-15 14:06:21 [OK] Status: ALL CHECKS PASSED. PROCEEDING TO LOGIN/DASHBOARD.
+2026-09-15 14:06:24 [INFO] Using WinForms / Chromium
+2026-09-15 14:06:24 [INFO] Using WinForms / Chromium
+2026-09-15 14:06:27 [INFO] before_load event fired. injecting pywebview object
+2026-09-15 14:06:27 [INFO] before_load event fired. injecting pywebview object
+2026-09-15 14:06:27 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-09-15 14:06:27 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-09-15 14:06:27 [INFO] _pywebviewready event fired
+2026-09-15 14:06:27 [INFO] _pywebviewready event fired
+2026-09-15 14:06:27 [INFO] loaded event fired
+2026-09-15 14:06:27 [INFO] loaded event fired
+2026-09-15 14:06:31 [INFO] before_load event fired. injecting pywebview object
+2026-09-15 14:06:31 [INFO] before_load event fired. injecting pywebview object
+2026-09-15 14:06:31 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-09-15 14:06:31 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-09-15 14:06:32 [INFO] _pywebviewready event fired
+2026-09-15 14:06:32 [INFO] _pywebviewready event fired
+2026-09-15 14:06:32 [INFO] loaded event fired
+2026-09-15 14:06:32 [INFO] loaded event fired
+2026-09-15 14:06:35 [INFO] Online Mode: Successfully fetched raw certificate payload via API for student_id=2137.
+2026-09-15 14:06:35 [INFO] Online Mode: Successfully fetched raw certificate payload via API for student_id=2137.
+2026-09-15 17:16:49 [INFO] before_load event fired. injecting pywebview object
+2026-09-15 17:16:49 [INFO] before_load event fired. injecting pywebview object
+2026-09-15 17:16:49 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-09-15 17:16:49 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-09-15 17:16:49 [INFO] _pywebviewready event fired
+2026-09-15 17:16:49 [INFO] _pywebviewready event fired
+2026-09-15 17:16:50 [INFO] loaded event fired
+2026-09-15 17:16:50 [INFO] loaded event fired
+2026-09-15 21:18:42 [INFO] before_load event fired. injecting pywebview object
+2026-09-15 21:18:42 [INFO] before_load event fired. injecting pywebview object
+2026-09-15 21:18:42 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-09-15 21:18:42 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-09-15 21:18:42 [INFO] _pywebviewready event fired
+2026-09-15 21:18:42 [INFO] _pywebviewready event fired
+2026-09-15 21:18:42 [INFO] loaded event fired
+2026-09-15 21:18:42 [INFO] loaded event fired
+2026-09-16 01:20:44 [INFO] before_load event fired. injecting pywebview object
+2026-09-16 01:20:44 [INFO] before_load event fired. injecting pywebview object
+2026-09-16 01:20:44 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-09-16 01:20:44 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-09-16 01:20:44 [INFO] _pywebviewready event fired
+2026-09-16 01:20:44 [INFO] _pywebviewready event fired
+2026-09-16 01:20:44 [INFO] loaded event fired
+2026-09-16 01:20:44 [INFO] loaded event fired
+2026-09-16 05:22:37 [INFO] before_load event fired. injecting pywebview object
+2026-09-16 05:22:37 [INFO] before_load event fired. injecting pywebview object
+2026-09-16 05:22:37 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-09-16 05:22:37 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-09-16 05:22:38 [INFO] _pywebviewready event fired
+2026-09-16 05:22:38 [INFO] _pywebviewready event fired
+2026-09-16 05:22:38 [INFO] loaded event fired
+2026-09-16 05:22:38 [INFO] loaded event fired
+2026-09-16 08:24:55 [INFO] before_load event fired. injecting pywebview object
+2026-09-16 08:24:55 [INFO] before_load event fired. injecting pywebview object
+2026-09-16 08:24:55 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-09-16 08:24:55 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-09-16 08:24:56 [INFO] _pywebviewready event fired
+2026-09-16 08:24:56 [INFO] _pywebviewready event fired
+2026-09-16 08:24:56 [INFO] loaded event fired
+2026-09-16 08:24:56 [INFO] loaded event fired
+2026-09-16 13:54:48 [INFO] SYSTEM STARTUP DIAGNOSTIC CHECK STARTED
+2026-09-16 13:54:48 [OK] [CHECK 1/4] FastAPI Connection Check ... [OK]
+2026-09-16 13:54:48 [OK] [CHECK 2/4] MySQL Database Connection ... [OK]
+2026-09-16 13:54:48 [OK] [CHECK 3/4] Authentication & Core SP Checks ... [OK]
+2026-09-16 13:54:48 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-09-16 13:54:48 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-09-16 13:54:48 [OK] [CHECK 4/4] Sync Engine & Local Replica Check ... [OK]
+2026-09-16 13:54:48 [OK] Status: ALL CHECKS PASSED. PROCEEDING TO LOGIN/DASHBOARD.
+2026-09-16 13:54:52 [INFO] Using WinForms / Chromium
+2026-09-16 13:54:52 [INFO] Using WinForms / Chromium
+2026-09-16 13:54:56 [INFO] before_load event fired. injecting pywebview object
+2026-09-16 13:54:56 [INFO] before_load event fired. injecting pywebview object
+2026-09-16 13:54:56 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-09-16 13:54:56 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-09-16 13:54:56 [INFO] _pywebviewready event fired
+2026-09-16 13:54:56 [INFO] _pywebviewready event fired
+2026-09-16 13:54:56 [INFO] loaded event fired
+2026-09-16 13:54:56 [INFO] loaded event fired
+2026-09-16 13:55:02 [INFO] before_load event fired. injecting pywebview object
+2026-09-16 13:55:02 [INFO] before_load event fired. injecting pywebview object
+2026-09-16 13:55:02 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-09-16 13:55:02 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-09-16 13:55:02 [INFO] _pywebviewready event fired
+2026-09-16 13:55:02 [INFO] _pywebviewready event fired
+2026-09-16 13:55:02 [INFO] loaded event fired
+2026-09-16 13:55:02 [INFO] loaded event fired
+2026-09-16 13:55:13 [INFO] Online Mode: Successfully fetched raw certificate payload via API for student_id=2137.
+2026-09-16 13:55:13 [INFO] Online Mode: Successfully fetched raw certificate payload via API for student_id=2137.
+2026-09-16 13:55:25 [ERROR] Error generating certificate: unexpected '<'
+2026-09-16 13:55:25 [ERROR] Error generating certificate: unexpected '<'
+2026-09-16 14:02:39 [INFO] SYSTEM STARTUP DIAGNOSTIC CHECK STARTED
+2026-09-16 14:02:39 [OK] [CHECK 1/4] FastAPI Connection Check ... [OK]
+2026-09-16 14:02:39 [OK] [CHECK 2/4] MySQL Database Connection ... [OK]
+2026-09-16 14:02:39 [OK] [CHECK 3/4] Authentication & Core SP Checks ... [OK]
+2026-09-16 14:02:39 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-09-16 14:02:39 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-09-16 14:02:39 [OK] [CHECK 4/4] Sync Engine & Local Replica Check ... [OK]
+2026-09-16 14:02:39 [OK] Status: ALL CHECKS PASSED. PROCEEDING TO LOGIN/DASHBOARD.
+2026-09-16 14:02:41 [INFO] Using WinForms / Chromium
+2026-09-16 14:02:41 [INFO] Using WinForms / Chromium
+2026-09-16 14:02:45 [INFO] before_load event fired. injecting pywebview object
+2026-09-16 14:02:45 [INFO] before_load event fired. injecting pywebview object
+2026-09-16 14:02:45 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-09-16 14:02:45 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-09-16 14:02:45 [INFO] _pywebviewready event fired
+2026-09-16 14:02:45 [INFO] _pywebviewready event fired
+2026-09-16 14:02:45 [INFO] loaded event fired
+2026-09-16 14:02:45 [INFO] loaded event fired
+2026-09-16 14:02:53 [INFO] before_load event fired. injecting pywebview object
+2026-09-16 14:02:53 [INFO] before_load event fired. injecting pywebview object
+2026-09-16 14:02:53 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-09-16 14:02:53 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-09-16 14:02:53 [INFO] _pywebviewready event fired
+2026-09-16 14:02:53 [INFO] _pywebviewready event fired
+2026-09-16 14:02:53 [INFO] loaded event fired
+2026-09-16 14:02:53 [INFO] loaded event fired
+2026-09-16 14:02:59 [INFO] Online Mode: Successfully fetched raw certificate payload via API for student_id=2137.
+2026-09-16 14:02:59 [INFO] Online Mode: Successfully fetched raw certificate payload via API for student_id=2137.
+2026-09-16 14:04:01 [ERROR] Error generating certificate: unexpected '<'
+2026-09-16 14:04:01 [ERROR] Error generating certificate: unexpected '<'
+2026-09-20 10:26:27 [INFO] SYSTEM STARTUP DIAGNOSTIC CHECK STARTED
+2026-09-20 10:26:27 [OK] [CHECK 1/4] FastAPI Connection Check ... [OK]
+2026-09-20 10:26:27 [OK] [CHECK 2/4] MySQL Database Connection ... [OK]
+2026-09-20 10:26:27 [OK] [CHECK 3/4] Authentication & Core SP Checks ... [OK]
+2026-09-20 10:26:27 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-09-20 10:26:27 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-09-20 10:26:27 [OK] [CHECK 4/4] Sync Engine & Local Replica Check ... [OK]
+2026-09-20 10:26:27 [OK] Status: ALL CHECKS PASSED. PROCEEDING TO LOGIN/DASHBOARD.
+2026-09-20 10:26:31 [INFO] Using WinForms / Chromium
+2026-09-20 10:26:31 [INFO] Using WinForms / Chromium
+2026-09-20 10:26:36 [INFO] before_load event fired. injecting pywebview object
+2026-09-20 10:26:36 [INFO] before_load event fired. injecting pywebview object
+2026-09-20 10:26:36 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-09-20 10:26:36 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-09-20 10:26:36 [INFO] _pywebviewready event fired
+2026-09-20 10:26:36 [INFO] _pywebviewready event fired
+2026-09-20 10:26:36 [INFO] loaded event fired
+2026-09-20 10:26:36 [INFO] loaded event fired
+2026-09-20 10:26:42 [INFO] before_load event fired. injecting pywebview object
+2026-09-20 10:26:42 [INFO] before_load event fired. injecting pywebview object
+2026-09-20 10:26:42 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-09-20 10:26:42 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-09-20 10:26:42 [INFO] _pywebviewready event fired
+2026-09-20 10:26:42 [INFO] _pywebviewready event fired
+2026-09-20 10:26:42 [INFO] loaded event fired
+2026-09-20 10:26:42 [INFO] loaded event fired
+2026-09-20 10:26:55 [INFO] Online Mode: Successfully fetched raw certificate payload via API for student_id=2137.
+2026-09-20 10:26:55 [INFO] Online Mode: Successfully fetched raw certificate payload via API for student_id=2137.
+2026-09-20 10:27:06 [INFO] Successfully recorded issued certificate for student ID 2137 via InsertIssuedCertificate SP.
+2026-09-20 10:27:06 [INFO] Successfully recorded issued certificate for student ID 2137 via InsertIssuedCertificate SP.
+2026-09-20 10:32:58 [WARNING] API insert issued certificate warning: {"detail":"1062 (23000): Duplicate entry '2137-2026-09-20-من يهمه الأمر-year - Temp - Ar - D - ' for key 'uq_student_cert_record'"}
+2026-09-20 10:32:58 [INFO] Offline INSERT queued: issued_certificates temp_id=-4
+2026-09-20 10:32:58 [INFO] Offline INSERT queued: issued_certificates temp_id=-4
+2026-09-20 10:32:58 [INFO] Successfully recorded issued certificate for student ID 2137 via InsertIssuedCertificate SP.
+2026-09-20 10:32:58 [INFO] Successfully recorded issued certificate for student ID 2137 via InsertIssuedCertificate SP.
+2026-09-20 11:04:57 [INFO] SYSTEM STARTUP DIAGNOSTIC CHECK STARTED
+2026-09-20 11:04:58 [OK] [CHECK 1/4] FastAPI Connection Check ... [OK]
+2026-09-20 11:04:58 [OK] [CHECK 2/4] MySQL Database Connection ... [OK]
+2026-09-20 11:04:58 [OK] [CHECK 3/4] Authentication & Core SP Checks ... [OK]
+2026-09-20 11:04:58 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-09-20 11:04:58 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-09-20 11:04:58 [OK] [CHECK 4/4] Sync Engine & Local Replica Check ... [OK]
+2026-09-20 11:04:58 [OK] Status: ALL CHECKS PASSED. PROCEEDING TO LOGIN/DASHBOARD.
+2026-09-20 11:05:00 [INFO] Using WinForms / Chromium
+2026-09-20 11:05:00 [INFO] Using WinForms / Chromium
+2026-09-20 11:05:04 [INFO] before_load event fired. injecting pywebview object
+2026-09-20 11:05:04 [INFO] before_load event fired. injecting pywebview object
+2026-09-20 11:05:04 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-09-20 11:05:04 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-09-20 11:05:04 [INFO] _pywebviewready event fired
+2026-09-20 11:05:04 [INFO] _pywebviewready event fired
+2026-09-20 11:05:04 [INFO] loaded event fired
+2026-09-20 11:05:04 [INFO] loaded event fired
+2026-09-20 11:05:14 [INFO] before_load event fired. injecting pywebview object
+2026-09-20 11:05:14 [INFO] before_load event fired. injecting pywebview object
+2026-09-20 11:05:14 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-09-20 11:05:14 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-09-20 11:05:14 [INFO] _pywebviewready event fired
+2026-09-20 11:05:14 [INFO] _pywebviewready event fired
+2026-09-20 11:05:14 [INFO] loaded event fired
+2026-09-20 11:05:14 [INFO] loaded event fired
+2026-09-20 11:05:17 [INFO] Online Mode: Successfully fetched raw certificate payload via API for student_id=2137.
+2026-09-20 11:05:17 [INFO] Online Mode: Successfully fetched raw certificate payload via API for student_id=2137.
+2026-09-20 11:05:22 [WARNING] API insert issued certificate warning: {"detail":"1062 (23000): Duplicate entry '2137-2026-09-20-من يهمه الأمر-year - Temp - Ar - D - ' for key 'uq_student_cert_record'"}
+2026-09-20 11:05:22 [INFO] Offline INSERT queued: issued_certificates temp_id=-5
+2026-09-20 11:05:22 [INFO] Offline INSERT queued: issued_certificates temp_id=-5
+2026-09-20 11:05:22 [INFO] Successfully recorded issued certificate for student ID 2137 via InsertIssuedCertificate SP.
+2026-09-20 11:05:22 [INFO] Successfully recorded issued certificate for student ID 2137 via InsertIssuedCertificate SP.
+2026-09-20 11:25:36 [INFO] before_load event fired. injecting pywebview object
+2026-09-20 11:25:36 [INFO] before_load event fired. injecting pywebview object
+2026-09-20 11:25:36 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-09-20 11:25:36 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-09-20 11:25:36 [INFO] _pywebviewready event fired
+2026-09-20 11:25:36 [INFO] _pywebviewready event fired
+2026-09-20 11:25:36 [INFO] loaded event fired
+2026-09-20 11:25:36 [INFO] loaded event fired
+2026-09-20 11:53:15 [INFO] Online Mode: Successfully fetched raw certificate payload via API for student_id=2137.
+2026-09-20 11:53:15 [INFO] Online Mode: Successfully fetched raw certificate payload via API for student_id=2137.
+2026-09-20 11:53:21 [WARNING] API insert issued certificate warning: {"detail":"1062 (23000): Duplicate entry '2137-2026-09-20-من يهمه الأمر-year - Temp - Ar - D - ' for key 'uq_student_cert_record'"}
+2026-09-20 11:53:21 [INFO] Offline INSERT queued: issued_certificates temp_id=-6
+2026-09-20 11:53:21 [INFO] Offline INSERT queued: issued_certificates temp_id=-6
+2026-09-20 11:53:21 [INFO] Successfully recorded issued certificate for student ID 2137 via InsertIssuedCertificate SP.
+2026-09-20 11:53:21 [INFO] Successfully recorded issued certificate for student ID 2137 via InsertIssuedCertificate SP.
+2026-09-20 14:13:20 [INFO] SYSTEM STARTUP DIAGNOSTIC CHECK STARTED
+2026-09-20 14:13:22 [WARNING] [CHECK 1/4] FastAPI Connection Check ... [OFFLINE MODE]
+2026-09-20 14:13:22 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-09-20 14:13:22 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-09-20 14:13:22 [OK] [CHECK 2/4] SQLite Replica Database Connection ... [OK]
+2026-09-20 14:13:22 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-09-20 14:13:22 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-09-20 14:13:22 [OK] [CHECK 3/4] Authentication & Core SP Checks ... [OFFLINE MODE]
+2026-09-20 14:13:22 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-09-20 14:13:22 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-09-20 14:13:22 [OK] [CHECK 4/4] Sync Engine & Local Replica Check ... [OK]
+2026-09-20 14:13:22 [OK] Status: OFFLINE MODE ACTIVE. PROCEEDING TO LOGIN/DASHBOARD.
+2026-09-20 14:13:25 [INFO] Using WinForms / Chromium
+2026-09-20 14:13:25 [INFO] Using WinForms / Chromium
+2026-09-20 14:13:29 [INFO] before_load event fired. injecting pywebview object
+2026-09-20 14:13:29 [INFO] before_load event fired. injecting pywebview object
+2026-09-20 14:13:29 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-09-20 14:13:29 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-09-20 14:13:29 [INFO] _pywebviewready event fired
+2026-09-20 14:13:29 [INFO] _pywebviewready event fired
+2026-09-20 14:13:29 [INFO] loaded event fired
+2026-09-20 14:13:29 [INFO] loaded event fired
+2026-09-20 14:13:39 [INFO] before_load event fired. injecting pywebview object
+2026-09-20 14:13:39 [INFO] before_load event fired. injecting pywebview object
+2026-09-20 14:13:39 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-09-20 14:13:39 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-09-20 14:13:39 [INFO] _pywebviewready event fired
+2026-09-20 14:13:39 [INFO] _pywebviewready event fired
+2026-09-20 14:13:39 [INFO] loaded event fired
+2026-09-20 14:13:39 [INFO] loaded event fired
+2026-09-20 14:13:51 [INFO] Offline INSERT queued: issued_certificates temp_id=-7
+2026-09-20 14:13:51 [INFO] Offline INSERT queued: issued_certificates temp_id=-7
+2026-09-20 14:13:51 [INFO] Successfully recorded issued certificate for student ID 2137 via InsertIssuedCertificate SP.
+2026-09-20 14:13:51 [INFO] Successfully recorded issued certificate for student ID 2137 via InsertIssuedCertificate SP.
+2026-09-20 14:14:55 [INFO] Starting sync: 5 queued operations.
+2026-09-20 14:14:55 [INFO] Starting sync: 5 queued operations.
+2026-09-20 14:14:55 [ERROR] API sync request failed with status 500: {"detail":"Database synchronization failed: 1062 (23000): Duplicate entry '2137-2026-09-02-من يهمه الأمر-year - Temp - Ar - D - ' for key 'uq_student_cert_record'"}
+2026-09-20 14:14:55 [ERROR] API sync request failed with status 500: {"detail":"Database synchronization failed: 1062 (23000): Duplicate entry '2137-2026-09-02-من يهمه الأمر-year - Temp - Ar - D - ' for key 'uq_student_cert_record'"}
+2026-09-20 14:15:09 [WARNING] API insert issued certificate warning: {"detail":"1062 (23000): Duplicate entry '2137-2026-09-20-من يهمه الأمر-year - Temp - Ar - D - ' for key 'uq_student_cert_record'"}
+2026-09-20 14:15:09 [INFO] Offline INSERT queued: issued_certificates temp_id=-8
+2026-09-20 14:15:09 [INFO] Offline INSERT queued: issued_certificates temp_id=-8
+2026-09-20 14:15:09 [INFO] Successfully recorded issued certificate for student ID 2137 via InsertIssuedCertificate SP.
+2026-09-20 14:15:09 [INFO] Successfully recorded issued certificate for student ID 2137 via InsertIssuedCertificate SP.
+2026-09-21 13:38:46 [INFO] SYSTEM STARTUP DIAGNOSTIC CHECK STARTED
+2026-09-21 13:38:46 [OK] [CHECK 1/4] FastAPI Connection Check ... [OK]
+2026-09-21 13:38:46 [OK] [CHECK 2/4] MySQL Database Connection ... [OK]
+2026-09-21 13:38:46 [OK] [CHECK 3/4] Authentication & Core SP Checks ... [OK]
+2026-09-21 13:38:46 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-09-21 13:38:46 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-09-21 13:38:46 [OK] [CHECK 4/4] Sync Engine & Local Replica Check ... [OK]
+2026-09-21 13:38:46 [OK] Status: ALL CHECKS PASSED. PROCEEDING TO LOGIN/DASHBOARD.
+2026-09-21 13:38:50 [INFO] Using WinForms / Chromium
+2026-09-21 13:38:50 [INFO] Using WinForms / Chromium
+2026-09-21 13:38:54 [INFO] before_load event fired. injecting pywebview object
+2026-09-21 13:38:54 [INFO] before_load event fired. injecting pywebview object
+2026-09-21 13:38:54 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-09-21 13:38:54 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-09-21 13:38:54 [INFO] _pywebviewready event fired
+2026-09-21 13:38:54 [INFO] _pywebviewready event fired
+2026-09-21 13:38:54 [INFO] loaded event fired
+2026-09-21 13:38:54 [INFO] loaded event fired
+2026-09-21 13:39:01 [INFO] before_load event fired. injecting pywebview object
+2026-09-21 13:39:01 [INFO] before_load event fired. injecting pywebview object
+2026-09-21 13:39:01 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-09-21 13:39:01 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-09-21 13:39:01 [INFO] _pywebviewready event fired
+2026-09-21 13:39:01 [INFO] _pywebviewready event fired
+2026-09-21 13:39:01 [INFO] loaded event fired
+2026-09-21 13:39:01 [INFO] loaded event fired
+2026-09-21 13:39:04 [INFO] Online Mode: Successfully fetched raw certificate payload via API for student_id=2137.
+2026-09-21 13:39:04 [INFO] Online Mode: Successfully fetched raw certificate payload via API for student_id=2137.
+2026-09-21 13:39:11 [INFO] Successfully recorded issued certificate for student ID 2137 via InsertIssuedCertificate SP.
+2026-09-21 13:39:11 [INFO] Successfully recorded issued certificate for student ID 2137 via InsertIssuedCertificate SP.
+2026-09-22 11:46:12 [INFO] SYSTEM STARTUP DIAGNOSTIC CHECK STARTED
+2026-09-22 11:46:12 [OK] [CHECK 1/4] FastAPI Connection Check ... [OK]
+2026-09-22 11:46:12 [OK] [CHECK 2/4] MySQL Database Connection ... [OK]
+2026-09-22 11:46:12 [OK] [CHECK 3/4] Authentication & Core SP Checks ... [OK]
+2026-09-22 11:46:12 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-09-22 11:46:12 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-09-22 11:46:12 [OK] [CHECK 4/4] Sync Engine & Local Replica Check ... [OK]
+2026-09-22 11:46:12 [OK] Status: ALL CHECKS PASSED. PROCEEDING TO LOGIN/DASHBOARD.
+2026-09-22 11:46:16 [INFO] Using WinForms / Chromium
+2026-09-22 11:46:16 [INFO] Using WinForms / Chromium
+2026-09-22 11:46:26 [INFO] before_load event fired. injecting pywebview object
+2026-09-22 11:46:26 [INFO] before_load event fired. injecting pywebview object
+2026-09-22 11:46:26 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-09-22 11:46:26 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-09-22 11:46:26 [INFO] _pywebviewready event fired
+2026-09-22 11:46:26 [INFO] _pywebviewready event fired
+2026-09-22 11:46:26 [INFO] loaded event fired
+2026-09-22 11:46:26 [INFO] loaded event fired
+2026-09-22 11:46:44 [INFO] before_load event fired. injecting pywebview object
+2026-09-22 11:46:44 [INFO] before_load event fired. injecting pywebview object
+2026-09-22 11:46:44 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-09-22 11:46:44 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-09-22 11:46:44 [INFO] _pywebviewready event fired
+2026-09-22 11:46:44 [INFO] _pywebviewready event fired
+2026-09-22 11:46:44 [INFO] loaded event fired
+2026-09-22 11:46:44 [INFO] loaded event fired
+2026-09-22 11:46:54 [INFO] Online Mode: Successfully fetched raw certificate payload via API for student_id=2137.
+2026-09-22 11:46:54 [INFO] Online Mode: Successfully fetched raw certificate payload via API for student_id=2137.
+2026-09-22 11:47:03 [INFO] Successfully recorded issued certificate for student ID 2137 via InsertIssuedCertificate SP.
+2026-09-22 11:47:03 [INFO] Successfully recorded issued certificate for student ID 2137 via InsertIssuedCertificate SP.
+2026-09-22 11:53:14 [WARNING] API insert issued certificate warning: {"detail":"1062 (23000): Duplicate entry '2137-2026-09-22-من يهمه الأمر-year - Temp - Ar - D - ' for key 'uq_student_cert_record'"}
+2026-09-22 11:53:14 [INFO] Offline INSERT queued: issued_certificates temp_id=-9
+2026-09-22 11:53:14 [INFO] Offline INSERT queued: issued_certificates temp_id=-9
+2026-09-22 11:53:14 [INFO] Successfully recorded issued certificate for student ID 2137 via InsertIssuedCertificate SP.
+2026-09-22 11:53:14 [INFO] Successfully recorded issued certificate for student ID 2137 via InsertIssuedCertificate SP.
+2026-09-22 11:58:25 [WARNING] API insert issued certificate warning: {"detail":"1062 (23000): Duplicate entry '2137-2026-09-22-من يهمه الأمر-year - Temp - Ar - D - ' for key 'uq_student_cert_record'"}
+2026-09-22 11:58:25 [INFO] Offline INSERT queued: issued_certificates temp_id=-10
+2026-09-22 11:58:25 [INFO] Offline INSERT queued: issued_certificates temp_id=-10
+2026-09-22 11:58:25 [INFO] Successfully recorded issued certificate for student ID 2137 via InsertIssuedCertificate SP.
+2026-09-22 11:58:25 [INFO] Successfully recorded issued certificate for student ID 2137 via InsertIssuedCertificate SP.
+2026-09-22 12:45:09 [INFO] SYSTEM STARTUP DIAGNOSTIC CHECK STARTED
+2026-09-22 12:45:09 [OK] [CHECK 1/4] FastAPI Connection Check ... [OK]
+2026-09-22 12:45:09 [OK] [CHECK 2/4] MySQL Database Connection ... [OK]
+2026-09-22 12:45:09 [OK] [CHECK 3/4] Authentication & Core SP Checks ... [OK]
+2026-09-22 12:45:09 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-09-22 12:45:09 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-09-22 12:45:09 [OK] [CHECK 4/4] Sync Engine & Local Replica Check ... [OK]
+2026-09-22 12:45:09 [OK] Status: ALL CHECKS PASSED. PROCEEDING TO LOGIN/DASHBOARD.
+2026-09-22 12:45:12 [INFO] Using WinForms / Chromium
+2026-09-22 12:45:12 [INFO] Using WinForms / Chromium
+2026-09-22 12:45:16 [INFO] before_load event fired. injecting pywebview object
+2026-09-22 12:45:16 [INFO] before_load event fired. injecting pywebview object
+2026-09-22 12:45:16 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-09-22 12:45:16 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-09-22 12:45:16 [INFO] _pywebviewready event fired
+2026-09-22 12:45:16 [INFO] _pywebviewready event fired
+2026-09-22 12:45:16 [INFO] loaded event fired
+2026-09-22 12:45:16 [INFO] loaded event fired
+2026-09-22 12:45:28 [INFO] before_load event fired. injecting pywebview object
+2026-09-22 12:45:28 [INFO] before_load event fired. injecting pywebview object
+2026-09-22 12:45:28 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-09-22 12:45:28 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-09-22 12:45:28 [INFO] _pywebviewready event fired
+2026-09-22 12:45:28 [INFO] _pywebviewready event fired
+2026-09-22 12:45:28 [INFO] loaded event fired
+2026-09-22 12:45:28 [INFO] loaded event fired
+2026-09-22 12:45:31 [INFO] Online Mode: Successfully fetched raw certificate payload via API for student_id=2137.
+2026-09-22 12:45:31 [INFO] Online Mode: Successfully fetched raw certificate payload via API for student_id=2137.
+2026-09-22 12:45:37 [WARNING] API insert issued certificate warning: {"detail":"1062 (23000): Duplicate entry '2137-2026-09-22-من يهمه الأمر-year - Temp - Ar - D - ' for key 'uq_student_cert_record'"}
+2026-09-22 12:45:37 [INFO] Offline INSERT queued: issued_certificates temp_id=-11
+2026-09-22 12:45:37 [INFO] Offline INSERT queued: issued_certificates temp_id=-11
+2026-09-22 12:45:37 [INFO] Successfully recorded issued certificate for student ID 2137 via InsertIssuedCertificate SP.
+2026-09-22 12:45:37 [INFO] Successfully recorded issued certificate for student ID 2137 via InsertIssuedCertificate SP.
+2026-09-22 13:00:48 [INFO] Successfully recorded issued certificate for student ID 2137 via InsertIssuedCertificate SP.
+2026-09-22 13:00:48 [INFO] Successfully recorded issued certificate for student ID 2137 via InsertIssuedCertificate SP.
+2026-09-22 13:13:28 [INFO] SYSTEM STARTUP DIAGNOSTIC CHECK STARTED
+2026-09-22 13:13:28 [OK] [CHECK 1/4] FastAPI Connection Check ... [OK]
+2026-09-22 13:13:28 [OK] [CHECK 2/4] MySQL Database Connection ... [OK]
+2026-09-22 13:13:28 [OK] [CHECK 3/4] Authentication & Core SP Checks ... [OK]
+2026-09-22 13:13:28 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-09-22 13:13:28 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-09-22 13:13:28 [OK] [CHECK 4/4] Sync Engine & Local Replica Check ... [OK]
+2026-09-22 13:13:28 [OK] Status: ALL CHECKS PASSED. PROCEEDING TO LOGIN/DASHBOARD.
+2026-09-22 13:13:31 [INFO] Using WinForms / Chromium
+2026-09-22 13:13:31 [INFO] Using WinForms / Chromium
+2026-09-22 13:13:36 [INFO] before_load event fired. injecting pywebview object
+2026-09-22 13:13:36 [INFO] before_load event fired. injecting pywebview object
+2026-09-22 13:13:36 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-09-22 13:13:36 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-09-22 13:13:36 [INFO] _pywebviewready event fired
+2026-09-22 13:13:36 [INFO] _pywebviewready event fired
+2026-09-22 13:13:36 [INFO] loaded event fired
+2026-09-22 13:13:36 [INFO] loaded event fired
+2026-09-22 13:13:45 [INFO] before_load event fired. injecting pywebview object
+2026-09-22 13:13:45 [INFO] before_load event fired. injecting pywebview object
+2026-09-22 13:13:45 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-09-22 13:13:45 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-09-22 13:13:45 [INFO] _pywebviewready event fired
+2026-09-22 13:13:45 [INFO] _pywebviewready event fired
+2026-09-22 13:13:45 [INFO] loaded event fired
+2026-09-22 13:13:45 [INFO] loaded event fired
+2026-09-22 13:13:47 [INFO] Online Mode: Successfully fetched raw certificate payload via API for student_id=2137.
+2026-09-22 13:13:47 [INFO] Online Mode: Successfully fetched raw certificate payload via API for student_id=2137.
+2026-09-22 13:13:55 [WARNING] API insert issued certificate warning: {"detail":"1062 (23000): Duplicate entry '2137-2026-09-22-من يهمه الأمر-year - Temp - Ar - D - ' for key 'uq_student_cert_record'"}
+2026-09-22 13:13:55 [INFO] Offline INSERT queued: issued_certificates temp_id=-12
+2026-09-22 13:13:55 [INFO] Offline INSERT queued: issued_certificates temp_id=-12
+2026-09-22 13:13:55 [INFO] Successfully recorded issued certificate for student ID 2137 via InsertIssuedCertificate SP.
+2026-09-22 13:13:55 [INFO] Successfully recorded issued certificate for student ID 2137 via InsertIssuedCertificate SP.
+2026-09-22 13:15:19 [WARNING] API insert issued certificate warning: {"detail":"1062 (23000): Duplicate entry '2137-2026-09-22-من يهمه الأمر-year - Temp - En - D - ' for key 'uq_student_cert_record'"}
+2026-09-22 13:15:19 [INFO] Offline INSERT queued: issued_certificates temp_id=-13
+2026-09-22 13:15:19 [INFO] Offline INSERT queued: issued_certificates temp_id=-13
+2026-09-22 13:15:19 [INFO] Successfully recorded issued certificate for student ID 2137 via InsertIssuedCertificate SP.
+2026-09-22 13:15:19 [INFO] Successfully recorded issued certificate for student ID 2137 via InsertIssuedCertificate SP.
+2026-09-22 13:18:18 [INFO] Successfully recorded issued certificate for student ID 2137 via InsertIssuedCertificate SP.
+2026-09-22 13:18:18 [INFO] Successfully recorded issued certificate for student ID 2137 via InsertIssuedCertificate SP.
+2026-09-22 13:18:46 [INFO] Successfully recorded issued certificate for student ID 2137 via InsertIssuedCertificate SP.
+2026-09-22 13:18:46 [INFO] Successfully recorded issued certificate for student ID 2137 via InsertIssuedCertificate SP.
+2026-09-22 13:19:10 [INFO] Online Mode: Successfully fetched raw certificate payload via API for student_id=2010.
+2026-09-22 13:19:10 [INFO] Online Mode: Successfully fetched raw certificate payload via API for student_id=2010.
+2026-09-22 13:19:10 [INFO] Online Mode: Successfully fetched raw certificate payload via API for student_id=2010.
+2026-09-22 13:19:10 [INFO] Online Mode: Successfully fetched raw certificate payload via API for student_id=2010.
+2026-09-22 13:19:10 [INFO] Online Mode: Successfully fetched raw certificate payload via API for student_id=2010.
+2026-09-22 13:19:10 [INFO] Online Mode: Successfully fetched raw certificate payload via API for student_id=2010.
+2026-09-22 13:19:16 [INFO] Successfully recorded issued certificate for student ID 2010 via InsertIssuedCertificate SP.
+2026-09-22 13:19:16 [INFO] Successfully recorded issued certificate for student ID 2010 via InsertIssuedCertificate SP.
+2026-09-22 13:21:20 [INFO] Successfully recorded issued certificate for student ID 2010 via InsertIssuedCertificate SP.
+2026-09-22 13:21:20 [INFO] Successfully recorded issued certificate for student ID 2010 via InsertIssuedCertificate SP.
+2026-09-22 13:21:44 [INFO] Successfully recorded issued certificate for student ID 2010 via InsertIssuedCertificate SP.
+2026-09-22 13:21:44 [INFO] Successfully recorded issued certificate for student ID 2010 via InsertIssuedCertificate SP.
+2026-09-22 13:22:34 [INFO] Successfully recorded issued certificate for student ID 2010 via InsertIssuedCertificate SP.
+2026-09-22 13:22:34 [INFO] Successfully recorded issued certificate for student ID 2010 via InsertIssuedCertificate SP.
+2026-09-22 13:30:19 [WARNING] API insert issued certificate warning: {"detail":"1062 (23000): Duplicate entry '2010-2026-09-22-من يهمه الأمر-semester - Temp - Ar - ' for key 'uq_student_cert_record'"}
+2026-09-22 13:30:19 [INFO] Offline INSERT queued: issued_certificates temp_id=-14
+2026-09-22 13:30:19 [INFO] Offline INSERT queued: issued_certificates temp_id=-14
+2026-09-22 13:30:19 [INFO] Successfully recorded issued certificate for student ID 2010 via InsertIssuedCertificate SP.
+2026-09-22 13:30:19 [INFO] Successfully recorded issued certificate for student ID 2010 via InsertIssuedCertificate SP.
+2026-09-22 13:31:15 [INFO] Online Mode: Successfully fetched raw certificate payload via API for student_id=2010.
+2026-09-22 13:31:15 [INFO] Online Mode: Successfully fetched raw certificate payload via API for student_id=2010.
+2026-09-22 13:31:15 [INFO] Online Mode: Successfully fetched raw certificate payload via API for student_id=2010.
+2026-09-22 13:31:15 [INFO] Online Mode: Successfully fetched raw certificate payload via API for student_id=2010.
+2026-09-22 13:31:20 [WARNING] API insert issued certificate warning: {"detail":"1062 (23000): Duplicate entry '2010-2026-09-22-من يهمه الأمر-semester - Temp - Ar - ' for key 'uq_student_cert_record'"}
+2026-09-22 13:31:20 [INFO] Offline INSERT queued: issued_certificates temp_id=-15
+2026-09-22 13:31:20 [INFO] Offline INSERT queued: issued_certificates temp_id=-15
+2026-09-22 13:31:20 [INFO] Successfully recorded issued certificate for student ID 2010 via InsertIssuedCertificate SP.
+2026-09-22 13:31:20 [INFO] Successfully recorded issued certificate for student ID 2010 via InsertIssuedCertificate SP.
+2026-09-22 13:31:41 [INFO] Online Mode: Successfully fetched raw certificate payload via API for student_id=12.
+2026-09-22 13:31:41 [INFO] Online Mode: Successfully fetched raw certificate payload via API for student_id=12.
+2026-09-22 13:31:42 [INFO] Online Mode: Successfully fetched raw certificate payload via API for student_id=12.
+2026-09-22 13:31:42 [INFO] Online Mode: Successfully fetched raw certificate payload via API for student_id=12.
+2026-09-22 13:31:46 [INFO] Successfully recorded issued certificate for student ID 12 via InsertIssuedCertificate SP.
+2026-09-22 13:31:46 [INFO] Successfully recorded issued certificate for student ID 12 via InsertIssuedCertificate SP.
+2026-09-22 13:57:03 [INFO] SYSTEM STARTUP DIAGNOSTIC CHECK STARTED
+2026-09-22 13:57:03 [OK] [CHECK 1/4] FastAPI Connection Check ... [OK]
+2026-09-22 13:57:03 [OK] [CHECK 2/4] MySQL Database Connection ... [OK]
+2026-09-22 13:57:03 [OK] [CHECK 3/4] Authentication & Core SP Checks ... [OK]
+2026-09-22 13:57:03 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-09-22 13:57:03 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-09-22 13:57:03 [OK] [CHECK 4/4] Sync Engine & Local Replica Check ... [OK]
+2026-09-22 13:57:03 [OK] Status: ALL CHECKS PASSED. PROCEEDING TO LOGIN/DASHBOARD.
+2026-09-22 13:57:06 [INFO] Using WinForms / Chromium
+2026-09-22 13:57:06 [INFO] Using WinForms / Chromium
+2026-09-22 13:57:10 [INFO] before_load event fired. injecting pywebview object
+2026-09-22 13:57:10 [INFO] before_load event fired. injecting pywebview object
+2026-09-22 13:57:10 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-09-22 13:57:10 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-09-22 13:57:10 [INFO] _pywebviewready event fired
+2026-09-22 13:57:10 [INFO] _pywebviewready event fired
+2026-09-22 13:57:10 [INFO] loaded event fired
+2026-09-22 13:57:10 [INFO] loaded event fired
+2026-09-22 13:57:18 [INFO] before_load event fired. injecting pywebview object
+2026-09-22 13:57:18 [INFO] before_load event fired. injecting pywebview object
+2026-09-22 13:57:18 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-09-22 13:57:18 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-09-22 13:57:18 [INFO] _pywebviewready event fired
+2026-09-22 13:57:18 [INFO] _pywebviewready event fired
+2026-09-22 13:57:18 [INFO] loaded event fired
+2026-09-22 13:57:18 [INFO] loaded event fired
+2026-09-22 13:57:20 [INFO] Online Mode: Successfully fetched raw certificate payload via API for student_id=2137.
+2026-09-22 13:57:20 [INFO] Online Mode: Successfully fetched raw certificate payload via API for student_id=2137.
+2026-09-22 13:57:36 [INFO] Online Mode: Successfully fetched raw certificate payload via API for student_id=2010.
+2026-09-22 13:57:36 [INFO] Online Mode: Successfully fetched raw certificate payload via API for student_id=2010.
+2026-09-22 13:57:36 [INFO] Online Mode: Successfully fetched raw certificate payload via API for student_id=2010.
+2026-09-22 13:57:36 [INFO] Online Mode: Successfully fetched raw certificate payload via API for student_id=2010.
+2026-09-22 13:57:36 [INFO] Online Mode: Successfully fetched raw certificate payload via API for student_id=2010.
+2026-09-22 13:57:36 [INFO] Online Mode: Successfully fetched raw certificate payload via API for student_id=2010.
+2026-09-22 13:57:42 [ERROR] Error generating certificate: name 'right_c' is not defined
+2026-09-22 13:57:42 [ERROR] Error generating certificate: name 'right_c' is not defined
+2026-09-22 13:58:23 [ERROR] Error generating certificate: name 'right_c' is not defined
+2026-09-22 13:58:23 [ERROR] Error generating certificate: name 'right_c' is not defined
+2026-09-22 14:03:10 [INFO] SYSTEM STARTUP DIAGNOSTIC CHECK STARTED
+2026-09-22 14:03:10 [OK] [CHECK 1/4] FastAPI Connection Check ... [OK]
+2026-09-22 14:03:10 [OK] [CHECK 2/4] MySQL Database Connection ... [OK]
+2026-09-22 14:03:10 [OK] [CHECK 3/4] Authentication & Core SP Checks ... [OK]
+2026-09-22 14:03:10 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-09-22 14:03:10 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-09-22 14:03:10 [OK] [CHECK 4/4] Sync Engine & Local Replica Check ... [OK]
+2026-09-22 14:03:10 [OK] Status: ALL CHECKS PASSED. PROCEEDING TO LOGIN/DASHBOARD.
+2026-09-22 14:03:14 [INFO] Using WinForms / Chromium
+2026-09-22 14:03:14 [INFO] Using WinForms / Chromium
+2026-09-22 14:03:17 [INFO] before_load event fired. injecting pywebview object
+2026-09-22 14:03:17 [INFO] before_load event fired. injecting pywebview object
+2026-09-22 14:03:17 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-09-22 14:03:17 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-09-22 14:03:18 [INFO] _pywebviewready event fired
+2026-09-22 14:03:18 [INFO] _pywebviewready event fired
+2026-09-22 14:03:18 [INFO] loaded event fired
+2026-09-22 14:03:18 [INFO] loaded event fired
+2026-09-22 14:03:23 [INFO] before_load event fired. injecting pywebview object
+2026-09-22 14:03:23 [INFO] before_load event fired. injecting pywebview object
+2026-09-22 14:03:23 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-09-22 14:03:23 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-09-22 14:03:23 [INFO] _pywebviewready event fired
+2026-09-22 14:03:23 [INFO] _pywebviewready event fired
+2026-09-22 14:03:23 [INFO] loaded event fired
+2026-09-22 14:03:23 [INFO] loaded event fired
+2026-09-22 14:03:26 [INFO] Online Mode: Successfully fetched raw certificate payload via API for student_id=2137.
+2026-09-22 14:03:26 [INFO] Online Mode: Successfully fetched raw certificate payload via API for student_id=2137.
+2026-09-22 14:03:31 [INFO] Online Mode: Successfully fetched raw certificate payload via API for student_id=12.
+2026-09-22 14:03:31 [INFO] Online Mode: Successfully fetched raw certificate payload via API for student_id=12.
+2026-09-22 14:03:42 [INFO] Online Mode: Successfully fetched raw certificate payload via API for student_id=2010.
+2026-09-22 14:03:42 [INFO] Online Mode: Successfully fetched raw certificate payload via API for student_id=2010.
+2026-09-22 14:03:42 [INFO] Online Mode: Successfully fetched raw certificate payload via API for student_id=2010.
+2026-09-22 14:03:42 [INFO] Online Mode: Successfully fetched raw certificate payload via API for student_id=2010.
+2026-09-22 14:03:43 [INFO] Online Mode: Successfully fetched raw certificate payload via API for student_id=2010.
+2026-09-22 14:03:43 [INFO] Online Mode: Successfully fetched raw certificate payload via API for student_id=2010.
+2026-09-22 14:03:47 [WARNING] API insert issued certificate warning: {"detail":"1062 (23000): Duplicate entry '2010-2026-09-22-من يهمه الأمر-semester - Temp - Ar - ' for key 'uq_student_cert_record'"}
+2026-09-22 14:03:47 [INFO] Offline INSERT queued: issued_certificates temp_id=-16
+2026-09-22 14:03:47 [INFO] Offline INSERT queued: issued_certificates temp_id=-16
+2026-09-22 14:03:47 [INFO] Successfully recorded issued certificate for student ID 2010 via InsertIssuedCertificate SP.
+2026-09-22 14:03:47 [INFO] Successfully recorded issued certificate for student ID 2010 via InsertIssuedCertificate SP.
+2026-09-22 14:05:03 [INFO] Offline INSERT queued: issued_certificates temp_id=-17
+2026-09-22 14:05:03 [INFO] Offline INSERT queued: issued_certificates temp_id=-17
+2026-09-22 14:05:03 [INFO] Successfully recorded issued certificate for student ID 2010 via InsertIssuedCertificate SP.
+2026-09-22 14:05:03 [INFO] Successfully recorded issued certificate for student ID 2010 via InsertIssuedCertificate SP.
+2026-09-22 14:06:12 [INFO] Offline INSERT queued: issued_certificates temp_id=-18
+2026-09-22 14:06:12 [INFO] Offline INSERT queued: issued_certificates temp_id=-18
+2026-09-22 14:06:12 [INFO] Successfully recorded issued certificate for student ID 2010 via InsertIssuedCertificate SP.
+2026-09-22 14:06:12 [INFO] Successfully recorded issued certificate for student ID 2010 via InsertIssuedCertificate SP.
+2026-09-22 14:08:21 [INFO] Offline INSERT queued: issued_certificates temp_id=-19
+2026-09-22 14:08:21 [INFO] Offline INSERT queued: issued_certificates temp_id=-19
+2026-09-22 14:08:21 [INFO] Successfully recorded issued certificate for student ID 2010 via InsertIssuedCertificate SP.
+2026-09-22 14:08:21 [INFO] Successfully recorded issued certificate for student ID 2010 via InsertIssuedCertificate SP.
+2026-09-22 14:12:36 [INFO] Offline INSERT queued: issued_certificates temp_id=-20
+2026-09-22 14:12:36 [INFO] Offline INSERT queued: issued_certificates temp_id=-20
+2026-09-22 14:12:36 [INFO] Successfully recorded issued certificate for student ID 12 via InsertIssuedCertificate SP.
+2026-09-22 14:12:36 [INFO] Successfully recorded issued certificate for student ID 12 via InsertIssuedCertificate SP.
+2026-09-22 14:13:10 [INFO] Offline INSERT queued: issued_certificates temp_id=-21
+2026-09-22 14:13:10 [INFO] Offline INSERT queued: issued_certificates temp_id=-21
+2026-09-22 14:13:10 [INFO] Successfully recorded issued certificate for student ID 2137 via InsertIssuedCertificate SP.
+2026-09-22 14:13:10 [INFO] Successfully recorded issued certificate for student ID 2137 via InsertIssuedCertificate SP.
+2026-09-23 08:57:46 [INFO] SYSTEM STARTUP DIAGNOSTIC CHECK STARTED
+2026-09-23 08:57:48 [WARNING] [CHECK 1/4] FastAPI Connection Check ... [OFFLINE MODE]
+2026-09-23 08:57:48 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-09-23 08:57:48 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-09-23 08:57:48 [OK] [CHECK 2/4] SQLite Replica Database Connection ... [OK]
+2026-09-23 08:57:48 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-09-23 08:57:49 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-09-23 08:57:49 [OK] [CHECK 3/4] Authentication & Core SP Checks ... [OFFLINE MODE]
+2026-09-23 08:57:49 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-09-23 08:57:49 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-09-23 08:57:49 [OK] [CHECK 4/4] Sync Engine & Local Replica Check ... [OK]
+2026-09-23 08:57:49 [OK] Status: OFFLINE MODE ACTIVE. PROCEEDING TO LOGIN/DASHBOARD.
+2026-09-23 08:57:52 [INFO] Using WinForms / Chromium
+2026-09-23 08:57:52 [INFO] Using WinForms / Chromium
+2026-09-23 08:57:56 [INFO] before_load event fired. injecting pywebview object
+2026-09-23 08:57:56 [INFO] before_load event fired. injecting pywebview object
+2026-09-23 08:57:56 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-09-23 08:57:56 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-09-23 08:57:56 [INFO] _pywebviewready event fired
+2026-09-23 08:57:56 [INFO] _pywebviewready event fired
+2026-09-23 08:57:56 [INFO] loaded event fired
+2026-09-23 08:57:56 [INFO] loaded event fired
+2026-09-23 08:58:00 [INFO] before_load event fired. injecting pywebview object
+2026-09-23 08:58:00 [INFO] before_load event fired. injecting pywebview object
+2026-09-23 08:58:00 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-09-23 08:58:00 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-09-23 08:58:00 [INFO] _pywebviewready event fired
+2026-09-23 08:58:00 [INFO] _pywebviewready event fired
+2026-09-23 08:58:00 [INFO] loaded event fired
+2026-09-23 08:58:00 [INFO] loaded event fired
+2026-09-23 08:58:10 [ERROR] Permission denied while saving certificate file F:\CR_PY\certificate_manager\certificates\year - Temp - Ar - D - SBS - Student - DEFAULT.docx: [Errno 13] Permission denied: 'F:\\CR_PY\\certificate_manager\\certificates\\year - Temp - Ar - D - SBS - Student - DEFAULT.docx'
+2026-09-23 08:58:10 [ERROR] Permission denied while saving certificate file F:\CR_PY\certificate_manager\certificates\year - Temp - Ar - D - SBS - Student - DEFAULT.docx: [Errno 13] Permission denied: 'F:\\CR_PY\\certificate_manager\\certificates\\year - Temp - Ar - D - SBS - Student - DEFAULT.docx'
+2026-09-23 08:58:20 [INFO] Offline INSERT queued: issued_certificates temp_id=-22
+2026-09-23 08:58:20 [INFO] Offline INSERT queued: issued_certificates temp_id=-22
+2026-09-23 08:58:20 [INFO] Successfully recorded issued certificate for student ID 2137 via InsertIssuedCertificate SP.
+2026-09-23 08:58:20 [INFO] Successfully recorded issued certificate for student ID 2137 via InsertIssuedCertificate SP.
+2026-09-23 10:01:54 [INFO] before_load event fired. injecting pywebview object
+2026-09-23 10:01:54 [INFO] before_load event fired. injecting pywebview object
+2026-09-23 10:01:54 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-09-23 10:01:54 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-09-23 10:01:55 [INFO] _pywebviewready event fired
+2026-09-23 10:01:55 [INFO] _pywebviewready event fired
+2026-09-23 10:01:55 [INFO] loaded event fired
+2026-09-23 10:01:55 [INFO] loaded event fired
+2026-09-23 10:05:16 [INFO] SYSTEM STARTUP DIAGNOSTIC CHECK STARTED
+2026-09-23 10:05:18 [WARNING] [CHECK 1/4] FastAPI Connection Check ... [OFFLINE MODE]
+2026-09-23 10:05:18 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-09-23 10:05:18 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-09-23 10:05:18 [OK] [CHECK 2/4] SQLite Replica Database Connection ... [OK]
+2026-09-23 10:05:18 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-09-23 10:05:18 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-09-23 10:05:18 [OK] [CHECK 3/4] Authentication & Core SP Checks ... [OFFLINE MODE]
+2026-09-23 10:05:18 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-09-23 10:05:18 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-09-23 10:05:18 [OK] [CHECK 4/4] Sync Engine & Local Replica Check ... [OK]
+2026-09-23 10:05:18 [OK] Status: OFFLINE MODE ACTIVE. PROCEEDING TO LOGIN/DASHBOARD.
+2026-09-23 10:05:21 [INFO] Using WinForms / Chromium
+2026-09-23 10:05:21 [INFO] Using WinForms / Chromium
+2026-09-23 10:05:25 [INFO] before_load event fired. injecting pywebview object
+2026-09-23 10:05:25 [INFO] before_load event fired. injecting pywebview object
+2026-09-23 10:05:25 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-09-23 10:05:25 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-09-23 10:05:25 [INFO] _pywebviewready event fired
+2026-09-23 10:05:25 [INFO] _pywebviewready event fired
+2026-09-23 10:05:25 [INFO] loaded event fired
+2026-09-23 10:05:25 [INFO] loaded event fired
+2026-09-23 10:05:32 [INFO] before_load event fired. injecting pywebview object
+2026-09-23 10:05:32 [INFO] before_load event fired. injecting pywebview object
+2026-09-23 10:05:32 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-09-23 10:05:32 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-09-23 10:05:32 [INFO] _pywebviewready event fired
+2026-09-23 10:05:32 [INFO] _pywebviewready event fired
+2026-09-23 10:05:32 [INFO] loaded event fired
+2026-09-23 10:05:32 [INFO] loaded event fired
+2026-09-23 10:05:44 [INFO] Offline INSERT queued: issued_certificates temp_id=-23
+2026-09-23 10:05:44 [INFO] Offline INSERT queued: issued_certificates temp_id=-23
+2026-09-23 10:05:44 [INFO] Successfully recorded issued certificate for student ID 2137 via InsertIssuedCertificate SP.
+2026-09-23 10:05:44 [INFO] Successfully recorded issued certificate for student ID 2137 via InsertIssuedCertificate SP.
+2026-09-23 10:09:02 [INFO] Starting sync: 21 queued operations.
+2026-09-23 10:09:02 [INFO] Starting sync: 21 queued operations.
+2026-09-23 10:09:03 [ERROR] API sync request failed with status 500: {"detail":"Database synchronization failed: 1062 (23000): Duplicate entry '2137-2026-09-02-من يهمه الأمر-year - Temp - Ar - D - ' for key 'uq_student_cert_record'"}
+2026-09-23 10:09:03 [ERROR] API sync request failed with status 500: {"detail":"Database synchronization failed: 1062 (23000): Duplicate entry '2137-2026-09-02-من يهمه الأمر-year - Temp - Ar - D - ' for key 'uq_student_cert_record'"}
+2026-09-23 10:09:20 [INFO] Online Mode: Successfully fetched raw certificate payload via API for student_id=2137.
+2026-09-23 10:09:20 [INFO] Online Mode: Successfully fetched raw certificate payload via API for student_id=2137.
+2026-09-23 10:09:35 [ERROR] Permission denied while saving certificate file F:\CR_PY\certificate_manager\certificates\year - Temp - Ar - D - SBS - حسن نور حسين نور - DEFAULT.docx: [Errno 13] Permission denied: 'F:\\CR_PY\\certificate_manager\\certificates\\year - Temp - Ar - D - SBS - حسن نور حسين نور - DEFAULT.docx'
+2026-09-23 10:09:35 [ERROR] Permission denied while saving certificate file F:\CR_PY\certificate_manager\certificates\year - Temp - Ar - D - SBS - حسن نور حسين نور - DEFAULT.docx: [Errno 13] Permission denied: 'F:\\CR_PY\\certificate_manager\\certificates\\year - Temp - Ar - D - SBS - حسن نور حسين نور - DEFAULT.docx'
+2026-09-23 10:09:43 [INFO] Successfully recorded issued certificate for student ID 2137 via InsertIssuedCertificate SP.
+2026-09-23 10:09:43 [INFO] Successfully recorded issued certificate for student ID 2137 via InsertIssuedCertificate SP.
+2026-09-23 10:42:38 [INFO] SYSTEM STARTUP DIAGNOSTIC CHECK STARTED
+2026-09-23 10:42:38 [OK] [CHECK 1/4] FastAPI Connection Check ... [OK]
+2026-09-23 10:42:38 [OK] [CHECK 2/4] MySQL Database Connection ... [OK]
+2026-09-23 10:42:38 [OK] [CHECK 3/4] Authentication & Core SP Checks ... [OK]
+2026-09-23 10:42:38 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-09-23 10:42:38 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-09-23 10:42:38 [OK] [CHECK 4/4] Sync Engine & Local Replica Check ... [OK]
+2026-09-23 10:42:38 [OK] Status: ALL CHECKS PASSED. PROCEEDING TO LOGIN/DASHBOARD.
+2026-09-23 10:42:41 [INFO] Using WinForms / Chromium
+2026-09-23 10:42:41 [INFO] Using WinForms / Chromium
+2026-09-23 10:42:44 [INFO] before_load event fired. injecting pywebview object
+2026-09-23 10:42:44 [INFO] before_load event fired. injecting pywebview object
+2026-09-23 10:42:44 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-09-23 10:42:44 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-09-23 10:42:44 [INFO] _pywebviewready event fired
+2026-09-23 10:42:44 [INFO] _pywebviewready event fired
+2026-09-23 10:42:44 [INFO] loaded event fired
+2026-09-23 10:42:44 [INFO] loaded event fired
+2026-09-23 10:42:58 [INFO] before_load event fired. injecting pywebview object
+2026-09-23 10:42:58 [INFO] before_load event fired. injecting pywebview object
+2026-09-23 10:42:58 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-09-23 10:42:58 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-09-23 10:42:58 [INFO] _pywebviewready event fired
+2026-09-23 10:42:58 [INFO] _pywebviewready event fired
+2026-09-23 10:42:58 [INFO] loaded event fired
+2026-09-23 10:42:58 [INFO] loaded event fired
+2026-09-23 10:43:29 [INFO] Online Mode: Successfully fetched raw certificate payload via API for student_id=2137.
+2026-09-23 10:43:29 [INFO] Online Mode: Successfully fetched raw certificate payload via API for student_id=2137.
+2026-09-23 10:44:10 [WARNING] API insert issued certificate warning: {"detail":"Certificate record already exists for this student, date, and template."}
+2026-09-23 10:44:10 [INFO] Offline INSERT queued: issued_certificates temp_id=-24
+2026-09-23 10:44:10 [INFO] Offline INSERT queued: issued_certificates temp_id=-24
+2026-09-23 10:44:10 [INFO] Successfully recorded issued certificate for student ID 2137 via InsertIssuedCertificate SP.
+2026-09-23 10:44:10 [INFO] Successfully recorded issued certificate for student ID 2137 via InsertIssuedCertificate SP.
+2026-09-23 10:52:06 [INFO] Successfully recorded issued certificate for student ID 2137 via InsertIssuedCertificate SP.
+2026-09-23 10:52:06 [INFO] Successfully recorded issued certificate for student ID 2137 via InsertIssuedCertificate SP.

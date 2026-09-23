@@ -454,6 +454,39 @@ class StudentProfileView:
                             icon='edit',
                             on_click=lambda: self.on_edit(data, on_back_to_cert=on_back_to_cert) if self.on_edit else ui.notify("Edit handler not connected", type="warning")
                         ).classes('text-xs px-4 py-2 font-bold')
+
+                        def delete_student_profile():
+                            student_id = data.get("id") or data.get("student_id")
+                            name_ar = data.get("full_name_ar") or data.get("name_ar") or ""
+                            if not student_id: return
+
+                            with ui.dialog() as confirm_dlg, UI.card().classes("p-6 gap-4 w-96 bg-[var(--surface-card)] text-[var(--text-primary)] rounded-2xl border border-[var(--border-default)] shadow-2xl"):
+                                ui.label("تأكيد حذف الطالب / Confirm Delete").classes("text-lg font-bold text-rose-500")
+                                ui.label(f"هل أنت تأكد من رغبتك في حذف الطالب ({name_ar})؟ سيتم حذف كافة المراحل والدرجات المرتبطة به ولا يمكن التراجع عن هذا الإجراء.").classes("text-xs text-[var(--text-secondary)] leading-relaxed")
+
+                                with ui.row().classes("w-full justify-end gap-3 mt-2"):
+                                    UI.secondary_button("إلغاء / Cancel", on_click=confirm_dlg.close).classes("text-xs px-4 py-2")
+
+                                    def do_delete():
+                                        confirm_dlg.close()
+                                        try:
+                                            self.repo.delete(student_id)
+                                            ui.notify(f"تم حذف الطالب ({name_ar}) بنجاح / Student deleted", type="positive")
+                                            if callable(self.on_back):
+                                                self.on_back()
+                                        except Exception as err:
+                                            log.error(f"Failed to delete student {student_id}: {err}")
+                                            ui.notify(f"خطأ في حذف الطالب: {err}", type="negative")
+
+                                    UI.danger_button("🗑 تأكيد الحذف / Delete", on_click=do_delete).classes("text-xs px-4 py-2 font-bold")
+
+                            confirm_dlg.open()
+
+                        UI.danger_button(
+                            'حذف الطالب / Delete Student',
+                            icon='delete',
+                            on_click=delete_student_profile
+                        ).classes('text-xs px-4 py-2 font-bold')
                     
                 # Tabs
                 with ui.tabs().classes('w-full border-b border-[var(--border-default)] app-text-primary shrink-0') as tabs:
@@ -684,6 +717,38 @@ class StudentProfileView:
             with ui.row().classes("w-full justify-between items-center pb-2 border-b border-[var(--border-default)] gap-2 flex-wrap"):
                 ui.label(sem_title).classes("font-bold text-sm app-text-accent")
 
+                period_inputs = []
+
+                def save_period_scores():
+                    if not period_inputs:
+                        ui.notify("لا توجد مواد لحفظ درجاتها / No courses to save", type="info")
+                        return
+
+                    updated_count = 0
+                    errors = 0
+                    for cur_eid, num_input, select_input in period_inputs:
+                        val = num_input.value
+                        if val is None or val == "":
+                            continue
+                        try:
+                            s_num = float(val)
+                            if not (0 <= s_num <= 100):
+                                ui.notify("الدرجة يجب أن تكون بين 0 و100 / Score must be 0-100", type="warning")
+                                return
+                            r_val = int(select_input.value or "1")
+                            self.enroll_repo.update(cur_eid, s_num, r_val)
+                            updated_count += 1
+                        except Exception as err:
+                            log.error(f"Error saving enrollment {cur_eid}: {err}")
+                            errors += 1
+
+                    if updated_count > 0:
+                        ui.notify("تم حفظ درجات الفترة بنجاح / Saved period scores!", type="positive", duration=1.5)
+                        if callable(refresh_callback):
+                            refresh_callback()
+                    elif errors > 0:
+                        ui.notify("حدث خطأ أثناء حفظ درجات الفترة", type="negative")
+
                 if period:
                     raw_st = period.get("result_status")
                     cur_status = STATUS_CODE_MAP.get(raw_st, STATUS_CODE_MAP.get(str(raw_st).strip(), "PASSED"))
@@ -709,6 +774,11 @@ class StudentProfileView:
                     UI.select("", status_opts, value=cur_status, on_change=on_status_change).classes("text-xs w-40 shrink-0")
 
                     with ui.row().classes("gap-2 items-center"):
+                        UI.primary_button(
+                            "💾 حفظ / SAVE",
+                            on_click=save_period_scores
+                        ).classes("text-sm px-3 py-1.5 font-bold shadow-md")
+
                         UI.secondary_button(
                             "📝 الدرجات",
                             on_click=lambda p=period: self.on_manage_courses(p, student_data) if self.on_manage_courses else None
@@ -791,7 +861,7 @@ class StudentProfileView:
                                     elif is_2nd:
                                         ui.label("الدور الثاني").classes("px-2.5 py-0.5 rounded-lg text-[10px] font-extrabold bg-amber-500/20 text-amber-500 border border-amber-500/30 shrink-0")
 
-                             # Editable Inputs: Attempt Dropdown, Score Field & Save Button stacked vertically
+                            # Editable Inputs: Attempt Dropdown & Score Field stacked vertically
                             with ui.column().classes("items-end gap-1.5 shrink-0 w-32"):
                                 round_opts = {"1": "الدور الأول", "2": "الدور الثاني", "3": "الدور الثالث", "0": "عبور/تحميل"}
                                 
@@ -805,30 +875,8 @@ class StudentProfileView:
                                     value=pr
                                 ).props("dense outlined").classes("w-full text-xs app-input rounded-lg")
 
-                                def make_save_handler(cur_eid, num_input, select_input):
-                                    def _do_save(e=None):
-                                        val = num_input.value
-                                        if val is None or val == "":
-                                            ui.notify("يرجى إدخال الدرجة أولاً / Enter score first", type="warning")
-                                            return
-                                        try:
-                                            s_num = float(val)
-                                            if not (0 <= s_num <= 100):
-                                                ui.notify("الدرجة يجب أن تكون بين 0 و100 / Score must be 0-100", type="warning")
-                                                return
-                                            r_val = int(select_input.value or "1")
-                                            self.enroll_repo.update(cur_eid, s_num, r_val)
-                                            ui.notify("تم حفظ الدرجة والدور بنجاح / Saved!", type="positive", duration=1.5)
-                                            if callable(refresh_callback):
-                                                refresh_callback()
-                                        except Exception as err:
-                                            ui.notify(f"خطأ في الحفظ: {err}", type="negative")
-                                    return _do_save
-
-                                save_handler = make_save_handler(enr_id, s_field, r_select)
-                                s_field.on('keydown.enter', save_handler)
-
-                                ui.button("💾 حفظ / Save", on_click=save_handler).classes("w-full h-7 text-[11px] bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-lg shadow-sm")
+                                period_inputs.append((enr_id, s_field, r_select))
+                                s_field.on('keydown.enter', save_period_scores)
             else:
                 ui.label("لا توجد مواد / No courses").classes("text-sm app-text-muted italic text-center py-2 w-full")
 

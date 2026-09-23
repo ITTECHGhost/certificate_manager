@@ -1791,8 +1791,32 @@ class StudentRepository(BaseRepository):
             raise
  
     def delete(self, student_id: int) -> None:
-        self._call_write("DeleteStudent", (student_id,))
-        log_activity(f"تم حذف الطالب ID: {student_id}")
+        if not is_online():
+            sq_conn = get_local_connection()
+            try:
+                sq_conn.execute("DELETE FROM enrollments WHERE period_id IN (SELECT id FROM academic_periods WHERE student_id=?)", (student_id,))
+                sq_conn.execute("DELETE FROM student_courses WHERE period_id IN (SELECT id FROM academic_periods WHERE student_id=?)", (student_id,))
+                sq_conn.execute("DELETE FROM academic_periods WHERE student_id=?", (student_id,))
+                sq_conn.execute("DELETE FROM issued_certificates WHERE student_id=?", (student_id,))
+                sq_conn.execute("DELETE FROM students WHERE id=?", (student_id,))
+                sq_conn.execute("DELETE FROM local_students WHERE id=?", (student_id,))
+                sq_conn.commit()
+            finally:
+                sq_conn.close()
+            log_activity(f"تم حذف الطالب ID: {student_id}")
+            return
+
+        try:
+            resp = requests.delete(f"{self.api_url}/students/{student_id}", timeout=5.0)
+            if resp.status_code == 200:
+                log_activity(f"تم حذف الطالب ID: {student_id}")
+            else:
+                self._call_write("DeleteStudent", (student_id,))
+                log_activity(f"تم حذف الطالب ID: {student_id}")
+        except Exception as e:
+            log_system(f"API delete failed, using direct write: {e}", "WARNING")
+            self._call_write("DeleteStudent", (student_id,))
+            log_activity(f"تم حذف الطالب ID: {student_id}")
 
 # ---------------------------------------------------------------------------
 # Module 7: Timelines & Enrollments
@@ -2211,22 +2235,21 @@ class CertificateRepository(BaseRepository):
 
         data = response_data["student_info"][0] if response_data.get("student_info") else {}
         
-        if response_data.get("ranking") and response_data["ranking"][0]:
-            analytics = response_data["ranking"][0]
-            data["rank"] = data.get("sequence_number") or analytics.get("class_rank", 1)
-            order_count = data.get("order_num_students")
-            if not order_count and data.get("order_id"):
-                try:
-                    ord_r = sqlite_read_one("SELECT num_students FROM graduation_orders WHERE id = ?", (data.get("order_id"),))
-                    if ord_r and ord_r.get("num_students"):
-                        order_count = ord_r.get("num_students")
-                except Exception:
-                    pass
+        analytics = response_data["ranking"][0] if (response_data.get("ranking") and response_data["ranking"][0]) else {}
+        data["rank"] = data.get("sequence_number") or analytics.get("class_rank") or ""
+        order_count = data.get("order_num_students")
+        if not order_count and data.get("order_id"):
+            try:
+                ord_r = sqlite_read_one("SELECT num_students FROM graduation_orders WHERE id = ?", (data.get("order_id"),))
+                if ord_r and ord_r.get("num_students"):
+                    order_count = ord_r.get("num_students")
+            except Exception:
+                pass
 
-            data["order_num_students"] = order_count
-            data["db_total_graduates"] = analytics.get("total_graduates", 1)
-            data["total_graduates"] = order_count or data.get("postgraduation_number") or analytics.get("total_graduates", 1)
-            data["top_average"] = analytics.get("top_average")
+        data["order_num_students"] = order_count
+        data["db_total_graduates"] = analytics.get("total_graduates", "")
+        data["total_graduates"] = data.get("postgraduation_number") or order_count or analytics.get("total_graduates", "")
+        data["top_average"] = analytics.get("top_average", "")
             
         data["academic_timeline"] = response_data.get("academic_timeline", [])
         data["courses_grouped"] = response_data.get("courses_grouped", [])
@@ -2783,7 +2806,7 @@ class StudyRoutineRepository(BaseRepository):
                     c_query = (
                         "SELECT c.id, c.name_ar, c.name_en, c.credit_hours, "
                         "       COALESCE(srp.stage_number, c.stage_number, 1) AS stage_number, "
-                        "       COALESCE(srp.semester_num, c.semester_num, 1) AS semester_num, "
+                        "       COALESCE(srp.semester_num, 1) AS semester_num, "
                         "       src.period_id "
                         "FROM study_routine_courses src "
                         "JOIN courses c ON src.course_id = c.id "

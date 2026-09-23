@@ -119,11 +119,15 @@ class StudentsScreen:
                 # Body slot for Actions
                 self.table.add_slot("body-cell-actions", """
                     <q-td :props="props">
-                        <q-btn size="sm" color="primary" label="View Profile" @click="$parent.$emit('view_profile', props.row)" />
+                        <div class="row items-center justify-center gap-2">
+                            <q-btn size="sm" color="primary" icon="visibility" label="View Profile" @click="$parent.$emit('view_profile', props.row)" />
+                            <q-btn size="sm" color="negative" icon="delete" label="Delete / حذف" @click="$parent.$emit('delete_student', props.row)" />
+                        </div>
                     </q-td>
                 """)
 
                 self.table.on("view_profile", self._on_view_profile)
+                self.table.on("delete_student", self._on_delete_student)
 
                 # Pagination & Rows-Per-Page Controls Footer
                 with ui.row().classes("w-full items-center justify-between mt-4 px-2 py-2 border-t border-[var(--border-default)]"):
@@ -264,6 +268,39 @@ class StudentsScreen:
         """Triggered when the View Profile button is clicked in the table slot."""
         row_data = getattr(msg, "args", {}) or {}
         self.profile_view.render(row_data)
+
+    def _on_delete_student(self, msg) -> None:
+        """Triggered when the Delete Student button is clicked in the table slot."""
+        row_data = getattr(msg, "args", {}) or {}
+        if not isinstance(row_data, dict):
+            return
+
+        student_id = row_data.get("id") or row_data.get("student_id")
+        name_ar = row_data.get("name_ar") or row_data.get("full_name_ar") or ""
+
+        if not student_id:
+            return
+
+        with ui.dialog() as confirm_dlg, UI.card().classes("p-6 gap-4 w-96 bg-[var(--surface-card)] text-[var(--text-primary)] rounded-2xl border border-[var(--border-default)] shadow-2xl"):
+            ui.label("تأكيد حذف الطالب / Confirm Delete").classes("text-lg font-bold text-rose-500")
+            ui.label(f"هل أنت تأكد من رغبتك في حذف الطالب ({name_ar})؟ سيتم حذف كافة المراحل والدرجات المرتبطة به ولا يمكن التراجع عن هذا الإجراء.").classes("text-xs text-[var(--text-secondary)] leading-relaxed")
+
+            with ui.row().classes("w-full justify-end gap-3 mt-2"):
+                UI.secondary_button("إلغاء / Cancel", on_click=confirm_dlg.close).classes("text-xs px-4 py-2")
+
+                def do_delete():
+                    confirm_dlg.close()
+                    try:
+                        self.repo.delete(student_id)
+                        ui.notify(f"تم حذف الطالب ({name_ar}) بنجاح / Student deleted", type="positive")
+                        self.perform_search(reset_offset=False)
+                    except Exception as err:
+                        log.error(f"Failed to delete student {student_id}: {err}")
+                        ui.notify(f"خطأ في حذف الطالب: {err}", type="negative")
+
+                UI.danger_button("🗑 تأكيد الحذف / Delete", on_click=do_delete).classes("text-xs px-4 py-2 font-bold")
+
+        confirm_dlg.open()
 
     def _refresh_table(self):
         """Callback to reload table data after form save."""

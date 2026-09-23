@@ -789,3 +789,63 @@
 2026-09-08 11:48:17 [OK] Authentication verified via MySQL Stored Procedure 'AuthenticateUser' for user '1' (ID: 1, Role: admin)
 2026-09-08 13:31:46 [INFO] Login attempt initiated for username: '1'
 2026-09-08 13:31:46 [OK] Authentication verified via MySQL Stored Procedure 'AuthenticateUser' for user '1' (ID: 1, Role: admin)
+2026-09-09 08:46:21 [INFO] Login attempt initiated for username: '1'
+2026-09-09 08:46:21 [OK] Authentication verified via MySQL Stored Procedure 'AuthenticateUser' for user '1' (ID: 1, Role: admin)
+2026-09-09 09:07:36 [INFO] Login attempt initiated for username: '1'
+2026-09-09 09:07:36 [OK] Authentication verified via MySQL Stored Procedure 'AuthenticateUser' for user '1' (ID: 1, Role: admin)
+2026-09-09 09:44:43 [INFO] Login attempt initiated for username: '1'
+2026-09-09 09:44:43 [OK] Authentication verified via MySQL Stored Procedure 'AuthenticateUser' for user '1' (ID: 1, Role: admin)
+2026-09-09 09:45:01 [INFO] تم حذف الطالب ID: 2138
+2026-09-09 10:49:34 [INFO] Login attempt initiated for username: '1'
+2026-09-09 10:49:34 [OK] Authentication verified via MySQL Stored Procedure 'AuthenticateUser' for user '1' (ID: 1, Role: admin)
+2026-09-09 11:20:50 [INFO] Login attempt initiated for username: '1'
+2026-09-09 11:20:50 [OK] Authentication verified via MySQL Stored Procedure 'AuthenticateUser' for user '1' (ID: 1, Role: admin)
+2026-09-09 13:54:43 [INFO] Login attempt initiated for username: '1'
+2026-09-09 13:54:43 [OK] Authentication verified via MySQL Stored Procedure 'AuthenticateUser' for user '1' (ID: 1, Role: admin)
+2026-09-09 13:56:25 [INFO] تم تسجيل الوثيقة الصادرة بالطالب ID: 2137 (الجهة: من يهمه الأمر) عبر SP
+2026-09-09 13:59:17 [INFO] تم تسجيل الوثيقة الصادرة بالطالب ID: 2137 (الجهة: من يهمه الأمر) عبر SP
+2026-09-15 11:36:04 [INFO] Login attempt initiated for username: '1'
+2026-09-15 11:36:04 [OK] Authentication verified via MySQL Stored Procedure 'AuthenticateUser' for user '1' (ID: 1, Role: admin)
+2026-09-15 14:06:31 [INFO] Login attempt initiated for username: '1'
+2026-09-15 14:06:31 [OK] Authentication verified via MySQL Stored Procedure 'AuthenticateUser' for user '1' (ID: 1, Role: admin)
+2026-09-16 13:55:01 [INFO] Login attempt initiated for username: '1'
+2026-09-16 13:55:01 [OK] Authentication verified via MySQL Stored Procedure 'AuthenticateUser' for user '1' (ID: 1, Role: admin)
+2026-09-16 14:02:52 [INFO] Login attempt initiated for username: '1'
+2026-09-16 14:02:52 [OK] Authentication verified via MySQL Stored Procedure 'AuthenticateUser' for user '1' (ID: 1, Role: admin)
+2026-09-20 10:26:41 [INFO] Login attempt initiated for username: '1'
+2026-09-20 10:26:41 [OK] Authentication verified via MySQL Stored Procedure 'AuthenticateUser' for user '1' (ID: 1, Role: admin)
+2026-09-20 10:27:06 [INFO] تم تسجيل الوثيقة الصادرة بالطالب ID: 2137 (الجهة: من يهمه الأمر) عبر SP
+2026-09-20 11:05:14 [INFO] Login attempt initiated for username: '1'
+2026-09-20 11:05:14 [OK] Authentication verified via MySQL Stored Procedure 'AuthenticateUser' for user '1' (ID: 1, Role: admin)
+2026-09-20 14:13:38 [INFO] Login attempt initiated for username: '1'
+2026-09-20 14:13:38 [OK] Authentication verified via MySQL Stored Procedure 'AuthenticateUser' for user '1' (ID: 1, Role: admin)
+2026-09-21 13:39:00 [INFO] Login attempt initiated for username: '1'
+2026-09-21 13:39:00 [OK] Authentication verified via MySQL Stored Procedure 'AuthenticateUser' for user '1' (ID: 1, Role: admin)
+2026-09-21 13:39:11 [INFO] تم تسجيل الوثيقة الصادرة بالطالب ID: 2137 (الجهة: من يهمه الأمر) عبر SP
+2026-09-22 11:46:43 [INFO] Login attempt initiated for username: '1'
+2026-09-22 11:46:43 [OK] Authentication verified via MySQL Stored Procedure 'AuthenticateUser' for user '1' (ID: 1, Role: admin)
+2026-09-22 11:47:03 [INFO] تم تسجيل الوثيقة الصادرة بالطالب ID: 2137 (الجهة: من يهمه الأمر) عبر SP
+2026-09-22 12:45:26 [INFO] Login attempt initiated for username: '1'
+2026-09-22 12:45:27 [OK] Authentication verified via MySQL Stored Procedure 'AuthenticateUser' for user '1' (ID: 1, Role: admin)
+2026-09-22 13:00:48 [INFO] تم تسجيل الوثيقة الصادرة بالطالب ID: 2137 (الجهة: من يهمه الأمر) عبر SP
+2026-09-22 13:13:44 [INFO] Login attempt initiated for username: '1'
+2026-09-22 13:13:44 [OK] Authentication verified via MySQL Stored Procedure 'AuthenticateUser' for user '1' (ID: 1, Role: admin)
+2026-09-22 13:18:18 [INFO] تم تسجيل الوثيقة الصادرة بالطالب ID: 2137 (الجهة: من يهمه الأمر) عبر SP
+2026-09-22 13:18:46 [INFO] تم تسجيل الوثيقة الصادرة بالطالب ID: 2137 (الجهة: من يهمه الأمر) عبر SP
+2026-09-22 13:19:16 [INFO] تم تسجيل الوثيقة الصادرة بالطالب ID: 2010 (الجهة: من يهمه الأمر) عبر SP
+2026-09-22 13:21:20 [INFO] تم تسجيل الوثيقة الصادرة بالطالب ID: 2010 (الجهة: من يهمه الأمر) عبر SP
+2026-09-22 13:21:44 [INFO] تم تسجيل الوثيقة الصادرة بالطالب ID: 2010 (الجهة: من يهمه الأمر) عبر SP
+2026-09-22 13:22:34 [INFO] تم تسجيل الوثيقة الصادرة بالطالب ID: 2010 (الجهة: من يهمه الأمر) عبر SP
+2026-09-22 13:31:46 [INFO] تم تسجيل الوثيقة الصادرة بالطالب ID: 12 (الجهة: من يهمه الأمر) عبر SP
+2026-09-22 13:57:17 [INFO] Login attempt initiated for username: '1'
+2026-09-22 13:57:17 [OK] Authentication verified via MySQL Stored Procedure 'AuthenticateUser' for user '1' (ID: 1, Role: admin)
+2026-09-22 14:03:22 [INFO] Login attempt initiated for username: '1'
+2026-09-22 14:03:22 [OK] Authentication verified via MySQL Stored Procedure 'AuthenticateUser' for user '1' (ID: 1, Role: admin)
+2026-09-23 08:58:00 [INFO] Login attempt initiated for username: '1'
+2026-09-23 08:58:00 [OK] Authentication verified via MySQL Stored Procedure 'AuthenticateUser' for user '1' (ID: 1, Role: admin)
+2026-09-23 10:05:31 [INFO] Login attempt initiated for username: '1'
+2026-09-23 10:05:31 [OK] Authentication verified via MySQL Stored Procedure 'AuthenticateUser' for user '1' (ID: 1, Role: admin)
+2026-09-23 10:09:43 [INFO] تم تسجيل الوثيقة الصادرة بالطالب ID: 2137 (الجهة: من يهمه الأمر) عبر SP
+2026-09-23 10:42:57 [INFO] Login attempt initiated for username: '1'
+2026-09-23 10:42:57 [OK] Authentication verified via MySQL Stored Procedure 'AuthenticateUser' for user '1' (ID: 1, Role: admin)
+2026-09-23 10:52:06 [INFO] تم تسجيل الوثيقة الصادرة بالطالب ID: 2137 (الجهة: من يهمه الأمر) عبر SP

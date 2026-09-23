@@ -1241,6 +1241,31 @@ def update_academic_period_status(period_id: int, payload: AcademicPeriodStatusP
     except Exception as exc:
         conn.rollback()
         raise HTTPException(status_code=500, detail=str(exc))
+@app.delete("/students/{student_id}")
+@app.delete("/api/students/{student_id}")
+def delete_student_api(student_id: int, conn = Depends(get_db)):
+    cur = conn.cursor(dictionary=True)
+    try:
+        cur.callproc("DeleteStudent", (student_id,))
+        try:
+            while cur.nextset():
+                pass
+        except Exception:
+            pass
+        conn.commit()
+        return {"status": "success"}
+    except Exception as exc:
+        conn.rollback()
+        try:
+            cur.execute("DELETE FROM enrollments WHERE period_id IN (SELECT id FROM academic_periods WHERE student_id=%s)", (student_id,))
+            cur.execute("DELETE FROM academic_periods WHERE student_id=%s", (student_id,))
+            cur.execute("DELETE FROM issued_certificates WHERE student_id=%s", (student_id,))
+            cur.execute("DELETE FROM students WHERE id=%s", (student_id,))
+            conn.commit()
+            return {"status": "success"}
+        except Exception as err:
+            conn.rollback()
+            raise HTTPException(status_code=500, detail=str(err))
     finally:
         cur.close()
 
@@ -1599,11 +1624,22 @@ def clear_audit_logs(conn = Depends(get_db)):
 
 # --- CERTIFICATES ENDPOINTS ---
 @app.get("/certificates/{student_id}")
-def get_certificate_data(student_id: int, grouping_mode: str = "DEFAULT", conn = Depends(get_db)):
+@app.get("/api/certificates/{student_id}")
+def get_certificate_raw_data(student_id: int, grouping_mode: str = "DEFAULT", conn = Depends(get_db)):
     try:
-        from cert_repository import get_certificate_payload
-        payload = get_certificate_payload(student_id=student_id, grouping_mode=grouping_mode)
-        return decode_db_value(payload)
+        from cert_repository import _execute_mysql_stored_procedures, _normalize_raw_payload
+        datasets = _execute_mysql_stored_procedures(student_id, grouping_mode)
+        raw_payload = {
+            "student_id": student_id,
+            "grouping_mode": grouping_mode,
+            "settings": datasets[0][0] if (len(datasets) > 0 and datasets[0]) else {},
+            "student_info": datasets[1][0] if (len(datasets) > 1 and datasets[1]) else {},
+            "ranking": datasets[2][0] if (len(datasets) > 2 and datasets[2]) else {},
+            "signers": datasets[3] if (len(datasets) > 3 and datasets[3]) else [],
+            "academic_timeline": datasets[4] if (len(datasets) > 4 and datasets[4]) else [],
+            "courses_grouped": datasets[5] if (len(datasets) > 5 and datasets[5]) else [],
+        }
+        return decode_db_value(_normalize_raw_payload(raw_payload, student_id, grouping_mode))
     except Exception as exc:
         raise HTTPException(status_code=500, detail=str(exc))
 
@@ -2782,7 +2818,7 @@ def get_study_routine_courses_endpoint(routine_id: int, conn = Depends(get_db)):
         cur.execute("""
             SELECT c.id, c.name_ar, c.name_en, c.credit_hours,
                    COALESCE(srp.stage_number, c.stage_number, 1) AS stage_number,
-                   COALESCE(srp.semester_num, c.semester_num, 1) AS semester_num,
+                   COALESCE(srp.semester_num, 1) AS semester_num,
                    src.period_id
             FROM study_routine_courses src
             JOIN courses c ON src.course_id = c.id

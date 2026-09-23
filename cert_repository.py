@@ -4,7 +4,22 @@
 #
 # PURPOSE:
 #   Extracts and modularizes all database querying, stored procedure execution,
-#   and data-transformation logic required for generating student certificates.
+#   offline SQLite replica retrieval, and data-transformation logic required for
+#   generating student certificates.
+#
+# ARCHITECTURE:
+#   1. Fetch Raw Data from Database:
+#      - Online Mode: Calls the API responsible for fetching raw certificate data.
+#                     Falls back to direct MySQL Stored Procedure execution (`sp_GetFullCertificateData`).
+#      - Offline Mode: Calls local SQLite replica database engine (`get_offline_certificate_data`).
+#
+#   2. Process & Transform Data:
+#      - Formats dates, numbers (Arabic/Eastern & English), averages, qualitative grades,
+#        stage pairings (`paired_semesters`/`paired_years`), attempts, and failed years.
+#
+#   3. Pass Context to Word Templates:
+#      - Returns a clean, ready-to-render Python dictionary (`ctx`) containing all
+#        parameters expected by Jinja2 Word `.docx` templates.
 #
 # USAGE MODES:
 #   1. Integrated Mode:
@@ -29,9 +44,9 @@ import configparser
 from pathlib import Path
 from itertools import zip_longest
 from typing import Dict, List, Any, Optional
+from collections import OrderedDict
 
 import mysql.connector
-from mysql.connector import pooling
 
 # Ensure workspace root is in sys.path for config imports
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
@@ -140,7 +155,171 @@ def get_db_connection(config_override: Optional[Dict[str, Any]] = None) -> mysql
 
 
 # =============================================================================
-# 2. Data Formatting & Number Translation Helpers
+# 2. Data Fetching Layer (Online API / Direct MySQL SP / Offline SQLite)
+# =============================================================================
+
+def _normalize_raw_payload(payload_dict: Dict[str, Any], student_id: int, grouping_mode: str) -> Dict[str, Any]:
+    """
+    Normalizes list/dict payload variations from API or SQLite into a standardized dict representation.
+    """
+    if not isinstance(payload_dict, dict):
+        return {
+            "student_id": student_id, "grouping_mode": grouping_mode,
+            "settings": {}, "student_info": {}, "ranking": {},
+            "signers": [], "academic_timeline": [], "courses_grouped": []
+        }
+
+    st_info = payload_dict.get("student_info")
+    if isinstance(st_info, list):
+        st_info = st_info[0] if st_info else {}
+    elif not isinstance(st_info, dict):
+        st_info = {}
+
+    settings = payload_dict.get("settings")
+    if isinstance(settings, list):
+        settings = settings[0] if settings else {}
+    elif not isinstance(settings, dict):
+        settings = {}
+
+    ranking = payload_dict.get("ranking")
+    if isinstance(ranking, list):
+        ranking = ranking[0] if ranking else {}
+    elif not isinstance(ranking, dict):
+        ranking = {}
+
+    signers = payload_dict.get("signers") or []
+    timeline = payload_dict.get("academic_timeline") or []
+    courses = payload_dict.get("courses_grouped") or []
+
+    return {
+        "student_id": student_id,
+        "grouping_mode": grouping_mode,
+        "settings": settings,
+        "student_info": st_info,
+        "ranking": ranking,
+        "signers": signers if isinstance(signers, list) else [],
+        "academic_timeline": timeline if isinstance(timeline, list) else [],
+        "courses_grouped": courses if isinstance(courses, list) else []
+    }
+
+
+def _execute_mysql_stored_procedures(
+    student_id: int,
+    grouping_mode: str = "DEFAULT",
+    config_override: Optional[Dict[str, Any]] = None
+) -> List[List[Dict[str, Any]]]:
+    """
+    Executes MySQL stored procedure `sp_GetFullCertificateData` (or fallback subprocedures) directly.
+    """
+    conn = get_db_connection(config_override=config_override)
+    cur = conn.cursor(dictionary=True)
+    datasets = []
+
+    try:
+        log.info("Executing sp_GetFullCertificateData for student_id=%s, mode=%s...", student_id, grouping_mode)
+        cur.callproc("sp_GetFullCertificateData", (student_id, grouping_mode))
+        
+        if hasattr(cur, "stored_results"):
+            for result in cur.stored_results():
+                datasets.append(result.fetchall())
+        else:
+            datasets.append(cur.fetchall())
+            
+        try:
+            while cur.nextset():
+                pass
+        except Exception:
+            pass
+
+    except mysql.connector.Error as db_err:
+        log.warning("sp_GetFullCertificateData execution failed: %s. Executing fallback sub-procedures...", db_err)
+        datasets = _execute_fallback_subprocedures(cur, student_id, grouping_mode)
+    finally:
+        cur.close()
+        conn.close()
+
+    return datasets
+
+
+def fetch_raw_certificate_data(
+    student_id: int,
+    grouping_mode: str = "DEFAULT",
+    config_override: Optional[Dict[str, Any]] = None
+) -> Dict[str, Any]:
+    """
+    Fetches raw database payload using dual-mode routing:
+      1. Online Mode: Calls FastAPI backend endpoint (GET /certificates/raw/{student_id}).
+                      If API is unreachable, falls back to direct MySQL Stored Procedure execution (`sp_GetFullCertificateData`).
+      2. Offline Mode: Calls local SQLite replica database engine (`get_offline_certificate_data`).
+    """
+    st_id = int(student_id)
+    raw_payload: Dict[str, Any] = {
+        "student_id": st_id,
+        "grouping_mode": grouping_mode,
+        "settings": {},
+        "student_info": {},
+        "ranking": {},
+        "signers": [],
+        "academic_timeline": [],
+        "courses_grouped": []
+    }
+
+    try:
+        from sync_engine import is_online
+        online = is_online()
+    except Exception:
+        online = True
+
+    if online:
+        # Attempt 1: Call FastAPI Backend API Route
+        try:
+            try:
+                from api_config import API_URL
+            except ImportError:
+                from config import API_URL
+            import requests
+            url = f"{API_URL}/certificates/{st_id}?grouping_mode={grouping_mode}"
+            resp = requests.get(url, timeout=3.5)
+            if resp.status_code == 200:
+                api_data = resp.json()
+                if api_data and (api_data.get("student_info") or api_data.get("full_name_ar")):
+                    log.info("Online Mode: Successfully fetched raw certificate payload via API for student_id=%s.", st_id)
+                    return _normalize_raw_payload(api_data, st_id, grouping_mode)
+        except Exception as api_err:
+            log.warning("Online API certificate request failed (%s). Falling back to direct MySQL SP execution...", api_err)
+
+        # Attempt 2: Direct MySQL Stored Procedure Execution
+        try:
+            datasets = _execute_mysql_stored_procedures(st_id, grouping_mode, config_override=config_override)
+            if datasets:
+                log.info("Online Mode: Successfully fetched raw certificate payload via MySQL stored procedure for student_id=%s.", st_id)
+                return {
+                    "student_id": st_id,
+                    "grouping_mode": grouping_mode,
+                    "settings": datasets[0][0] if (len(datasets) > 0 and datasets[0]) else {},
+                    "student_info": datasets[1][0] if (len(datasets) > 1 and datasets[1]) else {},
+                    "ranking": datasets[2][0] if (len(datasets) > 2 and datasets[2]) else {},
+                    "signers": datasets[3] if (len(datasets) > 3 and datasets[3]) else [],
+                    "academic_timeline": datasets[4] if (len(datasets) > 4 and datasets[4]) else [],
+                    "courses_grouped": datasets[5] if (len(datasets) > 5 and datasets[5]) else [],
+                }
+        except Exception as db_err:
+            log.warning("Direct MySQL SP execution failed (%s). Falling back to local SQLite replica engine...", db_err)
+
+    # Offline Mode (or Fallback when Online DB connection fails)
+    try:
+        from data.query import get_offline_certificate_data
+        log.info("Offline Mode: Executing local SQLite replica database engine for student_id=%s...", st_id)
+        off_data = get_offline_certificate_data(st_id, grouping_mode)
+        return _normalize_raw_payload(off_data, st_id, grouping_mode)
+    except Exception as off_err:
+        log.error("Local SQLite replica engine failed for student_id=%s: %s", st_id, off_err)
+
+    return raw_payload
+
+
+# =============================================================================
+# 3. Data Formatting & Number Translation Helpers
 # =============================================================================
 
 ARABIC_DIGIT_MAP = str.maketrans("0123456789", "٠١٢٣٤٥٦٧٨٩")
@@ -165,8 +344,8 @@ def format_academic_year_ltr(ay_str: Any, is_english: bool = False) -> str:
         if len(parts) == 2:
             p1 = to_arabic_num(parts[0], is_english)
             p2 = to_arabic_num(parts[1], is_english)
-            return f"{p1} - {p2}"
-    return to_arabic_num(clean, is_english)
+            return f"\u200e{p1} - {p2}\u200e"
+    return f"\u200e{to_arabic_num(clean, is_english)}\u200e"
 
 
 def parse_stage_num(val: Any, default: int = 1) -> int:
@@ -224,7 +403,7 @@ def consolidate_courses_for_certificate(courses: list, is_annual: bool = False) 
 def extract_failed_years(timeline: list, is_english: bool = False) -> list:
     """
     Extracts failed and postponed years from academic timeline.
-    Returns list of dicts: [{'year_d': '2020-2021', 'stage': 'الأولى', 'state': 'تأجيل'}, ...]
+    Returns list of dicts: [{'year_d': '2020-2021', 'stage': 'الأولى', 'state': 'تأجيل', 'semester': 'الأولى'}, ...]
     """
     stage_names_ar = {1: "الأولى", 2: "الثانية", 3: "الثالثة", 4: "الرابعة", 5: "الخامسة", 6: "السادسة"}
     stage_names_en = {1: "First", 2: "Second", 3: "Third", 4: "Fourth", 5: "Fifth", 6: "Sixth"}
@@ -252,7 +431,8 @@ def extract_failed_years(timeline: list, is_english: bool = False) -> list:
                     "stage": stg_text,
                     "state": state_text,
                     "year": ay,
-                    "status": state_text
+                    "status": state_text,
+                    "semester": stg_text
                 })
     return failed_years
 
@@ -265,7 +445,6 @@ def extract_attempts(courses: list, is_english: bool = False) -> list:
     stage_names_ar = {1: "الأولى", 2: "الثانية", 3: "الثالثة", 4: "الرابعة", 5: "الخامسة", 6: "السادسة"}
     stage_names_en = {1: "First", 2: "Second", 3: "Third", 4: "Fourth", 5: "Fifth", 6: "Sixth"}
     
-    from collections import OrderedDict
     grouped = OrderedDict()
     
     for c in (courses or []):
@@ -301,23 +480,15 @@ def extract_attempts(courses: list, is_english: bool = False) -> list:
 
 
 # =============================================================================
-# 3. Data Transformation & Jinja2 Template Context Generator
+# 4. Data Transformation & Jinja2 Template Context Generator
 # =============================================================================
 
-def transform_raw_payload_to_context(data: Dict[str, Any], is_english: bool = False) -> Dict[str, Any]:
-    """
-    Transforms raw multi-resultset database payload into rich Jinja2/docxtpl context dictionary.
-    Formats paired_semesters via zip_longest, second-round courses, deferred years, and grades.
-    """
-    student_info = data.get("student_info") or {}
-    settings = data.get("settings") or {}
-    ranking = data.get("ranking") or {}
-    signers = data.get("signers") or []
-    timeline = data.get("academic_timeline") or []
-    raw_courses = data.get("courses_grouped") or []
+def _format_demographics(ctx: Dict[str, Any], data: Dict[str, Any], is_english: bool) -> None:
+    student_info = data.get("student_info") or data
+    settings = data.get("settings") or data
+    ranking = data.get("ranking") or data
 
-    # 1. Basic Demographics & University Settings
-    ctx = {
+    ctx.update({
         "student_id": data.get("student_id"),
         "grouping_mode": data.get("grouping_mode", "DEFAULT"),
         "is_english": is_english,
@@ -334,6 +505,7 @@ def transform_raw_payload_to_context(data: Dict[str, Any], is_english: bool = Fa
         "nationality_en": student_info.get("nationality_en") or "",
         "admission_year": student_info.get("admission_year") or "",
         "graduation_year": student_info.get("graduation_year") or "",
+        "graduation_date": student_info.get("graduation_date") or "",
         "graduation_semester": student_info.get("graduation_semester") or "",
         "order_number": student_info.get("order_number") or "",
         "order_date": student_info.get("order_date") or "",
@@ -353,14 +525,15 @@ def transform_raw_payload_to_context(data: Dict[str, Any], is_english: bool = Fa
         "ministry_ar": settings.get("ministry_ar") or "وزارة التعليم العالي والبحث العلمي",
         "ministry_en": settings.get("ministry_en") or "Ministry of Higher Education and Scientific Research",
         
-        "rank": ranking.get("rank") or ranking.get("sequence_number") or "",
-        "total_graduates": ranking.get("total_graduates") or ranking.get("num_students") or "",
+        "rank": ranking.get("rank") or ranking.get("sequence_number") or ranking.get("class_rank") or student_info.get("sequence_number") or student_info.get("sequence_no") or "",
+        "total_graduates": ranking.get("total_graduates") or ranking.get("num_students") or student_info.get("postgraduation_number") or student_info.get("postgraduation_no") or student_info.get("order_num_students") or "",
         "top_average": ranking.get("top_average") or "",
         "average": student_info.get("average") or ranking.get("average"),
-    }
+    })
 
-    # 2. Average Formatting & Qualitative Grade Calculation
-    avg_val = ctx["average"]
+
+def _format_average_and_grade(ctx: Dict[str, Any], is_english: bool) -> None:
+    avg_val = ctx.get("average")
     if avg_val is not None:
         try:
             avg_float = float(avg_val)
@@ -390,7 +563,8 @@ def transform_raw_payload_to_context(data: Dict[str, Any], is_english: bool = Fa
 
     ctx["academic_grade"] = grade
 
-    # 3. Second-Round Courses Counter, Subject List & Attempts Structure
+
+def _format_second_round_courses(ctx: Dict[str, Any], raw_courses: list, is_english: bool) -> None:
     second_round_courses = []
     second_round_names = []
     for c in raw_courses:
@@ -406,13 +580,16 @@ def transform_raw_payload_to_context(data: Dict[str, Any], is_english: bool = Fa
     ctx["second_round_count"] = len(second_round_courses)
     ctx["second_trial_subjects"] = "، ".join(second_round_names) if not is_english else ", ".join(second_round_names)
 
+
+def _format_attempts(ctx: Dict[str, Any], raw_courses: list, is_english: bool) -> None:
     attempts = extract_attempts(raw_courses, is_english=is_english)
     ctx["attempts"] = attempts
     ctx["Passed_ON"] = len(attempts) > 0
     ctx["passed_on"] = len(attempts) > 0
     ctx["PASSED_ON"] = len(attempts) > 0
 
-    # 4. Deferred / Failed Years & Tracking Structure
+
+def _format_failed_years(ctx: Dict[str, Any], timeline: list, is_english: bool) -> None:
     failed_years = extract_failed_years(timeline, is_english=is_english)
     ctx["failed_years"] = failed_years
     ctx["Failure_ON"] = len(failed_years) > 0
@@ -423,14 +600,14 @@ def transform_raw_payload_to_context(data: Dict[str, Any], is_english: bool = Fa
     ctx["deferred_years"] = deferred_years
     ctx["has_deferred_years"] = len(deferred_years) > 0
 
-    # 5. Paired Semesters / Year Columns Construction for Word Templates via zip_longest
+
+def _format_paired_semesters(ctx: Dict[str, Any], data: Dict[str, Any], raw_courses: list, is_english: bool) -> None:
     grouping_mode = str(data.get("grouping_mode") or "DEFAULT").upper()
-    period_disp = str(ctx["period_display"]).lower()
+    period_disp = str(ctx.get("period_display", "")).lower()
     is_annual = (period_disp == "year") or ("SEMESTER" not in grouping_mode and ("YEAR" in grouping_mode or "PERIOD" in grouping_mode))
 
     courses_grouped = consolidate_courses_for_certificate(raw_courses, is_annual=is_annual)
     
-    from collections import OrderedDict
     groups_in_order = OrderedDict()
     for c in courses_grouped:
         gkey = str(c.get("grouping_key", ""))
@@ -490,6 +667,17 @@ def transform_raw_payload_to_context(data: Dict[str, Any], is_english: bool = Fa
         right_year_disp = format_academic_year_ltr(ay_right, is_english)
         left_year_disp = format_academic_year_ltr(ay_left, is_english) if left_courses else ""
 
+        def _has_second_round(courses):
+            for c in courses:
+                pr = str(c.get("passed_round") or "1").strip()
+                isr = c.get("is_second_round", 0)
+                if pr in ('2', '3') or isr == 1:
+                    return True
+            return False
+
+        attempt_right = ("Second" if is_english else "الثاني") if _has_second_round(right_courses) else ("First" if is_english else "الأول")
+        attempt_left = (("Second" if is_english else "الثاني") if _has_second_round(left_courses) else ("First" if is_english else "الأول")) if left_courses else ""
+
         doc_rows = []
         for right, left in zip_longest(right_courses, left_courses, fillvalue={}):
             rname = get_subj_display(right, is_english) if right else ""
@@ -524,10 +712,55 @@ def transform_raw_payload_to_context(data: Dict[str, Any], is_english: bool = Fa
             "num_s_r": stg_num_right_str,
             "stage_text": stg_text_right,
             "stage_text_left": stg_text_left,
+            "attempt_right": attempt_right,
+            "attempt_left": attempt_left,
         })
-
+        
     ctx["paired_semesters"] = paired_semesters
-    ctx["signers"] = signers
+    ctx["paired_years"] = paired_semesters
+    ctx["semesters"] = paired_semesters
+
+
+def _format_sequence_and_rank(ctx: Dict[str, Any], is_english: bool) -> None:
+    rank_str_val = str(ctx.get("rank") or "").strip()
+    num_stds_val = str(ctx.get("total_graduates") or "").strip()
+    top_avg_val = str(ctx.get("top_average") or "").strip()
+
+    ctx["Sequence_of_Graduation"] = to_arabic_num(rank_str_val, is_english)
+    ctx["num_students"] = to_arabic_num(num_stds_val, is_english)
+    ctx["Average_of_First_Student"] = to_arabic_num(top_avg_val, is_english)
+    ctx["sequence_ON"] = bool(rank_str_val)
+    ctx["Back_page"] = ""
+    ctx["not_first_page"] = False
+    ctx["attempt"] = "First" if is_english else "الأول"
+
+
+def transform_raw_payload_to_context(data: Dict[str, Any], is_english: bool = False, options: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+    """
+    Transforms raw multi-resultset database payload into rich Jinja2/docxtpl context dictionary.
+    Encapsulated via sub-functions to cleanly process dates, numbers, averages, grades, 
+    stage pairings, and attempts.
+    """
+    ctx: Dict[str, Any] = {}
+    
+    _format_demographics(ctx, data, is_english)
+    _format_average_and_grade(ctx, is_english)
+    
+    raw_courses = data.get("courses_grouped") or []
+    _format_second_round_courses(ctx, raw_courses, is_english)
+    _format_attempts(ctx, raw_courses, is_english)
+    
+    timeline = data.get("academic_timeline") or []
+    _format_failed_years(ctx, timeline, is_english)
+    
+    _format_paired_semesters(ctx, data, raw_courses, is_english)
+    _format_sequence_and_rank(ctx, is_english)
+    
+    ctx["signers"] = data.get("signers") or []
+
+    if options:
+        ctx["Summer_ON"] = bool(options.get("opt_summer"))
+        ctx["Summer_Training_year"] = to_arabic_num(options.get("summer_year") or "", is_english)
 
     # Merge enriched ctx back into data structure
     data.update(ctx)
@@ -535,7 +768,7 @@ def transform_raw_payload_to_context(data: Dict[str, Any], is_english: bool = Fa
 
 
 # =============================================================================
-# 4. Master Orchestrator Wrapper (`get_certificate_payload`)
+# 5. Master Orchestrator Wrapper (`get_certificate_payload`)
 # =============================================================================
 
 def get_certificate_payload(
@@ -545,59 +778,18 @@ def get_certificate_payload(
     is_english: bool = False
 ) -> Dict[str, Any]:
     """
-    Executes stored procedures to fetch and assemble complete certificate payload.
-    Iterates sequentially through all 6 result sets returned by `sp_GetFullCertificateData`:
-      1. University Settings
-      2. Student Info & Demographics
-      3. Ranking & Averages
-      4. Signers
-      5. Academic Timeline
-      6. Course Enrollment Grid
-      
-    Returns enriched dictionary ready for Jinja2 Word template processing.
+    Master Orchestrator Wrapper for Certificate Generation:
+      1. Fetch Raw Data from Database (Online API / Direct MySQL SP / Offline SQLite replica)
+      2. Process & Transform Data (dates, numbers, averages, grades, stage pairings, attempts, failed years)
+      3. Pass Context to Word Templates (returns clean Jinja2 ready-to-render context dictionary)
     """
-    conn = get_db_connection(config_override=config_override)
-    cur = conn.cursor(dictionary=True)
-    datasets = []
-
-    try:
-        log.info("Executing sp_GetFullCertificateData for student_id=%s, mode=%s...", student_id, grouping_mode)
-        cur.callproc("sp_GetFullCertificateData", (student_id, grouping_mode))
-        
-        if hasattr(cur, "stored_results"):
-            for result in cur.stored_results():
-                datasets.append(result.fetchall())
-        else:
-            datasets.append(cur.fetchall())
-            
-        try:
-            while cur.nextset():
-                pass
-        except Exception:
-            pass
-
-    except mysql.connector.Error as db_err:
-        log.warning("sp_GetFullCertificateData execution failed: %s. Executing fallback sub-procedures...", db_err)
-        datasets = _execute_fallback_subprocedures(cur, student_id, grouping_mode)
-    finally:
-        cur.close()
-        conn.close()
-
-    # Assemble raw payload dictionary from result sets
-    raw_payload = {
-        "student_id": student_id,
-        "grouping_mode": grouping_mode,
-        "settings": datasets[0][0] if (len(datasets) > 0 and datasets[0]) else {},
-        "student_info": datasets[1][0] if (len(datasets) > 1 and datasets[1]) else {},
-        "ranking": datasets[2][0] if (len(datasets) > 2 and datasets[2]) else {},
-        "signers": datasets[3] if (len(datasets) > 3 and datasets[3]) else [],
-        "academic_timeline": datasets[4] if (len(datasets) > 4 and datasets[4]) else [],
-        "courses_grouped": datasets[5] if (len(datasets) > 5 and datasets[5]) else [],
-    }
-
-    # Apply data transformations for template context
-    enriched_payload = transform_raw_payload_to_context(raw_payload, is_english=is_english)
-    return enriched_payload
+    raw_payload = fetch_raw_certificate_data(
+        student_id=student_id,
+        grouping_mode=grouping_mode,
+        config_override=config_override
+    )
+    enriched_context = transform_raw_payload_to_context(raw_payload, is_english=is_english)
+    return enriched_context
 
 
 def _execute_fallback_subprocedures(cur, student_id: int, grouping_mode: str) -> List[List[Dict[str, Any]]]:
@@ -635,7 +827,7 @@ def _execute_fallback_subprocedures(cur, student_id: int, grouping_mode: str) ->
 
 
 # =============================================================================
-# 5. Standalone Execution Block (`if __name__ == "__main__":`)
+# 6. Standalone Execution Block (`if __name__ == "__main__":`)
 # =============================================================================
 
 if __name__ == "__main__":

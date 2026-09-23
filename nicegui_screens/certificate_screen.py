@@ -354,8 +354,8 @@ def format_date_rtl(val: str | None, is_english: bool = False) -> str:
     match = re.match(r"^(\d{4})[-/](\d{1,2})[-/](\d{1,2})$", s)
     if match:
         y, m, d = match.groups()
-        s = f"{d.zfill(2)}-{m.zfill(2)}-{y}"
-    return to_arabic_num(s, is_english)
+        s = f"{y}/{m.zfill(2)}/{d.zfill(2)}"
+    return f"\u200e{to_arabic_num(s, is_english)}\u200e"
 
 
 def format_academic_year_ltr(val: str | None, is_english: bool = False) -> str:
@@ -489,25 +489,20 @@ def build_certificate_context(data: dict, options: dict) -> dict:
         second_stg_default = pair_idx * 2 + 2
 
         if is_english:
-            # In English LTR tables, Column 1 is on the LEFT and Column 2 is on the RIGHT.
             left_courses = group_lists[i]
             right_courses = group_lists[i + 1] if i + 1 < len(group_lists) else []
-            
-            right_c = right_courses[0] if right_courses else {}
-            left_c = left_courses[0] if left_courses else {}
             
             stg_left = _extract_group_stage(left_courses, first_stg_default)
             stg_right = _extract_group_stage(right_courses, second_stg_default if right_courses else (stg_left + 1))
         else:
-            # In Arabic RTL tables, Column 1 is on the RIGHT and Column 2 is on the LEFT.
             right_courses = group_lists[i]
             left_courses = group_lists[i + 1] if i + 1 < len(group_lists) else []
             
-            right_c = right_courses[0] if right_courses else {}
-            left_c = left_courses[0] if left_courses else {}
-            
             stg_right = _extract_group_stage(right_courses, first_stg_default)
             stg_left = _extract_group_stage(left_courses, second_stg_default if left_courses else (stg_right + 1))
+            
+        right_c = right_courses[0] if right_courses else {}
+        left_c = left_courses[0] if left_courses else {}
         
         ay_right = right_c.get("academic_year_formatted") or right_c.get("academic_year", "")
         ay_left = left_c.get("academic_year_formatted") or left_c.get("academic_year", "")
@@ -540,6 +535,17 @@ def build_certificate_context(data: dict, options: dict) -> dict:
                 "right_mark": rmark, "right_unit": runit,
             })
             
+        def _has_second_round(courses):
+            for c in courses:
+                pr = str(c.get("passed_round") or "1").strip()
+                isr = c.get("is_second_round", 0)
+                if pr in ('2', '3') or isr == 1 or pr in (2, 3):
+                    return True
+            return False
+
+        attempt_right = ("Second" if is_english else "الثاني") if _has_second_round(right_courses) else ("First" if is_english else "الأول")
+        attempt_left = (("Second" if is_english else "الثاني") if _has_second_round(left_courses) else ("First" if is_english else "الأول")) if left_courses else ""
+            
         if is_annual:
             paired_semesters.append({
                 "left_label": left_year_disp,
@@ -569,6 +575,8 @@ def build_certificate_context(data: dict, options: dict) -> dict:
                 "stage_name": stg_text_right,
                 "stage_name_l": stg_text_left,
                 "stage_name_r": stg_text_right,
+                "attempt_right": attempt_right,
+                "attempt_left": attempt_left,
             })
         else:
             right_sem_label = "First Semester" if is_english else "الفصل الأول"
@@ -612,6 +620,8 @@ def build_certificate_context(data: dict, options: dict) -> dict:
                 "stage_name": stg_text_right,
                 "stage_name_l": stg_text_left,
                 "stage_name_r": stg_text_right,
+                "attempt_right": attempt_right,
+                "attempt_left": attempt_left,
             })
 
     # Academic Grade Calculation
@@ -629,8 +639,8 @@ def build_certificate_context(data: dict, options: dict) -> dict:
         grade = "—"
 
     # Context variables with Eastern Arabic numerals for Arabic certificates
-    seq_val = options.get("rank_val") or data.get("rank") or ""
-    num_stds = options.get("rank_total") or data.get("total_graduates") or ""
+    seq_val = options.get("rank_val") or data.get("rank") or data.get("sequence_number") or (data.get("student_info") or {}).get("sequence_number") or ""
+    num_stds = options.get("rank_total") or data.get("total_graduates") or data.get("postgraduation_number") or data.get("order_num_students") or data.get("num_students") or ""
     top_avg = options.get("rank_avg") or data.get("top_average") or ""
     ord_num = (options.get("order_num") or data.get("order_number") or "") if options.get("opt_order") else ""
     ord_date = (options.get("order_date") or data.get("order_date") or "") if options.get("opt_order") else ""
@@ -698,8 +708,8 @@ def build_certificate_context(data: dict, options: dict) -> dict:
         "Birthday": format_date_rtl(data.get("date_of_birth") or "", is_english),
         "Birthplace": data.get("birthplace_en" if is_english else "birthplace_ar") or data.get("birthplace_other", ""),
         "Nationality": data.get("nationality_en" if is_english else "nationality_ar", ""),
-        "admission_year": to_arabic_num(data.get("admission_year") or "", is_english),
-        "graduation_year": to_arabic_num(data.get("graduation_year") or "", is_english),
+        "admission_year": format_date_rtl(data.get("admission_year") or "", is_english),
+        "graduation_year": format_date_rtl(data.get("graduation_year") or "", is_english),
         "department_id": data.get("dept_name_en" if is_english else "dept_name_ar", ""),
         "study_type": study_type_disp,
         "graduation_date": format_date_rtl(data.get("graduation_date") or "", is_english),
@@ -733,6 +743,9 @@ def build_certificate_context(data: dict, options: dict) -> dict:
         "paired_semesters": paired_semesters,
         "paired_years": paired_semesters,
         "semesters": paired_semesters,
+        "Back_page": "",
+        "not_first_page": False,
+        "attempt": "First" if is_english else "الأول",
     }
 
     # Signatories mapping strictly by display_order column (1 to 10)
@@ -1337,11 +1350,25 @@ class CertificateScreen:
             self.inp_order_num.value = str(data.get("order_number") or "")
             self.inp_order_date.value = str(data.get("order_date") or "")
 
-        if data.get("rank"):
+        rank_val_def = data.get("rank") or data.get("sequence_number")
+        if not rank_val_def and hasattr(self, "selected_student") and self.selected_student:
+            rank_val_def = self.selected_student.get("sequence_number") or self.selected_student.get("rank")
+
+        total_grad_def = data.get("total_graduates") or data.get("postgraduation_number") or data.get("order_num_students") or data.get("num_students")
+        if not total_grad_def and hasattr(self, "selected_student") and self.selected_student:
+            total_grad_def = self.selected_student.get("postgraduation_number") or self.selected_student.get("total_graduates")
+
+        top_avg_val_def = data.get("top_average")
+
+        if rank_val_def or total_grad_def:
             self.sw_rank.value = True
-            self.inp_rank_val.value = str(data.get("rank") or "")
-            self.inp_rank_total.value = str(data.get("total_graduates") or "")
-            self.inp_rank_avg.value = str(round(float(data.get("top_average") or 0), 2) if data.get("top_average") else "")
+            self.inp_rank_val.value = str(rank_val_def or "")
+            self.inp_rank_total.value = str(total_grad_def or "")
+            if top_avg_val_def:
+                try:
+                    self.inp_rank_avg.value = str(round(float(top_avg_val_def), 2))
+                except (ValueError, TypeError):
+                    self.inp_rank_avg.value = str(top_avg_val_def)
 
         # ── 2. Render Student Profile View (High Readability, No Duplication, Structured List) ──
         self.student_info_container.clear()
@@ -1365,9 +1392,20 @@ class CertificateScreen:
             # 4 Unified Non-Duplicated Key Metric Cards
             avg = data.get("average")
             avg_str = f"{float(avg):.2f}%" if avg is not None else "—"
-            rank_val = data.get("rank")
-            total_grad = data.get("total_graduates")
-            rank_str = f"المرتبة {rank_val} من {total_grad} خريج" if rank_val and total_grad else "—"
+            rank_val = self.inp_rank_val.value or data.get("rank") or data.get("sequence_number")
+            if not rank_val and hasattr(self, "selected_student") and self.selected_student:
+                rank_val = self.selected_student.get("sequence_number") or self.selected_student.get("rank")
+
+            total_grad = self.inp_rank_total.value or data.get("total_graduates") or data.get("postgraduation_number") or data.get("order_num_students") or data.get("num_students")
+            if not total_grad and hasattr(self, "selected_student") and self.selected_student:
+                total_grad = self.selected_student.get("postgraduation_number") or self.selected_student.get("total_graduates")
+
+            if rank_val and total_grad:
+                rank_str = f"المرتبة {rank_val} من {total_grad} خريج"
+            elif rank_val:
+                rank_str = f"المرتبة {rank_val}"
+            else:
+                rank_str = "—"
             top_avg = data.get("top_average")
             top_avg_str = f"{float(top_avg):.2f}%" if top_avg else "—"
             order_num_str = data.get('order_number')
@@ -1703,7 +1741,17 @@ class CertificateScreen:
     
         out_file = ""
         try:
-            ctx = build_certificate_context(self.student_full_data, options)
+            from cert_repository import transform_raw_payload_to_context
+            # The toggle values (including Summer Training) are passed directly into cert_repository.py here!
+            ctx = transform_raw_payload_to_context(self.student_full_data, is_english=options.get("is_english", False), options=options)
+            
+            # Inject missing arrays into ctx so build_certificate_context can find them
+            ctx["courses_grouped"] = self.student_full_data.get("courses_grouped", [])
+            ctx["all_personnel"] = self.student_full_data.get("signers", [])
+            ctx["academic_timeline"] = self.student_full_data.get("academic_timeline", [])
+            
+            # We also call build_certificate_context to maintain backward compatibility with any other UI-specific toggles
+            ctx = build_certificate_context(ctx, options)
     
             # Print all context variables line-by-line to terminal & log
             self.print_certificate_context(ctx)

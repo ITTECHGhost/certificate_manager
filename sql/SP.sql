@@ -1265,7 +1265,7 @@ BEGIN
         COALESCE(c.name_en, '') AS course_name_en,
         COALESCE(c.credit_hours, 0) AS credit_hours,
         COALESCE(srp.stage_number, c.stage_number, 1) AS stage_number,
-        COALESCE(srp.semester_num, c.semester_num, 1) AS semester_num
+        COALESCE(srp.semester_num, 1) AS semester_num
     FROM study_routine_courses src
     JOIN courses c ON src.course_id = c.id
     JOIN study_routine_period srp ON src.period_id = srp.id
