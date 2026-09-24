@@ -849,3 +849,14 @@
 2026-09-23 10:42:57 [INFO] Login attempt initiated for username: '1'
 2026-09-23 10:42:57 [OK] Authentication verified via MySQL Stored Procedure 'AuthenticateUser' for user '1' (ID: 1, Role: admin)
 2026-09-23 10:52:06 [INFO] تم تسجيل الوثيقة الصادرة بالطالب ID: 2137 (الجهة: من يهمه الأمر) عبر SP
+2026-09-23 14:01:48 [INFO] Login attempt initiated for username: '1'
+2026-09-23 14:01:48 [OK] Authentication verified via MySQL Stored Procedure 'AuthenticateUser' for user '1' (ID: 1, Role: admin)
+2026-09-24 10:03:16 [INFO] Login attempt initiated for username: '1'
+2026-09-24 10:03:16 [OK] Authentication verified via MySQL Stored Procedure 'AuthenticateUser' for user '1' (ID: 1, Role: admin)
+2026-09-24 10:03:27 [INFO] تم تسجيل الوثيقة الصادرة بالطالب ID: 2137 (الجهة: من يهمه الأمر) عبر SP
+2026-09-24 10:04:28 [INFO] تم تسجيل الوثيقة الصادرة بالطالب ID: 2137 (الجهة: من يهمه الأمر) عبر SP
+2026-09-24 10:14:25 [INFO] Login attempt initiated for username: '1'
+2026-09-24 10:14:25 [OK] Authentication verified via MySQL Stored Procedure 'AuthenticateUser' for user '1' (ID: 1, Role: admin)
+2026-09-24 10:16:15 [INFO] User 'admin' (ID: 1) logged out successfully using function app_session.logout_user()
+2026-09-24 10:16:20 [INFO] Login attempt initiated for username: '1'
+2026-09-24 10:16:20 [OK] Authentication verified via MySQL Stored Procedure 'AuthenticateUser' for user '1' (ID: 1, Role: admin)

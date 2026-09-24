@@ -347,13 +347,16 @@ def to_arabic_num(val: str | int | float | None, is_english: bool = False) -> st
 
 
 def format_date_rtl(val: str | None, is_english: bool = False) -> str:
-    """Formats YYYY-MM-DD date strings into DD-MM-YYYY order with Eastern Arabic numerals for RTL display."""
+    """Formats YYYY-MM-DD date strings into visual YYYY/MM/DD order with Eastern Arabic numerals for RTL display."""
     if not val:
         return ""
     s = str(val).strip()
     match = re.match(r"^(\d{4})[-/](\d{1,2})[-/](\d{1,2})$", s)
     if match:
         y, m, d = match.groups()
+        # Intelligently fix if user accidentally entered YYYY-DD-MM in database (e.g. 2021-20-2)
+        if int(m) > 12:
+            m, d = d, m
         s = f"{y}/{m.zfill(2)}/{d.zfill(2)}"
     return f"\u200e{to_arabic_num(s, is_english)}\u200e"
 

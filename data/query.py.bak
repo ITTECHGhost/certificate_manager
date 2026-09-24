@@ -16,55 +16,8 @@ def safe_cast(val: Any, target_type: type = int, default_val: Any = 0) -> Any:
         return default_val
 
 
-
-Q_COURSES_SEMESTER_BY_STAGE = '''
-SELECT
-    ap.academic_year,
-    ap.stage_number AS period_stage,
-    COALESCE(c.stage_number, ap.stage_number) AS course_curriculum_stage,
-    COALESCE(ap.semester_num, 1) AS semester_num,
-    COALESCE(c.name_ar, '') AS subject_name,
-    COALESCE(c.name_en, c.name_ar, '') AS subject_name_en,
-    COALESCE(c.name_ar, '') AS subject_name_ar,
-    COALESCE(c.name_en, c.name_ar, '') AS course_name_en,
-    COALESCE(c.name_ar, '') AS course_name_ar,
-    COALESCE(c.credit_hours, 0) AS unit,
-    MAX(COALESCE(e.score, 0.0)) AS mark,
-    MAX(COALESCE(e.passed_round, 1)) AS passed_round,
-    CAST(ap.stage_number AS TEXT) AS grouping_key
-FROM (SELECT * FROM academic_periods UNION ALL SELECT * FROM local_academic_periods) ap
-JOIN (SELECT * FROM enrollments UNION ALL SELECT * FROM local_enrollments) e ON e.period_id = ap.id
-JOIN courses c ON e.course_id = c.id
-WHERE ap.student_id = ?
-GROUP BY ap.academic_year, ap.stage_number, c.id
-ORDER BY ap.academic_year ASC, COALESCE(ap.semester_num, 1) ASC, c.name_ar ASC;
-'''
-
-Q_COURSES_SEMESTER_BY_YEAR = '''
-SELECT
-    ap.academic_year,
-    ap.stage_number AS period_stage,
-    COALESCE(c.stage_number, ap.stage_number) AS course_curriculum_stage,
-    COALESCE(ap.semester_num, 1) AS semester_num,
-    COALESCE(c.name_ar, '') AS subject_name,
-    COALESCE(c.name_en, c.name_ar, '') AS subject_name_en,
-    COALESCE(c.name_ar, '') AS subject_name_ar,
-    COALESCE(c.name_en, c.name_ar, '') AS course_name_en,
-    COALESCE(c.name_ar, '') AS course_name_ar,
-    COALESCE(c.credit_hours, 0) AS unit,
-    MAX(COALESCE(e.score, 0.0)) AS mark,
-    MAX(COALESCE(e.passed_round, 1)) AS passed_round,
-    ap.academic_year || '_' || CAST(COALESCE(ap.semester_num, 1) AS TEXT) AS grouping_key
-FROM (SELECT * FROM academic_periods UNION ALL SELECT * FROM local_academic_periods) ap
-JOIN (SELECT * FROM enrollments UNION ALL SELECT * FROM local_enrollments) e ON e.period_id = ap.id
-JOIN courses c ON e.course_id = c.id
-WHERE ap.student_id = ?
-GROUP BY ap.academic_year, ap.semester_num, c.id
-ORDER BY ap.academic_year ASC, COALESCE(ap.semester_num, 1) ASC, c.name_ar ASC;
-'''
-
-Q_COURSES_YEARLY_BY_PERIOD_STAGE = '''
-SELECT
+DEFAULT_QUERY = """
+SELECT 
     CASE 
         WHEN ap.academic_year IS NULL OR ap.academic_year = '' THEN '' 
         WHEN ap.academic_year LIKE '%-%' THEN ap.academic_year 
@@ -74,99 +27,22 @@ SELECT
     ap.stage_number AS period_stage,
     COALESCE(c.stage_number, ap.stage_number) AS course_curriculum_stage,
     COALESCE(ap.semester_num, 1) AS semester_num,
-    COALESCE(c.name_en, '') AS course_name_en,
+    COALESCE(ap.result_status, 'PASSED') AS result_status_code,
+    COALESCE(c.name_en, '') AS course_name_en, 
     COALESCE(c.name_ar, '') AS course_name_ar,
-    COALESCE(c.credit_hours, 0) AS unit,
+    COALESCE(c.credit_hours, 0) AS unit, 
     MAX(COALESCE(e.score, 0.0)) AS mark,
     MAX(COALESCE(e.passed_round, 1)) AS passed_round,
     CASE WHEN COALESCE(c.stage_number, ap.stage_number) < ap.stage_number THEN 'عبور' ELSE 'أساسي' END AS course_type,
-    CAST(ap.stage_number AS TEXT) AS grouping_key
+    c.id AS course_id, 
+    '' AS course_code
 FROM (SELECT * FROM academic_periods UNION ALL SELECT * FROM local_academic_periods) ap
 JOIN (SELECT * FROM enrollments UNION ALL SELECT * FROM local_enrollments) e ON e.period_id = ap.id
 JOIN courses c ON e.course_id = c.id
-WHERE ap.student_id = ?
-GROUP BY ap.academic_year, ap.stage_number, c.id
-ORDER BY ap.academic_year ASC, COALESCE(ap.semester_num, 1) ASC, c.name_ar ASC;
-'''
-
-Q_COURSES_YEARLY_BY_CURRICULUM_STAGE = '''
-SELECT
-    CASE 
-        WHEN ap.academic_year IS NULL OR ap.academic_year = '' THEN '' 
-        WHEN ap.academic_year LIKE '%-%' THEN ap.academic_year 
-        ELSE ap.academic_year || ' - ' || CAST(CAST(ap.academic_year AS INTEGER) + 1 AS TEXT) 
-    END AS academic_year_formatted,
-    ap.academic_year,
-    ap.stage_number AS period_stage,
-    COALESCE(c.stage_number, ap.stage_number) AS course_curriculum_stage,
-    COALESCE(ap.semester_num, 1) AS semester_num,
-    COALESCE(c.name_en, c.name_ar, '') AS course_name_en,
-    COALESCE(c.name_ar, '') AS course_name_ar,
-    COALESCE(c.credit_hours, 0) AS unit,
-    MAX(COALESCE(e.score, 0.0)) AS mark,
-    MAX(COALESCE(e.passed_round, 1)) AS passed_round,
-    CASE WHEN COALESCE(c.stage_number, ap.stage_number) < ap.stage_number THEN 'عبور' ELSE 'أساسي' END AS course_type,
-    CAST(COALESCE(c.stage_number, ap.stage_number) AS TEXT) AS grouping_key
-FROM (SELECT * FROM academic_periods UNION ALL SELECT * FROM local_academic_periods) ap
-JOIN (SELECT * FROM enrollments UNION ALL SELECT * FROM local_enrollments) e ON e.period_id = ap.id
-JOIN courses c ON e.course_id = c.id
-WHERE ap.student_id = ?
-GROUP BY ap.academic_year, COALESCE(c.stage_number, ap.stage_number), c.id
-ORDER BY ap.academic_year ASC, COALESCE(ap.semester_num, 1) ASC, c.name_ar ASC;
-'''
-
-Q_COURSES_YEARLY_BY_ACADEMIC_YEAR = '''
-SELECT
-    CASE 
-        WHEN ap.academic_year IS NULL OR ap.academic_year = '' THEN '' 
-        WHEN ap.academic_year LIKE '%-%' THEN ap.academic_year 
-        ELSE ap.academic_year || ' - ' || CAST(CAST(ap.academic_year AS INTEGER) + 1 AS TEXT) 
-    END AS academic_year_formatted,
-    ap.academic_year,
-    ap.stage_number AS period_stage,
-    COALESCE(c.stage_number, ap.stage_number) AS course_curriculum_stage,
-    COALESCE(ap.semester_num, 1) AS semester_num,
-    COALESCE(c.name_en, '') AS course_name_en,
-    COALESCE(c.name_ar, '') AS course_name_ar,
-    COALESCE(c.credit_hours, 0) AS unit,
-    MAX(COALESCE(e.score, 0.0)) AS mark,
-    MAX(COALESCE(e.passed_round, 1)) AS passed_round,
-    CASE WHEN COALESCE(c.stage_number, ap.stage_number) < ap.stage_number THEN 'عبور' ELSE 'أساسي' END AS course_type,
-    ap.academic_year AS grouping_key
-FROM (SELECT * FROM academic_periods UNION ALL SELECT * FROM local_academic_periods) ap
-JOIN (SELECT * FROM enrollments UNION ALL SELECT * FROM local_enrollments) e ON e.period_id = ap.id
-JOIN courses c ON e.course_id = c.id
-WHERE ap.student_id = ?
-GROUP BY ap.academic_year, c.id
-ORDER BY ap.academic_year ASC, COALESCE(ap.semester_num, 1) ASC, c.name_ar ASC;
-'''
-
-
-
-def get_offline_academic_courses(student_id: int, grouping_mode: str) -> List[Dict[str, Any]]:
-    st_id = int(student_id)
-    ss_info = sqlite_read_one(
-        "SELECT LOWER(IFNULL(ss.period_display, 'year')) AS period_display "
-        "FROM (SELECT id, study_system_id FROM students UNION ALL SELECT id, study_system_id FROM local_students) s "
-        "LEFT JOIN study_systems ss ON s.study_system_id = ss.id "
-        "WHERE s.id = ?",
-        (st_id,)
-    )
-    period_display = str(ss_info.get("period_display", "year")).lower() if ss_info else "year"
-    
-    if period_display == "semester":
-        if grouping_mode == "BY_SEMESTER_stage":
-            return sqlite_read_all(Q_COURSES_SEMESTER_BY_STAGE, (st_id,)) or []
-        else:
-            return sqlite_read_all(Q_COURSES_SEMESTER_BY_YEAR, (st_id,)) or []
-    else:
-        if grouping_mode == "BY_PERIOD_STAGE":
-            return sqlite_read_all(Q_COURSES_YEARLY_BY_PERIOD_STAGE, (st_id,)) or []
-        elif grouping_mode == "BY_CURRICULUM_STAGE":
-            return sqlite_read_all(Q_COURSES_YEARLY_BY_CURRICULUM_STAGE, (st_id,)) or []
-        else:
-            # BY_ByAcademicYear or DEFAULT
-            return sqlite_read_all(Q_COURSES_YEARLY_BY_ACADEMIC_YEAR, (st_id,)) or []
+WHERE ap.student_id = ? AND e.score >= 50
+GROUP BY e.course_id
+ORDER BY ap.stage_number ASC, COALESCE(ap.semester_num, 1) ASC, c.name_ar ASC
+"""
 
 
 def get_offline_certificate_data(student_id: int, grouping_mode: str = "DEFAULT") -> Dict[str, List[Dict[str, Any]]]:
@@ -189,51 +65,26 @@ def get_offline_certificate_data(student_id: int, grouping_mode: str = "DEFAULT"
     if settings:
         response_data["settings"] = [settings]
 
-    
     # 1. Student Info
     student = sqlite_read_one(
-        "SELECT "
-        "s.student_id, "
-        "s.department_id, "
-        "IFNULL(s.full_name_ar, '') AS full_name_ar, "
-        "IFNULL(s.full_name_en, '') AS full_name_en, "
-        "ROUND(IFNULL(s.average, 0.0), 3) AS average, "
-        "IFNULL(CAST(strftime('%Y', s.graduation_date) AS INTEGER), 0) AS graduation_year, "
-        "IFNULL(s.graduation_date, '1970-01-01') AS graduation_date, "
-        "IFNULL(s.graduation_semester, 1) AS graduation_semester, "
-        "IFNULL(s.date_of_birth, '1970-01-01') AS date_of_birth, "
-        "IFNULL(s.sequence_number, 0) AS sequence_number, "
-        "CASE "
-        "  WHEN s.postgraduation_number = 0 OR s.postgraduation_number IS NULL THEN IFNULL(o.num_students, '') "
-        "  ELSE IFNULL(s.postgraduation_number, '') "
-        "END AS postgraduation_number, "
-        "IFNULL(s.admission_year, 0) AS admission_year, "
-        "IFNULL(s.summer_training_data, '') AS summer_training_data, "
-        "IFNULL(s.order_id, 0) AS order_id, "
-        "IFNULL(d.name_ar, '') AS dept_name_ar, "
-        "IFNULL(d.name_en, '') AS dept_name_en, "
-        "IFNULL(ss.name_ar, '') AS study_system_name_ar, "
-        "IFNULL(ss.name_en, '') AS study_system_name_en, "
-        "IFNULL(ss.calculation_rule, '') AS calculation_rule, "
-        "IFNULL(ss.calculation_weights, '') AS calculation_weights, "
-        "IFNULL(ss.period_display, '') AS period_display, "
-        "IFNULL(ss.study_day_type, '') AS study_type, "
-        "IFNULL(c.name_ar, '') AS nationality_ar, "
-        "IFNULL(c.name_en, '') AS nationality_en, "
-        "IFNULL(g.name_ar, '') AS birthplace_ar, "
-        "IFNULL(g.name_en, '') AS birthplace_en, "
-        "IFNULL(o.order_number, '') AS order_number, "
-        "IFNULL(o.order_date, '1970-01-01') AS order_date, "
-        "IFNULL(o.num_students, 0) AS order_num_students "
+        "SELECT s.*, "
+        "       d.name_ar AS dept_name_ar, d.name_en AS dept_name_en, "
+        "       ss.name_ar AS study_system_name_ar, ss.name_en AS study_system_name_en, "
+        "       ss.calculation_rule, ss.calculation_weights, ss.period_display, ss.study_day_type AS study_type, "
+        "       c.name_ar AS nationality_ar, c.name_en AS nationality_en, "
+        "       g.name_ar AS birthplace_ar, g.name_en AS birthplace_en, "
+        "       o.order_number, o.order_date, o.num_students AS order_num_students "
         "FROM ("
-        "  SELECT id AS student_id, full_name_ar, full_name_en, sequence_number, postgraduation_number, date_of_birth, "
-        "         birthplace_id, birthplace_other, nationality_id, department_id, study_system_id, "
-        "         order_id, admission_year, summer_training_data, average, graduation_date, graduation_semester "
+        "  SELECT id AS student_id, full_name_ar, full_name_en, gender, sequence_number, postgraduation_number, date_of_birth, "
+        "         birthplace_id, birthplace_other, nationality_id, department_id, study_system_id, degree_level, "
+        "         order_id, CAST(admission_year AS TEXT) AS admission_year, summer_training_data, average, graduation_date, graduation_semester, "
+        "         CAST(strftime('%Y', graduation_date) AS INTEGER) AS graduation_year "
         "  FROM students "
         "  UNION ALL "
-        "  SELECT id AS student_id, full_name_ar, full_name_en, sequence_number, postgraduation_number, date_of_birth, "
-        "         birthplace_id, birthplace_other, nationality_id, department_id, study_system_id, "
-        "         order_id, admission_year, summer_training_data, average, graduation_date, graduation_semester "
+        "  SELECT id AS student_id, full_name_ar, full_name_en, gender, sequence_number, postgraduation_number, date_of_birth, "
+        "         birthplace_id, birthplace_other, nationality_id, department_id, study_system_id, degree_level, "
+        "         order_id, CAST(admission_year AS TEXT) AS admission_year, summer_training_data, average, graduation_date, graduation_semester, "
+        "         CAST(strftime('%Y', graduation_date) AS INTEGER) AS graduation_year "
         "  FROM local_students "
         ") s "
         "LEFT JOIN departments d    ON s.department_id   = d.id "
@@ -244,11 +95,9 @@ def get_offline_certificate_data(student_id: int, grouping_mode: str = "DEFAULT"
         "WHERE s.student_id = ?",
         (st_id,)
     )
-
     if not student:
         return response_data
-
-
+    response_data["student_info"] = [student]
 
     # 2. Ranking
     dept_id = student.get("department_id")
@@ -304,9 +153,8 @@ def get_offline_certificate_data(student_id: int, grouping_mode: str = "DEFAULT"
     )
     response_data["academic_timeline"] = timeline or []
 
-    
     # 5. Courses
-    courses = get_offline_academic_courses(st_id, grouping_mode)
+    courses = sqlite_read_all(DEFAULT_QUERY, (st_id,))
     response_data["courses_grouped"] = courses or []
 
     return response_data
@@ -317,7 +165,7 @@ def get_offline_flat_yearly_courses(student_id: int) -> List[Dict[str, Any]]:
     Fetches flat 14-column transcript courses using DEFAULT_QUERY in offline mode.
     """
     st_id = int(student_id)
-    raw_rows = get_offline_academic_courses(st_id, "BY_ByAcademicYear") or []
+    raw_rows = sqlite_read_all(DEFAULT_QUERY, (st_id,)) or []
 
     st_info = sqlite_read_one(
         "SELECT s.full_name_ar, ss.name_ar AS study_system_ar "
