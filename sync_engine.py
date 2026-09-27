@@ -115,6 +115,7 @@ _TABLE_REGISTRY: dict[str, dict] = {
         ],
         "fk_cascades": [
             ("local_academic_periods", "student_id"),
+            ("local_issued_certificates", "student_id"),
         ],
     },
     "academic_periods": {
@@ -288,7 +289,7 @@ def init_local_db() -> None:
                 study_system_id     INTEGER,
                 degree_level        INTEGER DEFAULT 1,
                 order_id            INTEGER,
-                admission_year      INTEGER,
+                admission_year      TEXT,
                 summer_training_data TEXT,
                 average             REAL,
                 graduation_date     TEXT,
@@ -304,18 +305,9 @@ def init_local_db() -> None:
                 study_system_id INTEGER,
                 stage_number    INTEGER,
                 semester_num    INTEGER,
-                result_status   TEXT DEFAULT 'PASSED'
+                result_status   INTEGER DEFAULT 1
             )
         """)
-
-        # Self-healing column check for local_academic_periods
-        try:
-            cur.execute("PRAGMA table_info(local_academic_periods)")
-            lap_cols = [r[1] for r in cur.fetchall()]
-            if "result_status" not in lap_cols:
-                cur.execute("ALTER TABLE local_academic_periods ADD COLUMN result_status TEXT DEFAULT 'PASSED'")
-        except Exception as _e:
-            pass
 
         cur.execute("""
             CREATE TABLE IF NOT EXISTS local_enrollments (
@@ -361,12 +353,12 @@ def init_local_db() -> None:
             )
         """)
 
+        cur.execute("DROP TABLE IF EXISTS study_routine_courses")
         cur.execute("""
             CREATE TABLE IF NOT EXISTS study_routine_courses (
                 id              INTEGER PRIMARY KEY AUTOINCREMENT,
                 routine_id      INTEGER NOT NULL,
                 course_id       INTEGER NOT NULL,
-                period_id       INTEGER DEFAULT 0,
                 UNIQUE(routine_id, course_id)
             )
         """)
@@ -380,13 +372,8 @@ def init_local_db() -> None:
             )
         """)
 
-        try:
-            cur.execute("PRAGMA table_info(study_routine_courses)")
-            src_cols = [r[1] for r in cur.fetchall()]
-            if "period_id" not in src_cols:
-                cur.execute("ALTER TABLE study_routine_courses ADD COLUMN period_id INTEGER DEFAULT 0")
-        except Exception:
-            pass
+        # removed obsolete ALTER TABLE for study_routine_courses
+
 
         # -- Replica tables: full read-only mirrors of MySQL tables ----------
         # These are populated by pull_mysql_to_sqlite() whenever the app
@@ -443,16 +430,11 @@ def init_local_db() -> None:
                 study_system_id INTEGER,
                 stage_number    INTEGER,
                 semester_num    INTEGER DEFAULT 1,
-                result_status   TEXT DEFAULT 'PASSED'
+                result_status   INTEGER DEFAULT 1
             )
         """)
         try:
             cur.execute("ALTER TABLE academic_periods ADD COLUMN semester_num INTEGER DEFAULT 1;")
-        except sqlite3.OperationalError:
-            pass
-
-        try:
-            cur.execute("ALTER TABLE academic_periods ADD COLUMN result_status TEXT DEFAULT 'PASSED';")
         except sqlite3.OperationalError:
             pass
 
@@ -463,7 +445,6 @@ def init_local_db() -> None:
                 period_id       INTEGER NOT NULL,
                 course_id       INTEGER NOT NULL,
                 score           REAL,
-                is_second_round INTEGER DEFAULT 0,
                 passed_round    TEXT DEFAULT '1'
             )
         """)
@@ -645,7 +626,7 @@ def init_local_db() -> None:
             log.warning("Migration for settings table failed: %s", exc)
 
         try:
-            cur.execute("ALTER TABLE local_students ADD COLUMN admission_year INTEGER DEFAULT NULL;")
+            cur.execute("ALTER TABLE local_students ADD COLUMN admission_year TEXT DEFAULT NULL;")
         except sqlite3.OperationalError:
             pass
 
@@ -731,6 +712,17 @@ def pull_mysql_to_sqlite(mysql_conn=None, sqlite_conn=None) -> dict:
     total_rows = 0
     errors: list[str] = []
 
+    def safe_cast(val):
+        if val is None: return None
+        if isinstance(val, (int, float)): return val
+        if isinstance(val, (date, datetime)): return str(val)
+        if isinstance(val, (bytearray, bytes)):
+            try:
+                return val.decode('utf-8')
+            except UnicodeDecodeError:
+                return str(val)
+        return str(val)
+
     try:
         my_cur = mysql_conn.cursor(dictionary=True)
 
@@ -755,10 +747,7 @@ def pull_mysql_to_sqlite(mysql_conn=None, sqlite_conn=None) -> dict:
                 # Clear + insert
                 sqlite_conn.execute(f"DELETE FROM {table_name}")
                 insert_data = [
-                    tuple(
-                        str(v) if isinstance(v, (date, datetime)) else v
-                        for v in (row.get(c) for c in columns)
-                    )
+                    tuple(safe_cast(row.get(c)) for c in columns)
                     for row in rows
                 ]
                 sqlite_conn.executemany(
@@ -1114,9 +1103,13 @@ def _resolve_temp_id(
         payload = _json_loads(row["payload"])
         changed = False
         for child_table, fk_col in meta["fk_cascades"]:
-            if fk_col in payload and payload[fk_col] == temp_id:
-                payload[fk_col] = real_id
-                changed = True
+            if fk_col in payload:
+                # Handle both integer and stringified integer representations of temp_id
+                val = payload[fk_col]
+                if str(val) == str(temp_id):
+                    # Keep the original type (if it was string, keep it as string, though real_id as int is usually fine/better)
+                    payload[fk_col] = real_id if isinstance(val, int) else str(real_id)
+                    changed = True
         if changed:
             sqlite_conn.execute(
                 "UPDATE sync_queue SET payload = ? WHERE id = ?",

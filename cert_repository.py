@@ -46,19 +46,11 @@ from itertools import zip_longest
 from typing import Dict, List, Any, Optional
 from collections import OrderedDict
 
-import mysql.connector
 
 # Ensure workspace root is in sys.path for config imports
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-try:
-    from config import DBConfig
-except ImportError:
-    class DBConfig:
-        DB_HOST = "localhost"
-        DB_USER = "root"
-        DB_PASSWORD = "12345678"
-        DB_NAME = "certificate_manager"
+
 
 log = logging.getLogger("cert_repository")
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(name)s: %(message)s")
@@ -66,92 +58,6 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(na
 
 # =============================================================================
 # 1. Database Connection & Configuration Management
-# =============================================================================
-
-def load_db_config(config_path: str = "config.ini", config_override: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
-    """
-    Dynamically resolves MySQL connection parameters with 4-tier fallbacks:
-      1. Explicit `config_override` dictionary
-      2. Configuration INI/JSON file (`config.ini` or `server_config.json`)
-      3. Environment variables (DB_HOST, DB_PORT, DB_USER, DB_PASSWORD, DB_NAME)
-      4. Default `DBConfig` / safe fallbacks (localhost:3306, root, 12345678, certificate_manager)
-    """
-    cfg = {
-        "host": DBConfig.DB_HOST,
-        "port": 3306,
-        "user": DBConfig.DB_USER,
-        "password": DBConfig.DB_PASSWORD,
-        "database": DBConfig.DB_NAME,
-        "charset": "utf8mb4",
-        "collation": "utf8mb4_unicode_ci",
-    }
-
-    # 1. Try reading config.ini file if it exists
-    ini_file = Path(config_path)
-    if not ini_file.exists():
-        ini_file = Path(__file__).parent / "config.ini"
-
-    if ini_file.exists():
-        try:
-            parser = configparser.ConfigParser()
-            parser.read(str(ini_file), encoding="utf-8")
-            if "database" in parser:
-                db_sec = parser["database"]
-                if "host" in db_sec: cfg["host"] = db_sec["host"]
-                if "port" in db_sec: cfg["port"] = int(db_sec["port"])
-                if "user" in db_sec: cfg["user"] = db_sec["user"]
-                if "password" in db_sec: cfg["password"] = db_sec["password"]
-                if "database" in db_sec: cfg["database"] = db_sec["database"]
-                if "dbname" in db_sec: cfg["database"] = db_sec["dbname"]
-        except Exception as err:
-            log.warning("Failed to parse %s: %s", ini_file, err)
-
-    # 2. Try reading server_config.json if config.ini was absent/incomplete
-    json_file = Path(__file__).parent / "server_config.json"
-    if json_file.exists():
-        try:
-            with open(json_file, "r", encoding="utf-8") as f:
-                jdata = json.load(f)
-                if "db_host" in jdata: cfg["host"] = str(jdata["db_host"])
-                if "db_port" in jdata: cfg["port"] = int(jdata["db_port"])
-                if "db_user" in jdata: cfg["user"] = str(jdata["db_user"])
-                if "db_pass" in jdata: cfg["password"] = str(jdata["db_pass"])
-                if "db_name" in jdata: cfg["database"] = str(jdata["db_name"])
-        except Exception:
-            pass
-
-    # 3. Apply Environment Variable Overrides
-    if os.environ.get("DB_HOST"): cfg["host"] = os.environ.get("DB_HOST")
-    if os.environ.get("DB_PORT"): cfg["port"] = int(os.environ.get("DB_PORT"))
-    if os.environ.get("DB_USER"): cfg["user"] = os.environ.get("DB_USER")
-    if os.environ.get("DB_PASSWORD"): cfg["password"] = os.environ.get("DB_PASSWORD")
-    if os.environ.get("DB_NAME"): cfg["database"] = os.environ.get("DB_NAME")
-
-    # 4. Apply Caller Overrides
-    if config_override and isinstance(config_override, dict):
-        for k, v in config_override.items():
-            if v is not None:
-                cfg[k] = v
-
-    return cfg
-
-
-def get_db_connection(config_override: Optional[Dict[str, Any]] = None) -> mysql.connector.MySQLConnection:
-    """
-    Creates and returns a live MySQL connection supporting remote servers and dictionary cursors.
-    """
-    cfg = load_db_config(config_override=config_override)
-    log.debug("Connecting to MySQL database '%s' at %s:%s...", cfg["database"], cfg["host"], cfg["port"])
-    return mysql.connector.connect(
-        host=cfg["host"],
-        port=cfg["port"],
-        user=cfg["user"],
-        password=cfg["password"],
-        database=cfg["database"],
-        charset=cfg.get("charset", "utf8mb4"),
-        collation=cfg.get("collation", "utf8mb4_unicode_ci"),
-        connect_timeout=5
-    )
 
 
 # =============================================================================
@@ -203,42 +109,7 @@ def _normalize_raw_payload(payload_dict: Dict[str, Any], student_id: int, groupi
     }
 
 
-def _execute_mysql_stored_procedures(
-    student_id: int,
-    grouping_mode: str = "DEFAULT",
-    config_override: Optional[Dict[str, Any]] = None
-) -> List[List[Dict[str, Any]]]:
-    """
-    Executes MySQL stored procedure `sp_GetFullCertificateData` (or fallback subprocedures) directly.
-    """
-    conn = get_db_connection(config_override=config_override)
-    cur = conn.cursor(dictionary=True)
-    datasets = []
 
-    try:
-        log.info("Executing sp_GetFullCertificateData for student_id=%s, mode=%s...", student_id, grouping_mode)
-        cur.callproc("sp_GetFullCertificateData", (student_id, grouping_mode))
-        
-        if hasattr(cur, "stored_results"):
-            for result in cur.stored_results():
-                datasets.append(result.fetchall())
-        else:
-            datasets.append(cur.fetchall())
-            
-        try:
-            while cur.nextset():
-                pass
-        except Exception:
-            pass
-
-    except mysql.connector.Error as db_err:
-        log.warning("sp_GetFullCertificateData execution failed: %s. Executing fallback sub-procedures...", db_err)
-        datasets = _execute_fallback_subprocedures(cur, student_id, grouping_mode)
-    finally:
-        cur.close()
-        conn.close()
-
-    return datasets
 
 
 def fetch_raw_certificate_data(
@@ -273,10 +144,7 @@ def fetch_raw_certificate_data(
     if online:
         # Attempt 1: Call FastAPI Backend API Route
         try:
-            try:
-                from api_config import API_URL
-            except ImportError:
-                from config import API_URL
+            from api_config import API_URL
             import requests
             url = f"{API_URL}/certificates/{st_id}?grouping_mode={grouping_mode}"
             resp = requests.get(url, timeout=3.5)
@@ -288,23 +156,7 @@ def fetch_raw_certificate_data(
         except Exception as api_err:
             log.warning("Online API certificate request failed (%s). Falling back to direct MySQL SP execution...", api_err)
 
-        # Attempt 2: Direct MySQL Stored Procedure Execution
-        try:
-            datasets = _execute_mysql_stored_procedures(st_id, grouping_mode, config_override=config_override)
-            if datasets:
-                log.info("Online Mode: Successfully fetched raw certificate payload via MySQL stored procedure for student_id=%s.", st_id)
-                return {
-                    "student_id": st_id,
-                    "grouping_mode": grouping_mode,
-                    "settings": datasets[0][0] if (len(datasets) > 0 and datasets[0]) else {},
-                    "student_info": datasets[1][0] if (len(datasets) > 1 and datasets[1]) else {},
-                    "ranking": datasets[2][0] if (len(datasets) > 2 and datasets[2]) else {},
-                    "signers": datasets[3] if (len(datasets) > 3 and datasets[3]) else [],
-                    "academic_timeline": datasets[4] if (len(datasets) > 4 and datasets[4]) else [],
-                    "courses_grouped": datasets[5] if (len(datasets) > 5 and datasets[5]) else [],
-                }
-        except Exception as db_err:
-            log.warning("Direct MySQL SP execution failed (%s). Falling back to local SQLite replica engine...", db_err)
+
 
     # Offline Mode (or Fallback when Online DB connection fails)
     try:

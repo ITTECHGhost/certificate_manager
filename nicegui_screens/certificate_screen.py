@@ -59,18 +59,31 @@ def consolidate_courses_for_certificate(courses_grouped: list, is_annual: bool =
     from collections import defaultdict
 
     course_groups = defaultdict(list)
+    latest_period_for_stage = {}
+    
     for c in courses_grouped:
         c_key = c.get("subject_name") or c.get("course_name_ar") or c.get("name_ar") or c.get("course_id")
         if c_key:
             course_groups[c_key].append(dict(c))
+            
+        # Track the latest academic period for each stage
+        p_stg = parse_stage_num(c.get("period_stage") or c.get("stage_number"), 1)
+        yr = str(c.get("academic_year") or "").strip()
+        if yr:
+            if p_stg not in latest_period_for_stage:
+                latest_period_for_stage[p_stg] = c
+            else:
+                curr_yr = str(latest_period_for_stage[p_stg].get("academic_year") or "").strip()
+                if yr > curr_yr:
+                    latest_period_for_stage[p_stg] = c
 
     consolidated_list = []
 
     for c_key, group in course_groups.items():
-        # Sort chronologically by academic_year, stage_number, semester_num
+        # Sort chronologically by academic_year, period_stage/stage_number, semester_num
         group.sort(key=lambda x: (
             str(x.get("academic_year") or ""),
-            parse_stage_num(x.get("stage_number"), 1),
+            parse_stage_num(x.get("stage_number") or x.get("period_stage"), 1),
             parse_stage_num(x.get("semester_num"), 1)
         ))
 
@@ -109,12 +122,26 @@ def consolidate_courses_for_certificate(courses_grouped: list, is_annual: bool =
                 final_item["mark"] = best_mark
                 final_item["score"] = best_mark
 
+        is_carry_over = False
+        ctype = latest_attempt.get("course_type", "")
+        if ctype == "عبور":
+            is_carry_over = True
+        else:
+            c_stg = latest_attempt.get("course_curriculum_stage")
+            p_stg = latest_attempt.get("period_stage") or latest_attempt.get("stage_number")
+            if c_stg is not None and p_stg is not None:
+                if parse_stage_num(c_stg, 1) < parse_stage_num(p_stg, 1):
+                    is_carry_over = True
+
+        course_stg = parse_stage_num(best_passed.get("course_curriculum_stage") or best_passed.get("period_stage") or best_passed.get("stage_number"), 1)
+        target_info = latest_period_for_stage.get(course_stg) or best_passed
+
         if is_annual:
             # Rule A: Annual System
-            # Passed courses in a failed year are placed into the retaken year period for that stage
-            pass_year = latest_attempt.get("academic_year") or best_passed.get("academic_year")
-            pass_year_fmt = latest_attempt.get("academic_year_formatted") or best_passed.get("academic_year_formatted")
-            stage_num = parse_stage_num(latest_attempt.get("stage_number") or best_passed.get("stage_number"), 1)
+            # All courses for a stage are placed into the LATEST year period the student took that stage.
+            pass_year = target_info.get("academic_year")
+            pass_year_fmt = target_info.get("academic_year_formatted")
+            stage_num = course_stg
             sem_num = parse_stage_num(best_passed.get("semester_num") or earliest_attempt.get("semester_num"), 1)
 
             final_item["stage_number"] = stage_num
@@ -124,13 +151,13 @@ def consolidate_courses_for_certificate(courses_grouped: list, is_annual: bool =
             if pass_year_fmt:
                 final_item["academic_year_formatted"] = pass_year_fmt
 
-            backend_gkey = latest_attempt.get("grouping_key") or best_passed.get("grouping_key")
+            backend_gkey = target_info.get("grouping_key")
             final_item["grouping_key"] = backend_gkey or f"{pass_year}_{stage_num}_{sem_num}"
         else:
-            # Rule B: Semester System -> Place in retaken year period, maintaining semester matching (1 to 1, 2 to 2)
-            pass_year = latest_attempt.get("academic_year") or best_passed.get("academic_year")
-            pass_year_fmt = latest_attempt.get("academic_year_formatted") or best_passed.get("academic_year_formatted")
-            pass_stg = parse_stage_num(latest_attempt.get("stage_number") or best_passed.get("stage_number"), 1)
+            # Rule B: Semester System
+            pass_year = target_info.get("academic_year")
+            pass_year_fmt = target_info.get("academic_year_formatted")
+            pass_stg = course_stg
             pass_sem = parse_stage_num(best_passed.get("semester_num"), 1)
 
             final_item["stage_number"] = pass_stg
@@ -140,7 +167,7 @@ def consolidate_courses_for_certificate(courses_grouped: list, is_annual: bool =
             if pass_year_fmt:
                 final_item["academic_year_formatted"] = pass_year_fmt
 
-            backend_gkey = latest_attempt.get("grouping_key") or best_passed.get("grouping_key")
+            backend_gkey = target_info.get("grouping_key")
             final_item["grouping_key"] = backend_gkey or f"{pass_year}_{pass_stg}_{pass_sem}"
 
         # If retaken or passed in round 2/3, flag round info
@@ -1269,7 +1296,11 @@ class CertificateScreen:
         data = self.student_full_data
         if not data: return
 
-        period_disp = str(data.get("period_display") or "").lower().strip()
+        st_info = data.get("student_info") or {}
+        if isinstance(st_info, list) and len(st_info) > 0:
+            st_info = st_info[0]
+        
+        period_disp = str(st_info.get("period_display") or "").lower().strip()
         is_annual = ("semester" not in period_disp)
 
         if data.get("courses_grouped"):
@@ -1474,13 +1505,17 @@ class CertificateScreen:
                 "BY_ByAcademicYear": "سنوي - حسب سنة الإنجاز"
             }
 
-            period_disp = str(data.get("period_display") or "").lower().strip()
+            st_info_ui = data.get("student_info") or {}
+            if isinstance(st_info_ui, list) and len(st_info_ui) > 0:
+                st_info_ui = st_info_ui[0]
+            
+            period_disp = str(st_info_ui.get("period_display") or "").lower().strip()
             if period_disp in ("year", "yearly"):
                 is_semester = False
             elif period_disp == "semester":
                 is_semester = True
             else:
-                sys_name = str(data.get("study_system_name_ar") or "").lower()
+                sys_name = str(st_info_ui.get("study_system_name_ar") or "").lower()
                 is_semester = "semester" in sys_name or ("فصل" in sys_name and "سنو" not in sys_name)
 
             group_opts = semester_options if is_semester else yearly_options

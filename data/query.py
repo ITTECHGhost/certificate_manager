@@ -185,7 +185,7 @@ def get_offline_certificate_data(student_id: int, grouping_mode: str = "DEFAULT"
     }
 
     # 0. Settings
-    settings = sqlite_read_one("SELECT * FROM university_settings WHERE id = 1")
+    settings = sqlite_read_one("SELECT * FROM university_settings ORDER BY id ASC LIMIT 1")
     if settings:
         response_data["settings"] = [settings]
 
@@ -194,7 +194,7 @@ def get_offline_certificate_data(student_id: int, grouping_mode: str = "DEFAULT"
     student = sqlite_read_one(
         "SELECT "
         "s.student_id, "
-        "s.department_id, "
+        "NULL AS department_id, "
         "IFNULL(s.full_name_ar, '') AS full_name_ar, "
         "IFNULL(s.full_name_en, '') AS full_name_en, "
         "ROUND(IFNULL(s.average, 0.0), 3) AS average, "
@@ -203,10 +203,10 @@ def get_offline_certificate_data(student_id: int, grouping_mode: str = "DEFAULT"
         "IFNULL(s.graduation_semester, 1) AS graduation_semester, "
         "IFNULL(s.date_of_birth, '1970-01-01') AS date_of_birth, "
         "IFNULL(s.sequence_number, 0) AS sequence_number, "
-        "CASE "
+        "CAST(CASE "
         "  WHEN s.postgraduation_number = 0 OR s.postgraduation_number IS NULL THEN IFNULL(o.num_students, '') "
         "  ELSE IFNULL(s.postgraduation_number, '') "
-        "END AS postgraduation_number, "
+        "END AS TEXT) AS postgraduation_number, "
         "IFNULL(s.admission_year, 0) AS admission_year, "
         "IFNULL(s.summer_training_data, '') AS summer_training_data, "
         "IFNULL(s.order_id, 0) AS order_id, "
@@ -224,7 +224,7 @@ def get_offline_certificate_data(student_id: int, grouping_mode: str = "DEFAULT"
         "IFNULL(g.name_en, '') AS birthplace_en, "
         "IFNULL(o.order_number, '') AS order_number, "
         "IFNULL(o.order_date, '1970-01-01') AS order_date, "
-        "IFNULL(o.num_students, 0) AS order_num_students "
+        "NULL AS order_num_students "
         "FROM ("
         "  SELECT id AS student_id, full_name_ar, full_name_en, sequence_number, postgraduation_number, date_of_birth, "
         "         birthplace_id, birthplace_other, nationality_id, department_id, study_system_id, "
@@ -248,10 +248,12 @@ def get_offline_certificate_data(student_id: int, grouping_mode: str = "DEFAULT"
     if not student:
         return response_data
 
+    response_data["student_info"] = [student]
 
 
     # 2. Ranking
-    dept_id = student.get("department_id")
+    dept_info = sqlite_read_one("SELECT department_id FROM students WHERE id = ?", (st_id,))
+    dept_id = dept_info["department_id"] if dept_info else None
     grad_year = student.get("graduation_year")
     avg = student.get("average") or 0.0
 
@@ -295,7 +297,7 @@ def get_offline_certificate_data(student_id: int, grouping_mode: str = "DEFAULT"
         "       END AS academic_year, "
         "       MAX(ap.stage_number) AS stage_number, "
         "       COALESCE(ap.semester_num, 1) AS semester_num, "
-        "       GROUP_CONCAT(COALESCE(ap.result_status, 'PASSED')) AS result_status "
+        "       REPLACE(GROUP_CONCAT(COALESCE(ap.result_status, 'PASSED')), ',', ' / ') AS result_status "
         "FROM (SELECT * FROM academic_periods UNION ALL SELECT * FROM local_academic_periods) ap "
         "WHERE ap.student_id = ? "
         "GROUP BY ap.academic_year, ap.semester_num "

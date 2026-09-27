@@ -860,3 +860,13 @@
 2026-09-24 10:16:15 [INFO] User 'admin' (ID: 1) logged out successfully using function app_session.logout_user()
 2026-09-24 10:16:20 [INFO] Login attempt initiated for username: '1'
 2026-09-24 10:16:20 [OK] Authentication verified via MySQL Stored Procedure 'AuthenticateUser' for user '1' (ID: 1, Role: admin)
+2026-09-24 11:58:00 [INFO] Login attempt initiated for username: '1'
+2026-09-24 11:58:00 [OK] Authentication verified via MySQL Stored Procedure 'AuthenticateUser' for user '1' (ID: 1, Role: admin)
+2026-09-26 11:16:56 [INFO] Login attempt initiated for username: '1'
+2026-09-26 11:16:56 [OK] Authentication verified via MySQL Stored Procedure 'AuthenticateUser' for user '1' (ID: 1, Role: admin)
+2026-09-26 11:51:49 [INFO] Login attempt initiated for username: '1'
+2026-09-26 11:51:49 [OK] Authentication verified via MySQL Stored Procedure 'AuthenticateUser' for user '1' (ID: 1, Role: admin)
+2026-09-26 12:22:21 [INFO] Login attempt initiated for username: '1'
+2026-09-26 12:22:21 [OK] Authentication verified via MySQL Stored Procedure 'AuthenticateUser' for user '1' (ID: 1, Role: admin)
+2026-09-26 16:01:04 [INFO] Login attempt initiated for username: '1'
+2026-09-26 16:01:04 [OK] Authentication verified via MySQL Stored Procedure 'AuthenticateUser' for user '1' (ID: 1, Role: admin)
