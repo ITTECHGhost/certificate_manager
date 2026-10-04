@@ -81,7 +81,7 @@ CREATE TABLE `enrollments` (
   KEY `course_id` (`course_id`),
   CONSTRAINT `enrollments_ibfk_1` FOREIGN KEY (`period_id`) REFERENCES `academic_periods` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `enrollments_ibfk_2` FOREIGN KEY (`course_id`) REFERENCES `courses` (`id`) ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=4182 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=4183 DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
 -- Table structure for table `governorates`
@@ -132,7 +132,7 @@ CREATE TABLE `issued_certificates` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `uq_student_cert_record` (`student_id`,`issue_date`,`to_title`,`template_type`),
   CONSTRAINT `fk_issued_cert_student` FOREIGN KEY (`student_id`) REFERENCES `students` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=53 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
 -- Table structure for table `personnel`
@@ -240,8 +240,10 @@ CREATE TABLE `study_routine_courses` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `uq_routine_course` (`period_id`,`course_id`),
   KEY `routine_id` (`period_id`),
-  KEY `course_id` (`course_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+  KEY `course_id` (`course_id`),
+  CONSTRAINT `fk_rc_course` FOREIGN KEY (`course_id`) REFERENCES `courses` (`id`) ON UPDATE CASCADE,
+  CONSTRAINT `fk_rc_period` FOREIGN KEY (`period_id`) REFERENCES `study_routine_period` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=113 DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------
 -- Table structure for table `study_routine_period`
@@ -253,9 +255,10 @@ CREATE TABLE `study_routine_period` (
   `stage_number` int(10) NOT NULL,
   `semester_num` int(10) NOT NULL,
   PRIMARY KEY (`id`),
-  KEY `fk_srp_routine` (`routine_id`),
+  KEY `fk_period_routine` (`routine_id`),
+  CONSTRAINT `fk_period_routine` FOREIGN KEY (`routine_id`) REFERENCES `study_routines` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `fk_srp_routine` FOREIGN KEY (`routine_id`) REFERENCES `study_routines` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=41 DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
 -- Table structure for table `study_routines`
@@ -270,8 +273,10 @@ CREATE TABLE `study_routines` (
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   KEY `department_id` (`department_id`),
-  KEY `study_system_id` (`study_system_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+  KEY `study_system_id` (`study_system_id`),
+  CONSTRAINT `fk_study_routines_department` FOREIGN KEY (`department_id`) REFERENCES `departments` (`id`) ON UPDATE CASCADE,
+  CONSTRAINT `fk_study_routines_system` FOREIGN KEY (`study_system_id`) REFERENCES `study_systems` (`id`) ON UPDATE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------
 -- Table structure for table `study_systems`

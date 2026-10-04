@@ -2,6 +2,7 @@ import logging
 from nicegui import ui
 from nicegui_ui.ui_components import UI
 from nicegui_ui.ui_theme import Styles
+from sync_engine import sqlite_read_all
 
 from data.repositories import (
     AcademicPeriodRepository,
@@ -11,7 +12,6 @@ from data.repositories import (
     StudySystemRepository,
     GraduationOrderRepository,
     OfflineModeError,
-    sqlite_read_all,
 )
 from nicegui_screens.study_routines_dialog import show_apply_routine_dialog
 
@@ -976,9 +976,9 @@ class StudentFormView:
         # Governorates dropdown
         try:
             govs = sqlite_read_all("SELECT id, name_ar FROM governorates ORDER BY id ASC")
-            gov_opts = {g["id"]: g.get("name_ar", str(g["id"])) for g in govs} if govs else {1: "بغداد"}
+            gov_opts = {g["id"]: g.get("name_ar", str(g["id"])) for g in govs} if govs else {2: "البصرة"}
         except Exception:
-            gov_opts = {1: "بغداد"}
+            gov_opts = {2: "البصرة"}
 
         # Countries dropdown
         try:

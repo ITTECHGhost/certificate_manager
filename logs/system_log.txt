@@ -31811,3 +31811,503 @@ AttributeError: 'StudentRepository' object has no attribute 'get_all'
 2026-09-26 17:28:44 [INFO] _pywebviewready event fired
 2026-09-26 17:28:44 [INFO] loaded event fired
 2026-09-26 17:28:44 [INFO] loaded event fired
+2026-09-28 11:38:27 [INFO] SYSTEM STARTUP DIAGNOSTIC CHECK STARTED
+2026-09-28 11:38:27 [OK] [CHECK 1/4] FastAPI Connection Check ... [OK]
+2026-09-28 11:38:27 [OK] [CHECK 2/4] MySQL Database Connection ... [OK]
+2026-09-28 11:38:27 [OK] [CHECK 3/4] Authentication & Core SP Checks ... [OK]
+2026-09-28 11:38:27 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-09-28 11:38:27 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-09-28 11:38:28 [OK] [CHECK 4/4] Sync Engine & Local Replica Check ... [OK]
+2026-09-28 11:38:28 [OK] Status: ALL CHECKS PASSED. PROCEEDING TO LOGIN/DASHBOARD.
+2026-09-28 11:38:33 [INFO] Using WinForms / Chromium
+2026-09-28 11:38:33 [INFO] Using WinForms / Chromium
+2026-09-28 11:38:39 [INFO] before_load event fired. injecting pywebview object
+2026-09-28 11:38:39 [INFO] before_load event fired. injecting pywebview object
+2026-09-28 11:38:39 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-09-28 11:38:39 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-09-28 11:38:39 [INFO] _pywebviewready event fired
+2026-09-28 11:38:39 [INFO] _pywebviewready event fired
+2026-09-28 11:38:39 [INFO] loaded event fired
+2026-09-28 11:38:39 [INFO] loaded event fired
+2026-09-28 11:39:26 [INFO] before_load event fired. injecting pywebview object
+2026-09-28 11:39:26 [INFO] before_load event fired. injecting pywebview object
+2026-09-28 11:39:26 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-09-28 11:39:26 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-09-28 11:39:26 [INFO] _pywebviewready event fired
+2026-09-28 11:39:26 [INFO] _pywebviewready event fired
+2026-09-28 11:39:26 [INFO] loaded event fired
+2026-09-28 11:39:26 [INFO] loaded event fired
+2026-09-28 11:39:36 [INFO] Online Mode: Successfully fetched raw certificate payload via API for student_id=2137.
+2026-09-28 11:39:36 [INFO] Online Mode: Successfully fetched raw certificate payload via API for student_id=2137.
+2026-09-28 11:39:36 [ERROR] Error loading student: 0
+2026-09-28 11:39:36 [ERROR] Error loading student: 0
+2026-09-28 11:52:20 [INFO] Online Mode: Successfully fetched raw certificate payload via API for student_id=2138.
+2026-09-28 11:52:20 [ERROR] UNHANDLED EXCEPTION:
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+    from data.repositories import CertificateRepository; cert = CertificateRepository(); data = cert.get_full_certificate_data(2138); print('Full cert data:', data)
+                                                                                                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "F:\CR_PY\certificate_manager\data\repositories.py", line 2236, in get_full_certificate_data
+    data = response_data["student_info"][0] if response_data.get("student_info") else {}
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^
+KeyError: 0
+
+2026-09-29 10:57:04 [INFO] Online Mode: Successfully fetched raw certificate payload via API for student_id=1.
+2026-09-29 10:57:04 [ERROR] UNHANDLED EXCEPTION:
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+    from data.repositories import CertificateRepository; cert = CertificateRepository(); data = cert.get_full_certificate_data(1); print('Student name:', data.get('full_name_ar') if data else 'None'); print('Timeline count:', len(data.get('academic_timeline', [])) if data else 0)
+                                                                                                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^
+  File "F:\CR_PY\certificate_manager\data\repositories.py", line 2273, in get_full_certificate_data
+    if response_data.get("settings") and response_data["settings"][0]:
+                                         ~~~~~~~~~~~~~~~~~~~~~~~~~^^^
+KeyError: 0
+
+2026-09-29 10:58:02 [INFO] Online Mode: Successfully fetched raw certificate payload via API for student_id=1.
+2026-09-29 10:59:39 [INFO] Online Mode: Successfully fetched raw certificate payload via API for student_id=1.
+2026-09-29 10:59:39 [ERROR] UNHANDLED EXCEPTION:
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+    from data.repositories import CertificateRepository; cert = CertificateRepository(); data = cert.get_full_certificate_data(1); print('Student name ar:', data.get('full_name_ar')); print('Dept:', data.get('dept_name_ar')); print('Univ:', data.get('univ_name_ar')); print('College:', data.get('college_name_ar'))
+                                                                                                                                                                                                                                  ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\encodings\cp1252.py", line 19, in encode
+    return codecs.charmap_encode(input,self.errors,encoding_table)[0]
+           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeEncodeError: 'charmap' codec can't encode characters in position 0-4: character maps to <undefined>
+
+2026-09-29 10:59:58 [INFO] Online Mode: Successfully fetched raw certificate payload via API for student_id=1.
+2026-09-29 11:04:02 [INFO] Online Mode: Successfully fetched raw certificate payload via API for student_id=1.
+2026-09-29 11:39:43 [INFO] SYSTEM STARTUP DIAGNOSTIC CHECK STARTED
+2026-09-29 11:39:43 [OK] [CHECK 1/4] FastAPI Connection Check ... [OK]
+2026-09-29 11:39:43 [OK] [CHECK 2/4] MySQL Database Connection ... [OK]
+2026-09-29 11:39:43 [OK] [CHECK 3/4] Authentication & Core SP Checks ... [OK]
+2026-09-29 11:39:43 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-09-29 11:39:43 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-09-29 11:39:43 [OK] [CHECK 4/4] Sync Engine & Local Replica Check ... [OK]
+2026-09-29 11:39:43 [OK] Status: ALL CHECKS PASSED. PROCEEDING TO LOGIN/DASHBOARD.
+2026-09-29 11:39:47 [INFO] Using WinForms / Chromium
+2026-09-29 11:39:47 [INFO] Using WinForms / Chromium
+2026-09-29 11:39:52 [INFO] before_load event fired. injecting pywebview object
+2026-09-29 11:39:52 [INFO] before_load event fired. injecting pywebview object
+2026-09-29 11:39:52 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-09-29 11:39:52 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-09-29 11:39:52 [INFO] _pywebviewready event fired
+2026-09-29 11:39:52 [INFO] _pywebviewready event fired
+2026-09-29 11:39:52 [INFO] loaded event fired
+2026-09-29 11:39:52 [INFO] loaded event fired
+2026-09-29 11:40:02 [INFO] before_load event fired. injecting pywebview object
+2026-09-29 11:40:02 [INFO] before_load event fired. injecting pywebview object
+2026-09-29 11:40:02 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-09-29 11:40:02 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-09-29 11:40:02 [INFO] _pywebviewready event fired
+2026-09-29 11:40:02 [INFO] _pywebviewready event fired
+2026-09-29 11:40:02 [INFO] loaded event fired
+2026-09-29 11:40:02 [INFO] loaded event fired
+2026-09-29 11:49:21 [INFO] SYSTEM STARTUP DIAGNOSTIC CHECK STARTED
+2026-09-29 11:49:21 [OK] [CHECK 1/4] FastAPI Connection Check ... [OK]
+2026-09-29 11:49:21 [OK] [CHECK 2/4] MySQL Database Connection ... [OK]
+2026-09-29 11:49:22 [OK] [CHECK 3/4] Authentication & Core SP Checks ... [OK]
+2026-09-29 11:49:22 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-09-29 11:49:22 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-09-29 11:49:22 [OK] [CHECK 4/4] Sync Engine & Local Replica Check ... [OK]
+2026-09-29 11:49:22 [OK] Status: ALL CHECKS PASSED. PROCEEDING TO LOGIN/DASHBOARD.
+2026-09-29 11:49:24 [INFO] Using WinForms / Chromium
+2026-09-29 11:49:24 [INFO] Using WinForms / Chromium
+2026-09-29 11:49:27 [INFO] before_load event fired. injecting pywebview object
+2026-09-29 11:49:27 [INFO] before_load event fired. injecting pywebview object
+2026-09-29 11:49:27 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-09-29 11:49:27 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-09-29 11:49:27 [INFO] _pywebviewready event fired
+2026-09-29 11:49:27 [INFO] _pywebviewready event fired
+2026-09-29 11:49:27 [INFO] loaded event fired
+2026-09-29 11:49:27 [INFO] loaded event fired
+2026-09-29 11:49:31 [INFO] before_load event fired. injecting pywebview object
+2026-09-29 11:49:31 [INFO] before_load event fired. injecting pywebview object
+2026-09-29 11:49:31 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-09-29 11:49:31 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-09-29 11:49:31 [INFO] _pywebviewready event fired
+2026-09-29 11:49:31 [INFO] _pywebviewready event fired
+2026-09-29 11:49:31 [INFO] loaded event fired
+2026-09-29 11:49:31 [INFO] loaded event fired
+2026-09-29 11:50:28 [INFO] Online Mode: Successfully fetched raw certificate payload via API for student_id=2137.
+2026-09-29 11:50:28 [INFO] Online Mode: Successfully fetched raw certificate payload via API for student_id=2137.
+2026-09-29 11:51:03 [INFO] Online Mode: Successfully fetched raw certificate payload via API for student_id=2137.
+2026-09-29 11:51:03 [INFO] Online Mode: Successfully fetched raw certificate payload via API for student_id=2137.
+2026-09-29 11:51:11 [INFO] Online Mode: Successfully fetched raw certificate payload via API for student_id=2137.
+2026-09-29 11:51:11 [INFO] Online Mode: Successfully fetched raw certificate payload via API for student_id=2137.
+2026-09-29 11:51:13 [INFO] Online Mode: Successfully fetched raw certificate payload via API for student_id=2137.
+2026-09-29 11:51:13 [INFO] Online Mode: Successfully fetched raw certificate payload via API for student_id=2137.
+2026-09-29 11:51:18 [INFO] Online Mode: Successfully fetched raw certificate payload via API for student_id=2137.
+2026-09-29 11:51:18 [INFO] Online Mode: Successfully fetched raw certificate payload via API for student_id=2137.
+2026-09-29 12:09:40 [ERROR] UNHANDLED EXCEPTION:
+Traceback (most recent call last):
+  File "<string>", line 4, in <module>
+    from data.repositories import db
+ImportError: cannot import name 'db' from 'data.repositories' (F:\CR_PY\certificate_manager\data\repositories.py)
+
+2026-09-29 13:10:42 [INFO] before_load event fired. injecting pywebview object
+2026-09-29 13:10:42 [INFO] before_load event fired. injecting pywebview object
+2026-09-29 13:10:42 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-09-29 13:10:42 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-09-29 13:10:43 [INFO] _pywebviewready event fired
+2026-09-29 13:10:43 [INFO] _pywebviewready event fired
+2026-09-29 13:10:43 [INFO] loaded event fired
+2026-09-29 13:10:43 [INFO] loaded event fired
+2026-09-29 13:31:32 [INFO] Online Mode: Successfully fetched raw certificate payload via API for student_id=1.
+2026-09-29 13:51:57 [INFO] Online Mode: Successfully fetched raw certificate payload via API for student_id=1.
+2026-09-29 13:55:10 [INFO] Online Mode: Successfully fetched raw certificate payload via API for student_id=1.
+2026-09-29 13:55:10 [INFO] Offline Mode: Executing local SQLite replica database engine for student_id=1...
+2026-10-01 14:19:41 [WARNING] Online API certificate request failed (HTTPConnectionPool(host='127.0.0.1', port=2030): Max retries exceeded with url: /certificates/1?grouping_mode=DEFAULT (Caused by NewConnectionError("HTTPConnection(host='127.0.0.1', port=2030): Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it"))). Falling back to direct MySQL SP execution...
+2026-10-01 14:19:41 [INFO] Offline Mode: Executing local SQLite replica database engine for student_id=1...
+2026-10-01 14:19:41 [INFO] Offline Mode: Executing local SQLite replica database engine for student_id=1...
+2026-10-03 11:29:02 [ERROR] UNHANDLED EXCEPTION:
+Traceback (most recent call last):
+  File "f:\CR_PY\certificate_manager\main.py", line 14, in <module>
+    from nicegui_screens.dashboard_screen import DashboardScreen
+  File "f:\CR_PY\certificate_manager\nicegui_screens\dashboard_screen.py", line 30, in <module>
+    from nicegui_screens.students_screen import StudentsScreen
+  File "f:\CR_PY\certificate_manager\nicegui_screens\students_screen.py", line 14, in <module>
+    from nicegui_ui.student_components import StudentProfileView, StudentFormView, CourseEnrollmentView
+  File "f:\CR_PY\certificate_manager\nicegui_ui\student_components.py", line 6, in <module>
+    from data.repositories import (
+    ...<8 lines>...
+    )
+ImportError: cannot import name 'sqlite_read_all' from 'data.repositories' (f:\CR_PY\certificate_manager\data\repositories.py)
+
+2026-10-03 11:34:35 [ERROR] UNHANDLED EXCEPTION:
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+    import main; print('MAIN APP IMPORT SUCCESSFUL!')
+    ^^^^^^^^^^^
+  File "F:\CR_PY\certificate_manager\main.py", line 14, in <module>
+    from nicegui_screens.dashboard_screen import DashboardScreen
+  File "F:\CR_PY\certificate_manager\nicegui_screens\dashboard_screen.py", line 30, in <module>
+    from nicegui_screens.students_screen import StudentsScreen
+  File "F:\CR_PY\certificate_manager\nicegui_screens\students_screen.py", line 14, in <module>
+    from nicegui_ui.student_components import StudentProfileView, StudentFormView, CourseEnrollmentView
+  File "F:\CR_PY\certificate_manager\nicegui_ui\student_components.py", line 6, in <module>
+    from data.repositories import (
+    ...<8 lines>...
+    )
+ImportError: cannot import name 'sqlite_read_all' from 'data.repositories' (F:\CR_PY\certificate_manager\data\repositories.py)
+
+2026-10-03 11:41:53 [ERROR] UNHANDLED EXCEPTION:
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+    import main; print('MAIN APP IMPORT SUCCESSFUL!')
+    ^^^^^^^^^^^
+  File "F:\CR_PY\certificate_manager\main.py", line 13, in <module>
+    from nicegui_screens.login_screen import LoginScreen
+  File "F:\CR_PY\certificate_manager\nicegui_screens\login_screen.py", line 14, in <module>
+    from data.repositories import AuthRepository
+  File "F:\CR_PY\certificate_manager\data\repositories.py", line 12, in <module>
+    from sync_engine import (
+    ...<9 lines>...
+    )
+ImportError: cannot import name 'sqlite_execute' from 'sync_engine' (F:\CR_PY\certificate_manager\sync_engine.py)
+
+2026-10-03 20:10:57 [INFO] SYSTEM STARTUP DIAGNOSTIC CHECK STARTED
+2026-10-03 20:10:57 [OK] [CHECK 1/4] FastAPI Connection Check ... [OK]
+2026-10-03 20:10:57 [OK] [CHECK 2/4] MySQL Database Connection ... [OK]
+2026-10-03 20:10:57 [OK] [CHECK 3/4] Authentication & Core SP Checks ... [OK]
+2026-10-03 20:10:57 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-10-03 20:10:57 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-10-03 20:10:57 [OK] [CHECK 4/4] Sync Engine & Local Replica Check ... [OK]
+2026-10-03 20:10:57 [OK] Status: ALL CHECKS PASSED. PROCEEDING TO LOGIN/DASHBOARD.
+2026-10-03 20:11:01 [INFO] Using WinForms / Chromium
+2026-10-03 20:11:01 [INFO] Using WinForms / Chromium
+2026-10-03 20:11:10 [INFO] before_load event fired. injecting pywebview object
+2026-10-03 20:11:10 [INFO] before_load event fired. injecting pywebview object
+2026-10-03 20:11:10 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-03 20:11:10 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-03 20:11:10 [INFO] _pywebviewready event fired
+2026-10-03 20:11:10 [INFO] _pywebviewready event fired
+2026-10-03 20:11:10 [INFO] loaded event fired
+2026-10-03 20:11:10 [INFO] loaded event fired
+2026-10-03 20:11:15 [INFO] before_load event fired. injecting pywebview object
+2026-10-03 20:11:15 [INFO] before_load event fired. injecting pywebview object
+2026-10-03 20:11:15 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-03 20:11:15 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-03 20:11:15 [INFO] _pywebviewready event fired
+2026-10-03 20:11:15 [INFO] _pywebviewready event fired
+2026-10-03 20:11:15 [INFO] loaded event fired
+2026-10-03 20:11:15 [INFO] loaded event fired
+2026-10-03 20:11:19 [INFO] Online Mode: Successfully fetched raw certificate payload via API for student_id=2137.
+2026-10-03 20:11:19 [INFO] Online Mode: Successfully fetched raw certificate payload via API for student_id=2137.
+2026-10-03 20:12:21 [INFO] Online Mode: Successfully fetched raw certificate payload via API for student_id=2137.
+2026-10-03 20:12:21 [INFO] Online Mode: Successfully fetched raw certificate payload via API for student_id=2137.
+2026-10-03 20:17:26 [INFO] Offline Mode: Executing local SQLite replica database engine for student_id=2137...
+2026-10-03 20:17:26 [INFO] Offline Mode: Executing local SQLite replica database engine for student_id=2137...
+2026-10-03 20:17:33 [INFO] Offline Mode: Executing local SQLite replica database engine for student_id=2137...
+2026-10-03 20:17:33 [INFO] Offline Mode: Executing local SQLite replica database engine for student_id=2137...
+2026-10-03 20:17:39 [INFO] Offline Mode: Executing local SQLite replica database engine for student_id=2137...
+2026-10-03 20:17:39 [INFO] Offline Mode: Executing local SQLite replica database engine for student_id=2137...
+2026-10-03 20:17:43 [INFO] Offline Mode: Executing local SQLite replica database engine for student_id=2137...
+2026-10-03 20:17:43 [INFO] Offline Mode: Executing local SQLite replica database engine for student_id=2137...
+2026-10-03 20:21:09 [INFO] Offline INSERT queued: issued_certificates temp_id=-29
+2026-10-03 20:21:09 [INFO] Offline INSERT queued: issued_certificates temp_id=-29
+2026-10-03 20:21:09 [INFO] Successfully recorded issued certificate for student ID 2137 via InsertIssuedCertificate SP.
+2026-10-03 20:21:09 [INFO] Successfully recorded issued certificate for student ID 2137 via InsertIssuedCertificate SP.
+2026-10-03 20:33:42 [INFO] SYSTEM STARTUP DIAGNOSTIC CHECK STARTED
+2026-10-03 20:33:44 [WARNING] [CHECK 1/4] FastAPI Connection Check ... [OFFLINE MODE]
+2026-10-03 20:33:44 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-10-03 20:33:44 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-10-03 20:33:44 [OK] [CHECK 2/4] SQLite Replica Database Connection ... [OK]
+2026-10-03 20:33:44 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-10-03 20:33:44 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-10-03 20:33:44 [OK] [CHECK 3/4] Authentication & Core SP Checks ... [OFFLINE MODE]
+2026-10-03 20:33:44 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-10-03 20:33:44 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-10-03 20:33:44 [OK] [CHECK 4/4] Sync Engine & Local Replica Check ... [OK]
+2026-10-03 20:33:44 [OK] Status: OFFLINE MODE ACTIVE. PROCEEDING TO LOGIN/DASHBOARD.
+2026-10-03 20:33:47 [INFO] Using WinForms / Chromium
+2026-10-03 20:33:47 [INFO] Using WinForms / Chromium
+2026-10-03 20:33:51 [INFO] before_load event fired. injecting pywebview object
+2026-10-03 20:33:51 [INFO] before_load event fired. injecting pywebview object
+2026-10-03 20:33:51 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-03 20:33:51 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-03 20:33:51 [INFO] _pywebviewready event fired
+2026-10-03 20:33:51 [INFO] _pywebviewready event fired
+2026-10-03 20:33:51 [INFO] loaded event fired
+2026-10-03 20:33:51 [INFO] loaded event fired
+2026-10-03 20:33:58 [INFO] before_load event fired. injecting pywebview object
+2026-10-03 20:33:58 [INFO] before_load event fired. injecting pywebview object
+2026-10-03 20:33:58 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-03 20:33:58 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-03 20:33:58 [INFO] _pywebviewready event fired
+2026-10-03 20:33:58 [INFO] _pywebviewready event fired
+2026-10-03 20:33:58 [INFO] loaded event fired
+2026-10-03 20:33:58 [INFO] loaded event fired
+2026-10-03 20:34:05 [INFO] Offline Mode: Executing local SQLite replica database engine for student_id=2137...
+2026-10-03 20:34:05 [INFO] Offline Mode: Executing local SQLite replica database engine for student_id=2137...
+2026-10-03 20:34:25 [INFO] Offline INSERT queued: issued_certificates temp_id=-30
+2026-10-03 20:34:25 [INFO] Offline INSERT queued: issued_certificates temp_id=-30
+2026-10-03 20:34:25 [INFO] Successfully recorded issued certificate for student ID 2137 via InsertIssuedCertificate SP.
+2026-10-03 20:34:25 [INFO] Successfully recorded issued certificate for student ID 2137 via InsertIssuedCertificate SP.
+2026-10-03 20:34:53 [INFO] Starting sync: 30 queued operations.
+2026-10-03 20:34:53 [INFO] Starting sync: 30 queued operations.
+2026-10-03 20:34:53 [INFO] Resolved issued_certificates temp_id=-3 → real_id=13 (cascaded to 0 children)
+2026-10-03 20:34:53 [INFO] Resolved issued_certificates temp_id=-3 → real_id=13 (cascaded to 0 children)
+2026-10-03 20:34:53 [INFO] Synced issued_certificates: temp_id=-3 → real_id=13
+2026-10-03 20:34:53 [INFO] Synced issued_certificates: temp_id=-3 → real_id=13
+2026-10-03 20:34:53 [INFO] Resolved issued_certificates temp_id=-4 → real_id=19 (cascaded to 0 children)
+2026-10-03 20:34:53 [INFO] Resolved issued_certificates temp_id=-4 → real_id=19 (cascaded to 0 children)
+2026-10-03 20:34:53 [INFO] Synced issued_certificates: temp_id=-4 → real_id=19
+2026-10-03 20:34:53 [INFO] Synced issued_certificates: temp_id=-4 → real_id=19
+2026-10-03 20:34:53 [INFO] Resolved issued_certificates temp_id=-5 → real_id=19 (cascaded to 0 children)
+2026-10-03 20:34:53 [INFO] Resolved issued_certificates temp_id=-5 → real_id=19 (cascaded to 0 children)
+2026-10-03 20:34:53 [INFO] Synced issued_certificates: temp_id=-5 → real_id=19
+2026-10-03 20:34:53 [INFO] Synced issued_certificates: temp_id=-5 → real_id=19
+2026-10-03 20:34:53 [INFO] Resolved issued_certificates temp_id=-6 → real_id=19 (cascaded to 0 children)
+2026-10-03 20:34:53 [INFO] Resolved issued_certificates temp_id=-6 → real_id=19 (cascaded to 0 children)
+2026-10-03 20:34:53 [INFO] Synced issued_certificates: temp_id=-6 → real_id=19
+2026-10-03 20:34:53 [INFO] Synced issued_certificates: temp_id=-6 → real_id=19
+2026-10-03 20:34:53 [INFO] Resolved issued_certificates temp_id=-7 → real_id=19 (cascaded to 0 children)
+2026-10-03 20:34:53 [INFO] Resolved issued_certificates temp_id=-7 → real_id=19 (cascaded to 0 children)
+2026-10-03 20:34:53 [INFO] Synced issued_certificates: temp_id=-7 → real_id=19
+2026-10-03 20:34:53 [INFO] Synced issued_certificates: temp_id=-7 → real_id=19
+2026-10-03 20:34:53 [INFO] Resolved issued_certificates temp_id=-8 → real_id=19 (cascaded to 0 children)
+2026-10-03 20:34:53 [INFO] Resolved issued_certificates temp_id=-8 → real_id=19 (cascaded to 0 children)
+2026-10-03 20:34:53 [INFO] Synced issued_certificates: temp_id=-8 → real_id=19
+2026-10-03 20:34:53 [INFO] Synced issued_certificates: temp_id=-8 → real_id=19
+2026-10-03 20:34:53 [INFO] Resolved issued_certificates temp_id=-9 → real_id=26 (cascaded to 0 children)
+2026-10-03 20:34:53 [INFO] Resolved issued_certificates temp_id=-9 → real_id=26 (cascaded to 0 children)
+2026-10-03 20:34:53 [INFO] Synced issued_certificates: temp_id=-9 → real_id=26
+2026-10-03 20:34:53 [INFO] Synced issued_certificates: temp_id=-9 → real_id=26
+2026-10-03 20:34:53 [INFO] Resolved issued_certificates temp_id=-10 → real_id=26 (cascaded to 0 children)
+2026-10-03 20:34:53 [INFO] Resolved issued_certificates temp_id=-10 → real_id=26 (cascaded to 0 children)
+2026-10-03 20:34:53 [INFO] Synced issued_certificates: temp_id=-10 → real_id=26
+2026-10-03 20:34:53 [INFO] Synced issued_certificates: temp_id=-10 → real_id=26
+2026-10-03 20:34:53 [INFO] Resolved issued_certificates temp_id=-11 → real_id=26 (cascaded to 0 children)
+2026-10-03 20:34:53 [INFO] Resolved issued_certificates temp_id=-11 → real_id=26 (cascaded to 0 children)
+2026-10-03 20:34:53 [INFO] Synced issued_certificates: temp_id=-11 → real_id=26
+2026-10-03 20:34:53 [INFO] Synced issued_certificates: temp_id=-11 → real_id=26
+2026-10-03 20:34:53 [INFO] Resolved issued_certificates temp_id=-12 → real_id=26 (cascaded to 0 children)
+2026-10-03 20:34:53 [INFO] Resolved issued_certificates temp_id=-12 → real_id=26 (cascaded to 0 children)
+2026-10-03 20:34:53 [INFO] Synced issued_certificates: temp_id=-12 → real_id=26
+2026-10-03 20:34:53 [INFO] Synced issued_certificates: temp_id=-12 → real_id=26
+2026-10-03 20:34:53 [INFO] Resolved issued_certificates temp_id=-13 → real_id=30 (cascaded to 0 children)
+2026-10-03 20:34:53 [INFO] Resolved issued_certificates temp_id=-13 → real_id=30 (cascaded to 0 children)
+2026-10-03 20:34:53 [INFO] Synced issued_certificates: temp_id=-13 → real_id=30
+2026-10-03 20:34:53 [INFO] Synced issued_certificates: temp_id=-13 → real_id=30
+2026-10-03 20:34:53 [INFO] Resolved issued_certificates temp_id=-14 → real_id=35 (cascaded to 0 children)
+2026-10-03 20:34:53 [INFO] Resolved issued_certificates temp_id=-14 → real_id=35 (cascaded to 0 children)
+2026-10-03 20:34:53 [INFO] Synced issued_certificates: temp_id=-14 → real_id=35
+2026-10-03 20:34:53 [INFO] Synced issued_certificates: temp_id=-14 → real_id=35
+2026-10-03 20:34:53 [INFO] Resolved issued_certificates temp_id=-15 → real_id=35 (cascaded to 0 children)
+2026-10-03 20:34:53 [INFO] Resolved issued_certificates temp_id=-15 → real_id=35 (cascaded to 0 children)
+2026-10-03 20:34:53 [INFO] Synced issued_certificates: temp_id=-15 → real_id=35
+2026-10-03 20:34:53 [INFO] Synced issued_certificates: temp_id=-15 → real_id=35
+2026-10-03 20:34:53 [INFO] Resolved issued_certificates temp_id=-16 → real_id=35 (cascaded to 0 children)
+2026-10-03 20:34:53 [INFO] Resolved issued_certificates temp_id=-16 → real_id=35 (cascaded to 0 children)
+2026-10-03 20:34:53 [INFO] Synced issued_certificates: temp_id=-16 → real_id=35
+2026-10-03 20:34:53 [INFO] Synced issued_certificates: temp_id=-16 → real_id=35
+2026-10-03 20:34:53 [INFO] Resolved issued_certificates temp_id=-17 → real_id=35 (cascaded to 0 children)
+2026-10-03 20:34:53 [INFO] Resolved issued_certificates temp_id=-17 → real_id=35 (cascaded to 0 children)
+2026-10-03 20:34:53 [INFO] Synced issued_certificates: temp_id=-17 → real_id=35
+2026-10-03 20:34:53 [INFO] Synced issued_certificates: temp_id=-17 → real_id=35
+2026-10-03 20:34:53 [INFO] Resolved issued_certificates temp_id=-18 → real_id=37 (cascaded to 0 children)
+2026-10-03 20:34:53 [INFO] Resolved issued_certificates temp_id=-18 → real_id=37 (cascaded to 0 children)
+2026-10-03 20:34:53 [INFO] Synced issued_certificates: temp_id=-18 → real_id=37
+2026-10-03 20:34:53 [INFO] Synced issued_certificates: temp_id=-18 → real_id=37
+2026-10-03 20:34:53 [INFO] Resolved issued_certificates temp_id=-19 → real_id=37 (cascaded to 0 children)
+2026-10-03 20:34:53 [INFO] Resolved issued_certificates temp_id=-19 → real_id=37 (cascaded to 0 children)
+2026-10-03 20:34:53 [INFO] Synced issued_certificates: temp_id=-19 → real_id=37
+2026-10-03 20:34:53 [INFO] Synced issued_certificates: temp_id=-19 → real_id=37
+2026-10-03 20:34:53 [INFO] Resolved issued_certificates temp_id=-20 → real_id=41 (cascaded to 0 children)
+2026-10-03 20:34:53 [INFO] Resolved issued_certificates temp_id=-20 → real_id=41 (cascaded to 0 children)
+2026-10-03 20:34:53 [INFO] Synced issued_certificates: temp_id=-20 → real_id=41
+2026-10-03 20:34:53 [INFO] Synced issued_certificates: temp_id=-20 → real_id=41
+2026-10-03 20:34:53 [INFO] Resolved issued_certificates temp_id=-21 → real_id=26 (cascaded to 0 children)
+2026-10-03 20:34:53 [INFO] Resolved issued_certificates temp_id=-21 → real_id=26 (cascaded to 0 children)
+2026-10-03 20:34:53 [INFO] Synced issued_certificates: temp_id=-21 → real_id=26
+2026-10-03 20:34:53 [INFO] Synced issued_certificates: temp_id=-21 → real_id=26
+2026-10-03 20:34:53 [INFO] Resolved issued_certificates temp_id=-22 → real_id=46 (cascaded to 0 children)
+2026-10-03 20:34:53 [INFO] Resolved issued_certificates temp_id=-22 → real_id=46 (cascaded to 0 children)
+2026-10-03 20:34:53 [INFO] Synced issued_certificates: temp_id=-22 → real_id=46
+2026-10-03 20:34:53 [INFO] Synced issued_certificates: temp_id=-22 → real_id=46
+2026-10-03 20:34:53 [INFO] Resolved issued_certificates temp_id=-23 → real_id=46 (cascaded to 0 children)
+2026-10-03 20:34:53 [INFO] Resolved issued_certificates temp_id=-23 → real_id=46 (cascaded to 0 children)
+2026-10-03 20:34:53 [INFO] Synced issued_certificates: temp_id=-23 → real_id=46
+2026-10-03 20:34:53 [INFO] Synced issued_certificates: temp_id=-23 → real_id=46
+2026-10-03 20:34:53 [INFO] Resolved issued_certificates temp_id=-24 → real_id=46 (cascaded to 0 children)
+2026-10-03 20:34:53 [INFO] Resolved issued_certificates temp_id=-24 → real_id=46 (cascaded to 0 children)
+2026-10-03 20:34:53 [INFO] Synced issued_certificates: temp_id=-24 → real_id=46
+2026-10-03 20:34:53 [INFO] Synced issued_certificates: temp_id=-24 → real_id=46
+2026-10-03 20:34:53 [INFO] Resolved issued_certificates temp_id=-25 → real_id=51 (cascaded to 0 children)
+2026-10-03 20:34:53 [INFO] Resolved issued_certificates temp_id=-25 → real_id=51 (cascaded to 0 children)
+2026-10-03 20:34:53 [INFO] Synced issued_certificates: temp_id=-25 → real_id=51
+2026-10-03 20:34:53 [INFO] Synced issued_certificates: temp_id=-25 → real_id=51
+2026-10-03 20:34:53 [INFO] Resolved issued_certificates temp_id=-26 → real_id=52 (cascaded to 0 children)
+2026-10-03 20:34:53 [INFO] Resolved issued_certificates temp_id=-26 → real_id=52 (cascaded to 0 children)
+2026-10-03 20:34:53 [INFO] Synced issued_certificates: temp_id=-26 → real_id=52
+2026-10-03 20:34:53 [INFO] Synced issued_certificates: temp_id=-26 → real_id=52
+2026-10-03 20:34:53 [INFO] Resolved issued_certificates temp_id=-999 → real_id=77 (cascaded to 0 children)
+2026-10-03 20:34:53 [INFO] Resolved issued_certificates temp_id=-999 → real_id=77 (cascaded to 0 children)
+2026-10-03 20:34:53 [INFO] Synced issued_certificates: temp_id=-999 → real_id=77
+2026-10-03 20:34:53 [INFO] Synced issued_certificates: temp_id=-999 → real_id=77
+2026-10-03 20:34:53 [INFO] Resolved issued_certificates temp_id=-999 → real_id=77 (cascaded to 0 children)
+2026-10-03 20:34:53 [INFO] Resolved issued_certificates temp_id=-999 → real_id=77 (cascaded to 0 children)
+2026-10-03 20:34:53 [INFO] Synced issued_certificates: temp_id=-999 → real_id=77
+2026-10-03 20:34:53 [INFO] Synced issued_certificates: temp_id=-999 → real_id=77
+2026-10-03 20:34:53 [INFO] Resolved issued_certificates temp_id=-27 → real_id=51 (cascaded to 0 children)
+2026-10-03 20:34:53 [INFO] Resolved issued_certificates temp_id=-27 → real_id=51 (cascaded to 0 children)
+2026-10-03 20:34:53 [INFO] Synced issued_certificates: temp_id=-27 → real_id=51
+2026-10-03 20:34:53 [INFO] Synced issued_certificates: temp_id=-27 → real_id=51
+2026-10-03 20:34:53 [INFO] Resolved issued_certificates temp_id=-28 → real_id=52 (cascaded to 0 children)
+2026-10-03 20:34:53 [INFO] Resolved issued_certificates temp_id=-28 → real_id=52 (cascaded to 0 children)
+2026-10-03 20:34:53 [INFO] Synced issued_certificates: temp_id=-28 → real_id=52
+2026-10-03 20:34:53 [INFO] Synced issued_certificates: temp_id=-28 → real_id=52
+2026-10-03 20:34:53 [INFO] Resolved issued_certificates temp_id=-29 → real_id=81 (cascaded to 0 children)
+2026-10-03 20:34:53 [INFO] Resolved issued_certificates temp_id=-29 → real_id=81 (cascaded to 0 children)
+2026-10-03 20:34:53 [INFO] Synced issued_certificates: temp_id=-29 → real_id=81
+2026-10-03 20:34:53 [INFO] Synced issued_certificates: temp_id=-29 → real_id=81
+2026-10-03 20:34:53 [INFO] Resolved issued_certificates temp_id=-30 → real_id=82 (cascaded to 0 children)
+2026-10-03 20:34:53 [INFO] Resolved issued_certificates temp_id=-30 → real_id=82 (cascaded to 0 children)
+2026-10-03 20:34:53 [INFO] Synced issued_certificates: temp_id=-30 → real_id=82
+2026-10-03 20:34:53 [INFO] Synced issued_certificates: temp_id=-30 → real_id=82
+2026-10-03 20:34:53 [INFO] Sync complete: {'synced': 30, 'failed': 0, 'id_map': {-3: 13, -4: 19, -5: 19, -6: 19, -7: 19, -8: 19, -9: 26, -10: 26, -11: 26, -12: 26, -13: 30, -14: 35, -15: 35, -16: 35, -17: 35, -18: 37, -19: 37, -20: 41, -21: 26, -22: 46, -23: 46, -24: 46, -25: 51, -26: 52, -999: 77, -27: 51, -28: 52, -29: 81, -30: 82}}
+2026-10-03 20:34:53 [INFO] Sync complete: {'synced': 30, 'failed': 0, 'id_map': {-3: 13, -4: 19, -5: 19, -6: 19, -7: 19, -8: 19, -9: 26, -10: 26, -11: 26, -12: 26, -13: 30, -14: 35, -15: 35, -16: 35, -17: 35, -18: 37, -19: 37, -20: 41, -21: 26, -22: 46, -23: 46, -24: 46, -25: 51, -26: 52, -999: 77, -27: 51, -28: 52, -29: 81, -30: 82}}
+2026-10-03 20:34:54 [ERROR] Failed to replicate table study_routine_courses: table study_routine_courses has no column named period_id
+2026-10-03 20:34:54 [ERROR] Failed to replicate table study_routine_courses: table study_routine_courses has no column named period_id
+2026-10-03 20:34:54 [INFO] Inbound sync complete: {'tables_synced': 17, 'total_rows': 5846, 'errors': ['study_routine_courses: table study_routine_courses has no column named period_id']}
+2026-10-03 20:34:54 [INFO] Inbound sync complete: {'tables_synced': 17, 'total_rows': 5846, 'errors': ['study_routine_courses: table study_routine_courses has no column named period_id']}
+2026-10-03 20:43:59 [INFO] SYSTEM STARTUP DIAGNOSTIC CHECK STARTED
+2026-10-03 20:43:59 [OK] [CHECK 1/4] FastAPI Connection Check ... [OK]
+2026-10-03 20:44:00 [OK] [CHECK 2/4] MySQL Database Connection ... [OK]
+2026-10-03 20:44:00 [OK] [CHECK 3/4] Authentication & Core SP Checks ... [OK]
+2026-10-03 20:44:00 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-10-03 20:44:00 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-10-03 20:44:00 [OK] [CHECK 4/4] Sync Engine & Local Replica Check ... [OK]
+2026-10-03 20:44:00 [OK] Status: ALL CHECKS PASSED. PROCEEDING TO LOGIN/DASHBOARD.
+2026-10-03 20:44:03 [INFO] Using WinForms / Chromium
+2026-10-03 20:44:03 [INFO] Using WinForms / Chromium
+2026-10-03 20:44:07 [INFO] before_load event fired. injecting pywebview object
+2026-10-03 20:44:07 [INFO] before_load event fired. injecting pywebview object
+2026-10-03 20:44:07 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-03 20:44:07 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-03 20:44:07 [INFO] _pywebviewready event fired
+2026-10-03 20:44:07 [INFO] _pywebviewready event fired
+2026-10-03 20:44:07 [INFO] loaded event fired
+2026-10-03 20:44:07 [INFO] loaded event fired
+2026-10-03 20:44:13 [INFO] before_load event fired. injecting pywebview object
+2026-10-03 20:44:13 [INFO] before_load event fired. injecting pywebview object
+2026-10-03 20:44:13 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-03 20:44:13 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-03 20:44:13 [INFO] _pywebviewready event fired
+2026-10-03 20:44:13 [INFO] _pywebviewready event fired
+2026-10-03 20:44:13 [INFO] loaded event fired
+2026-10-03 20:44:13 [INFO] loaded event fired
+2026-10-03 20:44:20 [INFO] Online Mode: Successfully fetched raw certificate payload via API for student_id=2137.
+2026-10-03 20:44:20 [INFO] Online Mode: Successfully fetched raw certificate payload via API for student_id=2137.
+2026-10-03 20:44:26 [INFO] Online Mode: Successfully fetched raw certificate payload via API for student_id=2010.
+2026-10-03 20:44:26 [INFO] Online Mode: Successfully fetched raw certificate payload via API for student_id=2010.
+2026-10-03 20:44:26 [INFO] Online Mode: Successfully fetched raw certificate payload via API for student_id=2010.
+2026-10-03 20:44:26 [INFO] Online Mode: Successfully fetched raw certificate payload via API for student_id=2010.
+2026-10-03 20:44:26 [INFO] Online Mode: Successfully fetched raw certificate payload via API for student_id=2010.
+2026-10-03 20:44:26 [INFO] Online Mode: Successfully fetched raw certificate payload via API for student_id=2010.
+2026-10-03 20:44:42 [INFO] Online Mode: Successfully fetched raw certificate payload via API for student_id=2010.
+2026-10-03 20:44:42 [INFO] Online Mode: Successfully fetched raw certificate payload via API for student_id=2010.
+2026-10-03 20:44:49 [INFO] Online Mode: Successfully fetched raw certificate payload via API for student_id=2010.
+2026-10-03 20:44:49 [INFO] Online Mode: Successfully fetched raw certificate payload via API for student_id=2010.
+2026-10-03 20:48:00 [INFO] SYSTEM STARTUP DIAGNOSTIC CHECK STARTED
+2026-10-03 20:48:00 [OK] [CHECK 1/4] FastAPI Connection Check ... [OK]
+2026-10-03 20:48:00 [OK] [CHECK 2/4] MySQL Database Connection ... [OK]
+2026-10-03 20:48:00 [OK] [CHECK 3/4] Authentication & Core SP Checks ... [OK]
+2026-10-03 20:48:00 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-10-03 20:48:00 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-10-03 20:48:00 [OK] [CHECK 4/4] Sync Engine & Local Replica Check ... [OK]
+2026-10-03 20:48:00 [OK] Status: ALL CHECKS PASSED. PROCEEDING TO LOGIN/DASHBOARD.
+2026-10-03 20:48:03 [INFO] Using WinForms / Chromium
+2026-10-03 20:48:03 [INFO] Using WinForms / Chromium
+2026-10-03 20:48:06 [INFO] before_load event fired. injecting pywebview object
+2026-10-03 20:48:06 [INFO] before_load event fired. injecting pywebview object
+2026-10-03 20:48:06 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-03 20:48:06 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-03 20:48:07 [INFO] _pywebviewready event fired
+2026-10-03 20:48:07 [INFO] _pywebviewready event fired
+2026-10-03 20:48:07 [INFO] loaded event fired
+2026-10-03 20:48:07 [INFO] loaded event fired
+2026-10-03 20:48:15 [INFO] before_load event fired. injecting pywebview object
+2026-10-03 20:48:15 [INFO] before_load event fired. injecting pywebview object
+2026-10-03 20:48:15 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-03 20:48:15 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-03 20:48:15 [INFO] _pywebviewready event fired
+2026-10-03 20:48:15 [INFO] _pywebviewready event fired
+2026-10-03 20:48:15 [INFO] loaded event fired
+2026-10-03 20:48:15 [INFO] loaded event fired
+2026-10-04 20:14:10 [INFO] SYSTEM STARTUP DIAGNOSTIC CHECK STARTED
+2026-10-04 20:14:12 [WARNING] [CHECK 1/4] FastAPI Connection Check ... [OFFLINE MODE]
+2026-10-04 20:14:12 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-10-04 20:14:12 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-10-04 20:14:12 [OK] [CHECK 2/4] SQLite Replica Database Connection ... [OK]
+2026-10-04 20:14:12 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-10-04 20:14:12 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-10-04 20:14:12 [OK] [CHECK 3/4] Authentication & Core SP Checks ... [OFFLINE MODE]
+2026-10-04 20:14:12 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-10-04 20:14:12 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-10-04 20:14:12 [OK] [CHECK 4/4] Sync Engine & Local Replica Check ... [OK]
+2026-10-04 20:14:12 [OK] Status: OFFLINE MODE ACTIVE. PROCEEDING TO LOGIN/DASHBOARD.
+2026-10-04 20:14:16 [INFO] Using WinForms / Chromium
+2026-10-04 20:14:16 [INFO] Using WinForms / Chromium
+2026-10-04 20:14:21 [INFO] before_load event fired. injecting pywebview object
+2026-10-04 20:14:21 [INFO] before_load event fired. injecting pywebview object
+2026-10-04 20:14:21 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-04 20:14:21 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-04 20:14:22 [INFO] _pywebviewready event fired
+2026-10-04 20:14:22 [INFO] _pywebviewready event fired
+2026-10-04 20:14:22 [INFO] loaded event fired
+2026-10-04 20:14:22 [INFO] loaded event fired
+2026-10-04 20:14:59 [INFO] before_load event fired. injecting pywebview object
+2026-10-04 20:14:59 [INFO] before_load event fired. injecting pywebview object
+2026-10-04 20:14:59 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-04 20:14:59 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-04 20:14:59 [INFO] _pywebviewready event fired
+2026-10-04 20:14:59 [INFO] _pywebviewready event fired
+2026-10-04 20:14:59 [INFO] loaded event fired
+2026-10-04 20:14:59 [INFO] loaded event fired
+2026-10-04 20:41:18 [INFO] Offline INSERT queued: students temp_id=-31
+2026-10-04 20:41:18 [INFO] Offline INSERT queued: students temp_id=-31
+2026-10-04 20:41:19 [WARNING] Apply Routine warning: Routine 2 has no assigned courses in any period.
+2026-10-04 20:42:17 [WARNING] Apply Routine warning: Routine 2 has no assigned courses in any period.
+2026-10-04 20:45:12 [WARNING] Apply Routine warning: Routine 2 has no assigned courses in any period.

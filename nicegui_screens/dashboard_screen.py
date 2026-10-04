@@ -171,7 +171,7 @@ class MainAppShell:
         from nicegui import run
         from sync_engine import (
             check_network_status, set_online, is_online,
-            sync_offline_queue_to_mysql
+            sync_offline_queue_to_mysql, pull_mysql_to_sqlite_background
         )
 
         prev_online = is_online()
@@ -187,6 +187,7 @@ class MainAppShell:
         if now_online and not prev_online:
             try:
                 await run.io_bound(sync_offline_queue_to_mysql)
+                pull_mysql_to_sqlite_background()
             except Exception as exc:
                 log.warning(f"[MainAppShell] Sync error on reconnection: {exc}")
 

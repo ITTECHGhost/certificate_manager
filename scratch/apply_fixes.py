@@ -1,0 +1,75 @@
+import re
+
+with open("data/query.py", "r", encoding="utf-8") as f:
+    content = f.read()
+
+# 1. Merge university_settings into student_info
+student_info_target = """        "FROM (SELECT * FROM students UNION ALL SELECT * FROM local_students) s "
+        "LEFT JOIN (SELECT * FROM departments UNION ALL SELECT * FROM local_departments) d ON s.department_id = d.id "
+        "LEFT JOIN (SELECT * FROM colleges UNION ALL SELECT * FROM local_colleges) c ON d.college_id = c.id "
+        "WHERE s.id = ?",
+"""
+student_info_repl = """        "FROM (SELECT * FROM students UNION ALL SELECT * FROM local_students) s "
+        "LEFT JOIN (SELECT * FROM departments UNION ALL SELECT * FROM local_departments) d ON s.department_id = d.id "
+        "LEFT JOIN (SELECT * FROM colleges UNION ALL SELECT * FROM local_colleges) c ON d.college_id = c.id "
+        "LEFT JOIN university_settings us ON us.id = 1 "
+        "WHERE s.id = ?",
+"""
+content = content.replace(student_info_target, student_info_repl)
+
+student_info_target_2 = """        "IFNULL(s.note_en, '') AS note_en "
+"""
+student_info_repl_2 = """        "IFNULL(s.note_en, '') AS note_en, "
+        "us.univ_name_ar, "
+        "us.univ_name_en, "
+        "us.college_name_ar, "
+        "us.college_name_en, "
+        "1 AS university_settings_id "
+"""
+content = content.replace(student_info_target_2, student_info_repl_2)
+
+# 2. Add result_status_code and label to Q_COURSES_YEARLY_BY_ACADEMIC_YEAR
+q_courses_yearly_target = """    CAST(ap.academic_year AS TEXT) AS grouping_key
+FROM (SELECT * FROM academic_periods UNION ALL SELECT * FROM local_academic_periods) ap"""
+q_courses_yearly_repl = """    CAST(ap.academic_year AS TEXT) AS grouping_key,
+    1 AS result_status_code,
+    'PASSED' AS result_status_label
+FROM (SELECT * FROM academic_periods UNION ALL SELECT * FROM local_academic_periods) ap"""
+content = content.replace(q_courses_yearly_target, q_courses_yearly_repl)
+
+# 3. Add result_status_code and label to Q_COURSES_YEARLY_BY_PERIOD_STAGE
+q_courses_stage_target = """    CAST(ap.stage_number AS TEXT) AS grouping_key
+FROM (SELECT * FROM academic_periods UNION ALL SELECT * FROM local_academic_periods) ap"""
+q_courses_stage_repl = """    CAST(ap.stage_number AS TEXT) AS grouping_key,
+    1 AS result_status_code,
+    'PASSED' AS result_status_label
+FROM (SELECT * FROM academic_periods UNION ALL SELECT * FROM local_academic_periods) ap"""
+content = content.replace(q_courses_stage_target, q_courses_stage_repl)
+
+# 4. Add result_status_code and label to Q_COURSES_YEARLY_BY_CURRICULUM_STAGE
+q_courses_curr_target = """    CAST(COALESCE(c.stage_number, ap.stage_number) AS TEXT) AS grouping_key
+FROM (SELECT * FROM academic_periods UNION ALL SELECT * FROM local_academic_periods) ap"""
+q_courses_curr_repl = """    CAST(COALESCE(c.stage_number, ap.stage_number) AS TEXT) AS grouping_key,
+    1 AS result_status_code,
+    'PASSED' AS result_status_label
+FROM (SELECT * FROM academic_periods UNION ALL SELECT * FROM local_academic_periods) ap"""
+content = content.replace(q_courses_curr_target, q_courses_curr_repl)
+
+
+# 5. Fix timeline DISTINCT
+timeline_target = """        "       REPLACE(GROUP_CONCAT(COALESCE(ap.result_status, 'PASSED')), ',', ' / ') AS result_status " """
+timeline_repl = """        "       REPLACE(GROUP_CONCAT(DISTINCT COALESCE(ap.result_status, 'PASSED')), ',', ' / ') AS result_status " """
+content = content.replace(timeline_target, timeline_repl)
+
+# 6. Remove float casting from courses
+float_cast_target = """    # Force float for semester_num to match Pydantic API response
+    for row in res:
+        if "semester_num" in row and row["semester_num"] is not None:
+            row["semester_num"] = float(row["semester_num"])
+            
+    return res"""
+content = content.replace(float_cast_target, """    return res""")
+
+with open("data/query.py", "w", encoding="utf-8") as f:
+    f.write(content)
+print("Fixes applied.")

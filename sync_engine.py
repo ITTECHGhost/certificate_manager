@@ -167,6 +167,54 @@ _TABLE_REGISTRY: dict[str, dict] = {
         ],
         "fk_cascades": [],
     },
+    "study_routines": {
+        "local_table": "study_routines",
+        "columns": [
+            "name_ar", "name_en", "department_id", "study_system_id",
+        ],
+        "sp_name": "InsertStudyRoutine",
+        "sp_args": [
+            "name_ar", "name_en", "department_id", "study_system_id",
+        ],
+        "fk_cascades": [
+            ("study_routine_period", "routine_id"),
+        ],
+    },
+    "study_routine_period": {
+        "local_table": "study_routine_period",
+        "columns": [
+            "routine_id", "stage_number", "semester_num",
+        ],
+        "sp_name": "InsertStudyRoutinePeriod",
+        "sp_args": [
+            "routine_id", "stage_number", "semester_num",
+        ],
+        "fk_cascades": [
+            ("study_routine_courses", "period_id"),
+        ],
+    },
+    "study_routine_courses": {
+        "local_table": "study_routine_courses",
+        "columns": [
+            "routine_id", "course_id",
+        ],
+        "sp_name": "InsertStudyRoutineCourse",
+        "sp_args": [
+            "routine_id", "course_id",
+        ],
+        "fk_cascades": [],
+    },
+    "study_routine_period_courses": {
+        "local_table": "study_routine_courses",
+        "columns": [
+            "period_id", "course_id",
+        ],
+        "sp_name": "InsertStudyRoutinePeriodCourse",
+        "sp_args": [
+            "period_id", "course_id",
+        ],
+        "fk_cascades": [],
+    },
 }
 
 
@@ -357,9 +405,9 @@ def init_local_db() -> None:
         cur.execute("""
             CREATE TABLE IF NOT EXISTS study_routine_courses (
                 id              INTEGER PRIMARY KEY AUTOINCREMENT,
-                routine_id      INTEGER NOT NULL,
+                period_id       INTEGER NOT NULL,
                 course_id       INTEGER NOT NULL,
-                UNIQUE(routine_id, course_id)
+                UNIQUE(period_id, course_id)
             )
         """)
 
@@ -790,7 +838,7 @@ def download_mysql_snapshot(mysql_conn, sqlite_conn):
         'departments', 'study_systems', 'personnel', 'courses',
         'graduation_orders', 'students', 'academic_periods', 'enrollments',
         'student_supervisors', 'thesis_records', 'issued_certificates',
-        'study_routines', 'study_routine_courses'
+        'study_routines', 'study_routine_period', 'study_routine_courses'
     ]
     my_cursor = mysql_conn.cursor(dictionary=True)
     sq_cursor = sqlite_conn.cursor()
