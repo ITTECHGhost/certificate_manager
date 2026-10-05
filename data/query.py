@@ -730,7 +730,7 @@ def search_offline_students_paginated(db_path: str, search_term: str, limit: int
                 SELECT id, full_name_ar, full_name_en, graduation_date, average, department_id FROM local_students
             ) s
             LEFT JOIN departments d ON s.department_id = d.id
-            ORDER BY s.id DESC
+            ORDER BY CASE WHEN s.id < 0 THEN 1 ELSE 0 END DESC, ABS(s.id) DESC
             LIMIT ? OFFSET ?
         """
         params = (limit, offset)
@@ -1025,14 +1025,18 @@ def delete_offline_student(student_id: int) -> None:
     finally:
         sq_conn.close()
 
-def get_offline_academic_periods_by_student(student_id: int) -> list[dict]:
+def get_offline_academic_periods_by_student(student_id: int | str) -> list[dict]:
+    try:
+        sid = int(student_id)
+    except (ValueError, TypeError):
+        sid = student_id
     return sqlite_read_all(
         "SELECT id, student_id, academic_year, study_system_id, stage_number, semester_num, COALESCE(result_status, 'PASSED') AS result_status FROM ("
         "  SELECT id, student_id, academic_year, study_system_id, stage_number, semester_num, result_status FROM academic_periods "
         "  UNION ALL "
         "  SELECT id, student_id, academic_year, study_system_id, stage_number, semester_num, result_status FROM local_academic_periods"
-        ") WHERE student_id = ? ORDER BY stage_number, semester_num",
-        (student_id,)
+        ") WHERE CAST(student_id AS INTEGER) = CAST(? AS INTEGER) OR student_id = ? ORDER BY stage_number, semester_num",
+        (sid, str(student_id))
     ) or []
 
 def update_offline_academic_period_status(period_id: int, result_status_key: str) -> None:
@@ -1071,7 +1075,11 @@ def update_offline_academic_period_stage(period_id: int, stage_number: int) -> N
     finally:
         conn.close()
 
-def get_offline_enrollments_by_period(period_id: int) -> list[dict]:
+def get_offline_enrollments_by_period(period_id: int | str) -> list[dict]:
+    try:
+        pid = int(period_id)
+    except (ValueError, TypeError):
+        pid = period_id
     return sqlite_read_all(
         "SELECT e.id, e.period_id, e.course_id, e.score, e.passed_round, "
         "       CASE WHEN e.passed_round != '1' THEN 1 ELSE 0 END AS is_second_round, "
@@ -1081,10 +1089,10 @@ def get_offline_enrollments_by_period(period_id: int) -> list[dict]:
         "  UNION ALL "
         "  SELECT id, period_id, course_id, score, passed_round FROM local_enrollments"
         ") e "
-        "JOIN courses c ON e.course_id = c.id "
-        "WHERE e.period_id = ? "
+        "LEFT JOIN courses c ON CAST(e.course_id AS INTEGER) = CAST(c.id AS INTEGER) "
+        "WHERE CAST(e.period_id AS INTEGER) = CAST(? AS INTEGER) OR e.period_id = ? "
         "ORDER BY c.name_ar",
-        (period_id,)
+        (pid, str(period_id))
     ) or []
 
 def update_offline_enrollment(enrollment_id: int, score: float, passed_round: str) -> None:
@@ -1149,20 +1157,28 @@ def get_offline_study_routine_by_id(routine_id: int) -> dict | None:
     """
     return sqlite_read_one(query, (routine_id,))
 
-def get_offline_study_routine_periods(routine_id: int) -> list[dict]:
-    query = "SELECT id, routine_id, stage_number, semester_num FROM study_routine_period WHERE routine_id = ? ORDER BY stage_number, semester_num"
-    return sqlite_read_all(query, (routine_id,)) or []
+def get_offline_study_routine_periods(routine_id: int | str) -> list[dict]:
+    try:
+        rid = int(routine_id)
+    except (ValueError, TypeError):
+        rid = routine_id
+    query = "SELECT id, routine_id, stage_number, semester_num FROM study_routine_period WHERE CAST(routine_id AS INTEGER) = CAST(? AS INTEGER) OR routine_id = ? ORDER BY stage_number, semester_num"
+    return sqlite_read_all(query, (rid, str(routine_id))) or []
 
-def get_offline_study_routine_period_courses(period_id: int) -> list[dict]:
+def get_offline_study_routine_period_courses(period_id: int | str) -> list[dict]:
+    try:
+        pid = int(period_id)
+    except (ValueError, TypeError):
+        pid = period_id
     query = """
         SELECT src.id, src.period_id, src.course_id,
                c.name_ar AS course_name_ar, c.name_en AS course_name_en, c.credit_hours, c.stage_number
         FROM study_routine_courses src
-        JOIN courses c ON src.course_id = c.id
-        WHERE src.period_id = ?
+        LEFT JOIN courses c ON CAST(src.course_id AS INTEGER) = CAST(c.id AS INTEGER)
+        WHERE CAST(src.period_id AS INTEGER) = CAST(? AS INTEGER) OR src.period_id = ?
         ORDER BY c.name_ar
     """
-    return sqlite_read_all(query, (period_id,)) or []
+    return sqlite_read_all(query, (pid, str(period_id))) or []
 
 def insert_offline_study_routine(name_ar: str, name_en: str, dept_id: int, sys_id: int) -> int:
     conn = get_local_connection()
@@ -1328,4 +1344,18 @@ def delete_offline_study_routine_period_course(period_id: int, course_id: int) -
         conn.commit()
     finally:
         conn.close()
+
+def delete_offline_academic_period(period_id: int) -> None:
+    """Delete academic period and its enrollments from local SQLite database replica & cache tables."""
+    conn = get_local_connection()
+    try:
+        cur = conn.cursor()
+        cur.execute("DELETE FROM enrollments WHERE period_id = ?", (period_id,))
+        cur.execute("DELETE FROM local_enrollments WHERE period_id = ?", (period_id,))
+        cur.execute("DELETE FROM academic_periods WHERE id = ?", (period_id,))
+        cur.execute("DELETE FROM local_academic_periods WHERE id = ?", (period_id,))
+        conn.commit()
+    finally:
+        conn.close()
+
 

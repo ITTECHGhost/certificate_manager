@@ -1093,7 +1093,72 @@ def log_offline_insert(table_name: str, payload_dict: dict) -> int:
     return temp_id
 
 
-# ---------------------------------------------------------------------------
+def log_offline_update(table_name: str, record_id: int, payload_dict: dict) -> None:
+    """
+    Queue an UPDATE for later sync and immediately apply it to the local cache.
+    """
+    if table_name not in _TABLE_REGISTRY:
+        raise ValueError(
+            f"Unknown table '{table_name}'. "
+            f"Registered tables: {list(_TABLE_REGISTRY.keys())}"
+        )
+
+    meta = _TABLE_REGISTRY[table_name]
+    local_table = meta["local_table"]
+    # If record_id is positive, it's synced (primary replica table). 
+    # If negative, it's offline (mirror table).
+    target_table = local_table if record_id < 0 else table_name
+
+    keys = list(payload_dict.keys())
+    if not keys:
+        return
+
+    set_clause = ", ".join([f"{k} = ?" for k in keys])
+    values = [payload_dict[k] for k in keys]
+    values.append(record_id)
+
+    conn = _get_local_conn()
+    try:
+        cur = conn.cursor()
+        cur.execute(f"UPDATE {target_table} SET {set_clause} WHERE id = ?", tuple(values))
+
+        if record_id < 0:
+            cur.execute(
+                "SELECT payload FROM sync_queue WHERE temp_id = ? AND operation = 'INSERT'", 
+                (record_id,)
+            )
+            row = cur.fetchone()
+            if row:
+                existing_payload = _json_loads(row["payload"])
+                existing_payload.update(payload_dict)
+                cur.execute(
+                    "UPDATE sync_queue SET payload = ? WHERE temp_id = ? AND operation = 'INSERT'",
+                    (_json_dumps(existing_payload), record_id)
+                )
+        else:
+            cur.execute(
+                "SELECT id, payload FROM sync_queue WHERE temp_id = ? AND operation = 'UPDATE' AND table_name = ?", 
+                (record_id, table_name)
+            )
+            row = cur.fetchone()
+            if row:
+                existing_payload = _json_loads(row["payload"])
+                existing_payload.update(payload_dict)
+                cur.execute(
+                    "UPDATE sync_queue SET payload = ? WHERE id = ?",
+                    (_json_dumps(existing_payload), row["id"])
+                )
+            else:
+                cur.execute(
+                    "INSERT INTO sync_queue (table_name, operation, temp_id, payload) "
+                    "VALUES (?, 'UPDATE', ?, ?)",
+                    (table_name, record_id, _json_dumps(payload_dict))
+                )
+
+        conn.commit()
+        log.info("Offline UPDATE queued/merged: %s id=%d", table_name, record_id)
+    finally:
+        conn.close()# ---------------------------------------------------------------------------
 # Task 4 — Synchronisation & ID Resolution Loop
 # ---------------------------------------------------------------------------
 

@@ -784,19 +784,34 @@ class StudentProfileView:
                             on_click=lambda p=period: self.on_manage_courses(p, student_data) if self.on_manage_courses else None
                         ).classes("text-sm px-3 py-1.5")
 
-                        def delete_p(p_id=period["id"]):
-                            try:
-                                self.period_repo.delete(p_id)
-                                ui.notify("تم حذف المرحلة / Period deleted", type="positive")
-                                refresh_callback()
-                            except OfflineModeError as err:
-                                ui.notify(str(err), type="warning")
-                            except Exception as err:
-                                ui.notify(f"Error: {err}", type="negative")
+                        def confirm_delete_period(p_id=period["id"]):
+                            with ui.dialog() as dlg, UI.card().classes("p-6 gap-4 w-96 bg-[var(--surface-card)] text-[var(--text-primary)] rounded-2xl border border-[var(--border-default)] shadow-2xl"):
+                                ui.label("تأكيد حذف المرحلة الدراسية / Confirm Delete Period").classes("text-base font-bold text-rose-500")
+                                ui.label(f"هل أنت متأكد من رغبتك في حذف هذا الفصل الدراسي ({sem_title})؟ سيتم حذف كافة المواد والدرجات المرتبطة به ولا يمكن التراجع عن هذا الإجراء.").classes("text-xs text-[var(--text-secondary)] leading-relaxed")
+
+                                with ui.row().classes("w-full justify-end gap-3 mt-2"):
+                                    UI.secondary_button("إلغاء / Cancel", on_click=dlg.close).classes("text-xs px-4 py-2")
+
+                                    def execute_period_delete():
+                                        dlg.close()
+                                        try:
+                                            self.period_repo.delete(p_id)
+                                            ui.notify("تم حذف المرحلة بنجاح / Period deleted", type="positive")
+                                            if callable(refresh_callback):
+                                                refresh_callback()
+                                        except OfflineModeError as err:
+                                            ui.notify(str(err), type="warning")
+                                        except Exception as err:
+                                            log.error(f"Failed to delete academic period {p_id}: {err}")
+                                            ui.notify(f"خطأ في حذف المرحلة: {err}", type="negative")
+
+                                    UI.danger_button("🗑 تأكيد الحذف / Delete", on_click=execute_period_delete).classes("text-xs px-4 py-2 font-bold")
+
+                            dlg.open()
 
                         UI.danger_button(
                             "🗑 حذف",
-                            on_click=delete_p
+                            on_click=confirm_delete_period
                         ).classes("text-sm px-3 py-1.5")
                 else:
                     def add_p_and_open():
@@ -1205,16 +1220,17 @@ class StudentFormView:
                 self.student_id = new_id
                 ui.notify(f"تم إضافة الطالب بنجاح (ID: {new_id}) / Student added successfully", type="positive")
 
-                sel_routine_id = self.routine_select.value if hasattr(self, 'routine_select') and isinstance(self.routine_select.value, int) and self.routine_select.value > 0 else None
-                if sel_routine_id:
-                    try:
-                        from data.repositories import StudyRoutineRepository
-                        r_repo = StudyRoutineRepository()
-                        adm_yr = self.admission_year.value.strip() if self.admission_year.value else ""
-                        r_repo.apply_routine_to_student(new_id, sel_routine_id, academic_year=adm_yr)
-                        ui.notify("تم تطبيق الروتين الدراسي وإدراج المواد تلقائياً! / Study routine applied", type="positive")
-                    except Exception as r_err:
-                        log.warning(f"Failed to apply routine to student {new_id}: {r_err}")
+            sel_routine_id = self.routine_select.value if hasattr(self, 'routine_select') and isinstance(self.routine_select.value, int) and self.routine_select.value > 0 else None
+            if sel_routine_id and self.student_id:
+                try:
+                    from data.repositories import StudyRoutineRepository
+                    r_repo = StudyRoutineRepository()
+                    adm_yr = self.admission_year.value.strip() if self.admission_year.value else ""
+                    r_repo.apply_routine_to_student(self.student_id, sel_routine_id, academic_year=adm_yr)
+                    ui.notify("تم تطبيق الروتين الدراسي وإدراج المواد تلقائياً! / Study routine applied", type="positive")
+                    self.routine_select.value = 0
+                except Exception as r_err:
+                    log.warning(f"Failed to apply routine to student {self.student_id}: {r_err}")
             
             if self.on_save:
                 self.on_save()

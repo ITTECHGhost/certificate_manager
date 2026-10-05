@@ -886,3 +886,24 @@
 2026-10-03 20:48:14 [OK] Authentication verified via MySQL Stored Procedure 'AuthenticateUser' for user '1' (ID: 1, Role: admin)
 2026-10-04 20:14:58 [INFO] Login attempt initiated for username: '1'
 2026-10-04 20:14:58 [OK] Authentication verified via MySQL Stored Procedure 'AuthenticateUser' for user '1' (ID: 1, Role: admin)
+2026-10-05 09:00:09 [INFO] Login attempt initiated for username: '1'
+2026-10-05 09:00:09 [OK] Authentication verified via MySQL Stored Procedure 'AuthenticateUser' for user '1' (ID: 1, Role: admin)
+2026-10-05 12:27:59 [INFO] Login attempt initiated for username: '1'
+2026-10-05 12:27:59 [OK] Authentication verified via MySQL Stored Procedure 'AuthenticateUser' for user '1' (ID: 1, Role: admin)
+2026-10-05 12:29:18 [INFO] تم تعديل بيانات الطالب ID: -31 (أوفلاين)
+2026-10-05 12:29:43 [INFO] تم تطبيق الروتين الشامل (روتين نظام فصلي صباحي علوم حاسوب) على الطالب ID: -31 — تم إضافة 0 مادة عبر 8 فترة دراسية
+2026-10-05 19:09:12 [INFO] Login attempt initiated for username: '1'
+2026-10-05 19:09:12 [OK] Authentication verified via MySQL Stored Procedure 'AuthenticateUser' for user '1' (ID: 1, Role: admin)
+2026-10-05 19:09:38 [INFO] تم حذف المرحلة الدراسية (أوفلاين) ID: 1047
+2026-10-05 19:09:43 [INFO] تم حذف المرحلة الدراسية (أوفلاين) ID: 1048
+2026-10-05 19:09:47 [INFO] تم حذف المرحلة الدراسية (أوفلاين) ID: 1045
+2026-10-05 19:09:50 [INFO] تم حذف المرحلة الدراسية (أوفلاين) ID: 1046
+2026-10-05 19:09:54 [INFO] تم حذف المرحلة الدراسية (أوفلاين) ID: 1043
+2026-10-05 19:09:57 [INFO] تم حذف المرحلة الدراسية (أوفلاين) ID: 1044
+2026-10-05 19:10:03 [INFO] تم حذف المرحلة الدراسية (أوفلاين) ID: 1041
+2026-10-05 19:10:06 [INFO] تم حذف المرحلة الدراسية (أوفلاين) ID: 1042
+2026-10-05 19:10:16 [INFO] تم تطبيق الروتين الشامل (روتين نظام فصلي صباحي علوم حاسوب) على الطالب ID: 2138 — تم إضافة 0 مادة عبر 8 فترة دراسية
+2026-10-05 19:10:27 [INFO] تم حذف المرحلة الدراسية (أوفلاين) ID: -56
+2026-10-05 19:20:24 [INFO] تم تطبيق الروتين الشامل (روتين نظام فصلي صباحي علوم حاسوب) على الطالب ID: 2138 — تم إضافة 49 مادة عبر 8 فترة دراسية
+2026-10-05 19:42:28 [INFO] Login attempt initiated for username: '1'
+2026-10-05 19:42:28 [OK] Authentication verified via MySQL Stored Procedure 'AuthenticateUser' for user '1' (ID: 1, Role: admin)

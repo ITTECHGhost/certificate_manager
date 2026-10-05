@@ -145,6 +145,7 @@ def execute_sp_fetchone(conn, sp_name: str, args: tuple = ()) -> Optional[Dict[s
 TABLE_REGISTRY: Dict[str, Dict[str, Any]] = {
     "students": {
         "sp_name": "InsertStudent",
+        "update_sp_name": "UpdateStudent",
         "sp_args": [
             "full_name_ar", "full_name_en", "gender",
             "sequence_number", "postgraduation_number", "date_of_birth",
@@ -252,6 +253,23 @@ def sync_offline_queue(payload: SyncPayload, conn=Depends(get_db)):
             meta = TABLE_REGISTRY[tbl]
             cur = conn.cursor(dictionary=True)
             try:
+                if action.operation == "UPDATE" and "update_sp_name" in meta:
+                    sp_name = meta["update_sp_name"]
+                    # For UpdateStudent, student_id is the first arg, then the rest
+                    sp_args = [temp_id] + [resolved_payload.get(k) for k in meta["sp_args"]]
+                    logger.info(f"Calling SP {sp_name} (UPDATE) with args {sp_args}")
+                    try:
+                        cur.callproc(sp_name, sp_args)
+                        try:
+                            while cur.nextset(): pass
+                        except Exception: pass
+                        id_map[temp_id] = temp_id
+                        logger.info(f"Successfully updated {tbl}: id={temp_id}")
+                        continue
+                    except Exception as err:
+                        logger.error(f"Error updating {tbl} with ID {temp_id}: {err}")
+                        raise
+
                 if meta["sp_name"]:
                     sp_args = tuple(resolved_payload.get(k) for k in meta["sp_args"])
                     logger.info(f"Calling SP {meta['sp_name']} with args {sp_args}")

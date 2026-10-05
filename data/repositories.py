@@ -10,7 +10,7 @@ from typing import Any, List, Dict, Optional, Union, cast
 from api_config import API_URL, get_api_url
 from db import get_connection
 from sync_engine import (
-    is_online, log_offline_insert,
+    is_online, log_offline_insert, log_offline_update,
     cache_read_result, get_cached_read,
     pull_mysql_to_sqlite_background,
     generate_temp_id,
@@ -56,6 +56,7 @@ from data.query import (
     get_offline_academic_periods_by_student,
     update_offline_academic_period_status,
     update_offline_academic_period_stage,
+    delete_offline_academic_period,
     get_offline_enrollments_by_period,
     update_offline_enrollment,
     get_offline_graduation_orders,
@@ -1250,29 +1251,33 @@ class StudentRepository(BaseRepository):
             raise
         
     def update(self, student_id: int, data: dict) -> None:
+        payload = {
+            "full_name_ar": data.get('full_name_ar'),
+            "full_name_en": data.get('full_name_en'),
+            "gender": data.get('gender', 1),
+            "sequence_number": data.get('sequence_number'),
+            "postgraduation_number": data.get('postgraduation_number'),
+            "date_of_birth": str(data.get('date_of_birth')) if data.get('date_of_birth') else None,
+            "birthplace_id": data.get('birthplace_id'),
+            "birthplace_other": data.get('birthplace_other'),
+            "nationality_id": data.get('nationality_id', 1),
+            "department_id": data.get('department_id'),
+            "study_system_id": data.get('study_system_id'),
+            "degree_level": data.get('degree_level', 1),
+            "order_id": data.get('order_id'),
+            "admission_year": str(data.get('admission_year')) if data.get('admission_year') else None,
+            "summer_training_data": data.get('summer_training_data'),
+            "average": float(data['average']) if data.get('average') is not None else None,
+            "graduation_date": str(data.get('graduation_date')) if data.get('graduation_date') else None,
+            "graduation_semester": data.get('graduation_semester')
+        }
+
         if not is_online():
-            raise OfflineModeError()
+            log_offline_update("students", student_id, payload)
+            log_activity(f"تم تعديل بيانات الطالب ID: {student_id} (أوفلاين)")
+            return
+
         try:
-            payload = {
-                "full_name_ar": data.get('full_name_ar'),
-                "full_name_en": data.get('full_name_en'),
-                "gender": data.get('gender', 1),
-                "sequence_number": data.get('sequence_number'),
-                "postgraduation_number": data.get('postgraduation_number'),
-                "date_of_birth": str(data.get('date_of_birth')) if data.get('date_of_birth') else None,
-                "birthplace_id": data.get('birthplace_id'),
-                "birthplace_other": data.get('birthplace_other'),
-                "nationality_id": data.get('nationality_id', 1),
-                "department_id": data.get('department_id'),
-                "study_system_id": data.get('study_system_id'),
-                "degree_level": data.get('degree_level', 1),
-                "order_id": data.get('order_id'),
-                "admission_year": str(data.get('admission_year')) if data.get('admission_year') else None,
-                "summer_training_data": data.get('summer_training_data'),
-                "average": float(data['average']) if data.get('average') is not None else None,
-                "graduation_date": str(data.get('graduation_date')) if data.get('graduation_date') else None,
-                "graduation_semester": data.get('graduation_semester')
-            }
             resp = requests.put(f"{self.api_url}/students/{student_id}", json=payload, timeout=5.0)
             if resp.status_code == 200:
                 log_activity(f"تم تعديل بيانات الطالب ID: {student_id}")
@@ -1424,15 +1429,18 @@ class AcademicPeriodRepository(BaseRepository):
             log_system(f"API update_stage failed: {e}", "WARNING")
 
     def delete(self, period_id: int) -> None:
+        delete_offline_academic_period(period_id)
         if not is_online():
-            raise OfflineModeError()
+            log_activity(f"تم حذف المرحلة الدراسية (أوفلاين) ID: {period_id}")
+            return
         try:
             resp = requests.delete(f"{self.api_url}/academic-periods/{period_id}", timeout=5.0)
             if resp.status_code != 200:
-                raise RuntimeError(f"API delete failed: {resp.text}")
+                log_system(f"API delete warning for academic-period {period_id}: {resp.text}", "WARNING")
         except Exception as e:
-            log_system(f"API request failed: {e}", "WARNING")
+            log_system(f"API request failed for academic-period delete: {e}", "WARNING")
             raise
+
 
 class EnrollmentRepository(BaseRepository):
     def get_by_period(self, period_id: int) -> list[dict]:
@@ -2238,7 +2246,7 @@ class StudyRoutineRepository(BaseRepository):
             if pid:
                 p_courses = self.get_period_courses(pid) or []
                 for pc in p_courses:
-                    cid = pc.get("course_id") or pc.get("id")
+                    cid = pc.get("course_id") if (isinstance(pc, dict) and pc.get("course_id") is not None) else (pc.get("id") if isinstance(pc, dict) else None)
                     if cid and not any((c.get("id") == cid or c.get("course_id") == cid) for c in courses_by_stage_sem[key]):
                         courses_by_stage_sem[key].append({
                             "id": cid,
@@ -2250,7 +2258,7 @@ class StudyRoutineRepository(BaseRepository):
         # 2. Also check direct header courses if any
         header_courses = routine.get("courses", []) or []
         for c in header_courses:
-            cid = c.get("id") or c.get("course_id")
+            cid = c.get("course_id") if (isinstance(c, dict) and c.get("course_id") is not None) else (c.get("id") if isinstance(c, dict) else None)
             stg = int(c.get("stage_number") or 1)
             sem = int(c.get("semester_num") or 1)
             key = (stg, sem)
