@@ -156,27 +156,12 @@ TABLE_REGISTRY: Dict[str, Dict[str, Any]] = {
         ],
     },
     "academic_periods": {
-        "sp_name": None,
-        "insert_sql": (
-            "INSERT INTO academic_periods "
-            "(student_id, academic_year, study_system_id, stage_number, semester_num, result_status) "
-            "VALUES (%s, %s, %s, %s, %s, %s)"
-        ),
-        "insert_keys": [
-            "student_id", "academic_year", "study_system_id",
-            "stage_number", "semester_num", "result_status",
-        ],
+        "sp_name": "InsertAcademicPeriod",
+        "sp_args": ["student_id", "academic_year", "stage_number", "semester_num", "result_status"],
     },
     "enrollments": {
-        "sp_name": None,
-        "insert_sql": (
-            "INSERT INTO enrollments "
-            "(period_id, course_id, score, passed_round) "
-            "VALUES (%s, %s, %s, %s)"
-        ),
-        "insert_keys": [
-            "period_id", "course_id", "score", "passed_round",
-        ],
+        "sp_name": "InsertEnrollment",
+        "sp_args": ["period_id", "course_id", "score", "passed_round"],
     },
     "issued_certificates": {
         "sp_name": "InsertIssuedCertificate",
@@ -314,8 +299,43 @@ def sync_offline_queue(payload: SyncPayload, conn=Depends(get_db)):
                     insert_keys = meta["insert_keys"]
                     values = tuple(resolved_payload.get(k) for k in insert_keys)
                     logger.info(f"Executing raw SQL: {insert_sql} with values {values}")
-                    cur.execute(insert_sql, values)
-                    real_id = cur.lastrowid
+                    try:
+                        cur.execute(insert_sql, values)
+                        real_id = cur.lastrowid
+                    except mysql.connector.errors.IntegrityError as err:
+                        if err.errno == 1062 and tbl == "academic_periods":
+                            st_id = resolved_payload.get("student_id")
+                            stg = resolved_payload.get("stage_number")
+                            sem = resolved_payload.get("semester_num")
+                            logger.warning(f"Duplicate academic period ignored: {err}")
+                            cur.execute(
+                                "SELECT id FROM academic_periods WHERE student_id=%s AND stage_number=%s AND semester_num=%s",
+                                (st_id, stg, sem)
+                            )
+                            row = cur.fetchone()
+                            if row:
+                                real_id = row["id"]
+                            else:
+                                raise
+                        elif err.errno == 1062 and tbl == "enrollments":
+                            pid = resolved_payload.get("period_id")
+                            cid = resolved_payload.get("course_id")
+                            logger.warning(f"Duplicate enrollment ignored: {err}")
+                            cur.execute(
+                                "SELECT id FROM enrollments WHERE period_id=%s AND course_id=%s",
+                                (pid, cid)
+                            )
+                            row = cur.fetchone()
+                            if row:
+                                real_id = row["id"]
+                                cur.execute(
+                                    "UPDATE enrollments SET score=%s, passed_round=%s WHERE id=%s",
+                                    (resolved_payload.get("score", 0.0), str(resolved_payload.get("passed_round", "1")), real_id)
+                                )
+                            else:
+                                raise
+                        else:
+                            raise
 
                 id_map[temp_id] = real_id
                 logger.info(f"Successfully inserted {tbl}: temp_id={temp_id} -> real_id={real_id}")
@@ -481,19 +501,8 @@ def search_students_unlinked(
             conditions.append("(YEAR(s.graduation_date) = %s OR s.admission_year = %s)")
             params.extend([year, year])
 
-        where = "WHERE " + " AND ".join(conditions)
-        query = f"""
-            SELECT s.id, s.full_name_ar, s.full_name_en, s.admission_year,
-                   YEAR(s.graduation_date) AS graduation_year, s.average, s.order_id,
-                   d.name_ar AS dept_name_ar
-            FROM students s
-            LEFT JOIN departments d ON s.department_id = d.id
-            {where}
-            ORDER BY s.id DESC LIMIT %s
-        """
-        params.append(limit)
-        cur.execute(query, tuple(params))
-        return decode_db_value(cur.fetchall() or [])
+        where = "WHERE " + " AND ".join(conditions) if conditions else ""
+        return execute_sp_fetchall(conn, "SearchUnlinkedStudents", (dept_id, year))
     except Exception as exc:
         logger.error(f"Error searching unlinked students: {exc}")
         raise HTTPException(status_code=500, detail=str(exc))
@@ -503,16 +512,12 @@ def search_students_unlinked(
 
 @app.get("/students/distinct/years")
 def get_distinct_admission_years(conn=Depends(get_db)):
-    cur = conn.cursor(dictionary=True)
     try:
-        cur.execute("SELECT DISTINCT YEAR(graduation_date) AS graduation_year FROM students WHERE graduation_date IS NOT NULL ORDER BY graduation_year DESC")
-        rows = cur.fetchall()
-        return [str(r["graduation_year"]) for r in rows if r["graduation_year"] is not None]
+        rows = execute_sp_fetchall(conn, "GetDistinctGraduationYears")
+        return [str(r["graduation_year"]) for r in rows if r.get("graduation_year") is not None]
     except Exception as exc:
         logger.error(f"Error getting distinct years: {exc}")
         raise HTTPException(status_code=500, detail=str(exc))
-    finally:
-        cur.close()
 
 
 @app.post("/students")
@@ -599,18 +604,10 @@ def delete_student(student_id: int, conn=Depends(get_db)):
             pass
         conn.commit()
         return {"status": "success"}
-    except Exception:
+    except Exception as exc:
         conn.rollback()
-        try:
-            cur.execute("DELETE FROM enrollments WHERE period_id IN (SELECT id FROM academic_periods WHERE student_id=%s)", (student_id,))
-            cur.execute("DELETE FROM academic_periods WHERE student_id=%s", (student_id,))
-            cur.execute("DELETE FROM issued_certificates WHERE student_id=%s", (student_id,))
-            cur.execute("DELETE FROM students WHERE id=%s", (student_id,))
-            conn.commit()
-            return {"status": "success"}
-        except Exception as err:
-            conn.rollback()
-            raise HTTPException(status_code=500, detail=str(err))
+        logger.error(f"Error deleting student {student_id}: {exc}")
+        raise HTTPException(status_code=500, detail=str(exc))
     finally:
         cur.close()
 
@@ -628,15 +625,10 @@ def unlink_from_order(student_id: int, conn=Depends(get_db)):
             pass
         conn.commit()
         return {"status": "success"}
-    except Exception:
+    except Exception as exc:
         conn.rollback()
-        try:
-            cur.execute("UPDATE students SET order_id = NULL WHERE id = %s", (student_id,))
-            conn.commit()
-            return {"status": "success"}
-        except Exception as exc:
-            conn.rollback()
-            raise HTTPException(status_code=500, detail=str(exc))
+        logger.error(f"Error unlinking student {student_id} from order: {exc}")
+        raise HTTPException(status_code=500, detail=str(exc))
     finally:
         cur.close()
 
@@ -672,19 +664,14 @@ def link_students_to_order(order_id: int, conn=Depends(get_db)):
 def link_student_to_order(student_id: int, order_id: int, conn=Depends(get_db)):
     cur = conn.cursor(dictionary=True)
     try:
-        cur.execute("SELECT order_date, graduation_semester FROM graduation_orders WHERE id = %s", (order_id,))
-        order = cur.fetchone()
-        if not order:
-            raise HTTPException(status_code=404, detail="Graduation order not found")
-
-        cur.execute(
-            "UPDATE students SET order_id = %s, graduation_date = %s, graduation_semester = %s WHERE id = %s",
-            (order_id, order["order_date"], order["graduation_semester"], student_id)
-        )
+        cur.callproc("LinkStudentsToOrder", (order_id,))
+        try:
+            while cur.nextset():
+                pass
+        except Exception:
+            pass
         conn.commit()
         return {"status": "success"}
-    except HTTPException:
-        raise
     except Exception as exc:
         conn.rollback()
         logger.error(f"Error linking student to order: {exc}")
@@ -695,29 +682,13 @@ def link_student_to_order(student_id: int, order_id: int, conn=Depends(get_db)):
 
 @app.get("/api/students/{student_id}/periods")
 def get_student_periods_api(student_id: int, conn=Depends(get_db)):
-    cur = conn.cursor(dictionary=True)
     try:
-        cur.execute(
-            "SELECT id, student_id, academic_year, study_system_id, stage_number, semester_num, "
-            "COALESCE(result_status, 'PASSED') AS result_status "
-            "FROM academic_periods WHERE student_id=%s ORDER BY stage_number, semester_num",
-            (student_id,)
-        )
-        periods = decode_db_value(cur.fetchall() or [])
+        periods = execute_sp_fetchall(conn, "GetAcademicPeriodsByStudent", (student_id,))
         for p in periods:
-            cur.execute(
-                "SELECT e.id, e.period_id, e.course_id, e.score, e.passed_round, "
-                "c.name_ar AS course_name_ar, c.name_en AS course_name_en, c.credit_hours "
-                "FROM enrollments e JOIN courses c ON e.course_id=c.id "
-                "WHERE e.period_id=%s ORDER BY c.name_ar",
-                (p["id"],)
-            )
-            p["enrollments"] = decode_db_value(cur.fetchall() or [])
+            p["enrollments"] = execute_sp_fetchall(conn, "GetEnrollmentsByPeriod", (p["id"],))
         return periods
     except Exception as exc:
         raise HTTPException(status_code=500, detail=str(exc))
-    finally:
-        cur.close()
 
 
 # ===========================================================================
@@ -936,7 +907,12 @@ def update_study_system(sys_id: int, payload: StudySystemPayload, conn=Depends(g
 def toggle_study_system(sys_id: int, is_active: int, conn=Depends(get_db)):
     cur = conn.cursor()
     try:
-        cur.execute("UPDATE study_systems SET is_active = %s WHERE id = %s", (is_active, sys_id))
+        cur.callproc("ToggleStudySystemStatus", (sys_id, is_active))
+        try:
+            while cur.nextset():
+                pass
+        except Exception:
+            pass
         conn.commit()
         return {"status": "success"}
     except Exception as exc:
@@ -981,40 +957,21 @@ class CoursePayload(BaseModel):
 
 
 @app.get("/courses")
+@app.get("/api/courses")
 def get_courses(conn=Depends(get_db)):
-    cur = conn.cursor(dictionary=True)
     try:
-        query = (
-            "SELECT c.id, c.name_ar, c.name_en, c.credit_hours, c.stage_number, "
-            "       c.department_id, d.name_ar AS dept_name_ar, d.name_en AS dept_name_en "
-            "FROM courses c "
-            "LEFT JOIN departments d ON c.department_id = d.id "
-            "ORDER BY c.name_ar ASC"
-        )
-        cur.execute(query)
-        return decode_db_value(cur.fetchall() or [])
+        return execute_sp_fetchall(conn, "GetAllCourses")
     except Exception as exc:
         raise HTTPException(status_code=500, detail=str(exc))
-    finally:
-        cur.close()
 
 
 @app.get("/courses/by-dept/{dept_id}")
+@app.get("/api/courses/by-dept/{dept_id}")
 def get_courses_by_dept(dept_id: int, conn=Depends(get_db)):
-    cur = conn.cursor(dictionary=True)
     try:
-        query = (
-            "SELECT id, name_ar, name_en, credit_hours, department_id, stage_number "
-            "FROM courses "
-            "WHERE department_id = %s "
-            "ORDER BY stage_number ASC, name_ar ASC"
-        )
-        cur.execute(query, (dept_id,))
-        return decode_db_value(cur.fetchall() or [])
+        return execute_sp_fetchall(conn, "GetCoursesByDepartment", (dept_id,))
     except Exception as exc:
         raise HTTPException(status_code=500, detail=str(exc))
-    finally:
-        cur.close()
 
 
 @app.get("/courses/{course_id}/shared-depts")
@@ -1023,49 +980,38 @@ def get_shared_dept_ids(course_id: int, conn=Depends(get_db)):
 
 
 @app.post("/courses")
+@app.post("/api/courses")
 def insert_course(payload: CoursePayload, conn=Depends(get_db)):
-    cur = conn.cursor()
     try:
         if payload.shared_dept_ids:
             new_ids = []
             for dept_id in payload.shared_dept_ids:
-                query = (
-                    "INSERT INTO courses (name_ar, name_en, credit_hours, department_id, stage_number) "
-                    "VALUES (%s, %s, %s, %s, %s)"
-                )
-                cur.execute(query, (payload.name_ar, payload.name_en, payload.credit_hours, dept_id, payload.stage_number))
-                new_ids.append(cur.lastrowid)
-            conn.commit()
+                res = execute_sp_fetchone(conn, "InsertCourse", (payload.name_ar, payload.name_en, payload.credit_hours, dept_id, payload.stage_number))
+                if res and "new_course_id" in res:
+                    new_ids.append(res["new_course_id"])
             return {"new_id": new_ids[0] if new_ids else 0}
         else:
-            query = (
-                "INSERT INTO courses (name_ar, name_en, credit_hours, department_id, stage_number) "
-                "VALUES (%s, %s, %s, %s, %s)"
-            )
-            cur.execute(query, (payload.name_ar, payload.name_en, payload.credit_hours, payload.department_id, payload.stage_number))
-            new_id = cur.lastrowid
-            conn.commit()
+            res = execute_sp_fetchone(conn, "InsertCourse", (payload.name_ar, payload.name_en, payload.credit_hours, payload.department_id, payload.stage_number))
+            new_id = res.get("new_course_id", 0) if res else 0
             return {"new_id": new_id}
     except Exception as exc:
-        conn.rollback()
         raise HTTPException(status_code=500, detail=str(exc))
-    finally:
-        cur.close()
 
 
 @app.put("/courses/{course_id}")
+@app.put("/api/courses/{course_id}")
 def update_course(course_id: int, payload: CoursePayload, conn=Depends(get_db)):
     cur = conn.cursor()
     try:
         dept_id = payload.department_id
         if not dept_id and payload.shared_dept_ids:
             dept_id = payload.shared_dept_ids[0]
-
-        query = (
-            "UPDATE courses SET name_ar=%s, name_en=%s, credit_hours=%s, department_id=%s, stage_number=%s "
-            "WHERE id=%s"
-        )
-        cur.execute(query, (payload.name_ar, payload.name_en, payload.credit_hours, dept_id, payload.stage_number, course_id))
+        cur.callproc("UpdateCourse", (course_id, payload.name_ar, payload.name_en, payload.credit_hours, dept_id, payload.stage_number))
+        try:
+            while cur.nextset():
+                pass
+        except Exception:
+            pass
         conn.commit()
         return {"status": "success"}
     except Exception as exc:
@@ -1076,10 +1022,16 @@ def update_course(course_id: int, payload: CoursePayload, conn=Depends(get_db)):
 
 
 @app.delete("/courses/{course_id}")
+@app.delete("/api/courses/{course_id}")
 def delete_course(course_id: int, conn=Depends(get_db)):
     cur = conn.cursor()
     try:
-        cur.execute("DELETE FROM courses WHERE id=%s", (course_id,))
+        cur.callproc("DeleteCourse", (course_id,))
+        try:
+            while cur.nextset():
+                pass
+        except Exception:
+            pass
         conn.commit()
         return {"status": "success"}
     except Exception as exc:
@@ -1272,7 +1224,12 @@ def update_personnel(person_id: int, payload: PersonnelPayload, conn=Depends(get
             pass
 
         if payload.password_hash:
-            cur.execute("UPDATE personnel SET password_hash = %s WHERE id = %s", (payload.password_hash, person_id))
+            cur.callproc("UpdatePersonnelPassword", (person_id, payload.password_hash))
+            try:
+                while cur.nextset():
+                    pass
+            except Exception:
+                pass
 
         conn.commit()
         return {"status": "success"}
@@ -1287,7 +1244,12 @@ def update_personnel(person_id: int, payload: PersonnelPayload, conn=Depends(get
 def toggle_personnel(person_id: int, is_active: int, conn=Depends(get_db)):
     cur = conn.cursor()
     try:
-        cur.execute("UPDATE personnel SET is_active = %s WHERE id = %s", (is_active, person_id))
+        cur.callproc("TogglePersonnelStatus", (person_id, is_active))
+        try:
+            while cur.nextset():
+                pass
+        except Exception:
+            pass
         conn.commit()
         return {"status": "success"}
     except Exception as exc:
@@ -1345,38 +1307,24 @@ STATUS_STR_TO_INT = {
 
 @app.get("/academic-periods/by-student/{student_id}")
 def get_academic_periods_by_student(student_id: int, conn=Depends(get_db)):
-    cur = conn.cursor(dictionary=True)
     try:
-        cur.execute(
-            "SELECT id, student_id, academic_year, study_system_id, stage_number, semester_num, "
-            "COALESCE(result_status, 'PASSED') AS result_status "
-            "FROM academic_periods WHERE student_id=%s ORDER BY stage_number, semester_num",
-            (student_id,)
-        )
-        return decode_db_value(cur.fetchall() or [])
+        return execute_sp_fetchall(conn, "GetAcademicPeriodsByStudent", (student_id,))
     except Exception as exc:
         raise HTTPException(status_code=500, detail=str(exc))
-    finally:
-        cur.close()
 
 
 @app.post("/academic-periods")
 def insert_academic_period(payload: AcademicPeriodPayload, conn=Depends(get_db)):
-    cur = conn.cursor()
     try:
-        query = (
-            "INSERT INTO academic_periods (student_id, academic_year, study_system_id, stage_number, semester_num, result_status) "
-            "VALUES (%s, %s, %s, %s, %s, %s)"
-        )
         status_val = payload.result_status or "PASSED"
-        cur.execute(query, (payload.student_id, payload.academic_year, payload.study_system_id, payload.stage_number, payload.semester_num, status_val))
-        conn.commit()
-        return {"new_id": cur.lastrowid}
+        res = execute_sp_fetchone(
+            conn, "InsertAcademicPeriod",
+            (payload.student_id, payload.academic_year, payload.stage_number, payload.semester_num, status_val)
+        )
+        new_id = res.get("new_period_id") or res.get("new_id", 0) if res else 0
+        return {"new_id": new_id}
     except Exception as exc:
-        conn.rollback()
         raise HTTPException(status_code=500, detail=str(exc))
-    finally:
-        cur.close()
 
 
 @app.patch("/academic-periods/{period_id}/status")
@@ -1386,7 +1334,12 @@ def update_academic_period_status(period_id: int, payload: AcademicPeriodStatusP
     try:
         raw_st = payload.result_status
         code_val = STATUS_STR_TO_INT.get(raw_st, STATUS_STR_TO_INT.get(str(raw_st).strip().upper(), 1))
-        cur.execute("UPDATE academic_periods SET result_status=%s WHERE id=%s", (code_val, period_id))
+        cur.callproc("UpdateAcademicPeriodStatus", (period_id, str(code_val)))
+        try:
+            while cur.nextset():
+                pass
+        except Exception:
+            pass
         conn.commit()
         return {"status": "success", "result_status": code_val}
     except Exception as exc:
@@ -1400,7 +1353,12 @@ def update_academic_period_status(period_id: int, payload: AcademicPeriodStatusP
 def delete_academic_period(period_id: int, conn=Depends(get_db)):
     cur = conn.cursor()
     try:
-        cur.execute("DELETE FROM academic_periods WHERE id=%s", (period_id,))
+        cur.callproc("DeleteAcademicPeriod", (period_id,))
+        try:
+            while cur.nextset():
+                pass
+        except Exception:
+            pass
         conn.commit()
         return {"status": "success"}
     except Exception as exc:
@@ -1431,24 +1389,22 @@ def get_enrollments_by_period(period_id: int, conn=Depends(get_db)):
 
 @app.post("/enrollments")
 def insert_enrollment(payload: EnrollmentPayload, conn=Depends(get_db)):
-    cur = conn.cursor()
     try:
         val = payload.is_second
         if val == 2:
-            passed_round = '2'
+            passed_round = 2
         elif val == 3:
-            passed_round = '3'
+            passed_round = 3
         else:
-            passed_round = '1'
-        query = "INSERT INTO enrollments (period_id, course_id, score, passed_round) VALUES (%s, %s, %s, %s)"
-        cur.execute(query, (payload.period_id, payload.course_id, payload.score, passed_round))
-        conn.commit()
-        return {"new_id": cur.lastrowid}
+            passed_round = 1
+        res = execute_sp_fetchone(
+            conn, "InsertEnrollment",
+            (payload.period_id, payload.course_id, float(payload.score), int(passed_round))
+        )
+        new_id = res.get("new_enrollment_id") or res.get("new_id", 0) if res else 0
+        return {"new_id": new_id}
     except Exception as exc:
-        conn.rollback()
         raise HTTPException(status_code=500, detail=str(exc))
-    finally:
-        cur.close()
 
 
 @app.put("/enrollments/{enrollment_id}")
@@ -1458,15 +1414,19 @@ def update_enrollment(enrollment_id: int, score: float, is_second: int, conn=Dep
     try:
         val = int(is_second)
         if val == 2:
-            passed_round = '2'
+            passed_round = 2
         elif val == 3:
-            passed_round = '3'
+            passed_round = 3
         elif val == 0:
-            passed_round = '0'
+            passed_round = 0
         else:
-            passed_round = '1'
-        query = "UPDATE enrollments SET score=%s, passed_round=%s WHERE id=%s"
-        cur.execute(query, (score, passed_round, enrollment_id))
+            passed_round = 1
+        cur.callproc("UpdateEnrollment", (enrollment_id, float(score), int(passed_round)))
+        try:
+            while cur.nextset():
+                pass
+        except Exception:
+            pass
         conn.commit()
         return {"status": "success"}
     except Exception as exc:
@@ -1480,7 +1440,12 @@ def update_enrollment(enrollment_id: int, score: float, is_second: int, conn=Dep
 def delete_enrollment(enrollment_id: int, conn=Depends(get_db)):
     cur = conn.cursor()
     try:
-        cur.execute("DELETE FROM enrollments WHERE id=%s", (enrollment_id,))
+        cur.callproc("DeleteEnrollment", (enrollment_id,))
+        try:
+            while cur.nextset():
+                pass
+        except Exception:
+            pass
         conn.commit()
         return {"status": "success"}
     except Exception as exc:
@@ -1633,25 +1598,25 @@ class AppearancePayload(BaseModel):
 
 @app.get("/settings")
 def get_settings(conn=Depends(get_db)):
-    cur = conn.cursor(dictionary=True)
     try:
-        cur.execute("SELECT * FROM university_settings WHERE id = 1")
-        row = cur.fetchone()
-        return decode_db_value(row or {})
+        row = execute_sp_fetchone(conn, "GetSystemSettings")
+        return row or {}
     except Exception as exc:
         raise HTTPException(status_code=500, detail=str(exc))
-    finally:
-        cur.close()
 
 
 @app.put("/settings")
 def update_settings(payload: SettingsPayload, conn=Depends(get_db)):
     cur = conn.cursor()
     try:
-        cur.execute(
-            "UPDATE university_settings SET univ_name_ar=%s, univ_name_en=%s, college_name_ar=%s, college_name_en=%s WHERE id=1",
-            (payload.univ_name_ar, payload.univ_name_en, payload.college_name_ar, payload.college_name_en)
-        )
+        cur.callproc("UpdateSystemSettings", (
+            payload.univ_name_ar, payload.univ_name_en, payload.college_name_ar, payload.college_name_en
+        ))
+        try:
+            while cur.nextset():
+                pass
+        except Exception:
+            pass
         conn.commit()
         return {"status": "success"}
     except Exception as exc:
@@ -2057,30 +2022,23 @@ def get_dashboard_counts(conn=Depends(get_db)):
     cur = conn.cursor(dictionary=True)
     try:
         result = None
-        try:
-            cur.callproc("Get_dashboard_counts")
-            if hasattr(cur, "stored_results"):
-                for r in cur.stored_results():
-                    result = r.fetchone()
-                    break
+        for sp_name in ("Get_dashboard_counts", "GetDashboardCounts"):
             try:
-                while cur.nextset():
+                cur.callproc(sp_name)
+                if hasattr(cur, "stored_results"):
+                    for r in cur.stored_results():
+                        result = r.fetchone()
+                        if result:
+                            break
+                try:
+                    while cur.nextset():
+                        pass
+                except Exception:
                     pass
-            except Exception:
-                pass
-        except Exception as sp_exc:
-            logger.warning(f"Get_dashboard_counts SP call failed ({sp_exc}). Falling back to direct SQL.")
-            result = None
-
-        if not result:
-            cur.execute(
-                "SELECT "
-                "(SELECT COUNT(id) FROM students) AS total_students, "
-                "(SELECT COUNT(id) FROM departments) AS total_departments, "
-                "(SELECT COUNT(id) FROM courses) AS total_courses, "
-                "(SELECT COUNT(id) FROM personnel) AS total_personnel"
-            )
-            result = cur.fetchone()
+                if result:
+                    break
+            except Exception as sp_exc:
+                logger.debug(f"{sp_name} SP call attempt failed: {sp_exc}")
 
         if not result:
             return DashboardCountsResponse(
@@ -2089,6 +2047,7 @@ def get_dashboard_counts(conn=Depends(get_db)):
                 total_courses=0,
                 total_personnel=0
             )
+
 
         return DashboardCountsResponse(
             total_students=result.get("total_students", 0),
@@ -2135,22 +2094,7 @@ class RoutinePeriodCoursePayload(BaseModel):
 @app.get("/study-routines")
 def get_all_study_routines(conn=Depends(get_db)):
     try:
-        try:
-            return execute_sp_fetchall(conn, "GetAllStudyRoutines")
-        except Exception:
-            cur = conn.cursor(dictionary=True)
-            try:
-                cur.execute("""
-                    SELECT sr.*, d.name_ar AS dept_name_ar, d.name_en AS dept_name_en,
-                           ss.name_ar AS system_name_ar, ss.name_en AS system_name_en
-                    FROM study_routines sr
-                    LEFT JOIN departments d ON sr.department_id = d.id
-                    LEFT JOIN study_systems ss ON sr.study_system_id = ss.id
-                    ORDER BY sr.id DESC
-                """)
-                return decode_db_value(cur.fetchall() or [])
-            finally:
-                cur.close()
+        return execute_sp_fetchall(conn, "GetAllStudyRoutines")
     except Exception as exc:
         raise HTTPException(status_code=500, detail=str(exc))
 
@@ -2161,23 +2105,8 @@ def get_study_routine_by_id(routine_id: int, conn=Depends(get_db)):
     try:
         row = execute_sp_fetchone(conn, "GetStudyRoutineById", (routine_id,))
         if not row:
-            cur = conn.cursor(dictionary=True)
-            try:
-                cur.execute("""
-                    SELECT sr.*, d.name_ar AS dept_name_ar, d.name_en AS dept_name_en,
-                           ss.name_ar AS system_name_ar, ss.name_en AS system_name_en
-                    FROM study_routines sr
-                    LEFT JOIN departments d ON sr.department_id = d.id
-                    LEFT JOIN study_systems ss ON sr.study_system_id = ss.id
-                    WHERE sr.id = %s
-                """, (routine_id,))
-                row = cur.fetchone()
-            finally:
-                cur.close()
-
-        if not row:
             raise HTTPException(status_code=404, detail="Study routine not found")
-        return decode_db_value(row)
+        return row
     except HTTPException:
         raise
     except Exception as exc:
@@ -2292,25 +2221,7 @@ def delete_study_routine(routine_id: int, conn=Depends(get_db)):
 @app.get("/study-routine-courses/{routine_id}")
 def get_study_routine_courses(routine_id: int, conn=Depends(get_db)):
     try:
-        try:
-            return execute_sp_fetchall(conn, "GetStudyRoutineCourses", (routine_id,))
-        except Exception:
-            cur = conn.cursor(dictionary=True)
-            try:
-                cur.execute("""
-                    SELECT c.id, c.name_ar, c.name_en, c.credit_hours,
-                           COALESCE(srp.stage_number, c.stage_number, 1) AS stage_number,
-                           COALESCE(srp.semester_num, 1) AS semester_num,
-                           src.period_id
-                    FROM study_routine_courses src
-                    JOIN courses c ON src.course_id = c.id
-                    JOIN study_routine_period srp ON src.period_id = srp.id
-                    WHERE srp.routine_id = %s
-                    ORDER BY stage_number ASC, semester_num ASC, c.name_ar ASC
-                """, (routine_id,))
-                return decode_db_value(cur.fetchall() or [])
-            finally:
-                cur.close()
+        return execute_sp_fetchall(conn, "GetStudyRoutineCourses", (routine_id,))
     except Exception as exc:
         raise HTTPException(status_code=500, detail=str(exc))
 
@@ -2649,6 +2560,221 @@ def delete_issued_certificate(cert_id: int, conn=Depends(get_db)):
         cur.close()
 
 
+# ===========================================================================
+# 17. Batch Offline Synchronization Engine Endpoint
+# ===========================================================================
+
+@app.post("/sync")
+@app.post("/api/sync")
+def process_offline_sync_batch(payload: dict, conn=Depends(get_db)):
+    """
+    Batch sync endpoint for pushing queued offline writes to MySQL.
+    Processes queued actions in FIFO order, resolving parent temporary IDs
+    (e.g., negative student_id or period_id) to real MySQL auto-increment IDs
+    before executing child inserts (academic_periods, enrollments, etc.).
+    """
+    actions = payload.get("actions", [])
+    if not actions:
+        return {"status": "success", "id_map": {}}
+
+    id_map = {}
+    cur = conn.cursor(dictionary=True)
+    try:
+        for action in actions:
+            tbl = action.get("table_name")
+            op = action.get("operation")
+            temp_id = action.get("temp_id")
+            data = dict(action.get("payload") or {})
+
+            # 1. Remap parent temporary IDs in payload to real MySQL IDs
+            for k, v in list(data.items()):
+                if isinstance(v, int) and v in id_map:
+                    data[k] = id_map[v]
+                elif isinstance(v, str) and (v.startswith("-") and v[1:].isdigit()):
+                    v_int = int(v)
+                    if v_int in id_map:
+                        data[k] = id_map[v_int]
+
+            # 2. Process Operations
+            if op == "INSERT":
+                if tbl == "students":
+                    args = (
+                        data.get("full_name_ar"),
+                        data.get("full_name_en"),
+                        int(data.get("gender") or 1),
+                        data.get("sequence_number"),
+                        data.get("postgraduation_number"),
+                        data.get("date_of_birth"),
+                        data.get("birthplace_id"),
+                        data.get("birthplace_other"),
+                        int(data.get("nationality_id") or 1),
+                        data.get("department_id"),
+                        int(data.get("study_system_id") or 1),
+                        int(data.get("degree_level") or 1),
+                        data.get("order_id"),
+                        data.get("admission_year"),
+                        data.get("summer_training_data"),
+                        data.get("average"),
+                        data.get("graduation_date"),
+                        data.get("graduation_semester") or "first"
+                    )
+                    cur.callproc("InsertStudent", args)
+                    real_id = None
+                    if hasattr(cur, "stored_results"):
+                        for res in cur.stored_results():
+                            row = res.fetchone()
+                            if row and ("new_id" in row or "inserted_id" in row):
+                                real_id = row.get("new_id") or row.get("inserted_id")
+                                break
+                    try:
+                        while cur.nextset():
+                            pass
+                    except Exception:
+                        pass
+                    if real_id is None:
+                        cur.execute("SELECT LAST_INSERT_ID() AS new_id")
+                        r = cur.fetchone()
+                        if r: real_id = r.get("new_id")
+                    if temp_id and real_id:
+                        id_map[int(temp_id)] = int(real_id)
+
+                elif tbl == "academic_periods":
+                    st_id = data.get("student_id")
+                    yr = data.get("academic_year", "")
+                    stg = int(data.get("stage_number") or 1)
+                    sem = int(data.get("semester_num") or 1)
+                    raw_st = data.get("result_status", "PASSED")
+
+                    try:
+                        cur.callproc("InsertAcademicPeriod", (st_id, yr, stg, sem, str(raw_st)))
+                        real_id = None
+                        if hasattr(cur, "stored_results"):
+                            for res in cur.stored_results():
+                                row = res.fetchone()
+                                if row and ("new_period_id" in row or "new_id" in row):
+                                    real_id = row.get("new_period_id") or row.get("new_id")
+                                    break
+                        try:
+                            while cur.nextset(): pass
+                        except Exception: pass
+                        if real_id is None:
+                            cur.execute("SELECT LAST_INSERT_ID() AS new_id")
+                            r = cur.fetchone()
+                            if r: real_id = r.get("new_id")
+                    except Exception as ins_err:
+                        cur.execute(
+                            "SELECT id FROM academic_periods WHERE student_id=%s AND stage_number=%s AND semester_num=%s",
+                            (st_id, stg, sem)
+                        )
+                        r = cur.fetchone()
+                        if r:
+                            real_id = r["id"]
+                        else:
+                            raise ins_err
+
+                    if temp_id and real_id:
+                        id_map[int(temp_id)] = int(real_id)
+
+                elif tbl == "enrollments":
+                    pid = data.get("period_id")
+                    cid = data.get("course_id")
+                    score = float(data.get("score") or 0.0)
+                    pr = int(data.get("passed_round") or 1)
+
+                    try:
+                        cur.callproc("InsertEnrollment", (pid, cid, score, pr))
+                        real_id = None
+                        if hasattr(cur, "stored_results"):
+                            for res in cur.stored_results():
+                                row = res.fetchone()
+                                if row and ("new_enrollment_id" in row or "new_id" in row):
+                                    real_id = row.get("new_enrollment_id") or row.get("new_id")
+                                    break
+                        try:
+                            while cur.nextset(): pass
+                        except Exception: pass
+                        if real_id is None:
+                            cur.execute("SELECT LAST_INSERT_ID() AS new_id")
+                            r = cur.fetchone()
+                            if r: real_id = r.get("new_id")
+                    except Exception as ins_err:
+                        cur.execute(
+                            "SELECT id FROM enrollments WHERE period_id=%s AND course_id=%s",
+                            (pid, cid)
+                        )
+                        r = cur.fetchone()
+                        if r:
+                            real_id = r["id"]
+                            cur.callproc("UpdateEnrollment", (real_id, score, pr))
+                            try:
+                                while cur.nextset(): pass
+                            except Exception: pass
+                        else:
+                            raise ins_err
+
+                    if temp_id and real_id:
+                        id_map[int(temp_id)] = int(real_id)
+
+                elif tbl == "issued_certificates":
+                    st_id = data.get("student_id")
+                    to_title = data.get("to_title", "من يهمه الأمر")
+                    tmpl = data.get("template_type", "graduation")
+                    idate = data.get("issue_date") or datetime.now().strftime("%Y-%m-%d")
+                    cur.callproc("InsertIssuedCertificate", (st_id, to_title, tmpl, str(idate)))
+                    real_id = None
+                    if hasattr(cur, "stored_results"):
+                        for res in cur.stored_results():
+                            row = res.fetchone()
+                            if row and ("new_id" in row or "inserted_id" in row):
+                                real_id = row.get("new_id") or row.get("inserted_id")
+                                break
+                    try:
+                        while cur.nextset():
+                            pass
+                    except Exception:
+                        pass
+                    if real_id is None:
+                        cur.execute("SELECT LAST_INSERT_ID() AS new_id")
+                        r = cur.fetchone()
+                        if r: real_id = r.get("new_id")
+                    if temp_id and real_id:
+                        id_map[int(temp_id)] = int(real_id)
+
+            elif op == "UPDATE":
+                if tbl == "enrollments":
+                    target_id = temp_id if temp_id > 0 else data.get("id")
+                    if target_id and target_id in id_map:
+                        target_id = id_map[target_id]
+                    if target_id and target_id > 0:
+                        score = float(data.get("score") or 0.0)
+                        pr = int(data.get("passed_round") or 1)
+                        cur.callproc("UpdateEnrollment", (target_id, score, pr))
+                        try:
+                            while cur.nextset(): pass
+                        except Exception: pass
+
+                elif tbl == "academic_periods":
+                    target_id = temp_id if temp_id > 0 else data.get("id")
+                    if target_id and target_id in id_map:
+                        target_id = id_map[target_id]
+                    if target_id and target_id > 0:
+                        if "result_status" in data:
+                            raw_st = str(data.get("result_status"))
+                            cur.callproc("UpdateAcademicPeriodStatus", (target_id, raw_st))
+                            try:
+                                while cur.nextset(): pass
+                            except Exception: pass
+
+        conn.commit()
+        return {"status": "success", "id_map": id_map}
+    except Exception as exc:
+        conn.rollback()
+        raise HTTPException(status_code=500, detail=str(exc))
+    finally:
+        cur.close()
+
+
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=2030)
+

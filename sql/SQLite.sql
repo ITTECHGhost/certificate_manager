@@ -717,6 +717,14 @@ INSERT INTO "academic_periods" VALUES(1037,2137,'2022-2023',3,2,1,'1');
 INSERT INTO "academic_periods" VALUES(1038,2137,'2023-2024',3,1,1,'1');
 INSERT INTO "academic_periods" VALUES(1039,2137,'2024-2025',4,1,1,'1');
 INSERT INTO "academic_periods" VALUES(1040,2137,'2024-2025',4,2,1,'1');
+INSERT INTO "academic_periods" VALUES(1067,2138,'2020-2021',1,1,1,'0');
+INSERT INTO "academic_periods" VALUES(1068,2138,'2020-2021',1,2,1,'0');
+INSERT INTO "academic_periods" VALUES(1069,2138,'2021-2022',2,1,1,'0');
+INSERT INTO "academic_periods" VALUES(1070,2138,'2021-2022',2,2,1,'0');
+INSERT INTO "academic_periods" VALUES(1071,2138,'2022-2023',3,1,1,'0');
+INSERT INTO "academic_periods" VALUES(1072,2138,'2022-2023',3,2,1,'0');
+INSERT INTO "academic_periods" VALUES(1073,2138,'2023-2024',4,1,1,'0');
+INSERT INTO "academic_periods" VALUES(1074,2138,'2023-2024',4,2,1,'0');
 CREATE TABLE countries (id INTEGER PRIMARY KEY, name_ar, name_en, iso_code);
 INSERT INTO "countries" VALUES(196,'أفغانستان','Afghanistan','AF');
 INSERT INTO "countries" VALUES(197,'ألبانيا','Albania','AL');
@@ -4103,6 +4111,55 @@ INSERT INTO "enrollments" VALUES(4179,1040,280,51.0,'1');
 INSERT INTO "enrollments" VALUES(4180,1040,279,70.0,'1');
 INSERT INTO "enrollments" VALUES(4181,1040,281,50.0,'2');
 INSERT INTO "enrollments" VALUES(4182,1034,260,90.0,'1');
+INSERT INTO "enrollments" VALUES(4265,1067,258,0.0,'1');
+INSERT INTO "enrollments" VALUES(4266,1067,1,0.0,'1');
+INSERT INTO "enrollments" VALUES(4267,1067,259,0.0,'1');
+INSERT INTO "enrollments" VALUES(4268,1067,256,0.0,'1');
+INSERT INTO "enrollments" VALUES(4269,1067,260,0.0,'1');
+INSERT INTO "enrollments" VALUES(4270,1067,119,0.0,'1');
+INSERT INTO "enrollments" VALUES(4271,1068,262,0.0,'1');
+INSERT INTO "enrollments" VALUES(4272,1068,2,0.0,'1');
+INSERT INTO "enrollments" VALUES(4273,1068,3,0.0,'1');
+INSERT INTO "enrollments" VALUES(4274,1068,118,0.0,'1');
+INSERT INTO "enrollments" VALUES(4275,1068,5,0.0,'1');
+INSERT INTO "enrollments" VALUES(4276,1068,263,0.0,'1');
+INSERT INTO "enrollments" VALUES(4277,1069,265,0.0,'1');
+INSERT INTO "enrollments" VALUES(4278,1069,266,0.0,'1');
+INSERT INTO "enrollments" VALUES(4279,1069,269,0.0,'1');
+INSERT INTO "enrollments" VALUES(4280,1069,267,0.0,'1');
+INSERT INTO "enrollments" VALUES(4281,1069,268,0.0,'1');
+INSERT INTO "enrollments" VALUES(4282,1069,121,0.0,'1');
+INSERT INTO "enrollments" VALUES(4283,1070,270,0.0,'1');
+INSERT INTO "enrollments" VALUES(4284,1070,7,0.0,'1');
+INSERT INTO "enrollments" VALUES(4285,1070,10,0.0,'1');
+INSERT INTO "enrollments" VALUES(4286,1070,123,0.0,'1');
+INSERT INTO "enrollments" VALUES(4287,1070,271,0.0,'1');
+INSERT INTO "enrollments" VALUES(4288,1070,8,0.0,'1');
+INSERT INTO "enrollments" VALUES(4289,1071,272,0.0,'1');
+INSERT INTO "enrollments" VALUES(4290,1071,273,0.0,'1');
+INSERT INTO "enrollments" VALUES(4291,1071,16,0.0,'1');
+INSERT INTO "enrollments" VALUES(4292,1071,274,0.0,'1');
+INSERT INTO "enrollments" VALUES(4293,1071,13,0.0,'1');
+INSERT INTO "enrollments" VALUES(4294,1071,25,0.0,'1');
+INSERT INTO "enrollments" VALUES(4295,1072,120,0.0,'1');
+INSERT INTO "enrollments" VALUES(4296,1072,15,0.0,'1');
+INSERT INTO "enrollments" VALUES(4297,1072,276,0.0,'1');
+INSERT INTO "enrollments" VALUES(4298,1072,275,0.0,'1');
+INSERT INTO "enrollments" VALUES(4299,1072,17,0.0,'1');
+INSERT INTO "enrollments" VALUES(4300,1072,277,0.0,'1');
+INSERT INTO "enrollments" VALUES(4301,1073,34,0.0,'1');
+INSERT INTO "enrollments" VALUES(4302,1073,37,0.0,'1');
+INSERT INTO "enrollments" VALUES(4303,1073,36,0.0,'1');
+INSERT INTO "enrollments" VALUES(4304,1073,29,0.0,'1');
+INSERT INTO "enrollments" VALUES(4305,1073,38,0.0,'1');
+INSERT INTO "enrollments" VALUES(4306,1073,278,0.0,'1');
+INSERT INTO "enrollments" VALUES(4307,1073,19,0.0,'1');
+INSERT INTO "enrollments" VALUES(4308,1074,281,0.0,'1');
+INSERT INTO "enrollments" VALUES(4309,1074,279,0.0,'1');
+INSERT INTO "enrollments" VALUES(4310,1074,280,0.0,'1');
+INSERT INTO "enrollments" VALUES(4311,1074,42,0.0,'1');
+INSERT INTO "enrollments" VALUES(4312,1074,41,0.0,'1');
+INSERT INTO "enrollments" VALUES(4313,1074,283,0.0,'1');
 CREATE TABLE governorates (id INTEGER PRIMARY KEY, name_ar, name_en);
 INSERT INTO "governorates" VALUES(1,'بغداد','Baghdad');
 INSERT INTO "governorates" VALUES(2,'البصرة','Basra');
@@ -4219,6 +4276,9 @@ INSERT INTO "issued_certificates" VALUES(46,2137,'من يهمه الأمر','yea
 INSERT INTO "issued_certificates" VALUES(48,2137,'من يهمه الأمر','year - Temp - En - D - SBS','2026-09-23','2026-09-23 10:52:06');
 INSERT INTO "issued_certificates" VALUES(51,2137,'من يهمه الأمر','year - Temp - Ar - D - SBS','2026-09-24','2026-09-24 10:03:27');
 INSERT INTO "issued_certificates" VALUES(52,2137,'من يهمه الأمر','year - Temp - En - D - SBS','2026-09-24','2026-09-24 10:04:28');
+INSERT INTO "issued_certificates" VALUES(77,1,'Test Certificate','ARABIC','2026-09-24','2026-10-03 20:34:53');
+INSERT INTO "issued_certificates" VALUES(81,2137,'من يهمه الأمر','year - Temp - Ar - D - SBS','2026-10-03','2026-10-03 20:34:53');
+INSERT INTO "issued_certificates" VALUES(82,2137,'من يهمه الأمر','year - Temp - Ar','2026-10-03','2026-10-03 20:34:53');
 CREATE TABLE local_academic_periods (
                 id              INTEGER PRIMARY KEY,
                 student_id      INTEGER NOT NULL,
@@ -4227,6 +4287,14 @@ CREATE TABLE local_academic_periods (
                 stage_number    INTEGER,
                 semester_num    INTEGER
             , result_status TEXT DEFAULT 'PASSED');
+INSERT INTO "local_academic_periods" VALUES(-115,2138,'2023-2024',1,4,2,'PASSED');
+INSERT INTO "local_academic_periods" VALUES(-114,2138,'2023-2024',1,4,1,'PASSED');
+INSERT INTO "local_academic_periods" VALUES(-113,2138,'2022-2023',1,3,2,'PASSED');
+INSERT INTO "local_academic_periods" VALUES(-112,2138,'2022-2023',1,3,1,'PASSED');
+INSERT INTO "local_academic_periods" VALUES(-111,2138,'2021-2022',1,2,2,'PASSED');
+INSERT INTO "local_academic_periods" VALUES(-110,2138,'2021-2022',1,2,1,'PASSED');
+INSERT INTO "local_academic_periods" VALUES(-109,2138,'2020-2021',1,1,2,'PASSED');
+INSERT INTO "local_academic_periods" VALUES(-108,2138,'2020-2021',1,1,1,'PASSED');
 CREATE TABLE local_enrollments (
                 id           INTEGER PRIMARY KEY,
                 period_id    INTEGER NOT NULL,
@@ -4234,6 +4302,15 @@ CREATE TABLE local_enrollments (
                 score        REAL,
                 passed_round TEXT
             );
+INSERT INTO "local_enrollments" VALUES(-124,477,283,0.0,'1');
+INSERT INTO "local_enrollments" VALUES(-123,477,42,0.0,'1');
+INSERT INTO "local_enrollments" VALUES(-122,470,276,0.0,'1');
+INSERT INTO "local_enrollments" VALUES(-121,470,120,0.0,'1');
+INSERT INTO "local_enrollments" VALUES(-120,474,123,0.0,'1');
+INSERT INTO "local_enrollments" VALUES(-119,473,268,0.0,'1');
+INSERT INTO "local_enrollments" VALUES(-118,473,266,0.0,'1');
+INSERT INTO "local_enrollments" VALUES(-117,472,263,0.0,'1');
+INSERT INTO "local_enrollments" VALUES(-116,472,118,0.0,'1');
 CREATE TABLE local_issued_certificates (
                 id            INTEGER PRIMARY KEY,
                 student_id    INTEGER NOT NULL,
@@ -4242,32 +4319,6 @@ CREATE TABLE local_issued_certificates (
                 issue_date    TEXT,
                 created_at    TEXT DEFAULT CURRENT_TIMESTAMP
             );
-INSERT INTO "local_issued_certificates" VALUES(-28,2137,'من يهمه الأمر','year - Temp - En - D - SBS','2026-09-24','2026-09-24 09:02:16');
-INSERT INTO "local_issued_certificates" VALUES(-27,2137,'من يهمه الأمر','year - Temp - Ar - D - SBS','2026-09-24','2026-09-24 09:01:21');
-INSERT INTO "local_issued_certificates" VALUES(-26,2137,'من يهمه الأمر','year - Temp - En - D - SBS','2026-09-24','2026-09-24 07:15:17');
-INSERT INTO "local_issued_certificates" VALUES(-25,2137,'من يهمه الأمر','year - Temp - Ar - D - SBS','2026-09-24','2026-09-24 07:14:40');
-INSERT INTO "local_issued_certificates" VALUES(-24,2137,'من يهمه الأمر','year - Temp - Ar - D - SBS','2026-09-23','2026-09-23 07:44:10');
-INSERT INTO "local_issued_certificates" VALUES(-23,2137,'من يهمه الأمر','year - Temp - Ar - D - SBS','2026-09-23','2026-09-23 07:05:44');
-INSERT INTO "local_issued_certificates" VALUES(-22,2137,'من يهمه الأمر','year - Temp - Ar - D - SBS','2026-09-23','2026-09-23 05:58:20');
-INSERT INTO "local_issued_certificates" VALUES(-21,2137,'من يهمه الأمر','year - Temp - Ar - D - SBS','2026-09-22','2026-09-22 11:13:10');
-INSERT INTO "local_issued_certificates" VALUES(-20,12,'من يهمه الأمر','year - Temp - Ar - D - SBS','2026-09-22','2026-09-22 11:12:36');
-INSERT INTO "local_issued_certificates" VALUES(-19,2010,'من يهمه الأمر','semester - Temp - En - D - SBS','2026-09-22','2026-09-22 11:08:21');
-INSERT INTO "local_issued_certificates" VALUES(-18,2010,'من يهمه الأمر','semester - Temp - En - D - SBS','2026-09-22','2026-09-22 11:06:12');
-INSERT INTO "local_issued_certificates" VALUES(-17,2010,'من يهمه الأمر','semester - Temp - Ar - D - SBS','2026-09-22','2026-09-22 11:05:03');
-INSERT INTO "local_issued_certificates" VALUES(-16,2010,'من يهمه الأمر','semester - Temp - Ar - D - SBS','2026-09-22','2026-09-22 11:03:47');
-INSERT INTO "local_issued_certificates" VALUES(-15,2010,'من يهمه الأمر','semester - Temp - Ar - D - SBS','2026-09-22','2026-09-22 10:31:20');
-INSERT INTO "local_issued_certificates" VALUES(-14,2010,'من يهمه الأمر','semester - Temp - Ar - D - SBS','2026-09-22','2026-09-22 10:30:19');
-INSERT INTO "local_issued_certificates" VALUES(-13,2137,'من يهمه الأمر','year - Temp - En - D - SBS','2026-09-22','2026-09-22 10:15:19');
-INSERT INTO "local_issued_certificates" VALUES(-12,2137,'من يهمه الأمر','year - Temp - Ar - D - SBS','2026-09-22','2026-09-22 10:13:55');
-INSERT INTO "local_issued_certificates" VALUES(-11,2137,'من يهمه الأمر','year - Temp - Ar - D - SBS','2026-09-22','2026-09-22 09:45:37');
-INSERT INTO "local_issued_certificates" VALUES(-10,2137,'من يهمه الأمر','year - Temp - Ar - D - SBS','2026-09-22','2026-09-22 08:58:25');
-INSERT INTO "local_issued_certificates" VALUES(-9,2137,'من يهمه الأمر','year - Temp - Ar - D - SBS','2026-09-22','2026-09-22 08:53:14');
-INSERT INTO "local_issued_certificates" VALUES(-8,2137,'من يهمه الأمر','year - Temp - Ar - D - SBS','2026-09-20','2026-09-20 11:15:09');
-INSERT INTO "local_issued_certificates" VALUES(-7,2137,'من يهمه الأمر','year - Temp - Ar - D - SBS','2026-09-20','2026-09-20 11:13:51');
-INSERT INTO "local_issued_certificates" VALUES(-6,2137,'من يهمه الأمر','year - Temp - Ar - D - SBS','2026-09-20','2026-09-20 08:53:21');
-INSERT INTO "local_issued_certificates" VALUES(-5,2137,'من يهمه الأمر','year - Temp - Ar - D - SBS','2026-09-20','2026-09-20 08:05:22');
-INSERT INTO "local_issued_certificates" VALUES(-4,2137,'من يهمه الأمر','year - Temp - Ar - D - SBS','2026-09-20','2026-09-20 07:32:58');
-INSERT INTO "local_issued_certificates" VALUES(-3,2137,'من يهمه الأمر','year - Temp - Ar - D - SBS','2026-09-02','2026-09-02 07:30:10');
 INSERT INTO "local_issued_certificates" VALUES(5,12,'جهة اختبار عبر Offline Repo','ENGLISH','2026-09-01','2026-09-01 06:45:07');
 CREATE TABLE local_students (
                 id                  INTEGER PRIMARY KEY,
@@ -4324,11 +4375,7 @@ CREATE TABLE read_cache (
                 result_json TEXT NOT NULL,
                 cached_at   TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             );
-INSERT INTO "read_cache" VALUES('336f60e956cc8ce2a9c9720d784124e63995ee7fedcc2a5b49b1722a39b8bb4f','[]','2026-08-24 10:33:44');
-INSERT INTO "read_cache" VALUES('99addedc69c7a733060ace63cd29d639469d813a9e41618932085cfcfb5ae18f','[]','2026-08-24 10:33:44');
-INSERT INTO "read_cache" VALUES('d8f4dd2f6111838e047fccc94d1b74f61a60e1b67f970b03178f18434a7678f3','[]','2026-08-24 10:33:44');
 INSERT INTO "read_cache" VALUES('e7c894b5428c5312fb02a0196a12d915fa98640c33f81924c18f76989606ff38','[]','2026-09-06 06:55:37');
-INSERT INTO "read_cache" VALUES('b40b42453224968c07d593241f02964b8463f1c33d33542fc3feac2cdc52ba11','[]','2026-09-06 06:55:37');
 INSERT INTO "read_cache" VALUES('2902dacb6856a19f469ff883c0ae6f7382d7d673cdf96543f2cdafdcec359365','[]','2026-09-06 06:55:37');
 INSERT INTO "read_cache" VALUES('285ad0f05ce9339109bf17f716c5061f174654104d321b20c62c8e6e64cc7a67','[]','2026-09-06 06:55:37');
 INSERT INTO "read_cache" VALUES('770b1c62183197bff2a22f9dfd02a3e069607b85bf4f9c33f949d29384ce496a','[]','2026-09-06 06:55:37');
@@ -4337,8 +4384,6 @@ INSERT INTO "read_cache" VALUES('33724426e7a23e24409e29e87c7083cf8fd10f8f1d295d2
 INSERT INTO "read_cache" VALUES('061f3ae79659bd85beab36250f466772f9ea077bf18ace9343c41044555ec275','[]','2026-09-06 06:55:38');
 INSERT INTO "read_cache" VALUES('4ca20141eed67cdb1f7516f969b02d997f7e01671c61ca4642187ea5d6abcdb3','[]','2026-09-06 06:55:38');
 INSERT INTO "read_cache" VALUES('d194b2e8df53c6a772a7aa5bc9662a6637da0c4b6f85a1eda28e4a0f0236f96a','[]','2026-09-06 07:10:43');
-INSERT INTO "read_cache" VALUES('c4427532cfc2338e543ef31826f944ae3143a3ee3ba63316d11c7591b09d954b','[{"id": 1, "name_ar": "روتين تجريبي SP", "name_en": "Test SP Routine", "department_id": 1, "study_system_id": 1, "created_at": "2026-09-06T10:10:43", "department_name_ar": "نظم المعلومات الحاسوبية", "study_system_name_ar": "نظام فصلي"}, {"id": 2, "name_ar": "روتين نظام فصلي صباحي", "name_en": "Morning Semester Routine", "department_id": 1, "study_system_id": 1, "created_at": "2026-09-06T10:11:23", "department_name_ar": "نظم المعلومات الحاسوبية", "study_system_name_ar": "نظام فصلي"}]','2026-09-07 11:09:11');
-INSERT INTO "read_cache" VALUES('c251c188919ccfefbecd27d21c50342014eb284e91dbbf2674515ff14d46f5e6','[]','2026-09-08 07:36:13');
 INSERT INTO "read_cache" VALUES('4131effac5a842d2d96a5a6d72ff7eb796c9707e73cf5ed7c14f2d83aed004eb','[]','2026-09-08 07:59:00');
 INSERT INTO "read_cache" VALUES('e75075a83c108978270ed6751f1b678489557b56a7857527edf0e7538f1975cb','[]','2026-09-08 07:59:08');
 INSERT INTO "read_cache" VALUES('73a8969c9436be40a62c7326363595a560ff13491d78ec3e0c280e8618d56d39','[]','2026-09-08 07:59:15');
@@ -4347,7 +4392,6 @@ INSERT INTO "read_cache" VALUES('d4917db25410973d4845f63e3049bcd0978eb090c10f990
 INSERT INTO "read_cache" VALUES('aceb577b81c0d07a41c8bda112fb673169ea3078ede4ac883b148553d215dd2a','[]','2026-09-08 07:59:26');
 INSERT INTO "read_cache" VALUES('b7ecc3442abe087651daa0fc7ab97d31c7a3f4670fc9a9a9a118d97cec9dfd08','[]','2026-09-08 07:59:28');
 INSERT INTO "read_cache" VALUES('2f8f6146eed1943401c9f3a40720aede9f96e25725f73947a2a1ef5fde141d82','[]','2026-09-08 07:59:32');
-INSERT INTO "read_cache" VALUES('953e2df9ee43f299e5be25b3a096be019d5f950a0360044c5b99ad4622d2e8a3','[{"period_id": 17, "routine_id": 1, "stage_number": 1, "semester_num": 1}, {"period_id": 18, "routine_id": 1, "stage_number": 1, "semester_num": 2}, {"period_id": 19, "routine_id": 1, "stage_number": 2, "semester_num": 1}, {"period_id": 20, "routine_id": 1, "stage_number": 2, "semester_num": 2}, {"period_id": 21, "routine_id": 1, "stage_number": 3, "semester_num": 1}, {"period_id": 22, "routine_id": 1, "stage_number": 3, "semester_num": 2}, {"period_id": 23, "routine_id": 1, "stage_number": 4, "semester_num": 1}, {"period_id": 24, "routine_id": 1, "stage_number": 4, "semester_num": 2}]','2026-09-08 07:59:48');
 INSERT INTO "read_cache" VALUES('9018eba42277d03ae216a38b2fc5f4c916202d306e69167a7bce782f4a983333','[]','2026-09-08 07:59:48');
 INSERT INTO "read_cache" VALUES('8d79ebb3e522a3268a0359079a5ac6a93060d4ac9589292f1fa7899d042d5f89','[]','2026-09-08 07:59:48');
 INSERT INTO "read_cache" VALUES('0d07e1feffebf230bbbc8215f364b5aa2f6c4233df2d9c475651df2b8dbc164b','[]','2026-09-08 07:59:48');
@@ -4366,7 +4410,6 @@ INSERT INTO "read_cache" VALUES('913e3af14404d0d9d10b4d4485aff6b6c79764ed4f93a35
 INSERT INTO "read_cache" VALUES('7b4099a27d0a3a3e88ca1370a17983440a21949e199497c687f6be9266df630c','[]','2026-09-08 08:18:37');
 INSERT INTO "read_cache" VALUES('902e0aa66c86ff17d1e39b0658d634e410ac8b9610ac2ca943442ca48d37980f','[]','2026-09-08 08:18:37');
 INSERT INTO "read_cache" VALUES('f142aaa612a7b1628dc292db7aab3e3a77ad4d9f965300fc2e68f5b932e4db60','[]','2026-09-08 08:18:37');
-INSERT INTO "read_cache" VALUES('5a97924478c3ae16c9579220ceaf71ddcf2e3d0c8f7902fc9458d8c145d38fd2','[{"period_id": 33, "routine_id": 3, "stage_number": 1, "semester_num": 1}, {"period_id": 34, "routine_id": 3, "stage_number": 1, "semester_num": 2}, {"period_id": 35, "routine_id": 3, "stage_number": 2, "semester_num": 1}, {"period_id": 36, "routine_id": 3, "stage_number": 2, "semester_num": 2}, {"period_id": 37, "routine_id": 3, "stage_number": 3, "semester_num": 1}, {"period_id": 38, "routine_id": 3, "stage_number": 3, "semester_num": 2}, {"period_id": 39, "routine_id": 3, "stage_number": 4, "semester_num": 1}, {"period_id": 40, "routine_id": 3, "stage_number": 4, "semester_num": 2}]','2026-09-15 08:42:43');
 INSERT INTO "read_cache" VALUES('07561e3d5ed4cc0e59b9d4bf2a14fc89e3c723ab1fbf7d95b836fdd9140af32c','[{"mapping_id": 61, "period_id": 33, "course_id": 258, "course_name_ar": "الإنكليزي 1", "course_name_en": "English I", "credit_hours": 2}, {"mapping_id": 58, "period_id": 33, "course_id": 1, "course_name_ar": "البرمجة 1", "course_name_en": "Programming I", "credit_hours": 4}, {"mapping_id": 62, "period_id": 33, "course_id": 259, "course_name_ar": "الديمقراطية وحقوق الانسان", "course_name_en": "Democracy and Human Rights", "credit_hours": 2}, {"mapping_id": 60, "period_id": 33, "course_id": 256, "course_name_ar": "الرياضيات", "course_name_en": "Mathematic", "credit_hours": 3}, {"mapping_id": 63, "period_id": 33, "course_id": 260, "course_name_ar": "الصحة واللياقة", "course_name_en": "Health and Fitness", "credit_hours": 2}, {"mapping_id": 59, "period_id": 33, "course_id": 119, "course_name_ar": "مهارات الحاسوب", "course_name_en": "Computer Skills", "credit_hours": 2}]','2026-09-15 08:42:43');
 INSERT INTO "read_cache" VALUES('311bf44759219dacddac18cfc10c86302475b20934cb9e0a6f9ea8bd51c89dde','[{"mapping_id": 69, "period_id": 34, "course_id": 262, "course_name_ar": "الإنكليزي 2", "course_name_en": "English II", "credit_hours": 2}, {"mapping_id": 65, "period_id": 34, "course_id": 2, "course_name_ar": "البرمجة 2", "course_name_en": "Programming II", "credit_hours": 4}, {"mapping_id": 66, "period_id": 34, "course_id": 3, "course_name_ar": "التصميم المنطقي", "course_name_en": "Logic Design", "credit_hours": 3}, {"mapping_id": 68, "period_id": 34, "course_id": 118, "course_name_ar": "الهياكل المتقطعة", "course_name_en": "Discrete Structures", "credit_hours": 3}, {"mapping_id": 67, "period_id": 34, "course_id": 5, "course_name_ar": "تطبيقات الحاسوب", "course_name_en": "Computer Applications", "credit_hours": 2}, {"mapping_id": 70, "period_id": 34, "course_id": 263, "course_name_ar": "مبادئ تكنولوجيا المعلومات", "course_name_en": "Principle of Information Technology", "credit_hours": 3}]','2026-09-15 08:42:43');
 INSERT INTO "read_cache" VALUES('316f358f6488384358f0ab262308191f4091f26a2b10c845c99d50bd1afef4d1','[{"mapping_id": 73, "period_id": 35, "course_id": 265, "course_name_ar": "البرمجة الكيانية 1", "course_name_en": "Object-oriented Programming I", "credit_hours": 3}, {"mapping_id": 74, "period_id": 35, "course_id": 266, "course_name_ar": "الرسم بالحاسوب", "course_name_en": "Computer Graphics", "credit_hours": 3}, {"mapping_id": 77, "period_id": 35, "course_id": 269, "course_name_ar": "العربي", "course_name_en": "Arabic", "credit_hours": 2}, {"mapping_id": 75, "period_id": 35, "course_id": 267, "course_name_ar": "المعالجات المايكروية", "course_name_en": "Microprocessors", "credit_hours": 3}, {"mapping_id": 76, "period_id": 35, "course_id": 268, "course_name_ar": "تحليل وتصميم النظم", "course_name_en": "Systems Analysis and Design", "credit_hours": 3}, {"mapping_id": 72, "period_id": 35, "course_id": 121, "course_name_ar": "نظرية الاحتمالات و الإحصاء", "course_name_en": "Probability and Statistics", "credit_hours": 3}]','2026-09-15 08:42:43');
@@ -4375,8 +4418,6 @@ INSERT INTO "read_cache" VALUES('8a04195c57cbd5356c6889b0c65584f5fae4ebaaf2a5bd3
 INSERT INTO "read_cache" VALUES('6b9a7b4b59c692a6fd1a0242cea8d5dc37755d4249b0dd74c995f55120542060','[{"mapping_id": 95, "period_id": 38, "course_id": 120, "course_name_ar": "أخلاقيات الحاسوب", "course_name_en": "Computer Ethics", "credit_hours": 2}, {"mapping_id": 93, "period_id": 38, "course_id": 15, "course_name_ar": "المترجمات", "course_name_en": "Compilers", "credit_hours": 4}, {"mapping_id": 97, "period_id": 38, "course_id": 276, "course_name_ar": "بحوث العمليات", "course_name_en": "Operations Researches", "credit_hours": 3}, {"mapping_id": 96, "period_id": 38, "course_id": 275, "course_name_ar": "برمجة المواقع 2", "course_name_en": "Web Programming II", "credit_hours": 3}, {"mapping_id": 94, "period_id": 38, "course_id": 17, "course_name_ar": "شبكات الحاسوب 2", "course_name_en": "Computer Networks II", "credit_hours": 3}, {"mapping_id": 98, "period_id": 38, "course_id": 277, "course_name_ar": "معمارية الحاسوب", "course_name_en": "Computer Architecture", "credit_hours": 3}]','2026-09-15 08:42:43');
 INSERT INTO "read_cache" VALUES('f97c79d61e311ee019e10edc180c691b4790987dc8eff63743f630b7ef52c4a1','[{"mapping_id": 102, "period_id": 39, "course_id": 34, "course_name_ar": "التنقيب عن البيانات", "course_name_en": "Data Mining", "credit_hours": 2}, {"mapping_id": 104, "period_id": 39, "course_id": 37, "course_name_ar": "الحوسبة السحابية", "course_name_en": "Cloud Computing", "credit_hours": 2}, {"mapping_id": 103, "period_id": 39, "course_id": 36, "course_name_ar": "الذكاء الحاسوبي", "course_name_en": "Computational Intelligence", "credit_hours": 3}, {"mapping_id": 101, "period_id": 39, "course_id": 29, "course_name_ar": "الرؤية في الحاسوب", "course_name_en": "Computer Vision", "credit_hours": 3}, {"mapping_id": 105, "period_id": 39, "course_id": 38, "course_name_ar": "تطبيقات النقال", "course_name_en": "Mobile Applications", "credit_hours": 3}, {"mapping_id": 106, "period_id": 39, "course_id": 278, "course_name_ar": "مشروع التخرج", "course_name_en": "Graduation Project", "credit_hours": 2}, {"mapping_id": 100, "period_id": 39, "course_id": 19, "course_name_ar": "نظم التشغيل", "course_name_en": "Operating Systems", "credit_hours": 3}]','2026-09-15 08:42:43');
 INSERT INTO "read_cache" VALUES('e273ccfd07441d2bd30f4b9bb8617aa23176099053448c43b3704cba49faf3b4','[{"mapping_id": 111, "period_id": 40, "course_id": 281, "course_name_ar": "المحاكاة بالحاسوب", "course_name_en": "Computer Simulation", "credit_hours": 3}, {"mapping_id": 109, "period_id": 40, "course_id": 279, "course_name_ar": "امنية الحاسوب", "course_name_en": "Computer Security", "credit_hours": 3}, {"mapping_id": 110, "period_id": 40, "course_id": 280, "course_name_ar": "تفاعل الانسان مع الحاسوب", "course_name_en": "Human-Computer Interaction", "credit_hours": 3}, {"mapping_id": 108, "period_id": 40, "course_id": 42, "course_name_ar": "مهارات الاتصال", "course_name_en": "Communication Skills", "credit_hours": 2}, {"mapping_id": 107, "period_id": 40, "course_id": 41, "course_name_ar": "مواضيع مختارة", "course_name_en": "Selected Topics", "credit_hours": 3}, {"mapping_id": 112, "period_id": 40, "course_id": 283, "course_name_ar": "هندسة المعرفة", "course_name_en": "Knowledge Engineering", "credit_hours": 3}]','2026-09-15 08:42:43');
-INSERT INTO "read_cache" VALUES('aef1a4846a18a493c875a3b7527f873f22eae9eb1c496e67169d30914cc86bfb','[{"period_id": 9, "routine_id": 2, "stage_number": 1, "semester_num": 1}, {"period_id": 10, "routine_id": 2, "stage_number": 1, "semester_num": 2}, {"period_id": 11, "routine_id": 2, "stage_number": 2, "semester_num": 1}, {"period_id": 12, "routine_id": 2, "stage_number": 2, "semester_num": 2}, {"period_id": 13, "routine_id": 2, "stage_number": 3, "semester_num": 1}, {"period_id": 14, "routine_id": 2, "stage_number": 3, "semester_num": 2}, {"period_id": 15, "routine_id": 2, "stage_number": 4, "semester_num": 1}, {"period_id": 16, "routine_id": 2, "stage_number": 4, "semester_num": 2}]','2026-09-15 08:42:44');
-INSERT INTO "read_cache" VALUES('74cd3da8011d79461ca4e7590a79269b63fc666ac88a973e09fa171f5222a108','[{"mapping_id": 9, "period_id": 9, "course_id": 258, "course_name_ar": "الإنكليزي 1", "course_name_en": "English I", "credit_hours": 2}, {"mapping_id": 6, "period_id": 9, "course_id": 1, "course_name_ar": "البرمجة 1", "course_name_en": "Programming I", "credit_hours": 4}, {"mapping_id": 10, "period_id": 9, "course_id": 259, "course_name_ar": "الديمقراطية وحقوق الانسان", "course_name_en": "Democracy and Human Rights", "credit_hours": 2}, {"mapping_id": 7, "period_id": 9, "course_id": 256, "course_name_ar": "الرياضيات", "course_name_en": "Mathematic", "credit_hours": 3}, {"mapping_id": 11, "period_id": 9, "course_id": 260, "course_name_ar": "الصحة واللياقة", "course_name_en": "Health and Fitness", "credit_hours": 2}, {"mapping_id": 8, "period_id": 9, "course_id": 119, "course_name_ar": "مهارات الحاسوب", "course_name_en": "Computer Skills", "credit_hours": 2}]','2026-09-15 08:42:44');
 INSERT INTO "read_cache" VALUES('b50845ce15e682b6c5d1e61eff8d0d93ab504824ca517f67e846a93bc7f03f42','[{"mapping_id": 14, "period_id": 10, "course_id": 262, "course_name_ar": "الإنكليزي 2", "course_name_en": "English II", "credit_hours": 2}, {"mapping_id": 12, "period_id": 10, "course_id": 2, "course_name_ar": "البرمجة 2", "course_name_en": "Programming II", "credit_hours": 4}, {"mapping_id": 13, "period_id": 10, "course_id": 3, "course_name_ar": "التصميم المنطقي", "course_name_en": "Logic Design", "credit_hours": 3}, {"mapping_id": 15, "period_id": 10, "course_id": 118, "course_name_ar": "الهياكل المتقطعة", "course_name_en": "Discrete Structures", "credit_hours": 3}, {"mapping_id": 17, "period_id": 10, "course_id": 5, "course_name_ar": "تطبيقات الحاسوب", "course_name_en": "Computer Applications", "credit_hours": 2}, {"mapping_id": 16, "period_id": 10, "course_id": 263, "course_name_ar": "مبادئ تكنولوجيا المعلومات", "course_name_en": "Principle of Information Technology", "credit_hours": 3}]','2026-09-15 08:42:44');
 INSERT INTO "read_cache" VALUES('7425514daa04f1ea965d8c779e8cab8a1d4fa3f801b3c07bc6d21b2d794a8879','[{"mapping_id": 18, "period_id": 11, "course_id": 265, "course_name_ar": "البرمجة الكيانية 1", "course_name_en": "Object-oriented Programming I", "credit_hours": 3}, {"mapping_id": 19, "period_id": 11, "course_id": 266, "course_name_ar": "الرسم بالحاسوب", "course_name_en": "Computer Graphics", "credit_hours": 3}, {"mapping_id": 24, "period_id": 11, "course_id": 269, "course_name_ar": "العربي", "course_name_en": "Arabic", "credit_hours": 2}, {"mapping_id": 20, "period_id": 11, "course_id": 267, "course_name_ar": "المعالجات المايكروية", "course_name_en": "Microprocessors", "credit_hours": 3}, {"mapping_id": 21, "period_id": 11, "course_id": 268, "course_name_ar": "تحليل وتصميم النظم", "course_name_en": "Systems Analysis and Design", "credit_hours": 3}, {"mapping_id": 25, "period_id": 11, "course_id": 121, "course_name_ar": "نظرية الاحتمالات و الإحصاء", "course_name_en": "Probability and Statistics", "credit_hours": 3}]','2026-09-15 08:42:44');
 INSERT INTO "read_cache" VALUES('22cba9551036174b6c7a5bfc7e0f0f757b5cca23d8c3e21b156edf65e1af167a','[{"mapping_id": 26, "period_id": 12, "course_id": 270, "course_name_ar": "البرمجة الكيانية 2", "course_name_en": "Object-oriented Programming II", "credit_hours": 3}, {"mapping_id": 27, "period_id": 12, "course_id": 7, "course_name_ar": "البرمجة المرئية", "course_name_en": "Visual Programming ", "credit_hours": 3}, {"mapping_id": 28, "period_id": 12, "course_id": 10, "course_name_ar": "النظرية الاحتسابية", "course_name_en": "Computation Theory", "credit_hours": 3}, {"mapping_id": 32, "period_id": 12, "course_id": 123, "course_name_ar": "طرق عددية", "course_name_en": "Numerical Methods", "credit_hours": 3}, {"mapping_id": 30, "period_id": 12, "course_id": 271, "course_name_ar": "قواعد البيانات", "course_name_en": "Database", "credit_hours": 3}, {"mapping_id": 31, "period_id": 12, "course_id": 8, "course_name_ar": "هياكل البيانات 1", "course_name_en": "Data Structures I", "credit_hours": 3}]','2026-09-15 08:42:44');
@@ -4384,6 +4425,16 @@ INSERT INTO "read_cache" VALUES('fe7a3b57cf43f5b1d8961271984eafef8edf62561077e35
 INSERT INTO "read_cache" VALUES('541e64e642a56e1fbd0984bb20706c4522f68ce4b9572420c42071416615c5af','[{"mapping_id": 43, "period_id": 14, "course_id": 120, "course_name_ar": "أخلاقيات الحاسوب", "course_name_en": "Computer Ethics", "credit_hours": 2}, {"mapping_id": 39, "period_id": 14, "course_id": 15, "course_name_ar": "المترجمات", "course_name_en": "Compilers", "credit_hours": 4}, {"mapping_id": 42, "period_id": 14, "course_id": 276, "course_name_ar": "بحوث العمليات", "course_name_en": "Operations Researches", "credit_hours": 3}, {"mapping_id": 41, "period_id": 14, "course_id": 275, "course_name_ar": "برمجة المواقع 2", "course_name_en": "Web Programming II", "credit_hours": 3}, {"mapping_id": 40, "period_id": 14, "course_id": 17, "course_name_ar": "شبكات الحاسوب 2", "course_name_en": "Computer Networks II", "credit_hours": 3}, {"mapping_id": 44, "period_id": 14, "course_id": 277, "course_name_ar": "معمارية الحاسوب", "course_name_en": "Computer Architecture", "credit_hours": 3}]','2026-09-15 08:42:45');
 INSERT INTO "read_cache" VALUES('d75adc960a92e82335600cc7517da03eef6631ca212bcdf5874d18008def2073','[{"mapping_id": 45, "period_id": 15, "course_id": 34, "course_name_ar": "التنقيب عن البيانات", "course_name_en": "Data Mining", "credit_hours": 2}, {"mapping_id": 49, "period_id": 15, "course_id": 37, "course_name_ar": "الحوسبة السحابية", "course_name_en": "Cloud Computing", "credit_hours": 2}, {"mapping_id": 51, "period_id": 15, "course_id": 36, "course_name_ar": "الذكاء الحاسوبي", "course_name_en": "Computational Intelligence", "credit_hours": 3}, {"mapping_id": 48, "period_id": 15, "course_id": 29, "course_name_ar": "الرؤية في الحاسوب", "course_name_en": "Computer Vision", "credit_hours": 3}, {"mapping_id": 50, "period_id": 15, "course_id": 38, "course_name_ar": "تطبيقات النقال", "course_name_en": "Mobile Applications", "credit_hours": 3}, {"mapping_id": 46, "period_id": 15, "course_id": 278, "course_name_ar": "مشروع التخرج", "course_name_en": "Graduation Project", "credit_hours": 2}, {"mapping_id": 47, "period_id": 15, "course_id": 19, "course_name_ar": "نظم التشغيل", "course_name_en": "Operating Systems", "credit_hours": 3}]','2026-09-15 08:42:45');
 INSERT INTO "read_cache" VALUES('9264a771148ebc1d93b302f5b2f8e83ff2c410b88202ff77fc696ed3f109b7de','[{"mapping_id": 57, "period_id": 16, "course_id": 281, "course_name_ar": "المحاكاة بالحاسوب", "course_name_en": "Computer Simulation", "credit_hours": 3}, {"mapping_id": 56, "period_id": 16, "course_id": 279, "course_name_ar": "امنية الحاسوب", "course_name_en": "Computer Security", "credit_hours": 3}, {"mapping_id": 55, "period_id": 16, "course_id": 280, "course_name_ar": "تفاعل الانسان مع الحاسوب", "course_name_en": "Human-Computer Interaction", "credit_hours": 3}, {"mapping_id": 53, "period_id": 16, "course_id": 42, "course_name_ar": "مهارات الاتصال", "course_name_en": "Communication Skills", "credit_hours": 2}, {"mapping_id": 52, "period_id": 16, "course_id": 41, "course_name_ar": "مواضيع مختارة", "course_name_en": "Selected Topics", "credit_hours": 3}, {"mapping_id": 54, "period_id": 16, "course_id": 283, "course_name_ar": "هندسة المعرفة", "course_name_en": "Knowledge Engineering", "credit_hours": 3}]','2026-09-15 08:42:45');
+INSERT INTO "read_cache" VALUES('953e2df9ee43f299e5be25b3a096be019d5f950a0360044c5b99ad4622d2e8a3','[]','2026-10-05 10:10:05');
+INSERT INTO "read_cache" VALUES('99addedc69c7a733060ace63cd29d639469d813a9e41618932085cfcfb5ae18f','[]','2026-10-05 10:22:00');
+INSERT INTO "read_cache" VALUES('b40b42453224968c07d593241f02964b8463f1c33d33542fc3feac2cdc52ba11','[]','2026-10-05 10:22:00');
+INSERT INTO "read_cache" VALUES('c251c188919ccfefbecd27d21c50342014eb284e91dbbf2674515ff14d46f5e6','[]','2026-10-05 16:13:57');
+INSERT INTO "read_cache" VALUES('c4427532cfc2338e543ef31826f944ae3143a3ee3ba63316d11c7591b09d954b','[{"id": 2, "name_ar": "روتين نظام فصلي صباحي علوم حاسوب", "name_en": "Morning Semester Routine", "department_id": 2, "study_system_id": 1, "created_at": "2026-09-06T10:11:23", "department_name_ar": "علوم الحاسوب", "study_system_name_ar": "نظام فصلي"}, {"id": 3, "name_ar": "روتين نظام فصلي صباحي نظم معلومات", "name_en": "IS Annual System Morning Routine", "department_id": 1, "study_system_id": 1, "created_at": "2026-09-08T09:47:19", "department_name_ar": "نظم المعلومات الحاسوبية", "study_system_name_ar": "نظام فصلي"}]','2026-10-07 06:42:16');
+INSERT INTO "read_cache" VALUES('336f60e956cc8ce2a9c9720d784124e63995ee7fedcc2a5b49b1722a39b8bb4f','[{"id": 258, "name_ar": "الإنكليزي 1", "name_en": "English I", "credit_hours": 2, "stage_number": 1, "semester_num": 1}, {"id": 1, "name_ar": "البرمجة 1", "name_en": "Programming I", "credit_hours": 4, "stage_number": 1, "semester_num": 1}, {"id": 259, "name_ar": "الديمقراطية وحقوق الانسان", "name_en": "Democracy and Human Rights", "credit_hours": 2, "stage_number": 1, "semester_num": 1}, {"id": 256, "name_ar": "الرياضيات", "name_en": "Mathematic", "credit_hours": 3, "stage_number": 1, "semester_num": 1}, {"id": 260, "name_ar": "الصحة واللياقة", "name_en": "Health and Fitness", "credit_hours": 2, "stage_number": 1, "semester_num": 1}, {"id": 119, "name_ar": "مهارات الحاسوب", "name_en": "Computer Skills", "credit_hours": 2, "stage_number": 1, "semester_num": 1}, {"id": 262, "name_ar": "الإنكليزي 2", "name_en": "English II", "credit_hours": 2, "stage_number": 1, "semester_num": 2}, {"id": 2, "name_ar": "البرمجة 2", "name_en": "Programming II", "credit_hours": 4, "stage_number": 1, "semester_num": 2}, {"id": 3, "name_ar": "التصميم المنطقي", "name_en": "Logic Design", "credit_hours": 3, "stage_number": 1, "semester_num": 2}, {"id": 118, "name_ar": "الهياكل المتقطعة", "name_en": "Discrete Structures", "credit_hours": 3, "stage_number": 1, "semester_num": 2}, {"id": 5, "name_ar": "تطبيقات الحاسوب", "name_en": "Computer Applications", "credit_hours": 2, "stage_number": 1, "semester_num": 2}, {"id": 263, "name_ar": "مبادئ تكنولوجيا المعلومات", "name_en": "Principle of Information Technology", "credit_hours": 3, "stage_number": 1, "semester_num": 2}, {"id": 265, "name_ar": "البرمجة الكيانية 1", "name_en": "Object-oriented Programming I", "credit_hours": 3, "stage_number": 2, "semester_num": 1}, {"id": 266, "name_ar": "الرسم بالحاسوب", "name_en": "Computer Graphics", "credit_hours": 3, "stage_number": 2, "semester_num": 1}, {"id": 269, "name_ar": "العربي", "name_en": "Arabic", "credit_hours": 2, "stage_number": 2, "semester_num": 1}, {"id": 267, "name_ar": "المعالجات المايكروية", "name_en": "Microprocessors", "credit_hours": 3, "stage_number": 2, "semester_num": 1}, {"id": 268, "name_ar": "تحليل وتصميم النظم", "name_en": "Systems Analysis and Design", "credit_hours": 3, "stage_number": 2, "semester_num": 1}, {"id": 121, "name_ar": "نظرية الاحتمالات و الإحصاء", "name_en": "Probability and Statistics", "credit_hours": 3, "stage_number": 2, "semester_num": 1}, {"id": 270, "name_ar": "البرمجة الكيانية 2", "name_en": "Object-oriented Programming II", "credit_hours": 3, "stage_number": 2, "semester_num": 2}, {"id": 7, "name_ar": "البرمجة المرئية", "name_en": "Visual Programming ", "credit_hours": 3, "stage_number": 2, "semester_num": 2}, {"id": 10, "name_ar": "النظرية الاحتسابية", "name_en": "Computation Theory", "credit_hours": 3, "stage_number": 2, "semester_num": 2}, {"id": 123, "name_ar": "طرق عددية", "name_en": "Numerical Methods", "credit_hours": 3, "stage_number": 2, "semester_num": 2}, {"id": 271, "name_ar": "قواعد البيانات", "name_en": "Database", "credit_hours": 3, "stage_number": 2, "semester_num": 2}, {"id": 8, "name_ar": "هياكل البيانات 1", "name_en": "Data Structures I", "credit_hours": 3, "stage_number": 2, "semester_num": 2}, {"id": 272, "name_ar": "الذكاء الاصطناعي", "name_en": "Artificial Intelligence", "credit_hours": 3, "stage_number": 3, "semester_num": 1}, {"id": 273, "name_ar": "برمجة المواقع 1", "name_en": "Web Programming I", "credit_hours": 3, "stage_number": 3, "semester_num": 1}, {"id": 16, "name_ar": "شبكات الحاسوب 1", "name_en": "Computer Networks I", "credit_hours": 3, "stage_number": 3, "semester_num": 1}, {"id": 274, "name_ar": "مفاهيم لغات البرمجة", "name_en": "Concepts of Programming Languages", "credit_hours": 2, "stage_number": 3, "semester_num": 1}, {"id": 13, "name_ar": "هندسة البرامجيات", "name_en": "Software Engineering", "credit_hours": 3, "stage_number": 3, "semester_num": 1}, {"id": 25, "name_ar": "هياكل البيانات 2", "name_en": "Data Structures II", "credit_hours": 3, "stage_number": 3, "semester_num": 1}, {"id": 120, "name_ar": "أخلاقيات الحاسوب", "name_en": "Computer Ethics", "credit_hours": 2, "stage_number": 3, "semester_num": 2}, {"id": 15, "name_ar": "المترجمات", "name_en": "Compilers", "credit_hours": 4, "stage_number": 3, "semester_num": 2}, {"id": 276, "name_ar": "بحوث العمليات", "name_en": "Operations Researches", "credit_hours": 3, "stage_number": 3, "semester_num": 2}, {"id": 275, "name_ar": "برمجة المواقع 2", "name_en": "Web Programming II", "credit_hours": 3, "stage_number": 3, "semester_num": 2}, {"id": 17, "name_ar": "شبكات الحاسوب 2", "name_en": "Computer Networks II", "credit_hours": 3, "stage_number": 3, "semester_num": 2}, {"id": 277, "name_ar": "معمارية الحاسوب", "name_en": "Computer Architecture", "credit_hours": 3, "stage_number": 3, "semester_num": 2}, {"id": 34, "name_ar": "التنقيب عن البيانات", "name_en": "Data Mining", "credit_hours": 2, "stage_number": 4, "semester_num": 1}, {"id": 37, "name_ar": "الحوسبة السحابية", "name_en": "Cloud Computing", "credit_hours": 2, "stage_number": 4, "semester_num": 1}, {"id": 36, "name_ar": "الذكاء الحاسوبي", "name_en": "Computational Intelligence", "credit_hours": 3, "stage_number": 4, "semester_num": 1}, {"id": 29, "name_ar": "الرؤية في الحاسوب", "name_en": "Computer Vision", "credit_hours": 3, "stage_number": 4, "semester_num": 1}, {"id": 38, "name_ar": "تطبيقات النقال", "name_en": "Mobile Applications", "credit_hours": 3, "stage_number": 4, "semester_num": 1}, {"id": 278, "name_ar": "مشروع التخرج", "name_en": "Graduation Project", "credit_hours": 2, "stage_number": 4, "semester_num": 1}, {"id": 19, "name_ar": "نظم التشغيل", "name_en": "Operating Systems", "credit_hours": 3, "stage_number": 4, "semester_num": 1}, {"id": 281, "name_ar": "المحاكاة بالحاسوب", "name_en": "Computer Simulation", "credit_hours": 3, "stage_number": 4, "semester_num": 2}, {"id": 279, "name_ar": "امنية الحاسوب", "name_en": "Computer Security", "credit_hours": 3, "stage_number": 4, "semester_num": 2}, {"id": 280, "name_ar": "تفاعل الانسان مع الحاسوب", "name_en": "Human-Computer Interaction", "credit_hours": 3, "stage_number": 4, "semester_num": 2}, {"id": 42, "name_ar": "مهارات الاتصال", "name_en": "Communication Skills", "credit_hours": 2, "stage_number": 4, "semester_num": 2}, {"id": 41, "name_ar": "مواضيع مختارة", "name_en": "Selected Topics", "credit_hours": 3, "stage_number": 4, "semester_num": 2}, {"id": 283, "name_ar": "هندسة المعرفة", "name_en": "Knowledge Engineering", "credit_hours": 3, "stage_number": 4, "semester_num": 2}]','2026-10-07 06:42:18');
+INSERT INTO "read_cache" VALUES('d8f4dd2f6111838e047fccc94d1b74f61a60e1b67f970b03178f18434a7678f3','[{"id": 258, "name_ar": "الإنكليزي 1", "name_en": "English I", "credit_hours": 2, "stage_number": 1, "semester_num": 1}, {"id": 1, "name_ar": "البرمجة 1", "name_en": "Programming I", "credit_hours": 4, "stage_number": 1, "semester_num": 1}, {"id": 259, "name_ar": "الديمقراطية وحقوق الانسان", "name_en": "Democracy and Human Rights", "credit_hours": 2, "stage_number": 1, "semester_num": 1}, {"id": 256, "name_ar": "الرياضيات", "name_en": "Mathematic", "credit_hours": 3, "stage_number": 1, "semester_num": 1}, {"id": 260, "name_ar": "الصحة واللياقة", "name_en": "Health and Fitness", "credit_hours": 2, "stage_number": 1, "semester_num": 1}, {"id": 119, "name_ar": "مهارات الحاسوب", "name_en": "Computer Skills", "credit_hours": 2, "stage_number": 1, "semester_num": 1}, {"id": 262, "name_ar": "الإنكليزي 2", "name_en": "English II", "credit_hours": 2, "stage_number": 1, "semester_num": 2}, {"id": 2, "name_ar": "البرمجة 2", "name_en": "Programming II", "credit_hours": 4, "stage_number": 1, "semester_num": 2}, {"id": 3, "name_ar": "التصميم المنطقي", "name_en": "Logic Design", "credit_hours": 3, "stage_number": 1, "semester_num": 2}, {"id": 118, "name_ar": "الهياكل المتقطعة", "name_en": "Discrete Structures", "credit_hours": 3, "stage_number": 1, "semester_num": 2}, {"id": 5, "name_ar": "تطبيقات الحاسوب", "name_en": "Computer Applications", "credit_hours": 2, "stage_number": 1, "semester_num": 2}, {"id": 263, "name_ar": "مبادئ تكنولوجيا المعلومات", "name_en": "Principle of Information Technology", "credit_hours": 3, "stage_number": 1, "semester_num": 2}, {"id": 265, "name_ar": "البرمجة الكيانية 1", "name_en": "Object-oriented Programming I", "credit_hours": 3, "stage_number": 2, "semester_num": 1}, {"id": 266, "name_ar": "الرسم بالحاسوب", "name_en": "Computer Graphics", "credit_hours": 3, "stage_number": 2, "semester_num": 1}, {"id": 269, "name_ar": "العربي", "name_en": "Arabic", "credit_hours": 2, "stage_number": 2, "semester_num": 1}, {"id": 267, "name_ar": "المعالجات المايكروية", "name_en": "Microprocessors", "credit_hours": 3, "stage_number": 2, "semester_num": 1}, {"id": 268, "name_ar": "تحليل وتصميم النظم", "name_en": "Systems Analysis and Design", "credit_hours": 3, "stage_number": 2, "semester_num": 1}, {"id": 121, "name_ar": "نظرية الاحتمالات و الإحصاء", "name_en": "Probability and Statistics", "credit_hours": 3, "stage_number": 2, "semester_num": 1}, {"id": 270, "name_ar": "البرمجة الكيانية 2", "name_en": "Object-oriented Programming II", "credit_hours": 3, "stage_number": 2, "semester_num": 2}, {"id": 7, "name_ar": "البرمجة المرئية", "name_en": "Visual Programming ", "credit_hours": 3, "stage_number": 2, "semester_num": 2}, {"id": 10, "name_ar": "النظرية الاحتسابية", "name_en": "Computation Theory", "credit_hours": 3, "stage_number": 2, "semester_num": 2}, {"id": 123, "name_ar": "طرق عددية", "name_en": "Numerical Methods", "credit_hours": 3, "stage_number": 2, "semester_num": 2}, {"id": 271, "name_ar": "قواعد البيانات", "name_en": "Database", "credit_hours": 3, "stage_number": 2, "semester_num": 2}, {"id": 8, "name_ar": "هياكل البيانات 1", "name_en": "Data Structures I", "credit_hours": 3, "stage_number": 2, "semester_num": 2}, {"id": 272, "name_ar": "الذكاء الاصطناعي", "name_en": "Artificial Intelligence", "credit_hours": 3, "stage_number": 3, "semester_num": 1}, {"id": 273, "name_ar": "برمجة المواقع 1", "name_en": "Web Programming I", "credit_hours": 3, "stage_number": 3, "semester_num": 1}, {"id": 16, "name_ar": "شبكات الحاسوب 1", "name_en": "Computer Networks I", "credit_hours": 3, "stage_number": 3, "semester_num": 1}, {"id": 274, "name_ar": "مفاهيم لغات البرمجة", "name_en": "Concepts of Programming Languages", "credit_hours": 2, "stage_number": 3, "semester_num": 1}, {"id": 13, "name_ar": "هندسة البرامجيات", "name_en": "Software Engineering", "credit_hours": 3, "stage_number": 3, "semester_num": 1}, {"id": 25, "name_ar": "هياكل البيانات 2", "name_en": "Data Structures II", "credit_hours": 3, "stage_number": 3, "semester_num": 1}, {"id": 120, "name_ar": "أخلاقيات الحاسوب", "name_en": "Computer Ethics", "credit_hours": 2, "stage_number": 3, "semester_num": 2}, {"id": 15, "name_ar": "المترجمات", "name_en": "Compilers", "credit_hours": 4, "stage_number": 3, "semester_num": 2}, {"id": 276, "name_ar": "بحوث العمليات", "name_en": "Operations Researches", "credit_hours": 3, "stage_number": 3, "semester_num": 2}, {"id": 275, "name_ar": "برمجة المواقع 2", "name_en": "Web Programming II", "credit_hours": 3, "stage_number": 3, "semester_num": 2}, {"id": 17, "name_ar": "شبكات الحاسوب 2", "name_en": "Computer Networks II", "credit_hours": 3, "stage_number": 3, "semester_num": 2}, {"id": 277, "name_ar": "معمارية الحاسوب", "name_en": "Computer Architecture", "credit_hours": 3, "stage_number": 3, "semester_num": 2}, {"id": 34, "name_ar": "التنقيب عن البيانات", "name_en": "Data Mining", "credit_hours": 2, "stage_number": 4, "semester_num": 1}, {"id": 37, "name_ar": "الحوسبة السحابية", "name_en": "Cloud Computing", "credit_hours": 2, "stage_number": 4, "semester_num": 1}, {"id": 36, "name_ar": "الذكاء الحاسوبي", "name_en": "Computational Intelligence", "credit_hours": 3, "stage_number": 4, "semester_num": 1}, {"id": 29, "name_ar": "الرؤية في الحاسوب", "name_en": "Computer Vision", "credit_hours": 3, "stage_number": 4, "semester_num": 1}, {"id": 38, "name_ar": "تطبيقات النقال", "name_en": "Mobile Applications", "credit_hours": 3, "stage_number": 4, "semester_num": 1}, {"id": 278, "name_ar": "مشروع التخرج", "name_en": "Graduation Project", "credit_hours": 2, "stage_number": 4, "semester_num": 1}, {"id": 19, "name_ar": "نظم التشغيل", "name_en": "Operating Systems", "credit_hours": 3, "stage_number": 4, "semester_num": 1}, {"id": 281, "name_ar": "المحاكاة بالحاسوب", "name_en": "Computer Simulation", "credit_hours": 3, "stage_number": 4, "semester_num": 2}, {"id": 279, "name_ar": "امنية الحاسوب", "name_en": "Computer Security", "credit_hours": 3, "stage_number": 4, "semester_num": 2}, {"id": 280, "name_ar": "تفاعل الانسان مع الحاسوب", "name_en": "Human-Computer Interaction", "credit_hours": 3, "stage_number": 4, "semester_num": 2}, {"id": 42, "name_ar": "مهارات الاتصال", "name_en": "Communication Skills", "credit_hours": 2, "stage_number": 4, "semester_num": 2}, {"id": 41, "name_ar": "مواضيع مختارة", "name_en": "Selected Topics", "credit_hours": 3, "stage_number": 4, "semester_num": 2}, {"id": 283, "name_ar": "هندسة المعرفة", "name_en": "Knowledge Engineering", "credit_hours": 3, "stage_number": 4, "semester_num": 2}]','2026-10-07 06:42:20');
+INSERT INTO "read_cache" VALUES('5a97924478c3ae16c9579220ceaf71ddcf2e3d0c8f7902fc9458d8c145d38fd2','[{"period_id": 33, "routine_id": 3, "stage_number": 1, "semester_num": 1}, {"period_id": 34, "routine_id": 3, "stage_number": 1, "semester_num": 2}, {"period_id": 35, "routine_id": 3, "stage_number": 2, "semester_num": 1}, {"period_id": 36, "routine_id": 3, "stage_number": 2, "semester_num": 2}, {"period_id": 37, "routine_id": 3, "stage_number": 3, "semester_num": 1}, {"period_id": 38, "routine_id": 3, "stage_number": 3, "semester_num": 2}, {"period_id": 39, "routine_id": 3, "stage_number": 4, "semester_num": 1}, {"period_id": 40, "routine_id": 3, "stage_number": 4, "semester_num": 2}]','2026-10-07 06:42:20');
+INSERT INTO "read_cache" VALUES('aef1a4846a18a493c875a3b7527f873f22eae9eb1c496e67169d30914cc86bfb','[{"period_id": 9, "routine_id": 2, "stage_number": 1, "semester_num": 1}, {"period_id": 10, "routine_id": 2, "stage_number": 1, "semester_num": 2}, {"period_id": 11, "routine_id": 2, "stage_number": 2, "semester_num": 1}, {"period_id": 12, "routine_id": 2, "stage_number": 2, "semester_num": 2}, {"period_id": 13, "routine_id": 2, "stage_number": 3, "semester_num": 1}, {"period_id": 14, "routine_id": 2, "stage_number": 3, "semester_num": 2}, {"period_id": 15, "routine_id": 2, "stage_number": 4, "semester_num": 1}, {"period_id": 16, "routine_id": 2, "stage_number": 4, "semester_num": 2}]','2026-10-07 06:43:28');
+INSERT INTO "read_cache" VALUES('74cd3da8011d79461ca4e7590a79269b63fc666ac88a973e09fa171f5222a108','[{"mapping_id": 9, "period_id": 9, "course_id": 258, "course_name_ar": "الإنكليزي 1", "course_name_en": "English I", "credit_hours": 2}, {"mapping_id": 6, "period_id": 9, "course_id": 1, "course_name_ar": "البرمجة 1", "course_name_en": "Programming I", "credit_hours": 4}, {"mapping_id": 10, "period_id": 9, "course_id": 259, "course_name_ar": "الديمقراطية وحقوق الانسان", "course_name_en": "Democracy and Human Rights", "credit_hours": 2}, {"mapping_id": 7, "period_id": 9, "course_id": 256, "course_name_ar": "الرياضيات", "course_name_en": "Mathematic", "credit_hours": 3}, {"mapping_id": 11, "period_id": 9, "course_id": 260, "course_name_ar": "الصحة واللياقة", "course_name_en": "Health and Fitness", "credit_hours": 2}, {"mapping_id": 8, "period_id": 9, "course_id": 119, "course_name_ar": "مهارات الحاسوب", "course_name_en": "Computer Skills", "credit_hours": 2}]','2026-10-07 06:43:45');
 CREATE TABLE settings (id INTEGER PRIMARY KEY, theme, accent_color, font_family, font_size_base, is_arabic_rtl, EMP_ID INTEGER);
 INSERT INTO "settings" VALUES(1,'System','blue','Arial',15,1,1);
 INSERT INTO "settings" VALUES(2,'Dark','blue','Arial',14,1,2);
@@ -5999,12 +6050,111 @@ INSERT INTO "students" VALUES(2123,'محمد محمود عدنان','',0,274,'20
 INSERT INTO "students" VALUES(2124,'في عيسى عبد الحسين ابراهيم','',0,274,'2000-01-01',2,NULL,2,0,2,'2018','2025-07-23','second',61.019,119,90,169,NULL);
 INSERT INTO "students" VALUES(2136,'تست تست تست تست','test test test test',1,274,'1995-05-05',2,NULL,1,1,2,'2021','2025-12-05','first',95.0,127,2,23,'2024');
 INSERT INTO "students" VALUES(2137,'حسن نور حسين نور','hassan noor hussain noor',1,274,'2003-01-01',2,NULL,1,1,2,'2021-20-2','2025-10-13','second',56.895,128,156,169,'2022-2023');
+INSERT INTO "students" VALUES(2138,'test2','tset2',1,274,'1999-02-05',2,NULL,1,1,2,'2020','2025-02-20','first',90.0,127,25,120,'2024-2025');
 CREATE TABLE study_routine_courses (
                 id              INTEGER PRIMARY KEY AUTOINCREMENT,
-                routine_id      INTEGER NOT NULL,
+                period_id       INTEGER NOT NULL,
                 course_id       INTEGER NOT NULL,
-                UNIQUE(routine_id, course_id)
+                UNIQUE(period_id, course_id)
             );
+INSERT INTO "study_routine_courses" VALUES(6,9,1);
+INSERT INTO "study_routine_courses" VALUES(7,9,256);
+INSERT INTO "study_routine_courses" VALUES(8,9,119);
+INSERT INTO "study_routine_courses" VALUES(9,9,258);
+INSERT INTO "study_routine_courses" VALUES(10,9,259);
+INSERT INTO "study_routine_courses" VALUES(11,9,260);
+INSERT INTO "study_routine_courses" VALUES(12,10,2);
+INSERT INTO "study_routine_courses" VALUES(13,10,3);
+INSERT INTO "study_routine_courses" VALUES(14,10,262);
+INSERT INTO "study_routine_courses" VALUES(15,10,118);
+INSERT INTO "study_routine_courses" VALUES(16,10,263);
+INSERT INTO "study_routine_courses" VALUES(17,10,5);
+INSERT INTO "study_routine_courses" VALUES(18,11,265);
+INSERT INTO "study_routine_courses" VALUES(19,11,266);
+INSERT INTO "study_routine_courses" VALUES(20,11,267);
+INSERT INTO "study_routine_courses" VALUES(21,11,268);
+INSERT INTO "study_routine_courses" VALUES(24,11,269);
+INSERT INTO "study_routine_courses" VALUES(25,11,121);
+INSERT INTO "study_routine_courses" VALUES(26,12,270);
+INSERT INTO "study_routine_courses" VALUES(27,12,7);
+INSERT INTO "study_routine_courses" VALUES(28,12,10);
+INSERT INTO "study_routine_courses" VALUES(30,12,271);
+INSERT INTO "study_routine_courses" VALUES(31,12,8);
+INSERT INTO "study_routine_courses" VALUES(32,12,123);
+INSERT INTO "study_routine_courses" VALUES(33,13,272);
+INSERT INTO "study_routine_courses" VALUES(34,13,13);
+INSERT INTO "study_routine_courses" VALUES(35,13,273);
+INSERT INTO "study_routine_courses" VALUES(36,13,16);
+INSERT INTO "study_routine_courses" VALUES(37,13,25);
+INSERT INTO "study_routine_courses" VALUES(38,13,274);
+INSERT INTO "study_routine_courses" VALUES(39,14,15);
+INSERT INTO "study_routine_courses" VALUES(40,14,17);
+INSERT INTO "study_routine_courses" VALUES(41,14,275);
+INSERT INTO "study_routine_courses" VALUES(42,14,276);
+INSERT INTO "study_routine_courses" VALUES(43,14,120);
+INSERT INTO "study_routine_courses" VALUES(44,14,277);
+INSERT INTO "study_routine_courses" VALUES(45,15,34);
+INSERT INTO "study_routine_courses" VALUES(46,15,278);
+INSERT INTO "study_routine_courses" VALUES(47,15,19);
+INSERT INTO "study_routine_courses" VALUES(48,15,29);
+INSERT INTO "study_routine_courses" VALUES(49,15,37);
+INSERT INTO "study_routine_courses" VALUES(50,15,38);
+INSERT INTO "study_routine_courses" VALUES(51,15,36);
+INSERT INTO "study_routine_courses" VALUES(52,16,41);
+INSERT INTO "study_routine_courses" VALUES(53,16,42);
+INSERT INTO "study_routine_courses" VALUES(54,16,283);
+INSERT INTO "study_routine_courses" VALUES(55,16,280);
+INSERT INTO "study_routine_courses" VALUES(56,16,279);
+INSERT INTO "study_routine_courses" VALUES(57,16,281);
+INSERT INTO "study_routine_courses" VALUES(58,33,1);
+INSERT INTO "study_routine_courses" VALUES(59,33,119);
+INSERT INTO "study_routine_courses" VALUES(60,33,256);
+INSERT INTO "study_routine_courses" VALUES(61,33,258);
+INSERT INTO "study_routine_courses" VALUES(62,33,259);
+INSERT INTO "study_routine_courses" VALUES(63,33,260);
+INSERT INTO "study_routine_courses" VALUES(65,34,2);
+INSERT INTO "study_routine_courses" VALUES(66,34,3);
+INSERT INTO "study_routine_courses" VALUES(67,34,5);
+INSERT INTO "study_routine_courses" VALUES(68,34,118);
+INSERT INTO "study_routine_courses" VALUES(69,34,262);
+INSERT INTO "study_routine_courses" VALUES(70,34,263);
+INSERT INTO "study_routine_courses" VALUES(72,35,121);
+INSERT INTO "study_routine_courses" VALUES(73,35,265);
+INSERT INTO "study_routine_courses" VALUES(74,35,266);
+INSERT INTO "study_routine_courses" VALUES(75,35,267);
+INSERT INTO "study_routine_courses" VALUES(76,35,268);
+INSERT INTO "study_routine_courses" VALUES(77,35,269);
+INSERT INTO "study_routine_courses" VALUES(79,36,7);
+INSERT INTO "study_routine_courses" VALUES(80,36,8);
+INSERT INTO "study_routine_courses" VALUES(81,36,10);
+INSERT INTO "study_routine_courses" VALUES(82,36,123);
+INSERT INTO "study_routine_courses" VALUES(83,36,270);
+INSERT INTO "study_routine_courses" VALUES(84,36,271);
+INSERT INTO "study_routine_courses" VALUES(86,37,13);
+INSERT INTO "study_routine_courses" VALUES(87,37,16);
+INSERT INTO "study_routine_courses" VALUES(88,37,25);
+INSERT INTO "study_routine_courses" VALUES(89,37,272);
+INSERT INTO "study_routine_courses" VALUES(90,37,273);
+INSERT INTO "study_routine_courses" VALUES(91,37,274);
+INSERT INTO "study_routine_courses" VALUES(93,38,15);
+INSERT INTO "study_routine_courses" VALUES(94,38,17);
+INSERT INTO "study_routine_courses" VALUES(95,38,120);
+INSERT INTO "study_routine_courses" VALUES(96,38,275);
+INSERT INTO "study_routine_courses" VALUES(97,38,276);
+INSERT INTO "study_routine_courses" VALUES(98,38,277);
+INSERT INTO "study_routine_courses" VALUES(100,39,19);
+INSERT INTO "study_routine_courses" VALUES(101,39,29);
+INSERT INTO "study_routine_courses" VALUES(102,39,34);
+INSERT INTO "study_routine_courses" VALUES(103,39,36);
+INSERT INTO "study_routine_courses" VALUES(104,39,37);
+INSERT INTO "study_routine_courses" VALUES(105,39,38);
+INSERT INTO "study_routine_courses" VALUES(106,39,278);
+INSERT INTO "study_routine_courses" VALUES(107,40,41);
+INSERT INTO "study_routine_courses" VALUES(108,40,42);
+INSERT INTO "study_routine_courses" VALUES(109,40,279);
+INSERT INTO "study_routine_courses" VALUES(110,40,280);
+INSERT INTO "study_routine_courses" VALUES(111,40,281);
+INSERT INTO "study_routine_courses" VALUES(112,40,283);
 CREATE TABLE study_routine_period (
                 id              INTEGER PRIMARY KEY AUTOINCREMENT,
                 routine_id      INTEGER NOT NULL,
@@ -6052,39 +6202,28 @@ CREATE TABLE sync_queue (
                 payload     TEXT    NOT NULL,
                 created_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             );
-INSERT INTO "sync_queue" VALUES(2,'issued_certificates','INSERT',-3,'{"student_id": 2137, "to_title": "من يهمه الأمر", "template_type": "year - Temp - Ar - D - SBS", "issue_date": "2026-09-02", "id": -3}','2026-09-02 07:30:10');
-INSERT INTO "sync_queue" VALUES(3,'issued_certificates','INSERT',-4,'{"student_id": 2137, "to_title": "من يهمه الأمر", "template_type": "year - Temp - Ar - D - SBS", "issue_date": "2026-09-20", "id": -4}','2026-09-20 07:32:58');
-INSERT INTO "sync_queue" VALUES(4,'issued_certificates','INSERT',-5,'{"student_id": 2137, "to_title": "من يهمه الأمر", "template_type": "year - Temp - Ar - D - SBS", "issue_date": "2026-09-20", "id": -5}','2026-09-20 08:05:22');
-INSERT INTO "sync_queue" VALUES(5,'issued_certificates','INSERT',-6,'{"student_id": 2137, "to_title": "من يهمه الأمر", "template_type": "year - Temp - Ar - D - SBS", "issue_date": "2026-09-20", "id": -6}','2026-09-20 08:53:21');
-INSERT INTO "sync_queue" VALUES(6,'issued_certificates','INSERT',-7,'{"student_id": 2137, "to_title": "من يهمه الأمر", "template_type": "year - Temp - Ar - D - SBS", "issue_date": "2026-09-20", "id": -7}','2026-09-20 11:13:51');
-INSERT INTO "sync_queue" VALUES(7,'issued_certificates','INSERT',-8,'{"student_id": 2137, "to_title": "من يهمه الأمر", "template_type": "year - Temp - Ar - D - SBS", "issue_date": "2026-09-20", "id": -8}','2026-09-20 11:15:09');
-INSERT INTO "sync_queue" VALUES(8,'issued_certificates','INSERT',-9,'{"student_id": 2137, "to_title": "من يهمه الأمر", "template_type": "year - Temp - Ar - D - SBS", "issue_date": "2026-09-22", "id": -9}','2026-09-22 08:53:14');
-INSERT INTO "sync_queue" VALUES(9,'issued_certificates','INSERT',-10,'{"student_id": 2137, "to_title": "من يهمه الأمر", "template_type": "year - Temp - Ar - D - SBS", "issue_date": "2026-09-22", "id": -10}','2026-09-22 08:58:25');
-INSERT INTO "sync_queue" VALUES(10,'issued_certificates','INSERT',-11,'{"student_id": 2137, "to_title": "من يهمه الأمر", "template_type": "year - Temp - Ar - D - SBS", "issue_date": "2026-09-22", "id": -11}','2026-09-22 09:45:37');
-INSERT INTO "sync_queue" VALUES(11,'issued_certificates','INSERT',-12,'{"student_id": 2137, "to_title": "من يهمه الأمر", "template_type": "year - Temp - Ar - D - SBS", "issue_date": "2026-09-22", "id": -12}','2026-09-22 10:13:55');
-INSERT INTO "sync_queue" VALUES(12,'issued_certificates','INSERT',-13,'{"student_id": 2137, "to_title": "من يهمه الأمر", "template_type": "year - Temp - En - D - SBS", "issue_date": "2026-09-22", "id": -13}','2026-09-22 10:15:19');
-INSERT INTO "sync_queue" VALUES(13,'issued_certificates','INSERT',-14,'{"student_id": 2010, "to_title": "من يهمه الأمر", "template_type": "semester - Temp - Ar - D - SBS", "issue_date": "2026-09-22", "id": -14}','2026-09-22 10:30:19');
-INSERT INTO "sync_queue" VALUES(14,'issued_certificates','INSERT',-15,'{"student_id": 2010, "to_title": "من يهمه الأمر", "template_type": "semester - Temp - Ar - D - SBS", "issue_date": "2026-09-22", "id": -15}','2026-09-22 10:31:20');
-INSERT INTO "sync_queue" VALUES(15,'issued_certificates','INSERT',-16,'{"student_id": 2010, "to_title": "من يهمه الأمر", "template_type": "semester - Temp - Ar - D - SBS", "issue_date": "2026-09-22", "id": -16}','2026-09-22 11:03:47');
-INSERT INTO "sync_queue" VALUES(16,'issued_certificates','INSERT',-17,'{"student_id": 2010, "to_title": "من يهمه الأمر", "template_type": "semester - Temp - Ar - D - SBS", "issue_date": "2026-09-22", "id": -17}','2026-09-22 11:05:03');
-INSERT INTO "sync_queue" VALUES(17,'issued_certificates','INSERT',-18,'{"student_id": 2010, "to_title": "من يهمه الأمر", "template_type": "semester - Temp - En - D - SBS", "issue_date": "2026-09-22", "id": -18}','2026-09-22 11:06:12');
-INSERT INTO "sync_queue" VALUES(18,'issued_certificates','INSERT',-19,'{"student_id": 2010, "to_title": "من يهمه الأمر", "template_type": "semester - Temp - En - D - SBS", "issue_date": "2026-09-22", "id": -19}','2026-09-22 11:08:21');
-INSERT INTO "sync_queue" VALUES(19,'issued_certificates','INSERT',-20,'{"student_id": 12, "to_title": "من يهمه الأمر", "template_type": "year - Temp - Ar - D - SBS", "issue_date": "2026-09-22", "id": -20}','2026-09-22 11:12:36');
-INSERT INTO "sync_queue" VALUES(20,'issued_certificates','INSERT',-21,'{"student_id": 2137, "to_title": "من يهمه الأمر", "template_type": "year - Temp - Ar - D - SBS", "issue_date": "2026-09-22", "id": -21}','2026-09-22 11:13:10');
-INSERT INTO "sync_queue" VALUES(21,'issued_certificates','INSERT',-22,'{"student_id": 2137, "to_title": "من يهمه الأمر", "template_type": "year - Temp - Ar - D - SBS", "issue_date": "2026-09-23", "id": -22}','2026-09-23 05:58:20');
-INSERT INTO "sync_queue" VALUES(22,'issued_certificates','INSERT',-23,'{"student_id": 2137, "to_title": "من يهمه الأمر", "template_type": "year - Temp - Ar - D - SBS", "issue_date": "2026-09-23", "id": -23}','2026-09-23 07:05:44');
-INSERT INTO "sync_queue" VALUES(23,'issued_certificates','INSERT',-24,'{"student_id": 2137, "to_title": "من يهمه الأمر", "template_type": "year - Temp - Ar - D - SBS", "issue_date": "2026-09-23", "id": -24}','2026-09-23 07:44:10');
-INSERT INTO "sync_queue" VALUES(24,'issued_certificates','INSERT',-25,'{"student_id": 2137, "to_title": "من يهمه الأمر", "template_type": "year - Temp - Ar - D - SBS", "issue_date": "2026-09-24", "id": -25}','2026-09-24 07:14:40');
-INSERT INTO "sync_queue" VALUES(25,'issued_certificates','INSERT',-26,'{"student_id": 2137, "to_title": "من يهمه الأمر", "template_type": "year - Temp - En - D - SBS", "issue_date": "2026-09-24", "id": -26}','2026-09-24 07:15:17');
-INSERT INTO "sync_queue" VALUES(26,'issued_certificates','INSERT',-999,'{"student_id": 1, "to_title": "Test Certificate", "template_type": "ARABIC", "issue_date": "2026-09-24"}','2026-09-24 07:33:15');
-INSERT INTO "sync_queue" VALUES(27,'issued_certificates','INSERT',-999,'{"student_id": 1, "to_title": "Test Certificate", "template_type": "ARABIC", "issue_date": "2026-09-24"}','2026-09-24 07:36:18');
-INSERT INTO "sync_queue" VALUES(28,'issued_certificates','INSERT',-27,'{"student_id": 2137, "to_title": "من يهمه الأمر", "template_type": "year - Temp - Ar - D - SBS", "issue_date": "2026-09-24", "id": -27}','2026-09-24 09:01:21');
-INSERT INTO "sync_queue" VALUES(29,'issued_certificates','INSERT',-28,'{"student_id": 2137, "to_title": "من يهمه الأمر", "template_type": "year - Temp - En - D - SBS", "issue_date": "2026-09-24", "id": -28}','2026-09-24 09:02:16');
+INSERT INTO "sync_queue" VALUES(109,'academic_periods','INSERT',-108,'{"student_id": 2138, "academic_year": "2020-2021", "study_system_id": 1, "stage_number": 1, "semester_num": 1, "result_status": "PASSED", "id": -108}','2026-10-07 06:36:51');
+INSERT INTO "sync_queue" VALUES(110,'academic_periods','INSERT',-109,'{"student_id": 2138, "academic_year": "2020-2021", "study_system_id": 1, "stage_number": 1, "semester_num": 2, "result_status": "PASSED", "id": -109}','2026-10-07 06:36:51');
+INSERT INTO "sync_queue" VALUES(111,'academic_periods','INSERT',-110,'{"student_id": 2138, "academic_year": "2021-2022", "study_system_id": 1, "stage_number": 2, "semester_num": 1, "result_status": "PASSED", "id": -110}','2026-10-07 06:36:51');
+INSERT INTO "sync_queue" VALUES(112,'academic_periods','INSERT',-111,'{"student_id": 2138, "academic_year": "2021-2022", "study_system_id": 1, "stage_number": 2, "semester_num": 2, "result_status": "PASSED", "id": -111}','2026-10-07 06:36:52');
+INSERT INTO "sync_queue" VALUES(113,'academic_periods','INSERT',-112,'{"student_id": 2138, "academic_year": "2022-2023", "study_system_id": 1, "stage_number": 3, "semester_num": 1, "result_status": "PASSED", "id": -112}','2026-10-07 06:36:52');
+INSERT INTO "sync_queue" VALUES(114,'academic_periods','INSERT',-113,'{"student_id": 2138, "academic_year": "2022-2023", "study_system_id": 1, "stage_number": 3, "semester_num": 2, "result_status": "PASSED", "id": -113}','2026-10-07 06:36:52');
+INSERT INTO "sync_queue" VALUES(115,'academic_periods','INSERT',-114,'{"student_id": 2138, "academic_year": "2023-2024", "study_system_id": 1, "stage_number": 4, "semester_num": 1, "result_status": "PASSED", "id": -114}','2026-10-07 06:36:52');
+INSERT INTO "sync_queue" VALUES(116,'academic_periods','INSERT',-115,'{"student_id": 2138, "academic_year": "2023-2024", "study_system_id": 1, "stage_number": 4, "semester_num": 2, "result_status": "PASSED", "id": -115}','2026-10-07 06:36:52');
+INSERT INTO "sync_queue" VALUES(117,'enrollments','INSERT',-116,'{"period_id": 472, "course_id": 118, "score": 0.0, "passed_round": "1", "id": -116}','2026-10-07 06:49:16');
+INSERT INTO "sync_queue" VALUES(118,'enrollments','INSERT',-117,'{"period_id": 472, "course_id": 263, "score": 0.0, "passed_round": "1", "id": -117}','2026-10-07 06:49:16');
+INSERT INTO "sync_queue" VALUES(119,'enrollments','INSERT',-118,'{"period_id": 473, "course_id": 266, "score": 0.0, "passed_round": "1", "id": -118}','2026-10-07 06:49:16');
+INSERT INTO "sync_queue" VALUES(120,'enrollments','INSERT',-119,'{"period_id": 473, "course_id": 268, "score": 0.0, "passed_round": "1", "id": -119}','2026-10-07 06:49:16');
+INSERT INTO "sync_queue" VALUES(121,'enrollments','INSERT',-120,'{"period_id": 474, "course_id": 123, "score": 0.0, "passed_round": "1", "id": -120}','2026-10-07 06:49:16');
+INSERT INTO "sync_queue" VALUES(122,'enrollments','INSERT',-121,'{"period_id": 470, "course_id": 120, "score": 0.0, "passed_round": "1", "id": -121}','2026-10-07 06:49:16');
+INSERT INTO "sync_queue" VALUES(123,'enrollments','INSERT',-122,'{"period_id": 470, "course_id": 276, "score": 0.0, "passed_round": "1", "id": -122}','2026-10-07 06:49:16');
+INSERT INTO "sync_queue" VALUES(124,'enrollments','INSERT',-123,'{"period_id": 477, "course_id": 42, "score": 0.0, "passed_round": "1", "id": -123}','2026-10-07 06:49:16');
+INSERT INTO "sync_queue" VALUES(125,'enrollments','INSERT',-124,'{"period_id": 477, "course_id": 283, "score": 0.0, "passed_round": "1", "id": -124}','2026-10-07 06:49:16');
 CREATE TABLE temp_id_counter (
                 id      INTEGER PRIMARY KEY CHECK (id = 1),
                 last_id INTEGER NOT NULL DEFAULT 0
             );
-INSERT INTO "temp_id_counter" VALUES(1,-28);
+INSERT INTO "temp_id_counter" VALUES(1,-124);
 CREATE TABLE thesis_records (
                 id                 INTEGER PRIMARY KEY,
                 student_id         INTEGER NOT NULL,
@@ -6111,7 +6250,8 @@ CREATE INDEX idx_enrollments_period_id ON enrollments(period_id);
 CREATE INDEX idx_enrollments_course_id ON enrollments(course_id);
 DELETE FROM "sqlite_sequence";
 INSERT INTO "sqlite_sequence" VALUES('study_routines',11);
-INSERT INTO "sqlite_sequence" VALUES('issued_certificates',52);
-INSERT INTO "sqlite_sequence" VALUES('sync_queue',29);
+INSERT INTO "sqlite_sequence" VALUES('issued_certificates',82);
+INSERT INTO "sqlite_sequence" VALUES('sync_queue',125);
 INSERT INTO "sqlite_sequence" VALUES('study_routine_period',48);
+INSERT INTO "sqlite_sequence" VALUES('study_routine_courses',112);
 COMMIT;

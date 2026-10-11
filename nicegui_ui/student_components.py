@@ -535,6 +535,9 @@ class StudentProfileView:
 
     def _render_periods_tab(self, student_id: int):
         """Render reactive academic periods & 3-semester year cards timeline."""
+        if not hasattr(self, "timeline_layout_mode"):
+            self.timeline_layout_mode = "vertical"
+
         student_data = self.repo.get_by_id(student_id) or {}
         adm_year = student_data.get("admission_year")
         sys_id = student_data.get("study_system_id") or 1
@@ -583,7 +586,13 @@ class StudentProfileView:
                         stage_add_sel = UI.select("المرحلة الدراسية / Stage", options=stage_add_opts, value=1).props("dense").style("width: 190px !important;").classes("text-xs shrink-0")
 
                     # Component 3 & 4: Action Buttons (Swapped Order)
-                    with ui.row().classes("items-center gap-2 flex-nowrap shrink-0"):
+                    with ui.row().classes("items-center gap-4 flex-nowrap shrink-0"):
+                        def toggle_layout(e):
+                            self.timeline_layout_mode = "horizontal" if e.value else "vertical"
+                            refresh_timeline()
+
+                        ui.switch("تخطيط أفقي / Horizontal", value=(self.timeline_layout_mode == "horizontal"), on_change=toggle_layout).classes("text-xs font-bold shrink-0")
+                        
                         UI.success_button("إضافة سنة دراسية / Add Academic Year", icon="add", on_click=on_add_year).classes("text-xs px-3 py-2 shrink-0")
                         ui.button(
                             "تطبيق روتين دراسي / Apply Routine",
@@ -617,7 +626,12 @@ class StudentProfileView:
                         enrs = []
                     norm_yr = normalize_year(period.get("academic_year", ""))
                     for enr in enrs:
-                        enr["semester_num"] = period.get("semester_num", 1)
+                        sem_val = period.get("semester_num")
+                        try:
+                            sem_num_int = int(sem_val) if sem_val is not None else 1
+                        except (ValueError, TypeError):
+                            sem_num_int = 1
+                        enr["semester_num"] = sem_num_int
                         enr["academic_year"] = norm_yr
                         enr["period"] = period
                         enrollments_list.append(enr)
@@ -631,20 +645,20 @@ class StudentProfileView:
                     if not stg_val:
                         stg_val = calculate_stage(yr, student_data.get("admission_year"))
 
-                    sem1_enrs = [e for e in enrollments_list if e["academic_year"] == yr and e["semester_num"] == 1]
-                    sem2_enrs = [e for e in enrollments_list if e["academic_year"] == yr and e["semester_num"] == 2]
-                    sem3_enrs = [e for e in enrollments_list if e["academic_year"] == yr and e["semester_num"] == 3]
+                    sem1_enrs = [e for e in enrollments_list if e["academic_year"] == yr and int(e.get("semester_num") or 1) == 1]
+                    sem2_enrs = [e for e in enrollments_list if e["academic_year"] == yr and int(e.get("semester_num") or 1) == 2]
+                    sem3_enrs = [e for e in enrollments_list if e["academic_year"] == yr and int(e.get("semester_num") or 1) == 3]
+
 
                     with UI.card().classes("w-full p-4 gap-4 rounded-xl border border-[var(--border-default)]"):
                         # Card Header with Stage Selector Dropdown
                         with ui.row().classes("w-full justify-between items-center pb-2 app-card-header flex-wrap gap-2"):
                             with ui.row().classes("items-center gap-3"):
-                                ui.icon("calendar_today", size="xs").classes("app-text-accent")
-                                ui.label(f"العام الدراسي  |  Academic Year: {yr}").classes("font-bold text-base app-text-primary")
+                                ui.icon("calendar_today", size="sm").classes("app-text-accent")
+                                ui.label(f"العام الدراسي  |  Academic Year: {yr}").classes("font-extrabold text-2xl app-text-primary")
 
                             # Editable Stage Number Selector Dropdown
                             with ui.row().classes("items-center gap-2"):
-                                ui.label("المرحلة الدراسية:").classes("text-xs font-bold app-text-muted")
                                 stage_card_map = {1: "المرحلة الأولى (1)", 2: "المرحلة الثانية (2)", 3: "المرحلة الثالثة (3)", 4: "المرحلة الرابعة (4)"}
                                 
                                 def make_stage_changer(p_list=yr_periods):
@@ -660,49 +674,285 @@ class StudentProfileView:
                                             log.error(f"Error updating stage: {stg_err}")
                                     return _on_stage_change
 
-                                UI.select("", stage_card_map, value=int(stg_val or 1), on_change=make_stage_changer(yr_periods)).classes("text-xs w-44 shrink-0")
+                                UI.select("المرحلة الدراسية / Stage", stage_card_map, value=int(stg_val or 1), on_change=make_stage_changer(yr_periods)).classes("text-sm w-48 shrink-0 font-bold")
 
-                        # 3 Semester Columns Grid (Responsive without horizontal scrollbar)
-                        with ui.row().classes("w-full gap-3 items-start flex-wrap lg:flex-nowrap"):
-                            # Col 1: Semester 1
-                            self._render_semester_box(
-                                sem_title="الفصل الأول / Term 1" if is_annual else "الفصل الأول / Semester 1",
-                                semester_num=1,
-                                academic_year=yr,
-                                period=next((p for p in yr_periods if p.get("semester_num") == 1), None),
-                                enrollments=sem1_enrs,
-                                student_id=student_id,
-                                student_data=student_data,
-                                refresh_callback=refresh_timeline
-                            )
+                        if self.timeline_layout_mode == "vertical":
+                            # 3 Semester Columns Grid (Responsive without horizontal scrollbar)
+                            with ui.column().classes("w-full gap-5 items-stretch"):
+                                # Col 1: Semester 1
+                                self._render_semester_box_vertical(
+                                    sem_title="الفصل الأول / Term 1" if is_annual else "الفصل الأول / Semester 1",
+                                    semester_num=1,
+                                    academic_year=yr,
+                                    period=next((p for p in yr_periods if p.get("semester_num") == 1), None),
+                                    enrollments=sem1_enrs,
+                                    student_id=student_id,
+                                    student_data=student_data,
+                                    refresh_callback=refresh_timeline
+                                )
 
-                            # Col 2: Semester 2
-                            self._render_semester_box(
-                                sem_title="الفصل الثاني / Term 2" if is_annual else "الفصل الثاني / Semester 2",
-                                semester_num=2,
-                                academic_year=yr,
-                                period=next((p for p in yr_periods if p.get("semester_num") == 2), None),
-                                enrollments=sem2_enrs,
-                                student_id=student_id,
-                                student_data=student_data,
-                                refresh_callback=refresh_timeline
-                            )
+                                # Col 2: Semester 2
+                                self._render_semester_box_vertical(
+                                    sem_title="الفصل الثاني / Term 2" if is_annual else "الفصل الثاني / Semester 2",
+                                    semester_num=2,
+                                    academic_year=yr,
+                                    period=next((p for p in yr_periods if p.get("semester_num") == 2), None),
+                                    enrollments=sem2_enrs,
+                                    student_id=student_id,
+                                    student_data=student_data,
+                                    refresh_callback=refresh_timeline
+                                )
 
-                            # Col 3: Semester 3 (Summer)
-                            self._render_semester_box(
-                                sem_title="الفصل الصيفي / Summer",
-                                semester_num=3,
-                                academic_year=yr,
-                                period=next((p for p in yr_periods if p.get("semester_num") == 3), None),
-                                enrollments=sem3_enrs,
-                                student_id=student_id,
-                                student_data=student_data,
-                                refresh_callback=refresh_timeline
-                            )
+                                # Col 3: Semester 3 (Summer)
+                                self._render_semester_box_vertical(
+                                    sem_title="الفصل الصيفي / Summer",
+                                    semester_num=3,
+                                    academic_year=yr,
+                                    period=next((p for p in yr_periods if p.get("semester_num") == 3), None),
+                                    enrollments=sem3_enrs,
+                                    student_id=student_id,
+                                    student_data=student_data,
+                                    refresh_callback=refresh_timeline
+                                )
+                        else:
+                            # Horizontal View Grid
+                            with ui.row().classes("w-full gap-5 items-stretch flex-nowrap overflow-x-auto pb-4"):
+                                # Col 1: Semester 1
+                                self._render_semester_box_horizontal(
+                                    sem_title="الفصل الأول / Term 1" if is_annual else "الفصل الأول / Semester 1",
+                                    semester_num=1,
+                                    academic_year=yr,
+                                    period=next((p for p in yr_periods if p.get("semester_num") == 1), None),
+                                    enrollments=sem1_enrs,
+                                    student_id=student_id,
+                                    student_data=student_data,
+                                    refresh_callback=refresh_timeline
+                                )
+
+                                # Col 2: Semester 2
+                                self._render_semester_box_horizontal(
+                                    sem_title="الفصل الثاني / Term 2" if is_annual else "الفصل الثاني / Semester 2",
+                                    semester_num=2,
+                                    academic_year=yr,
+                                    period=next((p for p in yr_periods if p.get("semester_num") == 2), None),
+                                    enrollments=sem2_enrs,
+                                    student_id=student_id,
+                                    student_data=student_data,
+                                    refresh_callback=refresh_timeline
+                                )
+
+                                # Col 3: Semester 3 (Summer)
+                                self._render_semester_box_horizontal(
+                                    sem_title="الفصل الصيفي / Summer",
+                                    semester_num=3,
+                                    academic_year=yr,
+                                    period=next((p for p in yr_periods if p.get("semester_num") == 3), None),
+                                    enrollments=sem3_enrs,
+                                    student_id=student_id,
+                                    student_data=student_data,
+                                    refresh_callback=refresh_timeline
+                                )
 
         refresh_timeline()
 
-    def _render_semester_box(
+    def _render_semester_box_vertical(
+        self,
+        sem_title: str,
+        semester_num: int,
+        academic_year: str,
+        period: dict | None,
+        enrollments: list,
+        student_id: int,
+        student_data: dict,
+        refresh_callback
+    ):
+        with ui.column().classes("w-full p-4 rounded-2xl border border-[var(--border-default)] bg-[var(--surface-main)] shadow-sm hover:shadow-md transition-all gap-3"):
+            period_inputs = []
+
+            def save_period_scores():
+                if not period_inputs:
+                    ui.notify("لا توجد مواد لحفظ درجاتها / No courses to save", type="info")
+                    return
+
+                updated_count = 0
+                errors = 0
+                for cur_eid, num_input, select_input in period_inputs:
+                    val = num_input.value
+                    if val is None or val == "":
+                        continue
+                    try:
+                        s_num = float(val)
+                        if not (0 <= s_num <= 100):
+                            ui.notify("الدرجة يجب أن تكون بين 0 و100 / Score must be 0-100", type="warning")
+                            return
+                        r_val = int(select_input.value or "1")
+                        self.enroll_repo.update(cur_eid, s_num, r_val)
+                        updated_count += 1
+                    except Exception as err:
+                        log.error(f"Error saving enrollment {cur_eid}: {err}")
+                        errors += 1
+
+                if updated_count > 0:
+                    ui.notify("تم حفظ درجات الفترة بنجاح / Saved period scores!", type="positive", duration=1.5)
+                    if callable(refresh_callback):
+                        refresh_callback()
+                elif errors > 0:
+                    ui.notify("حدث خطأ أثناء حفظ درجات الفترة", type="negative")
+
+            with ui.column().classes("w-full gap-3 pb-3 border-b border-[var(--border-default)]"):
+                with ui.row().classes("w-full justify-start items-center gap-3"):
+                    ui.label(sem_title).classes("font-extrabold text-xl app-text-accent")
+
+                    if period:
+                        raw_st = period.get("result_status")
+                        cur_status = STATUS_CODE_MAP.get(raw_st, STATUS_CODE_MAP.get(str(raw_st).strip(), "PASSED"))
+                        status_info = RESULT_STATUS_MAP.get(cur_status, RESULT_STATUS_MAP["PASSED"])
+
+                        # Period Status Badge Chip
+                        with ui.row().classes(f"items-center gap-1 px-3 py-1 rounded-full text-sm font-bold {status_info['badge_class']} shadow-sm"):
+                            ui.icon(status_info["icon"], size="16px")
+                            ui.label(f"{status_info['label_ar']} / {status_info['label_en']}")
+
+                if period:
+                    with ui.row().classes("w-full justify-start items-center gap-3"):
+                        # Editable Status Select Dropdown
+                        status_opts = {k: f"{v['label_ar']} / {v['label_en']}" for k, v in RESULT_STATUS_MAP.items()}
+                        def on_status_change(e, p_id=period["id"]):
+                            new_st = e.value if hasattr(e, "value") else e
+                            if new_st:
+                                st_key = STATUS_CODE_MAP.get(new_st, "PASSED")
+                                st_code = STATUS_KEY_TO_CODE.get(st_key, 1)
+                                self.period_repo.update_status(p_id, st_code)
+                                period["result_status"] = st_key
+                                ui.notify(f"تم تغيير حالة الفترة إلى: {RESULT_STATUS_MAP.get(st_key, {}).get('label_ar', st_key)}", type="positive")
+                                refresh_callback()
+
+                        UI.select("النتيجة / Status", status_opts, value=cur_status, on_change=on_status_change).classes("text-sm w-48 shrink-0 font-bold", remove="w-full")
+
+                        UI.secondary_button(
+                            "📝 الدرجات",
+                            on_click=lambda p=period: self.on_manage_courses(p, student_data) if self.on_manage_courses else None
+                        ).classes("text-sm px-4 py-2")
+
+                        ui.button(
+                            icon="save",
+                            color="primary",
+                            on_click=save_period_scores
+                        ).classes("px-4 py-2 shadow-md rounded-lg").tooltip("حفظ / SAVE")
+
+                        def confirm_delete_period(p_id=period["id"]):
+                            with ui.dialog() as dlg, UI.card().classes("p-6 gap-4 w-96 bg-[var(--surface-card)] text-[var(--text-primary)] rounded-2xl border border-[var(--border-default)] shadow-2xl"):
+                                ui.label("تأكيد حذف المرحلة الدراسية / Confirm Delete Period").classes("text-base font-bold text-rose-500")
+                                ui.label(f"هل أنت متأكد من رغبتك في حذف هذا الفصل الدراسي ({sem_title})؟ سيتم حذف كافة المواد والدرجات المرتبطة به ولا يمكن التراجع عن هذا الإجراء.").classes("text-xs text-[var(--text-secondary)] leading-relaxed")
+
+                                with ui.row().classes("w-full justify-end gap-3 mt-2"):
+                                    UI.secondary_button("إلغاء / Cancel", on_click=dlg.close).classes("text-xs px-4 py-2")
+
+                                    def execute_period_delete():
+                                        dlg.close()
+                                        try:
+                                            self.period_repo.delete(p_id)
+                                            ui.notify("تم حذف المرحلة بنجاح / Period deleted", type="positive")
+                                            if callable(refresh_callback):
+                                                refresh_callback()
+                                        except OfflineModeError as err:
+                                            ui.notify(str(err), type="warning")
+                                        except Exception as err:
+                                            log.error(f"Failed to delete academic period {p_id}: {err}")
+                                            ui.notify(f"خطأ في حذف المرحلة: {err}", type="negative")
+
+                                    UI.danger_button("🗑 تأكيد الحذف / Delete", on_click=execute_period_delete).classes("text-xs px-4 py-2 font-bold")
+
+                            dlg.open()
+
+                        ui.button(
+                            icon="delete",
+                            color="negative",
+                            on_click=confirm_delete_period
+                        ).classes("px-4 py-2 rounded-lg").tooltip("حذف المرحلة / Delete")
+                else:
+                    def add_p_and_open():
+                        stage = calculate_stage(academic_year, student_data.get("admission_year"))
+                        sys_id = student_data.get("study_system_id") or 1
+                        try:
+                            pid = self.period_repo.insert(
+                                student_id=student_id,
+                                year=academic_year,
+                                sys_id=sys_id,
+                                stage=stage,
+                                semester_num=semester_num
+                            )
+                            p_data = {"id": pid, "student_id": student_id, "academic_year": academic_year, "stage_number": stage, "semester_num": semester_num, "study_system_id": sys_id}
+                            if self.on_manage_courses:
+                                self.on_manage_courses(p_data, student_data)
+                        except Exception as err:
+                            ui.notify(f"Error: {err}", type="negative")
+
+                    UI.success_button(
+                        "+ إضافة مواد",
+                        on_click=add_p_and_open
+                    ).classes("text-sm px-3 py-1.5")
+
+            # List Enrolled Courses with Arabic and English names (Editable Score & Round)
+            if enrollments:
+                with ui.row().classes("w-full gap-4 mt-3 flex-wrap"):
+                    for enr in enrollments:
+                        enr_id = enr.get("id")
+                        score_val = enr.get("score")
+                        is_failed = False
+                        raw_score = 0.0
+                        if score_val is not None:
+                            try:
+                                raw_score = float(score_val)
+                                if raw_score < 50.0:
+                                    is_failed = True
+                            except Exception:
+                                pass
+                        
+                        c_ar = enr.get("course_name_ar") or enr.get("name_ar") or "مادة"
+                        c_en = enr.get("course_name_en") or enr.get("name_en") or ""
+                        pr = str(enr.get("passed_round", "1"))
+                        if pr not in ("0", "1", "2", "3"):
+                            pr = "1"
+                        is_2nd = (pr in ('2', '3') or enr.get("is_second_round"))
+
+                        card_style = "flex-1 min-w-[260px] flex-row justify-between items-center p-4 rounded-xl gap-4 border border-rose-500/40 bg-rose-500/5 shadow-sm transition-all hover:shadow-md hover:border-rose-500/60" if is_failed else "flex-1 min-w-[260px] flex-row justify-between items-center p-4 rounded-xl bg-[var(--surface-card)] gap-4 border border-[var(--border-default)] shadow-sm transition-all hover:shadow-md hover:border-[var(--primary-color)]"
+                        title_style = "font-bold text-sm text-rose-500 text-center w-full truncate" if is_failed else "font-bold text-sm app-text-primary text-center w-full truncate"
+
+                        with ui.row().classes(card_style):
+                            # Course Title & Badges (Right side)
+                            with ui.column().classes("flex-1 items-center text-center gap-1 min-w-0"):
+                                ui.label(c_ar).classes(title_style)
+                                if c_en:
+                                    ui.label(c_en).classes("text-xs text-slate-400 font-mono text-center w-full truncate")
+                                    
+                                # Badges row
+                                with ui.row().classes("items-center justify-center gap-1 mt-0.5 flex-wrap"):
+                                    if is_failed:
+                                        ui.label("راسب / Failed").classes("px-2 py-0.5 rounded-lg text-[10px] font-bold bg-rose-500/20 text-rose-500 border border-rose-500/30 shrink-0 shadow-sm")
+                                    elif is_2nd:
+                                        ui.label("الدور الثاني").classes("px-2 py-0.5 rounded-lg text-[10px] font-bold bg-amber-500/20 text-amber-500 border border-amber-500/30 shrink-0 shadow-sm")
+
+                            # Editable Inputs: Dropdown on left, Score on right (Left side)
+                            with ui.row().classes("items-center gap-2 shrink-0"):
+                                round_opts = {"1": "الدور الأول", "2": "الدور الثاني", "3": "الدور الثالث", "0": "عبور/تحميل"}
+                                
+                                # Score goes on the right (first in RTL)
+                                s_field = ui.number(
+                                    value=int(raw_score) if raw_score.is_integer() else raw_score,
+                                    min=0, max=100, step=1
+                                ).props('dense outlined input-class="text-center font-bold text-sm"').classes("w-[60px] text-xs app-input rounded-lg bg-[var(--bg-main)]")
+
+                                # Dropdown goes on the left (second in RTL)
+                                r_select = UI.select("الدور / Round", round_opts, value=pr).classes("flex-1 min-w-[120px] text-xs app-input rounded-lg bg-[var(--bg-main)]", remove="w-full")
+
+                                period_inputs.append((enr_id, s_field, r_select))
+                                s_field.on('keydown.enter', save_period_scores)
+            else:
+                ui.label("لا توجد مواد / No courses").classes("text-sm app-text-muted italic text-center py-2 w-full")
+
+
+    def _render_semester_box_horizontal(
         self,
         sem_title: str,
         semester_num: int,
@@ -771,7 +1021,7 @@ class StudentProfileView:
                             ui.notify(f"تم تغيير حالة الفترة إلى: {RESULT_STATUS_MAP.get(st_key, {}).get('label_ar', st_key)}", type="positive")
                             refresh_callback()
 
-                    UI.select("", status_opts, value=cur_status, on_change=on_status_change).classes("text-xs w-40 shrink-0")
+                    UI.select("النتيجة / Status", status_opts, value=cur_status, on_change=on_status_change).classes("text-xs w-48 shrink-0 font-bold", remove="w-full")
 
                     with ui.row().classes("gap-2 items-center"):
                         UI.primary_button(
@@ -885,10 +1135,7 @@ class StudentProfileView:
                                     min=0, max=100, step=1
                                 ).props('dense outlined input-class="text-center font-bold text-sm"').classes("w-full text-xs app-input rounded-lg")
 
-                                r_select = ui.select(
-                                    options=round_opts,
-                                    value=pr
-                                ).props("dense outlined").classes("w-full text-xs app-input rounded-lg")
+                                r_select = UI.select("الدور / Round", round_opts, value=pr).classes("flex-1 min-w-[120px] text-xs app-input rounded-lg", remove="w-full")
 
                                 period_inputs.append((enr_id, s_field, r_select))
                                 s_field.on('keydown.enter', save_period_scores)

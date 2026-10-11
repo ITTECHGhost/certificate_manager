@@ -2272,15 +2272,39 @@ class StudyRoutineRepository(BaseRepository):
                     "semester_num": sem
                 })
 
-        if not courses_by_stage_sem:
-            log_system(f"Apply Routine warning: Routine {routine_id} has no assigned periods or courses.", "WARNING")
-            return {"periods_affected": 0, "added_courses": 0}
-
         student_repo = StudentRepository()
         st = student_repo.get_by_id(student_id) if hasattr(student_repo, 'get_by_id') else None
         if not st:
             st_list = student_repo.search_students_paginated("", limit=100)
             st = next((s for s in st_list if s.get("student_id") == student_id or s.get("id") == student_id), {})
+
+        target_dept = routine.get("department_id") or st.get("department_id") or 1
+
+        # If no periods/courses found at all, build default 4 stages x 2 semesters
+        if not courses_by_stage_sem:
+            for stg in range(1, 5):
+                for sem in (1, 2):
+                    courses_by_stage_sem[(stg, sem)] = []
+
+        # 3. Fallback: If any stage/semester has no assigned courses in routine,
+        # fetch catalog courses for student's department and stage
+        course_repo = CourseRepository()
+        for (stg, sem), c_list in courses_by_stage_sem.items():
+            if not c_list:
+                dept_courses = course_repo.get_by_dept_stage_system(target_dept, stg, sys_id) or []
+                if not dept_courses:
+                    all_dept = course_repo.get_by_department(target_dept) or []
+                    dept_courses = [c for c in all_dept if safe_cast(c.get("stage_number"), int, 1) == stg]
+
+                for dc in dept_courses:
+                    cid = dc.get("id") or dc.get("course_id")
+                    if cid and not any((c.get("id") == cid or c.get("course_id") == cid) for c in c_list):
+                        c_list.append({
+                            "id": cid,
+                            "course_id": cid,
+                            "stage_number": stg,
+                            "semester_num": sem
+                        })
 
         adm_yr_raw = str(st.get("admission_year") or "2024").strip()
         adm_yr = int(adm_yr_raw) if adm_yr_raw.isdigit() else 2024

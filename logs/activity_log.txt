@@ -907,3 +907,68 @@
 2026-10-05 19:20:24 [INFO] تم تطبيق الروتين الشامل (روتين نظام فصلي صباحي علوم حاسوب) على الطالب ID: 2138 — تم إضافة 49 مادة عبر 8 فترة دراسية
 2026-10-05 19:42:28 [INFO] Login attempt initiated for username: '1'
 2026-10-05 19:42:28 [OK] Authentication verified via MySQL Stored Procedure 'AuthenticateUser' for user '1' (ID: 1, Role: admin)
+2026-10-06 08:46:22 [INFO] Login attempt initiated for username: '1'
+2026-10-06 08:46:22 [OK] Authentication verified via MySQL Stored Procedure 'AuthenticateUser' for user '1' (ID: 1, Role: admin)
+2026-10-06 13:28:13 [INFO] Login attempt initiated for username: '1'
+2026-10-06 13:28:13 [OK] Authentication verified via MySQL Stored Procedure 'AuthenticateUser' for user '1' (ID: 1, Role: admin)
+2026-10-07 09:35:12 [INFO] Login attempt initiated for username: '1'
+2026-10-07 09:35:12 [OK] Authentication verified via MySQL Stored Procedure 'AuthenticateUser' for user '1' (ID: 1, Role: admin)
+2026-10-07 09:35:43 [INFO] تم حذف المرحلة الدراسية (أوفلاين) ID: 1067
+2026-10-07 09:35:53 [INFO] تم حذف المرحلة الدراسية (أوفلاين) ID: 1068
+2026-10-07 09:36:15 [INFO] تم حذف المرحلة الدراسية (أوفلاين) ID: 1069
+2026-10-07 09:36:21 [INFO] تم حذف المرحلة الدراسية (أوفلاين) ID: 1070
+2026-10-07 09:36:30 [INFO] تم حذف المرحلة الدراسية (أوفلاين) ID: 1071
+2026-10-07 09:36:34 [INFO] تم حذف المرحلة الدراسية (أوفلاين) ID: 1072
+2026-10-07 09:36:52 [INFO] تم تطبيق الروتين الشامل (روتين نظام فصلي صباحي علوم حاسوب) على الطالب ID: 2138 — تم إضافة 0 مادة عبر 8 فترة دراسية
+2026-10-07 09:49:16 [INFO] تم تطبيق الروتين الشامل (روتين نظام فصلي صباحي علوم حاسوب) على الطالب ID: 6 — تم إضافة 9 مادة عبر 5 فترة دراسية
+2026-10-07 12:02:42 [INFO] Login attempt initiated for username: '1'
+2026-10-07 12:02:42 [OK] Authentication verified via MySQL Stored Procedure 'AuthenticateUser' for user '1' (ID: 1, Role: admin)
+2026-10-07 12:03:56 [INFO] تم حذف المرحلة الدراسية (أوفلاين) ID: 1067
+2026-10-07 12:04:00 [INFO] تم حذف المرحلة الدراسية (أوفلاين) ID: 1068
+2026-10-07 12:04:10 [INFO] تم حذف المرحلة الدراسية (أوفلاين) ID: 1069
+2026-10-07 12:04:15 [INFO] تم حذف المرحلة الدراسية (أوفلاين) ID: 1070
+2026-10-07 12:04:20 [INFO] تم حذف المرحلة الدراسية (أوفلاين) ID: 1071
+2026-10-07 12:04:24 [INFO] تم حذف المرحلة الدراسية (أوفلاين) ID: 1072
+2026-10-07 12:04:29 [INFO] تم حذف المرحلة الدراسية (أوفلاين) ID: 1074
+2026-10-07 12:04:33 [INFO] تم حذف المرحلة الدراسية (أوفلاين) ID: 1073
+2026-10-07 12:04:53 [INFO] تم حذف المرحلة الدراسية (أوفلاين) ID: -111
+2026-10-07 12:05:01 [INFO] تم حذف المرحلة الدراسية (أوفلاين) ID: -108
+2026-10-07 12:05:04 [INFO] تم حذف المرحلة الدراسية (أوفلاين) ID: -109
+2026-10-07 12:05:08 [INFO] تم حذف المرحلة الدراسية (أوفلاين) ID: -110
+2026-10-07 12:05:20 [INFO] تم حذف المرحلة الدراسية (أوفلاين) ID: -113
+2026-10-07 12:05:34 [INFO] تم حذف المرحلة الدراسية (أوفلاين) ID: -112
+2026-10-07 12:05:54 [INFO] تم حذف المرحلة الدراسية (أوفلاين) ID: -115
+2026-10-07 12:06:09 [INFO] تم حذف المرحلة الدراسية (أوفلاين) ID: -114
+2026-10-07 12:06:27 [INFO] تم تطبيق الروتين الشامل (روتين نظام فصلي صباحي علوم حاسوب) على الطالب ID: 2138 — تم إضافة 0 مادة عبر 8 فترة دراسية
+2026-10-07 12:07:40 [INFO] Login attempt initiated for username: '1'
+2026-10-07 12:07:40 [OK] Authentication verified via MySQL Stored Procedure 'AuthenticateUser' for user '1' (ID: 1, Role: admin)
+2026-10-07 13:18:37 [INFO] Login attempt initiated for username: '1'
+2026-10-07 13:18:37 [OK] Authentication verified via MySQL Stored Procedure 'AuthenticateUser' for user '1' (ID: 1, Role: admin)
+2026-10-07 13:19:08 [INFO] تم حذف الطالب ID: 2138
+2026-10-07 13:23:21 [INFO] تم تطبيق الروتين الشامل (روتين نظام فصلي صباحي علوم حاسوب) على الطالب ID: -133 — تم إضافة 49 مادة عبر 8 فترة دراسية
+2026-10-08 08:42:16 [INFO] Login attempt initiated for username: '1'
+2026-10-08 08:42:16 [OK] Authentication verified via MySQL Stored Procedure 'AuthenticateUser' for user '1' (ID: 1, Role: admin)
+2026-10-08 08:52:22 [INFO] Login attempt initiated for username: '1'
+2026-10-08 08:52:22 [OK] Authentication verified via MySQL Stored Procedure 'AuthenticateUser' for user '1' (ID: 1, Role: admin)
+2026-10-08 10:30:44 [INFO] Login attempt initiated for username: '1'
+2026-10-08 10:30:44 [OK] Authentication verified via MySQL Stored Procedure 'AuthenticateUser' for user '1' (ID: 1, Role: admin)
+2026-10-08 10:38:36 [INFO] Login attempt initiated for username: '1'
+2026-10-08 10:38:36 [OK] Authentication verified via MySQL Stored Procedure 'AuthenticateUser' for user '1' (ID: 1, Role: admin)
+2026-10-08 11:19:58 [INFO] Login attempt initiated for username: '1'
+2026-10-08 11:19:58 [OK] Authentication verified via MySQL Stored Procedure 'AuthenticateUser' for user '1' (ID: 1, Role: admin)
+2026-10-08 11:57:58 [INFO] Login attempt initiated for username: '1'
+2026-10-08 11:57:58 [OK] Authentication verified via MySQL Stored Procedure 'AuthenticateUser' for user '1' (ID: 1, Role: admin)
+2026-10-08 12:08:14 [INFO] Login attempt initiated for username: '1'
+2026-10-08 12:08:14 [OK] Authentication verified via MySQL Stored Procedure 'AuthenticateUser' for user '1' (ID: 1, Role: admin)
+2026-10-08 12:10:14 [INFO] Login attempt initiated for username: '1'
+2026-10-08 12:10:14 [OK] Authentication verified via MySQL Stored Procedure 'AuthenticateUser' for user '1' (ID: 1, Role: admin)
+2026-10-08 12:38:58 [INFO] Login attempt initiated for username: '1'
+2026-10-08 12:38:58 [OK] Authentication verified via MySQL Stored Procedure 'AuthenticateUser' for user '1' (ID: 1, Role: admin)
+2026-10-08 13:03:08 [INFO] Login attempt initiated for username: '1'
+2026-10-08 13:03:08 [OK] Authentication verified via MySQL Stored Procedure 'AuthenticateUser' for user '1' (ID: 1, Role: admin)
+2026-10-08 13:08:11 [INFO] Login attempt initiated for username: '1'
+2026-10-08 13:08:11 [OK] Authentication verified via MySQL Stored Procedure 'AuthenticateUser' for user '1' (ID: 1, Role: admin)
+2026-10-11 10:54:42 [INFO] Login attempt initiated for username: '1'
+2026-10-11 10:54:42 [OK] Authentication verified via MySQL Stored Procedure 'AuthenticateUser' for user '1' (ID: 1, Role: admin)
+2026-10-11 11:42:41 [INFO] Login attempt initiated for username: '1'
+2026-10-11 11:42:41 [OK] Authentication verified via MySQL Stored Procedure 'AuthenticateUser' for user '1' (ID: 1, Role: admin)

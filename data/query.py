@@ -16,7 +16,6 @@ def safe_cast(val: Any, target_type: type = int, default_val: Any = 0) -> Any:
         return default_val
 
 
-
 Q_COURSES_SEMESTER_BY_STAGE = '''
 SELECT
     ap.academic_year,
@@ -36,9 +35,9 @@ SELECT
     1 AS result_status_code,
     'PASSED' AS result_status_label
 FROM (SELECT * FROM academic_periods UNION ALL SELECT * FROM local_academic_periods) ap
-JOIN (SELECT * FROM enrollments UNION ALL SELECT * FROM local_enrollments) e ON e.period_id = ap.id
-JOIN courses c ON e.course_id = c.id
-WHERE ap.student_id = ?
+JOIN (SELECT * FROM enrollments UNION ALL SELECT * FROM local_enrollments) e ON CAST(e.period_id AS INTEGER) = CAST(ap.id AS INTEGER) OR e.period_id = ap.id
+JOIN courses c ON CAST(e.course_id AS INTEGER) = CAST(c.id AS INTEGER) OR e.course_id = c.id
+WHERE (CAST(ap.student_id AS INTEGER) = CAST(? AS INTEGER) OR ap.student_id = ?)
   AND COALESCE(e.score, 0.0) >= 50
 GROUP BY ap.academic_year, ap.stage_number, c.id
 ORDER BY ap.academic_year ASC, COALESCE(ap.semester_num, 1) ASC, c.name_ar ASC;
@@ -63,9 +62,9 @@ SELECT
     1 AS result_status_code,
     'PASSED' AS result_status_label
 FROM (SELECT * FROM academic_periods UNION ALL SELECT * FROM local_academic_periods) ap
-JOIN (SELECT * FROM enrollments UNION ALL SELECT * FROM local_enrollments) e ON e.period_id = ap.id
-JOIN courses c ON e.course_id = c.id
-WHERE ap.student_id = ?
+JOIN (SELECT * FROM enrollments UNION ALL SELECT * FROM local_enrollments) e ON CAST(e.period_id AS INTEGER) = CAST(ap.id AS INTEGER) OR e.period_id = ap.id
+JOIN courses c ON CAST(e.course_id AS INTEGER) = CAST(c.id AS INTEGER) OR e.course_id = c.id
+WHERE (CAST(ap.student_id AS INTEGER) = CAST(? AS INTEGER) OR ap.student_id = ?)
   AND COALESCE(e.score, 0.0) >= 50
 GROUP BY ap.academic_year, ap.semester_num, c.id
 ORDER BY ap.academic_year ASC, COALESCE(ap.semester_num, 1) ASC, c.name_ar ASC;
@@ -94,9 +93,9 @@ SELECT
     1 AS result_status_code,
     'PASSED' AS result_status_label
 FROM (SELECT * FROM academic_periods UNION ALL SELECT * FROM local_academic_periods) ap
-JOIN (SELECT * FROM enrollments UNION ALL SELECT * FROM local_enrollments) e ON e.period_id = ap.id
-JOIN courses c ON e.course_id = c.id
-WHERE ap.student_id = ?
+JOIN (SELECT * FROM enrollments UNION ALL SELECT * FROM local_enrollments) e ON CAST(e.period_id AS INTEGER) = CAST(ap.id AS INTEGER) OR e.period_id = ap.id
+JOIN courses c ON CAST(e.course_id AS INTEGER) = CAST(c.id AS INTEGER) OR e.course_id = c.id
+WHERE (CAST(ap.student_id AS INTEGER) = CAST(? AS INTEGER) OR ap.student_id = ?)
   AND COALESCE(e.score, 0.0) >= 50
 GROUP BY ap.academic_year, ap.stage_number, c.id
 ORDER BY ap.academic_year ASC, COALESCE(ap.semester_num, 1) ASC, c.name_ar ASC;
@@ -125,9 +124,9 @@ SELECT
     1 AS result_status_code,
     'PASSED' AS result_status_label
 FROM (SELECT * FROM academic_periods UNION ALL SELECT * FROM local_academic_periods) ap
-JOIN (SELECT * FROM enrollments UNION ALL SELECT * FROM local_enrollments) e ON e.period_id = ap.id
-JOIN courses c ON e.course_id = c.id
-WHERE ap.student_id = ?
+JOIN (SELECT * FROM enrollments UNION ALL SELECT * FROM local_enrollments) e ON CAST(e.period_id AS INTEGER) = CAST(ap.id AS INTEGER) OR e.period_id = ap.id
+JOIN courses c ON CAST(e.course_id AS INTEGER) = CAST(c.id AS INTEGER) OR e.course_id = c.id
+WHERE (CAST(ap.student_id AS INTEGER) = CAST(? AS INTEGER) OR ap.student_id = ?)
   AND COALESCE(e.score, 0.0) >= 50
 GROUP BY ap.academic_year, COALESCE(c.stage_number, ap.stage_number), c.id
 ORDER BY ap.academic_year ASC, COALESCE(ap.semester_num, 1) ASC, c.name_ar ASC;
@@ -156,18 +155,18 @@ SELECT
     1 AS result_status_code,
     'PASSED' AS result_status_label
 FROM (SELECT * FROM academic_periods UNION ALL SELECT * FROM local_academic_periods) ap
-JOIN (SELECT * FROM enrollments UNION ALL SELECT * FROM local_enrollments) e ON e.period_id = ap.id
-JOIN courses c ON e.course_id = c.id
-WHERE ap.student_id = ?
+JOIN (SELECT * FROM enrollments UNION ALL SELECT * FROM local_enrollments) e ON CAST(e.period_id AS INTEGER) = CAST(ap.id AS INTEGER) OR e.period_id = ap.id
+JOIN courses c ON CAST(e.course_id AS INTEGER) = CAST(c.id AS INTEGER) OR e.course_id = c.id
+WHERE (CAST(ap.student_id AS INTEGER) = CAST(? AS INTEGER) OR ap.student_id = ?)
   AND COALESCE(e.score, 0.0) >= 50
 GROUP BY ap.academic_year, c.id
 ORDER BY ap.academic_year ASC, COALESCE(ap.semester_num, 1) ASC, c.name_ar ASC;
 '''
 
 
-
-def get_offline_academic_courses(student_id: int, grouping_mode: str) -> List[Dict[str, Any]]:
+def get_offline_academic_courses(student_id: int, grouping_mode: str = "DEFAULT") -> List[Dict[str, Any]]:
     st_id = int(student_id)
+    mode = (grouping_mode or "DEFAULT").strip()
     ss_info = sqlite_read_one(
         "SELECT LOWER(IFNULL(ss.period_display, 'year')) AS period_display "
         "FROM (SELECT id, study_system_id FROM students UNION ALL SELECT id, study_system_id FROM local_students) s "
@@ -176,20 +175,25 @@ def get_offline_academic_courses(student_id: int, grouping_mode: str) -> List[Di
         (st_id,)
     )
     period_display = str(ss_info.get("period_display", "year")).lower() if ss_info else "year"
+    params = (st_id, str(st_id))
     
     if period_display == "semester":
-        if grouping_mode == "BY_SEMESTER_stage":
-            return sqlite_read_all(Q_COURSES_SEMESTER_BY_STAGE, (st_id,)) or []
+        if mode == "BY_SEMESTER_stage":
+            return sqlite_read_all(Q_COURSES_SEMESTER_BY_STAGE, params) or []
         else:
-            return sqlite_read_all(Q_COURSES_SEMESTER_BY_YEAR, (st_id,)) or []
+            return sqlite_read_all(Q_COURSES_SEMESTER_BY_YEAR, params) or []
     else:
-        if grouping_mode == "BY_PERIOD_STAGE":
-            return sqlite_read_all(Q_COURSES_YEARLY_BY_PERIOD_STAGE, (st_id,)) or []
-        elif grouping_mode == "BY_CURRICULUM_STAGE":
-            return sqlite_read_all(Q_COURSES_YEARLY_BY_CURRICULUM_STAGE, (st_id,)) or []
+        if mode == "BY_PERIOD_STAGE":
+            return sqlite_read_all(Q_COURSES_YEARLY_BY_PERIOD_STAGE, params) or []
+        elif mode == "BY_CURRICULUM_STAGE":
+            return sqlite_read_all(Q_COURSES_YEARLY_BY_CURRICULUM_STAGE, params) or []
+        elif mode == "BY_ByAcademicYear":
+            return sqlite_read_all(Q_COURSES_YEARLY_BY_ACADEMIC_YEAR, params) or []
         else:
-            # BY_ByAcademicYear or DEFAULT
-            return sqlite_read_all(Q_COURSES_YEARLY_BY_ACADEMIC_YEAR, (st_id,)) or []
+            # DEFAULT (Yearly Default -> BY_PERIOD_STAGE)
+            return sqlite_read_all(Q_COURSES_YEARLY_BY_PERIOD_STAGE, params) or []
+
+
 
 
 def get_offline_certificate_data(student_id: int, grouping_mode: str = "DEFAULT") -> Dict[str, List[Dict[str, Any]]]:
@@ -280,16 +284,24 @@ def get_offline_certificate_data(student_id: int, grouping_mode: str = "DEFAULT"
 
 
     # 2. Ranking
+    stored_seq = student.get("sequence_number")
+    class_rank = None
+    if stored_seq and safe_cast(stored_seq, int, 0) > 0:
+        class_rank = safe_cast(stored_seq, int, 1)
+
     dept_info = sqlite_read_one("SELECT department_id FROM students WHERE id = ?", (st_id,))
     dept_id = dept_info["department_id"] if dept_info else None
     grad_year = student.get("graduation_year")
     avg = student.get("average") or 0.0
 
-    rank_row = sqlite_read_one(
-        "SELECT COUNT(*) + 1 as class_rank FROM students "
-        "WHERE department_id = ? AND strftime('%Y', graduation_date) = ? AND average > ? AND average IS NOT NULL",
-        (dept_id, str(grad_year), avg)
-    )
+    if class_rank is None:
+        rank_row = sqlite_read_one(
+            "SELECT COUNT(*) + 1 as class_rank FROM students "
+            "WHERE department_id = ? AND strftime('%Y', graduation_date) = ? AND average > ? AND average IS NOT NULL",
+            (dept_id, str(grad_year), avg)
+        )
+        class_rank = rank_row["class_rank"] if rank_row else 1
+
     total_row = sqlite_read_one(
         "SELECT COUNT(*) as total_graduates FROM students "
         "WHERE department_id = ? AND strftime('%Y', graduation_date) = ? AND average IS NOT NULL",
@@ -301,7 +313,7 @@ def get_offline_certificate_data(student_id: int, grouping_mode: str = "DEFAULT"
         (dept_id, str(grad_year))
     )
     response_data["ranking"] = [{
-        "class_rank": rank_row["class_rank"] if rank_row else 1,
+        "class_rank": class_rank,
         "total_graduates": total_row["total_graduates"] if total_row else 1,
         "top_average": top_row["top_average"] if top_row else 0.0
     }]
@@ -1012,15 +1024,37 @@ def get_offline_distinct_admission_years() -> list[str]:
     unique_years.sort(key=lambda x: int(x) if x.isdigit() else 0, reverse=True)
     return unique_years
 
-def delete_offline_student(student_id: int) -> None:
+def delete_offline_student(student_id: int | str) -> None:
     sq_conn = get_local_connection()
     try:
-        sq_conn.execute("DELETE FROM enrollments WHERE period_id IN (SELECT id FROM academic_periods WHERE student_id=?)", (student_id,))
-        sq_conn.execute("DELETE FROM student_courses WHERE period_id IN (SELECT id FROM academic_periods WHERE student_id=?)", (student_id,))
-        sq_conn.execute("DELETE FROM academic_periods WHERE student_id=?", (student_id,))
-        sq_conn.execute("DELETE FROM issued_certificates WHERE student_id=?", (student_id,))
-        sq_conn.execute("DELETE FROM students WHERE id=?", (student_id,))
-        sq_conn.execute("DELETE FROM local_students WHERE id=?", (student_id,))
+        try:
+            sid = int(student_id)
+        except (ValueError, TypeError):
+            sid = student_id
+        str_sid = str(sid)
+        sq_conn.execute(
+            "DELETE FROM enrollments WHERE period_id IN ("
+            "  SELECT id FROM academic_periods WHERE student_id=? OR CAST(student_id AS TEXT)=? "
+            "  UNION "
+            "  SELECT id FROM local_academic_periods WHERE student_id=? OR CAST(student_id AS TEXT)=?"
+            ")",
+            (sid, str_sid, sid, str_sid)
+        )
+        sq_conn.execute(
+            "DELETE FROM local_enrollments WHERE period_id IN ("
+            "  SELECT id FROM academic_periods WHERE student_id=? OR CAST(student_id AS TEXT)=? "
+            "  UNION "
+            "  SELECT id FROM local_academic_periods WHERE student_id=? OR CAST(student_id AS TEXT)=?"
+            ")",
+            (sid, str_sid, sid, str_sid)
+        )
+        sq_conn.execute("DELETE FROM academic_periods WHERE student_id=? OR CAST(student_id AS TEXT)=?", (sid, str_sid))
+        sq_conn.execute("DELETE FROM local_academic_periods WHERE student_id=? OR CAST(student_id AS TEXT)=?", (sid, str_sid))
+        sq_conn.execute("DELETE FROM issued_certificates WHERE student_id=? OR CAST(student_id AS TEXT)=?", (sid, str_sid))
+        sq_conn.execute("DELETE FROM local_issued_certificates WHERE student_id=? OR CAST(student_id AS TEXT)=?", (sid, str_sid))
+        sq_conn.execute("DELETE FROM students WHERE id=? OR CAST(id AS TEXT)=?", (sid, str_sid))
+        sq_conn.execute("DELETE FROM local_students WHERE id=? OR CAST(id AS TEXT)=?", (sid, str_sid))
+        sq_conn.execute("DELETE FROM sync_queue WHERE temp_id=? OR CAST(temp_id AS TEXT)=?", (sid, str_sid))
         sq_conn.commit()
     finally:
         sq_conn.close()
@@ -1030,14 +1064,25 @@ def get_offline_academic_periods_by_student(student_id: int | str) -> list[dict]
         sid = int(student_id)
     except (ValueError, TypeError):
         sid = student_id
-    return sqlite_read_all(
-        "SELECT id, student_id, academic_year, study_system_id, stage_number, semester_num, COALESCE(result_status, 'PASSED') AS result_status FROM ("
+    rows = sqlite_read_all(
+        "SELECT id, student_id, academic_year, study_system_id, "
+        "       CAST(stage_number AS INTEGER) AS stage_number, "
+        "       CAST(semester_num AS INTEGER) AS semester_num, "
+        "       COALESCE(result_status, 'PASSED') AS result_status FROM ("
         "  SELECT id, student_id, academic_year, study_system_id, stage_number, semester_num, result_status FROM academic_periods "
         "  UNION ALL "
         "  SELECT id, student_id, academic_year, study_system_id, stage_number, semester_num, result_status FROM local_academic_periods"
         ") WHERE CAST(student_id AS INTEGER) = CAST(? AS INTEGER) OR student_id = ? ORDER BY stage_number, semester_num",
         (sid, str(student_id))
     ) or []
+    for r in rows:
+        if isinstance(r, dict):
+            try: r["stage_number"] = int(r["stage_number"])
+            except Exception: pass
+            try: r["semester_num"] = int(r["semester_num"])
+            except Exception: pass
+    return rows
+
 
 def update_offline_academic_period_status(period_id: int, result_status_key: str) -> None:
     conn = get_local_connection()
@@ -1080,10 +1125,12 @@ def get_offline_enrollments_by_period(period_id: int | str) -> list[dict]:
         pid = int(period_id)
     except (ValueError, TypeError):
         pid = period_id
-    return sqlite_read_all(
+    rows = sqlite_read_all(
         "SELECT e.id, e.period_id, e.course_id, e.score, e.passed_round, "
         "       CASE WHEN e.passed_round != '1' THEN 1 ELSE 0 END AS is_second_round, "
-        "       c.name_ar AS course_name_ar, c.name_en AS course_name_en, c.credit_hours "
+        "       COALESCE(c.name_ar, 'مادة') AS course_name_ar, "
+        "       COALESCE(c.name_en, '') AS course_name_en, "
+        "       COALESCE(c.credit_hours, 0) AS credit_hours "
         "FROM ("
         "  SELECT id, period_id, course_id, score, passed_round FROM enrollments "
         "  UNION ALL "
@@ -1094,6 +1141,8 @@ def get_offline_enrollments_by_period(period_id: int | str) -> list[dict]:
         "ORDER BY c.name_ar",
         (pid, str(period_id))
     ) or []
+    return rows
+
 
 def update_offline_enrollment(enrollment_id: int, score: float, passed_round: str) -> None:
     sq_conn = get_local_connection()
@@ -1345,15 +1394,20 @@ def delete_offline_study_routine_period_course(period_id: int, course_id: int) -
     finally:
         conn.close()
 
-def delete_offline_academic_period(period_id: int) -> None:
-    """Delete academic period and its enrollments from local SQLite database replica & cache tables."""
+def delete_offline_academic_period(period_id: int | str) -> None:
+    """Delete academic period and its enrollments from local SQLite database replica, cache tables, & sync queue."""
     conn = get_local_connection()
     try:
-        cur = conn.cursor()
-        cur.execute("DELETE FROM enrollments WHERE period_id = ?", (period_id,))
-        cur.execute("DELETE FROM local_enrollments WHERE period_id = ?", (period_id,))
-        cur.execute("DELETE FROM academic_periods WHERE id = ?", (period_id,))
-        cur.execute("DELETE FROM local_academic_periods WHERE id = ?", (period_id,))
+        try:
+            pid = int(period_id)
+        except (ValueError, TypeError):
+            pid = period_id
+        str_pid = str(pid)
+        conn.execute("DELETE FROM enrollments WHERE period_id = ? OR CAST(period_id AS TEXT) = ?", (pid, str_pid))
+        conn.execute("DELETE FROM local_enrollments WHERE period_id = ? OR CAST(period_id AS TEXT) = ?", (pid, str_pid))
+        conn.execute("DELETE FROM academic_periods WHERE id = ? OR CAST(id AS TEXT) = ?", (pid, str_pid))
+        conn.execute("DELETE FROM local_academic_periods WHERE id = ? OR CAST(id AS TEXT) = ?", (pid, str_pid))
+        conn.execute("DELETE FROM sync_queue WHERE temp_id = ? OR CAST(temp_id AS TEXT) = ?", (pid, str_pid))
         conn.commit()
     finally:
         conn.close()

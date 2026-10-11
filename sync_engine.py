@@ -401,7 +401,6 @@ def init_local_db() -> None:
             )
         """)
 
-        cur.execute("DROP TABLE IF EXISTS study_routine_courses")
         cur.execute("""
             CREATE TABLE IF NOT EXISTS study_routine_courses (
                 id              INTEGER PRIMARY KEY AUTOINCREMENT,

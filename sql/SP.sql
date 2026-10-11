@@ -137,6 +137,28 @@ END //
 DELIMITER ;
 
 -- --------------------------------------------------------
+-- Stored Procedure `DeleteAcademicPeriod`
+-- --------------------------------------------------------
+DELIMITER //
+DROP PROCEDURE IF EXISTS `DeleteAcademicPeriod` //
+CREATE DEFINER=`root`@`localhost` PROCEDURE `DeleteAcademicPeriod`(IN p_period_id INT)
+BEGIN
+    DELETE FROM academic_periods WHERE id = p_period_id;
+END //
+DELIMITER ;
+
+-- --------------------------------------------------------
+-- Stored Procedure `DeleteCourse`
+-- --------------------------------------------------------
+DELIMITER //
+DROP PROCEDURE IF EXISTS `DeleteCourse` //
+CREATE DEFINER=`root`@`localhost` PROCEDURE `DeleteCourse`(IN p_course_id INT)
+BEGIN
+    DELETE FROM courses WHERE id = p_course_id;
+END //
+DELIMITER ;
+
+-- --------------------------------------------------------
 -- Stored Procedure `DeleteDepartment`
 -- --------------------------------------------------------
 DELIMITER //
@@ -146,6 +168,17 @@ BEGIN
 
     DELETE FROM departments WHERE id = p_id;
 
+END //
+DELIMITER ;
+
+-- --------------------------------------------------------
+-- Stored Procedure `DeleteEnrollment`
+-- --------------------------------------------------------
+DELIMITER //
+DROP PROCEDURE IF EXISTS `DeleteEnrollment` //
+CREATE DEFINER=`root`@`localhost` PROCEDURE `DeleteEnrollment`(IN p_enrollment_id INT)
+BEGIN
+    DELETE FROM enrollments WHERE id = p_enrollment_id;
 END //
 DELIMITER ;
 
@@ -310,12 +343,9 @@ DELIMITER ;
 DELIMITER //
 DROP PROCEDURE IF EXISTS `GetAcademicPeriodsByStudent` //
 CREATE DEFINER=`root`@`localhost` PROCEDURE `GetAcademicPeriodsByStudent`(IN p_student_id INT)
-BEGIN
-        SELECT id, student_id, academic_year, stage_number, semester_num, study_system_id
-        FROM academic_periods 
-        WHERE student_id = p_student_id 
-        ORDER BY academic_year ASC, semester_num ASC;
-    END //
+BEGIN
+    SELECT * FROM academic_periods WHERE student_id = p_student_id ORDER BY academic_year ASC, semester_num ASC;
+END //
 DELIMITER ;
 
 -- --------------------------------------------------------
@@ -610,18 +640,8 @@ DELIMITER ;
 DELIMITER //
 DROP PROCEDURE IF EXISTS `GetCoursesByDepartment` //
 CREATE DEFINER=`root`@`localhost` PROCEDURE `GetCoursesByDepartment`(IN p_dept_id INT)
-BEGIN
-
-    SELECT c.id, c.name_ar, c.name_en, c.credit_hours, c.study_system_id, c.is_shared
-
-    FROM courses c
-
-    WHERE c.department_id = p_dept_id 
-
-       OR (c.is_shared = 1 AND c.id IN (SELECT course_id FROM course_departments WHERE department_id = p_dept_id))
-
-    ORDER BY c.name_ar ASC;
-
+BEGIN
+    SELECT * FROM courses WHERE department_id = p_dept_id ORDER BY stage_number ASC, name_ar ASC;
 END //
 DELIMITER ;
 
@@ -641,6 +661,20 @@ BEGIN
 
     WHERE d.id = p_dept_id;
 
+END //
+DELIMITER ;
+
+-- --------------------------------------------------------
+-- Stored Procedure `GetDistinctGraduationYears`
+-- --------------------------------------------------------
+DELIMITER //
+DROP PROCEDURE IF EXISTS `GetDistinctGraduationYears` //
+CREATE DEFINER=`root`@`localhost` PROCEDURE `GetDistinctGraduationYears`()
+BEGIN
+    SELECT DISTINCT YEAR(graduation_date) AS graduation_year 
+    FROM students 
+    WHERE graduation_date IS NOT NULL 
+    ORDER BY graduation_year DESC;
 END //
 DELIMITER ;
 
@@ -1426,6 +1460,44 @@ END //
 DELIMITER ;
 
 -- --------------------------------------------------------
+-- Stored Procedure `InsertAcademicPeriod`
+-- --------------------------------------------------------
+DELIMITER //
+DROP PROCEDURE IF EXISTS `InsertAcademicPeriod` //
+CREATE DEFINER=`root`@`localhost` PROCEDURE `InsertAcademicPeriod`(
+    IN p_student_id INT,
+    IN p_academic_year VARCHAR(50),
+    IN p_stage_number INT,
+    IN p_semester_num INT,
+    IN p_result_status VARCHAR(50)
+)
+BEGIN
+    INSERT INTO academic_periods (student_id, academic_year, stage_number, semester_num, result_status) 
+    VALUES (p_student_id, p_academic_year, p_stage_number, p_semester_num, p_result_status);
+    SELECT LAST_INSERT_ID() AS new_period_id;
+END //
+DELIMITER ;
+
+-- --------------------------------------------------------
+-- Stored Procedure `InsertCourse`
+-- --------------------------------------------------------
+DELIMITER //
+DROP PROCEDURE IF EXISTS `InsertCourse` //
+CREATE DEFINER=`root`@`localhost` PROCEDURE `InsertCourse`(
+    IN p_name_ar VARCHAR(255),
+    IN p_name_en VARCHAR(255),
+    IN p_credit_hours INT,
+    IN p_department_id INT,
+    IN p_stage_number INT
+)
+BEGIN
+    INSERT INTO courses (name_ar, name_en, credit_hours, department_id, stage_number) 
+    VALUES (p_name_ar, p_name_en, p_credit_hours, p_department_id, p_stage_number);
+    SELECT LAST_INSERT_ID() AS new_course_id;
+END //
+DELIMITER ;
+
+-- --------------------------------------------------------
 -- Stored Procedure `InsertDepartment`
 -- --------------------------------------------------------
 DELIMITER //
@@ -1447,6 +1519,24 @@ BEGIN
 
     SELECT LAST_INSERT_ID() AS new_id;
 
+END //
+DELIMITER ;
+
+-- --------------------------------------------------------
+-- Stored Procedure `InsertEnrollment`
+-- --------------------------------------------------------
+DELIMITER //
+DROP PROCEDURE IF EXISTS `InsertEnrollment` //
+CREATE DEFINER=`root`@`localhost` PROCEDURE `InsertEnrollment`(
+    IN p_period_id INT,
+    IN p_course_id INT,
+    IN p_score DECIMAL(5,2),
+    IN p_passed_round INT
+)
+BEGIN
+    INSERT INTO enrollments (period_id, course_id, score, passed_round) 
+    VALUES (p_period_id, p_course_id, p_score, p_passed_round);
+    SELECT LAST_INSERT_ID() AS new_enrollment_id;
 END //
 DELIMITER ;
 
@@ -1992,6 +2082,51 @@ END //
 DELIMITER ;
 
 -- --------------------------------------------------------
+-- Stored Procedure `SearchUnlinkedStudents`
+-- --------------------------------------------------------
+DELIMITER //
+DROP PROCEDURE IF EXISTS `SearchUnlinkedStudents` //
+CREATE DEFINER=`root`@`localhost` PROCEDURE `SearchUnlinkedStudents`(
+    IN p_dept_id INT, 
+    IN p_year VARCHAR(50)
+)
+BEGIN
+    SELECT * FROM students 
+    WHERE order_id IS NULL
+      AND (p_dept_id IS NULL OR department_id = p_dept_id)
+      AND (p_year IS NULL OR p_year = '' OR YEAR(graduation_date) = p_year);
+END //
+DELIMITER ;
+
+-- --------------------------------------------------------
+-- Stored Procedure `TogglePersonnelStatus`
+-- --------------------------------------------------------
+DELIMITER //
+DROP PROCEDURE IF EXISTS `TogglePersonnelStatus` //
+CREATE DEFINER=`root`@`localhost` PROCEDURE `TogglePersonnelStatus`(
+    IN p_person_id INT, 
+    IN p_is_active TINYINT
+)
+BEGIN
+    UPDATE personnel SET is_active = p_is_active WHERE id = p_person_id;
+END //
+DELIMITER ;
+
+-- --------------------------------------------------------
+-- Stored Procedure `ToggleStudySystemStatus`
+-- --------------------------------------------------------
+DELIMITER //
+DROP PROCEDURE IF EXISTS `ToggleStudySystemStatus` //
+CREATE DEFINER=`root`@`localhost` PROCEDURE `ToggleStudySystemStatus`(
+    IN p_sys_id INT, 
+    IN p_is_active TINYINT
+)
+BEGIN
+    UPDATE study_systems SET is_active = p_is_active WHERE id = p_sys_id;
+END //
+DELIMITER ;
+
+-- --------------------------------------------------------
 -- Stored Procedure `UnlinkStudentFromOrder`
 -- --------------------------------------------------------
 DELIMITER //
@@ -2009,6 +2144,44 @@ BEGIN
 
     WHERE id = p_student_id;
 
+END //
+DELIMITER ;
+
+-- --------------------------------------------------------
+-- Stored Procedure `UpdateAcademicPeriodStatus`
+-- --------------------------------------------------------
+DELIMITER //
+DROP PROCEDURE IF EXISTS `UpdateAcademicPeriodStatus` //
+CREATE DEFINER=`root`@`localhost` PROCEDURE `UpdateAcademicPeriodStatus`(
+    IN p_period_id INT, 
+    IN p_status VARCHAR(50)
+)
+BEGIN
+    UPDATE academic_periods SET result_status = p_status WHERE id = p_period_id;
+END //
+DELIMITER ;
+
+-- --------------------------------------------------------
+-- Stored Procedure `UpdateCourse`
+-- --------------------------------------------------------
+DELIMITER //
+DROP PROCEDURE IF EXISTS `UpdateCourse` //
+CREATE DEFINER=`root`@`localhost` PROCEDURE `UpdateCourse`(
+    IN p_course_id INT,
+    IN p_name_ar VARCHAR(255),
+    IN p_name_en VARCHAR(255),
+    IN p_credit_hours INT,
+    IN p_department_id INT,
+    IN p_stage_number INT
+)
+BEGIN
+    UPDATE courses 
+    SET name_ar = p_name_ar, 
+        name_en = p_name_en, 
+        credit_hours = p_credit_hours, 
+        department_id = p_department_id, 
+        stage_number = p_stage_number
+    WHERE id = p_course_id;
 END //
 DELIMITER ;
 
@@ -2040,6 +2213,21 @@ BEGIN
 
     WHERE id = p_id;
 
+END //
+DELIMITER ;
+
+-- --------------------------------------------------------
+-- Stored Procedure `UpdateEnrollment`
+-- --------------------------------------------------------
+DELIMITER //
+DROP PROCEDURE IF EXISTS `UpdateEnrollment` //
+CREATE DEFINER=`root`@`localhost` PROCEDURE `UpdateEnrollment`(
+    IN p_enrollment_id INT,
+    IN p_score DECIMAL(5,2),
+    IN p_passed_round INT
+)
+BEGIN
+    UPDATE enrollments SET score = p_score, passed_round = p_passed_round WHERE id = p_enrollment_id;
 END //
 DELIMITER ;
 
@@ -2158,6 +2346,20 @@ BEGIN
 
     WHERE id = p_id;
 
+END //
+DELIMITER ;
+
+-- --------------------------------------------------------
+-- Stored Procedure `UpdatePersonnelPassword`
+-- --------------------------------------------------------
+DELIMITER //
+DROP PROCEDURE IF EXISTS `UpdatePersonnelPassword` //
+CREATE DEFINER=`root`@`localhost` PROCEDURE `UpdatePersonnelPassword`(
+    IN p_person_id INT, 
+    IN p_password_hash VARCHAR(255)
+)
+BEGIN
+    UPDATE personnel SET password_hash = p_password_hash WHERE id = p_person_id;
 END //
 DELIMITER ;
 

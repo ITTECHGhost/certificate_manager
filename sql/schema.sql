@@ -19,7 +19,7 @@ CREATE TABLE `academic_periods` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `uq_period_precise` (`student_id`,`academic_year`,`stage_number`,`semester_num`),
   CONSTRAINT `academic_periods_ibfk_1` FOREIGN KEY (`student_id`) REFERENCES `students` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=1041 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=1076 DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
 -- Table structure for table `countries`
@@ -81,7 +81,7 @@ CREATE TABLE `enrollments` (
   KEY `course_id` (`course_id`),
   CONSTRAINT `enrollments_ibfk_1` FOREIGN KEY (`period_id`) REFERENCES `academic_periods` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `enrollments_ibfk_2` FOREIGN KEY (`course_id`) REFERENCES `courses` (`id`) ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=4183 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=4314 DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
 -- Table structure for table `governorates`
@@ -132,7 +132,7 @@ CREATE TABLE `issued_certificates` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `uq_student_cert_record` (`student_id`,`issue_date`,`to_title`,`template_type`),
   CONSTRAINT `fk_issued_cert_student` FOREIGN KEY (`student_id`) REFERENCES `students` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=53 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=83 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
 -- Table structure for table `personnel`
@@ -227,7 +227,7 @@ CREATE TABLE `students` (
   CONSTRAINT `students_ibfk_3` FOREIGN KEY (`department_id`) REFERENCES `departments` (`id`) ON UPDATE CASCADE,
   CONSTRAINT `students_ibfk_4` FOREIGN KEY (`study_system_id`) REFERENCES `study_systems` (`id`) ON UPDATE CASCADE,
   CONSTRAINT `students_ibfk_5` FOREIGN KEY (`order_id`) REFERENCES `graduation_orders` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=2138 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=2139 DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
 -- Table structure for table `study_routine_courses`

@@ -5,7 +5,7 @@
 import sys
 import asyncio
 from nicegui import ui
-from utils.logger import setup_global_exception_logging
+from utils.logger import setup_global_exception_logging, log_system
 
 setup_global_exception_logging()
 
@@ -40,6 +40,40 @@ except Exception:
     import concurrent.futures
     import nicegui.run
     nicegui.run.setup = lambda: setattr(nicegui.run, 'process_pool', concurrent.futures.ThreadPoolExecutor())
+
+def ensure_port_available(port: int = 2323) -> None:
+    """
+    Check if the required port is already bound by an orphaned background process
+    (e.g., from an unclosed previous session). If an orphaned python or webview process
+    is holding the port, terminate it to prevent socket bind failure (WinError 10048).
+    """
+    try:
+        import os
+        import time
+        import psutil
+        current_pid = os.getpid()
+        killed = False
+        for conn in psutil.net_connections(kind="inet"):
+            if conn.laddr and conn.laddr.port == port and conn.status == "LISTEN":
+                if conn.pid and conn.pid != current_pid:
+                    try:
+                        p = psutil.Process(conn.pid)
+                        p_name = p.name().lower()
+                        if "python" in p_name or "webview" in p_name:
+                            log_system(f"Releasing port {port} held by orphaned process PID {conn.pid} ({p.name()})...", "WARNING")
+                            for child in p.children(recursive=True):
+                                try:
+                                    child.kill()
+                                except (psutil.NoSuchProcess, psutil.AccessDenied):
+                                    pass
+                            p.kill()
+                            killed = True
+                    except (psutil.NoSuchProcess, psutil.AccessDenied):
+                        pass
+        if killed:
+            time.sleep(0.5)
+    except Exception as err:
+        log_system(f"Port availability check notice: {err}", "WARNING")
 
 def get_screen_resolution() -> tuple[int, int]:
     """Retrieve PC's primary monitor screen resolution for native desktop window sizing."""
@@ -89,6 +123,7 @@ def dashboard_page():
 
 if __name__ in {"__main__", "__mp_main__"}:
     if __name__ == "__main__":
+        ensure_port_available(2323)
         from utils.health_check import run_system_health_checks
         # Run system diagnostic health check once on startup and log to activity_log.txt
         run_system_health_checks()
@@ -103,6 +138,11 @@ if __name__ in {"__main__", "__mp_main__"}:
         app.native.window_args['maximized'] = True
         app.native.start_args['gui'] = 'edgechromium'
         app.native.start_args['debug'] = True
+
+    # Ensure all background processes and threads exit cleanly when closing the app
+    from nicegui import app
+    import os
+    app.on_shutdown(lambda: os._exit(0))
 
     ui.run(
         native      = use_native, #False,
