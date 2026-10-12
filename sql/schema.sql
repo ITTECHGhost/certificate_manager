@@ -202,6 +202,7 @@ CREATE TABLE `students` (
   `full_name_en` varchar(150) NOT NULL,
   `gender` tinyint(4) NOT NULL COMMENT '1: Male, 2: Female',
   `nationality_id` int(11) NOT NULL DEFAULT '274',
+  `national_id` varchar(50) DEFAULT NULL COMMENT 'National ID or Passport Number',
   `date_of_birth` date DEFAULT NULL,
   `birthplace_id` int(11) DEFAULT '2',
   `birthplace_other` varchar(100) DEFAULT NULL,

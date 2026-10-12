@@ -146,10 +146,11 @@ TABLE_REGISTRY: Dict[str, Dict[str, Any]] = {
     "students": {
         "sp_name": "InsertStudent",
         "update_sp_name": "UpdateStudent",
+        "delete_sp_name": "DeleteStudent",
         "sp_args": [
             "full_name_ar", "full_name_en", "gender",
             "sequence_number", "postgraduation_number", "date_of_birth",
-            "birthplace_id", "birthplace_other", "nationality_id",
+            "birthplace_id", "birthplace_other", "nationality_id", "national_id",
             "department_id", "study_system_id", "degree_level",
             "order_id", "admission_year", "summer_training_data",
             "average", "graduation_date", "graduation_semester",
@@ -157,10 +158,12 @@ TABLE_REGISTRY: Dict[str, Dict[str, Any]] = {
     },
     "academic_periods": {
         "sp_name": "InsertAcademicPeriod",
+        "delete_sp_name": "DeleteAcademicPeriod",
         "sp_args": ["student_id", "academic_year", "stage_number", "semester_num", "result_status"],
     },
     "enrollments": {
         "sp_name": "InsertEnrollment",
+        "delete_sp_name": "DeleteEnrollment",
         "sp_args": ["period_id", "course_id", "score", "passed_round"],
     },
     "issued_certificates": {
@@ -254,6 +257,24 @@ def sync_offline_queue(payload: SyncPayload, conn=Depends(get_db)):
                     except Exception as err:
                         logger.error(f"Error updating {tbl} with ID {temp_id}: {err}")
                         raise
+
+                if action.operation == "DELETE" and "delete_sp_name" in meta:
+                    sp_name = meta["delete_sp_name"]
+                    target_id = temp_id if temp_id > 0 else resolved_payload.get("id")
+                    if target_id and target_id in id_map:
+                        target_id = id_map[target_id]
+                    if target_id and target_id > 0:
+                        logger.info(f"Calling SP {sp_name} (DELETE) for {tbl} with ID {target_id}")
+                        try:
+                            cur.callproc(sp_name, (target_id,))
+                            try:
+                                while cur.nextset(): pass
+                            except Exception: pass
+                            logger.info(f"Successfully deleted {tbl}: id={target_id}")
+                        except Exception as err:
+                            logger.error(f"Error deleting {tbl} with ID {target_id}: {err}")
+                            raise
+                    continue
 
                 if meta["sp_name"]:
                     sp_args = tuple(resolved_payload.get(k) for k in meta["sp_args"])

@@ -1696,40 +1696,41 @@ DELIMITER ;
 -- --------------------------------------------------------
 DELIMITER //
 DROP PROCEDURE IF EXISTS `InsertStudent` //
-CREATE DEFINER=`root`@`localhost` PROCEDURE `InsertStudent`(
-        IN p_full_name_ar VARCHAR(150),
-        IN p_full_name_en VARCHAR(150),
-        IN p_gender VARCHAR(1),
-        IN p_sequence_number INT,
-        IN p_postgraduation_number INT,
-        IN p_date_of_birth DATE,
-        IN p_birthplace_id INT,
-        IN p_birthplace_other VARCHAR(100),
-        IN p_nationality_id INT,
-        IN p_department_id INT,
-        IN p_study_system_id INT,
-        IN p_degree_level VARCHAR(50),
-        IN p_order_id INT,
-        IN p_admission_year VARCHAR(9),
-        IN p_summer_training_data VARCHAR(20),
-        IN p_average FLOAT,
-        IN p_graduation_date DATE,
-        IN p_graduation_semester VARCHAR(50)
-    )
-BEGIN
-        INSERT INTO students (
-            full_name_ar, full_name_en, gender, sequence_number, postgraduation_number, 
-            date_of_birth, birthplace_id, birthplace_other, nationality_id, department_id, 
-            study_system_id, degree_level, order_id, admission_year, summer_training_data, 
-            average, graduation_date, graduation_semester
-        ) VALUES (
-            p_full_name_ar, p_full_name_en, p_gender, p_sequence_number, p_postgraduation_number, 
-            p_date_of_birth, p_birthplace_id, p_birthplace_other, p_nationality_id, p_department_id, 
-            p_study_system_id, p_degree_level, p_order_id, p_admission_year, p_summer_training_data, 
-            p_average, p_graduation_date, p_graduation_semester
-        );
-        SELECT LAST_INSERT_ID() AS new_id;
-    END //
+CREATE DEFINER=`root`@`localhost` PROCEDURE `InsertStudent`(
+    IN p_full_name_ar VARCHAR(150),
+    IN p_full_name_en VARCHAR(150),
+    IN p_gender VARCHAR(1),
+    IN p_sequence_number INT,
+    IN p_postgraduation_number INT,
+    IN p_date_of_birth DATE,
+    IN p_birthplace_id INT,
+    IN p_birthplace_other VARCHAR(100),
+    IN p_nationality_id INT,
+    IN p_national_id VARCHAR(50),
+    IN p_department_id INT,
+    IN p_study_system_id INT,
+    IN p_degree_level VARCHAR(50),
+    IN p_order_id INT,
+    IN p_admission_year VARCHAR(9),
+    IN p_summer_training_data VARCHAR(20),
+    IN p_average FLOAT,
+    IN p_graduation_date DATE,
+    IN p_graduation_semester VARCHAR(50)
+)
+BEGIN
+    INSERT INTO students (
+        full_name_ar, full_name_en, gender, sequence_number, postgraduation_number, 
+        date_of_birth, birthplace_id, birthplace_other, nationality_id, national_id,
+        department_id, study_system_id, degree_level, order_id, admission_year, 
+        summer_training_data, average, graduation_date, graduation_semester
+    ) VALUES (
+        p_full_name_ar, p_full_name_en, p_gender, p_sequence_number, p_postgraduation_number, 
+        p_date_of_birth, p_birthplace_id, p_birthplace_other, p_nationality_id, p_national_id,
+        p_department_id, p_study_system_id, p_degree_level, p_order_id, p_admission_year, 
+        p_summer_training_data, p_average, p_graduation_date, p_graduation_semester
+    );
+    SELECT LAST_INSERT_ID() AS new_id;
+END //
 DELIMITER ;
 
 -- --------------------------------------------------------
@@ -1944,50 +1945,51 @@ DELIMITER ;
 -- --------------------------------------------------------
 DELIMITER //
 DROP PROCEDURE IF EXISTS `SearchStudentsBasic` //
-CREATE DEFINER=`root`@`localhost` PROCEDURE `SearchStudentsBasic`(
-        IN p_search_term VARCHAR(255),
-        IN p_limit INT
-    )
-BEGIN
-        SET p_search_term = TRIM(p_search_term);
-
-        IF CHAR_LENGTH(p_search_term) < 2 THEN
-            SELECT 
-                s.id AS student_id,
-                s.full_name_ar AS name_ar,
-                s.full_name_en AS name_en,
-                d.name_ar AS dept_name_ar,
-                YEAR(s.graduation_date) AS graduation_year,
-                s.admission_year,
-                s.average
-            FROM students s
-            LEFT JOIN departments d ON s.department_id = d.id
-            WHERE 1 = 0;
-        ELSE
-            SELECT 
-                s.id AS student_id,
-                s.full_name_ar AS name_ar,
-                s.full_name_en AS name_en,
-                d.name_ar AS dept_name_ar,
-                YEAR(s.graduation_date) AS graduation_year,
-                s.admission_year,
-                s.average
-            FROM 
-                students s
-            LEFT JOIN departments d ON s.department_id = d.id
-            WHERE 
-                s.full_name_ar LIKE CONCAT('%', p_search_term, '%') 
-                OR s.full_name_en LIKE CONCAT('%', p_search_term, '%')
-            ORDER BY
-                CASE 
-                    WHEN s.full_name_ar = p_search_term OR s.full_name_en = p_search_term THEN 1
-                    WHEN s.full_name_ar LIKE CONCAT(p_search_term, '%') OR s.full_name_en LIKE CONCAT(p_search_term, '%') THEN 2
-                    ELSE 3 
-                END,
-                s.full_name_ar ASC
-            LIMIT p_limit;
-        END IF;
-    END //
+CREATE DEFINER=`root`@`localhost` PROCEDURE `SearchStudentsBasic`(
+    IN p_search_term VARCHAR(255),
+    IN p_limit INT
+)
+BEGIN
+    SET p_search_term = TRIM(p_search_term);
+
+    IF CHAR_LENGTH(p_search_term) < 2 THEN
+        SELECT 
+            s.id AS student_id,
+            s.full_name_ar AS name_ar,
+            s.full_name_en AS name_en,
+            d.name_ar AS dept_name_ar,
+            YEAR(s.graduation_date) AS graduation_year,
+            s.admission_year,
+            s.average
+        FROM students s
+        LEFT JOIN departments d ON s.department_id = d.id
+        WHERE 1 = 0;
+    ELSE
+        SELECT 
+            s.id AS student_id,
+            s.full_name_ar AS name_ar,
+            s.full_name_en AS name_en,
+            d.name_ar AS dept_name_ar,
+            YEAR(s.graduation_date) AS graduation_year,
+            s.admission_year,
+            s.average
+        FROM 
+            students s
+        LEFT JOIN departments d ON s.department_id = d.id
+        WHERE 
+            s.full_name_ar LIKE CONCAT('%', p_search_term, '%') 
+            OR s.full_name_en LIKE CONCAT('%', p_search_term, '%')
+            OR s.national_id LIKE CONCAT('%', p_search_term, '%')
+        ORDER BY 
+            CASE 
+                WHEN s.full_name_ar = p_search_term OR s.full_name_en = p_search_term OR s.national_id = p_search_term THEN 1
+                WHEN s.full_name_ar LIKE CONCAT(p_search_term, '%') OR s.full_name_en LIKE CONCAT(p_search_term, '%') OR s.national_id LIKE CONCAT(p_search_term, '%') THEN 2
+                ELSE 3 
+            END, 
+            s.full_name_ar ASC
+        LIMIT p_limit;
+    END IF;
+END //
 DELIMITER ;
 
 -- --------------------------------------------------------
@@ -1995,89 +1997,49 @@ DELIMITER ;
 -- --------------------------------------------------------
 DELIMITER //
 DROP PROCEDURE IF EXISTS `SearchStudentsPaginated` //
-CREATE DEFINER=`root`@`localhost` PROCEDURE `SearchStudentsPaginated`(
-
-    IN p_search_term VARCHAR(255),
-
-    IN p_limit INT,
-
-    IN p_offset INT
-
+CREATE DEFINER=`root`@`localhost` PROCEDURE `SearchStudentsPaginated`(
+    IN p_search_term VARCHAR(255),
+    IN p_limit INT,
+    IN p_offset INT
 )
-BEGIN
-
-    SET p_search_term = TRIM(COALESCE(p_search_term, ''));
-
-
-
-        IF CHAR_LENGTH(p_search_term) < 2 THEN
-
-        SELECT 
-
-            s.id AS student_id,
-
-            COALESCE(s.full_name_ar, 'Unknown') AS name_ar,
-
-            COALESCE(s.full_name_en, 'Unknown') AS name_en,
-
-            COALESCE(d.name_ar, 'Unknown') AS department_name_ar,
-
-            COALESCE(YEAR(s.graduation_date), 'N/A') AS graduation_year,
-
-            COALESCE(s.average, 0.0) AS average
-
-        FROM students s
-
-        LEFT JOIN departments d ON s.department_id = d.id
-
-        ORDER BY s.id DESC
-
-        LIMIT p_limit OFFSET p_offset;
-
-    ELSE
-
-                SELECT 
-
-            s.id AS student_id,
-
-            COALESCE(s.full_name_ar, 'Unknown') AS name_ar,
-
-            COALESCE(s.full_name_en, 'Unknown') AS name_en,
-
-            COALESCE(d.name_ar, 'Unknown') AS department_name_ar,
-
-            COALESCE(YEAR(s.graduation_date), 'N/A') AS graduation_year,
-
-            COALESCE(s.average, 0.0) AS average
-
-        FROM students s
-
-        LEFT JOIN departments d ON s.department_id = d.id
-
-        WHERE 
-
-            s.full_name_ar LIKE CONCAT('%', p_search_term, '%')
-
-            OR s.full_name_en LIKE CONCAT('%', p_search_term, '%')
-
-        ORDER BY 
-
-            CASE 
-
-                WHEN s.full_name_ar = p_search_term OR s.full_name_en = p_search_term THEN 1 
-
-                WHEN s.full_name_ar LIKE CONCAT(p_search_term, '%') OR s.full_name_en LIKE CONCAT(p_search_term, '%') THEN 2 
-
-                ELSE 3 
-
-            END, 
-
-            s.full_name_ar ASC
-
-        LIMIT p_limit OFFSET p_offset;
-
-    END IF;
-
+BEGIN
+    SET p_search_term = TRIM(COALESCE(p_search_term, ''));
+
+    IF CHAR_LENGTH(p_search_term) < 2 THEN
+        SELECT 
+            s.id AS student_id,
+            COALESCE(s.full_name_ar, 'Unknown') AS name_ar,
+            COALESCE(s.full_name_en, 'Unknown') AS name_en,
+            COALESCE(d.name_ar, 'Unknown') AS department_name_ar,
+            COALESCE(YEAR(s.graduation_date), 'N/A') AS graduation_year,
+            COALESCE(s.average, 0.0) AS average
+        FROM students s
+        LEFT JOIN departments d ON s.department_id = d.id
+        ORDER BY s.id DESC
+        LIMIT p_limit OFFSET p_offset;
+    ELSE
+        SELECT 
+            s.id AS student_id,
+            COALESCE(s.full_name_ar, 'Unknown') AS name_ar,
+            COALESCE(s.full_name_en, 'Unknown') AS name_en,
+            COALESCE(d.name_ar, 'Unknown') AS department_name_ar,
+            COALESCE(YEAR(s.graduation_date), 'N/A') AS graduation_year,
+            COALESCE(s.average, 0.0) AS average
+        FROM students s
+        LEFT JOIN departments d ON s.department_id = d.id
+        WHERE 
+            s.full_name_ar LIKE CONCAT('%', p_search_term, '%')
+            OR s.full_name_en LIKE CONCAT('%', p_search_term, '%')
+            OR s.national_id LIKE CONCAT('%', p_search_term, '%')
+        ORDER BY 
+            CASE 
+                WHEN s.full_name_ar = p_search_term OR s.full_name_en = p_search_term OR s.national_id = p_search_term THEN 1 
+                WHEN s.full_name_ar LIKE CONCAT(p_search_term, '%') OR s.full_name_en LIKE CONCAT(p_search_term, '%') OR s.national_id LIKE CONCAT(p_search_term, '%') THEN 2 
+                ELSE 3 
+            END, 
+            s.full_name_ar ASC
+        LIMIT p_limit OFFSET p_offset;
+    END IF;
 END //
 DELIMITER ;
 
@@ -2368,49 +2330,51 @@ DELIMITER ;
 -- --------------------------------------------------------
 DELIMITER //
 DROP PROCEDURE IF EXISTS `UpdateStudent` //
-CREATE DEFINER=`root`@`localhost` PROCEDURE `UpdateStudent`(
-        IN p_id INT,
-        IN p_full_name_ar VARCHAR(150),
-        IN p_full_name_en VARCHAR(150),
-        IN p_gender VARCHAR(1),
-        IN p_sequence_number INT,
-        IN p_postgraduation_number INT,
-        IN p_date_of_birth DATE,
-        IN p_birthplace_id INT,
-        IN p_birthplace_other VARCHAR(100),
-        IN p_nationality_id INT,
-        IN p_department_id INT,
-        IN p_study_system_id INT,
-        IN p_degree_level VARCHAR(50),
-        IN p_order_id INT,
-        IN p_admission_year VARCHAR(9),
-        IN p_summer_training_data VARCHAR(20),
-        IN p_average FLOAT,
-        IN p_graduation_date DATE,
-        IN p_graduation_semester VARCHAR(50)
-    )
-BEGIN
-        UPDATE students
-        SET full_name_ar = p_full_name_ar,
-            full_name_en = p_full_name_en,
-            gender = p_gender,
-            sequence_number = p_sequence_number,
-            postgraduation_number = p_postgraduation_number,
-            date_of_birth = p_date_of_birth,
-            birthplace_id = p_birthplace_id,
-            birthplace_other = p_birthplace_other,
-            nationality_id = p_nationality_id,
-            department_id = p_department_id,
-            study_system_id = p_study_system_id,
-            degree_level = p_degree_level,
-            order_id = p_order_id,
-            admission_year = p_admission_year,
-            summer_training_data = p_summer_training_data,
-            average = p_average,
-            graduation_date = p_graduation_date,
-            graduation_semester = p_graduation_semester
-        WHERE id = p_id;
-    END //
+CREATE DEFINER=`root`@`localhost` PROCEDURE `UpdateStudent`(
+    IN p_id INT,
+    IN p_full_name_ar VARCHAR(150),
+    IN p_full_name_en VARCHAR(150),
+    IN p_gender VARCHAR(1),
+    IN p_sequence_number INT,
+    IN p_postgraduation_number INT,
+    IN p_date_of_birth DATE,
+    IN p_birthplace_id INT,
+    IN p_birthplace_other VARCHAR(100),
+    IN p_nationality_id INT,
+    IN p_national_id VARCHAR(50),
+    IN p_department_id INT,
+    IN p_study_system_id INT,
+    IN p_degree_level VARCHAR(50),
+    IN p_order_id INT,
+    IN p_admission_year VARCHAR(9),
+    IN p_summer_training_data VARCHAR(20),
+    IN p_average FLOAT,
+    IN p_graduation_date DATE,
+    IN p_graduation_semester VARCHAR(50)
+)
+BEGIN
+    UPDATE students
+    SET full_name_ar = p_full_name_ar,
+        full_name_en = p_full_name_en,
+        gender = p_gender,
+        sequence_number = p_sequence_number,
+        postgraduation_number = p_postgraduation_number,
+        date_of_birth = p_date_of_birth,
+        birthplace_id = p_birthplace_id,
+        birthplace_other = p_birthplace_other,
+        nationality_id = p_nationality_id,
+        national_id = p_national_id,
+        department_id = p_department_id,
+        study_system_id = p_study_system_id,
+        degree_level = p_degree_level,
+        order_id = p_order_id,
+        admission_year = p_admission_year,
+        summer_training_data = p_summer_training_data,
+        average = p_average,
+        graduation_date = p_graduation_date,
+        graduation_semester = p_graduation_semester
+    WHERE id = p_id;
+END //
 DELIMITER ;
 
 -- --------------------------------------------------------
@@ -3219,7 +3183,6 @@ DELIMITER //
 DROP PROCEDURE IF EXISTS `sp_GetCertificate_StudentInfo` //
 CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_GetCertificate_StudentInfo`(IN `p_student_id` INT)
 BEGIN
-
     SELECT 
         s.id AS student_id,
         COALESCE(s.full_name_ar, '') AS full_name_ar,
@@ -3251,6 +3214,7 @@ BEGIN
         COALESCE(ss.study_day_type, '') AS study_type, 
         COALESCE(c.name_ar, '') AS nationality_ar, 
         COALESCE(c.name_en, '') AS nationality_en, 
+        COALESCE(s.national_id, '') AS national_id,
         
         CASE 
             WHEN s.nationality_id != 274 THEN COALESCE(s.birthplace_other, '') 
@@ -3265,7 +3229,7 @@ BEGIN
         COALESCE(o.order_number, '') AS order_number, 
         COALESCE(o.order_date, '1970-01-01') AS order_date,
 
-                COALESCE(us.id, 1) AS university_settings_id,
+        COALESCE(us.id, 1) AS university_settings_id,
         COALESCE(us.univ_name_ar, '') AS univ_name_ar,
         COALESCE(us.univ_name_en, '') AS univ_name_en,
         COALESCE(us.college_name_ar, '') AS college_name_ar,
@@ -3283,7 +3247,6 @@ BEGIN
     )
     WHERE s.id = p_student_id
     LIMIT 1;
-
 END //
 DELIMITER ;
 

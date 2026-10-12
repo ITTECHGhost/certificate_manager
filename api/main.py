@@ -146,10 +146,11 @@ TABLE_REGISTRY: Dict[str, Dict[str, Any]] = {
     "students": {
         "sp_name": "InsertStudent",
         "update_sp_name": "UpdateStudent",
+        "delete_sp_name": "DeleteStudent",
         "sp_args": [
             "full_name_ar", "full_name_en", "gender",
             "sequence_number", "postgraduation_number", "date_of_birth",
-            "birthplace_id", "birthplace_other", "nationality_id",
+            "birthplace_id", "birthplace_other", "nationality_id", "national_id",
             "department_id", "study_system_id", "degree_level",
             "order_id", "admission_year", "summer_training_data",
             "average", "graduation_date", "graduation_semester",
@@ -157,10 +158,12 @@ TABLE_REGISTRY: Dict[str, Dict[str, Any]] = {
     },
     "academic_periods": {
         "sp_name": "InsertAcademicPeriod",
+        "delete_sp_name": "DeleteAcademicPeriod",
         "sp_args": ["student_id", "academic_year", "stage_number", "semester_num", "result_status"],
     },
     "enrollments": {
         "sp_name": "InsertEnrollment",
+        "delete_sp_name": "DeleteEnrollment",
         "sp_args": ["period_id", "course_id", "score", "passed_round"],
     },
     "issued_certificates": {
@@ -255,6 +258,24 @@ def sync_offline_queue(payload: SyncPayload, conn=Depends(get_db)):
                         logger.error(f"Error updating {tbl} with ID {temp_id}: {err}")
                         raise
 
+                if action.operation == "DELETE" and "delete_sp_name" in meta:
+                    sp_name = meta["delete_sp_name"]
+                    target_id = temp_id if temp_id > 0 else resolved_payload.get("id")
+                    if target_id and target_id in id_map:
+                        target_id = id_map[target_id]
+                    if target_id and target_id > 0:
+                        logger.info(f"Calling SP {sp_name} (DELETE) for {tbl} with ID {target_id}")
+                        try:
+                            cur.callproc(sp_name, (target_id,))
+                            try:
+                                while cur.nextset(): pass
+                            except Exception: pass
+                            logger.info(f"Successfully deleted {tbl}: id={target_id}")
+                        except Exception as err:
+                            logger.error(f"Error deleting {tbl} with ID {target_id}: {err}")
+                            raise
+                    continue
+
                 if meta["sp_name"]:
                     sp_args = tuple(resolved_payload.get(k) for k in meta["sp_args"])
                     logger.info(f"Calling SP {meta['sp_name']} with args {sp_args}")
@@ -272,6 +293,41 @@ def sync_offline_queue(payload: SyncPayload, conn=Depends(get_db)):
                                 real_id = existing_row["id"]
                                 id_map[temp_id] = real_id
                                 logger.info(f"Recovered existing ID {real_id} for {tbl}")
+                                continue
+                        elif err.errno == 1062 and tbl == "academic_periods":
+                            st_id = resolved_payload.get("student_id")
+                            stg = resolved_payload.get("stage_number")
+                            sem = resolved_payload.get("semester_num")
+                            logger.warning(f"Duplicate academic period ignored for SP {meta['sp_name']}: {err}")
+                            cur.execute(
+                                "SELECT id FROM academic_periods WHERE student_id=%s AND stage_number=%s AND semester_num=%s",
+                                (st_id, stg, sem)
+                            )
+                            row = cur.fetchone()
+                            if row:
+                                real_id = row["id"]
+                                id_map[temp_id] = real_id
+                                logger.info(f"Recovered existing ID {real_id} for {tbl}")
+                                continue
+                        elif err.errno == 1062 and tbl == "enrollments":
+                            pid = resolved_payload.get("period_id")
+                            cid = resolved_payload.get("course_id")
+                            logger.warning(f"Duplicate enrollment ignored for SP {meta['sp_name']}: {err}")
+                            cur.execute(
+                                "SELECT id FROM enrollments WHERE period_id=%s AND course_id=%s",
+                                (pid, cid)
+                            )
+                            row = cur.fetchone()
+                            if row:
+                                real_id = row["id"]
+                                id_map[temp_id] = real_id
+                                score = float(resolved_payload.get("score") or 0.0)
+                                pr = int(resolved_payload.get("passed_round") or 1)
+                                cur.callproc("UpdateEnrollment", (real_id, score, pr))
+                                try:
+                                    while cur.nextset(): pass
+                                except Exception: pass
+                                logger.info(f"Recovered existing ID {real_id} for {tbl} and updated enrollment")
                                 continue
                         raise
 
@@ -364,6 +420,7 @@ class StudentPayload(BaseModel):
     birthplace_id: Optional[int] = None
     birthplace_other: Optional[str] = None
     nationality_id: Optional[int] = 1
+    national_id: Optional[str] = None
     department_id: Optional[int] = None
     study_system_id: Optional[int] = None
     degree_level: Optional[int] = 1
@@ -528,6 +585,7 @@ def insert_student(payload: StudentPayload, conn=Depends(get_db)):
             payload.full_name_ar, payload.full_name_en, payload.gender,
             payload.sequence_number, payload.postgraduation_number, payload.date_of_birth,
             payload.birthplace_id, payload.birthplace_other, payload.nationality_id,
+            payload.national_id,
             payload.department_id, payload.study_system_id, payload.degree_level,
             payload.order_id, payload.admission_year, payload.summer_training_data,
             payload.average, payload.graduation_date, payload.graduation_semester
@@ -571,6 +629,7 @@ def update_student(student_id: int, payload: StudentPayload, conn=Depends(get_db
             payload.full_name_ar, payload.full_name_en, payload.gender,
             payload.sequence_number, payload.postgraduation_number, payload.date_of_birth,
             payload.birthplace_id, payload.birthplace_other, payload.nationality_id,
+            payload.national_id,
             payload.department_id, payload.study_system_id, payload.degree_level,
             payload.order_id, payload.admission_year, payload.summer_training_data,
             payload.average, payload.graduation_date, payload.graduation_semester
@@ -2608,6 +2667,7 @@ def process_offline_sync_batch(payload: dict, conn=Depends(get_db)):
                         data.get("birthplace_id"),
                         data.get("birthplace_other"),
                         int(data.get("nationality_id") or 1),
+                        data.get("national_id"),
                         data.get("department_id"),
                         int(data.get("study_system_id") or 1),
                         int(data.get("degree_level") or 1),
@@ -2741,7 +2801,39 @@ def process_offline_sync_batch(payload: dict, conn=Depends(get_db)):
                         id_map[int(temp_id)] = int(real_id)
 
             elif op == "UPDATE":
-                if tbl == "enrollments":
+                if tbl == "students":
+                    target_id = temp_id if temp_id > 0 else data.get("id")
+                    if target_id and target_id in id_map:
+                        target_id = id_map[target_id]
+                    if target_id and target_id > 0:
+                        sp_args = (
+                            target_id,
+                            data.get("full_name_ar"),
+                            data.get("full_name_en"),
+                            int(data.get("gender") or 1),
+                            data.get("sequence_number"),
+                            data.get("postgraduation_number"),
+                            data.get("date_of_birth"),
+                            data.get("birthplace_id"),
+                            data.get("birthplace_other"),
+                            int(data.get("nationality_id") or 1),
+                            data.get("national_id"),
+                            data.get("department_id"),
+                            int(data.get("study_system_id") or 1),
+                            int(data.get("degree_level") or 1),
+                            data.get("order_id"),
+                            data.get("admission_year"),
+                            data.get("summer_training_data"),
+                            data.get("average"),
+                            data.get("graduation_date"),
+                            data.get("graduation_semester") or "first"
+                        )
+                        cur.callproc("UpdateStudent", sp_args)
+                        try:
+                            while cur.nextset(): pass
+                        except Exception: pass
+
+                elif tbl == "enrollments":
                     target_id = temp_id if temp_id > 0 else data.get("id")
                     if target_id and target_id in id_map:
                         target_id = id_map[target_id]
@@ -2764,6 +2856,27 @@ def process_offline_sync_batch(payload: dict, conn=Depends(get_db)):
                             try:
                                 while cur.nextset(): pass
                             except Exception: pass
+
+            elif op == "DELETE":
+                target_id = temp_id if temp_id > 0 else data.get("id")
+                if target_id and target_id in id_map:
+                    target_id = id_map[target_id]
+                if target_id and target_id > 0:
+                    if tbl == "students":
+                        cur.callproc("DeleteStudent", (target_id,))
+                        try:
+                            while cur.nextset(): pass
+                        except Exception: pass
+                    elif tbl == "academic_periods":
+                        cur.callproc("DeleteAcademicPeriod", (target_id,))
+                        try:
+                            while cur.nextset(): pass
+                        except Exception: pass
+                    elif tbl == "enrollments":
+                        cur.callproc("DeleteEnrollment", (target_id,))
+                        try:
+                            while cur.nextset(): pass
+                        except Exception: pass
 
         conn.commit()
         return {"status": "success", "id_map": id_map}

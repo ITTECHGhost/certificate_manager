@@ -738,6 +738,10 @@ def build_certificate_context(data: dict, options: dict) -> dict:
         "Birthday": format_date_rtl(data.get("date_of_birth") or "", is_english),
         "Birthplace": data.get("birthplace_en" if is_english else "birthplace_ar") or data.get("birthplace_other", ""),
         "Nationality": data.get("nationality_en" if is_english else "nationality_ar", ""),
+        "national_id": to_arabic_num(data.get("national_id") or options.get("national_id") or "", is_english),
+        "National_ID": to_arabic_num(data.get("national_id") or options.get("national_id") or "", is_english),
+        "National_id": to_arabic_num(data.get("national_id") or options.get("national_id") or "", is_english),
+        "national_number": to_arabic_num(data.get("national_id") or options.get("national_id") or "", is_english),
         "admission_year": format_date_rtl(data.get("admission_year") or "", is_english),
         "graduation_year": format_date_rtl(data.get("graduation_year") or "", is_english),
         "department_id": data.get("dept_name_en" if is_english else "dept_name_ar", ""),
@@ -1668,6 +1672,7 @@ class CertificateScreen:
             "postpone_years": (self.inp_postpone_years.value or "").strip(),
             "opt_second_trial": self.sw_second.value,
             "second_trial_subjects": (self.inp_second_subjects.value or "").strip(),
+            "national_id": (self.student_full_data.get("national_id") if self.student_full_data else None) or (self.selected_student.get("national_id") if hasattr(self, "selected_student") and self.selected_student else None) or "",
         }
         return self.generate_docx(tpl_name, options)
 

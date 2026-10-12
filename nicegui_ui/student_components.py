@@ -395,6 +395,7 @@ class StudentProfileView:
         self.period_repo = AcademicPeriodRepository()
         self.enroll_repo = EnrollmentRepository()
         self.course_repo = CourseRepository()
+        self.timeline_layout_mode = "vertical"
 
     def render(self, student_data: dict, initial_tab: str = "info", from_cert: bool = False, on_back_to_cert = None):
         if not student_data:
@@ -509,6 +510,7 @@ class StudentProfileView:
                                 ui.label(f"Gender / الجنس: {gender_str}")
                                 ui.label(f"Date of Birth / تاريخ الميلاد: {data.get('date_of_birth', '—')}")
                                 ui.label(f"Nationality / الجنسية: {data.get('nationality_ar', '—')}")
+                                ui.label(f"National ID or Passport / الرقم الوطني أو رقم الجواز: {data.get('national_id') or '—'}")
                                 ui.label(f"Birthplace / مكان الولادة: {data.get('birthplace_ar') or data.get('birthplace_other') or '—'}")
                     
                     with ui.tab_panel(academic_tab):
@@ -535,74 +537,78 @@ class StudentProfileView:
 
     def _render_periods_tab(self, student_id: int):
         """Render reactive academic periods & 3-semester year cards timeline."""
-        if not hasattr(self, "timeline_layout_mode"):
-            self.timeline_layout_mode = "vertical"
+        self.timeline_layout_mode = "vertical"
 
         student_data = self.repo.get_by_id(student_id) or {}
         adm_year = student_data.get("admission_year")
         sys_id = student_data.get("study_system_id") or 1
         is_annual = sys_id in [1, 3]
 
-        periods_container = ui.column().classes("w-full gap-6")
+        # Top Action Bar: Add Academic Year input & Stage Selector & Layout Switch in ONE SINGLE ROW
+        with ui.row().classes("w-full items-center justify-between gap-3 p-3 rounded-xl app-card-header flex-nowrap"):
+            def on_add_year():
+                yr_str = year_input.value.strip() if year_input.value else ""
+                if not yr_str:
+                    ui.notify("يرجى إدخال السنة الدراسية / Enter Academic Year", type="warning")
+                    return
+                
+                db_yr = normalize_year(yr_str)
+                try:
+                    selected_stg = int(stage_add_sel.value or calculate_stage(db_yr, adm_year))
+                except Exception:
+                    selected_stg = calculate_stage(db_yr, adm_year)
+
+                try:
+                    self.period_repo.insert(
+                        student_id=student_id,
+                        year=db_yr,
+                        sys_id=sys_id,
+                        stage=selected_stg,
+                        semester_num=1
+                    )
+                    ui.notify(f"تم إضافة السنة الدراسية للمرحلة {selected_stg} بنجاح / Academic Year added", type="positive")
+                    refresh_timeline()
+                except Exception as err:
+                    ui.notify(f"Error adding year: {err}", type="negative")
+
+            # Component 1 & 2: Inputs (Compact widths)
+            with ui.row().classes("items-center gap-3 flex-nowrap shrink-0 min-w-0"):
+                year_input = UI.text_input(
+                    label="السنة الدراسية (Academic Year)",
+                    placeholder="مثال: 2024-2025"
+                ).props("dense").style("width: 220px !important;").classes("text-xs shrink-0")
+                
+                stage_add_opts = {1: "المرحلة الأولى (1)", 2: "المرحلة الثانية (2)", 3: "المرحلة الثالثة (3)", 4: "المرحلة الرابعة (4)"}
+                stage_add_sel = UI.select("المرحلة الدراسية / Stage", options=stage_add_opts, value=1).props("dense").style("width: 190px !important;").classes("text-xs shrink-0")
+
+            # Component 3 & 4: Action Buttons & Layout Toggle Switch
+            with ui.row().classes("items-center gap-4 flex-nowrap shrink-0"):
+                def toggle_layout(e):
+                    self.timeline_layout_mode = "horizontal" if e.value else "vertical"
+                    refresh_timeline()
+
+                layout_switch = ui.switch(
+                    "تخطيط أفقي / Horizontal", 
+                    value=False, 
+                    on_change=toggle_layout
+                ).classes("text-xs font-bold shrink-0")
+                
+                UI.success_button("إضافة سنة دراسية / Add Academic Year", icon="add", on_click=on_add_year).classes("text-xs px-3 py-2 shrink-0")
+                ui.button(
+                    "تطبيق روتين دراسي / Apply Routine",
+                    icon="auto_mode",
+                    on_click=lambda: show_apply_routine_dialog(
+                        student=student_data, 
+                        on_success_callback=refresh_timeline
+                    )
+                ).classes("bg-teal-600 text-white font-bold rounded-lg shadow-sm text-xs px-3 py-2 shrink-0")
+
+        # Container for reactive timeline cards
+        timeline_cards_container = ui.column().classes("w-full gap-6")
 
         def refresh_timeline():
-            periods_container.clear()
-            with periods_container:
-                # Top Action Bar: Add Academic Year input & Stage Selector in ONE SINGLE ROW
-                with ui.row().classes("w-full items-center justify-between gap-3 p-3 rounded-xl app-card-header flex-nowrap"):
-                    def on_add_year():
-                        yr_str = year_input.value.strip() if year_input.value else ""
-                        if not yr_str:
-                            ui.notify("يرجى إدخال السنة الدراسية / Enter Academic Year", type="warning")
-                            return
-                        
-                        db_yr = normalize_year(yr_str)
-                        try:
-                            selected_stg = int(stage_add_sel.value or calculate_stage(db_yr, adm_year))
-                        except Exception:
-                            selected_stg = calculate_stage(db_yr, adm_year)
-
-                        try:
-                            self.period_repo.insert(
-                                student_id=student_id,
-                                year=db_yr,
-                                sys_id=sys_id,
-                                stage=selected_stg,
-                                semester_num=1
-                            )
-                            ui.notify(f"تم إضافة السنة الدراسية للمرحلة {selected_stg} بنجاح / Academic Year added", type="positive")
-                            refresh_timeline()
-                        except Exception as err:
-                            ui.notify(f"Error adding year: {err}", type="negative")
-
-                    # Component 1 & 2: Inputs (Compact widths)
-                    with ui.row().classes("items-center gap-3 flex-nowrap shrink-0 min-w-0"):
-                        year_input = UI.text_input(
-                            label="السنة الدراسية (Academic Year)",
-                            placeholder="مثال: 2024-2025"
-                        ).props("dense").style("width: 220px !important;").classes("text-xs shrink-0")
-                        
-                        stage_add_opts = {1: "المرحلة الأولى (1)", 2: "المرحلة الثانية (2)", 3: "المرحلة الثالثة (3)", 4: "المرحلة الرابعة (4)"}
-                        stage_add_sel = UI.select("المرحلة الدراسية / Stage", options=stage_add_opts, value=1).props("dense").style("width: 190px !important;").classes("text-xs shrink-0")
-
-                    # Component 3 & 4: Action Buttons (Swapped Order)
-                    with ui.row().classes("items-center gap-4 flex-nowrap shrink-0"):
-                        def toggle_layout(e):
-                            self.timeline_layout_mode = "horizontal" if e.value else "vertical"
-                            refresh_timeline()
-
-                        ui.switch("تخطيط أفقي / Horizontal", value=(self.timeline_layout_mode == "horizontal"), on_change=toggle_layout).classes("text-xs font-bold shrink-0")
-                        
-                        UI.success_button("إضافة سنة دراسية / Add Academic Year", icon="add", on_click=on_add_year).classes("text-xs px-3 py-2 shrink-0")
-                        ui.button(
-                            "تطبيق روتين دراسي / Apply Routine",
-                            icon="auto_mode",
-                            on_click=lambda: show_apply_routine_dialog(
-                                student=student_data, 
-                                on_success_callback=refresh_timeline
-                            )
-                        ).classes("bg-teal-600 text-white font-bold rounded-lg shadow-sm text-xs px-3 py-2 shrink-0")
-
+            timeline_cards_container.clear()
+            with timeline_cards_container:
                 # Fetch student periods
                 try:
                     periods = self.period_repo.get_by_student(student_id) or []
@@ -649,7 +655,6 @@ class StudentProfileView:
                     sem2_enrs = [e for e in enrollments_list if e["academic_year"] == yr and int(e.get("semester_num") or 1) == 2]
                     sem3_enrs = [e for e in enrollments_list if e["academic_year"] == yr and int(e.get("semester_num") or 1) == 3]
 
-
                     with UI.card().classes("w-full p-4 gap-4 rounded-xl border border-[var(--border-default)]"):
                         # Card Header with Stage Selector Dropdown
                         with ui.row().classes("w-full justify-between items-center pb-2 app-card-header flex-wrap gap-2"):
@@ -676,8 +681,8 @@ class StudentProfileView:
 
                                 UI.select("المرحلة الدراسية / Stage", stage_card_map, value=int(stg_val or 1), on_change=make_stage_changer(yr_periods)).classes("text-sm w-48 shrink-0 font-bold")
 
-                        if self.timeline_layout_mode == "vertical":
-                            # 3 Semester Columns Grid (Responsive without horizontal scrollbar)
+                        if self.timeline_layout_mode == "horizontal":
+                            # Horizontal Mode (When switch is ON): Stacked full-width semester cards
                             with ui.column().classes("w-full gap-5 items-stretch"):
                                 # Col 1: Semester 1
                                 self._render_semester_box_vertical(
@@ -715,7 +720,7 @@ class StudentProfileView:
                                     refresh_callback=refresh_timeline
                                 )
                         else:
-                            # Horizontal View Grid
+                            # Vertical Mode (When switch is OFF / default): 3-column side-by-side cards
                             with ui.row().classes("w-full gap-5 items-stretch flex-nowrap overflow-x-auto pb-4"):
                                 # Col 1: Semester 1
                                 self._render_semester_box_horizontal(
@@ -799,8 +804,8 @@ class StudentProfileView:
                 elif errors > 0:
                     ui.notify("حدث خطأ أثناء حفظ درجات الفترة", type="negative")
 
-            with ui.column().classes("w-full gap-3 pb-3 border-b border-[var(--border-default)]"):
-                with ui.row().classes("w-full justify-start items-center gap-3"):
+            with ui.row().classes("w-full justify-between items-center pb-3 border-b border-[var(--border-default)] gap-3 flex-wrap"):
+                with ui.row().classes("items-center gap-3 shrink-0"):
                     ui.label(sem_title).classes("font-extrabold text-xl app-text-accent")
 
                     if period:
@@ -814,7 +819,7 @@ class StudentProfileView:
                             ui.label(f"{status_info['label_ar']} / {status_info['label_en']}")
 
                 if period:
-                    with ui.row().classes("w-full justify-start items-center gap-3"):
+                    with ui.row().classes("items-center gap-3 shrink-0 flex-wrap"):
                         # Editable Status Select Dropdown
                         status_opts = {k: f"{v['label_ar']} / {v['label_en']}" for k, v in RESULT_STATUS_MAP.items()}
                         def on_status_change(e, p_id=period["id"]):
@@ -1305,6 +1310,7 @@ class StudentFormView:
                         self.birthplace = UI.select("Birthplace / مكان الولادة", gov_opts, value=default_gov).classes('flex-1')
                         default_ctry = 274 if 274 in country_opts else (list(country_opts.keys())[0] if country_opts else 274)
                         self.nationality = UI.select("Nationality / الجنسية", country_opts, value=default_ctry).classes('flex-1')
+                        self.national_id = UI.text_input("National ID or Passport / الرقم الوطني أو رقم الجواز").classes('flex-1')
 
                     # Section 3: Academic Details
                     ui.label("Academic / الدراسة والأكاديميا").classes('text-lg font-bold app-text-accent w-full')
@@ -1368,6 +1374,7 @@ class StudentFormView:
                     self.birthplace.value = data.get("birthplace_id")
                 if data.get("nationality_id") in country_opts:
                     self.nationality.value = data.get("nationality_id")
+                self.national_id.value = str(data.get("national_id") or "")
 
                 if data.get("department_id") in dept_opts:
                     self.department.value = data.get("department_id")
@@ -1445,6 +1452,7 @@ class StudentFormView:
             "date_of_birth": dob_raw,
             "birthplace_id": self.birthplace.value if isinstance(self.birthplace.value, int) else None,
             "nationality_id": self.nationality.value if isinstance(self.nationality.value, int) else 1,
+            "national_id": self.national_id.value.strip() if self.national_id.value else None,
             "department_id": self.department.value if isinstance(self.department.value, int) else None,
             "study_system_id": self.study_system.value if isinstance(self.study_system.value, int) else 1,
             "degree_level": self.degree.value if isinstance(self.degree.value, int) else 1,

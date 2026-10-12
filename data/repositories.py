@@ -59,6 +59,7 @@ from data.query import (
     delete_offline_academic_period,
     get_offline_enrollments_by_period,
     update_offline_enrollment,
+    delete_offline_enrollment,
     get_offline_graduation_orders,
     get_offline_graduation_order_by_id,
     get_offline_audit_logs,
@@ -1229,6 +1230,7 @@ class StudentRepository(BaseRepository):
                 "birthplace_id": data.get('birthplace_id', 2),
                 "birthplace_other": data.get('birthplace_other'),
                 "nationality_id": data.get('nationality_id', 274),
+                "national_id": data.get('national_id'),
                 "department_id": data.get('department_id'),
                 "study_system_id": data.get('study_system_id'),
                 "degree_level": data.get('degree_level', 1),
@@ -1261,6 +1263,7 @@ class StudentRepository(BaseRepository):
             "birthplace_id": data.get('birthplace_id'),
             "birthplace_other": data.get('birthplace_other'),
             "nationality_id": data.get('nationality_id', 1),
+            "national_id": data.get('national_id'),
             "department_id": data.get('department_id'),
             "study_system_id": data.get('study_system_id'),
             "degree_level": data.get('degree_level', 1),
@@ -1516,8 +1519,10 @@ class EnrollmentRepository(BaseRepository):
             log_system(f"API request failed for enrollment update: {e}", "WARNING")
 
     def delete(self, enrollment_id: int) -> None:
+        delete_offline_enrollment(enrollment_id)
         if not is_online():
-            raise OfflineModeError()
+            log_activity(f"تم حذف تسجيل المادة (أوفلاين) ID: {enrollment_id}")
+            return
         try:
             resp = requests.delete(f"{self.api_url}/enrollments/{enrollment_id}", timeout=5.0)
             if resp.status_code != 200:

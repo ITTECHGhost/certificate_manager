@@ -247,6 +247,7 @@ def get_offline_certificate_data(student_id: int, grouping_mode: str = "DEFAULT"
         "IFNULL(ss.study_day_type, '') AS study_type, "
         "IFNULL(c.name_ar, '') AS nationality_ar, "
         "IFNULL(c.name_en, '') AS nationality_en, "
+        "IFNULL(s.national_id, '') AS national_id, "
         "IFNULL(g.name_ar, '') AS birthplace_ar, "
         "IFNULL(g.name_en, '') AS birthplace_en, "
         "IFNULL(o.order_number, '') AS order_number, "
@@ -258,12 +259,12 @@ def get_offline_certificate_data(student_id: int, grouping_mode: str = "DEFAULT"
         "1 AS university_settings_id "
         "FROM ("
         "  SELECT id AS student_id, full_name_ar, full_name_en, sequence_number, postgraduation_number, date_of_birth, "
-        "         birthplace_id, birthplace_other, nationality_id, department_id, study_system_id, "
+        "         birthplace_id, birthplace_other, nationality_id, national_id, department_id, study_system_id, "
         "         order_id, admission_year, summer_training_data, average, graduation_date, graduation_semester "
         "  FROM students "
         "  UNION ALL "
         "  SELECT id AS student_id, full_name_ar, full_name_en, sequence_number, postgraduation_number, date_of_birth, "
-        "         birthplace_id, birthplace_other, nationality_id, department_id, study_system_id, "
+        "         birthplace_id, birthplace_other, nationality_id, national_id, department_id, study_system_id, "
         "         order_id, admission_year, summer_training_data, average, graduation_date, graduation_semester "
         "  FROM local_students "
         ") s "
@@ -756,24 +757,25 @@ def search_offline_students_paginated(db_path: str, search_term: str, limit: int
                 strftime('%Y', s.graduation_date) AS graduation_year, 
                 s.average
             FROM (
-                SELECT id, full_name_ar, full_name_en, graduation_date, average, department_id FROM students
+                SELECT id, full_name_ar, full_name_en, graduation_date, average, department_id, national_id FROM students
                 UNION ALL
-                SELECT id, full_name_ar, full_name_en, graduation_date, average, department_id FROM local_students
+                SELECT id, full_name_ar, full_name_en, graduation_date, average, department_id, national_id FROM local_students
             ) s
             LEFT JOIN departments d ON s.department_id = d.id
             WHERE 
                 s.full_name_ar LIKE '%' || ? || '%' 
                 OR s.full_name_en LIKE '%' || ? || '%'
+                OR s.national_id LIKE '%' || ? || '%'
             ORDER BY 
                 CASE 
-                    WHEN s.full_name_ar = ? OR s.full_name_en = ? THEN 1
-                    WHEN s.full_name_ar LIKE ? || '%' OR s.full_name_en LIKE ? || '%' THEN 2
+                    WHEN s.full_name_ar = ? OR s.full_name_en = ? OR s.national_id = ? THEN 1
+                    WHEN s.full_name_ar LIKE ? || '%' OR s.full_name_en LIKE ? || '%' OR s.national_id LIKE ? || '%' THEN 2
                     ELSE 3
                 END,
                 s.full_name_ar ASC
             LIMIT ? OFFSET ?
         """
-        params = (search_term, search_term, search_term, search_term, search_term, search_term, limit, offset)
+        params = (search_term, search_term, search_term, search_term, search_term, search_term, search_term, search_term, search_term, limit, offset)
 
     try:
         with sqlite3.connect(db_path) as conn:
@@ -849,8 +851,8 @@ def get_offline_students_paginated(limit: int = 25, offset: int = 0, name_query:
     params = []
     if name_query:
         pattern = f"%{name_query.strip()}%"
-        conditions.append("(s.full_name_ar LIKE ? OR s.full_name_en LIKE ?)")
-        params += [pattern, pattern]
+        conditions.append("(s.full_name_ar LIKE ? OR s.full_name_en LIKE ? OR s.national_id LIKE ?)")
+        params += [pattern, pattern, pattern]
     if dept_id:
         conditions.append("s.department_id = ?")
         params.append(dept_id)
@@ -864,9 +866,9 @@ def get_offline_students_paginated(limit: int = 25, offset: int = 0, name_query:
     return sqlite_read_all(
         "SELECT s.id, s.full_name_ar, s.full_name_en, s.admission_year, s.graduation_year, s.average, s.order_id, "
         "d.name_ar AS dept_name_ar "
-        "FROM (SELECT id, full_name_ar, full_name_en, CAST(admission_year AS TEXT) AS admission_year, CAST(strftime('%Y', graduation_date) AS TEXT) AS graduation_year, average, order_id, department_id FROM students "
+        "FROM (SELECT id, full_name_ar, full_name_en, CAST(admission_year AS TEXT) AS admission_year, CAST(strftime('%Y', graduation_date) AS TEXT) AS graduation_year, average, order_id, department_id, national_id FROM students "
         "      UNION ALL "
-        "      SELECT id, full_name_ar, full_name_en, CAST(admission_year AS TEXT) AS admission_year, CAST(strftime('%Y', graduation_date) AS TEXT) AS graduation_year, average, order_id, department_id FROM local_students) s "
+        "      SELECT id, full_name_ar, full_name_en, CAST(admission_year AS TEXT) AS admission_year, CAST(strftime('%Y', graduation_date) AS TEXT) AS graduation_year, average, order_id, department_id, national_id FROM local_students) s "
         "LEFT JOIN departments d ON s.department_id = d.id "
         f"{where} ORDER BY CASE WHEN s.id < 0 THEN 1 ELSE 0 END DESC, ABS(s.id) DESC LIMIT ? OFFSET ?", tuple(params)
     ) or []
@@ -880,12 +882,12 @@ def get_offline_student_by_id(student_id: int) -> dict | None:
         "d.name_ar AS dept_name_ar, ss.name_ar AS study_system_name_ar, ss.study_day_type AS study_type, "
         "c.name_ar AS nationality_ar, g.name_ar AS birthplace_ar "
         "FROM (SELECT id, full_name_ar, full_name_en, gender, sequence_number, postgraduation_number, date_of_birth, "
-        "             birthplace_id, birthplace_other, nationality_id, department_id, study_system_id, degree_level, "
+        "             birthplace_id, birthplace_other, nationality_id, national_id, department_id, study_system_id, degree_level, "
         "             order_id, CAST(admission_year AS TEXT) AS admission_year, summer_training_data, average, graduation_date, graduation_semester "
         "      FROM students "
         "      UNION ALL "
         "      SELECT id, full_name_ar, full_name_en, gender, sequence_number, postgraduation_number, date_of_birth, "
-        "             birthplace_id, birthplace_other, nationality_id, department_id, study_system_id, degree_level, "
+        "             birthplace_id, birthplace_other, nationality_id, national_id, department_id, study_system_id, degree_level, "
         "             order_id, CAST(admission_year AS TEXT) AS admission_year, summer_training_data, average, graduation_date, graduation_semester "
         "      FROM local_students) s "
         "LEFT JOIN graduation_orders o ON s.order_id = o.id "
@@ -915,22 +917,22 @@ def search_offline_students(query: str, limit: int = 8) -> list[dict]:
             CAST(s.admission_year AS TEXT) AS admission_year, 
             s.average 
         FROM (
-            SELECT id, full_name_ar, full_name_en, admission_year, graduation_date, average, department_id FROM students 
+            SELECT id, full_name_ar, full_name_en, admission_year, graduation_date, average, department_id, national_id FROM students 
             UNION ALL 
-            SELECT id, full_name_ar, full_name_en, admission_year, graduation_date, average, department_id FROM local_students
+            SELECT id, full_name_ar, full_name_en, admission_year, graduation_date, average, department_id, national_id FROM local_students
         ) s 
         LEFT JOIN departments d ON s.department_id = d.id 
-        WHERE s.full_name_ar LIKE ? OR s.full_name_en LIKE ?
+        WHERE s.full_name_ar LIKE ? OR s.full_name_en LIKE ? OR s.national_id LIKE ?
         ORDER BY 
             CASE 
-                WHEN s.full_name_ar = ? OR s.full_name_en = ? THEN 1
-                WHEN s.full_name_ar LIKE ? OR s.full_name_en LIKE ? THEN 2
+                WHEN s.full_name_ar = ? OR s.full_name_en = ? OR s.national_id = ? THEN 1
+                WHEN s.full_name_ar LIKE ? OR s.full_name_en LIKE ? OR s.national_id LIKE ? THEN 2
                 ELSE 3 
             END,
             s.full_name_ar ASC
         LIMIT ?
     """
-    params = (fuzzy_match, fuzzy_match, exact_match, exact_match, prefix_match, prefix_match, limit)
+    params = (fuzzy_match, fuzzy_match, fuzzy_match, exact_match, exact_match, exact_match, prefix_match, prefix_match, prefix_match, limit)
     return sqlite_read_all(sqlite_query, params) or []
 
 def get_offline_student_statistics_by_department() -> list[dict]:
@@ -1055,6 +1057,11 @@ def delete_offline_student(student_id: int | str) -> None:
         sq_conn.execute("DELETE FROM students WHERE id=? OR CAST(id AS TEXT)=?", (sid, str_sid))
         sq_conn.execute("DELETE FROM local_students WHERE id=? OR CAST(id AS TEXT)=?", (sid, str_sid))
         sq_conn.execute("DELETE FROM sync_queue WHERE temp_id=? OR CAST(temp_id AS TEXT)=?", (sid, str_sid))
+        if isinstance(sid, int) and sid > 0:
+            sq_conn.execute(
+                "INSERT INTO sync_queue (table_name, operation, temp_id, payload) VALUES ('students', 'DELETE', ?, '{}')",
+                (sid,)
+            )
         sq_conn.commit()
     finally:
         sq_conn.close()
@@ -1268,8 +1275,8 @@ def count_offline_students(name_query: str = "", dept_id: int | None = None, yea
     params = []
     if name_query:
         pattern = f"%{name_query.strip()}%"
-        conditions.append("(s.full_name_ar LIKE ? OR s.full_name_en LIKE ?)")
-        params += [pattern, pattern]
+        conditions.append("(s.full_name_ar LIKE ? OR s.full_name_en LIKE ? OR s.national_id LIKE ?)")
+        params += [pattern, pattern, pattern]
     if dept_id:
         conditions.append("s.department_id = ?")
         params.append(dept_id)
@@ -1280,9 +1287,9 @@ def count_offline_students(name_query: str = "", dept_id: int | None = None, yea
     where = ("WHERE " + " AND ".join(conditions)) if conditions else ""
     row = sqlite_read_one(
         "SELECT COUNT(*) as total_count FROM ("
-        "  SELECT id, full_name_ar, full_name_en, department_id, CAST(strftime('%Y', graduation_date) AS TEXT) AS graduation_year FROM students "
+        "  SELECT id, full_name_ar, full_name_en, department_id, CAST(strftime('%Y', graduation_date) AS TEXT) AS graduation_year, national_id FROM students "
         "  UNION ALL "
-        "  SELECT id, full_name_ar, full_name_en, department_id, CAST(strftime('%Y', graduation_date) AS TEXT) AS graduation_year FROM local_students"
+        "  SELECT id, full_name_ar, full_name_en, department_id, CAST(strftime('%Y', graduation_date) AS TEXT) AS graduation_year, national_id FROM local_students"
         ") s "
         f"{where}", tuple(params)
     )
@@ -1408,6 +1415,33 @@ def delete_offline_academic_period(period_id: int | str) -> None:
         conn.execute("DELETE FROM academic_periods WHERE id = ? OR CAST(id AS TEXT) = ?", (pid, str_pid))
         conn.execute("DELETE FROM local_academic_periods WHERE id = ? OR CAST(id AS TEXT) = ?", (pid, str_pid))
         conn.execute("DELETE FROM sync_queue WHERE temp_id = ? OR CAST(temp_id AS TEXT) = ?", (pid, str_pid))
+        if isinstance(pid, int) and pid > 0:
+            conn.execute(
+                "INSERT INTO sync_queue (table_name, operation, temp_id, payload) VALUES ('academic_periods', 'DELETE', ?, '{}')",
+                (pid,)
+            )
+        conn.commit()
+    finally:
+        conn.close()
+
+
+def delete_offline_enrollment(enrollment_id: int | str) -> None:
+    """Delete enrollment from local SQLite database replica, cache tables, & sync queue."""
+    conn = get_local_connection()
+    try:
+        try:
+            eid = int(enrollment_id)
+        except (ValueError, TypeError):
+            eid = enrollment_id
+        str_eid = str(eid)
+        conn.execute("DELETE FROM enrollments WHERE id = ? OR CAST(id AS TEXT) = ?", (eid, str_eid))
+        conn.execute("DELETE FROM local_enrollments WHERE id = ? OR CAST(id AS TEXT) = ?", (eid, str_eid))
+        conn.execute("DELETE FROM sync_queue WHERE temp_id = ? OR CAST(temp_id AS TEXT) = ?", (eid, str_eid))
+        if isinstance(eid, int) and eid > 0:
+            conn.execute(
+                "INSERT INTO sync_queue (table_name, operation, temp_id, payload) VALUES ('enrollments', 'DELETE', ?, '{}')",
+                (eid,)
+            )
         conn.commit()
     finally:
         conn.close()

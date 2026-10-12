@@ -34024,3 +34024,130 @@ RuntimeError: The parent element this slot belongs to has been deleted.
 2026-10-11 11:42:43 [INFO] _pywebviewready event fired
 2026-10-11 11:42:43 [INFO] loaded event fired
 2026-10-11 11:42:43 [INFO] loaded event fired
+2026-10-11 12:39:53 [INFO] SYSTEM STARTUP DIAGNOSTIC CHECK STARTED
+2026-10-11 12:39:55 [WARNING] [CHECK 1/4] FastAPI Connection Check ... [OFFLINE MODE]
+2026-10-11 12:39:55 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-10-11 12:39:55 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-10-11 12:39:55 [OK] [CHECK 2/4] SQLite Replica Database Connection ... [OK]
+2026-10-11 12:39:55 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-10-11 12:39:55 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-10-11 12:39:55 [OK] [CHECK 3/4] Authentication & Core SP Checks ... [OFFLINE MODE]
+2026-10-11 12:39:55 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-10-11 12:39:55 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-10-11 12:39:55 [OK] [CHECK 4/4] Sync Engine & Local Replica Check ... [OK]
+2026-10-11 12:39:55 [OK] Status: OFFLINE MODE ACTIVE. PROCEEDING TO LOGIN/DASHBOARD.
+2026-10-11 12:39:58 [INFO] Using WinForms / Chromium
+2026-10-11 12:39:58 [INFO] Using WinForms / Chromium
+2026-10-11 12:40:02 [INFO] before_load event fired. injecting pywebview object
+2026-10-11 12:40:02 [INFO] before_load event fired. injecting pywebview object
+2026-10-11 12:40:02 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-11 12:40:02 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-11 12:40:02 [INFO] _pywebviewready event fired
+2026-10-11 12:40:02 [INFO] _pywebviewready event fired
+2026-10-11 12:40:02 [INFO] loaded event fired
+2026-10-11 12:40:02 [INFO] loaded event fired
+2026-10-11 12:41:16 [INFO] before_load event fired. injecting pywebview object
+2026-10-11 12:41:16 [INFO] before_load event fired. injecting pywebview object
+2026-10-11 12:41:16 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-11 12:41:16 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-11 12:41:16 [INFO] _pywebviewready event fired
+2026-10-11 12:41:16 [INFO] _pywebviewready event fired
+2026-10-11 12:41:16 [INFO] loaded event fired
+2026-10-11 12:41:16 [INFO] loaded event fired
+2026-10-11 12:44:53 [INFO] Offline Mode: Executing local SQLite replica database engine for student_id=-133...
+2026-10-11 12:44:53 [INFO] Offline Mode: Executing local SQLite replica database engine for student_id=-133...
+2026-10-11 12:44:53 [INFO] Offline Mode: Executing local SQLite replica database engine for student_id=-133...
+2026-10-11 12:44:53 [INFO] Offline Mode: Executing local SQLite replica database engine for student_id=-133...
+2026-10-11 12:44:53 [INFO] Offline Mode: Executing local SQLite replica database engine for student_id=-133...
+2026-10-11 12:44:53 [INFO] Offline Mode: Executing local SQLite replica database engine for student_id=-133...
+2026-10-12 08:22:20 [INFO] SYSTEM STARTUP DIAGNOSTIC CHECK STARTED
+2026-10-12 08:22:20 [OK] [CHECK 1/4] FastAPI Connection Check ... [OK]
+2026-10-12 08:22:20 [OK] [CHECK 2/4] MySQL Database Connection ... [OK]
+2026-10-12 08:22:20 [OK] [CHECK 3/4] Authentication & Core SP Checks ... [OK]
+2026-10-12 08:22:20 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-10-12 08:22:20 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-10-12 08:22:20 [OK] [CHECK 4/4] Sync Engine & Local Replica Check ... [OK]
+2026-10-12 08:22:20 [OK] Status: ALL CHECKS PASSED. PROCEEDING TO LOGIN/DASHBOARD.
+2026-10-12 08:22:24 [INFO] Using WinForms / Chromium
+2026-10-12 08:22:24 [INFO] Using WinForms / Chromium
+2026-10-12 08:22:29 [INFO] before_load event fired. injecting pywebview object
+2026-10-12 08:22:29 [INFO] before_load event fired. injecting pywebview object
+2026-10-12 08:22:29 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-12 08:22:29 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-12 08:22:29 [INFO] _pywebviewready event fired
+2026-10-12 08:22:29 [INFO] _pywebviewready event fired
+2026-10-12 08:22:29 [INFO] loaded event fired
+2026-10-12 08:22:29 [INFO] loaded event fired
+2026-10-12 08:22:35 [INFO] before_load event fired. injecting pywebview object
+2026-10-12 08:22:35 [INFO] before_load event fired. injecting pywebview object
+2026-10-12 08:22:35 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-12 08:22:35 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-12 08:22:35 [INFO] _pywebviewready event fired
+2026-10-12 08:22:35 [INFO] _pywebviewready event fired
+2026-10-12 08:22:35 [INFO] loaded event fired
+2026-10-12 08:22:35 [INFO] loaded event fired
+2026-10-12 08:24:58 [INFO] Online Mode: Successfully fetched raw certificate payload via API for student_id=2138.
+2026-10-12 08:24:58 [INFO] Online Mode: Successfully fetched raw certificate payload via API for student_id=2138.
+2026-10-12 08:25:32 [INFO] Successfully recorded issued certificate for student ID 2138 via InsertIssuedCertificate SP.
+2026-10-12 08:25:32 [INFO] Successfully recorded issued certificate for student ID 2138 via InsertIssuedCertificate SP.
+2026-10-12 08:42:04 [WARNING] API insert issued certificate warning: {"detail":"Certificate record already exists for this student, date, and template."}
+2026-10-12 08:42:04 [INFO] Offline INSERT queued: issued_certificates temp_id=-191
+2026-10-12 08:42:04 [INFO] Offline INSERT queued: issued_certificates temp_id=-191
+2026-10-12 08:42:04 [INFO] Successfully recorded issued certificate for student ID 2138 via InsertIssuedCertificate SP.
+2026-10-12 08:42:04 [INFO] Successfully recorded issued certificate for student ID 2138 via InsertIssuedCertificate SP.
+2026-10-12 08:49:06 [INFO] Online Mode: Successfully fetched raw certificate payload via API for student_id=2138.
+2026-10-12 08:51:35 [WARNING] Failed to delete user data folder: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\IT_TECK\\AppData\\Local\\Temp\\tmp2af_1991\\EBWebView\\lockfile'
+2026-10-12 08:51:35 [WARNING] Failed to delete user data folder: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\IT_TECK\\AppData\\Local\\Temp\\tmp2af_1991\\EBWebView\\lockfile'
+2026-10-12 09:11:28 [INFO] Online Mode: Successfully fetched raw certificate payload via API for student_id=2138.
+2026-10-12 09:11:29 [ERROR] UNHANDLED EXCEPTION:
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+    import cert_repository, nicegui_screens.certificate_screen as cs; p = cert_repository.get_certificate_payload(2138); print('Payload national_id:', p.get('national_id'), p.get('student', {}).get('national_id')); ctx = cs.build_certificate_context(p, {}); print('Context national_id:', ctx.get('national_id'))
+                                                                                                                                                                                                                                                                  ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\encodings\cp1252.py", line 19, in encode
+    return codecs.charmap_encode(input,self.errors,encoding_table)[0]
+           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeEncodeError: 'charmap' codec can't encode characters in position 0-11: character maps to <undefined>
+
+2026-10-12 09:11:46 [INFO] Online Mode: Successfully fetched raw certificate payload via API for student_id=2138.
+2026-10-12 09:17:41 [INFO] Online Mode: Successfully fetched raw certificate payload via API for student_id=2138.
+2026-10-12 09:21:55 [INFO] SYSTEM STARTUP DIAGNOSTIC CHECK STARTED
+2026-10-12 09:21:55 [OK] [CHECK 1/4] FastAPI Connection Check ... [OK]
+2026-10-12 09:21:55 [OK] [CHECK 2/4] MySQL Database Connection ... [OK]
+2026-10-12 09:21:55 [OK] [CHECK 3/4] Authentication & Core SP Checks ... [OK]
+2026-10-12 09:21:55 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-10-12 09:21:55 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-10-12 09:21:55 [OK] [CHECK 4/4] Sync Engine & Local Replica Check ... [OK]
+2026-10-12 09:21:55 [OK] Status: ALL CHECKS PASSED. PROCEEDING TO LOGIN/DASHBOARD.
+2026-10-12 09:21:59 [INFO] Using WinForms / Chromium
+2026-10-12 09:21:59 [INFO] Using WinForms / Chromium
+2026-10-12 09:22:13 [INFO] before_load event fired. injecting pywebview object
+2026-10-12 09:22:13 [INFO] before_load event fired. injecting pywebview object
+2026-10-12 09:22:13 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-12 09:22:13 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-12 09:22:14 [INFO] _pywebviewready event fired
+2026-10-12 09:22:14 [INFO] _pywebviewready event fired
+2026-10-12 09:22:14 [INFO] loaded event fired
+2026-10-12 09:22:14 [INFO] loaded event fired
+2026-10-12 09:22:23 [INFO] before_load event fired. injecting pywebview object
+2026-10-12 09:22:23 [INFO] before_load event fired. injecting pywebview object
+2026-10-12 09:22:24 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-12 09:22:24 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-12 09:22:24 [INFO] _pywebviewready event fired
+2026-10-12 09:22:24 [INFO] _pywebviewready event fired
+2026-10-12 09:22:24 [INFO] loaded event fired
+2026-10-12 09:22:25 [INFO] loaded event fired
+2026-10-12 09:22:31 [INFO] Online Mode: Successfully fetched raw certificate payload via API for student_id=2139.
+2026-10-12 09:22:31 [INFO] Online Mode: Successfully fetched raw certificate payload via API for student_id=2139.
+2026-10-12 09:22:31 [INFO] Online Mode: Successfully fetched raw certificate payload via API for student_id=2139.
+2026-10-12 09:22:31 [INFO] Online Mode: Successfully fetched raw certificate payload via API for student_id=2139.
+2026-10-12 09:22:32 [INFO] Online Mode: Successfully fetched raw certificate payload via API for student_id=2139.
+2026-10-12 09:22:32 [INFO] Online Mode: Successfully fetched raw certificate payload via API for student_id=2139.
+2026-10-12 09:23:04 [INFO] Online Mode: Successfully fetched raw certificate payload via API for student_id=2139.
+2026-10-12 09:23:04 [INFO] Online Mode: Successfully fetched raw certificate payload via API for student_id=2139.
+2026-10-12 09:23:05 [INFO] Online Mode: Successfully fetched raw certificate payload via API for student_id=2139.
+2026-10-12 09:23:05 [INFO] Online Mode: Successfully fetched raw certificate payload via API for student_id=2139.
+2026-10-12 09:23:05 [INFO] Online Mode: Successfully fetched raw certificate payload via API for student_id=2139.
+2026-10-12 09:23:05 [INFO] Online Mode: Successfully fetched raw certificate payload via API for student_id=2139.
+2026-10-12 09:23:19 [INFO] Successfully recorded issued certificate for student ID 2139 via InsertIssuedCertificate SP.
+2026-10-12 09:23:19 [INFO] Successfully recorded issued certificate for student ID 2139 via InsertIssuedCertificate SP.

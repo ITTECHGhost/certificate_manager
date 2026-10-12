@@ -99,7 +99,7 @@ _TABLE_REGISTRY: dict[str, dict] = {
         "columns": [
             "full_name_ar", "full_name_en", "gender",
             "sequence_number", "postgraduation_number", "date_of_birth",
-            "birthplace_id", "birthplace_other", "nationality_id",
+            "birthplace_id", "birthplace_other", "nationality_id", "national_id",
             "department_id", "study_system_id", "degree_level",
             "order_id", "admission_year", "summer_training_data",
             "average", "graduation_date", "graduation_semester",
@@ -108,7 +108,7 @@ _TABLE_REGISTRY: dict[str, dict] = {
         "sp_args": [
             "full_name_ar", "full_name_en", "gender",
             "sequence_number", "postgraduation_number", "date_of_birth",
-            "birthplace_id", "birthplace_other", "nationality_id",
+            "birthplace_id", "birthplace_other", "nationality_id", "national_id",
             "department_id", "study_system_id", "degree_level",
             "order_id", "admission_year", "summer_training_data",
             "average", "graduation_date", "graduation_semester",
@@ -333,6 +333,7 @@ def init_local_db() -> None:
                 birthplace_id       INTEGER,
                 birthplace_other    TEXT,
                 nationality_id      INTEGER,
+                national_id         TEXT,
                 department_id       INTEGER,
                 study_system_id     INTEGER,
                 degree_level        INTEGER DEFAULT 1,
@@ -457,6 +458,7 @@ def init_local_db() -> None:
                 birthplace_id         INTEGER,
                 birthplace_other      TEXT,
                 nationality_id        INTEGER DEFAULT 1,
+                national_id           TEXT,
                 department_id         INTEGER,
                 study_system_id       INTEGER,
                 degree_level          INTEGER DEFAULT 1,
@@ -679,6 +681,16 @@ def init_local_db() -> None:
 
         try:
             cur.execute("ALTER TABLE students ADD COLUMN admission_year TEXT DEFAULT NULL;")
+        except sqlite3.OperationalError:
+            pass
+
+        try:
+            cur.execute("ALTER TABLE local_students ADD COLUMN national_id TEXT DEFAULT NULL;")
+        except sqlite3.OperationalError:
+            pass
+
+        try:
+            cur.execute("ALTER TABLE students ADD COLUMN national_id TEXT DEFAULT NULL;")
         except sqlite3.OperationalError:
             pass
 
@@ -1157,7 +1169,51 @@ def log_offline_update(table_name: str, record_id: int, payload_dict: dict) -> N
         conn.commit()
         log.info("Offline UPDATE queued/merged: %s id=%d", table_name, record_id)
     finally:
-        conn.close()# ---------------------------------------------------------------------------
+        conn.close()
+
+
+def log_offline_delete(table_name: str, record_id: int) -> None:
+    """
+    Queue a DELETE for later sync and immediately remove the record from local cache.
+    If record_id < 0 (un-synced offline temp record):
+      Removes its pending operations from sync_queue and local tables.
+    If record_id > 0 (synced record in MySQL):
+      Appends a DELETE operation to sync_queue and purges any pending UPDATEs for that record.
+    """
+    if table_name not in _TABLE_REGISTRY:
+        raise ValueError(
+            f"Unknown table '{table_name}'. "
+            f"Registered tables: {list(_TABLE_REGISTRY.keys())}"
+        )
+
+    meta = _TABLE_REGISTRY[table_name]
+    local_table = meta["local_table"]
+    primary_table = table_name
+
+    conn = _get_local_conn()
+    try:
+        cur = conn.cursor()
+        cur.execute(f"DELETE FROM {local_table} WHERE id = ?", (record_id,))
+        cur.execute(f"DELETE FROM {primary_table} WHERE id = ?", (record_id,))
+        cur.execute(
+            "DELETE FROM sync_queue WHERE temp_id = ? AND table_name = ?",
+            (record_id, table_name)
+        )
+
+        if record_id > 0:
+            cur.execute(
+                "INSERT INTO sync_queue (table_name, operation, temp_id, payload) "
+                "VALUES (?, 'DELETE', ?, '{}')",
+                (table_name, record_id)
+            )
+
+        conn.commit()
+        log.info("Offline DELETE queued: %s id=%d", table_name, record_id)
+    finally:
+        conn.close()
+
+
+# ---------------------------------------------------------------------------
 # Task 4 — Synchronisation & ID Resolution Loop
 # ---------------------------------------------------------------------------
 

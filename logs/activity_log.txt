@@ -972,3 +972,13 @@
 2026-10-11 10:54:42 [OK] Authentication verified via MySQL Stored Procedure 'AuthenticateUser' for user '1' (ID: 1, Role: admin)
 2026-10-11 11:42:41 [INFO] Login attempt initiated for username: '1'
 2026-10-11 11:42:41 [OK] Authentication verified via MySQL Stored Procedure 'AuthenticateUser' for user '1' (ID: 1, Role: admin)
+2026-10-11 12:41:15 [INFO] Login attempt initiated for username: '1'
+2026-10-11 12:41:15 [OK] Authentication verified via MySQL Stored Procedure 'AuthenticateUser' for user '1' (ID: 1, Role: admin)
+2026-10-12 08:22:34 [INFO] Login attempt initiated for username: '1'
+2026-10-12 08:22:34 [OK] Authentication verified via MySQL Stored Procedure 'AuthenticateUser' for user '1' (ID: 1, Role: admin)
+2026-10-12 08:24:50 [INFO] تم تعديل بيانات الطالب ID: 2138
+2026-10-12 08:25:32 [INFO] تم تسجيل الوثيقة الصادرة بالطالب ID: 2138 (الجهة: من يهمه الأمر) عبر SP
+2026-10-12 09:22:21 [INFO] Login attempt initiated for username: '1'
+2026-10-12 09:22:21 [OK] Authentication verified via MySQL Stored Procedure 'AuthenticateUser' for user '1' (ID: 1, Role: admin)
+2026-10-12 09:22:59 [INFO] تم تعديل بيانات الطالب ID: 2139
+2026-10-12 09:23:19 [INFO] تم تسجيل الوثيقة الصادرة بالطالب ID: 2139 (الجهة: من يهمه الأمر) عبر SP
