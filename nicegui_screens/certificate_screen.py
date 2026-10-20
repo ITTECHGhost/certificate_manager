@@ -12,7 +12,8 @@ from docxtpl import DocxTemplate
 from nicegui import ui
 
 from nicegui_ui.ui_components import UI
-from data.repositories import StudentRepository, CertificateRepository, PersonnelRepository
+from nicegui_ui.template_constants import get_friendly_template_name
+from data.repositories import StudentRepository, CertificateRepository, PersonnelRepository, IssuedCertificateRepository
 from nicegui_screens.graduation_orders_screen import extract_event_value
 
 log = logging.getLogger(__name__)
@@ -133,42 +134,53 @@ def consolidate_courses_for_certificate(courses_grouped: list, is_annual: bool =
                 if parse_stage_num(c_stg, 1) < parse_stage_num(p_stg, 1):
                     is_carry_over = True
 
-        course_stg = parse_stage_num(best_passed.get("course_curriculum_stage") or best_passed.get("period_stage") or best_passed.get("stage_number"), 1)
-        target_info = latest_period_for_stage.get(course_stg) or best_passed
-
-        if is_annual:
-            # Rule A: Annual System
-            # All courses for a stage are placed into the LATEST year period the student took that stage.
-            pass_year = target_info.get("academic_year")
-            pass_year_fmt = target_info.get("academic_year_formatted")
-            stage_num = course_stg
-            sem_num = parse_stage_num(best_passed.get("semester_num") or earliest_attempt.get("semester_num"), 1)
-
-            final_item["stage_number"] = stage_num
-            final_item["semester_num"] = sem_num
-            if pass_year:
-                final_item["academic_year"] = pass_year
-            if pass_year_fmt:
-                final_item["academic_year_formatted"] = pass_year_fmt
-
-            backend_gkey = target_info.get("grouping_key")
-            final_item["grouping_key"] = backend_gkey or f"{pass_year}_{stage_num}_{sem_num}"
+        # Preserve the authentic grouping_key and fields from the database Stored Procedure / API
+        if best_passed.get("grouping_key"):
+            final_item["grouping_key"] = best_passed["grouping_key"]
+            if best_passed.get("academic_year"):
+                final_item["academic_year"] = best_passed["academic_year"]
+            if best_passed.get("academic_year_formatted"):
+                final_item["academic_year_formatted"] = best_passed["academic_year_formatted"]
+            if best_passed.get("stage_number"):
+                final_item["stage_number"] = best_passed["stage_number"]
+            if best_passed.get("semester_num"):
+                final_item["semester_num"] = best_passed["semester_num"]
         else:
-            # Rule B: Semester System
-            pass_year = target_info.get("academic_year")
-            pass_year_fmt = target_info.get("academic_year_formatted")
-            pass_stg = course_stg
-            pass_sem = parse_stage_num(best_passed.get("semester_num"), 1)
+            course_stg = parse_stage_num(best_passed.get("course_curriculum_stage") or best_passed.get("period_stage") or best_passed.get("stage_number"), 1)
+            target_info = latest_period_for_stage.get(course_stg) or best_passed
 
-            final_item["stage_number"] = pass_stg
-            final_item["semester_num"] = pass_sem
-            if pass_year:
-                final_item["academic_year"] = pass_year
-            if pass_year_fmt:
-                final_item["academic_year_formatted"] = pass_year_fmt
+            if is_annual:
+                # Rule A: Annual System
+                pass_year = target_info.get("academic_year")
+                pass_year_fmt = target_info.get("academic_year_formatted")
+                stage_num = course_stg
+                sem_num = parse_stage_num(best_passed.get("semester_num") or earliest_attempt.get("semester_num"), 1)
 
-            backend_gkey = target_info.get("grouping_key")
-            final_item["grouping_key"] = backend_gkey or f"{pass_year}_{pass_stg}_{pass_sem}"
+                final_item["stage_number"] = stage_num
+                final_item["semester_num"] = sem_num
+                if pass_year:
+                    final_item["academic_year"] = pass_year
+                if pass_year_fmt:
+                    final_item["academic_year_formatted"] = pass_year_fmt
+
+                backend_gkey = target_info.get("grouping_key")
+                final_item["grouping_key"] = backend_gkey or f"{pass_year}_{stage_num}_{sem_num}"
+            else:
+                # Rule B: Semester System
+                pass_year = target_info.get("academic_year")
+                pass_year_fmt = target_info.get("academic_year_formatted")
+                pass_stg = course_stg
+                pass_sem = parse_stage_num(best_passed.get("semester_num"), 1)
+
+                final_item["stage_number"] = pass_stg
+                final_item["semester_num"] = pass_sem
+                if pass_year:
+                    final_item["academic_year"] = pass_year
+                if pass_year_fmt:
+                    final_item["academic_year_formatted"] = pass_year_fmt
+
+                backend_gkey = target_info.get("grouping_key")
+                final_item["grouping_key"] = backend_gkey or f"{pass_year}_{pass_stg}_{pass_sem}"
 
         # If retaken or passed in round 2/3, flag round info
         if len(group) > 1 or str(best_passed.get("passed_round")) in ('2', '3') or best_passed.get("is_second_round"):
@@ -890,11 +902,14 @@ class CertificateScreen:
     Uses separated full-width sub-views for Student Profile/Transcript and Certificate Print Options.
     """
 
-    def __init__(self, on_edit_student=None, initial_student=None):
+    def __init__(self, on_edit_student=None, initial_student=None, initial_cert_record=None):
         self.on_edit_student = on_edit_student
+        self.initial_cert_record = initial_cert_record
+        self.reissue_cert_id = (initial_cert_record.get("certificate_id") or initial_cert_record.get("id")) if initial_cert_record else None
         self.student_repo = StudentRepository()
         self.cert_repo = CertificateRepository()
         self.personnel_repo = PersonnelRepository()
+        self.issued_cert_repo = IssuedCertificateRepository()
 
         self.selected_student = None
         self.student_full_data = None
@@ -911,6 +926,13 @@ class CertificateScreen:
         if initial_student:
             self.select_student(initial_student)
 
+    def _format_template_options(self, template_files: list[str]) -> dict:
+        """Maps raw template filenames to friendly Arabic/bilingual display labels."""
+        return {
+            t: (get_friendly_template_name(t, include_file=True) if t and not t.startswith("لا توجد") else t)
+            for t in template_files
+        }
+
     def render_screen(self):
         """Re-renders the screen container while preserving the currently selected student data."""
         self.build_ui()
@@ -918,7 +940,7 @@ class CertificateScreen:
             self.update_student_ui()
             filtered_templates = self.get_templates(self.student_full_data)
             if hasattr(self, "template_sel") and self.template_sel:
-                self.template_sel.options = {t: t for t in filtered_templates}
+                self.template_sel.options = self._format_template_options(filtered_templates)
                 self.template_sel.value = filtered_templates[0] if filtered_templates else None
                 self.template_sel.update()
             self.show_info_view()
@@ -1016,12 +1038,29 @@ class CertificateScreen:
 
                         UI.primary_button("العودة لبيانات الطالب / Back to Student", icon="arrow_forward", on_click=self.show_info_view).classes("text-xs px-4 py-2 font-bold")
 
+                    # Edit Mode Banner (Visible when editing an existing certificate record)
+                    self.edit_mode_banner = ui.row().classes(
+                        "w-full p-3.5 rounded-xl bg-amber-500/15 border border-amber-500/40 items-center justify-between shadow-sm"
+                    )
+                    self.edit_mode_banner.set_visibility(False)
+                    with self.edit_mode_banner:
+                        with ui.row().classes("items-center gap-2.5"):
+                            ui.icon("edit_document", size="sm").classes("text-amber-400 text-lg")
+                            with ui.column().classes("gap-0"):
+                                self.edit_mode_label = ui.label("تعديل قيد الوثيقة / Editing Certificate Record").classes(
+                                    "text-sm font-bold text-amber-300"
+                                )
+                                ui.label("سيتم تحديث سجل الوثيقة في قاعدة البيانات مباشرة عند التوليد والحفظ").classes(
+                                    "text-[11px] text-amber-200/70"
+                                )
+                        ui.badge("وضع التعديل / Edit Mode", color="amber-700").classes("text-xs font-bold px-2.5 py-1")
+
                     # Row 1: Template Selector + Issued To + Edit Student (3 Components in 1 Row)
                     with ui.row().classes("w-full gap-4 items-center"):
                         initial_templates = self.get_templates()
                         self.template_sel = UI.select(
                             "قالب الوثيقة / Certificate Template",
-                            options={t: t for t in initial_templates},
+                            options=self._format_template_options(initial_templates),
                             value=initial_templates[0] if initial_templates else None
                         ).classes("flex-1 text-sm")
 
@@ -1056,6 +1095,32 @@ class CertificateScreen:
                         ).classes("flex-1 text-sm")
 
                         UI.primary_button("تعديل الطالب / Edit", icon="edit", on_click=self.handle_edit_student).classes("text-sm px-4 py-3.5 mt-2")
+
+                    # Row 1.5: Certificate Registry Info (Certificate Number & Auto Issue Date in 1 Row)
+                    with ui.row().classes("w-full gap-4 items-center flex-nowrap"):
+                        with ui.row().classes("flex-1 min-w-0 gap-2 items-center flex-nowrap"):
+                            init_cert_num = self.issued_cert_repo.get_next_number()
+                            self.cert_number_input = UI.text_input(
+                                "رقم الوثيقة / Certificate Number",
+                                value=init_cert_num,
+                                placeholder="مثال: 420/44 أو 105"
+                            ).classes("flex-1 min-w-0 text-sm")
+
+                            def _refresh_cert_number():
+                                next_num = self.issued_cert_repo.get_next_number()
+                                self.cert_number_input.value = next_num
+                                UI.notify(f"تم تحديث الرقم المقترح: {next_num}", type="info")
+
+                            ui.button(icon="autorenew", on_click=_refresh_cert_number).classes(
+                                "p-2.5 mt-2 rounded-xl bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 shadow-none hover:bg-slate-300 dark:hover:bg-slate-700 shrink-0"
+                            ).tooltip("توليد الرقم التالي تلقائياً / Auto-Generate Next Number")
+
+                        from datetime import datetime
+                        today_str = datetime.now().strftime("%Y-%m-%d")
+                        self.issue_date_input = UI.text_input(
+                            "تاريخ الإصدار / Issue Date (تلقائي اليوم)",
+                            value=today_str
+                        ).classes("flex-1 min-w-0 text-sm").props("readonly")
 
                     ui.separator().classes("my-1")
 
@@ -1221,7 +1286,7 @@ class CertificateScreen:
             self.search_results_card.set_visibility(False)
 
         self.selected_student = student_row
-        student_id = student_row["id"]
+        student_id = student_row.get("student_id") or student_row.get("id")
         self.current_grouping_mode = getattr(self, "current_grouping_mode", "DEFAULT")
 
         try:
@@ -1277,11 +1342,54 @@ class CertificateScreen:
             # Filter template dropdown options dynamically based on student's study system (semester vs year)
             filtered_templates = self.get_templates(self.student_full_data)
             if hasattr(self, "template_sel") and self.template_sel:
-                self.template_sel.options = {t: t for t in filtered_templates}
+                self.template_sel.options = self._format_template_options(filtered_templates)
                 self.template_sel.value = filtered_templates[0] if filtered_templates else None
                 self.template_sel.update()
 
-            self.show_info_view()
+            # If arriving with an existing certificate record (e.g. from Issued Certificates registry Edit button)
+            if self.initial_cert_record:
+                rec = self.initial_cert_record
+                cert_num = rec.get("certificate_number") or ""
+                to_title = rec.get("to_title") or rec.get("recipient_name") or ""
+                issue_date = rec.get("issue_date") or ""
+                tpl_type = rec.get("template_type") or rec.get("template_file") or rec.get("template_name") or ""
+
+                if hasattr(self, "cert_number_input") and self.cert_number_input and cert_num:
+                    self.cert_number_input.value = str(cert_num)
+                if hasattr(self, "to_input") and self.to_input and to_title:
+                    self.to_input.value = str(to_title)
+                if hasattr(self, "issue_date_input") and self.issue_date_input and issue_date:
+                    self.issue_date_input.value = str(issue_date)[:10]
+
+                # Match template in dropdown
+                if hasattr(self, "template_sel") and self.template_sel and tpl_type:
+                    tpl_clean = str(tpl_type).strip().lower()
+                    matched = None
+                    opts = self.template_sel.options
+                    opt_keys = list(opts.keys()) if isinstance(opts, dict) else list(opts)
+                    for opt_k in opt_keys:
+                        opt_clean = os.path.splitext(opt_k)[0].strip().lower()
+                        if tpl_clean == opt_clean or tpl_clean in opt_clean or opt_clean in tpl_clean:
+                            matched = opt_k
+                            break
+                    if matched:
+                        self.template_sel.value = matched
+                        self.template_sel.update()
+
+                self.reissue_cert_id = rec.get("certificate_id") or rec.get("id")
+                student_display_name = student_row.get("full_name_ar") or self.student_full_data.get("full_name_ar", "")
+                if hasattr(self, "edit_mode_banner") and self.edit_mode_banner:
+                    if hasattr(self, "edit_mode_label") and self.edit_mode_label:
+                        self.edit_mode_label.text = f"وضع التعديل: تعديل قيد الوثيقة رقم ({cert_num or self.reissue_cert_id}) للطالب ({student_display_name})"
+                    self.edit_mode_banner.set_visibility(True)
+
+                if hasattr(self, "btn_generate") and self.btn_generate:
+                    self.btn_generate.text = "تحديث وتوليد الوثيقة (Word) / Update & Generate"
+
+                # Directly show print options view as requested
+                self.show_options_view()
+            else:
+                self.show_info_view()
         except Exception as e:
             log.error(f"Error loading student: {e}")
             UI.notify(f"خطأ أثناء تحميل بيانات الطالب: {e}", type="negative")
@@ -1572,6 +1680,7 @@ class CertificateScreen:
                         k = c.get("grouping_key") or f"{raw_yr}_{pstg}_{sem_num}"
                         if k not in grouped_data:
                             grouped_data[k] = {
+                                "key": str(k),
                                 "academic_year": fmt_yr,
                                 "raw_academic_year": raw_yr,
                                 "stage_number": pstg,
@@ -1587,6 +1696,12 @@ class CertificateScreen:
                             p["stage_number"] = max(p_stages, key=p_stages.count)
 
                     def _get_group_sort_key(p):
+                        gk = str(p.get("key") or "")
+                        if gk.isdigit() and len(gk) <= 2:
+                            return ("", int(gk), 0)
+                        if '_' in gk and gk.split('_')[0].isdigit() and len(gk.split('_')[0]) <= 2:
+                            s_p, sem_p = gk.split('_')
+                            return ("", int(s_p), int(sem_p) if sem_p.isdigit() else 0)
                         yr = str(p.get("raw_academic_year") or p.get("academic_year") or "")
                         try:
                             s_num = int(p.get("stage_number", 0))
@@ -1606,15 +1721,23 @@ class CertificateScreen:
                             year = p.get("academic_year", "")
                             sem = p.get("semester_num", 1)
                             enrs = p.get("enrollments", [])
+                            gk_val = str(p.get("key") or "")
 
                             parts = []
-                            if year:
-                                parts.append(f"العام الدراسي ({year})")
-                            if stg:
-                                parts.append(f"المرحلة {stg}")
-                            if "semester" in period_disp and sem:
-                                parts.append(f"الفصل {sem}")
-                            header_label = " — ".join(parts) if parts else f"المجموعة ({k})"
+                            if gk_val in ('1', '2', '3', '4', '5', '6'):
+                                parts.append(f"المرحلة {gk_val}")
+                            elif '_' in gk_val and gk_val.split('_')[0].isdigit() and len(gk_val.split('_')[0]) <= 2:
+                                s_part, sem_part = gk_val.split('_')
+                                parts.append(f"المرحلة {s_part}")
+                                parts.append(f"الفصل {sem_part}")
+                            else:
+                                if year:
+                                    parts.append(f"العام الدراسي ({year})")
+                                if stg:
+                                    parts.append(f"المرحلة {stg}")
+                                if "semester" in period_disp and sem:
+                                    parts.append(f"الفصل {sem}")
+                            header_label = " — ".join(parts) if parts else f"المجموعة ({gk_val})"
 
                             with ui.column().classes("w-full gap-3 p-4 rounded-xl bg-[var(--bg-card)] border border-[var(--border-default)] shadow-sm"):
                                 with ui.row().classes("w-full justify-between items-center pb-2 border-b border-[var(--border-default)]"):
@@ -1639,7 +1762,36 @@ class CertificateScreen:
                                                 ui.label(f"الدرجة: {score}").classes("font-extrabold text-emerald-400 font-mono text-xs")
                                                 ui.label(f"{units} وحدات").classes("text-[10px] font-bold px-2 py-0.5 bg-[var(--bg-card)] rounded-lg text-slate-300 font-mono border border-[var(--border-default)]")
 
-    def generate_certificate(self) -> bool:
+    def _show_reissue_warning_modal(self, cert_num: str, tpl_name: str, options: dict, reissue_cert_id: Optional[int] = None) -> None:
+        """Opens a confirmation modal warning the user to destroy the old physical paper copy before re-issuing."""
+        with ui.dialog() as dialog, UI.card().classes("w-full max-w-lg p-6 gap-4 bg-[var(--bg-card)] rounded-2xl border border-[var(--border-default)] shadow-2xl"):
+            with ui.row().classes("items-center gap-3"):
+                ui.icon("warning", size="lg").classes("text-amber-500")
+                with ui.column().classes("gap-0"):
+                    ui.label("تنبيه: إعادة إصدار وثيقة برقم مسجل مسبقاً").classes("text-base font-bold app-text-primary")
+                    ui.label("Document Re-issuance & Invalidation Notice").classes("text-xs app-text-muted")
+
+            ui.separator().classes("my-1")
+
+            with ui.column().classes("gap-2 text-sm app-text-primary leading-relaxed bg-amber-50 dark:bg-amber-950/30 p-4 rounded-xl border border-amber-200 dark:border-amber-800"):
+                ui.label(f"⚠️ إن رقم الوثيقة ({cert_num}) مسجل مسبقاً لهذا الطالب في السجل الرسمي.").classes("font-bold text-amber-800 dark:text-amber-300")
+                ui.label("وفقاً لتعليمات السجل والوثائق، فإن إعادة إصدار الوثيقة بنفس الرقم تتطلب أولاً إتلاف النسخة الورقية السابقة منعاً للازدواجية.").classes("text-xs leading-normal")
+                ui.label("هل ترغب في متابعة التوليد وتحديث بيانات القيد في السجل؟").classes("text-xs font-semibold")
+
+            with ui.row().classes("w-full justify-end gap-3 mt-2"):
+                UI.secondary_button("إلغاء / Cancel", icon="close", on_click=dialog.close).classes("text-xs px-4 py-2")
+                
+                def _confirm_reissue():
+                    dialog.close()
+                    if reissue_cert_id:
+                        options["reissue_cert_id"] = reissue_cert_id
+                    self.generate_docx(tpl_name, options)
+
+                UI.danger_button("تأكيد وإتلاف القديمة / Confirm & Overwrite", icon="done", on_click=_confirm_reissue).classes("text-xs px-4 py-2 font-bold")
+
+        dialog.open()
+
+    def generate_certificate(self, bypass_duplicate_check: bool = False) -> bool:
         if not self.student_full_data:
             UI.notify("الرجاء اختيار طالب أولاً / Please select a student first", type="warning")
             return False
@@ -1654,10 +1806,14 @@ class CertificateScreen:
             UI.notify(f"القالب غير موجود: {tpl_path}", type="negative")
             return False
 
+        cert_num = (self.cert_number_input.value or "").strip() if hasattr(self, "cert_number_input") else ""
+        student_id = self.student_full_data.get("id") or self.student_full_data.get("student_id")
+
         # Prepare options dictionary
         is_en = "en" in tpl_name.lower() or "eng" in tpl_name.lower()
         options = {
             "is_english": is_en,
+            "certificate_number": cert_num,
             "to_title": (self.to_input.value or "").strip(),
             "opt_order": self.sw_order.value,
             "order_num": (self.inp_order_num.value or "").strip(),
@@ -1673,7 +1829,29 @@ class CertificateScreen:
             "opt_second_trial": self.sw_second.value,
             "second_trial_subjects": (self.inp_second_subjects.value or "").strip(),
             "national_id": (self.student_full_data.get("national_id") if self.student_full_data else None) or (self.selected_student.get("national_id") if hasattr(self, "selected_student") and self.selected_student else None) or "",
+            "reissue_cert_id": getattr(self, "reissue_cert_id", None),
         }
+
+        # Check duplicate certificate number
+        if cert_num and not bypass_duplicate_check:
+            dup_info = self.issued_cert_repo.check_duplicate(cert_num, student_id)
+            if dup_info.get("exists"):
+                reissue_id = getattr(self, "reissue_cert_id", None)
+                if reissue_id and dup_info.get("certificate_id") == reissue_id:
+                    # User is editing this exact certificate record, so reuse without duplicate warning
+                    pass
+                elif not dup_info.get("same_student"):
+                    owner_name = dup_info.get("owner_name") or f"طالب آخر (ID: {dup_info.get('owner_id')})"
+                    UI.notify(
+                        f"⚠️ خطأ: رقم الوثيقة ({cert_num}) مستخدم بالفعل للطالب ({owner_name})! يرجى اختيار رقم فريد.",
+                        type="negative",
+                        close_button="حسناً"
+                    )
+                    return False
+                else:
+                    self._show_reissue_warning_modal(cert_num, tpl_name, options, reissue_cert_id=dup_info.get("certificate_id"))
+                    return False
+
         return self.generate_docx(tpl_name, options)
 
     # Set to True to enable verbose printing of docxtpl context variables in the terminal/log
@@ -1796,6 +1974,9 @@ class CertificateScreen:
             # We also call build_certificate_context to maintain backward compatibility with any other UI-specific toggles
             ctx = build_certificate_context(ctx, options)
     
+            # Inject certificate number into context
+            ctx["certificate_number"] = options.get("certificate_number", "")
+
             # Print all context variables line-by-line to terminal & log
             self.print_certificate_context(ctx)
     
@@ -1822,13 +2003,35 @@ class CertificateScreen:
                 if student_id:
                     to_title = (self.to_input.value or "").strip() or "من يهمه الأمر"
                     tpl_type = os.path.splitext(tpl_name)[0]
-                    from data.repositories import IssuedCertificateRepository
-                    IssuedCertificateRepository().insert(
-                        student_id=student_id,
-                        to_title=to_title,
-                        template_type=tpl_type
-                    )
-                    log.info(f"Successfully recorded issued certificate for student ID {student_id} via InsertIssuedCertificate SP.")
+                    cert_num = options.get("certificate_number") or ((self.cert_number_input.value or "").strip() if hasattr(self, "cert_number_input") else None)
+                    from nicegui_ui.state import app_session
+                    u_id = getattr(app_session, "emp_id", None)
+                    u_name = getattr(app_session, "name_ar", None) or getattr(app_session, "username", "Admin")
+                    reissue_id = options.get("reissue_cert_id")
+                    issue_dt = (self.issue_date_input.value or "").strip() if hasattr(self, "issue_date_input") else None
+                    if reissue_id:
+                        self.issued_cert_repo.update(
+                            cert_id=reissue_id,
+                            to_title=to_title,
+                            template_type=tpl_type,
+                            certificate_number=cert_num,
+                            issue_date=issue_dt
+                        )
+                        log.info(f"Successfully updated/overwritten existing issued certificate ID {reissue_id} for student ID {student_id}")
+                    else:
+                        self.issued_cert_repo.insert(
+                            student_id=student_id,
+                            to_title=to_title,
+                            template_type=tpl_type,
+                            certificate_number=cert_num,
+                            issue_date=issue_dt,
+                            user_id=u_id,
+                            user_name=u_name
+                        )
+                        log.info(f"Successfully recorded issued certificate for student ID {student_id} via InsertIssuedCertificate SP.")
+                    # Automatically prepare next sequence number in UI if not editing
+                    if not reissue_id and hasattr(self, "cert_number_input") and self.cert_number_input:
+                        self.cert_number_input.value = self.issued_cert_repo.get_next_number()
             except Exception as sp_err:
                 log.error(f"Failed to record issued certificate into database via SP: {sp_err}")
 
@@ -1916,6 +2119,17 @@ class CertificateScreen:
 
                         printers = get_installed_printers()
                         def_p = get_default_printer()
+                        try:
+                            import json
+                            p_cfg_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "config", "printer_config.json")
+                            if os.path.exists(p_cfg_path):
+                                with open(p_cfg_path, "r", encoding="utf-8") as f:
+                                    p_cfg = json.load(f)
+                                    configured_cert_p = p_cfg.get("cert_printer")
+                                    if configured_cert_p and configured_cert_p in printers:
+                                        def_p = configured_cert_p
+                        except Exception:
+                            pass
 
                         printer_select = UI.select(
                             "اختيار الطابعة / Select Printer",

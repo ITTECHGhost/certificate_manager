@@ -982,3 +982,175 @@
 2026-10-12 09:22:21 [OK] Authentication verified via MySQL Stored Procedure 'AuthenticateUser' for user '1' (ID: 1, Role: admin)
 2026-10-12 09:22:59 [INFO] تم تعديل بيانات الطالب ID: 2139
 2026-10-12 09:23:19 [INFO] تم تسجيل الوثيقة الصادرة بالطالب ID: 2139 (الجهة: من يهمه الأمر) عبر SP
+2026-10-13 10:14:12 [INFO] المستخدم ID: 1 (admin) قام بإصدار وثيقة برقم ID: -192، رقم الوثيقة: 888/26 للطالب ID: 2010
+2026-10-13 10:14:31 [INFO] المستخدم ID: 1 (admin) قام بإصدار وثيقة برقم ID: -193، رقم الوثيقة: 888/26 للطالب ID: 2010
+2026-10-13 10:36:36 [INFO] Login attempt initiated for username: '1'
+2026-10-13 10:36:36 [OK] Authentication verified via MySQL Stored Procedure 'AuthenticateUser' for user '1' (ID: 1, Role: admin)
+2026-10-13 11:33:34 [INFO] Login attempt initiated for username: '1'
+2026-10-13 11:33:34 [OK] Authentication verified via MySQL Stored Procedure 'AuthenticateUser' for user '1' (ID: 1, Role: admin)
+2026-10-13 12:31:48 [INFO] Login attempt initiated for username: '1'
+2026-10-13 12:31:48 [OK] Authentication verified via MySQL Stored Procedure 'AuthenticateUser' for user '1' (ID: 1, Role: admin)
+2026-10-13 13:04:12 [INFO] المستخدم ID: 1 (مدير النظام) قام بإصدار وثيقة برقم ID: 87، رقم الوثيقة: 889/26 للطالب ID: 2138
+2026-10-13 14:00:34 [INFO] Login attempt initiated for username: '1'
+2026-10-13 14:00:34 [OK] Authentication verified via MySQL Stored Procedure 'AuthenticateUser' for user '1' (ID: 1, Role: admin)
+2026-10-14 10:22:39 [INFO] Login attempt initiated for username: '1'
+2026-10-14 10:22:39 [OK] Authentication verified via MySQL Stored Procedure 'AuthenticateUser' for user '1' (ID: 1, Role: admin)
+2026-10-14 11:01:39 [INFO] Login attempt initiated for username: '1'
+2026-10-14 11:01:39 [OK] Authentication verified via MySQL Stored Procedure 'AuthenticateUser' for user '1' (ID: 1, Role: admin)
+2026-10-14 11:04:30 [INFO] Login attempt initiated for username: '1'
+2026-10-14 11:04:30 [OK] Authentication verified via MySQL Stored Procedure 'AuthenticateUser' for user '1' (ID: 1, Role: admin)
+2026-10-14 12:37:04 [INFO] Login attempt initiated for username: '1'
+2026-10-14 12:37:04 [OK] Authentication verified via MySQL Stored Procedure 'AuthenticateUser' for user '1' (ID: 1, Role: admin)
+2026-10-14 12:41:08 [INFO] المستخدم ID: 1 (مدير النظام) قام بإصدار وثيقة برقم ID: -194، رقم الوثيقة: 889/26 للطالب ID: 2010
+2026-10-14 13:04:19 [INFO] Login attempt initiated for username: '1'
+2026-10-14 13:04:19 [OK] Authentication verified via MySQL Stored Procedure 'AuthenticateUser' for user '1' (ID: 1, Role: admin)
+2026-10-15 10:23:32 [INFO] Login attempt initiated for username: '1'
+2026-10-15 10:23:32 [OK] Authentication verified via MySQL Stored Procedure 'AuthenticateUser' for user '1' (ID: 1, Role: admin)
+2026-10-15 11:54:31 [INFO] Login attempt initiated for username: '1'
+2026-10-15 11:54:31 [OK] Authentication verified via MySQL Stored Procedure 'AuthenticateUser' for user '1' (ID: 1, Role: admin)
+2026-10-15 12:37:51 [INFO] المستخدم ID: 1 (مدير النظام) قام بإصدار وثيقة برقم ID: -195، رقم الوثيقة: 891/26 للطالب ID: 12
+2026-10-15 21:33:15 [INFO] Login attempt initiated for username: '1'
+2026-10-15 21:33:15 [OK] Authentication verified via MySQL Stored Procedure 'AuthenticateUser' for user '1' (ID: 1, Role: admin)
+2026-10-16 00:11:05 [INFO] Login attempt initiated for username: '1'
+2026-10-16 00:11:05 [OK] Authentication verified via MySQL Stored Procedure 'AuthenticateUser' for user '1' (ID: 1, Role: admin)
+2026-10-16 00:38:35 [INFO] Login attempt initiated for username: '1'
+2026-10-16 00:38:35 [OK] Authentication verified via MySQL Stored Procedure 'AuthenticateUser' for user '1' (ID: 1, Role: admin)
+2026-10-16 00:40:27 [INFO] تم تحديث صلاحيات الكادر ID: 1
+2026-10-16 16:21:53 [INFO] Login attempt initiated for username: '1'
+2026-10-16 16:21:53 [OK] Authentication verified via MySQL Stored Procedure 'AuthenticateUser' for user '1' (ID: 1, Role: admin)
+2026-10-16 17:03:52 [INFO] تم حفظ تعريف الدور/المسؤولية (لجنة الامتحانات المركزية) [ID: test_exam_comm]
+2026-10-16 17:03:58 [INFO] تم تحديث صلاحيات الكادر محلياً بالاحتياط ID: 1
+2026-10-16 17:03:58 [INFO] تم تعيين الدور (لجنة الامتحانات المركزية) للمستخدم ID: 1
+2026-10-16 17:04:06 [INFO] تم تحديث صلاحيات الكادر محلياً بالاحتياط ID: 1
+2026-10-16 17:04:06 [INFO] تم تعيين الدور (مدير النظام) للمستخدم ID: 1
+2026-10-16 17:04:08 [INFO] تم حذف الدور/المسؤولية [ID: test_exam_comm]
+2026-10-16 22:37:08 [INFO] Login attempt initiated for username: '1'
+2026-10-16 22:37:08 [OK] Authentication verified via MySQL Stored Procedure 'AuthenticateUser' for user '1' (ID: 1, Role: admin)
+2026-10-16 23:12:43 [INFO] تم حفظ تعريف الدور/المسؤولية (دور تجريبي) [ID: test_role]
+2026-10-16 23:23:14 [INFO] تم حفظ تعريف الدور/المسؤولية (دور تجريبي) [ID: test_role]
+2026-10-16 23:23:14 [INFO] تم حذف الدور/المسؤولية [ID: test_role]
+2026-10-16 23:35:24 [INFO] تم حفظ تعريف الدور/المسؤولية (مسؤول شؤون الامتحانات) [ID: exams_officer]
+2026-10-16 23:35:24 [INFO] تم حفظ تعريف الدور/المسؤولية (مسؤول شؤون الامتحانات والتدقيق) [ID: exams_officer]
+2026-10-16 23:35:24 [INFO] تم حذف الدور/المسؤولية [ID: exams_officer]
+2026-10-16 23:58:13 [INFO] Login attempt initiated for username: '1'
+2026-10-16 23:58:13 [OK] Authentication verified via MySQL Stored Procedure 'AuthenticateUser' for user '1' (ID: 1, Role: admin)
+2026-10-17 22:10:54 [INFO] Login attempt initiated for username: '1'
+2026-10-17 22:10:54 [OK] Authentication verified via MySQL Stored Procedure 'AuthenticateUser' for user '1' (ID: 1, Role: admin)
+2026-10-17 22:13:42 [INFO] تم حفظ تعريف الدور/المسؤولية (مدير النظام) [ID: admin]
+2026-10-18 10:01:01 [INFO] Login attempt initiated for username: '1'
+2026-10-18 10:01:01 [OK] Authentication verified via MySQL Stored Procedure 'AuthenticateUser' for user '1' (ID: 1, Role: admin)
+2026-10-19 11:56:41 [OK] Offline authentication successful for 'sadiq'
+2026-10-19 11:56:41 [WARNING] Offline authentication failed for 'sadiq' (invalid password)
+2026-10-19 12:06:04 [OK] Offline authentication successful for 'sadiq'
+2026-10-19 12:06:04 [WARNING] Offline authentication failed for 'sadiq' (invalid password)
+2026-10-19 12:06:04 [WARNING] Offline authentication rejected for 'signer_16' (account login is disabled)
+2026-10-19 12:06:04 [OK] Offline authentication successful for 'sadiq'
+2026-10-19 12:06:04 [WARNING] Offline authentication rejected for 'signer_16' (account login is disabled)
+2026-10-19 13:40:52 [OK] Offline authentication successful for '1'
+2026-10-19 13:42:22 [INFO] تم تحديث المظهر للمستخدم ID: 1
+2026-10-19 13:42:26 [INFO] تم تحديث المظهر للمستخدم ID: 1
+2026-10-19 13:42:38 [INFO] تم تحديث المظهر للمستخدم ID: 1
+2026-10-19 13:43:05 [INFO] تم تحديث المظهر للمستخدم ID: 1
+2026-10-19 13:50:22 [INFO] تم تعديل بيانات الكادر ID: 8
+2026-10-19 13:50:23 [INFO] تم تعديل بيانات الكادر ID: 8
+2026-10-19 13:50:23 [INFO] تم تحديث صلاحيات الكادر ID: 8
+2026-10-19 13:50:23 [INFO] تم تعيين الدور (مسؤول إصدار الوثائق) للمستخدم ID: 8
+2026-10-19 13:50:31 [INFO] User 'admin' (ID: 1) logged out successfully using function app_session.logout_user()
+2026-10-19 13:51:25 [INFO] تم تعديل بيانات الكادر ID: 8
+2026-10-19 13:51:25 [INFO] تم تعديل بيانات الكادر ID: 8
+2026-10-19 13:51:25 [INFO] تم تحديث صلاحيات الكادر ID: 8
+2026-10-19 13:51:25 [INFO] تم تعيين الدور (مستخدم عادي) للمستخدم ID: 8
+2026-10-19 13:51:30 [INFO] User 'admin' (ID: 1) logged out successfully using function app_session.logout_user()
+2026-10-20 11:23:03 [OK] Offline authentication successful for '1'
+2026-10-20 11:27:03 [INFO] تم حفظ تعريف الدور/المسؤولية (مسؤول إصدار الوثائق) [ID: cert_officer]
+2026-10-20 11:28:04 [INFO] تم تعديل بيانات الكادر ID: 8
+2026-10-20 11:28:04 [INFO] تم تعديل بيانات الكادر ID: 8
+2026-10-20 11:28:04 [INFO] تم تحديث صلاحيات الكادر ID: 8
+2026-10-20 11:28:04 [INFO] تم تعيين الدور (مسؤول إصدار الوثائق) للمستخدم ID: 8
+2026-10-20 11:28:24 [INFO] تم حفظ تعريف الدور/المسؤولية (مسؤول إصدار الوثائق) [ID: cert_officer]
+2026-10-20 11:28:30 [INFO] User '1' (ID: 1) logged out successfully using function app_session.logout_user()
+2026-10-20 11:29:59 [INFO] تم تعديل بيانات الكادر ID: 8
+2026-10-20 11:29:59 [INFO] تم تعديل بيانات الكادر ID: 8
+2026-10-20 11:29:59 [INFO] تم تحديث صلاحيات الكادر ID: 8
+2026-10-20 11:29:59 [INFO] تم تعيين الدور (مستخدم عادي) للمستخدم ID: 8
+2026-10-20 11:30:03 [INFO] User 'admin' (ID: 1) logged out successfully using function app_session.logout_user()
+2026-10-20 11:30:28 [INFO] User 'admin' (ID: 8) logged out successfully using function app_session.logout_user()
+2026-10-20 11:30:52 [INFO] تم تعديل بيانات الكادر ID: 8
+2026-10-20 11:30:52 [INFO] تم تعديل بيانات الكادر ID: 8
+2026-10-20 11:30:52 [INFO] تم تحديث صلاحيات الكادر ID: 8
+2026-10-20 11:30:52 [INFO] تم تعيين الدور (مسؤول إصدار الوثائق) للمستخدم ID: 8
+2026-10-20 11:31:03 [INFO] User 'admin' (ID: 1) logged out successfully using function app_session.logout_user()
+2026-10-20 11:38:50 [INFO] User 'admin' (ID: 8) logged out successfully using function app_session.logout_user()
+2026-10-20 12:24:14 [INFO] تم تعديل بيانات الكادر ID: 8
+2026-10-20 12:24:14 [INFO] تم تحديث صلاحيات الكادر ID: 8
+2026-10-20 12:24:14 [INFO] تم تعيين الدور (مسؤول إصدار الوثائق) للمستخدم ID: 8
+2026-10-20 13:40:59 [INFO] User 'admin' (ID: 1) logged out successfully using function app_session.logout_user()
+2026-10-20 13:43:14 [INFO] User 'admin' (ID: 8) logged out successfully using function app_session.logout_user()
+2026-10-20 21:20:05 [INFO] تم حفظ تعريف الدور/المسؤولية (مسؤول إصدار الوثائق) [ID: cert_officer]
+2026-10-20 21:20:13 [INFO] User 'admin' (ID: 1) logged out successfully using function app_session.logout_user()
+2026-10-20 21:27:44 [INFO] User 'admin' (ID: 8) logged out successfully using function app_session.logout_user()
+2026-10-20 21:28:20 [INFO] تم حفظ تعريف الدور/المسؤولية (مسؤول إصدار الوثائق) [ID: cert_officer]
+2026-10-20 21:32:09 [INFO] تم حفظ تعريف الدور/المسؤولية (مسؤول إصدار الوثائق) [ID: cert_officer]
+2026-10-20 21:39:35 [INFO] تم حفظ تعريف الدور/المسؤولية (مسؤول إصدار الوثائق) [ID: cert_officer]
+2026-10-20 22:17:12 [INFO] تم حفظ تعريف الدور/المسؤولية (مسؤول إصدار الوثائق) [ID: cert_officer]
+2026-10-20 22:17:13 [INFO] تم تحديث صلاحيات الكادر ID: 8
+2026-10-20 22:17:13 [INFO] تم تحديث صلاحيات الكادر ID: 9
+2026-10-20 22:17:53 [INFO] تم حفظ تعريف الدور/المسؤولية (مسؤول إصدار الوثائق) [ID: cert_officer]
+2026-10-20 22:17:53 [INFO] تم تحديث صلاحيات الكادر ID: 8
+2026-10-20 22:17:53 [INFO] تم تحديث صلاحيات الكادر ID: 9
+2026-10-20 22:24:39 [INFO] تم حفظ تعريف الدور/المسؤولية (مسؤول إصدار الوثائق) [ID: cert_officer]
+2026-10-20 22:24:39 [INFO] تم تحديث صلاحيات الكادر ID: 8
+2026-10-20 22:24:39 [INFO] تم تحديث صلاحيات الكادر ID: 9
+2026-10-20 22:26:15 [INFO] تم حفظ تعريف الدور/المسؤولية (مسؤول إصدار الوثائق) [ID: cert_officer]
+2026-10-20 22:26:15 [INFO] تم تحديث صلاحيات الكادر ID: 8
+2026-10-20 22:26:15 [INFO] تم تحديث صلاحيات الكادر ID: 9
+2026-10-20 22:26:15 [INFO] تم حفظ تعريف الدور/المسؤولية (مسؤول إصدار الوثائق) [ID: cert_officer]
+2026-10-20 22:26:15 [INFO] تم تحديث صلاحيات الكادر ID: 8
+2026-10-20 22:26:15 [INFO] تم تحديث صلاحيات الكادر ID: 9
+2026-10-20 22:37:08 [INFO] تم حفظ تعريف الدور/المسؤولية (مسؤول إصدار الوثائق) [ID: cert_officer]
+2026-10-20 22:37:08 [INFO] تم تحديث صلاحيات الكادر ID: 8
+2026-10-20 22:37:08 [INFO] تم تحديث صلاحيات الكادر ID: 9
+2026-10-20 22:55:03 [INFO] User 'admin' (ID: 1) logged out successfully using function app_session.logout_user()
+2026-10-20 22:55:32 [INFO] تم تحديث المظهر للمستخدم ID: 8
+2026-10-20 22:55:44 [INFO] تم تحديث المظهر للمستخدم ID: 8
+2026-10-20 22:56:00 [INFO] تم تحديث المظهر للمستخدم ID: 8
+2026-10-20 22:56:26 [INFO] تم تحديث المظهر للمستخدم ID: 8
+2026-10-20 22:57:23 [INFO] تم تحديث المظهر للمستخدم ID: 8
+2026-10-20 22:58:35 [INFO] User 'admin' (ID: 8) logged out successfully using function app_session.logout_user()
+2026-10-20 22:58:59 [INFO] تم تحديث المظهر للمستخدم ID: 1
+2026-10-20 23:31:42 [INFO] تم تعديل بيانات الكادر ID: 8
+2026-10-20 23:31:42 [INFO] تم تعديل بيانات الكادر ID: 8
+2026-10-20 23:31:42 [INFO] تم تحديث صلاحيات الكادر ID: 8
+2026-10-20 23:31:42 [INFO] تم تعيين الدور (مسؤول إصدار الوثائق) للمستخدم ID: 8
+2026-10-20 23:32:09 [INFO] تم تعديل بيانات الكادر ID: 8
+2026-10-20 23:32:09 [INFO] تم تعديل بيانات الكادر ID: 8
+2026-10-20 23:32:09 [INFO] تم تحديث صلاحيات الكادر ID: 8
+2026-10-20 23:32:09 [INFO] تم تعيين الدور (مسؤول إصدار الوثائق) للمستخدم ID: 8
+2026-10-20 23:32:49 [INFO] تم تعديل بيانات الكادر ID: 8
+2026-10-20 23:32:49 [INFO] تم تعديل بيانات الكادر ID: 8
+2026-10-20 23:32:49 [INFO] تم تحديث صلاحيات الكادر ID: 8
+2026-10-20 23:32:49 [INFO] تم تعيين الدور (مسؤول إصدار الوثائق) للمستخدم ID: 8
+2026-10-21 00:07:10 [INFO] تم تعديل بيانات الكادر ID: 8
+2026-10-21 00:07:10 [INFO] تم تحديث صلاحيات الكادر ID: 8
+2026-10-21 00:07:10 [INFO] تم تعيين الدور (مسؤول إصدار الوثائق) للمستخدم ID: 8
+2026-10-21 00:09:03 [INFO] تم تعديل بيانات الكادر ID: 9
+2026-10-21 00:09:03 [INFO] تم تحديث صلاحيات الكادر ID: 9
+2026-10-21 00:09:03 [INFO] تم تعيين الدور (مسؤول إصدار الوثائق) للمستخدم ID: 9
+2026-10-21 00:09:22 [INFO] تم تحديث المظهر للمستخدم ID: 1
+2026-10-21 00:09:24 [INFO] تم تحديث المظهر للمستخدم ID: 1
+2026-10-21 00:09:30 [INFO] User 'admin' (ID: 1) logged out successfully using function app_session.logout_user()
+2026-10-21 00:10:32 [INFO] User 'admin' (ID: 8) logged out successfully using function app_session.logout_user()
+2026-10-21 00:11:24 [INFO] تم حفظ تعريف الدور/المسؤولية (مسؤول إصدار الوثائق) [ID: cert_officer]
+2026-10-21 00:11:24 [INFO] تم تحديث صلاحيات الكادر ID: 8
+2026-10-21 00:11:25 [INFO] تم تحديث صلاحيات الكادر ID: 9
+2026-10-21 00:12:46 [INFO] تم حفظ تعريف الدور/المسؤولية (مدقق درجات وبيانات) [ID: auditor]
+2026-10-21 00:13:16 [INFO] تم تعديل بيانات الكادر ID: 9
+2026-10-21 00:13:16 [INFO] تم تحديث صلاحيات الكادر ID: 9
+2026-10-21 00:13:16 [INFO] تم تعيين الدور (مدقق درجات وبيانات) للمستخدم ID: 9
+2026-10-21 00:13:33 [INFO] User 'admin' (ID: 1) logged out successfully using function app_session.logout_user()
+2026-10-21 00:14:11 [INFO] User 'admin' (ID: 9) logged out successfully using function app_session.logout_user()
+2026-10-21 00:14:36 [INFO] تم حفظ تعريف الدور/المسؤولية (مدقق درجات وبيانات) [ID: auditor]
+2026-10-21 00:14:36 [INFO] تم تحديث صلاحيات الكادر ID: 9
+2026-10-21 00:14:45 [INFO] User 'admin' (ID: 1) logged out successfully using function app_session.logout_user()
+2026-10-21 00:15:03 [INFO] تم تحديث المظهر للمستخدم ID: 9
+2026-10-21 00:15:21 [INFO] تم تحديث المظهر للمستخدم ID: 9

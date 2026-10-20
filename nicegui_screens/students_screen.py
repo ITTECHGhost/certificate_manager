@@ -12,6 +12,7 @@ from nicegui import ui
 from nicegui_ui.ui_components import UI
 from nicegui_ui.ui_theme import Styles
 from nicegui_ui.student_components import StudentProfileView, StudentFormView, CourseEnrollmentView
+from nicegui_screens.student_bulk_import_view import StudentBulkImportView
 
 from data.repositories import StudentRepository
 
@@ -41,9 +42,18 @@ class StudentsScreen:
             else:
                 self.show_list_view()
 
+        def _on_bulk_import_success():
+            self.show_list_view()
+            self._refresh_table()
+
         # Instantiate the views with callbacks
         self.form_view = StudentFormView(self.repo, self.main_container, on_back=_on_form_back, on_save_callback=self._refresh_table)
         self.enrollment_view = CourseEnrollmentView(self.repo, self.main_container, on_back=lambda st: self.profile_view.render(st, initial_tab="periods"))
+        self.bulk_import_view = StudentBulkImportView(
+            self.main_container,
+            on_back_callback=self.show_list_view,
+            on_success_callback=_on_bulk_import_success
+        )
         self.profile_view = StudentProfileView(
             self.repo, 
             self.main_container, 
@@ -54,6 +64,10 @@ class StudentsScreen:
         )
         
         self.show_list_view()
+
+    def show_bulk_import_view(self) -> None:
+        """Switch view to the Two-Stage Excel Bulk Ingestion View."""
+        self.bulk_import_view.render()
 
     def show_list_view(self) -> None:
         """Constructs the primary Students List view layout."""
@@ -78,11 +92,18 @@ class StudentsScreen:
                             on_click=lambda: self.perform_search(reset_offset=True)
                         ).classes("h-12 px-4 shadow-sm")
 
-                    UI.success_button(
-                        "Add Student / إضافة طالب", 
-                        icon="person_add", 
-                        on_click=self.form_view.render_add
-                    ).classes("h-12 px-4 shadow-sm")
+                    with ui.row().classes("items-center gap-2"):
+                        UI.primary_button(
+                            "Add Group of Students / إضافة مجموعة طلاب", 
+                            icon="group_add", 
+                            on_click=self.show_bulk_import_view
+                        ).classes("h-12 px-4 shadow-sm bg-indigo-600 hover:bg-indigo-700 text-white font-bold")
+
+                        UI.success_button(
+                            "Add Student / إضافة طالب", 
+                            icon="person_add", 
+                            on_click=self.form_view.render_add
+                        ).classes("h-12 px-4 shadow-sm")
 
                 columns = [
                     {"name": "name_ar", "label": "Name / الاسم", "field": "name_ar", "align": "right", "sortable": True},

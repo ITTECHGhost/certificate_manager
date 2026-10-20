@@ -10,8 +10,7 @@ log = logging.getLogger(__name__)
 
 import os
 from nicegui import ui
-from db import get_connection
-from data.repositories import AuthRepository
+from data.repositories import PersonnelRepository, SettingsRepository
 from nicegui_ui.ui_components import UI
 
 
@@ -143,8 +142,27 @@ class LoginScreen:
             with ui.column().classes(
                 "app-login-bg w-1/2 md:w-3/5 h-full items-center justify-center p-8"
             ):
-                if os.path.exists("csit.png"):
-                    ui.image("csit.png").classes(
+                logo_src = None
+                try:
+                    from data.repositories import SettingsRepository
+                    s_data = SettingsRepository().get_settings() or {}
+                    col_logo = s_data.get("college_logo_path")
+                    univ_logo = s_data.get("univ_logo_path")
+                    if col_logo and os.path.exists(col_logo):
+                        logo_src = col_logo
+                    elif univ_logo and os.path.exists(univ_logo):
+                        logo_src = univ_logo
+                except Exception:
+                    pass
+
+                if not logo_src:
+                    if os.path.exists("assets/college_logo.png"):
+                        logo_src = "assets/college_logo.png"
+                    elif os.path.exists("csit.png"):
+                        logo_src = "csit.png"
+
+                if logo_src:
+                    ui.image(logo_src).classes(
                         "app-login-logo w-[340px] max-w-full h-auto object-contain"
                     )
                 else:
@@ -161,7 +179,7 @@ class LoginScreen:
 
 
     def handle_login(self, e=None) -> None:
-        """Validates credentials via AuthRepository.authenticate_user and updates session state."""
+        """Validates credentials via PersonnelRepository and updates session state."""
         if not self.username_input or not self.password_input:
             return
 
@@ -176,11 +194,9 @@ class LoginScreen:
             ui.notify(msg, type="warning")
             return
 
-        conn = None
         try:
-            conn = get_connection()
-            auth_repo = AuthRepository(conn)
-            user_record = auth_repo.authenticate_user(username, password)
+            personnel_repo = PersonnelRepository()
+            user_record = personnel_repo.authenticate(username, password)
 
             if user_record:
                 if self.error_label:
@@ -189,19 +205,8 @@ class LoginScreen:
                 from nicegui_ui.state import app_session
                 user_id = user_record.get("id", 1)
                 
-                # Fetch saved appearance preferences from sp_GetUserAppearance
-                appearance = auth_repo.get_user_appearance(user_id)
-                
-                # Login user session and update preferences
+                # Login user session and initialize user appearance preferences
                 app_session.login_user(user_id, user_record)
-                if appearance:
-                    app_session.update_preferences(
-                        theme=appearance.get("theme", "Dark"),
-                        accent_color=appearance.get("accent_color", "blue"),
-                        font_family=appearance.get("font_family", "Segoe UI"),
-                        font_size_base=appearance.get("font_size_base", 14),
-                        is_arabic_rtl=appearance.get("is_arabic_rtl", 1)
-                    )
 
                 if self.on_login_success:
                     self.on_login_success(user_record)
@@ -222,9 +227,3 @@ class LoginScreen:
                 self.error_label.set_text(msg)
                 self.error_label.set_visibility(True)
             ui.notify(msg, type="negative")
-        finally:
-            if conn:
-                try:
-                    conn.close()
-                except Exception:
-                    pass

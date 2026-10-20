@@ -159,11 +159,11 @@ _TABLE_REGISTRY: dict[str, dict] = {
     "issued_certificates": {
         "local_table": "local_issued_certificates",
         "columns": [
-            "student_id", "to_title", "template_type", "issue_date",
+            "student_id", "to_title", "template_type", "issue_date", "certificate_number",
         ],
         "sp_name": "InsertIssuedCertificate",
         "sp_args": [
-            "student_id", "to_title", "template_type", "issue_date",
+            "student_id", "to_title", "template_type", "issue_date", "certificate_number",
         ],
         "fk_cascades": [],
     },
@@ -370,12 +370,13 @@ def init_local_db() -> None:
 
         cur.execute("""
             CREATE TABLE IF NOT EXISTS local_issued_certificates (
-                id            INTEGER PRIMARY KEY,
-                student_id    INTEGER NOT NULL,
-                to_title      TEXT DEFAULT 'من يهمه الأمر',
-                template_type TEXT DEFAULT 'ARABIC',
-                issue_date    TEXT,
-                created_at    TEXT DEFAULT CURRENT_TIMESTAMP
+                id                 INTEGER PRIMARY KEY,
+                student_id         INTEGER NOT NULL,
+                to_title           TEXT DEFAULT 'من يهمه الأمر',
+                template_type      TEXT DEFAULT 'ARABIC',
+                certificate_number TEXT,
+                issue_date         TEXT,
+                created_at         TEXT DEFAULT CURRENT_TIMESTAMP
             )
         """)
 
@@ -610,15 +611,67 @@ def init_local_db() -> None:
 
         cur.execute("""
             CREATE TABLE IF NOT EXISTS issued_certificates (
-                id             INTEGER PRIMARY KEY AUTOINCREMENT,
-                student_id     INTEGER NOT NULL,
-                to_title       TEXT NOT NULL DEFAULT 'من يهمه الأمر',
-                template_type  TEXT NOT NULL DEFAULT 'ARABIC',
-                issue_date     TEXT NOT NULL,
-                created_at     TEXT DEFAULT CURRENT_TIMESTAMP,
-                UNIQUE(student_id, issue_date, to_title, template_type)
+                id                 INTEGER PRIMARY KEY AUTOINCREMENT,
+                student_id         INTEGER NOT NULL,
+                to_title           TEXT NOT NULL DEFAULT 'من يهمه الأمر',
+                template_type      TEXT NOT NULL DEFAULT 'ARABIC',
+                certificate_number TEXT,
+                issue_date         TEXT NOT NULL,
+                created_at         TEXT DEFAULT CURRENT_TIMESTAMP
             )
         """)
+
+        cur.execute("""
+            CREATE TABLE IF NOT EXISTS permissions (
+                permission_key TEXT PRIMARY KEY,
+                category       TEXT,
+                name_ar        TEXT,
+                name_en        TEXT,
+                description_ar TEXT
+            )
+        """)
+
+        cur.execute("""
+            CREATE TABLE IF NOT EXISTS personnel_permissions (
+                id             INTEGER PRIMARY KEY AUTOINCREMENT,
+                personnel_id   INTEGER NOT NULL,
+                permission_key TEXT NOT NULL,
+                is_granted     INTEGER DEFAULT 1,
+                created_at     TEXT DEFAULT CURRENT_TIMESTAMP,
+                UNIQUE(personnel_id, permission_key)
+            )
+        """)
+
+        cur.execute("""
+            CREATE TABLE IF NOT EXISTS roles (
+                id               TEXT PRIMARY KEY,
+                name_ar          TEXT NOT NULL,
+                name_en          TEXT NOT NULL,
+                description_ar   TEXT,
+                base_role        TEXT NOT NULL DEFAULT 'user',
+                allowed_pages    TEXT NOT NULL DEFAULT '[]',
+                allowed_actions  TEXT NOT NULL DEFAULT '[]',
+                department_scope TEXT NOT NULL DEFAULT 'all',
+                is_system        INTEGER NOT NULL DEFAULT 0,
+                created_at       TEXT DEFAULT CURRENT_TIMESTAMP
+            )
+        """)
+
+        # Self-healing migration: add certificate_number column to issued_certificates & local_issued_certificates if missing
+        try:
+            cur.execute("PRAGMA table_info(issued_certificates)")
+            ic_cols = [row[1] for row in cur.fetchall()]
+            if "certificate_number" not in ic_cols:
+                log.info("Migrating SQLite issued_certificates table: adding certificate_number column...")
+                cur.execute("ALTER TABLE issued_certificates ADD COLUMN certificate_number TEXT")
+
+            cur.execute("PRAGMA table_info(local_issued_certificates)")
+            lic_cols = [row[1] for row in cur.fetchall()]
+            if "certificate_number" not in lic_cols:
+                log.info("Migrating SQLite local_issued_certificates table: adding certificate_number column...")
+                cur.execute("ALTER TABLE local_issued_certificates ADD COLUMN certificate_number TEXT")
+        except Exception as _mig_err:
+            log.warning(f"Self-healing certificate_number migration notice: {_mig_err}")
 
         # Self-healing migration: drop obsolete settings_id column if it exists
         try:
@@ -704,6 +757,16 @@ def init_local_db() -> None:
         except sqlite3.OperationalError:
             pass
 
+        try:
+            cur.execute("ALTER TABLE university_settings ADD COLUMN univ_logo_path TEXT DEFAULT 'assets/univ_logo.png';")
+        except sqlite3.OperationalError:
+            pass
+
+        try:
+            cur.execute("ALTER TABLE university_settings ADD COLUMN college_logo_path TEXT DEFAULT 'assets/college_logo.png';")
+        except sqlite3.OperationalError:
+            pass
+
         conn.commit()
         log.info("Local SQLite cache initialised at %s", _LOCAL_DB_PATH)
     finally:
@@ -735,6 +798,8 @@ _REPLICA_TABLES: list[tuple[str, str]] = [
     ("study_routines",      "SELECT * FROM study_routines"),
     ("study_routine_period", "SELECT * FROM study_routine_period"),
     ("study_routine_courses", "SELECT * FROM study_routine_courses"),
+    ("permissions",         "SELECT * FROM permissions"),
+    ("personnel_permissions", "SELECT * FROM personnel_permissions"),
 ]
 
 
@@ -849,7 +914,8 @@ def download_mysql_snapshot(mysql_conn, sqlite_conn):
         'departments', 'study_systems', 'personnel', 'courses',
         'graduation_orders', 'students', 'academic_periods', 'enrollments',
         'student_supervisors', 'thesis_records', 'issued_certificates',
-        'study_routines', 'study_routine_period', 'study_routine_courses'
+        'study_routines', 'study_routine_period', 'study_routine_courses',
+        'permissions', 'personnel_permissions'
     ]
     my_cursor = mysql_conn.cursor(dictionary=True)
     sq_cursor = sqlite_conn.cursor()

@@ -146,8 +146,11 @@ class UserSessionState:
         if user_record:
             self.username = user_record.get("username", self.username)
             self.name_ar = user_record.get("name_ar", self.name_ar)
-            self.name_en = user_record.get("name_en", self.name_en)
-            self.role = user_record.get("personnel_role", self.role)
+            try:
+                from data.repositories import RoleRepository
+                self.role = RoleRepository().get_user_role_id(user_id) or user_record.get("personnel_role", self.role)
+            except Exception:
+                self.role = user_record.get("personnel_role", self.role)
 
         appearance = {}
         try:

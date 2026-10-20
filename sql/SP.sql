@@ -34,6 +34,34 @@ END //
 DELIMITER ;
 
 -- --------------------------------------------------------
+-- Stored Procedure `BulkSetPersonnelPermissions`
+-- --------------------------------------------------------
+DELIMITER //
+DROP PROCEDURE IF EXISTS `BulkSetPersonnelPermissions` //
+CREATE DEFINER=`root`@`localhost` PROCEDURE `BulkSetPersonnelPermissions`(
+    IN `p_personnel_id` INT,
+    IN `p_keys_csv` TEXT
+)
+BEGIN
+        DELETE FROM personnel_permissions
+    WHERE personnel_id = p_personnel_id;
+
+        IF p_keys_csv IS NOT NULL AND CHAR_LENGTH(TRIM(p_keys_csv)) > 0 THEN
+        SET @sql_insert = CONCAT(
+            'INSERT INTO personnel_permissions (personnel_id, permission_key, is_granted) ',
+            'SELECT ', p_personnel_id, ', permission_key, 1 ',
+            'FROM permissions WHERE FIND_IN_SET(permission_key, ''',
+            REPLACE(p_keys_csv, '''', ''),
+            ''')'
+        );
+        PREPARE stmt FROM @sql_insert;
+        EXECUTE stmt;
+        DEALLOCATE PREPARE stmt;
+    END IF;
+END //
+DELIMITER ;
+
+-- --------------------------------------------------------
 -- Stored Procedure `ClearAuditLogs`
 -- --------------------------------------------------------
 DELIMITER //
@@ -405,36 +433,19 @@ DELIMITER ;
 DELIMITER //
 DROP PROCEDURE IF EXISTS `GetAllCourses` //
 CREATE DEFINER=`root`@`localhost` PROCEDURE `GetAllCourses`()
-BEGIN
-    SELECT 
-        c.id, 
-        c.name_ar, 
-        c.name_en, 
-        c.credit_hours, 
-        c.stage_number,
-        c.study_system_id, 
-        c.is_shared,
-        c.department_id,
-        COALESCE(
-            d.name_ar, 
-            (SELECT GROUP_CONCAT(d2.name_ar SEPARATOR '، ') 
-             FROM course_departments cd 
-             JOIN departments d2 ON cd.department_id = d2.id 
-             WHERE cd.course_id = c.id)
-        ) AS dept_name_ar,
-        COALESCE(
-            d.name_en, 
-            (SELECT GROUP_CONCAT(d2.name_en SEPARATOR ', ') 
-             FROM course_departments cd 
-             JOIN departments d2 ON cd.department_id = d2.id 
-             WHERE cd.course_id = c.id)
-        ) AS dept_name_en,
-        s.name_ar AS study_system_name_ar,
-        s.name_en AS study_system_name_en
-    FROM courses c
-    LEFT JOIN departments d ON c.department_id = d.id
-    LEFT JOIN study_systems s ON c.study_system_id = s.id
-    ORDER BY c.name_ar ASC;
+BEGIN
+    SELECT 
+        c.id, 
+        c.name_ar, 
+        c.name_en, 
+        c.credit_hours, 
+        c.stage_number,
+        c.department_id,
+        d.name_ar AS dept_name_ar,
+        d.name_en AS dept_name_en
+    FROM courses c
+    LEFT JOIN departments d ON c.department_id = d.id
+    ORDER BY c.stage_number ASC, c.name_ar ASC;
 END //
 DELIMITER ;
 
@@ -524,11 +535,12 @@ DELIMITER //
 DROP PROCEDURE IF EXISTS `GetAllIssuedCertificates` //
 CREATE DEFINER=`root`@`localhost` PROCEDURE `GetAllIssuedCertificates`()
 BEGIN
-    SELECT 
+    SELECT
         ic.id,
         ic.student_id,
         COALESCE(ic.to_title, 'من يهمه الأمر') AS to_title,
         COALESCE(ic.template_type, 'ARABIC') AS template_type,
+        ic.certificate_number,
         ic.issue_date,
         ic.created_at,
         COALESCE(s.full_name_ar, '') AS student_name_ar,
@@ -964,11 +976,12 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `GetIssuedCertificateById`(
     IN p_id INT
 )
 BEGIN
-    SELECT 
+    SELECT
         ic.id,
         ic.student_id,
         COALESCE(ic.to_title, 'من يهمه الأمر') AS to_title,
         COALESCE(ic.template_type, 'ARABIC') AS template_type,
+        ic.certificate_number,
         ic.issue_date,
         ic.created_at,
         COALESCE(s.full_name_ar, '') AS student_name_ar,
@@ -989,11 +1002,12 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `GetIssuedCertificatesByStudent`(
     IN p_student_id INT
 )
 BEGIN
-    SELECT 
+    SELECT
         ic.id,
         ic.student_id,
         COALESCE(ic.to_title, 'من يهمه الأمر') AS to_title,
         COALESCE(ic.template_type, 'ARABIC') AS template_type,
+        ic.certificate_number,
         ic.issue_date,
         ic.created_at,
         COALESCE(s.full_name_ar, '') AS student_name_ar,
@@ -1014,30 +1028,48 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `GetIssuedCertificatesReport`(
     IN p_start_date DATE,
     IN p_end_date DATE,
     IN p_department_id INT,
-    IN p_template_type VARCHAR(100)
+    IN p_template_type VARCHAR(100),
+    IN p_graduation_year INT,
+    IN p_study_system_id INT,
+    IN p_search_text VARCHAR(255)
 )
 BEGIN
-    SELECT 
+    SELECT
         ic.id AS certificate_id,
         ic.student_id,
         COALESCE(ic.to_title, 'من يهمه الأمر') AS to_title,
         COALESCE(ic.template_type, 'ARABIC') AS template_type,
+        ic.certificate_number,
         COALESCE(ic.issue_date, '1970-01-01') AS issue_date,
         ic.created_at,
         COALESCE(s.full_name_ar, '') AS student_name_ar,
         COALESCE(s.full_name_en, '') AS student_name_en,
         COALESCE(s.average, 0.0) AS average,
         COALESCE(d.id, 0) AS department_id,
-        COALESCE(d.name_ar, '') AS department_name_ar
+        COALESCE(d.name_ar, '') AS department_name_ar,
+        COALESCE(ss.id, 0) AS study_system_id,
+        COALESCE(ss.name_ar, '') AS study_system_name_ar,
+        COALESCE(ss.study_day_type, '') AS study_day_type,
+        COALESCE(go2.graduation_year, 0) AS graduation_year
     FROM issued_certificates ic
     LEFT JOIN students s ON ic.student_id = s.id
     LEFT JOIN departments d ON s.department_id = d.id
-    WHERE 
+    LEFT JOIN study_systems ss ON s.study_system_id = ss.id
+    LEFT JOIN graduation_orders go2 ON s.order_id = go2.id
+    WHERE
         (ic.issue_date >= p_start_date OR p_start_date IS NULL)
         AND (ic.issue_date <= p_end_date OR p_end_date IS NULL)
         AND (d.id = p_department_id OR p_department_id = 0 OR p_department_id IS NULL)
         AND (ic.template_type = p_template_type OR p_template_type = '' OR p_template_type IS NULL)
-    ORDER BY ic.issue_date DESC, d.name_ar ASC, s.full_name_ar ASC;
+        AND (go2.graduation_year = p_graduation_year OR p_graduation_year = 0 OR p_graduation_year IS NULL)
+        AND (s.study_system_id = p_study_system_id OR p_study_system_id = 0 OR p_study_system_id IS NULL)
+        AND (
+            p_search_text IS NULL OR p_search_text = ''
+            OR ic.certificate_number LIKE CONCAT('%', p_search_text, '%')
+            OR s.full_name_ar LIKE CONCAT('%', p_search_text, '%')
+            OR s.full_name_en LIKE CONCAT('%', p_search_text, '%')
+        )
+    ORDER BY ic.issue_date DESC, ic.id DESC;
 END //
 DELIMITER ;
 
@@ -1099,6 +1131,26 @@ BEGIN
 
     LIMIT 1;
 
+END //
+DELIMITER ;
+
+-- --------------------------------------------------------
+-- Stored Procedure `GetPersonnelPermissions`
+-- --------------------------------------------------------
+DELIMITER //
+DROP PROCEDURE IF EXISTS `GetPersonnelPermissions` //
+CREATE DEFINER=`root`@`localhost` PROCEDURE `GetPersonnelPermissions`(IN `p_personnel_id` INT)
+BEGIN
+    SELECT 
+        pp.permission_key,
+        p.category,
+        p.name_ar,
+        p.name_en,
+        pp.is_granted
+    FROM personnel_permissions pp
+    JOIN permissions p ON p.permission_key = pp.permission_key
+    WHERE pp.personnel_id = p_personnel_id
+      AND pp.is_granted = 1;
 END //
 DELIMITER ;
 
@@ -1375,10 +1427,8 @@ DELIMITER ;
 DELIMITER //
 DROP PROCEDURE IF EXISTS `GetSystemSettings` //
 CREATE DEFINER=`root`@`localhost` PROCEDURE `GetSystemSettings`()
-BEGIN
-
-    SELECT * FROM settings ORDER BY id ASC LIMIT 1;
-
+BEGIN
+    CALL GetUniversitySettings();
 END //
 DELIMITER ;
 
@@ -1392,6 +1442,32 @@ BEGIN
         SELECT id, student_id, title_ar, title_en, defense_date, committee_decision, final_grade
         FROM thesis_records WHERE student_id = p_student_id ORDER BY id DESC;
     END //
+DELIMITER ;
+
+-- --------------------------------------------------------
+-- Stored Procedure `GetUniversitySettings`
+-- --------------------------------------------------------
+DELIMITER //
+DROP PROCEDURE IF EXISTS `GetUniversitySettings` //
+CREATE DEFINER=`root`@`localhost` PROCEDURE `GetUniversitySettings`()
+BEGIN
+        IF NOT EXISTS (SELECT 1 FROM university_settings WHERE id = 1) THEN
+        INSERT INTO university_settings (id, univ_name_ar, univ_name_en, college_name_ar, college_name_en)
+        VALUES (1, 'جامعة البصرة', 'University of Basrah', 'كلية علوم الحاسوب وتكنولوجيا المعلومات', 'College of Computer Science and Information Technology');
+    END IF;
+
+    SELECT 
+        id,
+        univ_name_ar,
+        univ_name_en,
+        college_name_ar,
+        college_name_en,
+        COALESCE(univ_logo_path, '') AS univ_logo_path,
+        COALESCE(college_logo_path, '') AS college_logo_path
+    FROM university_settings 
+    WHERE id = 1 
+    LIMIT 1;
+END //
 DELIMITER ;
 
 -- --------------------------------------------------------
@@ -1573,26 +1649,64 @@ DELIMITER ;
 -- --------------------------------------------------------
 DELIMITER //
 DROP PROCEDURE IF EXISTS `InsertIssuedCertificate` //
-CREATE DEFINER=`root`@`localhost` PROCEDURE `InsertIssuedCertificate`(
-    IN p_student_id INT,
-    IN p_to_title VARCHAR(255),
-    IN p_template_type VARCHAR(100),
-    IN p_issue_date DATE
+CREATE DEFINER=`root`@`localhost` PROCEDURE `InsertIssuedCertificate`(
+    IN p_student_id INT,
+    IN p_to_title VARCHAR(255),
+    IN p_template_type VARCHAR(100),
+    IN p_issue_date DATE,
+    IN p_certificate_number VARCHAR(100)
 )
-BEGIN
-    INSERT INTO issued_certificates (
-        student_id, 
-        to_title, 
-        template_type, 
-        issue_date
-    ) VALUES (
-        p_student_id,
-        COALESCE(p_to_title, 'من يهمه الأمر'),
-        COALESCE(p_template_type, 'ARABIC'),
-        COALESCE(p_issue_date, CURDATE())
-    );
-    
-    SELECT LAST_INSERT_ID() AS inserted_id;
+BEGIN
+        IF p_certificate_number IS NOT NULL AND p_certificate_number != '' THEN
+        IF EXISTS (
+            SELECT 1 FROM issued_certificates
+            WHERE certificate_number = p_certificate_number
+              AND student_id != p_student_id
+        ) THEN
+            SIGNAL SQLSTATE '45000'
+            SET MESSAGE_TEXT = 'رقم الوثيقة مستخدم بالفعل لطالب آخر / Certificate number already assigned to another student';
+        END IF;
+
+                IF EXISTS (
+            SELECT 1 FROM issued_certificates
+            WHERE certificate_number = p_certificate_number
+              AND student_id = p_student_id
+        ) THEN
+            UPDATE issued_certificates
+            SET to_title = COALESCE(p_to_title, to_title),
+                template_type = COALESCE(p_template_type, template_type),
+                issue_date = COALESCE(p_issue_date, CURDATE())
+            WHERE certificate_number = p_certificate_number
+              AND student_id = p_student_id;
+
+            SELECT id AS inserted_id
+            FROM issued_certificates
+            WHERE certificate_number = p_certificate_number
+              AND student_id = p_student_id
+            LIMIT 1;
+        ELSE
+                        INSERT INTO issued_certificates (
+                student_id, to_title, template_type, certificate_number, issue_date
+            ) VALUES (
+                p_student_id,
+                COALESCE(p_to_title, 'من يهمه الأمر'),
+                COALESCE(p_template_type, 'ARABIC'),
+                p_certificate_number,
+                COALESCE(p_issue_date, CURDATE())
+            );
+            SELECT LAST_INSERT_ID() AS inserted_id;
+        END IF;
+    ELSE
+                INSERT INTO issued_certificates (
+            student_id, to_title, template_type, issue_date
+        ) VALUES (
+            p_student_id,
+            COALESCE(p_to_title, 'من يهمه الأمر'),
+            COALESCE(p_template_type, 'ARABIC'),
+            COALESCE(p_issue_date, CURDATE())
+        );
+        SELECT LAST_INSERT_ID() AS inserted_id;
+    END IF;
 END //
 DELIMITER ;
 
@@ -2061,6 +2175,23 @@ END //
 DELIMITER ;
 
 -- --------------------------------------------------------
+-- Stored Procedure `SetPersonnelPermission`
+-- --------------------------------------------------------
+DELIMITER //
+DROP PROCEDURE IF EXISTS `SetPersonnelPermission` //
+CREATE DEFINER=`root`@`localhost` PROCEDURE `SetPersonnelPermission`(
+    IN `p_personnel_id` INT,
+    IN `p_permission_key` VARCHAR(50),
+    IN `p_is_granted` TINYINT
+)
+BEGIN
+    INSERT INTO personnel_permissions (personnel_id, permission_key, is_granted)
+    VALUES (p_personnel_id, p_permission_key, p_is_granted)
+    ON DUPLICATE KEY UPDATE is_granted = p_is_granted;
+END //
+DELIMITER ;
+
+-- --------------------------------------------------------
 -- Stored Procedure `TogglePersonnelStatus`
 -- --------------------------------------------------------
 DELIMITER //
@@ -2234,14 +2365,16 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `UpdateIssuedCertificate`(
     IN p_id INT,
     IN p_to_title VARCHAR(255),
     IN p_template_type VARCHAR(100),
-    IN p_issue_date DATE
+    IN p_issue_date DATE,
+    IN p_certificate_number VARCHAR(100)
 )
 BEGIN
-    UPDATE issued_certificates 
-    SET 
+    UPDATE issued_certificates
+    SET
         to_title = COALESCE(p_to_title, to_title),
         template_type = COALESCE(p_template_type, template_type),
-        issue_date = COALESCE(p_issue_date, issue_date)
+        issue_date = COALESCE(p_issue_date, issue_date),
+        certificate_number = COALESCE(p_certificate_number, certificate_number)
     WHERE id = p_id;
 END //
 DELIMITER ;
@@ -2543,6 +2676,32 @@ BEGIN
         UPDATE thesis_records SET title_ar = p_title_ar, title_en = p_title_en, defense_date = p_defense_date, 
             committee_decision = p_committee_decision, final_grade = p_final_grade WHERE id = p_id;
     END //
+DELIMITER ;
+
+-- --------------------------------------------------------
+-- Stored Procedure `UpdateUniversitySettings`
+-- --------------------------------------------------------
+DELIMITER //
+DROP PROCEDURE IF EXISTS `UpdateUniversitySettings` //
+CREATE DEFINER=`root`@`localhost` PROCEDURE `UpdateUniversitySettings`(
+    IN p_univ_name_ar VARCHAR(100),
+    IN p_univ_name_en VARCHAR(100),
+    IN p_college_name_ar VARCHAR(100),
+    IN p_college_name_en VARCHAR(100),
+    IN p_univ_logo_path VARCHAR(255),
+    IN p_college_logo_path VARCHAR(255)
+)
+BEGIN
+    UPDATE university_settings 
+    SET 
+        univ_name_ar = p_univ_name_ar,
+        univ_name_en = p_univ_name_en,
+        college_name_ar = p_college_name_ar,
+        college_name_en = p_college_name_en,
+        univ_logo_path = COALESCE(p_univ_logo_path, univ_logo_path),
+        college_logo_path = COALESCE(p_college_logo_path, college_logo_path)
+    WHERE id = 1;
+END //
 DELIMITER ;
 
 -- --------------------------------------------------------

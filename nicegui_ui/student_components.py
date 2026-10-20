@@ -660,7 +660,9 @@ class StudentProfileView:
                         with ui.row().classes("w-full justify-between items-center pb-2 app-card-header flex-wrap gap-2"):
                             with ui.row().classes("items-center gap-3"):
                                 ui.icon("calendar_today", size="sm").classes("app-text-accent")
-                                ui.label(f"العام الدراسي  |  Academic Year: {yr}").classes("font-extrabold text-2xl app-text-primary")
+                                with ui.column().classes("gap-0 leading-tight text-right"):
+                                    ui.label(f"العام الدراسي: {yr}").classes("font-extrabold text-xl app-text-primary leading-tight")
+                                    ui.label(f"Academic Year: {yr}").classes("text-xs app-text-muted font-mono leading-tight")
 
                             # Editable Stage Number Selector Dropdown
                             with ui.row().classes("items-center gap-2"):
@@ -679,7 +681,7 @@ class StudentProfileView:
                                             log.error(f"Error updating stage: {stg_err}")
                                     return _on_stage_change
 
-                                UI.select("المرحلة الدراسية / Stage", stage_card_map, value=int(stg_val or 1), on_change=make_stage_changer(yr_periods)).classes("text-sm w-48 shrink-0 font-bold")
+                                UI.select("المرحلة الدراسية", stage_card_map, value=int(stg_val or 1), on_change=make_stage_changer(yr_periods)).classes("text-xs w-44 shrink-0 font-bold")
 
                         if self.timeline_layout_mode == "horizontal":
                             # Horizontal Mode (When switch is ON): Stacked full-width semester cards
@@ -687,6 +689,8 @@ class StudentProfileView:
                                 # Col 1: Semester 1
                                 self._render_semester_box_vertical(
                                     sem_title="الفصل الأول / Term 1" if is_annual else "الفصل الأول / Semester 1",
+                                    sem_title_ar="الفصل الأول",
+                                    sem_title_en="Term 1" if is_annual else "Semester 1",
                                     semester_num=1,
                                     academic_year=yr,
                                     period=next((p for p in yr_periods if p.get("semester_num") == 1), None),
@@ -699,6 +703,8 @@ class StudentProfileView:
                                 # Col 2: Semester 2
                                 self._render_semester_box_vertical(
                                     sem_title="الفصل الثاني / Term 2" if is_annual else "الفصل الثاني / Semester 2",
+                                    sem_title_ar="الفصل الثاني",
+                                    sem_title_en="Term 2" if is_annual else "Semester 2",
                                     semester_num=2,
                                     academic_year=yr,
                                     period=next((p for p in yr_periods if p.get("semester_num") == 2), None),
@@ -711,6 +717,8 @@ class StudentProfileView:
                                 # Col 3: Semester 3 (Summer)
                                 self._render_semester_box_vertical(
                                     sem_title="الفصل الصيفي / Summer",
+                                    sem_title_ar="الفصل الصيفي",
+                                    sem_title_en="Summer",
                                     semester_num=3,
                                     academic_year=yr,
                                     period=next((p for p in yr_periods if p.get("semester_num") == 3), None),
@@ -725,6 +733,8 @@ class StudentProfileView:
                                 # Col 1: Semester 1
                                 self._render_semester_box_horizontal(
                                     sem_title="الفصل الأول / Term 1" if is_annual else "الفصل الأول / Semester 1",
+                                    sem_title_ar="الفصل الأول",
+                                    sem_title_en="Term 1" if is_annual else "Semester 1",
                                     semester_num=1,
                                     academic_year=yr,
                                     period=next((p for p in yr_periods if p.get("semester_num") == 1), None),
@@ -737,6 +747,8 @@ class StudentProfileView:
                                 # Col 2: Semester 2
                                 self._render_semester_box_horizontal(
                                     sem_title="الفصل الثاني / Term 2" if is_annual else "الفصل الثاني / Semester 2",
+                                    sem_title_ar="الفصل الثاني",
+                                    sem_title_en="Term 2" if is_annual else "Semester 2",
                                     semester_num=2,
                                     academic_year=yr,
                                     period=next((p for p in yr_periods if p.get("semester_num") == 2), None),
@@ -749,6 +761,8 @@ class StudentProfileView:
                                 # Col 3: Semester 3 (Summer)
                                 self._render_semester_box_horizontal(
                                     sem_title="الفصل الصيفي / Summer",
+                                    sem_title_ar="الفصل الصيفي",
+                                    sem_title_en="Summer",
                                     semester_num=3,
                                     academic_year=yr,
                                     period=next((p for p in yr_periods if p.get("semester_num") == 3), None),
@@ -769,8 +783,15 @@ class StudentProfileView:
         enrollments: list,
         student_id: int,
         student_data: dict,
-        refresh_callback
+        refresh_callback,
+        sem_title_ar: str = "",
+        sem_title_en: str = "",
     ):
+        if not sem_title_ar:
+            parts = sem_title.split(" / ")
+            sem_title_ar = parts[0]
+            sem_title_en = parts[1] if len(parts) > 1 else ""
+
         with ui.column().classes("w-full p-4 rounded-2xl border border-[var(--border-default)] bg-[var(--surface-main)] shadow-sm hover:shadow-md transition-all gap-3"):
             period_inputs = []
 
@@ -806,20 +827,25 @@ class StudentProfileView:
 
             with ui.row().classes("w-full justify-between items-center pb-3 border-b border-[var(--border-default)] gap-3 flex-wrap"):
                 with ui.row().classes("items-center gap-3 shrink-0"):
-                    ui.label(sem_title).classes("font-extrabold text-xl app-text-accent")
+                    with ui.column().classes("gap-0 leading-tight text-right"):
+                        ui.label(sem_title_ar).classes("font-extrabold text-xl app-text-accent leading-tight")
+                        if sem_title_en:
+                            ui.label(sem_title_en).classes("text-xs app-text-muted font-mono leading-tight")
 
                     if period:
                         raw_st = period.get("result_status")
                         cur_status = STATUS_CODE_MAP.get(raw_st, STATUS_CODE_MAP.get(str(raw_st).strip(), "PASSED"))
                         status_info = RESULT_STATUS_MAP.get(cur_status, RESULT_STATUS_MAP["PASSED"])
 
-                        # Period Status Badge Chip
-                        with ui.row().classes(f"items-center gap-1 px-3 py-1 rounded-full text-sm font-bold {status_info['badge_class']} shadow-sm"):
+                        # Period Status Badge Chip (Arabic stacked above English)
+                        with ui.row().classes(f"items-center gap-1.5 px-3 py-1 rounded-xl text-xs font-bold {status_info['badge_class']} shadow-sm"):
                             ui.icon(status_info["icon"], size="16px")
-                            ui.label(f"{status_info['label_ar']} / {status_info['label_en']}")
+                            with ui.column().classes("gap-0 leading-tight text-center"):
+                                ui.label(status_info["label_ar"]).classes("text-xs font-extrabold leading-none")
+                                ui.label(status_info["label_en"]).classes("text-[9px] opacity-80 font-mono leading-none")
 
                 if period:
-                    with ui.row().classes("items-center gap-3 shrink-0 flex-wrap"):
+                    with ui.row().classes("items-center gap-2 shrink-0 flex-wrap"):
                         # Editable Status Select Dropdown
                         status_opts = {k: f"{v['label_ar']} / {v['label_en']}" for k, v in RESULT_STATUS_MAP.items()}
                         def on_status_change(e, p_id=period["id"]):
@@ -832,23 +858,24 @@ class StudentProfileView:
                                 ui.notify(f"تم تغيير حالة الفترة إلى: {RESULT_STATUS_MAP.get(st_key, {}).get('label_ar', st_key)}", type="positive")
                                 refresh_callback()
 
-                        UI.select("النتيجة / Status", status_opts, value=cur_status, on_change=on_status_change).classes("text-sm w-48 shrink-0 font-bold", remove="w-full")
+                        UI.select("النتيجة", status_opts, value=cur_status, on_change=on_status_change).classes("text-xs w-36 shrink-0 font-bold", remove="w-full")
 
-                        UI.secondary_button(
-                            "📝 الدرجات",
-                            on_click=lambda p=period: self.on_manage_courses(p, student_data) if self.on_manage_courses else None
-                        ).classes("text-sm px-4 py-2")
-
+                        # Action Buttons (Icons Only)
                         ui.button(
                             icon="save",
                             color="primary",
                             on_click=save_period_scores
-                        ).classes("px-4 py-2 shadow-md rounded-lg").tooltip("حفظ / SAVE")
+                        ).props("dense").classes("p-2 rounded-lg shadow-sm shrink-0").tooltip("حفظ الدرجات / Save Scores")
+
+                        ui.button(
+                            icon="edit_note",
+                            on_click=lambda p=period: self.on_manage_courses(p, student_data) if self.on_manage_courses else None
+                        ).props("dense outlined").classes("p-2 rounded-lg app-btn-secondary shrink-0 shadow-none").tooltip("إدارة المواد والدرجات / Manage Courses")
 
                         def confirm_delete_period(p_id=period["id"]):
                             with ui.dialog() as dlg, UI.card().classes("p-6 gap-4 w-96 bg-[var(--surface-card)] text-[var(--text-primary)] rounded-2xl border border-[var(--border-default)] shadow-2xl"):
                                 ui.label("تأكيد حذف المرحلة الدراسية / Confirm Delete Period").classes("text-base font-bold text-rose-500")
-                                ui.label(f"هل أنت متأكد من رغبتك في حذف هذا الفصل الدراسي ({sem_title})؟ سيتم حذف كافة المواد والدرجات المرتبطة به ولا يمكن التراجع عن هذا الإجراء.").classes("text-xs text-[var(--text-secondary)] leading-relaxed")
+                                ui.label(f"هل أنت متأكد من رغبتك في حذف هذا الفصل الدراسي ({sem_title_ar})؟ سيتم حذف كافة المواد والدرجات المرتبطة به ولا يمكن التراجع عن هذا الإجراء.").classes("text-xs text-[var(--text-secondary)] leading-relaxed")
 
                                 with ui.row().classes("w-full justify-end gap-3 mt-2"):
                                     UI.secondary_button("إلغاء / Cancel", on_click=dlg.close).classes("text-xs px-4 py-2")
@@ -874,7 +901,7 @@ class StudentProfileView:
                             icon="delete",
                             color="negative",
                             on_click=confirm_delete_period
-                        ).classes("px-4 py-2 rounded-lg").tooltip("حذف المرحلة / Delete")
+                        ).props("dense outlined").classes("p-2 rounded-lg shrink-0").tooltip("حذف الفصل الدراسي / Delete Period")
                 else:
                     def add_p_and_open():
                         stage = calculate_stage(academic_year, student_data.get("admission_year"))
@@ -893,10 +920,11 @@ class StudentProfileView:
                         except Exception as err:
                             ui.notify(f"Error: {err}", type="negative")
 
-                    UI.success_button(
-                        "+ إضافة مواد",
+                    ui.button(
+                        icon="library_add",
+                        color="positive",
                         on_click=add_p_and_open
-                    ).classes("text-sm px-3 py-1.5")
+                    ).props("dense").classes("p-2 rounded-lg shadow-sm shrink-0").tooltip("إضافة مواد / Add Courses")
 
             # List Enrolled Courses with Arabic and English names (Editable Score & Round)
             if enrollments:
@@ -934,7 +962,9 @@ class StudentProfileView:
                                 # Badges row
                                 with ui.row().classes("items-center justify-center gap-1 mt-0.5 flex-wrap"):
                                     if is_failed:
-                                        ui.label("راسب / Failed").classes("px-2 py-0.5 rounded-lg text-[10px] font-bold bg-rose-500/20 text-rose-500 border border-rose-500/30 shrink-0 shadow-sm")
+                                        with ui.column().classes("gap-0 px-2 py-0.5 rounded-lg text-center bg-rose-500/20 text-rose-500 border border-rose-500/30 shrink-0 leading-none"):
+                                            ui.label("راسب").classes("text-[10px] font-extrabold leading-none")
+                                            ui.label("Failed").classes("text-[8px] opacity-80 font-mono leading-none")
                                     elif is_2nd:
                                         ui.label("الدور الثاني").classes("px-2 py-0.5 rounded-lg text-[10px] font-bold bg-amber-500/20 text-amber-500 border border-amber-500/30 shrink-0 shadow-sm")
 
@@ -949,12 +979,14 @@ class StudentProfileView:
                                 ).props('dense outlined input-class="text-center font-bold text-sm"').classes("w-[60px] text-xs app-input rounded-lg bg-[var(--bg-main)]")
 
                                 # Dropdown goes on the left (second in RTL)
-                                r_select = UI.select("الدور / Round", round_opts, value=pr).classes("flex-1 min-w-[120px] text-xs app-input rounded-lg bg-[var(--bg-main)]", remove="w-full")
+                                r_select = UI.select("الدور", round_opts, value=pr).classes("flex-1 min-w-[120px] text-xs app-input rounded-lg bg-[var(--bg-main)]", remove="w-full")
 
                                 period_inputs.append((enr_id, s_field, r_select))
                                 s_field.on('keydown.enter', save_period_scores)
             else:
-                ui.label("لا توجد مواد / No courses").classes("text-sm app-text-muted italic text-center py-2 w-full")
+                with ui.column().classes("w-full items-center justify-center py-4 gap-0.5 text-center"):
+                    ui.label("لا توجد مواد").classes("text-sm font-semibold app-text-muted")
+                    ui.label("No courses").classes("text-xs app-text-muted/70 font-mono")
 
 
     def _render_semester_box_horizontal(
@@ -966,108 +998,35 @@ class StudentProfileView:
         enrollments: list,
         student_id: int,
         student_data: dict,
-        refresh_callback
+        refresh_callback,
+        sem_title_ar: str = "",
+        sem_title_en: str = "",
     ):
-        with ui.column().classes("flex-1 min-w-0 w-full lg:w-1/3 p-3.5 rounded-lg border border-[var(--border-default)] app-card-header gap-3"):
-            with ui.row().classes("w-full justify-between items-center pb-2 border-b border-[var(--border-default)] gap-2 flex-wrap"):
-                ui.label(sem_title).classes("font-bold text-sm app-text-accent")
+        if not sem_title_ar:
+            parts = sem_title.split(" / ")
+            sem_title_ar = parts[0]
+            sem_title_en = parts[1] if len(parts) > 1 else ""
 
-                period_inputs = []
-
-                def save_period_scores():
-                    if not period_inputs:
-                        ui.notify("لا توجد مواد لحفظ درجاتها / No courses to save", type="info")
-                        return
-
-                    updated_count = 0
-                    errors = 0
-                    for cur_eid, num_input, select_input in period_inputs:
-                        val = num_input.value
-                        if val is None or val == "":
-                            continue
-                        try:
-                            s_num = float(val)
-                            if not (0 <= s_num <= 100):
-                                ui.notify("الدرجة يجب أن تكون بين 0 و100 / Score must be 0-100", type="warning")
-                                return
-                            r_val = int(select_input.value or "1")
-                            self.enroll_repo.update(cur_eid, s_num, r_val)
-                            updated_count += 1
-                        except Exception as err:
-                            log.error(f"Error saving enrollment {cur_eid}: {err}")
-                            errors += 1
-
-                    if updated_count > 0:
-                        ui.notify("تم حفظ درجات الفترة بنجاح / Saved period scores!", type="positive", duration=1.5)
-                        if callable(refresh_callback):
-                            refresh_callback()
-                    elif errors > 0:
-                        ui.notify("حدث خطأ أثناء حفظ درجات الفترة", type="negative")
+        with ui.column().classes("flex-1 min-w-0 w-full lg:w-1/3 p-3.5 rounded-xl border border-[var(--border-default)] app-card-header gap-3"):
+            # Header Row: Title on right, Badge/Add-Button on left
+            with ui.row().classes("w-full justify-between items-center pb-2 border-b border-[var(--border-default)] gap-2 flex-nowrap"):
+                # Title: Arabic above English
+                with ui.column().classes("gap-0 leading-tight text-right shrink-0"):
+                    ui.label(sem_title_ar).classes("font-extrabold text-sm app-text-accent leading-tight")
+                    if sem_title_en:
+                        ui.label(sem_title_en).classes("text-[10px] app-text-muted font-mono leading-tight")
 
                 if period:
                     raw_st = period.get("result_status")
                     cur_status = STATUS_CODE_MAP.get(raw_st, STATUS_CODE_MAP.get(str(raw_st).strip(), "PASSED"))
                     status_info = RESULT_STATUS_MAP.get(cur_status, RESULT_STATUS_MAP["PASSED"])
 
-                    # Period Status Badge Chip
-                    with ui.row().classes(f"items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold {status_info['badge_class']}"):
+                    # Period Status Badge Chip: Arabic stacked above English
+                    with ui.row().classes(f"items-center gap-1.5 px-2.5 py-1 rounded-xl {status_info['badge_class']} shrink-0"):
                         ui.icon(status_info["icon"], size="14px")
-                        ui.label(f"{status_info['label_ar']} / {status_info['label_en']}")
-
-                    # Editable Status Select Dropdown
-                    status_opts = {k: f"{v['label_ar']} / {v['label_en']}" for k, v in RESULT_STATUS_MAP.items()}
-                    def on_status_change(e, p_id=period["id"]):
-                        new_st = e.value if hasattr(e, "value") else e
-                        if new_st:
-                            st_key = STATUS_CODE_MAP.get(new_st, "PASSED")
-                            st_code = STATUS_KEY_TO_CODE.get(st_key, 1)
-                            self.period_repo.update_status(p_id, st_code)
-                            period["result_status"] = st_key
-                            ui.notify(f"تم تغيير حالة الفترة إلى: {RESULT_STATUS_MAP.get(st_key, {}).get('label_ar', st_key)}", type="positive")
-                            refresh_callback()
-
-                    UI.select("النتيجة / Status", status_opts, value=cur_status, on_change=on_status_change).classes("text-xs w-48 shrink-0 font-bold", remove="w-full")
-
-                    with ui.row().classes("gap-2 items-center"):
-                        UI.primary_button(
-                            "💾 حفظ / SAVE",
-                            on_click=save_period_scores
-                        ).classes("text-sm px-3 py-1.5 font-bold shadow-md")
-
-                        UI.secondary_button(
-                            "📝 الدرجات",
-                            on_click=lambda p=period: self.on_manage_courses(p, student_data) if self.on_manage_courses else None
-                        ).classes("text-sm px-3 py-1.5")
-
-                        def confirm_delete_period(p_id=period["id"]):
-                            with ui.dialog() as dlg, UI.card().classes("p-6 gap-4 w-96 bg-[var(--surface-card)] text-[var(--text-primary)] rounded-2xl border border-[var(--border-default)] shadow-2xl"):
-                                ui.label("تأكيد حذف المرحلة الدراسية / Confirm Delete Period").classes("text-base font-bold text-rose-500")
-                                ui.label(f"هل أنت متأكد من رغبتك في حذف هذا الفصل الدراسي ({sem_title})؟ سيتم حذف كافة المواد والدرجات المرتبطة به ولا يمكن التراجع عن هذا الإجراء.").classes("text-xs text-[var(--text-secondary)] leading-relaxed")
-
-                                with ui.row().classes("w-full justify-end gap-3 mt-2"):
-                                    UI.secondary_button("إلغاء / Cancel", on_click=dlg.close).classes("text-xs px-4 py-2")
-
-                                    def execute_period_delete():
-                                        dlg.close()
-                                        try:
-                                            self.period_repo.delete(p_id)
-                                            ui.notify("تم حذف المرحلة بنجاح / Period deleted", type="positive")
-                                            if callable(refresh_callback):
-                                                refresh_callback()
-                                        except OfflineModeError as err:
-                                            ui.notify(str(err), type="warning")
-                                        except Exception as err:
-                                            log.error(f"Failed to delete academic period {p_id}: {err}")
-                                            ui.notify(f"خطأ في حذف المرحلة: {err}", type="negative")
-
-                                    UI.danger_button("🗑 تأكيد الحذف / Delete", on_click=execute_period_delete).classes("text-xs px-4 py-2 font-bold")
-
-                            dlg.open()
-
-                        UI.danger_button(
-                            "🗑 حذف",
-                            on_click=confirm_delete_period
-                        ).classes("text-sm px-3 py-1.5")
+                        with ui.column().classes("gap-0 leading-none text-center"):
+                            ui.label(status_info["label_ar"]).classes("text-[11px] font-extrabold leading-none")
+                            ui.label(status_info["label_en"]).classes("text-[8px] opacity-80 font-mono leading-none")
                 else:
                     def add_p_and_open():
                         stage = calculate_stage(academic_year, student_data.get("admission_year"))
@@ -1086,10 +1045,107 @@ class StudentProfileView:
                         except Exception as err:
                             ui.notify(f"Error: {err}", type="negative")
 
-                    UI.success_button(
-                        "+ إضافة مواد",
+                    ui.button(
+                        icon="library_add",
+                        color="positive",
                         on_click=add_p_and_open
-                    ).classes("text-sm px-3 py-1.5")
+                    ).props("dense").classes("p-1.5 rounded-lg shadow-sm shrink-0").tooltip("إضافة مواد / Add Courses")
+
+            period_inputs = []
+
+            def save_period_scores():
+                if not period_inputs:
+                    ui.notify("لا توجد مواد لحفظ درجاتها / No courses to save", type="info")
+                    return
+
+                updated_count = 0
+                errors = 0
+                for cur_eid, num_input, select_input in period_inputs:
+                    val = num_input.value
+                    if val is None or val == "":
+                        continue
+                    try:
+                        s_num = float(val)
+                        if not (0 <= s_num <= 100):
+                            ui.notify("الدرجة يجب أن تكون بين 0 و100 / Score must be 0-100", type="warning")
+                            return
+                        r_val = int(select_input.value or "1")
+                        self.enroll_repo.update(cur_eid, s_num, r_val)
+                        updated_count += 1
+                    except Exception as err:
+                        log.error(f"Error saving enrollment {cur_eid}: {err}")
+                        errors += 1
+
+                if updated_count > 0:
+                    ui.notify("تم حفظ درجات الفترة بنجاح / Saved period scores!", type="positive", duration=1.5)
+                    if callable(refresh_callback):
+                        refresh_callback()
+                elif errors > 0:
+                    ui.notify("حدث خطأ أثناء حفظ درجات الفترة", type="negative")
+
+            if period:
+                # Controls Bar: Status Select + Icon Buttons on ONE row
+                status_opts = {k: f"{v['label_ar']} / {v['label_en']}" for k, v in RESULT_STATUS_MAP.items()}
+                def on_status_change(e, p_id=period["id"]):
+                    new_st = e.value if hasattr(e, "value") else e
+                    if new_st:
+                        st_key = STATUS_CODE_MAP.get(new_st, "PASSED")
+                        st_code = STATUS_KEY_TO_CODE.get(st_key, 1)
+                        self.period_repo.update_status(p_id, st_code)
+                        period["result_status"] = st_key
+                        ui.notify(f"تم تغيير حالة الفترة إلى: {RESULT_STATUS_MAP.get(st_key, {}).get('label_ar', st_key)}", type="positive")
+                        refresh_callback()
+
+                def confirm_delete_period(p_id=period["id"]):
+                    with ui.dialog() as dlg, UI.card().classes("p-6 gap-4 w-96 bg-[var(--surface-card)] text-[var(--text-primary)] rounded-2xl border border-[var(--border-default)] shadow-2xl"):
+                        ui.label("تأكيد حذف المرحلة الدراسية / Confirm Delete Period").classes("text-base font-bold text-rose-500")
+                        ui.label(f"هل أنت متأكد من رغبتك في حذف هذا الفصل الدراسي ({sem_title_ar})؟ سيتم حذف كافة المواد والدرجات المرتبطة به ولا يمكن التراجع عن هذا الإجراء.").classes("text-xs text-[var(--text-secondary)] leading-relaxed")
+
+                        with ui.row().classes("w-full justify-end gap-3 mt-2"):
+                            UI.secondary_button("إلغاء / Cancel", on_click=dlg.close).classes("text-xs px-4 py-2")
+
+                            def execute_period_delete():
+                                dlg.close()
+                                try:
+                                    self.period_repo.delete(p_id)
+                                    ui.notify("تم حذف المرحلة بنجاح / Period deleted", type="positive")
+                                    if callable(refresh_callback):
+                                        refresh_callback()
+                                except OfflineModeError as err:
+                                    ui.notify(str(err), type="warning")
+                                except Exception as err:
+                                    log.error(f"Failed to delete academic period {p_id}: {err}")
+                                    ui.notify(f"خطأ في حذف المرحلة: {err}", type="negative")
+
+                            UI.danger_button("🗑 تأكيد الحذف / Delete", on_click=execute_period_delete).classes("text-xs px-4 py-2 font-bold")
+
+                    dlg.open()
+
+                with ui.row().classes("w-full justify-between items-center gap-2 flex-nowrap"):
+                    ui.select(
+                        options=status_opts,
+                        value=cur_status,
+                        label="النتيجة",
+                        on_change=on_status_change
+                    ).props("dense outlined options-dense").classes("text-xs flex-1 min-w-[100px] font-bold")
+
+                    with ui.row().classes("items-center gap-1.5 shrink-0"):
+                        ui.button(
+                            icon="save",
+                            color="primary",
+                            on_click=save_period_scores
+                        ).props("dense").classes("p-1.5 rounded-lg shadow-sm shrink-0").tooltip("حفظ الدرجات / Save Scores")
+
+                        ui.button(
+                            icon="edit_note",
+                            on_click=lambda p=period: self.on_manage_courses(p, student_data) if self.on_manage_courses else None
+                        ).props("dense outlined").classes("p-1.5 rounded-lg app-btn-secondary shrink-0 shadow-none").tooltip("إدارة المواد والدرجات / Manage Courses")
+
+                        ui.button(
+                            icon="delete",
+                            color="negative",
+                            on_click=confirm_delete_period
+                        ).props("dense outlined").classes("p-1.5 rounded-lg shrink-0").tooltip("حذف الفصل الدراسي / Delete Period")
 
             # List Enrolled Courses with Arabic and English names (Editable Score & Round)
             if enrollments:
@@ -1124,10 +1180,12 @@ class StudentProfileView:
                                 if c_en:
                                     ui.label(c_en).classes("text-xs text-slate-400 font-mono truncate leading-tight")
                                     
-                                # Badges row
+                                # Badges row (Arabic stacked above English)
                                 with ui.row().classes("items-center gap-2 mt-1 flex-wrap"):
                                     if is_failed:
-                                        ui.label("راسب / Failed").classes("px-2.5 py-0.5 rounded-lg text-[10px] font-extrabold bg-rose-500/20 text-rose-500 border border-rose-500/30 shrink-0")
+                                        with ui.column().classes("gap-0 px-2 py-0.5 rounded-lg text-center bg-rose-500/20 text-rose-500 border border-rose-500/30 shrink-0 leading-none"):
+                                            ui.label("راسب").classes("text-[10px] font-extrabold leading-none")
+                                            ui.label("Failed").classes("text-[8px] opacity-80 font-mono leading-none")
                                     elif is_2nd:
                                         ui.label("الدور الثاني").classes("px-2.5 py-0.5 rounded-lg text-[10px] font-extrabold bg-amber-500/20 text-amber-500 border border-amber-500/30 shrink-0")
 
@@ -1140,12 +1198,14 @@ class StudentProfileView:
                                     min=0, max=100, step=1
                                 ).props('dense outlined input-class="text-center font-bold text-sm"').classes("w-full text-xs app-input rounded-lg")
 
-                                r_select = UI.select("الدور / Round", round_opts, value=pr).classes("flex-1 min-w-[120px] text-xs app-input rounded-lg", remove="w-full")
+                                r_select = UI.select("الدور", round_opts, value=pr).classes("flex-1 min-w-[120px] text-xs app-input rounded-lg", remove="w-full")
 
                                 period_inputs.append((enr_id, s_field, r_select))
                                 s_field.on('keydown.enter', save_period_scores)
             else:
-                ui.label("لا توجد مواد / No courses").classes("text-sm app-text-muted italic text-center py-2 w-full")
+                with ui.column().classes("w-full items-center justify-center py-6 gap-0.5 text-center"):
+                    ui.label("لا توجد مواد").classes("text-xs font-semibold app-text-muted")
+                    ui.label("No courses").classes("text-[10px] app-text-muted/70 font-mono")
 
 
 class StudentFormView:

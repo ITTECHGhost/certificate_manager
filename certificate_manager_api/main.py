@@ -66,6 +66,37 @@ def get_db():
         conn.close()
 
 
+try:
+    from routers.bulk_import import router as bulk_import_router
+    app.include_router(bulk_import_router)
+except ImportError:
+    try:
+        from certificate_manager_api.routers.bulk_import import router as bulk_import_router
+        app.include_router(bulk_import_router)
+    except Exception as e:
+        logger.warning(f"Could not load bulk_import_router: {e}")
+
+try:
+    from routers.updates import router as updates_router
+    app.include_router(updates_router)
+except ImportError:
+    try:
+        from certificate_manager_api.routers.updates import router as updates_router
+        app.include_router(updates_router)
+    except Exception as e:
+        logger.warning(f"Could not load updates_router: {e}")
+
+try:
+    from routers.templates import router as templates_router
+    app.include_router(templates_router)
+except ImportError:
+    try:
+        from certificate_manager_api.routers.templates import router as templates_router
+        app.include_router(templates_router)
+    except Exception as e:
+        logger.warning(f"Could not load templates_router: {e}")
+
+
 def decode_db_value(obj: Any) -> Any:
     """Recursively decode bytes, bytearray, date, or Decimal values to Python primitives."""
     if isinstance(obj, (bytes, bytearray)):
@@ -168,7 +199,7 @@ TABLE_REGISTRY: Dict[str, Dict[str, Any]] = {
     },
     "issued_certificates": {
         "sp_name": "InsertIssuedCertificate",
-        "sp_args": ["student_id", "to_title", "template_type", "issue_date"],
+        "sp_args": ["student_id", "to_title", "template_type", "issue_date", "certificate_number"],
     },
     "study_routines": {
         "sp_name": "InsertStudyRoutine",
@@ -281,18 +312,120 @@ def sync_offline_queue(payload: SyncPayload, conn=Depends(get_db)):
                     logger.info(f"Calling SP {meta['sp_name']} with args {sp_args}")
                     try:
                         cur.callproc(meta["sp_name"], sp_args)
-                    except mysql.connector.errors.IntegrityError as err:
-                        if err.errno == 1062 and tbl == "issued_certificates":
-                            logger.warning(f"Duplicate entry ignored for SP {meta['sp_name']}: {err}")
-                            cur.execute(
-                                "SELECT id FROM issued_certificates WHERE student_id=%s AND issue_date=%s AND to_title=%s AND template_type=%s",
-                                (resolved_payload.get("student_id"), resolved_payload.get("issue_date"), resolved_payload.get("to_title"), resolved_payload.get("template_type"))
+                    except (mysql.connector.errors.IntegrityError, mysql.connector.errors.DatabaseError) as err:
+                        if tbl == "issued_certificates":
+                            err_msg = str(err)
+                            is_dup = (isinstance(err, mysql.connector.errors.IntegrityError) and getattr(err, "errno", None) == 1062)
+                            is_collision = (
+                                getattr(err, "errno", None) == 1644
+                                or getattr(err, "sqlstate", None) == "45000"
+                                or "Certificate number already assigned to another student" in err_msg
+                                or "رقم الوثيقة مستخدم بالفعل" in err_msg
                             )
-                            existing_row = cur.fetchone()
-                            if existing_row:
-                                real_id = existing_row["id"]
+                            if is_collision:
+                                base_num = str(resolved_payload.get("certificate_number") or "").strip()
+                                logger.warning(f"Certificate number collision for {tbl} (student {resolved_payload.get('student_id')}, num '{base_num}'). Reallocating next available number...")
+                                cur.execute("SELECT certificate_number FROM issued_certificates WHERE certificate_number IS NOT NULL AND certificate_number != ''")
+                                existing_nums = {str(r["certificate_number"]).strip().lower() for r in cur.fetchall() if r.get("certificate_number")}
+                                
+                                import re
+                                match = re.match(r"^(\d+)(/.*)?$", base_num)
+                                if match:
+                                    n = int(match.group(1))
+                                    sfx = match.group(2) or ""
+                                    next_candidate = f"{n}{sfx}"
+                                    while next_candidate.strip().lower() in existing_nums:
+                                        n += 1
+                                        next_candidate = f"{n}{sfx}"
+                                else:
+                                    counter = 1
+                                    next_candidate = f"{base_num or '1/26'}-{counter}"
+                                    while next_candidate.strip().lower() in existing_nums:
+                                        counter += 1
+                                        next_candidate = f"{base_num or '1/26'}-{counter}"
+
+                                new_args = list(sp_args)
+                                if len(new_args) >= 5:
+                                    new_args[4] = next_candidate
+                                logger.info(f"Retrying SP {meta['sp_name']} with reallocated number: {next_candidate}")
+                                cur.callproc(meta["sp_name"], tuple(new_args))
+                                resolved_payload["certificate_number"] = next_candidate
+
+                                real_id = None
+                                if hasattr(cur, "stored_results"):
+                                    for result in cur.stored_results():
+                                        row = result.fetchone()
+                                        if row:
+                                            if "new_id" in row:
+                                                real_id = row["new_id"]
+                                            elif "inserted_id" in row:
+                                                real_id = row["inserted_id"]
+                                            break
+                                try:
+                                    while cur.nextset():
+                                        pass
+                                except Exception:
+                                    pass
+
+                                if real_id is None:
+                                    cur.execute("SELECT LAST_INSERT_ID() AS new_id")
+                                    real_id = cur.fetchone()["new_id"]
+
+                                id_map[temp_id] = real_id
+                                logger.info(f"Successfully inserted {tbl} after collision recovery: temp_id={temp_id} -> real_id={real_id} (cert_num={next_candidate})")
+                                continue
+                            elif is_dup:
+                                logger.warning(f"Duplicate entry ignored for SP {meta['sp_name']}: {err}")
+                                c_num = resolved_payload.get("certificate_number")
+                                if c_num:
+                                    cur.execute("SELECT id FROM issued_certificates WHERE certificate_number=%s", (c_num,))
+                                else:
+                                    cur.execute(
+                                        "SELECT id FROM issued_certificates WHERE student_id=%s AND issue_date=%s AND to_title=%s AND template_type=%s",
+                                        (resolved_payload.get("student_id"), resolved_payload.get("issue_date"), resolved_payload.get("to_title"), resolved_payload.get("template_type"))
+                                    )
+                                existing_row = cur.fetchone()
+                                if existing_row:
+                                    real_id = existing_row["id"]
+                                    id_map[temp_id] = real_id
+                                    logger.info(f"Recovered existing ID {real_id} for {tbl}")
+                                    continue
+                            else:
+                                raise
+                        elif err.errno == 1062 and tbl == "academic_periods":
+                            st_id = resolved_payload.get("student_id")
+                            stg = resolved_payload.get("stage_number")
+                            sem = resolved_payload.get("semester_num")
+                            logger.warning(f"Duplicate academic period ignored for SP {meta['sp_name']}: {err}")
+                            cur.execute(
+                                "SELECT id FROM academic_periods WHERE student_id=%s AND stage_number=%s AND semester_num=%s",
+                                (st_id, stg, sem)
+                            )
+                            row = cur.fetchone()
+                            if row:
+                                real_id = row["id"]
                                 id_map[temp_id] = real_id
                                 logger.info(f"Recovered existing ID {real_id} for {tbl}")
+                                continue
+                        elif err.errno == 1062 and tbl == "enrollments":
+                            pid = resolved_payload.get("period_id")
+                            cid = resolved_payload.get("course_id")
+                            logger.warning(f"Duplicate enrollment ignored for SP {meta['sp_name']}: {err}")
+                            cur.execute(
+                                "SELECT id FROM enrollments WHERE period_id=%s AND course_id=%s",
+                                (pid, cid)
+                            )
+                            row = cur.fetchone()
+                            if row:
+                                real_id = row["id"]
+                                id_map[temp_id] = real_id
+                                score = float(resolved_payload.get("score") or 0.0)
+                                pr = int(resolved_payload.get("passed_round") or 1)
+                                cur.callproc("UpdateEnrollment", (real_id, score, pr))
+                                try:
+                                    while cur.nextset(): pass
+                                except Exception: pass
+                                logger.info(f"Recovered existing ID {real_id} for {tbl} and updated enrollment")
                                 continue
                         raise
 
@@ -385,6 +518,7 @@ class StudentPayload(BaseModel):
     birthplace_id: Optional[int] = None
     birthplace_other: Optional[str] = None
     nationality_id: Optional[int] = 1
+    national_id: Optional[str] = None
     department_id: Optional[int] = None
     study_system_id: Optional[int] = None
     degree_level: Optional[int] = 1
@@ -549,6 +683,7 @@ def insert_student(payload: StudentPayload, conn=Depends(get_db)):
             payload.full_name_ar, payload.full_name_en, payload.gender,
             payload.sequence_number, payload.postgraduation_number, payload.date_of_birth,
             payload.birthplace_id, payload.birthplace_other, payload.nationality_id,
+            payload.national_id,
             payload.department_id, payload.study_system_id, payload.degree_level,
             payload.order_id, payload.admission_year, payload.summer_training_data,
             payload.average, payload.graduation_date, payload.graduation_semester
@@ -592,6 +727,7 @@ def update_student(student_id: int, payload: StudentPayload, conn=Depends(get_db
             payload.full_name_ar, payload.full_name_en, payload.gender,
             payload.sequence_number, payload.postgraduation_number, payload.date_of_birth,
             payload.birthplace_id, payload.birthplace_other, payload.nationality_id,
+            payload.national_id,
             payload.department_id, payload.study_system_id, payload.degree_level,
             payload.order_id, payload.admission_year, payload.summer_training_data,
             payload.average, payload.graduation_date, payload.graduation_semester
@@ -983,7 +1119,28 @@ def get_courses(conn=Depends(get_db)):
     try:
         return execute_sp_fetchall(conn, "GetAllCourses")
     except Exception as exc:
-        raise HTTPException(status_code=500, detail=str(exc))
+        logger.warning(f"GetAllCourses SP failed ({exc}), falling back to direct SELECT")
+        cur = conn.cursor(dictionary=True)
+        try:
+            cur.execute("""
+                SELECT 
+                    c.id, 
+                    c.name_ar, 
+                    c.name_en, 
+                    c.credit_hours, 
+                    c.stage_number,
+                    c.department_id,
+                    d.name_ar AS dept_name_ar,
+                    d.name_en AS dept_name_en
+                FROM courses c
+                LEFT JOIN departments d ON c.department_id = d.id
+                ORDER BY c.stage_number ASC, c.name_ar ASC
+            """)
+            return cur.fetchall()
+        except Exception as exc2:
+            raise HTTPException(status_code=500, detail=str(exc2))
+        finally:
+            cur.close()
 
 
 @app.get("/courses/by-dept/{dept_id}")
@@ -992,7 +1149,44 @@ def get_courses_by_dept(dept_id: int, conn=Depends(get_db)):
     try:
         return execute_sp_fetchall(conn, "GetCoursesByDepartment", (dept_id,))
     except Exception as exc:
+        logger.warning(f"GetCoursesByDepartment SP failed ({exc}), falling back to direct SELECT")
+        cur = conn.cursor(dictionary=True)
+        try:
+            cur.execute("""
+                SELECT 
+                    c.id, c.name_ar, c.name_en, c.credit_hours, c.stage_number, c.department_id,
+                    d.name_ar AS dept_name_ar, d.name_en AS dept_name_en
+                FROM courses c
+                LEFT JOIN departments d ON c.department_id = d.id
+                WHERE c.department_id = %s
+                ORDER BY c.stage_number ASC, c.name_ar ASC
+            """, (dept_id,))
+            return cur.fetchall()
+        except Exception as exc2:
+            raise HTTPException(status_code=500, detail=str(exc2))
+        finally:
+            cur.close()
+
+
+@app.get("/courses/by-dept-stage-system")
+@app.get("/api/courses/by-dept-stage-system")
+def get_courses_by_dept_stage_system(dept_id: int, stage: int, system_id: Optional[int] = None, conn=Depends(get_db)):
+    cur = conn.cursor(dictionary=True)
+    try:
+        cur.execute("""
+            SELECT 
+                c.id, c.name_ar, c.name_en, c.credit_hours, c.stage_number, c.department_id,
+                d.name_ar AS dept_name_ar, d.name_en AS dept_name_en
+            FROM courses c
+            LEFT JOIN departments d ON c.department_id = d.id
+            WHERE c.department_id = %s AND c.stage_number = %s
+            ORDER BY c.name_ar ASC
+        """, (dept_id, stage))
+        return cur.fetchall()
+    except Exception as exc:
         raise HTTPException(status_code=500, detail=str(exc))
+    finally:
+        cur.close()
 
 
 @app.get("/courses/{course_id}/shared-depts")
@@ -1297,6 +1491,119 @@ def delete_personnel(person_id: int, conn=Depends(get_db)):
         raise HTTPException(status_code=500, detail=str(exc))
     finally:
         cur.close()
+
+
+class PermissionsUpdatePayload(BaseModel):
+    permission_keys: List[str]
+
+
+@app.get("/permissions")
+def get_all_permissions(conn=Depends(get_db)):
+    cur = conn.cursor(dictionary=True)
+    try:
+        cur.execute("SELECT permission_key, category, name_ar, name_en, description_ar FROM permissions ORDER BY category, permission_key")
+        return cur.fetchall()
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=str(exc))
+    finally:
+        cur.close()
+
+
+@app.get("/personnel/{person_id}/permissions")
+def get_user_permissions(person_id: int, conn=Depends(get_db)):
+    cur = conn.cursor(dictionary=True)
+    try:
+        try:
+            cur.callproc("GetPersonnelPermissions", (person_id,))
+            for res in cur.stored_results():
+                rows = res.fetchall()
+                return [r["permission_key"] for r in rows]
+        except Exception:
+            pass
+        # Fallback direct SELECT
+        cur.execute("SELECT permission_key FROM personnel_permissions WHERE personnel_id = %s AND is_granted = 1", (person_id,))
+        rows = cur.fetchall()
+        return [r["permission_key"] for r in rows]
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=str(exc))
+    finally:
+        cur.close()
+
+
+@app.put("/personnel/{person_id}/permissions")
+def update_user_permissions(person_id: int, payload: PermissionsUpdatePayload, conn=Depends(get_db)):
+    cur = conn.cursor(dictionary=True)
+    try:
+        keys_csv = ",".join(payload.permission_keys) if payload.permission_keys else ""
+        try:
+            cur.callproc("BulkSetPersonnelPermissions", (person_id, keys_csv))
+            try:
+                while cur.nextset():
+                    pass
+            except Exception:
+                pass
+            conn.commit()
+            return {"status": "success", "count": len(payload.permission_keys)}
+        except Exception as sp_err:
+            logger.warning(f"BulkSetPersonnelPermissions SP failed ({sp_err}), using direct transaction")
+            cur.execute("DELETE FROM personnel_permissions WHERE personnel_id = %s", (person_id,))
+            for k in payload.permission_keys:
+                cur.execute(
+                    "INSERT INTO personnel_permissions (personnel_id, permission_key, is_granted) VALUES (%s, %s, 1) ON DUPLICATE KEY UPDATE is_granted = 1",
+                    (person_id, k)
+                )
+            conn.commit()
+            return {"status": "success", "count": len(payload.permission_keys)}
+    except Exception as exc:
+        conn.rollback()
+        raise HTTPException(status_code=500, detail=str(exc))
+    finally:
+        cur.close()
+
+
+# ---------------------------------------------------------------------------
+# Roles & Responsibility Profiles Endpoints
+# ---------------------------------------------------------------------------
+
+class RolePayload(BaseModel):
+    id: Optional[str] = None
+    name_ar: str
+    name_en: str
+    description_ar: Optional[str] = ""
+    base_role: Optional[str] = "user"
+    allowed_pages: Optional[List[str]] = []
+    allowed_actions: Optional[List[str]] = []
+    department_scope: Optional[str] = "all"
+    is_system: Optional[int] = 0
+
+@app.get("/roles")
+def get_all_roles():
+    try:
+        from data.repositories import RoleRepository
+        return RoleRepository().get_all()
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=str(exc))
+
+@app.post("/roles")
+def save_role_endpoint(payload: RolePayload):
+    try:
+        from data.repositories import RoleRepository
+        saved = RoleRepository().save_role(payload.dict())
+        return saved
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=str(exc))
+
+@app.delete("/roles/{role_id}")
+def delete_role_endpoint(role_id: str):
+    try:
+        from data.repositories import RoleRepository
+        success = RoleRepository().delete_role(role_id)
+        return {"status": "success" if success else "not_found"}
+    except ValueError as ve:
+        raise HTTPException(status_code=400, detail=str(ve))
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=str(exc))
+
 
 
 # ===========================================================================
@@ -1607,6 +1914,8 @@ class SettingsPayload(BaseModel):
     univ_name_en: str
     college_name_ar: str
     college_name_en: str
+    univ_logo_path: Optional[str] = None
+    college_logo_path: Optional[str] = None
 
 
 class AppearancePayload(BaseModel):
@@ -1620,7 +1929,7 @@ class AppearancePayload(BaseModel):
 @app.get("/settings")
 def get_settings(conn=Depends(get_db)):
     try:
-        row = execute_sp_fetchone(conn, "GetSystemSettings")
+        row = execute_sp_fetchone(conn, "GetUniversitySettings")
         return row or {}
     except Exception as exc:
         raise HTTPException(status_code=500, detail=str(exc))
@@ -1630,8 +1939,13 @@ def get_settings(conn=Depends(get_db)):
 def update_settings(payload: SettingsPayload, conn=Depends(get_db)):
     cur = conn.cursor()
     try:
-        cur.callproc("UpdateSystemSettings", (
-            payload.univ_name_ar, payload.univ_name_en, payload.college_name_ar, payload.college_name_en
+        cur.callproc("UpdateUniversitySettings", (
+            payload.univ_name_ar,
+            payload.univ_name_en,
+            payload.college_name_ar,
+            payload.college_name_en,
+            payload.univ_logo_path,
+            payload.college_logo_path
         ))
         try:
             while cur.nextset():
@@ -2425,6 +2739,7 @@ class IssuedCertificatePayload(BaseModel):
     to_title: Optional[str] = "من يهمه الأمر"
     template_type: Optional[str] = "graduation"
     issue_date: Optional[str] = None
+    certificate_number: Optional[str] = None
 
 
 @app.get("/api/issued-certificates")
@@ -2436,6 +2751,24 @@ def get_all_issued_certificates(conn=Depends(get_db)):
         raise HTTPException(status_code=500, detail=str(exc))
 
 
+@app.get("/api/issued-certificates/latest-number")
+@app.get("/issued-certificates/latest-number")
+def get_latest_certificate_number(conn=Depends(get_db)):
+    cur = conn.cursor(dictionary=True)
+    try:
+        cur.execute(
+            "SELECT certificate_number FROM issued_certificates "
+            "WHERE certificate_number IS NOT NULL AND certificate_number != '' "
+            "ORDER BY id DESC LIMIT 1"
+        )
+        row = cur.fetchone()
+        return {"latest_number": row["certificate_number"] if row else None}
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=str(exc))
+    finally:
+        cur.close()
+
+
 @app.get("/api/issued-certificates/report")
 @app.get("/issued-certificates/report")
 def get_issued_certificates_report(
@@ -2443,13 +2776,16 @@ def get_issued_certificates_report(
     end_date: Optional[str] = Query(None),
     department_id: Optional[int] = Query(None),
     template_type: Optional[str] = Query(None),
+    graduation_year: Optional[int] = Query(None),
+    study_system_id: Optional[int] = Query(None),
+    search_text: Optional[str] = Query(None),
     conn=Depends(get_db)
 ):
     try:
         return execute_sp_fetchall(
             conn,
             "GetIssuedCertificatesReport",
-            (start_date, end_date, department_id, template_type)
+            (start_date, end_date, department_id, template_type, graduation_year, study_system_id, search_text)
         )
     except Exception as exc:
         raise HTTPException(status_code=500, detail=str(exc))
@@ -2492,6 +2828,7 @@ def insert_issued_certificate(payload: IssuedCertificatePayload, conn=Depends(ge
                 payload.to_title or "من يهمه الأمر",
                 payload.template_type or "graduation",
                 str(issue_date),
+                payload.certificate_number,
             )
         )
         real_id = None
@@ -2499,10 +2836,10 @@ def insert_issued_certificate(payload: IssuedCertificatePayload, conn=Depends(ge
             for result in cur.stored_results():
                 row = result.fetchone()
                 if row:
-                    if "new_id" in row:
-                        real_id = row["new_id"]
-                    elif "inserted_id" in row:
+                    if "inserted_id" in row:
                         real_id = row["inserted_id"]
+                    elif "new_id" in row:
+                        real_id = row["new_id"]
                     elif "id" in row:
                         real_id = row["id"]
                     break
@@ -2545,6 +2882,7 @@ def update_issued_certificate(cert_id: int, payload: IssuedCertificatePayload, c
                 payload.to_title or "",
                 payload.template_type or "graduation",
                 str(issue_date),
+                payload.certificate_number,
             )
         )
         try:
@@ -2629,6 +2967,7 @@ def process_offline_sync_batch(payload: dict, conn=Depends(get_db)):
                         data.get("birthplace_id"),
                         data.get("birthplace_other"),
                         int(data.get("nationality_id") or 1),
+                        data.get("national_id"),
                         data.get("department_id"),
                         int(data.get("study_system_id") or 1),
                         int(data.get("degree_level") or 1),
@@ -2741,7 +3080,8 @@ def process_offline_sync_batch(payload: dict, conn=Depends(get_db)):
                     to_title = data.get("to_title", "من يهمه الأمر")
                     tmpl = data.get("template_type", "graduation")
                     idate = data.get("issue_date") or datetime.now().strftime("%Y-%m-%d")
-                    cur.callproc("InsertIssuedCertificate", (st_id, to_title, tmpl, str(idate)))
+                    cert_num = data.get("certificate_number")
+                    cur.callproc("InsertIssuedCertificate", (st_id, to_title, tmpl, str(idate), cert_num))
                     real_id = None
                     if hasattr(cur, "stored_results"):
                         for res in cur.stored_results():
@@ -2762,7 +3102,39 @@ def process_offline_sync_batch(payload: dict, conn=Depends(get_db)):
                         id_map[int(temp_id)] = int(real_id)
 
             elif op == "UPDATE":
-                if tbl == "enrollments":
+                if tbl == "students":
+                    target_id = temp_id if temp_id > 0 else data.get("id")
+                    if target_id and target_id in id_map:
+                        target_id = id_map[target_id]
+                    if target_id and target_id > 0:
+                        sp_args = (
+                            target_id,
+                            data.get("full_name_ar"),
+                            data.get("full_name_en"),
+                            int(data.get("gender") or 1),
+                            data.get("sequence_number"),
+                            data.get("postgraduation_number"),
+                            data.get("date_of_birth"),
+                            data.get("birthplace_id"),
+                            data.get("birthplace_other"),
+                            int(data.get("nationality_id") or 1),
+                            data.get("national_id"),
+                            data.get("department_id"),
+                            int(data.get("study_system_id") or 1),
+                            int(data.get("degree_level") or 1),
+                            data.get("order_id"),
+                            data.get("admission_year"),
+                            data.get("summer_training_data"),
+                            data.get("average"),
+                            data.get("graduation_date"),
+                            data.get("graduation_semester") or "first"
+                        )
+                        cur.callproc("UpdateStudent", sp_args)
+                        try:
+                            while cur.nextset(): pass
+                        except Exception: pass
+
+                elif tbl == "enrollments":
                     target_id = temp_id if temp_id > 0 else data.get("id")
                     if target_id and target_id in id_map:
                         target_id = id_map[target_id]
@@ -2785,6 +3157,27 @@ def process_offline_sync_batch(payload: dict, conn=Depends(get_db)):
                             try:
                                 while cur.nextset(): pass
                             except Exception: pass
+
+            elif op == "DELETE":
+                target_id = temp_id if temp_id > 0 else data.get("id")
+                if target_id and target_id in id_map:
+                    target_id = id_map[target_id]
+                if target_id and target_id > 0:
+                    if tbl == "students":
+                        cur.callproc("DeleteStudent", (target_id,))
+                        try:
+                            while cur.nextset(): pass
+                        except Exception: pass
+                    elif tbl == "academic_periods":
+                        cur.callproc("DeleteAcademicPeriod", (target_id,))
+                        try:
+                            while cur.nextset(): pass
+                        except Exception: pass
+                    elif tbl == "enrollments":
+                        cur.callproc("DeleteEnrollment", (target_id,))
+                        try:
+                            while cur.nextset(): pass
+                        except Exception: pass
 
         conn.commit()
         return {"status": "success", "id_map": id_map}

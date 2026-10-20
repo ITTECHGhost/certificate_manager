@@ -19,7 +19,7 @@ CREATE TABLE `academic_periods` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `uq_period_precise` (`student_id`,`academic_year`,`stage_number`,`semester_num`),
   CONSTRAINT `academic_periods_ibfk_1` FOREIGN KEY (`student_id`) REFERENCES `students` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=1076 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=1093 DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
 -- Table structure for table `countries`
@@ -81,7 +81,7 @@ CREATE TABLE `enrollments` (
   KEY `course_id` (`course_id`),
   CONSTRAINT `enrollments_ibfk_1` FOREIGN KEY (`period_id`) REFERENCES `academic_periods` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `enrollments_ibfk_2` FOREIGN KEY (`course_id`) REFERENCES `courses` (`id`) ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=4314 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=4381 DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
 -- Table structure for table `governorates`
@@ -127,12 +127,28 @@ CREATE TABLE `issued_certificates` (
   `student_id` int(11) NOT NULL,
   `to_title` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'من يهمه الأمر',
   `template_type` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'ARABIC',
+  `certificate_number` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `issue_date` date NOT NULL,
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   UNIQUE KEY `uq_student_cert_record` (`student_id`,`issue_date`,`to_title`,`template_type`),
+  KEY `idx_cert_log_entry` (`certificate_number`,`issue_date`,`student_id`,`to_title`(100),`template_type`(50)),
+  KEY `idx_cert_num` (`certificate_number`),
   CONSTRAINT `fk_issued_cert_student` FOREIGN KEY (`student_id`) REFERENCES `students` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=83 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=101 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------
+-- Table structure for table `permissions`
+-- --------------------------------------------------------
+DROP TABLE IF EXISTS `permissions`;
+CREATE TABLE `permissions` (
+  `permission_key` varchar(50) NOT NULL,
+  `category` varchar(50) NOT NULL,
+  `name_ar` varchar(100) NOT NULL,
+  `name_en` varchar(100) NOT NULL,
+  `description_ar` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`permission_key`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------
 -- Table structure for table `personnel`
@@ -158,6 +174,23 @@ CREATE TABLE `personnel` (
   KEY `fk_personal_univ_settings` (`university_settings_id`),
   CONSTRAINT `fk_personal_univ_settings` FOREIGN KEY (`university_settings_id`) REFERENCES `university_settings` (`id`) ON UPDATE CASCADE
 ) ENGINE=InnoDB AUTO_INCREMENT=37 DEFAULT CHARSET=utf8mb4;
+
+-- --------------------------------------------------------
+-- Table structure for table `personnel_permissions`
+-- --------------------------------------------------------
+DROP TABLE IF EXISTS `personnel_permissions`;
+CREATE TABLE `personnel_permissions` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `personnel_id` int(11) NOT NULL,
+  `permission_key` varchar(50) NOT NULL,
+  `is_granted` tinyint(1) NOT NULL DEFAULT '1',
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uq_personnel_perm` (`personnel_id`,`permission_key`),
+  KEY `fk_personnel_perm_key` (`permission_key`),
+  CONSTRAINT `fk_personnel_perm_key` FOREIGN KEY (`permission_key`) REFERENCES `permissions` (`permission_key`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `fk_personnel_perm_user` FOREIGN KEY (`personnel_id`) REFERENCES `personnel` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=485 DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------
 -- Table structure for table `settings`
@@ -228,7 +261,7 @@ CREATE TABLE `students` (
   CONSTRAINT `students_ibfk_3` FOREIGN KEY (`department_id`) REFERENCES `departments` (`id`) ON UPDATE CASCADE,
   CONSTRAINT `students_ibfk_4` FOREIGN KEY (`study_system_id`) REFERENCES `study_systems` (`id`) ON UPDATE CASCADE,
   CONSTRAINT `students_ibfk_5` FOREIGN KEY (`order_id`) REFERENCES `graduation_orders` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=2139 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=2140 DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
 -- Table structure for table `study_routine_courses`
@@ -323,6 +356,8 @@ CREATE TABLE `university_settings` (
   `univ_name_en` varchar(100) NOT NULL DEFAULT 'University of Basrah',
   `college_name_ar` varchar(100) NOT NULL DEFAULT 'كلية علوم الحاسوب وتكنولوجيا المعلومات',
   `college_name_en` varchar(100) NOT NULL DEFAULT 'College of Computer Science and Information Technology',
+  `univ_logo_path` varchar(255) DEFAULT 'assets/univ_logo.png',
+  `college_logo_path` varchar(255) DEFAULT 'assets/college_logo.png',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 

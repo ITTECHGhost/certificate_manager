@@ -88,7 +88,7 @@ def get_screen_resolution() -> tuple[int, int]:
                 return (width, height)
     except Exception as err:
         print(f"[main] Error detecting screen resolution: {err}")
-    return (1280, 720)
+    return (1440, 900)
 
 def can_use_native_mode() -> bool:
     """Check whether Windows native pywebview IPC pipes can be created without permission errors."""
@@ -128,13 +128,19 @@ if __name__ in {"__main__", "__mp_main__"}:
         # Run system diagnostic health check once on startup and log to activity_log.txt
         run_system_health_checks()
 
+    is_web_mode = "--web" in sys.argv
     screen_size = get_screen_resolution()
-    use_native = can_use_native_mode()
+    use_native = False if is_web_mode else can_use_native_mode()
+    bind_host = "0.0.0.0" if is_web_mode else "127.0.0.1"
+
+    if is_web_mode:
+        log_system("Certificate Manager starting in Web Server / Fallback mode on 0.0.0.0:2323", "INFO")
 
     if use_native:
         from nicegui import app
         import webview
         webview.settings['OPEN_DEVTOOLS_IN_DEBUG'] = False
+        app.native.window_args['min_size'] = (1280, 720)
         app.native.window_args['maximized'] = True
         app.native.start_args['gui'] = 'edgechromium'
         app.native.start_args['debug'] = True
@@ -142,14 +148,34 @@ if __name__ in {"__main__", "__mp_main__"}:
     # Ensure all background processes and threads exit cleanly when closing the app
     from nicegui import app
     import os
+    os.makedirs("assets", exist_ok=True)
+    app.add_static_files('/assets', 'assets')
     app.on_shutdown(lambda: os._exit(0))
 
+    async def _on_app_startup():
+        """Asynchronously sync templates in background on application startup."""
+        try:
+            from sync_engine import is_online
+            if is_online():
+                from nicegui import run
+                import services.template_sync as t_sync
+                res = await run.io_bound(t_sync.sync_templates_if_online)
+                if res.get("synced_files"):
+                    log_system(f"Startup template sync updated: {res['synced_files']}", "INFO")
+        except Exception as exc:
+            log_system(f"Startup template sync notice: {exc}", "WARNING")
+
+    app.on_startup(_on_app_startup)
+
+    target_win_size = (max(1400, screen_size[0]), max(880, screen_size[1])) if use_native else None
+
     ui.run(
-        native      = use_native, #False,
+        native      = use_native,
+        host        = bind_host,
         port        = 2323,
-        window_size = screen_size if use_native else None,
+        window_size = target_win_size,
         title       = "Certificate Manager",
-        reload      = False, #True,
+        reload      = False,
         dark        = None,
         storage_secret = "certificate_manager_secret_key"
     )

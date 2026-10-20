@@ -33,6 +33,7 @@ from nicegui_screens.departments_screen import DepartmentsScreen
 from nicegui_screens.courses_screen import CoursesScreen
 from nicegui_screens.personnel_screen import PersonnelScreen
 from nicegui_screens.certificate_screen import CertificateScreen
+from nicegui_screens.issued_certificates_screen import IssuedCertificatesScreen
 
 
 class MainAppShell:
@@ -68,6 +69,7 @@ class MainAppShell:
         self._sidebar_title_icon = None
         self._nav_labels: list = []
         self._user_chip_labels: list = []
+        self._user_chip_row = None
         self._header_title_ar = None
         self._header_title_en = None
 
@@ -155,9 +157,9 @@ class MainAppShell:
                 self._build_top_header()
 
                 # Scrollable Content Body Area
-                with ui.scroll_area().classes("flex-1 min-w-0 max-w-full h-full p-5 overflow-x-hidden"):
+                with ui.scroll_area().classes("flex-1 min-w-0 max-w-full h-full p-4 overflow-x-auto"):
                     # Dynamic Screen View Container (Swapped when navigating)
-                    self.content_container = ui.column().classes("w-full max-w-full min-w-0 gap-5 overflow-hidden")
+                    self.content_container = ui.column().classes("w-full max-w-full min-w-0 gap-4")
                     self._render_active_screen()
 
         # Start periodic background network status polling loop (every 5 seconds)
@@ -188,6 +190,8 @@ class MainAppShell:
             try:
                 await run.io_bound(sync_offline_queue_to_mysql)
                 pull_mysql_to_sqlite_background()
+                import services.template_sync as t_sync
+                await run.io_bound(t_sync.sync_templates_if_online)
             except Exception as exc:
                 log.warning(f"[MainAppShell] Sync error on reconnection: {exc}")
 
@@ -243,12 +247,40 @@ class MainAppShell:
 
             # [NAVIGATION ITEMS LIST COLUMN]
             with ui.column().classes(Styles.SIDEBAR_NAV_GROUP):
-                for item in NAV_ITEMS:
-                    self._build_nav_item(item)
+                from nicegui_ui.state import app_session
+                allowed_screen_keys = set()
+                if app_session.role == "admin":
+                    allowed_screen_keys = {item["key"] for item in NAV_ITEMS}
+                else:
+                    try:
+                        from data.repositories import PermissionRepository, RoleRepository, PersonnelRepository
+                        uid = app_session.emp_id
+                        p_rec = PersonnelRepository().get_by_id(uid) or {}
+                        if p_rec.get("personnel_role") == "admin":
+                            allowed_screen_keys = {item["key"] for item in NAV_ITEMS}
+                        else:
+                            role_repo = RoleRepository()
+                            assigned_role_id = role_repo.get_user_role_id(uid)
+                            r_rec = role_repo.get_by_id(assigned_role_id) if assigned_role_id else None
 
-            # [BOTTOM USER CHIP SECTION]
-            with ui.column().classes("w-full p-3 shrink-0"):
-                self._build_user_chip()
+                            user_perms = set(PermissionRepository().get_user_permissions(uid) or [])
+                            page_perms = {k.replace("page:", "") for k in user_perms if k.startswith("page:")}
+                            if page_perms:
+                                allowed_screen_keys = page_perms
+                            elif r_rec and r_rec.get("allowed_pages"):
+                                allowed_screen_keys = set(r_rec.get("allowed_pages"))
+                            else:
+                                allowed_screen_keys = {"home", "students", "orders", "certificate", "issued_certs"}
+                    except Exception:
+                        allowed_screen_keys = {item["key"] for item in NAV_ITEMS}
+
+                allowed_screen_keys.add("home")
+                allowed_screen_keys.add("profile")
+                self.allowed_screens = allowed_screen_keys
+
+                for item in NAV_ITEMS:
+                    if item["key"] in allowed_screen_keys:
+                        self._build_nav_item(item)
 
     def _build_nav_item(self, item: dict) -> None:
         """
@@ -401,9 +433,9 @@ class MainAppShell:
                 label_col.set_visibility(True)
                 row.classes(remove="justify-center", add="")
 
-            for text_col in self._user_chip_labels:
+            for text_col in getattr(self, '_user_chip_labels', []):
                 text_col.set_visibility(True)
-            if self._user_chip_row is not None:
+            if getattr(self, '_user_chip_row', None) is not None:
                 self._user_chip_row.classes(remove=getattr(self, '_chip_mini', ''), add=getattr(self, '_chip_expanded', ''))
 
         else:
@@ -420,9 +452,9 @@ class MainAppShell:
                 label_col.set_visibility(False)
                 row.classes(add="justify-center")
 
-            for text_col in self._user_chip_labels:
+            for text_col in getattr(self, '_user_chip_labels', []):
                 text_col.set_visibility(False)
-            if self._user_chip_row is not None:
+            if getattr(self, '_user_chip_row', None) is not None:
                 self._user_chip_row.classes(remove=getattr(self, '_chip_expanded', ''), add=getattr(self, '_chip_mini', ''))
 
     # =========================================================================
@@ -459,28 +491,78 @@ class MainAppShell:
                         "app-text-muted text-sm font-medium"
                     )
 
-            # Right Header Section (Live Network Indicator + Refresh Button)
-            with ui.row().classes("items-center gap-4"):
-                # [LABEL / BADGE: LIVE NETWORK STATUS BADGE]
-                @ui.refreshable
-                def header_status_badge():
-                    from sync_engine import is_online
-                    online = is_online()
-                    bg = (
-                        "bg-emerald-50 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-200 dark:border-emerald-500/30"
-                        if online else
-                        "bg-red-50 dark:bg-red-500/10 text-red-700 dark:text-red-400 border-red-200 dark:border-red-500/30"
-                    )
-                    dot = "🟢" if online else "🔴"
-                    text = "متصل / Online" if online else "غير متصل / Offline"
-                    ui.label(f"{dot} {text}").classes(f"px-3 py-1.5 rounded-xl border text-xs font-bold {bg}")
-                header_status_badge()
-                self._header_status = header_status_badge
+            # Corner Header Section (Refresh Button in 2nd Column + User Card in the Corner)
+            with ui.row().classes("items-center gap-3"):
+                # [BUTTON: REFRESH DATA] (Second column from the corner)
+                ui.button(
+                    "تحديث البيانات / Refresh Data",
+                    icon="sync",
+                    color=None,
+                    on_click=self._on_refresh_click
+                ).classes("app-btn-secondary font-bold normal-case shadow-none px-3.5 py-1.5 text-xs rounded-xl")
 
-                # [BUTTON: REFRESH DATA]
-                ui.button("تحديث البيانات / Refresh Data", icon="sync", color=None, on_click=self._on_refresh_click).classes(
-                    "app-btn-secondary font-bold normal-case shadow-none px-4 py-2 text-sm"
-                )
+                # [USER CARD] (Corner of topbar)
+                self._build_topbar_user_card()
+
+    def _build_topbar_user_card(self) -> None:
+        """
+        [CARD / TOPBAR USER PROFILE CHIP]
+        Top Header Corner User Card:
+        - User Avatar Initials Badge Circle ("SA")
+        - Text Column: User Name Label + Beautiful Live Network Status Badge
+        - Logout Action Button
+        """
+        from nicegui_ui.state import app_session
+        user_name = app_session.name_ar or app_session.name_en or app_session.username or "مدير النظام"
+        name_for_initials = app_session.name_en or app_session.username or "Admin"
+        initials = "".join([part[0].upper() for part in name_for_initials.split() if part][:2]) or "SA"
+
+        with ui.row().classes(
+            "app-user-chip items-center gap-2 px-3 py-1.5 rounded-2xl border border-[var(--border-default)] "
+            "bg-[var(--surface-card)] hover:border-blue-500/40 transition-all shadow-sm shrink-0"
+        ):
+            # Clickable Account Card (Navigates to ProfileScreen for all users)
+            account_click_area = ui.row().classes(
+                "items-center gap-2.5 cursor-pointer hover:opacity-85 transition-opacity"
+            ).on("click", lambda: self._switch_screen("profile"))
+            account_click_area.tooltip("الملف الشخصي والحساب / Profile & Account")
+
+            with account_click_area:
+                # User Avatar Initials Badge Circle
+                with ui.element("div").classes(
+                    "app-user-avatar w-8 h-8 shrink-0 rounded-full flex items-center justify-center "
+                    "font-bold text-xs bg-blue-500/15 border border-blue-500/30 text-blue-400"
+                ):
+                    ui.label(initials)
+
+                # User Info + Beautiful Online/Offline Tag
+                with ui.column().classes("gap-0.5 justify-center min-w-0"):
+                    ui.label(user_name).classes("app-user-name text-xs font-bold leading-tight truncate max-w-[130px]")
+
+                    @ui.refreshable
+                    def header_status_badge():
+                        from sync_engine import is_online
+                        online = is_online()
+                        bg = (
+                            "bg-emerald-50 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-200 dark:border-emerald-500/30"
+                            if online else
+                            "bg-red-50 dark:bg-red-500/10 text-red-700 dark:text-red-400 border-red-200 dark:border-red-500/30"
+                        )
+                        dot = "🟢" if online else "🔴"
+                        text = "متصل / Online" if online else "غير متصل / Offline"
+                        ui.label(f"{dot} {text}").classes(f"px-2 py-0.5 rounded-md border text-[10px] font-bold leading-none {bg}")
+
+                    header_status_badge()
+                    self._header_status = header_status_badge
+
+            ui.element("div").classes("w-[1px] h-6 bg-[var(--border-default)] mx-0.5")
+
+            # Logout Icon Button
+            logout_btn = ui.icon("logout", size="xs").classes(
+                "app-user-logout cursor-pointer hover:text-red-400 transition-colors p-1 rounded-lg"
+            )
+            logout_btn.on("click", self._handle_logout)
+            logout_btn.tooltip("تسجيل الخروج / Logout")
 
     def _get_screen_header_titles(self) -> tuple[str, str]:
         """Returns Arabic and English title strings for the active screen."""
@@ -491,19 +573,21 @@ class MainAppShell:
             "departments": ("إدارة الأقسام", "Departments"),
             "courses":     ("المواد الدراسية", "Courses"),
             "personnel":   ("إدارة الكوادر", "Personnel"),
-            "certificate": ("إصدار الوثائق", "Certificate Issuance"),
-            "history":     ("سجل التغييرات", "Activity Log"),
-            "settings":    ("إعدادات النظام", "System Settings"),
+            "certificate":  ("إصدار الوثائق", "Certificate Issuance"),
+            "issued_certs": ("سجل الوثائق الصادرة", "Issued Certificates Log"),
+            "history":      ("سجل التغييرات", "Activity Log"),
+            "settings":     ("إعدادات النظام", "System Settings"),
+            "profile":      ("الملف الشخصي والحساب", "Profile & Account"),
         }
         return header_map.get(self.current_screen, ("الرئيسية", "Dashboard"))
 
     def _switch_screen(self, screen_key: str) -> None:
         """Handles navigation between screens when a sidebar button is clicked."""
-        if screen_key == "issued_certs":
-            self._default_dashboard_tab_name = "tab_certs"
-            self.current_screen = "home"
-        else:
-            self.current_screen = screen_key
+        if screen_key != "profile" and hasattr(self, "allowed_screens") and self.allowed_screens and screen_key not in self.allowed_screens:
+            ui.notify("عذراً، ليس لديك صلاحية للوصول إلى هذه الشاشة / Access Denied", type="warning")
+            return
+
+        self.current_screen = screen_key
 
         # Update active nav item highlighted styles in sidebar
         for row, _label_col, key in self._nav_labels:
@@ -528,8 +612,11 @@ class MainAppShell:
         with self.content_container:
             if self.current_screen == "home":
                 self._build_dashboard_content()
+            elif self.current_screen == "profile":
+                from nicegui_screens.profile_screen import ProfileScreen
+                ProfileScreen(on_navigate=self._switch_screen)
             elif self.current_screen == "settings":
-                SettingsScreen()
+                SettingsScreen(on_navigate=self._switch_screen)
             elif self.current_screen == "students":
                 def _on_issue_cert_handler(student_dict):
                     self._last_cert_student = student_dict
@@ -556,10 +643,33 @@ class MainAppShell:
                         self._active_students_screen.profile_view.render(student_dict, from_cert=True, on_back_to_cert=_back_to_cert)
 
                 last_st = getattr(self, "_last_cert_student", None)
+                last_cert = getattr(self, "_last_cert_record", None)
                 self._active_certificate_screen = CertificateScreen(
                     on_edit_student=_on_edit_student_handler,
-                    initial_student=last_st
+                    initial_student=last_st,
+                    initial_cert_record=last_cert
                 )
+                self._last_cert_record = None
+            elif self.current_screen == "issued_certs":
+                def _on_edit_issued_cert(cert_row):
+                    sid = cert_row.get("student_id")
+                    st = None
+                    if sid:
+                        try:
+                            st = self.student_repo.get_by_id(int(sid))
+                        except Exception as e:
+                            log.warning(f"Error fetching student by id {sid}: {e}")
+                    if not st:
+                        st = {
+                            "id": sid,
+                            "student_name_ar": cert_row.get("student_name_ar"),
+                            "student_name_en": cert_row.get("student_name_en"),
+                        }
+                    self._last_cert_student = st
+                    self._last_cert_record = cert_row
+                    self._switch_screen("certificate")
+
+                IssuedCertificatesScreen(on_edit_certificate=_on_edit_issued_cert)
             else:
                 self._build_placeholder_screen()
 
@@ -724,10 +834,14 @@ class MainAppShell:
                         rows_c = [
                             {
                                 "id":       c.get("id") or c.get("certificate_id"),
+                                "certificate_id": c.get("id") or c.get("certificate_id"),
+                                "student_id": c.get("student_id"),
                                 "name":     c.get("full_name_ar") or c.get("student_name_ar") or c.get("student_name") or "طالب متخرج",
                                 "dept":     c.get("dept_name_ar") or c.get("department_name_ar") or "قسم عام",
                                 "to_title": c.get("to_title") or c.get("order_number") or "من يهمه الأمر",
                                 "date":     c.get("issue_date") or c.get("created_at") or "—",
+                                "certificate_number": c.get("certificate_number"),
+                                "template_type": c.get("template_type"),
                                 "raw_data": c,
                             }
                             for c in (combined_certs_data or self.recent_certificates)
@@ -736,6 +850,13 @@ class MainAppShell:
                         c_table = ui.table(
                             columns=cols_c, rows=rows_c, row_key="id"
                         ).classes(Styles.TABLE_CLASSES).props("flat separator='horizontal'")
+
+                        # Name Column Template Slot (Clickable to jump to student's certificate)
+                        c_table.add_slot("body-cell-name", '''
+                            <q-td :props="props" class="text-right cursor-pointer font-bold text-blue-400 hover:underline" @click="$parent.$emit('issue_cert', props.row)">
+                                {{ props.row.name }}
+                            </q-td>
+                        ''')
 
                         # Action Column Template Slot
                         c_table.add_slot("body-cell-action", '''
@@ -755,7 +876,8 @@ class MainAppShell:
 
     def _go_to_cert_for_student(self, raw_student: dict) -> None:
         """Directs user to the Certificate Screen pre-loaded with the clicked student."""
-        sid = raw_student.get("id")
+        # Certificate dicts contain 'student_id', whereas student dicts have 'id'
+        sid = raw_student.get("student_id") or raw_student.get("id")
         student_obj = None
         if sid:
             try:
@@ -766,6 +888,10 @@ class MainAppShell:
             student_obj = raw_student
             
         self._last_cert_student = student_obj
+        if raw_student.get("certificate_number") or raw_student.get("template_type") or raw_student.get("certificate_id"):
+            self._last_cert_record = raw_student
+        else:
+            self._last_cert_record = None
         self._switch_screen("certificate")
 
     # =========================================================================

@@ -1,0 +1,8 @@
+{
+  "cert_printer": "Canon G3010 series",
+  "report_printer": "Canon G3010 series",
+  "paper_size": "A4",
+  "orientation": "Portrait",
+  "auto_print": false,
+  "copies": 1
+}

@@ -34151,3 +34151,1980 @@ UnicodeEncodeError: 'charmap' codec can't encode characters in position 0-11: ch
 2026-10-12 09:23:05 [INFO] Online Mode: Successfully fetched raw certificate payload via API for student_id=2139.
 2026-10-12 09:23:19 [INFO] Successfully recorded issued certificate for student ID 2139 via InsertIssuedCertificate SP.
 2026-10-12 09:23:19 [INFO] Successfully recorded issued certificate for student ID 2139 via InsertIssuedCertificate SP.
+2026-10-13 10:11:37 [ERROR] Failed to replicate table issued_certificates: table issued_certificates has no column named certificate_number
+2026-10-13 10:11:37 [INFO] Inbound sync complete: {'tables_synced': 17, 'total_rows': 6040, 'errors': ['issued_certificates: table issued_certificates has no column named certificate_number']}
+2026-10-13 10:12:33 [INFO] Migrating SQLite issued_certificates table: adding certificate_number column...
+2026-10-13 10:12:33 [INFO] Migrating SQLite local_issued_certificates table: adding certificate_number column...
+2026-10-13 10:12:33 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-10-13 10:12:33 [INFO] Inbound sync complete: {'tables_synced': 18, 'total_rows': 6071, 'errors': []}
+2026-10-13 10:14:12 [INFO] Offline INSERT queued: issued_certificates temp_id=-192
+2026-10-13 10:14:12 [ERROR] UNHANDLED EXCEPTION:
+Traceback (most recent call last):
+  File "F:\CR_PY\certificate_manager\scratch\test_cert_lifecycle.py", line 27, in <module>
+    print("Duplicate check (same student):", dup)
+    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\encodings\cp1252.py", line 19, in encode
+    return codecs.charmap_encode(input,self.errors,encoding_table)[0]
+           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeEncodeError: 'charmap' codec can't encode characters in position 72-76: character maps to <undefined>
+
+2026-10-13 10:14:31 [INFO] Offline INSERT queued: issued_certificates temp_id=-193
+2026-10-13 10:35:38 [INFO] SYSTEM STARTUP DIAGNOSTIC CHECK STARTED
+2026-10-13 10:35:40 [WARNING] [CHECK 1/4] FastAPI Connection Check ... [OFFLINE MODE]
+2026-10-13 10:35:40 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-10-13 10:35:40 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-10-13 10:35:40 [OK] [CHECK 2/4] SQLite Replica Database Connection ... [OK]
+2026-10-13 10:35:40 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-10-13 10:35:40 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-10-13 10:35:40 [OK] [CHECK 3/4] Authentication & Core SP Checks ... [OFFLINE MODE]
+2026-10-13 10:35:40 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-10-13 10:35:40 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-10-13 10:35:40 [OK] [CHECK 4/4] Sync Engine & Local Replica Check ... [OK]
+2026-10-13 10:35:40 [OK] Status: OFFLINE MODE ACTIVE. PROCEEDING TO LOGIN/DASHBOARD.
+2026-10-13 10:35:44 [INFO] Using WinForms / Chromium
+2026-10-13 10:35:44 [INFO] Using WinForms / Chromium
+2026-10-13 10:35:52 [INFO] before_load event fired. injecting pywebview object
+2026-10-13 10:35:52 [INFO] before_load event fired. injecting pywebview object
+2026-10-13 10:35:52 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-13 10:35:52 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-13 10:35:53 [INFO] _pywebviewready event fired
+2026-10-13 10:35:53 [INFO] _pywebviewready event fired
+2026-10-13 10:35:53 [INFO] loaded event fired
+2026-10-13 10:35:53 [INFO] loaded event fired
+2026-10-13 10:36:37 [INFO] before_load event fired. injecting pywebview object
+2026-10-13 10:36:37 [INFO] before_load event fired. injecting pywebview object
+2026-10-13 10:36:37 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-13 10:36:37 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-13 10:36:37 [INFO] _pywebviewready event fired
+2026-10-13 10:36:37 [INFO] _pywebviewready event fired
+2026-10-13 10:36:37 [INFO] loaded event fired
+2026-10-13 10:36:37 [INFO] loaded event fired
+2026-10-13 10:36:58 [INFO] Offline Mode: Executing local SQLite replica database engine for student_id=2139...
+2026-10-13 10:36:58 [INFO] Offline Mode: Executing local SQLite replica database engine for student_id=2139...
+2026-10-13 10:36:58 [INFO] Offline Mode: Executing local SQLite replica database engine for student_id=2139...
+2026-10-13 10:36:58 [INFO] Offline Mode: Executing local SQLite replica database engine for student_id=2139...
+2026-10-13 10:36:58 [INFO] Offline Mode: Executing local SQLite replica database engine for student_id=2139...
+2026-10-13 10:36:58 [INFO] Offline Mode: Executing local SQLite replica database engine for student_id=2139...
+2026-10-13 10:37:19 [INFO] Offline Mode: Executing local SQLite replica database engine for student_id=2139...
+2026-10-13 10:37:19 [INFO] Offline Mode: Executing local SQLite replica database engine for student_id=2139...
+2026-10-13 10:37:19 [INFO] Offline Mode: Executing local SQLite replica database engine for student_id=2139...
+2026-10-13 10:37:19 [INFO] Offline Mode: Executing local SQLite replica database engine for student_id=2139...
+2026-10-13 10:37:19 [INFO] Offline Mode: Executing local SQLite replica database engine for student_id=2139...
+2026-10-13 10:37:19 [INFO] Offline Mode: Executing local SQLite replica database engine for student_id=2139...
+2026-10-13 10:55:41 [WARNING] API request failed: HTTPConnectionPool(host='127.0.0.1', port=2030): Max retries exceeded with url: /departments (Caused by NewConnectionError("HTTPConnection(host='127.0.0.1', port=2030): Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it"))
+2026-10-13 10:55:44 [WARNING] API request failed: HTTPConnectionPool(host='127.0.0.1', port=2030): Max retries exceeded with url: /issued-certificates/report (Caused by NewConnectionError("HTTPConnection(host='127.0.0.1', port=2030): Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it"))
+2026-10-13 11:33:09 [INFO] SYSTEM STARTUP DIAGNOSTIC CHECK STARTED
+2026-10-13 11:33:10 [OK] [CHECK 1/4] FastAPI Connection Check ... [OK]
+2026-10-13 11:33:10 [OK] [CHECK 2/4] MySQL Database Connection ... [OK]
+2026-10-13 11:33:10 [OK] [CHECK 3/4] Authentication & Core SP Checks ... [OK]
+2026-10-13 11:33:10 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-10-13 11:33:10 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-10-13 11:33:10 [OK] [CHECK 4/4] Sync Engine & Local Replica Check ... [OK]
+2026-10-13 11:33:10 [OK] Status: ALL CHECKS PASSED. PROCEEDING TO LOGIN/DASHBOARD.
+2026-10-13 11:33:14 [INFO] Using WinForms / Chromium
+2026-10-13 11:33:14 [INFO] Using WinForms / Chromium
+2026-10-13 11:33:20 [INFO] before_load event fired. injecting pywebview object
+2026-10-13 11:33:20 [INFO] before_load event fired. injecting pywebview object
+2026-10-13 11:33:20 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-13 11:33:20 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-13 11:33:20 [INFO] _pywebviewready event fired
+2026-10-13 11:33:20 [INFO] _pywebviewready event fired
+2026-10-13 11:33:20 [INFO] loaded event fired
+2026-10-13 11:33:20 [INFO] loaded event fired
+2026-10-13 11:33:36 [INFO] before_load event fired. injecting pywebview object
+2026-10-13 11:33:36 [INFO] before_load event fired. injecting pywebview object
+2026-10-13 11:33:36 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-13 11:33:36 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-13 11:33:36 [INFO] _pywebviewready event fired
+2026-10-13 11:33:36 [INFO] _pywebviewready event fired
+2026-10-13 11:33:36 [INFO] loaded event fired
+2026-10-13 11:33:36 [INFO] loaded event fired
+2026-10-13 12:31:32 [INFO] SYSTEM STARTUP DIAGNOSTIC CHECK STARTED
+2026-10-13 12:31:32 [OK] [CHECK 1/4] FastAPI Connection Check ... [OK]
+2026-10-13 12:31:32 [OK] [CHECK 2/4] MySQL Database Connection ... [OK]
+2026-10-13 12:31:32 [OK] [CHECK 3/4] Authentication & Core SP Checks ... [OK]
+2026-10-13 12:31:32 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-10-13 12:31:32 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-10-13 12:31:32 [OK] [CHECK 4/4] Sync Engine & Local Replica Check ... [OK]
+2026-10-13 12:31:32 [OK] Status: ALL CHECKS PASSED. PROCEEDING TO LOGIN/DASHBOARD.
+2026-10-13 12:31:36 [INFO] Using WinForms / Chromium
+2026-10-13 12:31:36 [INFO] Using WinForms / Chromium
+2026-10-13 12:31:41 [INFO] before_load event fired. injecting pywebview object
+2026-10-13 12:31:41 [INFO] before_load event fired. injecting pywebview object
+2026-10-13 12:31:41 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-13 12:31:41 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-13 12:31:41 [INFO] _pywebviewready event fired
+2026-10-13 12:31:41 [INFO] _pywebviewready event fired
+2026-10-13 12:31:41 [INFO] loaded event fired
+2026-10-13 12:31:41 [INFO] loaded event fired
+2026-10-13 12:31:49 [INFO] before_load event fired. injecting pywebview object
+2026-10-13 12:31:49 [INFO] before_load event fired. injecting pywebview object
+2026-10-13 12:31:49 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-13 12:31:49 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-13 12:31:49 [INFO] _pywebviewready event fired
+2026-10-13 12:31:49 [INFO] _pywebviewready event fired
+2026-10-13 12:31:49 [INFO] loaded event fired
+2026-10-13 12:31:49 [INFO] loaded event fired
+2026-10-13 12:37:19 [INFO] Online Mode: Successfully fetched raw certificate payload via API for student_id=2139.
+2026-10-13 12:37:19 [INFO] Online Mode: Successfully fetched raw certificate payload via API for student_id=2139.
+2026-10-13 12:37:19 [INFO] Online Mode: Successfully fetched raw certificate payload via API for student_id=2139.
+2026-10-13 12:37:19 [INFO] Online Mode: Successfully fetched raw certificate payload via API for student_id=2139.
+2026-10-13 12:37:19 [INFO] Online Mode: Successfully fetched raw certificate payload via API for student_id=2139.
+2026-10-13 12:37:19 [INFO] Online Mode: Successfully fetched raw certificate payload via API for student_id=2139.
+2026-10-13 12:37:48 [INFO] Online Mode: Successfully fetched raw certificate payload via API for student_id=2138.
+2026-10-13 12:37:48 [INFO] Online Mode: Successfully fetched raw certificate payload via API for student_id=2138.
+2026-10-13 12:37:48 [INFO] Online Mode: Successfully fetched raw certificate payload via API for student_id=2138.
+2026-10-13 12:37:48 [INFO] Online Mode: Successfully fetched raw certificate payload via API for student_id=2138.
+2026-10-13 12:53:35 [ERROR] UNHANDLED EXCEPTION:
+Traceback (most recent call last):
+  File "C:\Users\IT_TECK\.gemini\antigravity-ide\brain\b629560a-e832-41ac-b4c1-32f35b10da4e\scratch\test_tmpl2.py", line 44, in <module>
+    print(f"{label} ({k}): {len(matched)} matches")
+    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\encodings\cp1252.py", line 19, in encode
+    return codecs.charmap_encode(input,self.errors,encoding_table)[0]
+           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeEncodeError: 'charmap' codec can't encode characters in position 0-1: character maps to <undefined>
+
+2026-10-13 13:03:13 [INFO] Online Mode: Successfully fetched raw certificate payload via API for student_id=2138.
+2026-10-13 13:03:13 [INFO] Online Mode: Successfully fetched raw certificate payload via API for student_id=2138.
+2026-10-13 13:03:23 [INFO] Online Mode: Successfully fetched raw certificate payload via API for student_id=2138.
+2026-10-13 13:03:23 [INFO] Online Mode: Successfully fetched raw certificate payload via API for student_id=2138.
+2026-10-13 13:03:29 [INFO] Online Mode: Successfully fetched raw certificate payload via API for student_id=2138.
+2026-10-13 13:03:29 [INFO] Online Mode: Successfully fetched raw certificate payload via API for student_id=2138.
+2026-10-13 13:03:41 [INFO] Online Mode: Successfully fetched raw certificate payload via API for student_id=2138.
+2026-10-13 13:03:41 [INFO] Online Mode: Successfully fetched raw certificate payload via API for student_id=2138.
+2026-10-13 13:03:46 [INFO] Online Mode: Successfully fetched raw certificate payload via API for student_id=2138.
+2026-10-13 13:03:46 [INFO] Online Mode: Successfully fetched raw certificate payload via API for student_id=2138.
+2026-10-13 13:04:12 [INFO] Successfully recorded issued certificate for student ID 2138 via InsertIssuedCertificate SP.
+2026-10-13 13:04:12 [INFO] Successfully recorded issued certificate for student ID 2138 via InsertIssuedCertificate SP.
+2026-10-13 13:17:29 [INFO] Offline Mode: Executing local SQLite replica database engine for student_id=2138...
+2026-10-13 13:17:29 [INFO] Offline Mode: Executing local SQLite replica database engine for student_id=2138...
+2026-10-13 13:17:37 [INFO] Offline Mode: Executing local SQLite replica database engine for student_id=2138...
+2026-10-13 13:17:37 [INFO] Offline Mode: Executing local SQLite replica database engine for student_id=2138...
+2026-10-13 13:17:42 [INFO] Offline Mode: Executing local SQLite replica database engine for student_id=2138...
+2026-10-13 13:17:42 [INFO] Offline Mode: Executing local SQLite replica database engine for student_id=2138...
+2026-10-13 13:17:46 [INFO] Offline Mode: Executing local SQLite replica database engine for student_id=2138...
+2026-10-13 13:17:46 [INFO] Offline Mode: Executing local SQLite replica database engine for student_id=2138...
+2026-10-13 13:17:54 [INFO] Offline Mode: Executing local SQLite replica database engine for student_id=2138...
+2026-10-13 13:17:54 [INFO] Offline Mode: Executing local SQLite replica database engine for student_id=2138...
+2026-10-13 13:18:12 [INFO] Offline Mode: Executing local SQLite replica database engine for student_id=12...
+2026-10-13 13:18:12 [INFO] Offline Mode: Executing local SQLite replica database engine for student_id=12...
+2026-10-13 13:18:29 [INFO] Offline Mode: Executing local SQLite replica database engine for student_id=2010...
+2026-10-13 13:18:29 [INFO] Offline Mode: Executing local SQLite replica database engine for student_id=2010...
+2026-10-13 13:18:29 [INFO] Offline Mode: Executing local SQLite replica database engine for student_id=2010...
+2026-10-13 13:18:29 [INFO] Offline Mode: Executing local SQLite replica database engine for student_id=2010...
+2026-10-13 13:18:29 [INFO] Offline Mode: Executing local SQLite replica database engine for student_id=2010...
+2026-10-13 13:18:29 [INFO] Offline Mode: Executing local SQLite replica database engine for student_id=2010...
+2026-10-13 13:19:04 [INFO] Offline Mode: Executing local SQLite replica database engine for student_id=2010...
+2026-10-13 13:19:04 [INFO] Offline Mode: Executing local SQLite replica database engine for student_id=2010...
+2026-10-13 13:40:51 [INFO] before_load event fired. injecting pywebview object
+2026-10-13 13:40:51 [INFO] before_load event fired. injecting pywebview object
+2026-10-13 13:40:51 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-13 13:40:51 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-13 13:40:52 [INFO] _pywebviewready event fired
+2026-10-13 13:40:52 [INFO] _pywebviewready event fired
+2026-10-13 13:40:52 [INFO] loaded event fired
+2026-10-13 13:40:52 [INFO] loaded event fired
+2026-10-13 14:00:19 [INFO] SYSTEM STARTUP DIAGNOSTIC CHECK STARTED
+2026-10-13 14:00:21 [WARNING] [CHECK 1/4] FastAPI Connection Check ... [OFFLINE MODE]
+2026-10-13 14:00:21 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-10-13 14:00:21 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-10-13 14:00:21 [OK] [CHECK 2/4] SQLite Replica Database Connection ... [OK]
+2026-10-13 14:00:21 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-10-13 14:00:21 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-10-13 14:00:21 [OK] [CHECK 3/4] Authentication & Core SP Checks ... [OFFLINE MODE]
+2026-10-13 14:00:21 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-10-13 14:00:21 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-10-13 14:00:21 [OK] [CHECK 4/4] Sync Engine & Local Replica Check ... [OK]
+2026-10-13 14:00:21 [OK] Status: OFFLINE MODE ACTIVE. PROCEEDING TO LOGIN/DASHBOARD.
+2026-10-13 14:00:24 [INFO] Using WinForms / Chromium
+2026-10-13 14:00:24 [INFO] Using WinForms / Chromium
+2026-10-13 14:00:29 [INFO] before_load event fired. injecting pywebview object
+2026-10-13 14:00:29 [INFO] before_load event fired. injecting pywebview object
+2026-10-13 14:00:29 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-13 14:00:29 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-13 14:00:29 [INFO] _pywebviewready event fired
+2026-10-13 14:00:29 [INFO] _pywebviewready event fired
+2026-10-13 14:00:29 [INFO] loaded event fired
+2026-10-13 14:00:29 [INFO] loaded event fired
+2026-10-13 14:00:34 [INFO] before_load event fired. injecting pywebview object
+2026-10-13 14:00:34 [INFO] before_load event fired. injecting pywebview object
+2026-10-13 14:00:34 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-13 14:00:34 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-13 14:00:35 [INFO] _pywebviewready event fired
+2026-10-13 14:00:35 [INFO] _pywebviewready event fired
+2026-10-13 14:00:35 [INFO] loaded event fired
+2026-10-13 14:00:35 [INFO] loaded event fired
+2026-10-14 10:22:25 [INFO] SYSTEM STARTUP DIAGNOSTIC CHECK STARTED
+2026-10-14 10:22:27 [WARNING] [CHECK 1/4] FastAPI Connection Check ... [OFFLINE MODE]
+2026-10-14 10:22:27 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-10-14 10:22:27 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-10-14 10:22:27 [OK] [CHECK 2/4] SQLite Replica Database Connection ... [OK]
+2026-10-14 10:22:27 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-10-14 10:22:27 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-10-14 10:22:27 [OK] [CHECK 3/4] Authentication & Core SP Checks ... [OFFLINE MODE]
+2026-10-14 10:22:27 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-10-14 10:22:27 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-10-14 10:22:27 [OK] [CHECK 4/4] Sync Engine & Local Replica Check ... [OK]
+2026-10-14 10:22:27 [OK] Status: OFFLINE MODE ACTIVE. PROCEEDING TO LOGIN/DASHBOARD.
+2026-10-14 10:22:31 [INFO] Using WinForms / Chromium
+2026-10-14 10:22:31 [INFO] Using WinForms / Chromium
+2026-10-14 10:22:35 [INFO] before_load event fired. injecting pywebview object
+2026-10-14 10:22:35 [INFO] before_load event fired. injecting pywebview object
+2026-10-14 10:22:35 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-14 10:22:35 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-14 10:22:35 [INFO] _pywebviewready event fired
+2026-10-14 10:22:35 [INFO] _pywebviewready event fired
+2026-10-14 10:22:35 [INFO] loaded event fired
+2026-10-14 10:22:35 [INFO] loaded event fired
+2026-10-14 10:22:40 [INFO] before_load event fired. injecting pywebview object
+2026-10-14 10:22:40 [INFO] before_load event fired. injecting pywebview object
+2026-10-14 10:22:40 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-14 10:22:40 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-14 10:22:40 [INFO] _pywebviewready event fired
+2026-10-14 10:22:40 [INFO] _pywebviewready event fired
+2026-10-14 10:22:40 [INFO] loaded event fired
+2026-10-14 10:22:40 [INFO] loaded event fired
+2026-10-14 10:32:04 [INFO] before_load event fired. injecting pywebview object
+2026-10-14 10:32:04 [INFO] before_load event fired. injecting pywebview object
+2026-10-14 10:32:04 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-14 10:32:04 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-14 10:32:04 [INFO] _pywebviewready event fired
+2026-10-14 10:32:04 [INFO] _pywebviewready event fired
+2026-10-14 10:32:04 [INFO] loaded event fired
+2026-10-14 10:32:04 [INFO] loaded event fired
+2026-10-14 10:52:28 [ERROR] UNHANDLED EXCEPTION:
+Traceback (most recent call last):
+  File "C:\Users\IT_TECK\.gemini\antigravity-ide\brain\b629560a-e832-41ac-b4c1-32f35b10da4e\scratch\test_templates_and_edit.py", line 33, in <module>
+    print("\n=== 2. Check no 'general' or 'عامة' ===")
+    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\encodings\cp1252.py", line 19, in encode
+    return codecs.charmap_encode(input,self.errors,encoding_table)[0]
+           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeEncodeError: 'charmap' codec can't encode characters in position 32-35: character maps to <undefined>
+
+2026-10-14 11:01:28 [INFO] SYSTEM STARTUP DIAGNOSTIC CHECK STARTED
+2026-10-14 11:01:30 [WARNING] [CHECK 1/4] FastAPI Connection Check ... [OFFLINE MODE]
+2026-10-14 11:01:30 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-10-14 11:01:30 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-10-14 11:01:30 [OK] [CHECK 2/4] SQLite Replica Database Connection ... [OK]
+2026-10-14 11:01:30 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-10-14 11:01:30 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-10-14 11:01:30 [OK] [CHECK 3/4] Authentication & Core SP Checks ... [OFFLINE MODE]
+2026-10-14 11:01:30 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-10-14 11:01:30 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-10-14 11:01:30 [OK] [CHECK 4/4] Sync Engine & Local Replica Check ... [OK]
+2026-10-14 11:01:30 [OK] Status: OFFLINE MODE ACTIVE. PROCEEDING TO LOGIN/DASHBOARD.
+2026-10-14 11:01:32 [INFO] Using WinForms / Chromium
+2026-10-14 11:01:32 [INFO] Using WinForms / Chromium
+2026-10-14 11:01:35 [INFO] before_load event fired. injecting pywebview object
+2026-10-14 11:01:35 [INFO] before_load event fired. injecting pywebview object
+2026-10-14 11:01:35 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-14 11:01:35 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-14 11:01:35 [INFO] _pywebviewready event fired
+2026-10-14 11:01:35 [INFO] _pywebviewready event fired
+2026-10-14 11:01:35 [INFO] loaded event fired
+2026-10-14 11:01:35 [INFO] loaded event fired
+2026-10-14 11:01:39 [INFO] before_load event fired. injecting pywebview object
+2026-10-14 11:01:39 [INFO] before_load event fired. injecting pywebview object
+2026-10-14 11:01:39 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-14 11:01:39 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-14 11:01:39 [INFO] _pywebviewready event fired
+2026-10-14 11:01:39 [INFO] _pywebviewready event fired
+2026-10-14 11:01:39 [INFO] loaded event fired
+2026-10-14 11:01:39 [INFO] loaded event fired
+2026-10-14 11:01:50 [INFO] Offline Mode: Executing local SQLite replica database engine for student_id=87...
+2026-10-14 11:01:50 [INFO] Offline Mode: Executing local SQLite replica database engine for student_id=87...
+2026-10-14 11:03:34 [INFO] Offline Mode: Executing local SQLite replica database engine for student_id=87...
+2026-10-14 11:03:34 [INFO] Offline Mode: Executing local SQLite replica database engine for student_id=87...
+2026-10-14 11:03:45 [INFO] Offline Mode: Executing local SQLite replica database engine for student_id=87...
+2026-10-14 11:03:45 [INFO] Offline Mode: Executing local SQLite replica database engine for student_id=87...
+2026-10-14 11:04:19 [INFO] SYSTEM STARTUP DIAGNOSTIC CHECK STARTED
+2026-10-14 11:04:21 [WARNING] [CHECK 1/4] FastAPI Connection Check ... [OFFLINE MODE]
+2026-10-14 11:04:21 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-10-14 11:04:21 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-10-14 11:04:21 [OK] [CHECK 2/4] SQLite Replica Database Connection ... [OK]
+2026-10-14 11:04:21 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-10-14 11:04:21 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-10-14 11:04:21 [OK] [CHECK 3/4] Authentication & Core SP Checks ... [OFFLINE MODE]
+2026-10-14 11:04:21 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-10-14 11:04:21 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-10-14 11:04:21 [OK] [CHECK 4/4] Sync Engine & Local Replica Check ... [OK]
+2026-10-14 11:04:21 [OK] Status: OFFLINE MODE ACTIVE. PROCEEDING TO LOGIN/DASHBOARD.
+2026-10-14 11:04:23 [INFO] Using WinForms / Chromium
+2026-10-14 11:04:23 [INFO] Using WinForms / Chromium
+2026-10-14 11:04:26 [INFO] before_load event fired. injecting pywebview object
+2026-10-14 11:04:26 [INFO] before_load event fired. injecting pywebview object
+2026-10-14 11:04:26 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-14 11:04:26 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-14 11:04:26 [INFO] _pywebviewready event fired
+2026-10-14 11:04:26 [INFO] _pywebviewready event fired
+2026-10-14 11:04:26 [INFO] loaded event fired
+2026-10-14 11:04:26 [INFO] loaded event fired
+2026-10-14 11:04:30 [INFO] before_load event fired. injecting pywebview object
+2026-10-14 11:04:30 [INFO] before_load event fired. injecting pywebview object
+2026-10-14 11:04:30 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-14 11:04:30 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-14 11:04:30 [INFO] _pywebviewready event fired
+2026-10-14 11:04:30 [INFO] _pywebviewready event fired
+2026-10-14 11:04:30 [INFO] loaded event fired
+2026-10-14 11:04:30 [INFO] loaded event fired
+2026-10-14 11:10:17 [INFO] Offline Mode: Executing local SQLite replica database engine for student_id=87...
+2026-10-14 11:10:17 [INFO] Offline Mode: Executing local SQLite replica database engine for student_id=87...
+2026-10-14 11:16:01 [INFO] Offline Mode: Executing local SQLite replica database engine for student_id=87...
+2026-10-14 11:16:01 [INFO] Offline Mode: Executing local SQLite replica database engine for student_id=87...
+2026-10-14 11:16:10 [INFO] Offline Mode: Executing local SQLite replica database engine for student_id=2010...
+2026-10-14 11:16:10 [INFO] Offline Mode: Executing local SQLite replica database engine for student_id=2010...
+2026-10-14 11:16:10 [INFO] Offline Mode: Executing local SQLite replica database engine for student_id=2010...
+2026-10-14 11:16:10 [INFO] Offline Mode: Executing local SQLite replica database engine for student_id=2010...
+2026-10-14 11:16:10 [INFO] Offline Mode: Executing local SQLite replica database engine for student_id=2010...
+2026-10-14 11:16:10 [INFO] Offline Mode: Executing local SQLite replica database engine for student_id=2010...
+2026-10-14 11:16:19 [INFO] Offline Mode: Executing local SQLite replica database engine for student_id=2010...
+2026-10-14 11:16:19 [INFO] Offline Mode: Executing local SQLite replica database engine for student_id=2010...
+2026-10-14 11:18:16 [INFO] Offline Mode: Executing local SQLite replica database engine for student_id=87...
+2026-10-14 11:18:16 [INFO] Offline Mode: Executing local SQLite replica database engine for student_id=87...
+2026-10-14 11:35:31 [WARNING] API request failed: HTTPConnectionPool(host='127.0.0.1', port=2030): Max retries exceeded with url: /issued-certificates/report (Caused by NewConnectionError("HTTPConnection(host='127.0.0.1', port=2030): Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it"))
+2026-10-14 11:35:31 [ERROR] UNHANDLED EXCEPTION:
+Traceback (most recent call last):
+  File "<string>", line 8, in <module>
+    print('cert_id:', c.get('id') or c.get('certificate_id'), 'student_id:', c.get('student_id'), 'name:', c.get('student_name_ar') or c.get('full_name_ar'), 'num:', c.get('certificate_number'))
+    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\encodings\cp1252.py", line 19, in encode
+    return codecs.charmap_encode(input,self.errors,encoding_table)[0]
+           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeEncodeError: 'charmap' codec can't encode characters in position 0-4: character maps to <undefined>
+
+2026-10-14 12:32:50 [WARNING] API request failed: HTTPConnectionPool(host='127.0.0.1', port=2030): Max retries exceeded with url: /students/2010 (Caused by NewConnectionError("HTTPConnection(host='127.0.0.1', port=2030): Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it"))
+2026-10-14 12:32:50 [ERROR] UNHANDLED EXCEPTION:
+Traceback (most recent call last):
+  File "C:\Users\IT_TECK\.gemini\antigravity-ide\brain\b629560a-e832-41ac-b4c1-32f35b10da4e\scratch\test_edit_flow.py", line 28, in <module>
+    assert st and (st.get("id") == 2010 or st.get("student_id") == 2010), "Student not found or mismatched"
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Student not found or mismatched
+
+2026-10-14 12:33:11 [ERROR] UNHANDLED EXCEPTION:
+Traceback (most recent call last):
+  File "C:\Users\IT_TECK\.gemini\antigravity-ide\brain\b629560a-e832-41ac-b4c1-32f35b10da4e\scratch\test_edit_flow.py", line 30, in <module>
+    print(f"Fetched student: id={st.get('id') if st else None}, name={st.get('full_name_ar') if st else None}")
+    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\encodings\cp1252.py", line 19, in encode
+    return codecs.charmap_encode(input,self.errors,encoding_table)[0]
+           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeEncodeError: 'charmap' codec can't encode characters in position 31-35: character maps to <undefined>
+
+2026-10-14 12:36:51 [INFO] SYSTEM STARTUP DIAGNOSTIC CHECK STARTED
+2026-10-14 12:36:53 [WARNING] [CHECK 1/4] FastAPI Connection Check ... [OFFLINE MODE]
+2026-10-14 12:36:53 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-10-14 12:36:53 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-10-14 12:36:53 [OK] [CHECK 2/4] SQLite Replica Database Connection ... [OK]
+2026-10-14 12:36:53 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-10-14 12:36:53 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-10-14 12:36:53 [OK] [CHECK 3/4] Authentication & Core SP Checks ... [OFFLINE MODE]
+2026-10-14 12:36:53 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-10-14 12:36:53 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-10-14 12:36:53 [OK] [CHECK 4/4] Sync Engine & Local Replica Check ... [OK]
+2026-10-14 12:36:53 [OK] Status: OFFLINE MODE ACTIVE. PROCEEDING TO LOGIN/DASHBOARD.
+2026-10-14 12:36:55 [INFO] Using WinForms / Chromium
+2026-10-14 12:36:55 [INFO] Using WinForms / Chromium
+2026-10-14 12:36:58 [INFO] before_load event fired. injecting pywebview object
+2026-10-14 12:36:58 [INFO] before_load event fired. injecting pywebview object
+2026-10-14 12:36:58 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-14 12:36:58 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-14 12:36:58 [INFO] _pywebviewready event fired
+2026-10-14 12:36:58 [INFO] _pywebviewready event fired
+2026-10-14 12:36:58 [INFO] loaded event fired
+2026-10-14 12:36:58 [INFO] loaded event fired
+2026-10-14 12:37:04 [INFO] before_load event fired. injecting pywebview object
+2026-10-14 12:37:04 [INFO] before_load event fired. injecting pywebview object
+2026-10-14 12:37:04 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-14 12:37:04 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-14 12:37:04 [INFO] _pywebviewready event fired
+2026-10-14 12:37:04 [INFO] _pywebviewready event fired
+2026-10-14 12:37:04 [INFO] loaded event fired
+2026-10-14 12:37:04 [INFO] loaded event fired
+2026-10-14 12:39:39 [INFO] Offline Mode: Executing local SQLite replica database engine for student_id=2010...
+2026-10-14 12:39:39 [INFO] Offline Mode: Executing local SQLite replica database engine for student_id=2010...
+2026-10-14 12:39:39 [INFO] Offline Mode: Executing local SQLite replica database engine for student_id=2010...
+2026-10-14 12:39:39 [INFO] Offline Mode: Executing local SQLite replica database engine for student_id=2010...
+2026-10-14 12:39:40 [INFO] Offline Mode: Executing local SQLite replica database engine for student_id=2010...
+2026-10-14 12:39:40 [INFO] Offline Mode: Executing local SQLite replica database engine for student_id=2010...
+2026-10-14 12:40:23 [INFO] Offline Mode: Executing local SQLite replica database engine for student_id=2010...
+2026-10-14 12:40:23 [INFO] Offline Mode: Executing local SQLite replica database engine for student_id=2010...
+2026-10-14 12:40:23 [INFO] Offline Mode: Executing local SQLite replica database engine for student_id=2010...
+2026-10-14 12:40:23 [INFO] Offline Mode: Executing local SQLite replica database engine for student_id=2010...
+2026-10-14 12:40:23 [INFO] Offline Mode: Executing local SQLite replica database engine for student_id=2010...
+2026-10-14 12:40:23 [INFO] Offline Mode: Executing local SQLite replica database engine for student_id=2010...
+2026-10-14 12:40:56 [INFO] Offline Mode: Executing local SQLite replica database engine for student_id=2010...
+2026-10-14 12:40:56 [INFO] Offline Mode: Executing local SQLite replica database engine for student_id=2010...
+2026-10-14 12:40:56 [INFO] Offline Mode: Executing local SQLite replica database engine for student_id=2010...
+2026-10-14 12:40:56 [INFO] Offline Mode: Executing local SQLite replica database engine for student_id=2010...
+2026-10-14 12:40:56 [INFO] Offline Mode: Executing local SQLite replica database engine for student_id=2010...
+2026-10-14 12:40:56 [INFO] Offline Mode: Executing local SQLite replica database engine for student_id=2010...
+2026-10-14 12:40:59 [INFO] Offline Mode: Executing local SQLite replica database engine for student_id=2010...
+2026-10-14 12:40:59 [INFO] Offline Mode: Executing local SQLite replica database engine for student_id=2010...
+2026-10-14 12:40:59 [INFO] Offline Mode: Executing local SQLite replica database engine for student_id=2010...
+2026-10-14 12:40:59 [INFO] Offline Mode: Executing local SQLite replica database engine for student_id=2010...
+2026-10-14 12:40:59 [INFO] Offline Mode: Executing local SQLite replica database engine for student_id=2010...
+2026-10-14 12:40:59 [INFO] Offline Mode: Executing local SQLite replica database engine for student_id=2010...
+2026-10-14 12:41:08 [INFO] Offline INSERT queued: issued_certificates temp_id=-194
+2026-10-14 12:41:08 [INFO] Offline INSERT queued: issued_certificates temp_id=-194
+2026-10-14 12:41:08 [INFO] Successfully recorded issued certificate for student ID 2010 via InsertIssuedCertificate SP.
+2026-10-14 12:41:08 [INFO] Successfully recorded issued certificate for student ID 2010 via InsertIssuedCertificate SP.
+2026-10-14 13:04:06 [INFO] SYSTEM STARTUP DIAGNOSTIC CHECK STARTED
+2026-10-14 13:04:08 [WARNING] [CHECK 1/4] FastAPI Connection Check ... [OFFLINE MODE]
+2026-10-14 13:04:08 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-10-14 13:04:08 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-10-14 13:04:08 [OK] [CHECK 2/4] SQLite Replica Database Connection ... [OK]
+2026-10-14 13:04:08 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-10-14 13:04:08 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-10-14 13:04:08 [OK] [CHECK 3/4] Authentication & Core SP Checks ... [OFFLINE MODE]
+2026-10-14 13:04:08 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-10-14 13:04:08 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-10-14 13:04:08 [OK] [CHECK 4/4] Sync Engine & Local Replica Check ... [OK]
+2026-10-14 13:04:08 [OK] Status: OFFLINE MODE ACTIVE. PROCEEDING TO LOGIN/DASHBOARD.
+2026-10-14 13:04:11 [INFO] Using WinForms / Chromium
+2026-10-14 13:04:11 [INFO] Using WinForms / Chromium
+2026-10-14 13:04:14 [INFO] before_load event fired. injecting pywebview object
+2026-10-14 13:04:14 [INFO] before_load event fired. injecting pywebview object
+2026-10-14 13:04:14 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-14 13:04:14 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-14 13:04:14 [INFO] _pywebviewready event fired
+2026-10-14 13:04:14 [INFO] _pywebviewready event fired
+2026-10-14 13:04:14 [INFO] loaded event fired
+2026-10-14 13:04:14 [INFO] loaded event fired
+2026-10-14 13:04:20 [INFO] before_load event fired. injecting pywebview object
+2026-10-14 13:04:20 [INFO] before_load event fired. injecting pywebview object
+2026-10-14 13:04:20 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-14 13:04:20 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-14 13:04:20 [INFO] _pywebviewready event fired
+2026-10-14 13:04:20 [INFO] _pywebviewready event fired
+2026-10-14 13:04:20 [INFO] loaded event fired
+2026-10-14 13:04:20 [INFO] loaded event fired
+2026-10-14 13:04:29 [INFO] Offline Mode: Executing local SQLite replica database engine for student_id=2010...
+2026-10-14 13:04:29 [INFO] Offline Mode: Executing local SQLite replica database engine for student_id=2010...
+2026-10-14 13:04:29 [INFO] Offline Mode: Executing local SQLite replica database engine for student_id=2010...
+2026-10-14 13:04:29 [INFO] Offline Mode: Executing local SQLite replica database engine for student_id=2010...
+2026-10-14 13:04:29 [INFO] Offline Mode: Executing local SQLite replica database engine for student_id=2010...
+2026-10-14 13:04:29 [INFO] Offline Mode: Executing local SQLite replica database engine for student_id=2010...
+2026-10-14 13:52:47 [INFO] before_load event fired. injecting pywebview object
+2026-10-14 13:52:47 [INFO] before_load event fired. injecting pywebview object
+2026-10-14 13:52:47 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-14 13:52:47 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-14 13:52:47 [INFO] _pywebviewready event fired
+2026-10-14 13:52:47 [INFO] _pywebviewready event fired
+2026-10-14 13:52:47 [INFO] loaded event fired
+2026-10-14 13:52:47 [INFO] loaded event fired
+2026-10-14 13:53:36 [INFO] Offline Mode: Executing local SQLite replica database engine for student_id=2010...
+2026-10-14 13:53:36 [INFO] Offline Mode: Executing local SQLite replica database engine for student_id=2010...
+2026-10-14 13:53:36 [INFO] Offline Mode: Executing local SQLite replica database engine for student_id=2010...
+2026-10-14 13:53:36 [INFO] Offline Mode: Executing local SQLite replica database engine for student_id=2010...
+2026-10-14 13:53:37 [INFO] Offline Mode: Executing local SQLite replica database engine for student_id=2010...
+2026-10-14 13:53:37 [INFO] Offline Mode: Executing local SQLite replica database engine for student_id=2010...
+2026-10-14 13:54:08 [INFO] Starting sync: 2 queued operations.
+2026-10-14 13:54:08 [INFO] Starting sync: 2 queued operations.
+2026-10-14 13:54:08 [ERROR] API sync request failed with status 500: {"detail":"Database synchronization failed: 1318 (42000): Incorrect number of arguments for PROCEDURE certificate_manager.InsertIssuedCertificate; expected 5, got 4"}
+2026-10-14 13:54:08 [ERROR] API sync request failed with status 500: {"detail":"Database synchronization failed: 1318 (42000): Incorrect number of arguments for PROCEDURE certificate_manager.InsertIssuedCertificate; expected 5, got 4"}
+2026-10-14 13:54:09 [INFO] Inbound sync complete: {'tables_synced': 18, 'total_rows': 6072, 'errors': []}
+2026-10-14 13:54:09 [INFO] Inbound sync complete: {'tables_synced': 18, 'total_rows': 6072, 'errors': []}
+2026-10-15 10:23:16 [INFO] SYSTEM STARTUP DIAGNOSTIC CHECK STARTED
+2026-10-15 10:23:18 [WARNING] [CHECK 1/4] FastAPI Connection Check ... [OFFLINE MODE]
+2026-10-15 10:23:18 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-10-15 10:23:18 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-10-15 10:23:18 [OK] [CHECK 2/4] SQLite Replica Database Connection ... [OK]
+2026-10-15 10:23:18 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-10-15 10:23:18 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-10-15 10:23:19 [OK] [CHECK 3/4] Authentication & Core SP Checks ... [OFFLINE MODE]
+2026-10-15 10:23:19 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-10-15 10:23:19 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-10-15 10:23:19 [OK] [CHECK 4/4] Sync Engine & Local Replica Check ... [OK]
+2026-10-15 10:23:19 [OK] Status: OFFLINE MODE ACTIVE. PROCEEDING TO LOGIN/DASHBOARD.
+2026-10-15 10:23:23 [INFO] Using WinForms / Chromium
+2026-10-15 10:23:23 [INFO] Using WinForms / Chromium
+2026-10-15 10:23:28 [INFO] before_load event fired. injecting pywebview object
+2026-10-15 10:23:28 [INFO] before_load event fired. injecting pywebview object
+2026-10-15 10:23:28 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-15 10:23:28 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-15 10:23:28 [INFO] _pywebviewready event fired
+2026-10-15 10:23:28 [INFO] _pywebviewready event fired
+2026-10-15 10:23:28 [INFO] loaded event fired
+2026-10-15 10:23:28 [INFO] loaded event fired
+2026-10-15 10:23:33 [INFO] before_load event fired. injecting pywebview object
+2026-10-15 10:23:33 [INFO] before_load event fired. injecting pywebview object
+2026-10-15 10:23:33 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-15 10:23:33 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-15 10:23:33 [INFO] _pywebviewready event fired
+2026-10-15 10:23:33 [INFO] _pywebviewready event fired
+2026-10-15 10:23:33 [INFO] loaded event fired
+2026-10-15 10:23:33 [INFO] loaded event fired
+2026-10-15 10:30:44 [INFO] Starting sync: 2 queued operations.
+2026-10-15 10:30:44 [INFO] Starting sync: 2 queued operations.
+2026-10-15 10:30:44 [ERROR] API sync request failed with status 500: {"detail":"Database synchronization failed: 1644 (45000): رقم الوثيقة مستخدم بالفعل لطالب آخر / Certificate number already assigned to another student"}
+2026-10-15 10:30:44 [ERROR] API sync request failed with status 500: {"detail":"Database synchronization failed: 1644 (45000): رقم الوثيقة مستخدم بالفعل لطالب آخر / Certificate number already assigned to another student"}
+2026-10-15 10:30:45 [INFO] Inbound sync complete: {'tables_synced': 18, 'total_rows': 6072, 'errors': []}
+2026-10-15 10:30:45 [INFO] Inbound sync complete: {'tables_synced': 18, 'total_rows': 6072, 'errors': []}
+2026-10-15 10:52:47 [INFO] Starting sync: 2 queued operations.
+2026-10-15 10:52:47 [INFO] Starting sync: 2 queued operations.
+2026-10-15 10:52:47 [ERROR] API sync request failed with status 500: {"detail":"Database synchronization failed: 1644 (45000): رقم الوثيقة مستخدم بالفعل لطالب آخر / Certificate number already assigned to another student"}
+2026-10-15 10:52:47 [ERROR] API sync request failed with status 500: {"detail":"Database synchronization failed: 1644 (45000): رقم الوثيقة مستخدم بالفعل لطالب آخر / Certificate number already assigned to another student"}
+2026-10-15 10:52:48 [INFO] Inbound sync complete: {'tables_synced': 18, 'total_rows': 6072, 'errors': []}
+2026-10-15 10:52:48 [INFO] Inbound sync complete: {'tables_synced': 18, 'total_rows': 6072, 'errors': []}
+2026-10-15 11:05:59 [INFO] Starting sync: 2 queued operations.
+2026-10-15 11:05:59 [INFO] Starting sync: 2 queued operations.
+2026-10-15 11:05:59 [INFO] Resolved issued_certificates temp_id=-192 → real_id=98 (cascaded to 0 children)
+2026-10-15 11:05:59 [INFO] Resolved issued_certificates temp_id=-192 → real_id=98 (cascaded to 0 children)
+2026-10-15 11:05:59 [INFO] Synced issued_certificates: temp_id=-192 → real_id=98
+2026-10-15 11:05:59 [INFO] Synced issued_certificates: temp_id=-192 → real_id=98
+2026-10-15 11:05:59 [INFO] Resolved issued_certificates temp_id=-194 → real_id=99 (cascaded to 0 children)
+2026-10-15 11:05:59 [INFO] Resolved issued_certificates temp_id=-194 → real_id=99 (cascaded to 0 children)
+2026-10-15 11:05:59 [INFO] Synced issued_certificates: temp_id=-194 → real_id=99
+2026-10-15 11:05:59 [INFO] Synced issued_certificates: temp_id=-194 → real_id=99
+2026-10-15 11:05:59 [INFO] Sync complete: {'synced': 2, 'failed': 0, 'id_map': {-192: 98, -194: 99}}
+2026-10-15 11:05:59 [INFO] Sync complete: {'synced': 2, 'failed': 0, 'id_map': {-192: 98, -194: 99}}
+2026-10-15 11:05:59 [INFO] Inbound sync complete: {'tables_synced': 18, 'total_rows': 6074, 'errors': []}
+2026-10-15 11:05:59 [INFO] Inbound sync complete: {'tables_synced': 18, 'total_rows': 6074, 'errors': []}
+2026-10-15 11:54:21 [INFO] SYSTEM STARTUP DIAGNOSTIC CHECK STARTED
+2026-10-15 11:54:21 [OK] [CHECK 1/4] FastAPI Connection Check ... [OK]
+2026-10-15 11:54:21 [OK] [CHECK 2/4] MySQL Database Connection ... [OK]
+2026-10-15 11:54:21 [OK] [CHECK 3/4] Authentication & Core SP Checks ... [OK]
+2026-10-15 11:54:21 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-10-15 11:54:21 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-10-15 11:54:21 [OK] [CHECK 4/4] Sync Engine & Local Replica Check ... [OK]
+2026-10-15 11:54:21 [OK] Status: ALL CHECKS PASSED. PROCEEDING TO LOGIN/DASHBOARD.
+2026-10-15 11:54:24 [INFO] Using WinForms / Chromium
+2026-10-15 11:54:24 [INFO] Using WinForms / Chromium
+2026-10-15 11:54:27 [INFO] before_load event fired. injecting pywebview object
+2026-10-15 11:54:27 [INFO] before_load event fired. injecting pywebview object
+2026-10-15 11:54:27 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-15 11:54:27 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-15 11:54:28 [INFO] _pywebviewready event fired
+2026-10-15 11:54:28 [INFO] _pywebviewready event fired
+2026-10-15 11:54:28 [INFO] loaded event fired
+2026-10-15 11:54:28 [INFO] loaded event fired
+2026-10-15 11:54:32 [INFO] before_load event fired. injecting pywebview object
+2026-10-15 11:54:32 [INFO] before_load event fired. injecting pywebview object
+2026-10-15 11:54:32 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-15 11:54:32 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-15 11:54:32 [INFO] _pywebviewready event fired
+2026-10-15 11:54:32 [INFO] _pywebviewready event fired
+2026-10-15 11:54:32 [INFO] loaded event fired
+2026-10-15 11:54:32 [INFO] loaded event fired
+2026-10-15 11:56:03 [INFO] Sync queue is empty — nothing to do.
+2026-10-15 11:56:03 [INFO] Sync queue is empty — nothing to do.
+2026-10-15 11:56:04 [INFO] Inbound sync complete: {'tables_synced': 18, 'total_rows': 6074, 'errors': []}
+2026-10-15 11:56:04 [INFO] Inbound sync complete: {'tables_synced': 18, 'total_rows': 6074, 'errors': []}
+2026-10-15 11:56:19 [WARNING] [WARNING][StudentRepository] API request failed, falling back to SQLite: HTTPConnectionPool(host='127.0.0.1', port=2030): Max retries exceeded with url: /students/search?query=&limit=25&offset=0 (Caused by NewConnectionError("HTTPConnection(host='127.0.0.1', port=2030): Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it"))
+2026-10-15 11:56:34 [INFO] Sync queue is empty — nothing to do.
+2026-10-15 11:56:34 [INFO] Sync queue is empty — nothing to do.
+2026-10-15 11:56:34 [INFO] Inbound sync complete: {'tables_synced': 18, 'total_rows': 6074, 'errors': []}
+2026-10-15 11:56:34 [INFO] Inbound sync complete: {'tables_synced': 18, 'total_rows': 6074, 'errors': []}
+2026-10-15 12:35:33 [INFO] before_load event fired. injecting pywebview object
+2026-10-15 12:35:33 [INFO] before_load event fired. injecting pywebview object
+2026-10-15 12:35:33 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-15 12:35:33 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-15 12:35:33 [INFO] _pywebviewready event fired
+2026-10-15 12:35:33 [INFO] _pywebviewready event fired
+2026-10-15 12:35:33 [INFO] loaded event fired
+2026-10-15 12:35:33 [INFO] loaded event fired
+2026-10-15 12:36:39 [INFO] Offline Mode: Executing local SQLite replica database engine for student_id=2010...
+2026-10-15 12:36:39 [INFO] Offline Mode: Executing local SQLite replica database engine for student_id=2010...
+2026-10-15 12:36:39 [INFO] Offline Mode: Executing local SQLite replica database engine for student_id=2010...
+2026-10-15 12:36:39 [INFO] Offline Mode: Executing local SQLite replica database engine for student_id=2010...
+2026-10-15 12:36:39 [INFO] Offline Mode: Executing local SQLite replica database engine for student_id=2010...
+2026-10-15 12:36:39 [INFO] Offline Mode: Executing local SQLite replica database engine for student_id=2010...
+2026-10-15 12:36:51 [INFO] Offline Mode: Executing local SQLite replica database engine for student_id=12...
+2026-10-15 12:36:51 [INFO] Offline Mode: Executing local SQLite replica database engine for student_id=12...
+2026-10-15 12:36:51 [INFO] Offline Mode: Executing local SQLite replica database engine for student_id=12...
+2026-10-15 12:36:51 [INFO] Offline Mode: Executing local SQLite replica database engine for student_id=12...
+2026-10-15 12:37:00 [INFO] Offline Mode: Executing local SQLite replica database engine for student_id=12...
+2026-10-15 12:37:00 [INFO] Offline Mode: Executing local SQLite replica database engine for student_id=12...
+2026-10-15 12:37:14 [INFO] Offline Mode: Executing local SQLite replica database engine for student_id=2010...
+2026-10-15 12:37:14 [INFO] Offline Mode: Executing local SQLite replica database engine for student_id=2010...
+2026-10-15 12:37:14 [INFO] Offline Mode: Executing local SQLite replica database engine for student_id=2010...
+2026-10-15 12:37:14 [INFO] Offline Mode: Executing local SQLite replica database engine for student_id=2010...
+2026-10-15 12:37:14 [INFO] Offline Mode: Executing local SQLite replica database engine for student_id=2010...
+2026-10-15 12:37:14 [INFO] Offline Mode: Executing local SQLite replica database engine for student_id=2010...
+2026-10-15 12:37:19 [INFO] Offline Mode: Executing local SQLite replica database engine for student_id=12...
+2026-10-15 12:37:19 [INFO] Offline Mode: Executing local SQLite replica database engine for student_id=12...
+2026-10-15 12:37:19 [INFO] Offline Mode: Executing local SQLite replica database engine for student_id=12...
+2026-10-15 12:37:19 [INFO] Offline Mode: Executing local SQLite replica database engine for student_id=12...
+2026-10-15 12:37:51 [INFO] Offline INSERT queued: issued_certificates temp_id=-195
+2026-10-15 12:37:51 [INFO] Offline INSERT queued: issued_certificates temp_id=-195
+2026-10-15 12:37:51 [INFO] Successfully recorded issued certificate for student ID 12 via InsertIssuedCertificate SP.
+2026-10-15 12:37:51 [INFO] Successfully recorded issued certificate for student ID 12 via InsertIssuedCertificate SP.
+2026-10-15 12:38:48 [INFO] Starting sync: 1 queued operations.
+2026-10-15 12:38:48 [INFO] Starting sync: 1 queued operations.
+2026-10-15 12:38:48 [INFO] Resolved issued_certificates temp_id=-195 → real_id=100 (cascaded to 0 children)
+2026-10-15 12:38:48 [INFO] Resolved issued_certificates temp_id=-195 → real_id=100 (cascaded to 0 children)
+2026-10-15 12:38:48 [INFO] Synced issued_certificates: temp_id=-195 → real_id=100
+2026-10-15 12:38:48 [INFO] Synced issued_certificates: temp_id=-195 → real_id=100
+2026-10-15 12:38:48 [INFO] Sync complete: {'synced': 1, 'failed': 0, 'id_map': {-195: 100}}
+2026-10-15 12:38:48 [INFO] Sync complete: {'synced': 1, 'failed': 0, 'id_map': {-195: 100}}
+2026-10-15 12:38:49 [INFO] Inbound sync complete: {'tables_synced': 18, 'total_rows': 6075, 'errors': []}
+2026-10-15 12:38:49 [INFO] Inbound sync complete: {'tables_synced': 18, 'total_rows': 6075, 'errors': []}
+2026-10-15 12:38:59 [INFO] Online Mode: Successfully fetched raw certificate payload via API for student_id=12.
+2026-10-15 12:38:59 [INFO] Online Mode: Successfully fetched raw certificate payload via API for student_id=12.
+2026-10-15 12:39:08 [INFO] Successfully updated/overwritten existing issued certificate ID 100 for student ID 12
+2026-10-15 12:39:08 [INFO] Successfully updated/overwritten existing issued certificate ID 100 for student ID 12
+2026-10-15 12:39:37 [INFO] Online Mode: Successfully fetched raw certificate payload via API for student_id=12.
+2026-10-15 12:39:37 [INFO] Online Mode: Successfully fetched raw certificate payload via API for student_id=12.
+2026-10-15 12:39:44 [INFO] Online Mode: Successfully fetched raw certificate payload via API for student_id=12.
+2026-10-15 12:39:44 [INFO] Online Mode: Successfully fetched raw certificate payload via API for student_id=12.
+2026-10-15 12:39:50 [INFO] Online Mode: Successfully fetched raw certificate payload via API for student_id=12.
+2026-10-15 12:39:50 [INFO] Online Mode: Successfully fetched raw certificate payload via API for student_id=12.
+2026-10-15 12:39:55 [INFO] Online Mode: Successfully fetched raw certificate payload via API for student_id=12.
+2026-10-15 12:39:55 [INFO] Online Mode: Successfully fetched raw certificate payload via API for student_id=12.
+2026-10-15 12:46:51 [INFO] Online Mode: Successfully fetched raw certificate payload via API for student_id=2137.
+2026-10-15 12:46:51 [INFO] Online Mode: Successfully fetched raw certificate payload via API for student_id=2137.
+2026-10-15 12:48:03 [INFO] Online Mode: Successfully fetched raw certificate payload via API for student_id=2010.
+2026-10-15 12:48:03 [INFO] Online Mode: Successfully fetched raw certificate payload via API for student_id=2010.
+2026-10-15 12:48:03 [INFO] Online Mode: Successfully fetched raw certificate payload via API for student_id=2010.
+2026-10-15 12:48:03 [INFO] Online Mode: Successfully fetched raw certificate payload via API for student_id=2010.
+2026-10-15 12:48:03 [INFO] Online Mode: Successfully fetched raw certificate payload via API for student_id=2010.
+2026-10-15 12:48:03 [INFO] Online Mode: Successfully fetched raw certificate payload via API for student_id=2010.
+2026-10-15 12:58:01 [INFO] Online Mode: Successfully fetched raw certificate payload via API for student_id=2137.
+2026-10-15 12:58:01 [INFO] Online Mode: Successfully fetched raw certificate payload via API for student_id=2137.
+2026-10-15 12:58:13 [INFO] Online Mode: Successfully fetched raw certificate payload via API for student_id=2010.
+2026-10-15 12:58:13 [INFO] Online Mode: Successfully fetched raw certificate payload via API for student_id=2010.
+2026-10-15 12:58:13 [INFO] Online Mode: Successfully fetched raw certificate payload via API for student_id=2010.
+2026-10-15 12:58:13 [INFO] Online Mode: Successfully fetched raw certificate payload via API for student_id=2010.
+2026-10-15 12:58:14 [INFO] Online Mode: Successfully fetched raw certificate payload via API for student_id=2010.
+2026-10-15 12:58:14 [INFO] Online Mode: Successfully fetched raw certificate payload via API for student_id=2010.
+2026-10-15 12:58:32 [INFO] Online Mode: Successfully fetched raw certificate payload via API for student_id=2010.
+2026-10-15 12:58:32 [INFO] Online Mode: Successfully fetched raw certificate payload via API for student_id=2010.
+2026-10-15 12:58:42 [INFO] Online Mode: Successfully fetched raw certificate payload via API for student_id=2010.
+2026-10-15 12:58:42 [INFO] Online Mode: Successfully fetched raw certificate payload via API for student_id=2010.
+2026-10-15 21:16:58 [INFO] Online Mode: Successfully fetched raw certificate payload via API for student_id=2010.
+2026-10-15 21:32:59 [INFO] SYSTEM STARTUP DIAGNOSTIC CHECK STARTED
+2026-10-15 21:32:59 [OK] [CHECK 1/4] FastAPI Connection Check ... [OK]
+2026-10-15 21:32:59 [OK] [CHECK 2/4] MySQL Database Connection ... [OK]
+2026-10-15 21:32:59 [OK] [CHECK 3/4] Authentication & Core SP Checks ... [OK]
+2026-10-15 21:32:59 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-10-15 21:32:59 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-10-15 21:32:59 [OK] [CHECK 4/4] Sync Engine & Local Replica Check ... [OK]
+2026-10-15 21:32:59 [OK] Status: ALL CHECKS PASSED. PROCEEDING TO LOGIN/DASHBOARD.
+2026-10-15 21:33:05 [INFO] Using WinForms / Chromium
+2026-10-15 21:33:05 [INFO] Using WinForms / Chromium
+2026-10-15 21:33:11 [INFO] before_load event fired. injecting pywebview object
+2026-10-15 21:33:11 [INFO] before_load event fired. injecting pywebview object
+2026-10-15 21:33:11 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-15 21:33:11 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-15 21:33:11 [INFO] _pywebviewready event fired
+2026-10-15 21:33:11 [INFO] _pywebviewready event fired
+2026-10-15 21:33:11 [INFO] loaded event fired
+2026-10-15 21:33:11 [INFO] loaded event fired
+2026-10-15 21:33:16 [INFO] before_load event fired. injecting pywebview object
+2026-10-15 21:33:16 [INFO] before_load event fired. injecting pywebview object
+2026-10-15 21:33:16 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-15 21:33:16 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-15 21:33:16 [INFO] _pywebviewready event fired
+2026-10-15 21:33:16 [INFO] _pywebviewready event fired
+2026-10-15 21:33:16 [INFO] loaded event fired
+2026-10-15 21:33:16 [INFO] loaded event fired
+2026-10-15 21:33:33 [INFO] Online Mode: Successfully fetched raw certificate payload via API for student_id=2010.
+2026-10-15 21:33:33 [INFO] Online Mode: Successfully fetched raw certificate payload via API for student_id=2010.
+2026-10-15 21:33:33 [INFO] Online Mode: Successfully fetched raw certificate payload via API for student_id=2010.
+2026-10-15 21:33:33 [INFO] Online Mode: Successfully fetched raw certificate payload via API for student_id=2010.
+2026-10-15 21:33:33 [INFO] Online Mode: Successfully fetched raw certificate payload via API for student_id=2010.
+2026-10-15 21:33:33 [INFO] Online Mode: Successfully fetched raw certificate payload via API for student_id=2010.
+2026-10-15 21:34:01 [INFO] Online Mode: Successfully fetched raw certificate payload via API for student_id=2010.
+2026-10-15 21:34:01 [INFO] Online Mode: Successfully fetched raw certificate payload via API for student_id=2010.
+2026-10-15 21:34:40 [INFO] Online Mode: Successfully fetched raw certificate payload via API for student_id=12.
+2026-10-15 21:34:40 [INFO] Online Mode: Successfully fetched raw certificate payload via API for student_id=12.
+2026-10-15 21:34:40 [INFO] Online Mode: Successfully fetched raw certificate payload via API for student_id=12.
+2026-10-15 21:34:40 [INFO] Online Mode: Successfully fetched raw certificate payload via API for student_id=12.
+2026-10-15 21:35:39 [INFO] Online Mode: Successfully fetched raw certificate payload via API for student_id=12.
+2026-10-15 21:35:39 [INFO] Online Mode: Successfully fetched raw certificate payload via API for student_id=12.
+2026-10-15 21:35:53 [INFO] Online Mode: Successfully fetched raw certificate payload via API for student_id=12.
+2026-10-15 21:35:53 [INFO] Online Mode: Successfully fetched raw certificate payload via API for student_id=12.
+2026-10-15 21:36:01 [INFO] Online Mode: Successfully fetched raw certificate payload via API for student_id=12.
+2026-10-15 21:36:01 [INFO] Online Mode: Successfully fetched raw certificate payload via API for student_id=12.
+2026-10-15 21:36:13 [INFO] Online Mode: Successfully fetched raw certificate payload via API for student_id=12.
+2026-10-15 21:36:13 [INFO] Online Mode: Successfully fetched raw certificate payload via API for student_id=12.
+2026-10-15 21:39:12 [INFO] Sync queue is empty — nothing to do.
+2026-10-15 21:39:12 [INFO] Sync queue is empty — nothing to do.
+2026-10-15 21:39:12 [INFO] Inbound sync complete: {'tables_synced': 18, 'total_rows': 6075, 'errors': []}
+2026-10-15 21:39:12 [INFO] Inbound sync complete: {'tables_synced': 18, 'total_rows': 6075, 'errors': []}
+2026-10-15 22:25:38 [INFO] Offline Mode: Executing local SQLite replica database engine for student_id=12...
+2026-10-15 22:25:38 [INFO] Offline Mode: Executing local SQLite replica database engine for student_id=12...
+2026-10-15 22:26:05 [INFO] Offline Mode: Executing local SQLite replica database engine for student_id=12...
+2026-10-15 22:26:05 [INFO] Offline Mode: Executing local SQLite replica database engine for student_id=12...
+2026-10-15 22:26:18 [INFO] Offline Mode: Executing local SQLite replica database engine for student_id=12...
+2026-10-15 22:26:18 [INFO] Offline Mode: Executing local SQLite replica database engine for student_id=12...
+2026-10-15 22:26:32 [INFO] Offline Mode: Executing local SQLite replica database engine for student_id=12...
+2026-10-15 22:26:32 [INFO] Offline Mode: Executing local SQLite replica database engine for student_id=12...
+2026-10-15 22:28:54 [INFO] Offline Mode: Executing local SQLite replica database engine for student_id=2010...
+2026-10-15 22:28:54 [INFO] Offline Mode: Executing local SQLite replica database engine for student_id=2010...
+2026-10-15 22:28:55 [INFO] Offline Mode: Executing local SQLite replica database engine for student_id=2010...
+2026-10-15 22:28:55 [INFO] Offline Mode: Executing local SQLite replica database engine for student_id=2010...
+2026-10-15 22:28:55 [INFO] Offline Mode: Executing local SQLite replica database engine for student_id=2010...
+2026-10-15 22:28:55 [INFO] Offline Mode: Executing local SQLite replica database engine for student_id=2010...
+2026-10-15 22:29:04 [INFO] Offline Mode: Executing local SQLite replica database engine for student_id=2010...
+2026-10-15 22:29:04 [INFO] Offline Mode: Executing local SQLite replica database engine for student_id=2010...
+2026-10-15 22:40:33 [INFO] Sync queue is empty — nothing to do.
+2026-10-15 22:40:33 [INFO] Sync queue is empty — nothing to do.
+2026-10-15 22:40:33 [INFO] Inbound sync complete: {'tables_synced': 18, 'total_rows': 6075, 'errors': []}
+2026-10-15 22:40:33 [INFO] Inbound sync complete: {'tables_synced': 18, 'total_rows': 6075, 'errors': []}
+2026-10-15 23:41:19 [INFO] before_load event fired. injecting pywebview object
+2026-10-15 23:41:19 [INFO] before_load event fired. injecting pywebview object
+2026-10-15 23:41:19 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-15 23:41:19 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-15 23:41:19 [INFO] _pywebviewready event fired
+2026-10-15 23:41:19 [INFO] _pywebviewready event fired
+2026-10-15 23:41:19 [INFO] loaded event fired
+2026-10-15 23:41:19 [INFO] loaded event fired
+2026-10-15 23:43:55 [WARNING] API request failed: API returned status code 500. Falling back to SQLite cache.
+2026-10-15 23:43:57 [WARNING] API request failed: API returned status code 500. Falling back to SQLite cache.
+2026-10-15 23:43:59 [WARNING] API request failed: API returned status code 500. Falling back to SQLite cache.
+2026-10-15 23:45:52 [WARNING] API request failed: API returned status code 500. Falling back to SQLite cache.
+2026-10-15 23:46:13 [WARNING] API request failed: API returned status code 500. Falling back to SQLite cache.
+2026-10-15 23:46:15 [WARNING] API request failed: API returned status code 500. Falling back to SQLite cache.
+2026-10-15 23:46:24 [WARNING] API request failed: API returned status code 500. Falling back to SQLite cache.
+2026-10-15 23:52:58 [WARNING] API request failed: HTTPConnectionPool(host='127.0.0.1', port=2030): Max retries exceeded with url: /settings (Caused by NewConnectionError("HTTPConnection(host='127.0.0.1', port=2030): Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it"))
+2026-10-15 23:53:22 [WARNING] API request failed: HTTPConnectionPool(host='127.0.0.1', port=2030): Max retries exceeded with url: /settings (Caused by NewConnectionError("HTTPConnection(host='127.0.0.1', port=2030): Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it"))
+2026-10-15 23:53:22 [ERROR] UNHANDLED EXCEPTION:
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+    from data.repositories import SettingsRepository; s = SettingsRepository().get_settings(); print('Settings:', s)
+                                                                                               ~~~~~^^^^^^^^^^^^^^^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\encodings\cp1252.py", line 19, in encode
+    return codecs.charmap_encode(input,self.errors,encoding_table)[0]
+           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeEncodeError: 'charmap' codec can't encode characters in position 27-31: character maps to <undefined>
+
+2026-10-15 23:53:30 [WARNING] API request failed: HTTPConnectionPool(host='127.0.0.1', port=2030): Max retries exceeded with url: /settings (Caused by NewConnectionError("HTTPConnection(host='127.0.0.1', port=2030): Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it"))
+2026-10-16 00:01:26 [INFO] Sync queue is empty — nothing to do.
+2026-10-16 00:01:26 [INFO] Sync queue is empty — nothing to do.
+2026-10-16 00:01:27 [INFO] Inbound sync complete: {'tables_synced': 18, 'total_rows': 6075, 'errors': []}
+2026-10-16 00:01:27 [INFO] Inbound sync complete: {'tables_synced': 18, 'total_rows': 6075, 'errors': []}
+2026-10-16 00:07:57 [WARNING] API request failed: HTTPConnectionPool(host='127.0.0.1', port=2030): Max retries exceeded with url: /settings (Caused by NewConnectionError("HTTPConnection(host='127.0.0.1', port=2030): Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it"))
+2026-10-16 00:07:59 [WARNING] API request failed: HTTPConnectionPool(host='127.0.0.1', port=2030): Max retries exceeded with url: /study-systems (Caused by NewConnectionError("HTTPConnection(host='127.0.0.1', port=2030): Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it"))
+2026-10-16 00:08:01 [ERROR] [ERROR][SettingsRepository.get_user_appearance] API/DB connection failure for user 1: HTTPConnectionPool(host='127.0.0.1', port=2030): Max retries exceeded with url: /settings/appearance/1 (Caused by NewConnectionError("HTTPConnection(host='127.0.0.1', port=2030): Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it"))
+2026-10-16 00:08:52 [INFO] Sync queue is empty — nothing to do.
+2026-10-16 00:08:52 [INFO] Sync queue is empty — nothing to do.
+2026-10-16 00:08:52 [INFO] Inbound sync complete: {'tables_synced': 18, 'total_rows': 6075, 'errors': []}
+2026-10-16 00:08:52 [INFO] Inbound sync complete: {'tables_synced': 18, 'total_rows': 6075, 'errors': []}
+2026-10-16 00:10:48 [INFO] SYSTEM STARTUP DIAGNOSTIC CHECK STARTED
+2026-10-16 00:10:48 [OK] [CHECK 1/4] FastAPI Connection Check ... [OK]
+2026-10-16 00:10:49 [OK] [CHECK 2/4] MySQL Database Connection ... [OK]
+2026-10-16 00:10:49 [OK] [CHECK 3/4] Authentication & Core SP Checks ... [OK]
+2026-10-16 00:10:49 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-10-16 00:10:49 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-10-16 00:10:49 [OK] [CHECK 4/4] Sync Engine & Local Replica Check ... [OK]
+2026-10-16 00:10:49 [OK] Status: ALL CHECKS PASSED. PROCEEDING TO LOGIN/DASHBOARD.
+2026-10-16 00:10:51 [INFO] Using WinForms / Chromium
+2026-10-16 00:10:51 [INFO] Using WinForms / Chromium
+2026-10-16 00:10:58 [INFO] before_load event fired. injecting pywebview object
+2026-10-16 00:10:58 [INFO] before_load event fired. injecting pywebview object
+2026-10-16 00:10:58 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-16 00:10:58 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-16 00:10:58 [INFO] _pywebviewready event fired
+2026-10-16 00:10:58 [INFO] _pywebviewready event fired
+2026-10-16 00:10:58 [INFO] loaded event fired
+2026-10-16 00:10:58 [INFO] loaded event fired
+2026-10-16 00:11:06 [INFO] before_load event fired. injecting pywebview object
+2026-10-16 00:11:06 [INFO] before_load event fired. injecting pywebview object
+2026-10-16 00:11:06 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-16 00:11:06 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-16 00:11:06 [INFO] _pywebviewready event fired
+2026-10-16 00:11:06 [INFO] _pywebviewready event fired
+2026-10-16 00:11:06 [INFO] loaded event fired
+2026-10-16 00:11:06 [INFO] loaded event fired
+2026-10-16 00:20:23 [INFO] Inbound sync complete: {'tables_synced': 18, 'total_rows': 6075, 'errors': []}
+2026-10-16 00:20:23 [INFO] Inbound sync complete: {'tables_synced': 18, 'total_rows': 6075, 'errors': []}
+2026-10-16 00:33:40 [ERROR] UNHANDLED EXCEPTION:
+Traceback (most recent call last):
+  File "<string>", line 10, in <module>
+    print('User 1 name:', p1.get('name_ar'), p1.get('username'))
+    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\encodings\cp1252.py", line 19, in encode
+    return codecs.charmap_encode(input,self.errors,encoding_table)[0]
+           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeEncodeError: 'charmap' codec can't encode characters in position 0-3: character maps to <undefined>
+
+2026-10-16 00:38:21 [INFO] SYSTEM STARTUP DIAGNOSTIC CHECK STARTED
+2026-10-16 00:38:21 [OK] [CHECK 1/4] FastAPI Connection Check ... [OK]
+2026-10-16 00:38:21 [OK] [CHECK 2/4] MySQL Database Connection ... [OK]
+2026-10-16 00:38:21 [OK] [CHECK 3/4] Authentication & Core SP Checks ... [OK]
+2026-10-16 00:38:21 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-10-16 00:38:21 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-10-16 00:38:21 [OK] [CHECK 4/4] Sync Engine & Local Replica Check ... [OK]
+2026-10-16 00:38:21 [OK] Status: ALL CHECKS PASSED. PROCEEDING TO LOGIN/DASHBOARD.
+2026-10-16 00:38:24 [INFO] Using WinForms / Chromium
+2026-10-16 00:38:24 [INFO] Using WinForms / Chromium
+2026-10-16 00:38:27 [INFO] before_load event fired. injecting pywebview object
+2026-10-16 00:38:27 [INFO] before_load event fired. injecting pywebview object
+2026-10-16 00:38:27 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-16 00:38:27 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-16 00:38:27 [INFO] _pywebviewready event fired
+2026-10-16 00:38:27 [INFO] _pywebviewready event fired
+2026-10-16 00:38:27 [INFO] loaded event fired
+2026-10-16 00:38:27 [INFO] loaded event fired
+2026-10-16 00:38:36 [INFO] before_load event fired. injecting pywebview object
+2026-10-16 00:38:36 [INFO] before_load event fired. injecting pywebview object
+2026-10-16 00:38:36 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-16 00:38:36 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-16 00:38:36 [INFO] _pywebviewready event fired
+2026-10-16 00:38:36 [INFO] _pywebviewready event fired
+2026-10-16 00:38:36 [INFO] loaded event fired
+2026-10-16 00:38:36 [INFO] loaded event fired
+2026-10-16 16:21:31 [INFO] SYSTEM STARTUP DIAGNOSTIC CHECK STARTED
+2026-10-16 16:21:33 [WARNING] [CHECK 1/4] FastAPI Connection Check ... [OFFLINE MODE]
+2026-10-16 16:21:33 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-10-16 16:21:33 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-10-16 16:21:33 [OK] [CHECK 2/4] SQLite Replica Database Connection ... [OK]
+2026-10-16 16:21:33 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-10-16 16:21:33 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-10-16 16:21:33 [OK] [CHECK 3/4] Authentication & Core SP Checks ... [OFFLINE MODE]
+2026-10-16 16:21:33 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-10-16 16:21:33 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-10-16 16:21:33 [OK] [CHECK 4/4] Sync Engine & Local Replica Check ... [OK]
+2026-10-16 16:21:33 [OK] Status: OFFLINE MODE ACTIVE. PROCEEDING TO LOGIN/DASHBOARD.
+2026-10-16 16:21:38 [INFO] Using WinForms / Chromium
+2026-10-16 16:21:38 [INFO] Using WinForms / Chromium
+2026-10-16 16:21:43 [INFO] before_load event fired. injecting pywebview object
+2026-10-16 16:21:43 [INFO] before_load event fired. injecting pywebview object
+2026-10-16 16:21:43 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-16 16:21:43 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-16 16:21:44 [INFO] _pywebviewready event fired
+2026-10-16 16:21:44 [INFO] _pywebviewready event fired
+2026-10-16 16:21:44 [INFO] loaded event fired
+2026-10-16 16:21:44 [INFO] loaded event fired
+2026-10-16 16:21:54 [INFO] before_load event fired. injecting pywebview object
+2026-10-16 16:21:54 [INFO] before_load event fired. injecting pywebview object
+2026-10-16 16:21:54 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-16 16:21:54 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-16 16:21:54 [INFO] _pywebviewready event fired
+2026-10-16 16:21:54 [INFO] _pywebviewready event fired
+2026-10-16 16:21:54 [INFO] loaded event fired
+2026-10-16 16:21:54 [INFO] loaded event fired
+2026-10-16 16:51:41 [WARNING] API request failed: HTTPConnectionPool(host='127.0.0.1', port=2030): Max retries exceeded with url: /permissions (Caused by NewConnectionError("HTTPConnection(host='127.0.0.1', port=2030): Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it"))
+2026-10-16 16:55:48 [WARNING] RoleRepository init error: name 'json' is not defined
+2026-10-16 17:03:54 [WARNING] API request failed: HTTPConnectionPool(host='127.0.0.1', port=2030): Max retries exceeded with url: /personnel/1 (Caused by NewConnectionError("HTTPConnection(host='127.0.0.1', port=2030): Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it"))
+2026-10-16 17:03:56 [WARNING] API request failed: HTTPConnectionPool(host='127.0.0.1', port=2030): Max retries exceeded with url: /personnel/1 (Caused by NewConnectionError("HTTPConnection(host='127.0.0.1', port=2030): Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it"))
+2026-10-16 17:03:56 [INFO] Notice while updating personnel record during role assign: HTTPConnectionPool(host='127.0.0.1', port=2030): Max retries exceeded with url: /personnel/1 (Caused by NewConnectionError("HTTPConnection(host='127.0.0.1', port=2030): Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it"))
+2026-10-16 17:03:58 [WARNING] API request failed: HTTPConnectionPool(host='127.0.0.1', port=2030): Max retries exceeded with url: /personnel/1/permissions (Caused by NewConnectionError("HTTPConnection(host='127.0.0.1', port=2030): Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it"))
+2026-10-16 17:04:00 [WARNING] API request failed: HTTPConnectionPool(host='127.0.0.1', port=2030): Max retries exceeded with url: /personnel/1/permissions (Caused by NewConnectionError("HTTPConnection(host='127.0.0.1', port=2030): Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it"))
+2026-10-16 17:04:02 [WARNING] API request failed: HTTPConnectionPool(host='127.0.0.1', port=2030): Max retries exceeded with url: /personnel/1 (Caused by NewConnectionError("HTTPConnection(host='127.0.0.1', port=2030): Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it"))
+2026-10-16 17:04:04 [WARNING] API request failed: HTTPConnectionPool(host='127.0.0.1', port=2030): Max retries exceeded with url: /personnel/1 (Caused by NewConnectionError("HTTPConnection(host='127.0.0.1', port=2030): Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it"))
+2026-10-16 17:04:04 [INFO] Notice while updating personnel record during role assign: HTTPConnectionPool(host='127.0.0.1', port=2030): Max retries exceeded with url: /personnel/1 (Caused by NewConnectionError("HTTPConnection(host='127.0.0.1', port=2030): Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it"))
+2026-10-16 17:04:06 [WARNING] API request failed: HTTPConnectionPool(host='127.0.0.1', port=2030): Max retries exceeded with url: /personnel/1/permissions (Caused by NewConnectionError("HTTPConnection(host='127.0.0.1', port=2030): Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it"))
+2026-10-16 17:04:08 [WARNING] API request failed: HTTPConnectionPool(host='127.0.0.1', port=2030): Max retries exceeded with url: /personnel/1/permissions (Caused by NewConnectionError("HTTPConnection(host='127.0.0.1', port=2030): Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it"))
+2026-10-16 20:33:03 [INFO] before_load event fired. injecting pywebview object
+2026-10-16 20:33:03 [INFO] before_load event fired. injecting pywebview object
+2026-10-16 20:33:03 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-16 20:33:03 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-16 20:33:03 [INFO] _pywebviewready event fired
+2026-10-16 20:33:03 [INFO] _pywebviewready event fired
+2026-10-16 20:33:04 [INFO] loaded event fired
+2026-10-16 20:33:04 [INFO] loaded event fired
+2026-10-16 22:30:14 [INFO] before_load event fired. injecting pywebview object
+2026-10-16 22:30:15 [INFO] before_load event fired. injecting pywebview object
+2026-10-16 22:30:15 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-16 22:30:15 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-16 22:30:15 [INFO] _pywebviewready event fired
+2026-10-16 22:30:15 [INFO] _pywebviewready event fired
+2026-10-16 22:30:15 [INFO] loaded event fired
+2026-10-16 22:30:15 [INFO] loaded event fired
+2026-10-16 22:36:48 [INFO] SYSTEM STARTUP DIAGNOSTIC CHECK STARTED
+2026-10-16 22:36:50 [WARNING] [CHECK 1/4] FastAPI Connection Check ... [OFFLINE MODE]
+2026-10-16 22:36:50 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-10-16 22:36:50 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-10-16 22:36:50 [OK] [CHECK 2/4] SQLite Replica Database Connection ... [OK]
+2026-10-16 22:36:50 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-10-16 22:36:50 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-10-16 22:36:50 [OK] [CHECK 3/4] Authentication & Core SP Checks ... [OFFLINE MODE]
+2026-10-16 22:36:50 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-10-16 22:36:50 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-10-16 22:36:50 [OK] [CHECK 4/4] Sync Engine & Local Replica Check ... [OK]
+2026-10-16 22:36:50 [OK] Status: OFFLINE MODE ACTIVE. PROCEEDING TO LOGIN/DASHBOARD.
+2026-10-16 22:36:55 [INFO] Using WinForms / Chromium
+2026-10-16 22:36:55 [INFO] Using WinForms / Chromium
+2026-10-16 22:37:01 [INFO] before_load event fired. injecting pywebview object
+2026-10-16 22:37:01 [INFO] before_load event fired. injecting pywebview object
+2026-10-16 22:37:01 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-16 22:37:01 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-16 22:37:01 [INFO] _pywebviewready event fired
+2026-10-16 22:37:01 [INFO] _pywebviewready event fired
+2026-10-16 22:37:01 [INFO] loaded event fired
+2026-10-16 22:37:01 [INFO] loaded event fired
+2026-10-16 22:37:08 [INFO] before_load event fired. injecting pywebview object
+2026-10-16 22:37:08 [INFO] before_load event fired. injecting pywebview object
+2026-10-16 22:37:08 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-16 22:37:08 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-16 22:37:08 [INFO] _pywebviewready event fired
+2026-10-16 22:37:08 [INFO] _pywebviewready event fired
+2026-10-16 22:37:08 [INFO] loaded event fired
+2026-10-16 22:37:08 [INFO] loaded event fired
+2026-10-16 22:37:27 [ERROR] 'MainAppShell' object has no attribute '_user_chip_row'
+Traceback (most recent call last):
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\events.py", line 474, in handle_event
+    result = cast(Callable[[], Any], handler)()
+  File "f:\CR_PY\certificate_manager\nicegui_screens\dashboard_screen.py", line 422, in toggle_sidebar
+    if self._user_chip_row is not None:
+       ^^^^^^^^^^^^^^^^^^^
+AttributeError: 'MainAppShell' object has no attribute '_user_chip_row'
+2026-10-16 22:37:27 [ERROR] 'MainAppShell' object has no attribute '_user_chip_row'
+Traceback (most recent call last):
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\events.py", line 474, in handle_event
+    result = cast(Callable[[], Any], handler)()
+  File "f:\CR_PY\certificate_manager\nicegui_screens\dashboard_screen.py", line 422, in toggle_sidebar
+    if self._user_chip_row is not None:
+       ^^^^^^^^^^^^^^^^^^^
+AttributeError: 'MainAppShell' object has no attribute '_user_chip_row'
+2026-10-16 22:43:04 [INFO] Sync queue is empty — nothing to do.
+2026-10-16 22:43:04 [INFO] Sync queue is empty — nothing to do.
+2026-10-16 22:43:05 [INFO] Inbound sync complete: {'tables_synced': 20, 'total_rows': 6187, 'errors': []}
+2026-10-16 22:43:05 [INFO] Inbound sync complete: {'tables_synced': 20, 'total_rows': 6187, 'errors': []}
+2026-10-16 23:12:43 [ERROR] UNHANDLED EXCEPTION:
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+    from data.repositories import RoleRepository; repo = RoleRepository(); r = repo.save_role({'id': 'test_role', 'name_ar': 'دور تجريبي', 'name_en': 'Test Role', 'base_role': 'user', 'allowed_pages': ['home'], 'allowed_actions': ['students:view'], 'department_scope': 'all', 'is_system': 0}); print('Saved role:', r); repo.delete_role('test_role'); print('Deleted test role')
+                                                                                                                                                                                                                                                                                                      ~~~~~^^^^^^^^^^^^^^^^^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\encodings\cp1252.py", line 19, in encode
+    return codecs.charmap_encode(input,self.errors,encoding_table)[0]
+           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeEncodeError: 'charmap' codec can't encode characters in position 32-34: character maps to <undefined>
+
+2026-10-16 23:21:55 [ERROR] UNHANDLED EXCEPTION:
+Traceback (most recent call last):
+  File "<string>", line 15, in <module>
+    print(' - Role:', r.get('id'), r.get('name_ar'), 'allowed_pages:', r.get('allowed_pages'), 'allowed_actions count:', len(r.get('allowed_actions', [])))
+    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\encodings\cp1252.py", line 19, in encode
+    return codecs.charmap_encode(input,self.errors,encoding_table)[0]
+           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeEncodeError: 'charmap' codec can't encode characters in position 0-3: character maps to <undefined>
+
+2026-10-16 23:56:57 [ERROR] 'MainAppShell' object has no attribute '_user_chip_row'
+Traceback (most recent call last):
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\events.py", line 474, in handle_event
+    result = cast(Callable[[], Any], handler)()
+  File "f:\CR_PY\certificate_manager\nicegui_screens\dashboard_screen.py", line 403, in toggle_sidebar
+    text_col.set_visibility(True)
+    ^^^^^^^^^^^^^^^^^^
+AttributeError: 'MainAppShell' object has no attribute '_user_chip_row'
+2026-10-16 23:56:57 [ERROR] 'MainAppShell' object has no attribute '_user_chip_row'
+Traceback (most recent call last):
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\events.py", line 474, in handle_event
+    result = cast(Callable[[], Any], handler)()
+  File "f:\CR_PY\certificate_manager\nicegui_screens\dashboard_screen.py", line 403, in toggle_sidebar
+    text_col.set_visibility(True)
+    ^^^^^^^^^^^^^^^^^^
+AttributeError: 'MainAppShell' object has no attribute '_user_chip_row'
+2026-10-16 23:57:01 [ERROR] 'MainAppShell' object has no attribute '_user_chip_row'
+Traceback (most recent call last):
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\events.py", line 474, in handle_event
+    result = cast(Callable[[], Any], handler)()
+  File "f:\CR_PY\certificate_manager\nicegui_screens\dashboard_screen.py", line 422, in toggle_sidebar
+    text_col.set_visibility(False)
+    ^^^^^^^^^^^^^^^^^^
+AttributeError: 'MainAppShell' object has no attribute '_user_chip_row'
+2026-10-16 23:57:01 [ERROR] 'MainAppShell' object has no attribute '_user_chip_row'
+Traceback (most recent call last):
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\events.py", line 474, in handle_event
+    result = cast(Callable[[], Any], handler)()
+  File "f:\CR_PY\certificate_manager\nicegui_screens\dashboard_screen.py", line 422, in toggle_sidebar
+    text_col.set_visibility(False)
+    ^^^^^^^^^^^^^^^^^^
+AttributeError: 'MainAppShell' object has no attribute '_user_chip_row'
+2026-10-16 23:57:04 [ERROR] 'MainAppShell' object has no attribute '_user_chip_row'
+Traceback (most recent call last):
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\events.py", line 474, in handle_event
+    result = cast(Callable[[], Any], handler)()
+  File "f:\CR_PY\certificate_manager\nicegui_screens\dashboard_screen.py", line 403, in toggle_sidebar
+    text_col.set_visibility(True)
+    ^^^^^^^^^^^^^^^^^^
+AttributeError: 'MainAppShell' object has no attribute '_user_chip_row'
+2026-10-16 23:57:04 [ERROR] 'MainAppShell' object has no attribute '_user_chip_row'
+Traceback (most recent call last):
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\events.py", line 474, in handle_event
+    result = cast(Callable[[], Any], handler)()
+  File "f:\CR_PY\certificate_manager\nicegui_screens\dashboard_screen.py", line 403, in toggle_sidebar
+    text_col.set_visibility(True)
+    ^^^^^^^^^^^^^^^^^^
+AttributeError: 'MainAppShell' object has no attribute '_user_chip_row'
+2026-10-16 23:57:09 [ERROR] 'MainAppShell' object has no attribute '_user_chip_row'
+Traceback (most recent call last):
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\events.py", line 474, in handle_event
+    result = cast(Callable[[], Any], handler)()
+  File "f:\CR_PY\certificate_manager\nicegui_screens\dashboard_screen.py", line 422, in toggle_sidebar
+    text_col.set_visibility(False)
+    ^^^^^^^^^^^^^^^^^^
+AttributeError: 'MainAppShell' object has no attribute '_user_chip_row'
+2026-10-16 23:57:09 [ERROR] 'MainAppShell' object has no attribute '_user_chip_row'
+Traceback (most recent call last):
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\events.py", line 474, in handle_event
+    result = cast(Callable[[], Any], handler)()
+  File "f:\CR_PY\certificate_manager\nicegui_screens\dashboard_screen.py", line 422, in toggle_sidebar
+    text_col.set_visibility(False)
+    ^^^^^^^^^^^^^^^^^^
+AttributeError: 'MainAppShell' object has no attribute '_user_chip_row'
+2026-10-16 23:57:59 [INFO] SYSTEM STARTUP DIAGNOSTIC CHECK STARTED
+2026-10-16 23:57:59 [OK] [CHECK 1/4] FastAPI Connection Check ... [OK]
+2026-10-16 23:57:59 [OK] [CHECK 2/4] MySQL Database Connection ... [OK]
+2026-10-16 23:57:59 [OK] [CHECK 3/4] Authentication & Core SP Checks ... [OK]
+2026-10-16 23:57:59 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-10-16 23:57:59 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-10-16 23:57:59 [OK] [CHECK 4/4] Sync Engine & Local Replica Check ... [OK]
+2026-10-16 23:57:59 [OK] Status: ALL CHECKS PASSED. PROCEEDING TO LOGIN/DASHBOARD.
+2026-10-16 23:58:04 [INFO] Using WinForms / Chromium
+2026-10-16 23:58:04 [INFO] Using WinForms / Chromium
+2026-10-16 23:58:08 [INFO] before_load event fired. injecting pywebview object
+2026-10-16 23:58:08 [INFO] before_load event fired. injecting pywebview object
+2026-10-16 23:58:08 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-16 23:58:08 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-16 23:58:08 [INFO] _pywebviewready event fired
+2026-10-16 23:58:08 [INFO] _pywebviewready event fired
+2026-10-16 23:58:08 [INFO] loaded event fired
+2026-10-16 23:58:08 [INFO] loaded event fired
+2026-10-16 23:58:13 [INFO] before_load event fired. injecting pywebview object
+2026-10-16 23:58:13 [INFO] before_load event fired. injecting pywebview object
+2026-10-16 23:58:13 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-16 23:58:13 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-16 23:58:14 [INFO] _pywebviewready event fired
+2026-10-16 23:58:14 [INFO] _pywebviewready event fired
+2026-10-16 23:58:14 [INFO] loaded event fired
+2026-10-16 23:58:14 [INFO] loaded event fired
+2026-10-17 22:10:37 [INFO] SYSTEM STARTUP DIAGNOSTIC CHECK STARTED
+2026-10-17 22:10:37 [OK] [CHECK 1/4] FastAPI Connection Check ... [OK]
+2026-10-17 22:10:37 [OK] [CHECK 2/4] MySQL Database Connection ... [OK]
+2026-10-17 22:10:38 [OK] [CHECK 3/4] Authentication & Core SP Checks ... [OK]
+2026-10-17 22:10:38 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-10-17 22:10:38 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-10-17 22:10:38 [OK] [CHECK 4/4] Sync Engine & Local Replica Check ... [OK]
+2026-10-17 22:10:38 [OK] Status: ALL CHECKS PASSED. PROCEEDING TO LOGIN/DASHBOARD.
+2026-10-17 22:10:43 [INFO] Using WinForms / Chromium
+2026-10-17 22:10:43 [INFO] Using WinForms / Chromium
+2026-10-17 22:10:48 [INFO] before_load event fired. injecting pywebview object
+2026-10-17 22:10:48 [INFO] before_load event fired. injecting pywebview object
+2026-10-17 22:10:48 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-17 22:10:48 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-17 22:10:49 [INFO] _pywebviewready event fired
+2026-10-17 22:10:49 [INFO] _pywebviewready event fired
+2026-10-17 22:10:49 [INFO] loaded event fired
+2026-10-17 22:10:49 [INFO] loaded event fired
+2026-10-17 22:10:55 [INFO] before_load event fired. injecting pywebview object
+2026-10-17 22:10:55 [INFO] before_load event fired. injecting pywebview object
+2026-10-17 22:10:55 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-17 22:10:55 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-17 22:10:55 [INFO] _pywebviewready event fired
+2026-10-17 22:10:55 [INFO] _pywebviewready event fired
+2026-10-17 22:10:55 [INFO] loaded event fired
+2026-10-17 22:10:55 [INFO] loaded event fired
+2026-10-18 10:00:49 [INFO] SYSTEM STARTUP DIAGNOSTIC CHECK STARTED
+2026-10-18 10:00:51 [WARNING] [CHECK 1/4] FastAPI Connection Check ... [OFFLINE MODE]
+2026-10-18 10:00:51 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-10-18 10:00:51 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-10-18 10:00:51 [OK] [CHECK 2/4] SQLite Replica Database Connection ... [OK]
+2026-10-18 10:00:51 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-10-18 10:00:51 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-10-18 10:00:51 [OK] [CHECK 3/4] Authentication & Core SP Checks ... [OFFLINE MODE]
+2026-10-18 10:00:51 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-10-18 10:00:51 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-10-18 10:00:51 [OK] [CHECK 4/4] Sync Engine & Local Replica Check ... [OK]
+2026-10-18 10:00:51 [OK] Status: OFFLINE MODE ACTIVE. PROCEEDING TO LOGIN/DASHBOARD.
+2026-10-18 10:00:54 [INFO] Using WinForms / Chromium
+2026-10-18 10:00:54 [INFO] Using WinForms / Chromium
+2026-10-18 10:00:57 [INFO] before_load event fired. injecting pywebview object
+2026-10-18 10:00:57 [INFO] before_load event fired. injecting pywebview object
+2026-10-18 10:00:57 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-18 10:00:57 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-18 10:00:58 [INFO] _pywebviewready event fired
+2026-10-18 10:00:58 [INFO] _pywebviewready event fired
+2026-10-18 10:00:58 [INFO] loaded event fired
+2026-10-18 10:00:58 [INFO] loaded event fired
+2026-10-18 10:01:02 [INFO] before_load event fired. injecting pywebview object
+2026-10-18 10:01:02 [INFO] before_load event fired. injecting pywebview object
+2026-10-18 10:01:02 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-18 10:01:02 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-18 10:01:02 [INFO] _pywebviewready event fired
+2026-10-18 10:01:02 [INFO] _pywebviewready event fired
+2026-10-18 10:01:02 [INFO] loaded event fired
+2026-10-18 10:01:02 [INFO] loaded event fired
+2026-10-18 18:31:17 [INFO] SYSTEM STARTUP DIAGNOSTIC CHECK STARTED
+2026-10-18 18:31:17 [OK] [CHECK 1/4] FastAPI Connection Check ... [OK]
+2026-10-18 18:31:17 [OK] [CHECK 2/4] MySQL Database Connection ... [OK]
+2026-10-18 18:31:18 [OK] [CHECK 3/4] Authentication & Core SP Checks ... [OK]
+2026-10-18 18:31:18 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-10-18 18:31:18 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-10-18 18:31:18 [OK] [CHECK 4/4] Sync Engine & Local Replica Check ... [OK]
+2026-10-18 18:31:18 [OK] Status: ALL CHECKS PASSED. PROCEEDING TO LOGIN/DASHBOARD.
+2026-10-18 18:31:18 [INFO] Certificate Manager starting in Web Server / Fallback mode on 0.0.0.0:2323
+2026-10-18 18:33:38 [INFO] SYSTEM STARTUP DIAGNOSTIC CHECK STARTED
+2026-10-18 18:33:38 [OK] [CHECK 1/4] FastAPI Connection Check ... [OK]
+2026-10-18 18:33:39 [OK] [CHECK 2/4] MySQL Database Connection ... [OK]
+2026-10-18 18:33:39 [OK] [CHECK 3/4] Authentication & Core SP Checks ... [OK]
+2026-10-18 18:33:39 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-10-18 18:33:39 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-10-18 18:33:39 [OK] [CHECK 4/4] Sync Engine & Local Replica Check ... [OK]
+2026-10-18 18:33:39 [OK] Status: ALL CHECKS PASSED. PROCEEDING TO LOGIN/DASHBOARD.
+2026-10-18 18:33:43 [INFO] Using WinForms / Chromium
+2026-10-18 18:33:43 [INFO] Using WinForms / Chromium
+2026-10-18 18:33:47 [INFO] before_load event fired. injecting pywebview object
+2026-10-18 18:33:47 [INFO] before_load event fired. injecting pywebview object
+2026-10-18 18:33:47 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-18 18:33:47 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-18 18:33:47 [INFO] _pywebviewready event fired
+2026-10-18 18:33:47 [INFO] _pywebviewready event fired
+2026-10-18 18:33:47 [INFO] loaded event fired
+2026-10-18 18:33:47 [INFO] loaded event fired
+2026-10-18 18:33:54 [INFO] Inbound sync complete: {'tables_synced': 20, 'total_rows': 6187, 'errors': []}
+2026-10-18 18:33:54 [INFO] Inbound sync complete: {'tables_synced': 20, 'total_rows': 6187, 'errors': []}
+2026-10-18 18:33:55 [INFO] before_load event fired. injecting pywebview object
+2026-10-18 18:33:55 [INFO] before_load event fired. injecting pywebview object
+2026-10-18 18:33:55 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-18 18:33:55 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-18 18:33:55 [INFO] _pywebviewready event fired
+2026-10-18 18:33:55 [INFO] _pywebviewready event fired
+2026-10-18 18:33:55 [INFO] loaded event fired
+2026-10-18 18:33:55 [INFO] loaded event fired
+2026-10-19 11:56:21 [ERROR] UNHANDLED EXCEPTION:
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+    from data.repositories import PersonnelRepository; from sync_engine import is_online, set_online; print('Online status:', is_online()); set_online(False); print('Testing offline auth:', PersonnelRepository().authenticate('admin', 'admin'))
+                                                                                                                                                               ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\encodings\cp1252.py", line 19, in encode
+    return codecs.charmap_encode(input,self.errors,encoding_table)[0]
+           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeEncodeError: 'charmap' codec can't encode characters in position 43-46: character maps to <undefined>
+
+2026-10-19 11:58:00 [WARNING] API request failed, falling back to offline authentication: HTTPConnectionPool(host='127.0.0.1', port=2030): Max retries exceeded with url: /personnel/login (Caused by NewConnectionError("HTTPConnection(host='127.0.0.1', port=2030): Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it"))
+2026-10-19 13:40:32 [INFO] SYSTEM STARTUP DIAGNOSTIC CHECK STARTED
+2026-10-19 13:40:34 [WARNING] [CHECK 1/4] FastAPI Connection Check ... [OFFLINE MODE]
+2026-10-19 13:40:34 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-10-19 13:40:34 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-10-19 13:40:34 [OK] [CHECK 2/4] SQLite Replica Database Connection ... [OK]
+2026-10-19 13:40:34 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-10-19 13:40:34 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-10-19 13:40:34 [OK] [CHECK 3/4] Authentication & Core SP Checks ... [OFFLINE MODE]
+2026-10-19 13:40:34 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-10-19 13:40:34 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-10-19 13:40:34 [OK] [CHECK 4/4] Sync Engine & Local Replica Check ... [OK]
+2026-10-19 13:40:34 [OK] Status: OFFLINE MODE ACTIVE. PROCEEDING TO LOGIN/DASHBOARD.
+2026-10-19 13:40:38 [INFO] Using WinForms / Chromium
+2026-10-19 13:40:38 [INFO] Using WinForms / Chromium
+2026-10-19 13:40:42 [INFO] before_load event fired. injecting pywebview object
+2026-10-19 13:40:42 [INFO] before_load event fired. injecting pywebview object
+2026-10-19 13:40:42 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-19 13:40:42 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-19 13:40:43 [INFO] _pywebviewready event fired
+2026-10-19 13:40:43 [INFO] _pywebviewready event fired
+2026-10-19 13:40:43 [INFO] loaded event fired
+2026-10-19 13:40:43 [INFO] loaded event fired
+2026-10-19 13:40:52 [INFO] before_load event fired. injecting pywebview object
+2026-10-19 13:40:52 [INFO] before_load event fired. injecting pywebview object
+2026-10-19 13:40:52 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-19 13:40:52 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-19 13:40:53 [INFO] _pywebviewready event fired
+2026-10-19 13:40:53 [INFO] _pywebviewready event fired
+2026-10-19 13:40:53 [INFO] loaded event fired
+2026-10-19 13:40:53 [INFO] loaded event fired
+2026-10-19 13:41:30 [INFO] SYSTEM STARTUP DIAGNOSTIC CHECK STARTED
+2026-10-19 13:41:30 [OK] [CHECK 1/4] FastAPI Connection Check ... [OK]
+2026-10-19 13:41:30 [OK] [CHECK 2/4] MySQL Database Connection ... [OK]
+2026-10-19 13:41:30 [OK] [CHECK 3/4] Authentication & Core SP Checks ... [OK]
+2026-10-19 13:41:30 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-10-19 13:41:30 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-10-19 13:41:30 [OK] [CHECK 4/4] Sync Engine & Local Replica Check ... [OK]
+2026-10-19 13:41:30 [OK] Status: ALL CHECKS PASSED. PROCEEDING TO LOGIN/DASHBOARD.
+2026-10-19 13:41:34 [INFO] Using WinForms / Chromium
+2026-10-19 13:41:34 [INFO] Using WinForms / Chromium
+2026-10-19 13:41:38 [INFO] before_load event fired. injecting pywebview object
+2026-10-19 13:41:38 [INFO] before_load event fired. injecting pywebview object
+2026-10-19 13:41:38 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-19 13:41:38 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-19 13:41:38 [INFO] _pywebviewready event fired
+2026-10-19 13:41:38 [INFO] _pywebviewready event fired
+2026-10-19 13:41:38 [INFO] loaded event fired
+2026-10-19 13:41:38 [INFO] loaded event fired
+2026-10-19 13:41:42 [INFO] Inbound sync complete: {'tables_synced': 20, 'total_rows': 6187, 'errors': []}
+2026-10-19 13:41:42 [INFO] Inbound sync complete: {'tables_synced': 20, 'total_rows': 6187, 'errors': []}
+2026-10-19 13:41:42 [INFO] before_load event fired. injecting pywebview object
+2026-10-19 13:41:42 [INFO] before_load event fired. injecting pywebview object
+2026-10-19 13:41:42 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-19 13:41:42 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-19 13:41:42 [INFO] _pywebviewready event fired
+2026-10-19 13:41:42 [INFO] _pywebviewready event fired
+2026-10-19 13:41:42 [INFO] loaded event fired
+2026-10-19 13:41:42 [INFO] loaded event fired
+2026-10-19 13:50:32 [INFO] before_load event fired. injecting pywebview object
+2026-10-19 13:50:32 [INFO] before_load event fired. injecting pywebview object
+2026-10-19 13:50:32 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-19 13:50:32 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-19 13:50:32 [INFO] _pywebviewready event fired
+2026-10-19 13:50:32 [INFO] _pywebviewready event fired
+2026-10-19 13:50:32 [INFO] loaded event fired
+2026-10-19 13:50:32 [INFO] loaded event fired
+2026-10-19 13:50:40 [INFO] Inbound sync complete: {'tables_synced': 20, 'total_rows': 6184, 'errors': []}
+2026-10-19 13:50:40 [INFO] Inbound sync complete: {'tables_synced': 20, 'total_rows': 6184, 'errors': []}
+2026-10-19 13:50:40 [INFO] before_load event fired. injecting pywebview object
+2026-10-19 13:50:40 [INFO] before_load event fired. injecting pywebview object
+2026-10-19 13:50:40 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-19 13:50:40 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-19 13:50:40 [INFO] _pywebviewready event fired
+2026-10-19 13:50:40 [INFO] _pywebviewready event fired
+2026-10-19 13:50:40 [INFO] loaded event fired
+2026-10-19 13:50:40 [INFO] loaded event fired
+2026-10-19 13:51:30 [INFO] before_load event fired. injecting pywebview object
+2026-10-19 13:51:30 [INFO] before_load event fired. injecting pywebview object
+2026-10-19 13:51:30 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-19 13:51:30 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-19 13:51:30 [INFO] _pywebviewready event fired
+2026-10-19 13:51:30 [INFO] _pywebviewready event fired
+2026-10-19 13:51:30 [INFO] loaded event fired
+2026-10-19 13:51:30 [INFO] loaded event fired
+2026-10-19 13:51:38 [INFO] Inbound sync complete: {'tables_synced': 20, 'total_rows': 6182, 'errors': []}
+2026-10-19 13:51:38 [INFO] Inbound sync complete: {'tables_synced': 20, 'total_rows': 6182, 'errors': []}
+2026-10-19 13:51:38 [INFO] before_load event fired. injecting pywebview object
+2026-10-19 13:51:38 [INFO] before_load event fired. injecting pywebview object
+2026-10-19 13:51:38 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-19 13:51:38 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-19 13:51:38 [INFO] _pywebviewready event fired
+2026-10-19 13:51:38 [INFO] _pywebviewready event fired
+2026-10-19 13:51:39 [INFO] loaded event fired
+2026-10-19 13:51:39 [INFO] loaded event fired
+2026-10-20 11:22:44 [INFO] SYSTEM STARTUP DIAGNOSTIC CHECK STARTED
+2026-10-20 11:22:46 [WARNING] [CHECK 1/4] FastAPI Connection Check ... [OFFLINE MODE]
+2026-10-20 11:22:46 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-10-20 11:22:46 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-10-20 11:22:46 [OK] [CHECK 2/4] SQLite Replica Database Connection ... [OK]
+2026-10-20 11:22:46 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-10-20 11:22:46 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-10-20 11:22:46 [OK] [CHECK 3/4] Authentication & Core SP Checks ... [OFFLINE MODE]
+2026-10-20 11:22:46 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-10-20 11:22:46 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-10-20 11:22:46 [OK] [CHECK 4/4] Sync Engine & Local Replica Check ... [OK]
+2026-10-20 11:22:46 [OK] Status: OFFLINE MODE ACTIVE. PROCEEDING TO LOGIN/DASHBOARD.
+2026-10-20 11:22:49 [INFO] Using WinForms / Chromium
+2026-10-20 11:22:49 [INFO] Using WinForms / Chromium
+2026-10-20 11:22:53 [INFO] before_load event fired. injecting pywebview object
+2026-10-20 11:22:53 [INFO] before_load event fired. injecting pywebview object
+2026-10-20 11:22:53 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-20 11:22:53 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-20 11:22:53 [INFO] _pywebviewready event fired
+2026-10-20 11:22:53 [INFO] _pywebviewready event fired
+2026-10-20 11:22:53 [INFO] loaded event fired
+2026-10-20 11:22:53 [INFO] loaded event fired
+2026-10-20 11:23:03 [INFO] before_load event fired. injecting pywebview object
+2026-10-20 11:23:03 [INFO] before_load event fired. injecting pywebview object
+2026-10-20 11:23:03 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-20 11:23:03 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-20 11:23:03 [INFO] _pywebviewready event fired
+2026-10-20 11:23:03 [INFO] _pywebviewready event fired
+2026-10-20 11:23:03 [INFO] loaded event fired
+2026-10-20 11:23:03 [INFO] loaded event fired
+2026-10-20 11:27:44 [INFO] Sync queue is empty — nothing to do.
+2026-10-20 11:27:44 [INFO] Sync queue is empty — nothing to do.
+2026-10-20 11:27:44 [INFO] Inbound sync complete: {'tables_synced': 20, 'total_rows': 6182, 'errors': []}
+2026-10-20 11:27:44 [INFO] Inbound sync complete: {'tables_synced': 20, 'total_rows': 6182, 'errors': []}
+2026-10-20 11:28:30 [INFO] before_load event fired. injecting pywebview object
+2026-10-20 11:28:30 [INFO] before_load event fired. injecting pywebview object
+2026-10-20 11:28:30 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-20 11:28:30 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-20 11:28:30 [INFO] _pywebviewready event fired
+2026-10-20 11:28:30 [INFO] _pywebviewready event fired
+2026-10-20 11:28:31 [INFO] loaded event fired
+2026-10-20 11:28:31 [INFO] loaded event fired
+2026-10-20 11:29:03 [INFO] Inbound sync complete: {'tables_synced': 20, 'total_rows': 6194, 'errors': []}
+2026-10-20 11:29:03 [INFO] Inbound sync complete: {'tables_synced': 20, 'total_rows': 6194, 'errors': []}
+2026-10-20 11:29:04 [INFO] before_load event fired. injecting pywebview object
+2026-10-20 11:29:04 [INFO] before_load event fired. injecting pywebview object
+2026-10-20 11:29:04 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-20 11:29:04 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-20 11:29:04 [INFO] _pywebviewready event fired
+2026-10-20 11:29:04 [INFO] _pywebviewready event fired
+2026-10-20 11:29:04 [INFO] loaded event fired
+2026-10-20 11:29:04 [INFO] loaded event fired
+2026-10-20 11:30:03 [INFO] before_load event fired. injecting pywebview object
+2026-10-20 11:30:03 [INFO] before_load event fired. injecting pywebview object
+2026-10-20 11:30:03 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-20 11:30:03 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-20 11:30:04 [INFO] _pywebviewready event fired
+2026-10-20 11:30:04 [INFO] _pywebviewready event fired
+2026-10-20 11:30:04 [INFO] loaded event fired
+2026-10-20 11:30:04 [INFO] loaded event fired
+2026-10-20 11:30:14 [INFO] Inbound sync complete: {'tables_synced': 20, 'total_rows': 6182, 'errors': []}
+2026-10-20 11:30:14 [INFO] Inbound sync complete: {'tables_synced': 20, 'total_rows': 6182, 'errors': []}
+2026-10-20 11:30:14 [INFO] before_load event fired. injecting pywebview object
+2026-10-20 11:30:14 [INFO] before_load event fired. injecting pywebview object
+2026-10-20 11:30:14 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-20 11:30:14 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-20 11:30:14 [INFO] _pywebviewready event fired
+2026-10-20 11:30:14 [INFO] _pywebviewready event fired
+2026-10-20 11:30:14 [INFO] loaded event fired
+2026-10-20 11:30:14 [INFO] loaded event fired
+2026-10-20 11:30:28 [INFO] before_load event fired. injecting pywebview object
+2026-10-20 11:30:28 [INFO] before_load event fired. injecting pywebview object
+2026-10-20 11:30:28 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-20 11:30:28 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-20 11:30:28 [INFO] _pywebviewready event fired
+2026-10-20 11:30:28 [INFO] _pywebviewready event fired
+2026-10-20 11:30:28 [INFO] loaded event fired
+2026-10-20 11:30:28 [INFO] loaded event fired
+2026-10-20 11:30:32 [INFO] Inbound sync complete: {'tables_synced': 20, 'total_rows': 6182, 'errors': []}
+2026-10-20 11:30:32 [INFO] Inbound sync complete: {'tables_synced': 20, 'total_rows': 6182, 'errors': []}
+2026-10-20 11:30:32 [INFO] before_load event fired. injecting pywebview object
+2026-10-20 11:30:32 [INFO] before_load event fired. injecting pywebview object
+2026-10-20 11:30:32 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-20 11:30:32 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-20 11:30:32 [INFO] _pywebviewready event fired
+2026-10-20 11:30:32 [INFO] _pywebviewready event fired
+2026-10-20 11:30:32 [INFO] loaded event fired
+2026-10-20 11:30:32 [INFO] loaded event fired
+2026-10-20 11:31:04 [INFO] before_load event fired. injecting pywebview object
+2026-10-20 11:31:04 [INFO] before_load event fired. injecting pywebview object
+2026-10-20 11:31:04 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-20 11:31:04 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-20 11:31:04 [INFO] _pywebviewready event fired
+2026-10-20 11:31:04 [INFO] _pywebviewready event fired
+2026-10-20 11:31:04 [INFO] loaded event fired
+2026-10-20 11:31:04 [INFO] loaded event fired
+2026-10-20 11:31:12 [INFO] Inbound sync complete: {'tables_synced': 20, 'total_rows': 6194, 'errors': []}
+2026-10-20 11:31:12 [INFO] Inbound sync complete: {'tables_synced': 20, 'total_rows': 6194, 'errors': []}
+2026-10-20 11:31:12 [INFO] before_load event fired. injecting pywebview object
+2026-10-20 11:31:12 [INFO] before_load event fired. injecting pywebview object
+2026-10-20 11:31:12 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-20 11:31:12 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-20 11:31:12 [INFO] _pywebviewready event fired
+2026-10-20 11:31:12 [INFO] _pywebviewready event fired
+2026-10-20 11:31:12 [INFO] loaded event fired
+2026-10-20 11:31:12 [INFO] loaded event fired
+2026-10-20 11:38:03 [INFO] Sync queue is empty — nothing to do.
+2026-10-20 11:38:03 [INFO] Sync queue is empty — nothing to do.
+2026-10-20 11:38:03 [INFO] Inbound sync complete: {'tables_synced': 20, 'total_rows': 6194, 'errors': []}
+2026-10-20 11:38:03 [INFO] Inbound sync complete: {'tables_synced': 20, 'total_rows': 6194, 'errors': []}
+2026-10-20 11:38:50 [INFO] before_load event fired. injecting pywebview object
+2026-10-20 11:38:50 [INFO] before_load event fired. injecting pywebview object
+2026-10-20 11:38:50 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-20 11:38:50 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-20 11:38:50 [INFO] _pywebviewready event fired
+2026-10-20 11:38:50 [INFO] _pywebviewready event fired
+2026-10-20 11:38:50 [INFO] loaded event fired
+2026-10-20 11:38:50 [INFO] loaded event fired
+2026-10-20 11:38:58 [INFO] Inbound sync complete: {'tables_synced': 20, 'total_rows': 6194, 'errors': []}
+2026-10-20 11:38:58 [INFO] Inbound sync complete: {'tables_synced': 20, 'total_rows': 6194, 'errors': []}
+2026-10-20 11:38:58 [INFO] before_load event fired. injecting pywebview object
+2026-10-20 11:38:58 [INFO] before_load event fired. injecting pywebview object
+2026-10-20 11:38:58 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-20 11:38:58 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-20 11:38:58 [INFO] _pywebviewready event fired
+2026-10-20 11:38:58 [INFO] _pywebviewready event fired
+2026-10-20 11:38:58 [INFO] loaded event fired
+2026-10-20 11:38:58 [INFO] loaded event fired
+2026-10-20 12:37:45 [ERROR] UNHANDLED EXCEPTION:
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+    from data.repositories import RoleRepository, PersonnelRepository; r_repo = RoleRepository(); p_repo = PersonnelRepository(); role_id = r_repo.get_user_role_id(8); role_def = r_repo.get_by_id(role_id); user = p_repo.get_by_id(8); print('Role ID:', role_id); print('Role name:', role_def.get('name_ar'), role_def.get('name_en')); print('Allowed pages:', role_def.get('allowed_pages')); print('User in DB:', user.get('name_ar'), user.get('responsibility_ar'))
+                                                                                                                                                                                                                                                                      ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\encodings\cp1252.py", line 19, in encode
+    return codecs.charmap_encode(input,self.errors,encoding_table)[0]
+           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeEncodeError: 'charmap' codec can't encode characters in position 0-4: character maps to <undefined>
+
+2026-10-20 13:34:14 [INFO] SYSTEM STARTUP DIAGNOSTIC CHECK STARTED
+2026-10-20 13:34:14 [OK] [CHECK 1/4] FastAPI Connection Check ... [OK]
+2026-10-20 13:34:14 [OK] [CHECK 2/4] MySQL Database Connection ... [OK]
+2026-10-20 13:34:14 [OK] [CHECK 3/4] Authentication & Core SP Checks ... [OK]
+2026-10-20 13:34:14 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-10-20 13:34:14 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-10-20 13:34:14 [OK] [CHECK 4/4] Sync Engine & Local Replica Check ... [OK]
+2026-10-20 13:34:14 [OK] Status: ALL CHECKS PASSED. PROCEEDING TO LOGIN/DASHBOARD.
+2026-10-20 13:34:17 [INFO] Using WinForms / Chromium
+2026-10-20 13:34:17 [INFO] Using WinForms / Chromium
+2026-10-20 13:34:22 [INFO] before_load event fired. injecting pywebview object
+2026-10-20 13:34:22 [INFO] before_load event fired. injecting pywebview object
+2026-10-20 13:34:22 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-20 13:34:22 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-20 13:34:22 [INFO] _pywebviewready event fired
+2026-10-20 13:34:22 [INFO] _pywebviewready event fired
+2026-10-20 13:34:22 [INFO] loaded event fired
+2026-10-20 13:34:22 [INFO] loaded event fired
+2026-10-20 13:34:30 [INFO] Inbound sync complete: {'tables_synced': 20, 'total_rows': 6194, 'errors': []}
+2026-10-20 13:34:30 [INFO] Inbound sync complete: {'tables_synced': 20, 'total_rows': 6194, 'errors': []}
+2026-10-20 13:34:30 [INFO] before_load event fired. injecting pywebview object
+2026-10-20 13:34:30 [INFO] before_load event fired. injecting pywebview object
+2026-10-20 13:34:30 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-20 13:34:30 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-20 13:34:30 [INFO] _pywebviewready event fired
+2026-10-20 13:34:30 [INFO] _pywebviewready event fired
+2026-10-20 13:34:30 [INFO] loaded event fired
+2026-10-20 13:34:30 [INFO] loaded event fired
+2026-10-20 13:41:00 [INFO] before_load event fired. injecting pywebview object
+2026-10-20 13:41:00 [INFO] before_load event fired. injecting pywebview object
+2026-10-20 13:41:00 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-20 13:41:00 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-20 13:41:00 [INFO] _pywebviewready event fired
+2026-10-20 13:41:00 [INFO] _pywebviewready event fired
+2026-10-20 13:41:00 [INFO] loaded event fired
+2026-10-20 13:41:00 [INFO] loaded event fired
+2026-10-20 13:41:12 [INFO] Inbound sync complete: {'tables_synced': 20, 'total_rows': 6194, 'errors': []}
+2026-10-20 13:41:12 [INFO] Inbound sync complete: {'tables_synced': 20, 'total_rows': 6194, 'errors': []}
+2026-10-20 13:41:12 [INFO] before_load event fired. injecting pywebview object
+2026-10-20 13:41:12 [INFO] before_load event fired. injecting pywebview object
+2026-10-20 13:41:12 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-20 13:41:12 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-20 13:41:12 [INFO] _pywebviewready event fired
+2026-10-20 13:41:12 [INFO] _pywebviewready event fired
+2026-10-20 13:41:12 [INFO] loaded event fired
+2026-10-20 13:41:12 [INFO] loaded event fired
+2026-10-20 13:41:28 [ERROR] Invalid value: dark
+Traceback (most recent call last):
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\events.py", line 474, in handle_event
+    result = cast(Callable[[], Any], handler)()
+  File "f:\CR_PY\certificate_manager\nicegui_screens\dashboard_screen.py", line 300, in <lambda>
+    "click", lambda key=item["key"]: self._switch_screen(key)
+                                     ~~~~~~~~~~~~~~~~~~~^^^^^
+  File "f:\CR_PY\certificate_manager\nicegui_screens\dashboard_screen.py", line 607, in _switch_screen
+    self._render_active_screen()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "f:\CR_PY\certificate_manager\nicegui_screens\dashboard_screen.py", line 619, in _render_active_screen
+    SettingsScreen(on_navigate=self._switch_screen)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "f:\CR_PY\certificate_manager\nicegui_screens\settings_screen.py", line 84, in __init__
+    self._build_ui()
+    ~~~~~~~~~~~~~~^^
+  File "f:\CR_PY\certificate_manager\nicegui_screens\settings_screen.py", line 188, in _build_ui
+    self._section_appearance()
+    ~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "f:\CR_PY\certificate_manager\nicegui_screens\settings_screen.py", line 433, in _section_appearance
+    self.theme_select = UI.select(
+                        ~~~~~~~~~^
+        "الوضع (فاتح/داكن) / Theme Mode",
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<2 lines>...
+        on_change=self._on_theme_select_change
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "f:\CR_PY\certificate_manager\nicegui_ui\ui_components.py", line 158, in select
+    return ui.select(options=options, label=label, value=value, with_input=with_input, on_change=on_change).classes(
+           ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\defaults.py", line 64, in decorated
+    return original_func(*args, **kwargs)
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\elements\select.py", line 67, in __init__
+    super().__init__(label=label, options=options, value=value, on_change=on_change, validation=validation)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\elements\mixins\label_element.py", line 15, in __init__
+    super().__init__(**kwargs)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\elements\mixins\validation_element.py", line 20, in __init__
+    super().__init__(**kwargs)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\elements\choice_element.py", line 22, in __init__
+    raise ValueError(f'Invalid value: {value}')
+ValueError: Invalid value: dark
+2026-10-20 13:41:28 [ERROR] Invalid value: dark
+Traceback (most recent call last):
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\events.py", line 474, in handle_event
+    result = cast(Callable[[], Any], handler)()
+  File "f:\CR_PY\certificate_manager\nicegui_screens\dashboard_screen.py", line 300, in <lambda>
+    "click", lambda key=item["key"]: self._switch_screen(key)
+                                     ~~~~~~~~~~~~~~~~~~~^^^^^
+  File "f:\CR_PY\certificate_manager\nicegui_screens\dashboard_screen.py", line 607, in _switch_screen
+    self._render_active_screen()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "f:\CR_PY\certificate_manager\nicegui_screens\dashboard_screen.py", line 619, in _render_active_screen
+    SettingsScreen(on_navigate=self._switch_screen)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "f:\CR_PY\certificate_manager\nicegui_screens\settings_screen.py", line 84, in __init__
+    self._build_ui()
+    ~~~~~~~~~~~~~~^^
+  File "f:\CR_PY\certificate_manager\nicegui_screens\settings_screen.py", line 188, in _build_ui
+    self._section_appearance()
+    ~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "f:\CR_PY\certificate_manager\nicegui_screens\settings_screen.py", line 433, in _section_appearance
+    self.theme_select = UI.select(
+                        ~~~~~~~~~^
+        "الوضع (فاتح/داكن) / Theme Mode",
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<2 lines>...
+        on_change=self._on_theme_select_change
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "f:\CR_PY\certificate_manager\nicegui_ui\ui_components.py", line 158, in select
+    return ui.select(options=options, label=label, value=value, with_input=with_input, on_change=on_change).classes(
+           ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\defaults.py", line 64, in decorated
+    return original_func(*args, **kwargs)
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\elements\select.py", line 67, in __init__
+    super().__init__(label=label, options=options, value=value, on_change=on_change, validation=validation)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\elements\mixins\label_element.py", line 15, in __init__
+    super().__init__(**kwargs)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\elements\mixins\validation_element.py", line 20, in __init__
+    super().__init__(**kwargs)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\elements\choice_element.py", line 22, in __init__
+    raise ValueError(f'Invalid value: {value}')
+ValueError: Invalid value: dark
+2026-10-20 13:41:42 [ERROR] Invalid value: dark
+Traceback (most recent call last):
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\events.py", line 474, in handle_event
+    result = cast(Callable[[], Any], handler)()
+  File "f:\CR_PY\certificate_manager\nicegui_screens\dashboard_screen.py", line 300, in <lambda>
+    "click", lambda key=item["key"]: self._switch_screen(key)
+                                     ~~~~~~~~~~~~~~~~~~~^^^^^
+  File "f:\CR_PY\certificate_manager\nicegui_screens\dashboard_screen.py", line 607, in _switch_screen
+    self._render_active_screen()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "f:\CR_PY\certificate_manager\nicegui_screens\dashboard_screen.py", line 619, in _render_active_screen
+    SettingsScreen(on_navigate=self._switch_screen)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "f:\CR_PY\certificate_manager\nicegui_screens\settings_screen.py", line 84, in __init__
+    self._build_ui()
+    ~~~~~~~~~~~~~~^^
+  File "f:\CR_PY\certificate_manager\nicegui_screens\settings_screen.py", line 188, in _build_ui
+    self._section_appearance()
+    ~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "f:\CR_PY\certificate_manager\nicegui_screens\settings_screen.py", line 433, in _section_appearance
+    self.theme_select = UI.select(
+                        ~~~~~~~~~^
+        "الوضع (فاتح/داكن) / Theme Mode",
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<2 lines>...
+        on_change=self._on_theme_select_change
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "f:\CR_PY\certificate_manager\nicegui_ui\ui_components.py", line 158, in select
+    return ui.select(options=options, label=label, value=value, with_input=with_input, on_change=on_change).classes(
+           ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\defaults.py", line 64, in decorated
+    return original_func(*args, **kwargs)
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\elements\select.py", line 67, in __init__
+    super().__init__(label=label, options=options, value=value, on_change=on_change, validation=validation)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\elements\mixins\label_element.py", line 15, in __init__
+    super().__init__(**kwargs)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\elements\mixins\validation_element.py", line 20, in __init__
+    super().__init__(**kwargs)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\elements\choice_element.py", line 22, in __init__
+    raise ValueError(f'Invalid value: {value}')
+ValueError: Invalid value: dark
+2026-10-20 13:41:42 [ERROR] Invalid value: dark
+Traceback (most recent call last):
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\events.py", line 474, in handle_event
+    result = cast(Callable[[], Any], handler)()
+  File "f:\CR_PY\certificate_manager\nicegui_screens\dashboard_screen.py", line 300, in <lambda>
+    "click", lambda key=item["key"]: self._switch_screen(key)
+                                     ~~~~~~~~~~~~~~~~~~~^^^^^
+  File "f:\CR_PY\certificate_manager\nicegui_screens\dashboard_screen.py", line 607, in _switch_screen
+    self._render_active_screen()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "f:\CR_PY\certificate_manager\nicegui_screens\dashboard_screen.py", line 619, in _render_active_screen
+    SettingsScreen(on_navigate=self._switch_screen)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "f:\CR_PY\certificate_manager\nicegui_screens\settings_screen.py", line 84, in __init__
+    self._build_ui()
+    ~~~~~~~~~~~~~~^^
+  File "f:\CR_PY\certificate_manager\nicegui_screens\settings_screen.py", line 188, in _build_ui
+    self._section_appearance()
+    ~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "f:\CR_PY\certificate_manager\nicegui_screens\settings_screen.py", line 433, in _section_appearance
+    self.theme_select = UI.select(
+                        ~~~~~~~~~^
+        "الوضع (فاتح/داكن) / Theme Mode",
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<2 lines>...
+        on_change=self._on_theme_select_change
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "f:\CR_PY\certificate_manager\nicegui_ui\ui_components.py", line 158, in select
+    return ui.select(options=options, label=label, value=value, with_input=with_input, on_change=on_change).classes(
+           ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\defaults.py", line 64, in decorated
+    return original_func(*args, **kwargs)
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\elements\select.py", line 67, in __init__
+    super().__init__(label=label, options=options, value=value, on_change=on_change, validation=validation)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\elements\mixins\label_element.py", line 15, in __init__
+    super().__init__(**kwargs)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\elements\mixins\validation_element.py", line 20, in __init__
+    super().__init__(**kwargs)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\nicegui\elements\choice_element.py", line 22, in __init__
+    raise ValueError(f'Invalid value: {value}')
+ValueError: Invalid value: dark
+2026-10-20 13:43:14 [INFO] before_load event fired. injecting pywebview object
+2026-10-20 13:43:14 [INFO] before_load event fired. injecting pywebview object
+2026-10-20 13:43:14 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-20 13:43:14 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-20 13:43:14 [INFO] _pywebviewready event fired
+2026-10-20 13:43:14 [INFO] _pywebviewready event fired
+2026-10-20 13:43:14 [INFO] loaded event fired
+2026-10-20 13:43:14 [INFO] loaded event fired
+2026-10-20 13:43:18 [INFO] Inbound sync complete: {'tables_synced': 20, 'total_rows': 6194, 'errors': []}
+2026-10-20 13:43:18 [INFO] Inbound sync complete: {'tables_synced': 20, 'total_rows': 6194, 'errors': []}
+2026-10-20 13:43:18 [INFO] before_load event fired. injecting pywebview object
+2026-10-20 13:43:18 [INFO] before_load event fired. injecting pywebview object
+2026-10-20 13:43:18 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-20 13:43:18 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-20 13:43:18 [INFO] _pywebviewready event fired
+2026-10-20 13:43:18 [INFO] _pywebviewready event fired
+2026-10-20 13:43:18 [INFO] loaded event fired
+2026-10-20 13:43:18 [INFO] loaded event fired
+2026-10-20 14:10:26 [WARNING] [WARNING][SettingsRepository.get_user_appearance] API status 422, falling back to SQLite...
+2026-10-20 14:10:27 [WARNING] Could not apply theme mode: 
+2026-10-20 14:10:27 [ERROR] UNHANDLED EXCEPTION:
+Traceback (most recent call last):
+  File "<string>", line 6, in <module>
+    print('Session user:', session.user_data, 'Role:', session.role, 'Emp_id:', session.emp_id)
+                           ^^^^^^^^^^^^^^^^^
+AttributeError: 'UserSessionState' object has no attribute 'user_data'
+
+2026-10-20 14:10:40 [WARNING] [WARNING][SettingsRepository.get_user_appearance] API status 422, falling back to SQLite...
+2026-10-20 14:10:41 [WARNING] Could not apply theme mode: 
+2026-10-20 14:10:41 [ERROR] UNHANDLED EXCEPTION:
+Traceback (most recent call last):
+  File "<string>", line 6, in <module>
+    print('Session user:', session.user, 'Role:', session.role, 'Emp_id:', session.emp_id)
+                           ^^^^^^^^^^^^
+AttributeError: 'UserSessionState' object has no attribute 'user'
+
+2026-10-20 14:11:16 [WARNING] [WARNING][SettingsRepository.get_user_appearance] API status 422, falling back to SQLite...
+2026-10-20 14:11:17 [WARNING] Could not apply theme mode: 
+2026-10-20 14:11:17 [ERROR] UNHANDLED EXCEPTION:
+Traceback (most recent call last):
+  File "<string>", line 6, in <module>
+    print('Session username:', session.username, 'Role:', session.role, 'Emp_id:', session.emp_id)
+    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\encodings\cp1252.py", line 19, in encode
+    return codecs.charmap_encode(input,self.errors,encoding_table)[0]
+           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeEncodeError: 'charmap' codec can't encode characters in position 69-73: character maps to <undefined>
+
+2026-10-20 14:11:31 [WARNING] [WARNING][SettingsRepository.get_user_appearance] API status 422, falling back to SQLite...
+2026-10-20 14:11:32 [WARNING] Could not apply theme mode: 
+2026-10-20 14:11:35 [WARNING] Could not apply theme mode: 
+2026-10-20 14:12:43 [WARNING] Could not apply theme mode: 
+2026-10-20 20:31:57 [WARNING] Could not apply theme mode: 
+2026-10-20 21:16:25 [INFO] SYSTEM STARTUP DIAGNOSTIC CHECK STARTED
+2026-10-20 21:16:25 [OK] [CHECK 1/4] FastAPI Connection Check ... [OK]
+2026-10-20 21:16:25 [OK] [CHECK 2/4] MySQL Database Connection ... [OK]
+2026-10-20 21:16:25 [OK] [CHECK 3/4] Authentication & Core SP Checks ... [OK]
+2026-10-20 21:16:25 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-10-20 21:16:25 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-10-20 21:16:25 [OK] [CHECK 4/4] Sync Engine & Local Replica Check ... [OK]
+2026-10-20 21:16:25 [OK] Status: ALL CHECKS PASSED. PROCEEDING TO LOGIN/DASHBOARD.
+2026-10-20 21:16:29 [INFO] Using WinForms / Chromium
+2026-10-20 21:16:29 [INFO] Using WinForms / Chromium
+2026-10-20 21:16:34 [INFO] before_load event fired. injecting pywebview object
+2026-10-20 21:16:34 [INFO] before_load event fired. injecting pywebview object
+2026-10-20 21:16:34 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-20 21:16:34 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-20 21:16:34 [INFO] _pywebviewready event fired
+2026-10-20 21:16:34 [INFO] _pywebviewready event fired
+2026-10-20 21:16:34 [INFO] loaded event fired
+2026-10-20 21:16:34 [INFO] loaded event fired
+2026-10-20 21:16:41 [INFO] Inbound sync complete: {'tables_synced': 20, 'total_rows': 6194, 'errors': []}
+2026-10-20 21:16:41 [INFO] Inbound sync complete: {'tables_synced': 20, 'total_rows': 6194, 'errors': []}
+2026-10-20 21:16:42 [INFO] before_load event fired. injecting pywebview object
+2026-10-20 21:16:42 [INFO] before_load event fired. injecting pywebview object
+2026-10-20 21:16:42 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-20 21:16:42 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-20 21:16:42 [INFO] _pywebviewready event fired
+2026-10-20 21:16:42 [INFO] _pywebviewready event fired
+2026-10-20 21:16:42 [INFO] loaded event fired
+2026-10-20 21:16:42 [INFO] loaded event fired
+2026-10-20 21:20:13 [INFO] before_load event fired. injecting pywebview object
+2026-10-20 21:20:13 [INFO] before_load event fired. injecting pywebview object
+2026-10-20 21:20:13 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-20 21:20:13 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-20 21:20:13 [INFO] _pywebviewready event fired
+2026-10-20 21:20:13 [INFO] _pywebviewready event fired
+2026-10-20 21:20:13 [INFO] loaded event fired
+2026-10-20 21:20:13 [INFO] loaded event fired
+2026-10-20 21:20:23 [INFO] Inbound sync complete: {'tables_synced': 20, 'total_rows': 6194, 'errors': []}
+2026-10-20 21:20:23 [INFO] Inbound sync complete: {'tables_synced': 20, 'total_rows': 6194, 'errors': []}
+2026-10-20 21:20:23 [INFO] before_load event fired. injecting pywebview object
+2026-10-20 21:20:23 [INFO] before_load event fired. injecting pywebview object
+2026-10-20 21:20:23 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-20 21:20:23 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-20 21:20:23 [INFO] _pywebviewready event fired
+2026-10-20 21:20:23 [INFO] _pywebviewready event fired
+2026-10-20 21:20:23 [INFO] loaded event fired
+2026-10-20 21:20:23 [INFO] loaded event fired
+2026-10-20 21:27:45 [INFO] before_load event fired. injecting pywebview object
+2026-10-20 21:27:45 [INFO] before_load event fired. injecting pywebview object
+2026-10-20 21:27:45 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-20 21:27:45 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-20 21:27:45 [INFO] _pywebviewready event fired
+2026-10-20 21:27:45 [INFO] _pywebviewready event fired
+2026-10-20 21:27:45 [INFO] loaded event fired
+2026-10-20 21:27:45 [INFO] loaded event fired
+2026-10-20 21:27:49 [INFO] Inbound sync complete: {'tables_synced': 20, 'total_rows': 6194, 'errors': []}
+2026-10-20 21:27:49 [INFO] Inbound sync complete: {'tables_synced': 20, 'total_rows': 6194, 'errors': []}
+2026-10-20 21:27:49 [INFO] before_load event fired. injecting pywebview object
+2026-10-20 21:27:49 [INFO] before_load event fired. injecting pywebview object
+2026-10-20 21:27:49 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-20 21:27:49 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-20 21:27:49 [INFO] _pywebviewready event fired
+2026-10-20 21:27:49 [INFO] _pywebviewready event fired
+2026-10-20 21:27:49 [INFO] loaded event fired
+2026-10-20 21:27:49 [INFO] loaded event fired
+2026-10-20 21:38:02 [ERROR] UNHANDLED EXCEPTION:
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+    from data.repositories import PermissionRepository; pr = PermissionRepository(); [print(i, p['permission_key'], p.get('name_ar')) for i, p in enumerate(pr.get_all()) if p.get('category') == 'settings']
+                                                                                      ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\encodings\cp1252.py", line 19, in encode
+    return codecs.charmap_encode(input,self.errors,encoding_table)[0]
+           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeEncodeError: 'charmap' codec can't encode characters in position 0-5: character maps to <undefined>
+
+2026-10-20 21:57:44 [ERROR] UNHANDLED EXCEPTION:
+Traceback (most recent call last):
+  File "<string>", line 3, in <module>
+    print(json.dumps([p for p in ALL_SYSTEM_PERMISSIONS if p.get('category') == 'settings'], indent=2, ensure_ascii=False))
+    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\encodings\cp1252.py", line 19, in encode
+    return codecs.charmap_encode(input,self.errors,encoding_table)[0]
+           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeEncodeError: 'charmap' codec can't encode characters in position 100-106: character maps to <undefined>
+
+2026-10-20 22:17:13 [INFO] Propagated updated role cert_officer permissions to personnel ID 8
+2026-10-20 22:17:13 [INFO] Propagated updated role cert_officer permissions to personnel ID 9
+2026-10-20 22:17:53 [INFO] Propagated updated role cert_officer permissions to personnel ID 8
+2026-10-20 22:17:53 [INFO] Propagated updated role cert_officer permissions to personnel ID 9
+2026-10-20 22:17:53 [ERROR] UNHANDLED EXCEPTION:
+Traceback (most recent call last):
+  File "C:\Users\IT_TECK\.gemini\antigravity-ide\brain\ba578cdd-20bf-4fec-934b-1c48fc4d1ac0\scratch\verify_rbac.py", line 66, in <module>
+    assert "settings:roles" in p_after_add, "FAIL: settings:roles should propagate to user 8"
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: FAIL: settings:roles should propagate to user 8
+
+2026-10-20 22:24:39 [INFO] Propagated updated role cert_officer permissions to personnel ID 8
+2026-10-20 22:24:39 [INFO] Propagated updated role cert_officer permissions to personnel ID 9
+2026-10-20 22:26:15 [INFO] Propagated updated role cert_officer permissions to personnel ID 8
+2026-10-20 22:26:15 [INFO] Propagated updated role cert_officer permissions to personnel ID 9
+2026-10-20 22:26:15 [INFO] Propagated updated role cert_officer permissions to personnel ID 8
+2026-10-20 22:26:15 [INFO] Propagated updated role cert_officer permissions to personnel ID 9
+2026-10-20 22:36:17 [INFO] SYSTEM STARTUP DIAGNOSTIC CHECK STARTED
+2026-10-20 22:36:17 [OK] [CHECK 1/4] FastAPI Connection Check ... [OK]
+2026-10-20 22:36:17 [OK] [CHECK 2/4] MySQL Database Connection ... [OK]
+2026-10-20 22:36:17 [OK] [CHECK 3/4] Authentication & Core SP Checks ... [OK]
+2026-10-20 22:36:17 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-10-20 22:36:17 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-10-20 22:36:17 [OK] [CHECK 4/4] Sync Engine & Local Replica Check ... [OK]
+2026-10-20 22:36:17 [OK] Status: ALL CHECKS PASSED. PROCEEDING TO LOGIN/DASHBOARD.
+2026-10-20 22:36:21 [INFO] Using WinForms / Chromium
+2026-10-20 22:36:21 [INFO] Using WinForms / Chromium
+2026-10-20 22:36:26 [INFO] before_load event fired. injecting pywebview object
+2026-10-20 22:36:26 [INFO] before_load event fired. injecting pywebview object
+2026-10-20 22:36:26 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-20 22:36:26 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-20 22:36:27 [INFO] _pywebviewready event fired
+2026-10-20 22:36:27 [INFO] _pywebviewready event fired
+2026-10-20 22:36:27 [INFO] loaded event fired
+2026-10-20 22:36:27 [INFO] loaded event fired
+2026-10-20 22:36:31 [INFO] Inbound sync complete: {'tables_synced': 20, 'total_rows': 6197, 'errors': []}
+2026-10-20 22:36:31 [INFO] Inbound sync complete: {'tables_synced': 20, 'total_rows': 6197, 'errors': []}
+2026-10-20 22:36:31 [INFO] before_load event fired. injecting pywebview object
+2026-10-20 22:36:31 [INFO] before_load event fired. injecting pywebview object
+2026-10-20 22:36:31 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-20 22:36:31 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-20 22:36:31 [INFO] _pywebviewready event fired
+2026-10-20 22:36:31 [INFO] _pywebviewready event fired
+2026-10-20 22:36:31 [INFO] loaded event fired
+2026-10-20 22:36:31 [INFO] loaded event fired
+2026-10-20 22:37:08 [INFO] Propagated updated role cert_officer permissions to personnel ID 8
+2026-10-20 22:37:08 [INFO] Propagated updated role cert_officer permissions to personnel ID 9
+2026-10-20 22:54:45 [INFO] SYSTEM STARTUP DIAGNOSTIC CHECK STARTED
+2026-10-20 22:54:45 [OK] [CHECK 1/4] FastAPI Connection Check ... [OK]
+2026-10-20 22:54:45 [OK] [CHECK 2/4] MySQL Database Connection ... [OK]
+2026-10-20 22:54:45 [OK] [CHECK 3/4] Authentication & Core SP Checks ... [OK]
+2026-10-20 22:54:45 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-10-20 22:54:45 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-10-20 22:54:45 [OK] [CHECK 4/4] Sync Engine & Local Replica Check ... [OK]
+2026-10-20 22:54:45 [OK] Status: ALL CHECKS PASSED. PROCEEDING TO LOGIN/DASHBOARD.
+2026-10-20 22:54:49 [INFO] Using WinForms / Chromium
+2026-10-20 22:54:49 [INFO] Using WinForms / Chromium
+2026-10-20 22:54:52 [INFO] before_load event fired. injecting pywebview object
+2026-10-20 22:54:52 [INFO] before_load event fired. injecting pywebview object
+2026-10-20 22:54:52 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-20 22:54:52 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-20 22:54:52 [INFO] _pywebviewready event fired
+2026-10-20 22:54:52 [INFO] _pywebviewready event fired
+2026-10-20 22:54:52 [INFO] loaded event fired
+2026-10-20 22:54:52 [INFO] loaded event fired
+2026-10-20 22:54:57 [INFO] Inbound sync complete: {'tables_synced': 20, 'total_rows': 6197, 'errors': []}
+2026-10-20 22:54:57 [INFO] Inbound sync complete: {'tables_synced': 20, 'total_rows': 6197, 'errors': []}
+2026-10-20 22:54:57 [INFO] before_load event fired. injecting pywebview object
+2026-10-20 22:54:57 [INFO] before_load event fired. injecting pywebview object
+2026-10-20 22:54:57 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-20 22:54:57 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-20 22:54:57 [INFO] _pywebviewready event fired
+2026-10-20 22:54:57 [INFO] _pywebviewready event fired
+2026-10-20 22:54:57 [INFO] loaded event fired
+2026-10-20 22:54:57 [INFO] loaded event fired
+2026-10-20 22:55:04 [INFO] before_load event fired. injecting pywebview object
+2026-10-20 22:55:04 [INFO] before_load event fired. injecting pywebview object
+2026-10-20 22:55:04 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-20 22:55:04 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-20 22:55:04 [INFO] _pywebviewready event fired
+2026-10-20 22:55:04 [INFO] _pywebviewready event fired
+2026-10-20 22:55:04 [INFO] loaded event fired
+2026-10-20 22:55:04 [INFO] loaded event fired
+2026-10-20 22:55:12 [INFO] Inbound sync complete: {'tables_synced': 20, 'total_rows': 6197, 'errors': []}
+2026-10-20 22:55:12 [INFO] Inbound sync complete: {'tables_synced': 20, 'total_rows': 6197, 'errors': []}
+2026-10-20 22:55:12 [INFO] before_load event fired. injecting pywebview object
+2026-10-20 22:55:12 [INFO] before_load event fired. injecting pywebview object
+2026-10-20 22:55:12 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-20 22:55:12 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-20 22:55:12 [INFO] _pywebviewready event fired
+2026-10-20 22:55:12 [INFO] _pywebviewready event fired
+2026-10-20 22:55:12 [INFO] loaded event fired
+2026-10-20 22:55:12 [INFO] loaded event fired
+2026-10-20 22:58:35 [INFO] before_load event fired. injecting pywebview object
+2026-10-20 22:58:35 [INFO] before_load event fired. injecting pywebview object
+2026-10-20 22:58:35 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-20 22:58:35 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-20 22:58:35 [INFO] _pywebviewready event fired
+2026-10-20 22:58:35 [INFO] _pywebviewready event fired
+2026-10-20 22:58:35 [INFO] loaded event fired
+2026-10-20 22:58:35 [INFO] loaded event fired
+2026-10-20 22:58:43 [INFO] Inbound sync complete: {'tables_synced': 20, 'total_rows': 6197, 'errors': []}
+2026-10-20 22:58:43 [INFO] Inbound sync complete: {'tables_synced': 20, 'total_rows': 6197, 'errors': []}
+2026-10-20 22:58:43 [INFO] before_load event fired. injecting pywebview object
+2026-10-20 22:58:43 [INFO] before_load event fired. injecting pywebview object
+2026-10-20 22:58:43 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-20 22:58:43 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-20 22:58:43 [INFO] _pywebviewready event fired
+2026-10-20 22:58:43 [INFO] _pywebviewready event fired
+2026-10-20 22:58:43 [INFO] loaded event fired
+2026-10-20 22:58:43 [INFO] loaded event fired
+2026-10-20 23:30:08 [INFO] before_load event fired. injecting pywebview object
+2026-10-20 23:30:08 [INFO] before_load event fired. injecting pywebview object
+2026-10-20 23:30:08 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-20 23:30:08 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-20 23:30:08 [INFO] _pywebviewready event fired
+2026-10-20 23:30:08 [INFO] _pywebviewready event fired
+2026-10-20 23:30:08 [INFO] loaded event fired
+2026-10-20 23:30:08 [INFO] loaded event fired
+2026-10-21 00:06:28 [INFO] SYSTEM STARTUP DIAGNOSTIC CHECK STARTED
+2026-10-21 00:06:28 [OK] [CHECK 1/4] FastAPI Connection Check ... [OK]
+2026-10-21 00:06:28 [OK] [CHECK 2/4] MySQL Database Connection ... [OK]
+2026-10-21 00:06:28 [OK] [CHECK 3/4] Authentication & Core SP Checks ... [OK]
+2026-10-21 00:06:28 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-10-21 00:06:28 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-10-21 00:06:28 [OK] [CHECK 4/4] Sync Engine & Local Replica Check ... [OK]
+2026-10-21 00:06:28 [OK] Status: ALL CHECKS PASSED. PROCEEDING TO LOGIN/DASHBOARD.
+2026-10-21 00:06:31 [INFO] Using WinForms / Chromium
+2026-10-21 00:06:31 [INFO] Using WinForms / Chromium
+2026-10-21 00:06:35 [INFO] before_load event fired. injecting pywebview object
+2026-10-21 00:06:35 [INFO] before_load event fired. injecting pywebview object
+2026-10-21 00:06:35 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-21 00:06:35 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-21 00:06:35 [INFO] _pywebviewready event fired
+2026-10-21 00:06:35 [INFO] _pywebviewready event fired
+2026-10-21 00:06:35 [INFO] loaded event fired
+2026-10-21 00:06:35 [INFO] loaded event fired
+2026-10-21 00:06:38 [INFO] Inbound sync complete: {'tables_synced': 20, 'total_rows': 6197, 'errors': []}
+2026-10-21 00:06:38 [INFO] Inbound sync complete: {'tables_synced': 20, 'total_rows': 6197, 'errors': []}
+2026-10-21 00:06:39 [INFO] before_load event fired. injecting pywebview object
+2026-10-21 00:06:39 [INFO] before_load event fired. injecting pywebview object
+2026-10-21 00:06:39 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-21 00:06:39 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-21 00:06:39 [INFO] _pywebviewready event fired
+2026-10-21 00:06:39 [INFO] _pywebviewready event fired
+2026-10-21 00:06:39 [INFO] loaded event fired
+2026-10-21 00:06:39 [INFO] loaded event fired
+2026-10-21 00:09:31 [INFO] before_load event fired. injecting pywebview object
+2026-10-21 00:09:31 [INFO] before_load event fired. injecting pywebview object
+2026-10-21 00:09:31 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-21 00:09:31 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-21 00:09:31 [INFO] _pywebviewready event fired
+2026-10-21 00:09:31 [INFO] _pywebviewready event fired
+2026-10-21 00:09:31 [INFO] loaded event fired
+2026-10-21 00:09:31 [INFO] loaded event fired
+2026-10-21 00:09:45 [INFO] Inbound sync complete: {'tables_synced': 20, 'total_rows': 6197, 'errors': []}
+2026-10-21 00:09:45 [INFO] Inbound sync complete: {'tables_synced': 20, 'total_rows': 6197, 'errors': []}
+2026-10-21 00:09:46 [INFO] before_load event fired. injecting pywebview object
+2026-10-21 00:09:46 [INFO] before_load event fired. injecting pywebview object
+2026-10-21 00:09:46 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-21 00:09:46 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-21 00:09:46 [INFO] _pywebviewready event fired
+2026-10-21 00:09:46 [INFO] _pywebviewready event fired
+2026-10-21 00:09:46 [INFO] loaded event fired
+2026-10-21 00:09:46 [INFO] loaded event fired
+2026-10-21 00:10:32 [INFO] before_load event fired. injecting pywebview object
+2026-10-21 00:10:32 [INFO] before_load event fired. injecting pywebview object
+2026-10-21 00:10:32 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-21 00:10:32 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-21 00:10:32 [INFO] _pywebviewready event fired
+2026-10-21 00:10:32 [INFO] _pywebviewready event fired
+2026-10-21 00:10:32 [INFO] loaded event fired
+2026-10-21 00:10:32 [INFO] loaded event fired
+2026-10-21 00:10:37 [INFO] Inbound sync complete: {'tables_synced': 20, 'total_rows': 6197, 'errors': []}
+2026-10-21 00:10:37 [INFO] Inbound sync complete: {'tables_synced': 20, 'total_rows': 6197, 'errors': []}
+2026-10-21 00:10:37 [INFO] before_load event fired. injecting pywebview object
+2026-10-21 00:10:37 [INFO] before_load event fired. injecting pywebview object
+2026-10-21 00:10:37 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-21 00:10:37 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-21 00:10:37 [INFO] _pywebviewready event fired
+2026-10-21 00:10:37 [INFO] _pywebviewready event fired
+2026-10-21 00:10:38 [INFO] loaded event fired
+2026-10-21 00:10:38 [INFO] loaded event fired
+2026-10-21 00:11:24 [INFO] Propagated updated role cert_officer permissions to personnel ID 8
+2026-10-21 00:11:25 [INFO] Propagated updated role cert_officer permissions to personnel ID 9
+2026-10-21 00:13:33 [INFO] before_load event fired. injecting pywebview object
+2026-10-21 00:13:33 [INFO] before_load event fired. injecting pywebview object
+2026-10-21 00:13:33 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-21 00:13:33 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-21 00:13:33 [INFO] _pywebviewready event fired
+2026-10-21 00:13:33 [INFO] _pywebviewready event fired
+2026-10-21 00:13:33 [INFO] loaded event fired
+2026-10-21 00:13:33 [INFO] loaded event fired
+2026-10-21 00:13:39 [INFO] Inbound sync complete: {'tables_synced': 20, 'total_rows': 6201, 'errors': []}
+2026-10-21 00:13:39 [INFO] Inbound sync complete: {'tables_synced': 20, 'total_rows': 6201, 'errors': []}
+2026-10-21 00:13:39 [INFO] before_load event fired. injecting pywebview object
+2026-10-21 00:13:39 [INFO] before_load event fired. injecting pywebview object
+2026-10-21 00:13:39 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-21 00:13:39 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-21 00:13:39 [INFO] _pywebviewready event fired
+2026-10-21 00:13:39 [INFO] _pywebviewready event fired
+2026-10-21 00:13:39 [INFO] loaded event fired
+2026-10-21 00:13:39 [INFO] loaded event fired
+2026-10-21 00:14:11 [INFO] before_load event fired. injecting pywebview object
+2026-10-21 00:14:11 [INFO] before_load event fired. injecting pywebview object
+2026-10-21 00:14:11 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-21 00:14:11 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-21 00:14:11 [INFO] _pywebviewready event fired
+2026-10-21 00:14:11 [INFO] _pywebviewready event fired
+2026-10-21 00:14:11 [INFO] loaded event fired
+2026-10-21 00:14:11 [INFO] loaded event fired
+2026-10-21 00:14:15 [INFO] Inbound sync complete: {'tables_synced': 20, 'total_rows': 6201, 'errors': []}
+2026-10-21 00:14:15 [INFO] Inbound sync complete: {'tables_synced': 20, 'total_rows': 6201, 'errors': []}
+2026-10-21 00:14:15 [INFO] before_load event fired. injecting pywebview object
+2026-10-21 00:14:15 [INFO] before_load event fired. injecting pywebview object
+2026-10-21 00:14:15 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-21 00:14:15 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-21 00:14:15 [INFO] _pywebviewready event fired
+2026-10-21 00:14:15 [INFO] _pywebviewready event fired
+2026-10-21 00:14:15 [INFO] loaded event fired
+2026-10-21 00:14:15 [INFO] loaded event fired
+2026-10-21 00:14:36 [INFO] Propagated updated role auditor permissions to personnel ID 9
+2026-10-21 00:14:45 [INFO] before_load event fired. injecting pywebview object
+2026-10-21 00:14:45 [INFO] before_load event fired. injecting pywebview object
+2026-10-21 00:14:45 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-21 00:14:45 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-21 00:14:45 [INFO] _pywebviewready event fired
+2026-10-21 00:14:45 [INFO] _pywebviewready event fired
+2026-10-21 00:14:45 [INFO] loaded event fired
+2026-10-21 00:14:45 [INFO] loaded event fired
+2026-10-21 00:14:53 [INFO] Inbound sync complete: {'tables_synced': 20, 'total_rows': 6201, 'errors': []}
+2026-10-21 00:14:53 [INFO] Inbound sync complete: {'tables_synced': 20, 'total_rows': 6201, 'errors': []}
+2026-10-21 00:14:54 [INFO] before_load event fired. injecting pywebview object
+2026-10-21 00:14:54 [INFO] before_load event fired. injecting pywebview object
+2026-10-21 00:14:54 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-21 00:14:54 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-21 00:14:54 [INFO] _pywebviewready event fired
+2026-10-21 00:14:54 [INFO] _pywebviewready event fired
+2026-10-21 00:14:54 [INFO] loaded event fired
+2026-10-21 00:14:54 [INFO] loaded event fired

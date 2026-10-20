@@ -1,0 +1,102 @@
+{
+  "semester - Temp - En": {
+    "display_name": "En, Semester, cr",
+    "file": "semester - Temp - En.docx",
+    "lang": "En",
+    "lang_ar": "إنكليزي",
+    "system": "Semester",
+    "system_ar": "نظام المقررات (فصلي)",
+    "sbs": false,
+    "type_ar": "بدون درجات"
+  },
+  "semester - Temp - En - D - SBS": {
+    "display_name": "En, Semester, SBS, cr",
+    "file": "semester - Temp - En - D - SBS.docx",
+    "lang": "En",
+    "lang_ar": "إنكليزي",
+    "system": "Semester",
+    "system_ar": "نظام المقررات (فصلي)",
+    "sbs": true,
+    "type_ar": "درجات مقترنة SBS"
+  },
+  "semester - Temp - Ar": {
+    "display_name": "Ar, Semester, cr",
+    "file": "semester - Temp - Ar.docx",
+    "lang": "Ar",
+    "lang_ar": "عربي",
+    "system": "Semester",
+    "system_ar": "نظام المقررات (فصلي)",
+    "sbs": false,
+    "type_ar": "بدون درجات"
+  },
+  "semester - Temp - Ar - D - SBS": {
+    "display_name": "Ar, Semester, SBS, cr",
+    "file": "semester - Temp - Ar - D - SBS.docx",
+    "lang": "Ar",
+    "lang_ar": "عربي",
+    "system": "Semester",
+    "system_ar": "نظام المقررات (فصلي)",
+    "sbs": true,
+    "type_ar": "درجات مقترنة SBS"
+  },
+  "year - Temp - En": {
+    "display_name": "En, Annual, cr",
+    "file": "year - Temp - En.docx",
+    "lang": "En",
+    "lang_ar": "إنكليزي",
+    "system": "Annual",
+    "system_ar": "النظام السنوي",
+    "sbs": false,
+    "type_ar": "بدون درجات"
+  },
+  "year - Temp - En - D - SBS": {
+    "display_name": "En, Annual, SBS, cr",
+    "file": "year - Temp - En - D - SBS.docx",
+    "lang": "En",
+    "lang_ar": "إنكليزي",
+    "system": "Annual",
+    "system_ar": "النظام السنوي",
+    "sbs": true,
+    "type_ar": "درجات مقترنة SBS"
+  },
+  "year - Temp - Ar": {
+    "display_name": "Ar, Annual, cr",
+    "file": "year - Temp - Ar.docx",
+    "lang": "Ar",
+    "lang_ar": "عربي",
+    "system": "Annual",
+    "system_ar": "النظام السنوي",
+    "sbs": false,
+    "type_ar": "بدون درجات"
+  },
+  "year - Temp - Ar - D - SBS": {
+    "display_name": "Ar, Annual, SBS, cr",
+    "file": "year - Temp - Ar - D - SBS.docx",
+    "lang": "Ar",
+    "lang_ar": "عربي",
+    "system": "Annual",
+    "system_ar": "النظام السنوي",
+    "sbs": true,
+    "type_ar": "درجات مقترنة SBS"
+  },
+  "master - Temp - Ar": {
+    "display_name": "Ar, Master, cr",
+    "file": "master - Temp - Ar.docx",
+    "lang": "Ar",
+    "lang_ar": "عربي",
+    "system": "Master",
+    "system_ar": "ماجستير (دراسات عليا)",
+    "sbs": false,
+    "type_ar": "وثيقة ماجستير"
+  },
+  "master - Temp - En": {
+    "display_name": "En, Master, cr",
+    "file": "master - Temp - En.docx",
+    "lang": "En",
+    "lang_ar": "إنكليزي",
+    "system": "Master",
+    "system_ar": "ماجستير (دراسات عليا)",
+    "sbs": false,
+    "type_ar": "وثيقة ماجستير"
+  }
+}

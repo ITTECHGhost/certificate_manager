@@ -18,7 +18,13 @@ def safe_cast(val: Any, target_type: type = int, default_val: Any = 0) -> Any:
 
 Q_COURSES_SEMESTER_BY_STAGE = '''
 SELECT
+    CASE 
+        WHEN ap.academic_year IS NULL OR ap.academic_year = '' THEN '' 
+        WHEN ap.academic_year LIKE '%-%' THEN ap.academic_year 
+        ELSE ap.academic_year || ' - ' || CAST(CAST(ap.academic_year AS INTEGER) + 1 AS TEXT) 
+    END AS academic_year_formatted,
     ap.academic_year,
+    ap.stage_number AS stage_number,
     ap.stage_number AS period_stage,
     COALESCE(c.stage_number, ap.stage_number) AS course_curriculum_stage,
     COALESCE(ap.semester_num, 1) AS semester_num,
@@ -31,7 +37,7 @@ SELECT
     COALESCE(c.credit_hours, 0) AS unit,
     MAX(COALESCE(e.score, 0.0)) AS mark,
     MAX(COALESCE(e.passed_round, 1)) AS passed_round,
-    CAST(ap.stage_number AS TEXT) AS grouping_key,
+    CAST(ap.stage_number AS TEXT) || '_' || CAST(COALESCE(ap.semester_num, 1) AS TEXT) AS grouping_key,
     1 AS result_status_code,
     'PASSED' AS result_status_label
 FROM (SELECT * FROM academic_periods UNION ALL SELECT * FROM local_academic_periods) ap
@@ -39,8 +45,8 @@ JOIN (SELECT * FROM enrollments UNION ALL SELECT * FROM local_enrollments) e ON 
 JOIN courses c ON CAST(e.course_id AS INTEGER) = CAST(c.id AS INTEGER) OR e.course_id = c.id
 WHERE (CAST(ap.student_id AS INTEGER) = CAST(? AS INTEGER) OR ap.student_id = ?)
   AND COALESCE(e.score, 0.0) >= 50
-GROUP BY ap.academic_year, ap.stage_number, c.id
-ORDER BY ap.academic_year ASC, COALESCE(ap.semester_num, 1) ASC, c.name_ar ASC;
+GROUP BY ap.stage_number, COALESCE(ap.semester_num, 1), c.id
+ORDER BY ap.stage_number ASC, COALESCE(ap.semester_num, 1) ASC, c.name_ar ASC;
 '''
 
 Q_COURSES_SEMESTER_BY_YEAR = '''
@@ -187,11 +193,11 @@ def get_offline_academic_courses(student_id: int, grouping_mode: str = "DEFAULT"
             return sqlite_read_all(Q_COURSES_YEARLY_BY_PERIOD_STAGE, params) or []
         elif mode == "BY_CURRICULUM_STAGE":
             return sqlite_read_all(Q_COURSES_YEARLY_BY_CURRICULUM_STAGE, params) or []
-        elif mode == "BY_ByAcademicYear":
+        elif mode in ("BY_ByAcademicYear", "BY_ACADEMIC_YEAR"):
             return sqlite_read_all(Q_COURSES_YEARLY_BY_ACADEMIC_YEAR, params) or []
         else:
-            # DEFAULT (Yearly Default -> BY_PERIOD_STAGE)
-            return sqlite_read_all(Q_COURSES_YEARLY_BY_PERIOD_STAGE, params) or []
+            # DEFAULT (Yearly Default -> groups by academic year, matching sp_GetCertificate_Courses_Yearly_ByAcademicDefualte)
+            return sqlite_read_all(Q_COURSES_YEARLY_BY_ACADEMIC_YEAR, params) or []
 
 
 
@@ -404,12 +410,14 @@ def get_offline_flat_yearly_courses(student_id: int) -> List[Dict[str, Any]]:
 def get_offline_issued_certificates_by_student(student_id: int) -> List[Dict[str, Any]]:
     st_id = safe_cast(student_id, int, 0)
     return sqlite_read_all(
-        "SELECT ic.id, ic.student_id, ic.to_title, ic.template_type, ic.issue_date, "
+        "SELECT ic.id, ic.student_id, ic.to_title, ic.template_type, ic.certificate_number, ic.issue_date, "
         "s.full_name_ar, s.full_name_en "
         "FROM ("
-        "  SELECT id, student_id, to_title, template_type, issue_date FROM issued_certificates "
+        "  SELECT id, student_id, to_title, template_type, certificate_number, issue_date FROM issued_certificates "
         "  UNION ALL "
-        "  SELECT id, student_id, to_title, template_type, issue_date FROM local_issued_certificates "
+        "  SELECT id, student_id, to_title, template_type, certificate_number, issue_date FROM local_issued_certificates "
+        "  WHERE id NOT IN (SELECT id FROM issued_certificates) "
+        "    AND (certificate_number IS NULL OR certificate_number = '' OR certificate_number NOT IN (SELECT certificate_number FROM issued_certificates WHERE certificate_number IS NOT NULL AND certificate_number != '')) "
         ") ic "
         "LEFT JOIN ("
         "  SELECT id, full_name_ar, full_name_en FROM students "
@@ -425,12 +433,14 @@ def get_offline_issued_certificates_by_student(student_id: int) -> List[Dict[str
 def get_offline_issued_certificate_by_id(cert_id: int) -> Optional[Dict[str, Any]]:
     c_id = safe_cast(cert_id, int, 0)
     return sqlite_read_one(
-        "SELECT ic.id, ic.student_id, ic.to_title, ic.template_type, ic.issue_date, "
+        "SELECT ic.id, ic.student_id, ic.to_title, ic.template_type, ic.certificate_number, ic.issue_date, "
         "s.full_name_ar, s.full_name_en "
         "FROM ("
-        "  SELECT id, student_id, to_title, template_type, issue_date FROM issued_certificates "
+        "  SELECT id, student_id, to_title, template_type, certificate_number, issue_date FROM issued_certificates "
         "  UNION ALL "
-        "  SELECT id, student_id, to_title, template_type, issue_date FROM local_issued_certificates "
+        "  SELECT id, student_id, to_title, template_type, certificate_number, issue_date FROM local_issued_certificates "
+        "  WHERE id NOT IN (SELECT id FROM issued_certificates) "
+        "    AND (certificate_number IS NULL OR certificate_number = '' OR certificate_number NOT IN (SELECT certificate_number FROM issued_certificates WHERE certificate_number IS NOT NULL AND certificate_number != '')) "
         ") ic "
         "LEFT JOIN ("
         "  SELECT id, full_name_ar, full_name_en FROM students "
@@ -446,22 +456,33 @@ def get_offline_issued_certificates_report(
     start_date: Optional[str] = None,
     end_date: Optional[str] = None,
     dept_id: Optional[int] = None,
-    template_type: Optional[str] = None
+    template_type: Optional[str] = None,
+    graduation_year: Optional[int] = None,
+    study_system_id: Optional[int] = None,
+    search_text: Optional[str] = None
 ) -> List[Dict[str, Any]]:
     query = (
-        "SELECT ic.id AS certificate_id, ic.id, ic.student_id, ic.to_title, ic.template_type, ic.issue_date, "
-        "s.full_name_ar, s.full_name_en, d.name_ar AS department_name, d.name_ar AS dept_name_ar "
+        "SELECT ic.id AS certificate_id, ic.id, ic.student_id, ic.to_title, ic.template_type, ic.certificate_number, "
+        "COALESCE(ic.issue_date, '1970-01-01') AS issue_date, "
+        "s.full_name_ar, s.full_name_en, s.average, "
+        "COALESCE(d.id, 0) AS department_id, d.name_ar AS department_name_ar, d.name_ar AS department_name, "
+        "COALESCE(ss.id, 0) AS study_system_id, ss.name_ar AS study_system_name_ar, ss.study_day_type, "
+        "COALESCE(go2.graduation_year, CAST(strftime('%Y', s.graduation_date) AS INTEGER), 0) AS graduation_year "
         "FROM ("
-        "  SELECT id, student_id, to_title, template_type, issue_date FROM issued_certificates "
+        "  SELECT id, student_id, to_title, template_type, certificate_number, issue_date FROM issued_certificates "
         "  UNION ALL "
-        "  SELECT id, student_id, to_title, template_type, issue_date FROM local_issued_certificates "
+        "  SELECT id, student_id, to_title, template_type, certificate_number, issue_date FROM local_issued_certificates "
+        "  WHERE id NOT IN (SELECT id FROM issued_certificates) "
+        "    AND (certificate_number IS NULL OR certificate_number = '' OR certificate_number NOT IN (SELECT certificate_number FROM issued_certificates WHERE certificate_number IS NOT NULL AND certificate_number != '')) "
         ") ic "
         "LEFT JOIN ("
-        "  SELECT id, full_name_ar, full_name_en, department_id FROM students "
+        "  SELECT id, full_name_ar, full_name_en, department_id, study_system_id, order_id, average, graduation_date FROM students "
         "  UNION ALL "
-        "  SELECT id, full_name_ar, full_name_en, department_id FROM local_students "
+        "  SELECT id, full_name_ar, full_name_en, department_id, study_system_id, order_id, average, graduation_date FROM local_students "
         ") s ON ic.student_id = s.id "
         "LEFT JOIN departments d ON s.department_id = d.id "
+        "LEFT JOIN study_systems ss ON s.study_system_id = ss.id "
+        "LEFT JOIN graduation_orders go2 ON s.order_id = go2.id "
         "WHERE 1=1"
     )
     params = []
@@ -471,29 +492,53 @@ def get_offline_issued_certificates_report(
     if end_date:
         query += " AND ic.issue_date <= ?"
         params.append(end_date)
-    if dept_id is not None:
+    if dept_id is not None and dept_id != 0:
         query += " AND s.department_id = ?"
         params.append(safe_cast(dept_id, int, 0))
     if template_type:
         query += " AND ic.template_type = ?"
         params.append(template_type)
+    if graduation_year is not None and graduation_year != 0:
+        query += " AND COALESCE(go2.graduation_year, CAST(strftime('%Y', s.graduation_date) AS INTEGER), 0) = ?"
+        params.append(safe_cast(graduation_year, int, 0))
+    if study_system_id is not None and study_system_id != 0:
+        query += " AND s.study_system_id = ?"
+        params.append(safe_cast(study_system_id, int, 0))
+    if search_text:
+        st = f"%{search_text.strip()}%"
+        query += " AND (ic.certificate_number LIKE ? OR s.full_name_ar LIKE ? OR s.full_name_en LIKE ?)"
+        params.extend([st, st, st])
 
     query += " ORDER BY ic.issue_date DESC, ic.id DESC"
     return sqlite_read_all(query, tuple(params)) or []
+
+
+def get_offline_latest_certificate_number() -> Optional[str]:
+    row = sqlite_read_one(
+        "SELECT certificate_number FROM ("
+        "  SELECT id, certificate_number FROM issued_certificates "
+        "  UNION ALL "
+        "  SELECT id, certificate_number FROM local_issued_certificates "
+        ") WHERE certificate_number IS NOT NULL AND certificate_number != '' "
+        "ORDER BY id DESC LIMIT 1"
+    )
+    return row["certificate_number"] if row else None
 
 
 def insert_offline_issued_certificate(
     student_id: int,
     to_title: str,
     template_type: str,
-    issue_date: str
+    issue_date: str,
+    certificate_number: Optional[str] = None
 ) -> int:
     from sync_engine import log_offline_insert, get_local_connection
     payload = {
         "student_id": safe_cast(student_id, int, 0),
         "to_title": str(to_title or "من يهمه الأمر"),
         "template_type": str(template_type or "ARABIC"),
-        "issue_date": str(issue_date or "")
+        "issue_date": str(issue_date or ""),
+        "certificate_number": str(certificate_number or "")
     }
 
     local_id = -1
@@ -501,8 +546,8 @@ def insert_offline_issued_certificate(
         conn = get_local_connection()
         try:
             cur = conn.execute(
-                "INSERT INTO issued_certificates (student_id, to_title, template_type, issue_date) VALUES (?, ?, ?, ?)",
-                (payload["student_id"], payload["to_title"], payload["template_type"], payload["issue_date"])
+                "INSERT INTO issued_certificates (student_id, to_title, template_type, issue_date, certificate_number) VALUES (?, ?, ?, ?, ?)",
+                (payload["student_id"], payload["to_title"], payload["template_type"], payload["issue_date"], payload["certificate_number"])
             )
             conn.commit()
             local_id = cur.lastrowid
@@ -521,7 +566,8 @@ def update_offline_issued_certificate(
     cert_id: int,
     to_title: Optional[str] = None,
     template_type: Optional[str] = None,
-    issue_date: Optional[str] = None
+    issue_date: Optional[str] = None,
+    certificate_number: Optional[str] = None
 ) -> None:
     from sync_engine import get_local_connection
     c_id = safe_cast(cert_id, int, 0)
@@ -531,9 +577,19 @@ def update_offline_issued_certificate(
             "UPDATE issued_certificates SET "
             "to_title = COALESCE(?, to_title), "
             "template_type = COALESCE(?, template_type), "
-            "issue_date = COALESCE(?, issue_date) "
+            "issue_date = COALESCE(?, issue_date), "
+            "certificate_number = COALESCE(?, certificate_number) "
             "WHERE id = ?",
-            (to_title, template_type, issue_date, c_id)
+            (to_title, template_type, issue_date, certificate_number, c_id)
+        )
+        conn.execute(
+            "UPDATE local_issued_certificates SET "
+            "to_title = COALESCE(?, to_title), "
+            "template_type = COALESCE(?, template_type), "
+            "issue_date = COALESCE(?, issue_date), "
+            "certificate_number = COALESCE(?, certificate_number) "
+            "WHERE id = ?",
+            (to_title, template_type, issue_date, certificate_number, c_id)
         )
         conn.commit()
     finally:
@@ -546,6 +602,13 @@ def delete_offline_issued_certificate(cert_id: int) -> None:
     conn = get_local_connection()
     try:
         conn.execute("DELETE FROM issued_certificates WHERE id = ?", (c_id,))
+        conn.execute("DELETE FROM local_issued_certificates WHERE id = ?", (c_id,))
+        conn.execute("DELETE FROM sync_queue WHERE temp_id = ?", (c_id,))
+        if c_id > 0:
+            conn.execute(
+                "INSERT INTO sync_queue (table_name, operation, temp_id, payload) VALUES ('issued_certificates', 'DELETE', ?, '{}')",
+                (c_id,)
+            )
         conn.commit()
     finally:
         conn.close()

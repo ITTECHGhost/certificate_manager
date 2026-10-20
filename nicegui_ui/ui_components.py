@@ -62,6 +62,12 @@ class UI:
         text = "متصل / Online" if online else "غير متصل / Offline"
         return ui.label(f"{dot} {text}").classes(f"px-3 py-1.5 rounded-xl text-xs font-bold transition-colors {status_cls}")
 
+    @staticmethod
+    def notify(message, **kwargs):
+        """Resilient notification wrapper delegating directly to ui.notify."""
+        msg_str = str(message) if isinstance(message, Exception) else str(message)
+        return ui.notify(msg_str, **kwargs)
+
     # ── Section Headers ─────────────────────────────────────────────────────
 
     @staticmethod

@@ -1,7 +1,7 @@
 import logging
 from nicegui import ui
 from nicegui_ui.ui_components import UI
-from data.repositories import PersonnelRepository, OfflineModeError
+from data.repositories import PersonnelRepository, RoleRepository, OfflineModeError
 from nicegui_screens.graduation_orders_screen import extract_event_value
 
 log = logging.getLogger(__name__)
@@ -22,6 +22,7 @@ class PersonnelScreen:
 
     def __init__(self):
         self.repo = PersonnelRepository()
+        self.role_repo = RoleRepository()
         self.current_limit = 25
         self.current_offset = 0
         self.search_term = ""
@@ -167,7 +168,10 @@ class PersonnelScreen:
             with ui.row().classes("items-center gap-3 shrink-0 flex-nowrap"):
                 with ui.column().classes("items-center gap-0 shrink-0 text-center"):
                     ui.label("الصلاحية / Role").classes("text-[10px] app-text-muted font-semibold")
-                    ui.label(role).classes("text-xs font-bold px-2.5 py-1 rounded-lg bg-[var(--bg-card)] border border-[var(--border-default)] app-text-primary")
+                    assigned_r_id = self.role_repo.get_user_role_id(pid, user_dict=row)
+                    r_def = self.role_repo.get_by_id(assigned_r_id)
+                    matched_r = r_def.get("name_ar") if r_def else assigned_r_id
+                    ui.label(matched_r).classes("text-xs font-bold px-2.5 py-1 rounded-lg bg-[var(--bg-card)] border border-[var(--border-default)] app-text-primary")
 
                 with ui.column().classes("items-center gap-0 shrink-0 text-center"):
                     ui.label("ترتيب التوقيع / Order").classes("text-[10px] app-text-muted font-semibold")
@@ -245,20 +249,37 @@ class PersonnelScreen:
                                 value=""
                             ).classes("flex-1 text-sm").props("type=password")
 
-                            role_val = str(existing_data.get("personnel_role") or "user") if existing_data else "user"
-                            role_options = {
-                                "user": "مستخدم / User",
-                                "admin": "مسؤول / Admin",
-                                "signer": "موقع / Signer",
-                            }
-                            if role_val not in role_options:
-                                role_options[role_val] = role_val
+                            available_roles = self.role_repo.get_all()
+                            role_options = {r["id"]: f"{r['name_ar']} / {r['name_en']}" for r in available_roles}
+                            for k in ("user", "admin", "signer"):
+                                if k not in role_options:
+                                    role_options[k] = k
+
+                            init_role = "user"
+                            if existing_data:
+                                pid = existing_data.get("id")
+                                init_role = self.role_repo.get_user_role_id(pid) if pid else "user"
 
                             role_inp = UI.select(
-                                "الصلاحية / Role",
+                                "الدور والمسؤولية / Role & Responsibility",
                                 options=role_options,
-                                value=role_val
-                            ).classes("w-48 text-sm")
+                                value=init_role
+                            ).classes("w-72 text-sm")
+
+                        # Dynamic summary tag for selected role capabilities
+                        role_preview_label = ui.label("").classes("text-xs font-semibold text-emerald-400 mt-1")
+
+                        def _update_role_preview(chosen_id):
+                            r_info = self.role_repo.get_by_id(chosen_id)
+                            if r_info:
+                                p_cnt = len(r_info.get("allowed_pages", []))
+                                a_cnt = len(r_info.get("allowed_actions", []))
+                                d_scope = "كافة الأقسام" if (r_info.get("department_scope") == "all" or not r_info.get("department_scope")) else "أقسام مخصصة"
+                                role_preview_label.set_text(f"🛡️ صلاحيات هذا الدور: {a_cnt} إجراء • {p_cnt} شاشات • نطاق الأقسام: {d_scope}")
+                            else:
+                                role_preview_label.set_text(f"الصلاحية: {chosen_id}")
+
+                        role_inp.on_value_change(lambda e: _update_role_preview(e.value if hasattr(e, "value") else e))
 
                     # 2. Personal Info
                     with UI.card().classes("w-full p-5 gap-4 rounded-xl border border-[var(--border-default)] bg-[var(--bg-card)] shrink-0"):
@@ -275,6 +296,9 @@ class PersonnelScreen:
                         with ui.row().classes("w-full gap-4"):
                             resp_ar_inp = UI.text_input("المنصب بالعربية / Arabic Resp", value=existing_data.get("responsibility_ar", "")).classes("flex-1 text-sm")
                             resp_en_inp = UI.text_input("المنصب بالإنكليزية / English Resp", value=existing_data.get("responsibility_en", "")).classes("flex-1 text-sm")
+
+                        # Initialize role preview with initial role
+                        _update_role_preview(init_role)
 
                     # 3. Certificate Settings & Mapping
                     with UI.card().classes("w-full p-5 gap-4 rounded-xl border border-[var(--border-default)] bg-[var(--bg-card)] shrink-0"):
@@ -320,26 +344,39 @@ class PersonnelScreen:
                         def save_action():
                             n_ar = (name_ar_inp.value or "").strip()
                             if not n_ar:
-                                UI.notify("الاسم بالعربية مطلوب / Arabic name is required", type="warning")
+                                ui.notify("الاسم بالعربية مطلوب / Arabic name is required", type="warning")
                                 return
 
                             pwd = pass_inp.value.strip() if pass_inp.value else None
                             if mode == "add" and not pwd:
-                                UI.notify("كلمة المرور مطلوبة / Password is required", type="warning")
+                                ui.notify("كلمة المرور مطلوبة / Password is required", type="warning")
                                 return
 
                             # ORDER_OPTIONS maps label→int; 0 when toggle is OFF
                             display_order = ORDER_OPTIONS.get(order_sel.value, 0) if is_sig_switch.value else 0
+
+                            chosen_role_id = role_inp.value
+                            sel_role = self.role_repo.get_by_id(chosen_role_id) or {}
+                            base_role = sel_role.get("base_role", chosen_role_id if chosen_role_id in ("admin", "user", "signer") else "user")
+
+                            resp_ar_val = (resp_ar_inp.value or "").strip()
+                            resp_en_val = (resp_en_inp.value or "").strip()
+                            if mode == "add":
+                                if not resp_ar_val:
+                                    resp_ar_val = sel_role.get("name_ar") or ""
+                                if not resp_en_val:
+                                    resp_en_val = sel_role.get("name_en") or ""
+
                             payload = {
                                 "name_ar": n_ar,
                                 "name_en": name_en_inp.value.strip() if name_en_inp.value else "",
                                 "academic_title_ar": title_ar_inp.value.strip() if title_ar_inp.value else "",
                                 "academic_title_en": title_en_inp.value.strip() if title_en_inp.value else "",
-                                "responsibility_ar": resp_ar_inp.value.strip() if resp_ar_inp.value else "",
-                                "responsibility_en": resp_en_inp.value.strip() if resp_en_inp.value else "",
+                                "responsibility_ar": resp_ar_val,
+                                "responsibility_en": resp_en_val,
                                 "display_order": display_order,
                                 "username": user_inp.value.strip() if user_inp.value else "",
-                                "personnel_role": role_inp.value,
+                                "personnel_role": base_role,
                                 "is_active": existing_data.get("is_active", 1)
                             }
 
@@ -348,20 +385,21 @@ class PersonnelScreen:
 
                             try:
                                 if mode == "add":
-                                    self.repo.insert(data=payload)
-                                    UI.notify("تمت إضافة الكادر بنجاح / Personnel added", type="positive")
+                                    new_id = self.repo.insert(data=payload)
+                                    if new_id:
+                                        self.role_repo.assign_role_to_personnel(int(new_id), chosen_role_id)
+                                    ui.notify("تمت إضافة الكادر وتعيين صلاحيات الدور بنجاح / Personnel added", type="positive")
                                 else:
-                                    # Do NOT set password_hash if not entered —
-                                    # the API skips it when absent, preserving the existing hash in MySQL.
                                     if pid is not None:
                                         self.repo.update(person_id=int(pid), data=payload)
-                                    UI.notify("تم تعديل الكادر بنجاح / Personnel updated", type="positive")
+                                        self.role_repo.assign_role_to_personnel(int(pid), chosen_role_id)
+                                    ui.notify("تم تعديل الكادر وتحديث صلاحيات الدور بنجاح / Personnel updated", type="positive")
                                 self.show_list_view()
                             except OfflineModeError as err:
-                                UI.notify(err, type="warning")
+                                ui.notify(str(err), type="warning")
                             except Exception as err:
                                 log.error(f"Error saving personnel: {err}")
-                                UI.notify(err, type="negative")
+                                ui.notify(f"خطأ أثناء الحفظ: {err}", type="negative")
 
                         UI.secondary_button("إلغاء / Cancel", on_click=self.show_list_view).classes("text-sm px-5 py-2")
                         UI.success_button("حفظ / Save", icon="save", on_click=save_action).classes("text-sm px-5 py-2")
@@ -380,13 +418,13 @@ class PersonnelScreen:
                 def do_delete():
                     try:
                         self.repo.delete(pid)
-                        UI.notify("تم حذف السجل / Personnel deleted", type="positive")
+                        ui.notify("تم حذف السجل / Personnel deleted", type="positive")
                         dialog.close()
                         self.show_list_view()
                     except OfflineModeError as err:
-                        UI.notify(err, type="warning")
+                        ui.notify(str(err), type="warning")
                     except Exception as err:
-                        UI.notify(err, type="negative")
+                        ui.notify(f"خطأ أثناء الحذف: {err}", type="negative")
 
                 UI.danger_button("حذف / Delete", icon="delete", on_click=do_delete).classes("text-sm px-4 py-2")
                 UI.secondary_button("إلغاء / Cancel", on_click=dialog.close).classes("text-sm px-4 py-2")
