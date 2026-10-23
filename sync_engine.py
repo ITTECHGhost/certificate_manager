@@ -805,29 +805,20 @@ _REPLICA_TABLES: list[tuple[str, str]] = [
 
 def pull_mysql_to_sqlite(mysql_conn=None, sqlite_conn=None) -> dict:
     """
-    Download a full read-only replica of essential MySQL tables into SQLite.
+    Download a full read-only replica of essential MySQL tables into SQLite, through FastAPI.
 
-    Strategy (safe for <100k rows):
-        1. DELETE FROM local_table
-        2. SELECT * FROM mysql_table
+    Strategy (safe for <100k rows), per table:
+        1. GET /replica/{table} from the API
+        2. DELETE FROM local_table
         3. INSERT INTO local_table (all fetched rows)
 
     Args:
-        mysql_conn: Optional open mysql.connector connection. If None, one is opened automatically.
+        mysql_conn: Unused; kept so older callers keep working. MySQL is only reached through FastAPI.
         sqlite_conn: Optional pre-opened SQLite connection. If None, one is created internally.
 
     Returns:
         {"tables_synced": int, "total_rows": int, "errors": list[str]}
     """
-    own_mysql = mysql_conn is None
-    if own_mysql:
-        try:
-            from db import get_connection
-            mysql_conn = get_connection()
-        except Exception as _conn_err:
-            log.warning("Cannot connect to MySQL to pull replica: %s", _conn_err)
-            return {"tables_synced": 0, "total_rows": 0, "errors": [str(_conn_err)]}
-
     own_sqlite = sqlite_conn is None
     if own_sqlite:
         sqlite_conn = _get_local_conn()
@@ -847,14 +838,18 @@ def pull_mysql_to_sqlite(mysql_conn=None, sqlite_conn=None) -> dict:
                 return str(val)
         return str(val)
 
+    api_url = get_api_url()
+    http = requests.Session()
     try:
-        my_cur = mysql_conn.cursor(dictionary=True)
-
-        for table_name, select_sql in _REPLICA_TABLES:
+        for table_name, _select_sql in _REPLICA_TABLES:
             try:
-                # Fetch from MySQL
-                my_cur.execute(select_sql)
-                rows = my_cur.fetchall()
+                # Fetch from MySQL through FastAPI
+                resp = http.get(f"{api_url}/replica/{table_name}", timeout=60.0)
+                if resp.status_code != 200:
+                    raise RuntimeError(f"HTTP {resp.status_code}: {resp.text[:200]}")
+                body = resp.json()
+                columns = body.get("columns") or []
+                rows = body.get("rows") or []
 
                 if not rows:
                     # Still clear local data even if MySQL table is empty
@@ -863,17 +858,12 @@ def pull_mysql_to_sqlite(mysql_conn=None, sqlite_conn=None) -> dict:
                     tables_synced += 1
                     continue
 
-                # Determine columns from the first row
-                columns = list(rows[0].keys())
                 col_clause = ", ".join(columns)
                 placeholders = ", ".join(["?"] * len(columns))
 
                 # Clear + insert
                 sqlite_conn.execute(f"DELETE FROM {table_name}")
-                insert_data = [
-                    tuple(safe_cast(row.get(c)) for c in columns)
-                    for row in rows
-                ]
+                insert_data = [tuple(safe_cast(v) for v in row) for row in rows]
                 sqlite_conn.executemany(
                     f"INSERT OR REPLACE INTO {table_name} ({col_clause}) VALUES ({placeholders})",
                     insert_data,
@@ -883,102 +873,23 @@ def pull_mysql_to_sqlite(mysql_conn=None, sqlite_conn=None) -> dict:
                 total_rows += len(rows)
                 log.debug("Replicated %s: %d rows", table_name, len(rows))
 
+            except requests.exceptions.ConnectionError as exc:
+                # Server unreachable: stop instead of waiting on every remaining table
+                log.warning("Cannot reach API to pull replica: %s", exc)
+                errors.append(f"{table_name}: {exc}")
+                break
             except Exception as exc:
                 log.error("Failed to replicate table %s: %s", table_name, exc)
                 errors.append(f"{table_name}: {exc}")
 
-        my_cur.close()
-
     finally:
+        http.close()
         if own_sqlite and sqlite_conn:
             sqlite_conn.close()
-        if own_mysql and mysql_conn:
-            try:
-                mysql_conn.close()
-            except Exception:
-                pass
 
     summary = {"tables_synced": tables_synced, "total_rows": total_rows, "errors": errors}
     log.info("Inbound sync complete: %s", summary)
     return summary
-
-
-def download_mysql_snapshot(mysql_conn, sqlite_conn):
-    """
-    Perform a fast, safe replication of core data from MySQL to SQLite.
-    Optimized to dynamically drop and recreate the SQLite cache tables to
-    match the MySQL schema perfectly.
-    """
-    tables = [
-        'university_settings', 'countries', 'governorates', 'settings',
-        'departments', 'study_systems', 'personnel', 'courses',
-        'graduation_orders', 'students', 'academic_periods', 'enrollments',
-        'student_supervisors', 'thesis_records', 'issued_certificates',
-        'study_routines', 'study_routine_period', 'study_routine_courses',
-        'permissions', 'personnel_permissions'
-    ]
-    my_cursor = mysql_conn.cursor(dictionary=True)
-    sq_cursor = sqlite_conn.cursor()
-    try:
-        def safe_cast(val):
-            if val is None: return None
-            if isinstance(val, (int, float)): return val 
-            if isinstance(val, (bytearray, bytes)):
-                try:
-                    return val.decode('utf-8')
-                except UnicodeDecodeError:
-                    return str(val)
-            return str(val)
-            
-        for table in tables:
-            src_table = table
-            dest_table = table
-                    
-            try:
-                # 1. Fetch fresh rows from MySQL
-                my_cursor.execute(f"SELECT * FROM {src_table};")
-                rows = my_cursor.fetchall()
-                if not rows: continue
-                
-                columns = list(rows[0].keys())
-                
-                # 2. Build optimized column definitions
-                cols_def_parts = []
-                for col in columns:
-                    if col.lower() == 'id':
-                        cols_def_parts.append(f"{col} INTEGER PRIMARY KEY")
-                    else:
-                        cols_def_parts.append(f"{col}")
-                cols_def = ", ".join(cols_def_parts)
-                
-                # 3. Drop and Recreate
-                sq_cursor.execute(f"DROP TABLE IF EXISTS {dest_table};")
-                sq_cursor.execute(f"CREATE TABLE {dest_table} ({cols_def});")
-                
-                # 4. Insert Data
-                placeholders = ", ".join(["?"] * len(columns))
-                sql_insert = f"INSERT INTO {dest_table} ({', '.join(columns)}) VALUES ({placeholders});"
-                insert_data = [tuple(safe_cast(row[col]) for col in columns) for row in rows]
-                sq_cursor.executemany(sql_insert, insert_data)
-                
-                # 5. Generate Performance Indexes for Foreign Keys
-                for col in columns:
-                    if col.lower().endswith('_id'):
-                        idx_name = f"idx_{dest_table}_{col}"
-                        sq_cursor.execute(f"CREATE INDEX IF NOT EXISTS {idx_name} ON {dest_table}({col});")
-            except Exception as e:
-                print(f"Error syncing table {table}: {e}")
-                
-        sqlite_conn.commit()
-    finally:
-        try:
-            my_cursor.close()
-        except Exception:
-            pass
-        try:
-            sq_cursor.close()
-        except Exception:
-            pass
 
 
 def pull_mysql_to_sqlite_background() -> None:
@@ -986,21 +897,11 @@ def pull_mysql_to_sqlite_background() -> None:
     Run pull_mysql_to_sqlite in a background thread.
 
     Safe to call from the UI thread — spawns a daemon thread that
-    opens its own MySQL and SQLite connections.
+    downloads through FastAPI and opens its own SQLite connection.
     """
     def _worker():
         try:
-            import mysql.connector
-            from config import DBConfig
-            my_conn = mysql.connector.connect(
-                host=DBConfig.DB_HOST,
-                user=DBConfig.DB_USER,
-                password=DBConfig.DB_PASSWORD,
-                database=DBConfig.DB_NAME,
-                connection_timeout=5,
-            )
-            pull_mysql_to_sqlite(my_conn)
-            my_conn.close()
+            pull_mysql_to_sqlite()
         except Exception as exc:
             log.error("Background inbound sync failed: %s", exc)
 

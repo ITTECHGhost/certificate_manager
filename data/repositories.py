@@ -10,7 +10,6 @@ import requests
 from datetime import datetime
 from typing import Any, List, Dict, Optional, Union, cast
 from api_config import API_URL, get_api_url
-from db import get_connection
 from sync_engine import (
     is_online, log_offline_insert, log_offline_update,
     cache_read_result, get_cached_read,
@@ -123,113 +122,89 @@ class BaseRepository:
     def api_url(self, value: str) -> None:
         self._api_url = value
         
+    def _post_sp(self, endpoint: str, proc_name: str, args: tuple) -> dict:
+        """Send a stored-procedure call to the FastAPI gateway (/sp/read or /sp/write) and return its JSON body."""
+        body = json.dumps({"proc": proc_name, "args": list(args)}, default=str, ensure_ascii=False)
+        resp = requests.post(
+            f"{self.api_url}/sp/{endpoint}",
+            data=body.encode("utf-8"),
+            headers={"Content-Type": "application/json"},
+            timeout=15.0,
+        )
+        if resp.status_code != 200:
+            raise RuntimeError(f"API /sp/{endpoint} {proc_name} failed ({resp.status_code}): {resp.text}")
+        return resp.json()
+
     def _call_write(self, proc_name: str, args: tuple = ()) -> int | None:
-        """Execute a write procedure (INSERT/UPDATE/DELETE) and commit.
-        
+        """Execute a write procedure (INSERT/UPDATE/DELETE) through FastAPI, which commits it.
+
+        Returns the new row ID when the procedure reports one.
         Raises OfflineModeError if the system is offline.
         """
         if not is_online():
             raise OfflineModeError()
-        conn = get_connection()
+        return self._post_sp("write", proc_name, args).get("new_id")
+
+    def _read_datasets(self, proc_name: str, args: tuple) -> list[list[dict]] | None:
+        """Fetch every result set of a read procedure through FastAPI; None means the server is unreachable."""
         try:
-            cur = conn.cursor(dictionary=True)
-            cur.callproc(proc_name, args)
-            conn.commit()
-            
-            # Extract LAST_INSERT_ID() if the SP returns a rowset
-            for result in cur.stored_results():
-                row = result.fetchone()
-                if isinstance(row, dict):
-                    if 'new_id' in row and row['new_id'] is not None:
-                        return int(row['new_id'])
-                    if 'inserted_id' in row and row['inserted_id'] is not None:
-                        return int(row['inserted_id'])
-                    # Fallback to first dict value if it is an integer ID
-                    vals = [v for v in row.values() if isinstance(v, int)]
-                    if vals:
-                        return vals[0]
+            return self._post_sp("read", proc_name, args).get("datasets") or []
+        except requests.exceptions.RequestException as exc:
+            log_system(f"API read {proc_name} unreachable, using offline cache: {exc}", "WARNING")
             return None
-        finally:
-            if 'cur' in locals(): cur.close()
-            conn.close()
 
     def _call_read_all(self, proc_name: str, args: tuple = ()) -> list[dict]:
         """Execute a read procedure and return all rows. Caches results for offline use."""
-        if not is_online():
+        datasets = self._read_datasets(proc_name, args) if is_online() else None
+        if datasets is None:
             cached = get_cached_read(proc_name, args)
             return cached if cached is not None else []
-        conn = get_connection()
-        try:
-            cur = conn.cursor(dictionary=True)
-            cur.callproc(proc_name, args)
-            for result in cur.stored_results():
-                rows = result.fetchall()
-                cache_read_result(proc_name, args, rows)
-                return rows
-            return []
-        finally:
-            if 'cur' in locals(): cur.close()
-            conn.close()
+        rows = datasets[0] if datasets else []
+        if datasets:
+            cache_read_result(proc_name, args, rows)
+        return rows
 
     def _call_read_one(self, proc_name: str, args: tuple = ()) -> dict | None:
         """Execute a read procedure and return a single row. Caches results for offline use."""
-        if not is_online():
+        datasets = self._read_datasets(proc_name, args) if is_online() else None
+        if datasets is None:
             cached = get_cached_read(proc_name, args)
             if cached and len(cached) > 0:
                 return cached[0]
             return None
-        conn = get_connection()
-        try:
-            cur = conn.cursor(dictionary=True)
-            cur.callproc(proc_name, args)
-            for result in cur.stored_results():
-                row = result.fetchone()
-                # Cache as a single-element list so get_cached_read returns consistently
-                cache_read_result(proc_name, args, [row] if row else [])
-                return row
+        if not datasets:
             return None
-        finally:
-            if 'cur' in locals(): cur.close()
-            conn.close()
+        row = datasets[0][0] if datasets[0] else None
+        # Cache as a single-element list so get_cached_read returns consistently
+        cache_read_result(proc_name, args, [row] if row else [])
+        return row
 
     def _call_read_multi(self, proc_name: str, args: tuple = ()) -> list[list[dict]]:
         """Execute a procedure returning multiple datasets. Caches the first for offline use."""
-        if not is_online():
+        datasets = self._read_datasets(proc_name, args) if is_online() else None
+        if datasets is None:
             # Multi-dataset cache is complex; return cached first dataset or empty
             cached = get_cached_read(proc_name, args)
             return [cached] if cached else []
-        conn = get_connection()
-        try:
-            cur = conn.cursor(dictionary=True)
-            cur.callproc(proc_name, args)
-            datasets = []
-            for result in cur.stored_results():
-                datasets.append(result.fetchall())
-            # Cache all datasets as a nested list
-            if datasets:
-                cache_read_result(proc_name, args, datasets)
-            return datasets
-        finally:
-            if 'cur' in locals(): cur.close()
-            conn.close()
+        # Cache all datasets as a nested list
+        if datasets:
+            cache_read_result(proc_name, args, datasets)
+        return datasets
 
     def count_table_rows(self, table: str, filter_clause: str = "") -> int:
-        """Count rows in a table securely using an inline query."""
+        """Count rows in a table (FastAPI when online; filtered counts use the local replica)."""
         allowed_tables = ["students", "departments", "courses", "personnel", "graduation_orders", "study_systems"]
         if table not in allowed_tables:
             return 0
-        if not is_online():
+        if not is_online() or filter_clause:
             return get_offline_count_table_rows(table, filter_clause)
-        query = f"SELECT COUNT(*) FROM {table} {filter_clause}"
-        conn = get_connection()
         try:
-            cur = conn.cursor()
-            cur.execute(query)
-            row = cur.fetchone()
-            return row[0] if row else 0
-        finally:
-            if 'cur' in locals(): cur.close()
-            conn.close()
+            resp = requests.get(f"{self.api_url}/table-count/{table}", timeout=5.0)
+            if resp.status_code == 200:
+                return int(resp.json().get("count", 0))
+        except Exception as e:
+            log_system(f"API request failed: {e}", "WARNING")
+        return get_offline_count_table_rows(table, filter_clause)
 
 # ---------------------------------------------------------------------------
 # Module 1: Global Settings & System Configurations

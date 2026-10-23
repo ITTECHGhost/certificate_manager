@@ -11,8 +11,9 @@ workspace_root = str(Path(__file__).resolve().parent.parent)
 if workspace_root not in sys.path:
     sys.path.insert(0, workspace_root)
 
-# Import database, sync engine, logger, and configuration modules
-from db import get_connection
+# Import sync engine, logger, and configuration modules (MySQL is only reached through FastAPI)
+import requests
+from api_config import get_api_url
 from sync_engine import (
     is_online,
     set_online,
@@ -62,18 +63,19 @@ def run_system_health_checks() -> bool:
     # -------------------------------------------------------------------------
     # [CHECK 2] Primary Database (MySQL) / Local Database (SQLite)
     # -------------------------------------------------------------------------
+    routines: set[str] = set()
     if is_online():
         try:
-            conn = get_connection()
-            if conn and conn.is_connected():
-                conn.close()
-                log_system("[CHECK 2/4] MySQL Database Connection ... [OK]", "OK")
+            resp = requests.get(f"{get_api_url()}/health/db", timeout=5.0)
+            if resp.status_code == 200 and resp.json().get("database") == "ok":
+                routines = {str(p).lower() for p in resp.json().get("procedures") or []}
+                log_system("[CHECK 2/4] MySQL Database Connection (via API) ... [OK]", "OK")
             else:
-                log_system("[CHECK 2/4] MySQL Database Connection ... [FAILED]", "ERROR")
+                log_system(f"[CHECK 2/4] MySQL Database Connection (via API) ... [FAILED] (HTTP {resp.status_code})", "ERROR")
                 set_online(False)
         except Exception as err:
             log.warning("MySQL database connection check failed: %s", err)
-            log_system(f"[CHECK 2/4] MySQL Database Connection ... [FAILED] ({err})", "ERROR")
+            log_system(f"[CHECK 2/4] MySQL Database Connection (via API) ... [FAILED] ({err})", "ERROR")
             set_online(False)
 
     if not is_online():
@@ -95,26 +97,7 @@ def run_system_health_checks() -> bool:
     # -------------------------------------------------------------------------
     if is_online():
         try:
-            conn = get_connection()
-            cursor = conn.cursor(dictionary=True)
-            cursor.execute("""
-                SELECT ROUTINE_NAME 
-                FROM information_schema.ROUTINES 
-                WHERE ROUTINE_SCHEMA = DATABASE() 
-                  AND ROUTINE_TYPE = 'PROCEDURE'
-            """)
-            raw_routines = cursor.fetchall()
-            routines = set()
-            for r in raw_routines:
-                if isinstance(r, dict) and "ROUTINE_NAME" in r:
-                    routines.add(str(r["ROUTINE_NAME"]).lower())
-                elif isinstance(r, (tuple, list)) and len(r) > 0:
-                    routines.add(str(r[0]).lower())
-
-            cursor.close()
-            conn.close()
-
-            # Verify essential stored procedures exist in MySQL catalog
+            # Verify essential stored procedures exist in MySQL catalog (list fetched in CHECK 2)
             has_auth = any(sp in routines for sp in ["authenticateuser", "sp_authenticateuser", "getuserbyusername"])
             has_settings = any(sp in routines for sp in ["get_user_settings", "getuserpreferences", "sp_getuserappearance"])
 

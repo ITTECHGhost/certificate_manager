@@ -19,8 +19,8 @@ from data.repositories import (
     PermissionRepository, RoleRepository, DepartmentRepository,
     ALL_PERMISSION_KEYS
 )
-from db import backup_db, restore_db
-from tools.migrate_mysql import trigger_migration
+import requests
+from api_config import get_api_url
 from nicegui_ui.ui_components import UI
 from nicegui_ui.state import get_user_session
 from nicegui_ui.template_constants import (
@@ -1618,8 +1618,8 @@ class SettingsScreen:
                     queue_count = 0
                     cache_count = 0
                     try:
-                        from db import sqlite_read_one
-                        q_res = sqlite_read_one("SELECT COUNT(*) AS cnt FROM offline_queue")
+                        from sync_engine import sqlite_read_one
+                        q_res = sqlite_read_one("SELECT COUNT(*) AS cnt FROM sync_queue")
                         queue_count = q_res.get("cnt", 0) if q_res else 0
                         c_res = sqlite_read_one("SELECT COUNT(*) AS cnt FROM read_cache")
                         cache_count = c_res.get("cnt", 0) if c_res else 0
@@ -1670,12 +1670,6 @@ class SettingsScreen:
                     "استرجاع البيانات من ملف .sql سابق",
                     "استعادة النسخة / Restore Backup",
                     "restore", btn_variant="warning", on_click_fn=self._do_restore
-                )
-                UI.action_tile(
-                    "استيراد من النظام القديم / Import Legacy MySQL",
-                    "نقل وسحب البيانات القديمة تلقائياً",
-                    "استيراد البيانات / Import Data",
-                    "upload_file", btn_variant="success", on_click_fn=self._do_import
                 )
                 UI.action_tile(
                     "مسح سجل التغييرات / Clear Audit Logs",
@@ -1938,28 +1932,78 @@ class SettingsScreen:
         except Exception as exc:
             ui.notify(f"Error saving appearance: {exc}", type="negative")
 
-    def _do_backup(self) -> None:
+    async def _do_backup(self) -> None:
+        """Ask the server to dump the database (mysqldump runs on the server) and save the .sql to Downloads."""
+        from nicegui import run
+        from sync_engine import is_online
+        if not is_online():
+            ui.notify("النسخ الاحتياطي يتطلب الاتصال بالسيرفر / Backup requires a server connection.", type="warning")
+            return
+        ui.notify("جاري إنشاء النسخة الاحتياطية... / Creating backup...", type="info")
         try:
-            backup_path = Path("certificate_manager_backup.sql")
-            backup_db(backup_path)
-            ui.notify("تم إنشاء النسخة الاحتياطية بنجاح / Backup created!", type="positive")
+            resp = await run.io_bound(
+                requests.get, f"{get_api_url()}/admin/backup",
+                params={"personnel_id": self.emp_id}, timeout=300.0
+            )
+            if resp.status_code != 200:
+                raise RuntimeError(f"HTTP {resp.status_code}: {resp.text[:300]}")
+            filename = f"certificate_manager_backup_{datetime.now():%Y%m%d_%H%M%S}.sql"
+            deliver_file(resp.content, filename, title="تم إنشاء النسخة الاحتياطية بنجاح / Backup created", auto_open=False)
         except Exception as exc:
             ui.notify(f"Backup failed: {exc}", type="negative")
 
     def _do_restore(self) -> None:
-        try:
-            backup_path = Path("certificate_manager_backup.sql")
-            restore_db(backup_path)
-            ui.notify("تمت استعادة قاعدة البيانات / Database restored!", type="positive")
-        except Exception as exc:
-            ui.notify(f"Restore failed: {exc}", type="negative")
+        """Pick a .sql backup, confirm, then upload it to the server, which restores it (admin only)."""
+        from sync_engine import is_online
+        if not is_online():
+            ui.notify("الاستعادة تتطلب الاتصال بالسيرفر / Restore requires a server connection.", type="warning")
+            return
 
-    def _do_import(self) -> None:
-        try:
-            trigger_migration("certificate_manager.sql")
-            ui.notify("تمت عملية الاستيراد بنجاح / Legacy import finished!", type="positive")
-        except Exception as exc:
-            ui.notify(f"Import failed: {exc}", type="negative")
+        picked: dict = {}
+        with ui.dialog() as dialog, UI.card():
+            UI.card_header("استعادة نسخة احتياطية / Restore Database", "restore", icon_css="stat-text-amber")
+            ui.label(
+                "تحذير: الاستعادة تستبدل جميع البيانات الحالية في قاعدة البيانات. "
+                "Warning: restoring replaces ALL current data in the database."
+            ).classes("text-sm font-bold text-red-500")
+            status_label = ui.label("لم يتم اختيار ملف بعد / No file selected").classes("text-xs app-text-muted")
+
+            async def _on_pick(e):
+                name = e.file.name or ""
+                if not name.lower().endswith(".sql"):
+                    ui.notify("يجب اختيار ملف .sql / Please choose a .sql file.", type="warning")
+                    return
+                picked["name"] = name
+                picked["content"] = await e.file.read()
+                status_label.set_text(f"{name} ({round(len(picked['content']) / 1024, 1)} KB)")
+
+            ui.upload(label="اختر ملف النسخة الاحتياطية (.sql)", auto_upload=True, on_upload=_on_pick) \
+                .props("accept=.sql max-files=1").classes("w-full")
+
+            async def _confirm_restore():
+                from nicegui import run
+                if not picked.get("content"):
+                    ui.notify("يرجى اختيار ملف أولاً / Please choose a file first.", type="warning")
+                    return
+                dialog.close()
+                ui.notify("جاري الاستعادة... / Restoring...", type="info")
+                try:
+                    resp = await run.io_bound(
+                        requests.post, f"{get_api_url()}/admin/restore",
+                        params={"personnel_id": self.emp_id},
+                        files={"file": (picked["name"], picked["content"], "application/sql")},
+                        timeout=600.0,
+                    )
+                    if resp.status_code != 200:
+                        raise RuntimeError(f"HTTP {resp.status_code}: {resp.text[:300]}")
+                    ui.notify("تمت استعادة قاعدة البيانات / Database restored!", type="positive")
+                except Exception as exc:
+                    ui.notify(f"Restore failed: {exc}", type="negative")
+
+            with ui.row().classes("w-full justify-end gap-2 pt-2"):
+                ui.button("إلغاء / Cancel", on_click=dialog.close).props("flat")
+                ui.button("استعادة / Restore", icon="restore", on_click=_confirm_restore).props("color=negative")
+        dialog.open()
 
     def _do_clear_logs(self) -> None:
         try:
@@ -2039,7 +2083,7 @@ class SettingsScreen:
     def _do_clear_read_cache(self) -> None:
         """Clears SQLite read_cache entries."""
         try:
-            from db import get_local_connection
+            from sync_engine import get_local_connection
             conn = get_local_connection()
             cursor = conn.cursor()
             cursor.execute("DELETE FROM read_cache")
@@ -2054,9 +2098,9 @@ class SettingsScreen:
         """Performs live database diagnostic checks."""
         from sync_engine import is_online
         try:
-            from db import sqlite_read_one
+            from sync_engine import sqlite_read_one
             status = "Online (MySQL + SQLite)" if is_online() else "Offline (SQLite Replica)"
-            q_res = sqlite_read_one("SELECT COUNT(*) AS cnt FROM offline_queue")
+            q_res = sqlite_read_one("SELECT COUNT(*) AS cnt FROM sync_queue")
             q_cnt = q_res.get("cnt", 0) if q_res else 0
             ui.notify(
                 f"فحص قاعدة البيانات:\n• الحالة: {status}\n• المعلق للمزامنة: {q_cnt} عنصر",

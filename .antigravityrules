@@ -14,4 +14,6 @@ Before suggesting code or modifying files, you MUST read .ai/cerebrum.md to unde
 - All new read methods MUST include offline routing: check `is_online()`, fall back to `sqlite_read_all()` / `sqlite_read_one()` for raw SQL, or `get_cached_read()` for SP-based reads.
 - All new write methods that use raw SQL (not via `_call_write`) MUST include `if not is_online(): raise OfflineModeError()` guards.
 - INSERT methods that should work offline MUST route to `log_offline_insert()` and return the temp negative ID.
-- When adding a new MySQL table that needs offline access, you MUST: (1) add a matching CREATE TABLE in `init_local_db()`, (2) add it to `_REPLICA_TABLES` in `sync_engine.py`.
+- When adding a new MySQL table that needs offline access, you MUST: (1) add a matching CREATE TABLE in `init_local_db()`, (2) add it to `_REPLICA_TABLES` in `sync_engine.py`, (3) add it to `REPLICA_TABLES` in `certificate_manager_api/main.py` (the `/replica/{table}` endpoint refuses unlisted tables).
+- The client NEVER connects to MySQL. `BaseRepository._call_*` helpers go through the FastAPI gateway (`POST /sp/read`, `POST /sp/write`). A new stored procedure called through them MUST be added to `SP_READ_WHITELIST` or `SP_WRITE_WHITELIST` in `certificate_manager_api/main.py`, then deployed.
+- Run `python tests/check_no_direct_mysql.py` after any change; it fails if client code imports `db`, `mysql.*` or `DBConfig`.
