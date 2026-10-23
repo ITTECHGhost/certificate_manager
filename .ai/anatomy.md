@@ -1,27 +1,27 @@
 # Project Anatomy
 
 - `main.py`: The NiceGUI application entry point. Native desktop mode on port 2323.
-- `ctk_screens/`: CustomTkinter UI screens — `login_screen.py`, `home_screen.py`, `students_screen.py`, `courses_screen.py`, `personnel_screen.py`, `graduation_orders_screen.py`, `order_students_screen.py`, `history_screen.py`, `certificate_screen.py`, `departments_screen.py`, `settings_screen.py`, `placeholder_screen.py`.
-- `nicegui_screens/`: NiceGUI UI screens — `dashboard_screen.py`, `settings_screen.py`.
-- `nicegui_ui/`: NiceGUI UI components and tokens — `ui_components.py`, `ui_theme.py`, `state.py`.
-- `db.py`: MySQL connection factory (`get_connection`), schema self-healing migrations (`init_db`), grade helper, and backup/restore via `mysqldump`/`mysql` CLI.
-- `sync_engine.py`: Offline sync engine. Manages the local SQLite cache (`local_cache.db`) with: network status flag (`is_online`/`set_online`/`check_network_status`), outbound sync queue (temp negative IDs → MySQL), inbound sync (`pull_mysql_to_sqlite` replicates 12 MySQL tables), SP result cache (`cache_read_result`/`get_cached_read`), and direct SQLite query helpers (`sqlite_read_all`/`sqlite_read_one`).
-- `config.py`: Application configuration — theme colors (`AppColors`), fonts (`AppFonts`), layout sizes (`AppSizes`), navigation items, screen headers, and user preference refresh.
-- `data/repositories.py`: Data Access Layer. All MySQL Stored Procedure calls go through `BaseRepository` with automatic online/offline routing. Contains `OfflineModeError`, and per-entity repositories: `SettingsRepository`, `PersonnelRepository`, `DepartmentRepository`, `StudySystemRepository`, `CourseRepository`, `StudentRepository`, `AcademicPeriodRepository`, `EnrollmentRepository`, `CertificateRepository`, `GraduationOrderRepository`, `ThesisRepository`, `StudentSupervisorRepository`, `AuditRepository`.
-- `ui/`: Reusable CustomTkinter UI components and widget wrappers (built on `customtkinter`). Includes `base_screen.py`.
-- `templets/`: Word document templates (`.docx`) for certificate generation.
-- `themes/`: JSON theme files for `customtkinter` styling.
-- `tools/`: Utility scripts — `migrate_mysql.py` (SQLite→MySQL migration).
-- `export_db.py`: Database export utility script. Generates `sql/schema.sql`, `sql/SP.sql`, and `sql/SQLite.sql`.
-- `sql/`: Folder containing database export files (`schema.sql`, `SP.sql`, `SQLite.sql`).
-- `local_cache.db`: Auto-generated SQLite database for offline mode. Contains sync queue, temp ID counter, SP result cache, and replica tables for all major MySQL tables.
-- `system_log.txt`: Centralized log file for all system-level diagnostic activities (startup health checks, database initialization, network status transitions, and sync engine runs).
-- `activity_log.txt`: Centralized log file for all user activities (login/logout attempts, authentication verification methods, student additions/edits, and certificate generations).
+- `nicegui_screens/`: NiceGUI UI screens — `login_screen`, `dashboard_screen`, `students_screen`, `courses_screen`, `departments_screen`, `personnel_screen`, `graduation_orders_screen`, `certificate_screen`, `issued_certificates_screen`, `profile_screen`, `settings_screen`, `student_bulk_import_view`, `study_routines_screen`, `study_routines_dialog`.
+- `nicegui_ui/`: NiceGUI UI components and tokens — `ui_components.py`, `ui_theme.py`, `state.py`, `student_components.py`, `template_constants.py`, `theme.css`.
+- `db.py`: MySQL connection factory (`get_connection`), read-only schema check (`init_db`), grade helper, and backup/restore via `mysqldump`/`mysql` CLI. (Client use of this is an architecture violation being phased out — see Bug Ledger #226.)
+- `sync_engine.py`: Offline sync engine. Local SQLite cache (`local_cache.db`), network status flag (`is_online`/`set_online`/`check_network_status`), outbound sync queue (temp negative IDs → API `/sync`), inbound replica pull, SP result cache, and SQLite helpers (`sqlite_read_all`/`sqlite_read_one`).
+- `config.py`: Holds `DBConfig` (still used by `db.py`); the rest is dead CustomTkinter-era theme code.
+- `api_config.py` / `server_config.json`: API URL resolution for the client.
+- `data/repositories.py`: Data Access Layer with online/offline routing (API via `requests`, SQLite fallback). `data/query.py`: offline SQLite query helpers. `data/roles_config.json`, `data/user_roles.json`: role persistence.
+- `repositories/auth_repository.py`: thin wrapper over `PersonnelRepository`/`SettingsRepository`.
+- `cert_repository.py`: certificate payload building.
+- `services/`: `excel_import_service`, `template_sync`, `updater`. `utils/`: `logger`, `file_delivery`, `health_check`, `error_formatter`.
+- `certificate_manager_api/`: FastAPI server (GitHub copy). Deployed copy runs from `C:\AppServ\www\certificate_manager_api\` on port 2030.
+- `templets/`, `certificates/`: Word templates and generated certificates.
+- `tools/`: `migrate_mysql.py` (still imported by settings screen). `export_db.py`, `get_db_schema.py`: DB inspection tools. `sql/`: exported schema/SP files.
+- `old/`: **Everything legacy** — CustomTkinter UI (`temp_archive/old design/`), scratch scripts, backups, copies, old themes, stray DBs. Not imported by anything; safe to delete when confirmed.
+- `logs/system_log.txt`, `logs/activity_log.txt`: runtime logs.
 
-> **AGENT RULE:** When investigating system behavior, errors, or tracing recent actions (e.g., failed logins, API/SP failures, offline fallback triggers), ALWAYS search `system_log.txt` and `activity_log.txt` to gather context on what actually happened during runtime.
+> **AGENT RULE:** When investigating system behavior, errors, or tracing recent actions (e.g., failed logins, API/SP failures, offline fallback triggers), ALWAYS search `logs/system_log.txt` and `logs/activity_log.txt` to gather context on what actually happened during runtime.
 
 ## Strict Rules & Execution Directives
 1. **Do not make assumptions about database and MySQL is off-limits**: You are NOT to make any changes directly to the MySQL database. You can only ask the user to make the changes or provide SQL code for the user to execute.
 2. **Database inspection protocol**: In case you need to inspect or check the MySQL database, run `export_db.py` then check `sql/schema.sql`, `sql/SP.sql`, and `sql/SQLite.sql`.
 3. **FastAPI code checking order**: For checking FastAPI code, check `C:\AppServ\www\certificate_manager_api\main.py` first, then check `certificate_manager_api\main.py` (which is the copy of the main file saved for GitHub).
 4. **Strict Instruction Following**: Follow user instructions strictly without making assumptions, breaking existing work, or performing unauthorized actions.
+5. **Legacy files go to `old/`**, never deleted, never left in the project root.
