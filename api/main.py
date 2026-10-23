@@ -1173,12 +1173,15 @@ def insert_course(payload: CoursePayload, conn=Depends(get_db)):
                 res = execute_sp_fetchone(conn, "InsertCourse", (payload.name_ar, payload.name_en, payload.credit_hours, dept_id, payload.stage_number))
                 if res and "new_course_id" in res:
                     new_ids.append(res["new_course_id"])
+            conn.commit()
             return {"new_id": new_ids[0] if new_ids else 0}
         else:
             res = execute_sp_fetchone(conn, "InsertCourse", (payload.name_ar, payload.name_en, payload.credit_hours, payload.department_id, payload.stage_number))
             new_id = res.get("new_course_id", 0) if res else 0
+            conn.commit()
             return {"new_id": new_id}
     except Exception as exc:
+        conn.rollback()
         raise HTTPException(status_code=500, detail=str(exc))
 
 
@@ -1619,8 +1622,10 @@ def insert_academic_period(payload: AcademicPeriodPayload, conn=Depends(get_db))
             (payload.student_id, payload.academic_year, payload.stage_number, payload.semester_num, status_val)
         )
         new_id = res.get("new_period_id") or res.get("new_id", 0) if res else 0
+        conn.commit()
         return {"new_id": new_id}
     except Exception as exc:
+        conn.rollback()
         raise HTTPException(status_code=500, detail=str(exc))
 
 
@@ -1699,8 +1704,10 @@ def insert_enrollment(payload: EnrollmentPayload, conn=Depends(get_db)):
             (payload.period_id, payload.course_id, float(payload.score), int(passed_round))
         )
         new_id = res.get("new_enrollment_id") or res.get("new_id", 0) if res else 0
+        conn.commit()
         return {"new_id": new_id}
     except Exception as exc:
+        conn.rollback()
         raise HTTPException(status_code=500, detail=str(exc))
 
 
@@ -2969,6 +2976,12 @@ def process_offline_sync_batch(payload: dict, conn=Depends(get_db)):
 
                 elif tbl == "academic_periods":
                     st_id = data.get("student_id")
+                    if st_id is not None:
+                        try:
+                            st_id_int = int(st_id)
+                            st_id = id_map.get(st_id_int, st_id_int)
+                        except (ValueError, TypeError):
+                            pass
                     yr = data.get("academic_year", "")
                     stg = int(data.get("stage_number") or 1)
                     sem = int(data.get("semester_num") or 1)
@@ -3006,6 +3019,12 @@ def process_offline_sync_batch(payload: dict, conn=Depends(get_db)):
 
                 elif tbl == "enrollments":
                     pid = data.get("period_id")
+                    if pid is not None:
+                        try:
+                            pid_int = int(pid)
+                            pid = id_map.get(pid_int, pid_int)
+                        except (ValueError, TypeError):
+                            pass
                     cid = data.get("course_id")
                     score = float(data.get("score") or 0.0)
                     pr = int(data.get("passed_round") or 1)

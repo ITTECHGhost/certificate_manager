@@ -36128,3 +36128,519 @@ AssertionError: FAIL: settings:roles should propagate to user 8
 2026-10-21 00:14:54 [INFO] _pywebviewready event fired
 2026-10-21 00:14:54 [INFO] loaded event fired
 2026-10-21 00:14:54 [INFO] loaded event fired
+2026-10-21 09:36:17 [INFO] SYSTEM STARTUP DIAGNOSTIC CHECK STARTED
+2026-10-21 09:36:17 [OK] [CHECK 1/4] FastAPI Connection Check ... [OK]
+2026-10-21 09:36:18 [OK] [CHECK 2/4] MySQL Database Connection ... [OK]
+2026-10-21 09:36:18 [OK] [CHECK 3/4] Authentication & Core SP Checks ... [OK]
+2026-10-21 09:36:18 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-10-21 09:36:18 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-10-21 09:36:18 [OK] [CHECK 4/4] Sync Engine & Local Replica Check ... [OK]
+2026-10-21 09:36:18 [OK] Status: ALL CHECKS PASSED. PROCEEDING TO LOGIN/DASHBOARD.
+2026-10-21 09:36:21 [INFO] Using WinForms / Chromium
+2026-10-21 09:36:21 [INFO] Using WinForms / Chromium
+2026-10-21 09:36:24 [INFO] before_load event fired. injecting pywebview object
+2026-10-21 09:36:24 [INFO] before_load event fired. injecting pywebview object
+2026-10-21 09:36:24 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-21 09:36:24 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-21 09:36:24 [INFO] _pywebviewready event fired
+2026-10-21 09:36:24 [INFO] _pywebviewready event fired
+2026-10-21 09:36:24 [INFO] loaded event fired
+2026-10-21 09:36:24 [INFO] loaded event fired
+2026-10-21 09:36:29 [INFO] Inbound sync complete: {'tables_synced': 20, 'total_rows': 6201, 'errors': []}
+2026-10-21 09:36:29 [INFO] Inbound sync complete: {'tables_synced': 20, 'total_rows': 6201, 'errors': []}
+2026-10-21 09:36:30 [INFO] before_load event fired. injecting pywebview object
+2026-10-21 09:36:30 [INFO] before_load event fired. injecting pywebview object
+2026-10-21 09:36:30 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-21 09:36:30 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-21 09:36:30 [INFO] _pywebviewready event fired
+2026-10-21 09:36:30 [INFO] _pywebviewready event fired
+2026-10-21 09:36:30 [INFO] loaded event fired
+2026-10-21 09:36:30 [INFO] loaded event fired
+2026-10-21 11:05:35 [INFO] SYSTEM STARTUP DIAGNOSTIC CHECK STARTED
+2026-10-21 11:05:35 [OK] [CHECK 1/4] FastAPI Connection Check ... [OK]
+2026-10-21 11:05:35 [OK] [CHECK 2/4] MySQL Database Connection ... [OK]
+2026-10-21 11:05:35 [OK] [CHECK 3/4] Authentication & Core SP Checks ... [OK]
+2026-10-21 11:05:35 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-10-21 11:05:35 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-10-21 11:05:35 [OK] [CHECK 4/4] Sync Engine & Local Replica Check ... [OK]
+2026-10-21 11:05:35 [OK] Status: ALL CHECKS PASSED. PROCEEDING TO LOGIN/DASHBOARD.
+2026-10-21 11:05:38 [INFO] Using WinForms / Chromium
+2026-10-21 11:05:38 [INFO] Using WinForms / Chromium
+2026-10-21 11:05:41 [INFO] before_load event fired. injecting pywebview object
+2026-10-21 11:05:41 [INFO] before_load event fired. injecting pywebview object
+2026-10-21 11:05:41 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-21 11:05:41 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-21 11:05:42 [INFO] _pywebviewready event fired
+2026-10-21 11:05:42 [INFO] _pywebviewready event fired
+2026-10-21 11:05:42 [INFO] loaded event fired
+2026-10-21 11:05:42 [INFO] loaded event fired
+2026-10-21 11:05:45 [INFO] Inbound sync complete: {'tables_synced': 20, 'total_rows': 6201, 'errors': []}
+2026-10-21 11:05:45 [INFO] Inbound sync complete: {'tables_synced': 20, 'total_rows': 6201, 'errors': []}
+2026-10-21 11:05:46 [INFO] before_load event fired. injecting pywebview object
+2026-10-21 11:05:46 [INFO] before_load event fired. injecting pywebview object
+2026-10-21 11:05:46 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-21 11:05:46 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-21 11:05:46 [INFO] _pywebviewready event fired
+2026-10-21 11:05:46 [INFO] _pywebviewready event fired
+2026-10-21 11:05:46 [INFO] loaded event fired
+2026-10-21 11:05:46 [INFO] loaded event fired
+2026-10-21 11:15:30 [INFO] before_load event fired. injecting pywebview object
+2026-10-21 11:15:30 [INFO] before_load event fired. injecting pywebview object
+2026-10-21 11:15:30 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-21 11:15:30 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-21 11:15:30 [INFO] _pywebviewready event fired
+2026-10-21 11:15:30 [INFO] _pywebviewready event fired
+2026-10-21 11:15:30 [INFO] loaded event fired
+2026-10-21 11:15:30 [INFO] loaded event fired
+2026-10-21 11:15:36 [INFO] Inbound sync complete: {'tables_synced': 20, 'total_rows': 6201, 'errors': []}
+2026-10-21 11:15:36 [INFO] Inbound sync complete: {'tables_synced': 20, 'total_rows': 6201, 'errors': []}
+2026-10-21 11:15:37 [INFO] before_load event fired. injecting pywebview object
+2026-10-21 11:15:37 [INFO] before_load event fired. injecting pywebview object
+2026-10-21 11:15:37 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-21 11:15:37 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-21 11:15:37 [INFO] _pywebviewready event fired
+2026-10-21 11:15:37 [INFO] _pywebviewready event fired
+2026-10-21 11:15:37 [INFO] loaded event fired
+2026-10-21 11:15:37 [INFO] loaded event fired
+2026-10-21 11:27:12 [WARNING] SP InsertEnrollment error: 1452 (23000): Cannot add or update a child row: a foreign key constraint fails (`certificate_manager`.`enrollments`, CONSTRAINT `enrollments_ibfk_1` FOREIGN KEY (`period_id`) REFERENCES `academic_periods` (`id`) ON DELETE CASCADE ON UPDATE CASCADE)
+2026-10-21 11:27:12 [INFO] Offline INSERT queued: enrollments temp_id=-196
+2026-10-21 11:27:12 [INFO] Offline INSERT queued: enrollments temp_id=-196
+2026-10-21 11:27:12 [WARNING] SP InsertEnrollment error: 1452 (23000): Cannot add or update a child row: a foreign key constraint fails (`certificate_manager`.`enrollments`, CONSTRAINT `enrollments_ibfk_1` FOREIGN KEY (`period_id`) REFERENCES `academic_periods` (`id`) ON DELETE CASCADE ON UPDATE CASCADE)
+2026-10-21 11:27:12 [INFO] Offline INSERT queued: enrollments temp_id=-197
+2026-10-21 11:27:12 [INFO] Offline INSERT queued: enrollments temp_id=-197
+2026-10-21 11:27:12 [WARNING] SP InsertEnrollment error: 1452 (23000): Cannot add or update a child row: a foreign key constraint fails (`certificate_manager`.`enrollments`, CONSTRAINT `enrollments_ibfk_1` FOREIGN KEY (`period_id`) REFERENCES `academic_periods` (`id`) ON DELETE CASCADE ON UPDATE CASCADE)
+2026-10-21 11:27:12 [INFO] Offline INSERT queued: enrollments temp_id=-198
+2026-10-21 11:27:12 [INFO] Offline INSERT queued: enrollments temp_id=-198
+2026-10-21 11:27:12 [WARNING] SP InsertEnrollment error: 1452 (23000): Cannot add or update a child row: a foreign key constraint fails (`certificate_manager`.`enrollments`, CONSTRAINT `enrollments_ibfk_1` FOREIGN KEY (`period_id`) REFERENCES `academic_periods` (`id`) ON DELETE CASCADE ON UPDATE CASCADE)
+2026-10-21 11:27:12 [INFO] Offline INSERT queued: enrollments temp_id=-199
+2026-10-21 11:27:12 [INFO] Offline INSERT queued: enrollments temp_id=-199
+2026-10-21 11:27:12 [WARNING] SP InsertEnrollment error: 1452 (23000): Cannot add or update a child row: a foreign key constraint fails (`certificate_manager`.`enrollments`, CONSTRAINT `enrollments_ibfk_1` FOREIGN KEY (`period_id`) REFERENCES `academic_periods` (`id`) ON DELETE CASCADE ON UPDATE CASCADE)
+2026-10-21 11:27:12 [INFO] Offline INSERT queued: enrollments temp_id=-200
+2026-10-21 11:27:12 [INFO] Offline INSERT queued: enrollments temp_id=-200
+2026-10-21 11:27:12 [WARNING] SP InsertEnrollment error: 1452 (23000): Cannot add or update a child row: a foreign key constraint fails (`certificate_manager`.`enrollments`, CONSTRAINT `enrollments_ibfk_1` FOREIGN KEY (`period_id`) REFERENCES `academic_periods` (`id`) ON DELETE CASCADE ON UPDATE CASCADE)
+2026-10-21 11:27:12 [INFO] Offline INSERT queued: enrollments temp_id=-201
+2026-10-21 11:27:12 [INFO] Offline INSERT queued: enrollments temp_id=-201
+2026-10-21 11:27:12 [WARNING] SP InsertEnrollment error: 1452 (23000): Cannot add or update a child row: a foreign key constraint fails (`certificate_manager`.`enrollments`, CONSTRAINT `enrollments_ibfk_1` FOREIGN KEY (`period_id`) REFERENCES `academic_periods` (`id`) ON DELETE CASCADE ON UPDATE CASCADE)
+2026-10-21 11:27:12 [INFO] Offline INSERT queued: enrollments temp_id=-202
+2026-10-21 11:27:12 [INFO] Offline INSERT queued: enrollments temp_id=-202
+2026-10-21 11:27:13 [WARNING] SP InsertEnrollment error: 1452 (23000): Cannot add or update a child row: a foreign key constraint fails (`certificate_manager`.`enrollments`, CONSTRAINT `enrollments_ibfk_1` FOREIGN KEY (`period_id`) REFERENCES `academic_periods` (`id`) ON DELETE CASCADE ON UPDATE CASCADE)
+2026-10-21 11:27:13 [INFO] Offline INSERT queued: enrollments temp_id=-203
+2026-10-21 11:27:13 [INFO] Offline INSERT queued: enrollments temp_id=-203
+2026-10-21 11:27:13 [WARNING] SP InsertEnrollment error: 1452 (23000): Cannot add or update a child row: a foreign key constraint fails (`certificate_manager`.`enrollments`, CONSTRAINT `enrollments_ibfk_1` FOREIGN KEY (`period_id`) REFERENCES `academic_periods` (`id`) ON DELETE CASCADE ON UPDATE CASCADE)
+2026-10-21 11:27:13 [INFO] Offline INSERT queued: enrollments temp_id=-204
+2026-10-21 11:27:13 [INFO] Offline INSERT queued: enrollments temp_id=-204
+2026-10-21 11:27:13 [WARNING] SP InsertEnrollment error: 1452 (23000): Cannot add or update a child row: a foreign key constraint fails (`certificate_manager`.`enrollments`, CONSTRAINT `enrollments_ibfk_1` FOREIGN KEY (`period_id`) REFERENCES `academic_periods` (`id`) ON DELETE CASCADE ON UPDATE CASCADE)
+2026-10-21 11:27:13 [INFO] Offline INSERT queued: enrollments temp_id=-205
+2026-10-21 11:27:13 [INFO] Offline INSERT queued: enrollments temp_id=-205
+2026-10-21 11:27:13 [WARNING] SP InsertEnrollment error: 1452 (23000): Cannot add or update a child row: a foreign key constraint fails (`certificate_manager`.`enrollments`, CONSTRAINT `enrollments_ibfk_1` FOREIGN KEY (`period_id`) REFERENCES `academic_periods` (`id`) ON DELETE CASCADE ON UPDATE CASCADE)
+2026-10-21 11:27:13 [INFO] Offline INSERT queued: enrollments temp_id=-206
+2026-10-21 11:27:13 [INFO] Offline INSERT queued: enrollments temp_id=-206
+2026-10-21 11:27:13 [WARNING] SP InsertEnrollment error: 1452 (23000): Cannot add or update a child row: a foreign key constraint fails (`certificate_manager`.`enrollments`, CONSTRAINT `enrollments_ibfk_1` FOREIGN KEY (`period_id`) REFERENCES `academic_periods` (`id`) ON DELETE CASCADE ON UPDATE CASCADE)
+2026-10-21 11:27:13 [INFO] Offline INSERT queued: enrollments temp_id=-207
+2026-10-21 11:27:13 [INFO] Offline INSERT queued: enrollments temp_id=-207
+2026-10-21 11:27:13 [WARNING] SP InsertEnrollment error: 1452 (23000): Cannot add or update a child row: a foreign key constraint fails (`certificate_manager`.`enrollments`, CONSTRAINT `enrollments_ibfk_1` FOREIGN KEY (`period_id`) REFERENCES `academic_periods` (`id`) ON DELETE CASCADE ON UPDATE CASCADE)
+2026-10-21 11:27:13 [INFO] Offline INSERT queued: enrollments temp_id=-208
+2026-10-21 11:27:13 [INFO] Offline INSERT queued: enrollments temp_id=-208
+2026-10-21 11:27:13 [WARNING] SP InsertEnrollment error: 1452 (23000): Cannot add or update a child row: a foreign key constraint fails (`certificate_manager`.`enrollments`, CONSTRAINT `enrollments_ibfk_1` FOREIGN KEY (`period_id`) REFERENCES `academic_periods` (`id`) ON DELETE CASCADE ON UPDATE CASCADE)
+2026-10-21 11:27:13 [INFO] Offline INSERT queued: enrollments temp_id=-209
+2026-10-21 11:27:13 [INFO] Offline INSERT queued: enrollments temp_id=-209
+2026-10-21 11:27:13 [WARNING] SP InsertEnrollment error: 1452 (23000): Cannot add or update a child row: a foreign key constraint fails (`certificate_manager`.`enrollments`, CONSTRAINT `enrollments_ibfk_1` FOREIGN KEY (`period_id`) REFERENCES `academic_periods` (`id`) ON DELETE CASCADE ON UPDATE CASCADE)
+2026-10-21 11:27:13 [INFO] Offline INSERT queued: enrollments temp_id=-210
+2026-10-21 11:27:13 [INFO] Offline INSERT queued: enrollments temp_id=-210
+2026-10-21 11:27:13 [WARNING] SP InsertEnrollment error: 1452 (23000): Cannot add or update a child row: a foreign key constraint fails (`certificate_manager`.`enrollments`, CONSTRAINT `enrollments_ibfk_1` FOREIGN KEY (`period_id`) REFERENCES `academic_periods` (`id`) ON DELETE CASCADE ON UPDATE CASCADE)
+2026-10-21 11:27:13 [INFO] Offline INSERT queued: enrollments temp_id=-211
+2026-10-21 11:27:13 [INFO] Offline INSERT queued: enrollments temp_id=-211
+2026-10-21 11:27:13 [WARNING] SP InsertEnrollment error: 1452 (23000): Cannot add or update a child row: a foreign key constraint fails (`certificate_manager`.`enrollments`, CONSTRAINT `enrollments_ibfk_1` FOREIGN KEY (`period_id`) REFERENCES `academic_periods` (`id`) ON DELETE CASCADE ON UPDATE CASCADE)
+2026-10-21 11:27:13 [INFO] Offline INSERT queued: enrollments temp_id=-212
+2026-10-21 11:27:13 [INFO] Offline INSERT queued: enrollments temp_id=-212
+2026-10-21 11:27:13 [WARNING] SP InsertEnrollment error: 1452 (23000): Cannot add or update a child row: a foreign key constraint fails (`certificate_manager`.`enrollments`, CONSTRAINT `enrollments_ibfk_1` FOREIGN KEY (`period_id`) REFERENCES `academic_periods` (`id`) ON DELETE CASCADE ON UPDATE CASCADE)
+2026-10-21 11:27:13 [INFO] Offline INSERT queued: enrollments temp_id=-213
+2026-10-21 11:27:13 [INFO] Offline INSERT queued: enrollments temp_id=-213
+2026-10-21 11:27:13 [WARNING] SP InsertEnrollment error: 1452 (23000): Cannot add or update a child row: a foreign key constraint fails (`certificate_manager`.`enrollments`, CONSTRAINT `enrollments_ibfk_1` FOREIGN KEY (`period_id`) REFERENCES `academic_periods` (`id`) ON DELETE CASCADE ON UPDATE CASCADE)
+2026-10-21 11:27:13 [INFO] Offline INSERT queued: enrollments temp_id=-214
+2026-10-21 11:27:13 [INFO] Offline INSERT queued: enrollments temp_id=-214
+2026-10-21 11:27:13 [WARNING] SP InsertEnrollment error: 1452 (23000): Cannot add or update a child row: a foreign key constraint fails (`certificate_manager`.`enrollments`, CONSTRAINT `enrollments_ibfk_1` FOREIGN KEY (`period_id`) REFERENCES `academic_periods` (`id`) ON DELETE CASCADE ON UPDATE CASCADE)
+2026-10-21 11:27:13 [INFO] Offline INSERT queued: enrollments temp_id=-215
+2026-10-21 11:27:13 [INFO] Offline INSERT queued: enrollments temp_id=-215
+2026-10-21 11:27:13 [WARNING] SP InsertEnrollment error: 1452 (23000): Cannot add or update a child row: a foreign key constraint fails (`certificate_manager`.`enrollments`, CONSTRAINT `enrollments_ibfk_1` FOREIGN KEY (`period_id`) REFERENCES `academic_periods` (`id`) ON DELETE CASCADE ON UPDATE CASCADE)
+2026-10-21 11:27:13 [INFO] Offline INSERT queued: enrollments temp_id=-216
+2026-10-21 11:27:13 [INFO] Offline INSERT queued: enrollments temp_id=-216
+2026-10-21 11:27:13 [WARNING] SP InsertEnrollment error: 1452 (23000): Cannot add or update a child row: a foreign key constraint fails (`certificate_manager`.`enrollments`, CONSTRAINT `enrollments_ibfk_1` FOREIGN KEY (`period_id`) REFERENCES `academic_periods` (`id`) ON DELETE CASCADE ON UPDATE CASCADE)
+2026-10-21 11:27:13 [INFO] Offline INSERT queued: enrollments temp_id=-217
+2026-10-21 11:27:13 [INFO] Offline INSERT queued: enrollments temp_id=-217
+2026-10-21 11:27:13 [WARNING] SP InsertEnrollment error: 1452 (23000): Cannot add or update a child row: a foreign key constraint fails (`certificate_manager`.`enrollments`, CONSTRAINT `enrollments_ibfk_1` FOREIGN KEY (`period_id`) REFERENCES `academic_periods` (`id`) ON DELETE CASCADE ON UPDATE CASCADE)
+2026-10-21 11:27:13 [INFO] Offline INSERT queued: enrollments temp_id=-218
+2026-10-21 11:27:13 [INFO] Offline INSERT queued: enrollments temp_id=-218
+2026-10-21 11:27:13 [WARNING] SP InsertEnrollment error: 1452 (23000): Cannot add or update a child row: a foreign key constraint fails (`certificate_manager`.`enrollments`, CONSTRAINT `enrollments_ibfk_1` FOREIGN KEY (`period_id`) REFERENCES `academic_periods` (`id`) ON DELETE CASCADE ON UPDATE CASCADE)
+2026-10-21 11:27:13 [INFO] Offline INSERT queued: enrollments temp_id=-219
+2026-10-21 11:27:13 [INFO] Offline INSERT queued: enrollments temp_id=-219
+2026-10-21 11:27:14 [WARNING] SP InsertEnrollment error: 1452 (23000): Cannot add or update a child row: a foreign key constraint fails (`certificate_manager`.`enrollments`, CONSTRAINT `enrollments_ibfk_1` FOREIGN KEY (`period_id`) REFERENCES `academic_periods` (`id`) ON DELETE CASCADE ON UPDATE CASCADE)
+2026-10-21 11:27:14 [INFO] Offline INSERT queued: enrollments temp_id=-220
+2026-10-21 11:27:14 [INFO] Offline INSERT queued: enrollments temp_id=-220
+2026-10-21 11:27:14 [WARNING] SP InsertEnrollment error: 1452 (23000): Cannot add or update a child row: a foreign key constraint fails (`certificate_manager`.`enrollments`, CONSTRAINT `enrollments_ibfk_1` FOREIGN KEY (`period_id`) REFERENCES `academic_periods` (`id`) ON DELETE CASCADE ON UPDATE CASCADE)
+2026-10-21 11:27:14 [INFO] Offline INSERT queued: enrollments temp_id=-221
+2026-10-21 11:27:14 [INFO] Offline INSERT queued: enrollments temp_id=-221
+2026-10-21 11:27:14 [WARNING] SP InsertEnrollment error: 1452 (23000): Cannot add or update a child row: a foreign key constraint fails (`certificate_manager`.`enrollments`, CONSTRAINT `enrollments_ibfk_1` FOREIGN KEY (`period_id`) REFERENCES `academic_periods` (`id`) ON DELETE CASCADE ON UPDATE CASCADE)
+2026-10-21 11:27:14 [INFO] Offline INSERT queued: enrollments temp_id=-222
+2026-10-21 11:27:14 [INFO] Offline INSERT queued: enrollments temp_id=-222
+2026-10-21 11:27:14 [WARNING] SP InsertEnrollment error: 1452 (23000): Cannot add or update a child row: a foreign key constraint fails (`certificate_manager`.`enrollments`, CONSTRAINT `enrollments_ibfk_1` FOREIGN KEY (`period_id`) REFERENCES `academic_periods` (`id`) ON DELETE CASCADE ON UPDATE CASCADE)
+2026-10-21 11:27:14 [INFO] Offline INSERT queued: enrollments temp_id=-223
+2026-10-21 11:27:14 [INFO] Offline INSERT queued: enrollments temp_id=-223
+2026-10-21 11:27:14 [WARNING] SP InsertEnrollment error: 1452 (23000): Cannot add or update a child row: a foreign key constraint fails (`certificate_manager`.`enrollments`, CONSTRAINT `enrollments_ibfk_1` FOREIGN KEY (`period_id`) REFERENCES `academic_periods` (`id`) ON DELETE CASCADE ON UPDATE CASCADE)
+2026-10-21 11:27:14 [INFO] Offline INSERT queued: enrollments temp_id=-224
+2026-10-21 11:27:14 [INFO] Offline INSERT queued: enrollments temp_id=-224
+2026-10-21 11:27:14 [WARNING] SP InsertEnrollment error: 1452 (23000): Cannot add or update a child row: a foreign key constraint fails (`certificate_manager`.`enrollments`, CONSTRAINT `enrollments_ibfk_1` FOREIGN KEY (`period_id`) REFERENCES `academic_periods` (`id`) ON DELETE CASCADE ON UPDATE CASCADE)
+2026-10-21 11:27:14 [INFO] Offline INSERT queued: enrollments temp_id=-225
+2026-10-21 11:27:14 [INFO] Offline INSERT queued: enrollments temp_id=-225
+2026-10-21 11:27:14 [WARNING] SP InsertEnrollment error: 1452 (23000): Cannot add or update a child row: a foreign key constraint fails (`certificate_manager`.`enrollments`, CONSTRAINT `enrollments_ibfk_1` FOREIGN KEY (`period_id`) REFERENCES `academic_periods` (`id`) ON DELETE CASCADE ON UPDATE CASCADE)
+2026-10-21 11:27:14 [INFO] Offline INSERT queued: enrollments temp_id=-226
+2026-10-21 11:27:14 [INFO] Offline INSERT queued: enrollments temp_id=-226
+2026-10-21 11:27:14 [WARNING] SP InsertEnrollment error: 1452 (23000): Cannot add or update a child row: a foreign key constraint fails (`certificate_manager`.`enrollments`, CONSTRAINT `enrollments_ibfk_1` FOREIGN KEY (`period_id`) REFERENCES `academic_periods` (`id`) ON DELETE CASCADE ON UPDATE CASCADE)
+2026-10-21 11:27:14 [INFO] Offline INSERT queued: enrollments temp_id=-227
+2026-10-21 11:27:14 [INFO] Offline INSERT queued: enrollments temp_id=-227
+2026-10-21 11:27:14 [WARNING] SP InsertEnrollment error: 1452 (23000): Cannot add or update a child row: a foreign key constraint fails (`certificate_manager`.`enrollments`, CONSTRAINT `enrollments_ibfk_1` FOREIGN KEY (`period_id`) REFERENCES `academic_periods` (`id`) ON DELETE CASCADE ON UPDATE CASCADE)
+2026-10-21 11:27:14 [INFO] Offline INSERT queued: enrollments temp_id=-228
+2026-10-21 11:27:14 [INFO] Offline INSERT queued: enrollments temp_id=-228
+2026-10-21 11:27:14 [WARNING] SP InsertEnrollment error: 1452 (23000): Cannot add or update a child row: a foreign key constraint fails (`certificate_manager`.`enrollments`, CONSTRAINT `enrollments_ibfk_1` FOREIGN KEY (`period_id`) REFERENCES `academic_periods` (`id`) ON DELETE CASCADE ON UPDATE CASCADE)
+2026-10-21 11:27:14 [INFO] Offline INSERT queued: enrollments temp_id=-229
+2026-10-21 11:27:14 [INFO] Offline INSERT queued: enrollments temp_id=-229
+2026-10-21 11:27:14 [WARNING] SP InsertEnrollment error: 1452 (23000): Cannot add or update a child row: a foreign key constraint fails (`certificate_manager`.`enrollments`, CONSTRAINT `enrollments_ibfk_1` FOREIGN KEY (`period_id`) REFERENCES `academic_periods` (`id`) ON DELETE CASCADE ON UPDATE CASCADE)
+2026-10-21 11:27:14 [INFO] Offline INSERT queued: enrollments temp_id=-230
+2026-10-21 11:27:14 [INFO] Offline INSERT queued: enrollments temp_id=-230
+2026-10-21 11:27:14 [WARNING] SP InsertEnrollment error: 1452 (23000): Cannot add or update a child row: a foreign key constraint fails (`certificate_manager`.`enrollments`, CONSTRAINT `enrollments_ibfk_1` FOREIGN KEY (`period_id`) REFERENCES `academic_periods` (`id`) ON DELETE CASCADE ON UPDATE CASCADE)
+2026-10-21 11:27:14 [INFO] Offline INSERT queued: enrollments temp_id=-231
+2026-10-21 11:27:14 [INFO] Offline INSERT queued: enrollments temp_id=-231
+2026-10-21 11:27:14 [WARNING] SP InsertEnrollment error: 1452 (23000): Cannot add or update a child row: a foreign key constraint fails (`certificate_manager`.`enrollments`, CONSTRAINT `enrollments_ibfk_1` FOREIGN KEY (`period_id`) REFERENCES `academic_periods` (`id`) ON DELETE CASCADE ON UPDATE CASCADE)
+2026-10-21 11:27:14 [INFO] Offline INSERT queued: enrollments temp_id=-232
+2026-10-21 11:27:14 [INFO] Offline INSERT queued: enrollments temp_id=-232
+2026-10-21 11:27:14 [WARNING] SP InsertEnrollment error: 1452 (23000): Cannot add or update a child row: a foreign key constraint fails (`certificate_manager`.`enrollments`, CONSTRAINT `enrollments_ibfk_1` FOREIGN KEY (`period_id`) REFERENCES `academic_periods` (`id`) ON DELETE CASCADE ON UPDATE CASCADE)
+2026-10-21 11:27:14 [INFO] Offline INSERT queued: enrollments temp_id=-233
+2026-10-21 11:27:14 [INFO] Offline INSERT queued: enrollments temp_id=-233
+2026-10-21 11:27:14 [WARNING] SP InsertEnrollment error: 1452 (23000): Cannot add or update a child row: a foreign key constraint fails (`certificate_manager`.`enrollments`, CONSTRAINT `enrollments_ibfk_1` FOREIGN KEY (`period_id`) REFERENCES `academic_periods` (`id`) ON DELETE CASCADE ON UPDATE CASCADE)
+2026-10-21 11:27:14 [INFO] Offline INSERT queued: enrollments temp_id=-234
+2026-10-21 11:27:14 [INFO] Offline INSERT queued: enrollments temp_id=-234
+2026-10-21 11:27:14 [WARNING] SP InsertEnrollment error: 1452 (23000): Cannot add or update a child row: a foreign key constraint fails (`certificate_manager`.`enrollments`, CONSTRAINT `enrollments_ibfk_1` FOREIGN KEY (`period_id`) REFERENCES `academic_periods` (`id`) ON DELETE CASCADE ON UPDATE CASCADE)
+2026-10-21 11:27:15 [INFO] Offline INSERT queued: enrollments temp_id=-235
+2026-10-21 11:27:15 [INFO] Offline INSERT queued: enrollments temp_id=-235
+2026-10-21 11:27:15 [WARNING] SP InsertEnrollment error: 1452 (23000): Cannot add or update a child row: a foreign key constraint fails (`certificate_manager`.`enrollments`, CONSTRAINT `enrollments_ibfk_1` FOREIGN KEY (`period_id`) REFERENCES `academic_periods` (`id`) ON DELETE CASCADE ON UPDATE CASCADE)
+2026-10-21 11:27:15 [INFO] Offline INSERT queued: enrollments temp_id=-236
+2026-10-21 11:27:15 [INFO] Offline INSERT queued: enrollments temp_id=-236
+2026-10-21 11:27:15 [WARNING] SP InsertEnrollment error: 1452 (23000): Cannot add or update a child row: a foreign key constraint fails (`certificate_manager`.`enrollments`, CONSTRAINT `enrollments_ibfk_1` FOREIGN KEY (`period_id`) REFERENCES `academic_periods` (`id`) ON DELETE CASCADE ON UPDATE CASCADE)
+2026-10-21 11:27:15 [INFO] Offline INSERT queued: enrollments temp_id=-237
+2026-10-21 11:27:15 [INFO] Offline INSERT queued: enrollments temp_id=-237
+2026-10-21 11:27:15 [WARNING] SP InsertEnrollment error: 1452 (23000): Cannot add or update a child row: a foreign key constraint fails (`certificate_manager`.`enrollments`, CONSTRAINT `enrollments_ibfk_1` FOREIGN KEY (`period_id`) REFERENCES `academic_periods` (`id`) ON DELETE CASCADE ON UPDATE CASCADE)
+2026-10-21 11:27:15 [INFO] Offline INSERT queued: enrollments temp_id=-238
+2026-10-21 11:27:15 [INFO] Offline INSERT queued: enrollments temp_id=-238
+2026-10-21 11:27:15 [WARNING] SP InsertEnrollment error: 1452 (23000): Cannot add or update a child row: a foreign key constraint fails (`certificate_manager`.`enrollments`, CONSTRAINT `enrollments_ibfk_1` FOREIGN KEY (`period_id`) REFERENCES `academic_periods` (`id`) ON DELETE CASCADE ON UPDATE CASCADE)
+2026-10-21 11:27:15 [INFO] Offline INSERT queued: enrollments temp_id=-239
+2026-10-21 11:27:15 [INFO] Offline INSERT queued: enrollments temp_id=-239
+2026-10-21 11:27:15 [WARNING] SP InsertEnrollment error: 1452 (23000): Cannot add or update a child row: a foreign key constraint fails (`certificate_manager`.`enrollments`, CONSTRAINT `enrollments_ibfk_1` FOREIGN KEY (`period_id`) REFERENCES `academic_periods` (`id`) ON DELETE CASCADE ON UPDATE CASCADE)
+2026-10-21 11:27:15 [INFO] Offline INSERT queued: enrollments temp_id=-240
+2026-10-21 11:27:15 [INFO] Offline INSERT queued: enrollments temp_id=-240
+2026-10-21 11:27:15 [WARNING] SP InsertEnrollment error: 1452 (23000): Cannot add or update a child row: a foreign key constraint fails (`certificate_manager`.`enrollments`, CONSTRAINT `enrollments_ibfk_1` FOREIGN KEY (`period_id`) REFERENCES `academic_periods` (`id`) ON DELETE CASCADE ON UPDATE CASCADE)
+2026-10-21 11:27:15 [INFO] Offline INSERT queued: enrollments temp_id=-241
+2026-10-21 11:27:15 [INFO] Offline INSERT queued: enrollments temp_id=-241
+2026-10-21 11:27:15 [WARNING] SP InsertEnrollment error: 1452 (23000): Cannot add or update a child row: a foreign key constraint fails (`certificate_manager`.`enrollments`, CONSTRAINT `enrollments_ibfk_1` FOREIGN KEY (`period_id`) REFERENCES `academic_periods` (`id`) ON DELETE CASCADE ON UPDATE CASCADE)
+2026-10-21 11:27:15 [INFO] Offline INSERT queued: enrollments temp_id=-242
+2026-10-21 11:27:15 [INFO] Offline INSERT queued: enrollments temp_id=-242
+2026-10-21 11:27:15 [WARNING] SP InsertEnrollment error: 1452 (23000): Cannot add or update a child row: a foreign key constraint fails (`certificate_manager`.`enrollments`, CONSTRAINT `enrollments_ibfk_1` FOREIGN KEY (`period_id`) REFERENCES `academic_periods` (`id`) ON DELETE CASCADE ON UPDATE CASCADE)
+2026-10-21 11:27:15 [INFO] Offline INSERT queued: enrollments temp_id=-243
+2026-10-21 11:27:15 [INFO] Offline INSERT queued: enrollments temp_id=-243
+2026-10-21 11:27:15 [WARNING] SP InsertEnrollment error: 1452 (23000): Cannot add or update a child row: a foreign key constraint fails (`certificate_manager`.`enrollments`, CONSTRAINT `enrollments_ibfk_1` FOREIGN KEY (`period_id`) REFERENCES `academic_periods` (`id`) ON DELETE CASCADE ON UPDATE CASCADE)
+2026-10-21 11:27:15 [INFO] Offline INSERT queued: enrollments temp_id=-244
+2026-10-21 11:27:15 [INFO] Offline INSERT queued: enrollments temp_id=-244
+2026-10-21 11:28:34 [INFO] Online Mode: Successfully fetched raw certificate payload via API for student_id=2138.
+2026-10-21 11:28:34 [INFO] Online Mode: Successfully fetched raw certificate payload via API for student_id=2138.
+2026-10-21 11:28:59 [INFO] Online Mode: Successfully fetched raw certificate payload via API for student_id=2137.
+2026-10-21 11:28:59 [INFO] Online Mode: Successfully fetched raw certificate payload via API for student_id=2137.
+2026-10-21 11:32:01 [INFO] Online Mode: Successfully fetched raw certificate payload via API for student_id=2137.
+2026-10-21 11:32:01 [INFO] Online Mode: Successfully fetched raw certificate payload via API for student_id=2137.
+2026-10-21 11:33:44 [INFO] Online Mode: Successfully fetched raw certificate payload via API for student_id=12.
+2026-10-21 11:33:44 [INFO] Online Mode: Successfully fetched raw certificate payload via API for student_id=12.
+2026-10-21 11:34:12 [INFO] Online Mode: Successfully fetched raw certificate payload via API for student_id=12.
+2026-10-21 11:34:12 [INFO] Online Mode: Successfully fetched raw certificate payload via API for student_id=12.
+2026-10-21 11:34:29 [INFO] Online Mode: Successfully fetched raw certificate payload via API for student_id=2137.
+2026-10-21 11:34:29 [INFO] Online Mode: Successfully fetched raw certificate payload via API for student_id=2137.
+2026-10-21 11:35:58 [INFO] Successfully recorded issued certificate for student ID 2137 via InsertIssuedCertificate SP.
+2026-10-21 11:35:58 [INFO] Successfully recorded issued certificate for student ID 2137 via InsertIssuedCertificate SP.
+2026-10-21 11:37:21 [INFO] Successfully recorded issued certificate for student ID 2137 via InsertIssuedCertificate SP.
+2026-10-21 11:37:21 [INFO] Successfully recorded issued certificate for student ID 2137 via InsertIssuedCertificate SP.
+2026-10-21 12:10:04 [INFO] before_load event fired. injecting pywebview object
+2026-10-21 12:10:04 [INFO] before_load event fired. injecting pywebview object
+2026-10-21 12:10:04 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-21 12:10:04 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-21 12:10:04 [INFO] _pywebviewready event fired
+2026-10-21 12:10:04 [INFO] _pywebviewready event fired
+2026-10-21 12:10:04 [INFO] loaded event fired
+2026-10-21 12:10:04 [INFO] loaded event fired
+2026-10-21 15:28:01 [INFO] before_load event fired. injecting pywebview object
+2026-10-21 15:28:01 [INFO] before_load event fired. injecting pywebview object
+2026-10-21 15:28:01 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-21 15:28:01 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-21 15:28:01 [INFO] _pywebviewready event fired
+2026-10-21 15:28:01 [INFO] _pywebviewready event fired
+2026-10-21 15:28:02 [INFO] loaded event fired
+2026-10-21 15:28:02 [INFO] loaded event fired
+2026-10-21 15:57:23 [INFO] before_load event fired. injecting pywebview object
+2026-10-21 15:57:23 [INFO] before_load event fired. injecting pywebview object
+2026-10-21 15:57:23 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-21 15:57:23 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-21 15:57:23 [INFO] _pywebviewready event fired
+2026-10-21 15:57:23 [INFO] _pywebviewready event fired
+2026-10-21 15:57:24 [INFO] loaded event fired
+2026-10-21 15:57:24 [INFO] loaded event fired
+2026-10-21 16:17:25 [INFO] before_load event fired. injecting pywebview object
+2026-10-21 16:17:25 [INFO] before_load event fired. injecting pywebview object
+2026-10-21 16:17:25 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-21 16:17:25 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-21 16:17:26 [INFO] _pywebviewready event fired
+2026-10-21 16:17:26 [INFO] _pywebviewready event fired
+2026-10-21 16:17:26 [INFO] loaded event fired
+2026-10-21 16:17:26 [INFO] loaded event fired
+2026-10-21 19:29:36 [INFO] before_load event fired. injecting pywebview object
+2026-10-21 19:29:36 [INFO] before_load event fired. injecting pywebview object
+2026-10-21 19:29:36 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-21 19:29:36 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-21 19:29:36 [INFO] _pywebviewready event fired
+2026-10-21 19:29:36 [INFO] _pywebviewready event fired
+2026-10-21 19:29:36 [INFO] loaded event fired
+2026-10-21 19:29:36 [INFO] loaded event fired
+2026-10-21 23:31:39 [INFO] before_load event fired. injecting pywebview object
+2026-10-21 23:31:39 [INFO] before_load event fired. injecting pywebview object
+2026-10-21 23:31:39 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-21 23:31:39 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-21 23:31:39 [INFO] _pywebviewready event fired
+2026-10-21 23:31:39 [INFO] _pywebviewready event fired
+2026-10-21 23:31:39 [INFO] loaded event fired
+2026-10-21 23:31:39 [INFO] loaded event fired
+2026-10-22 03:33:39 [INFO] before_load event fired. injecting pywebview object
+2026-10-22 03:33:39 [INFO] before_load event fired. injecting pywebview object
+2026-10-22 03:33:39 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-22 03:33:39 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-22 03:33:40 [INFO] _pywebviewready event fired
+2026-10-22 03:33:40 [INFO] _pywebviewready event fired
+2026-10-22 03:33:40 [INFO] loaded event fired
+2026-10-22 03:33:40 [INFO] loaded event fired
+2026-10-22 07:35:42 [INFO] before_load event fired. injecting pywebview object
+2026-10-22 07:35:42 [INFO] before_load event fired. injecting pywebview object
+2026-10-22 07:35:42 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-22 07:35:42 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-22 07:35:42 [INFO] _pywebviewready event fired
+2026-10-22 07:35:42 [INFO] _pywebviewready event fired
+2026-10-22 07:35:42 [INFO] loaded event fired
+2026-10-22 07:35:42 [INFO] loaded event fired
+2026-10-22 08:48:39 [INFO] before_load event fired. injecting pywebview object
+2026-10-22 08:48:39 [INFO] before_load event fired. injecting pywebview object
+2026-10-22 08:48:39 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-22 08:48:39 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-22 08:48:40 [INFO] _pywebviewready event fired
+2026-10-22 08:48:40 [INFO] _pywebviewready event fired
+2026-10-22 08:48:40 [INFO] loaded event fired
+2026-10-22 08:48:40 [INFO] loaded event fired
+2026-10-22 08:49:26 [WARNING] SP InsertEnrollment error: 1452 (23000): Cannot add or update a child row: a foreign key constraint fails (`certificate_manager`.`enrollments`, CONSTRAINT `enrollments_ibfk_1` FOREIGN KEY (`period_id`) REFERENCES `academic_periods` (`id`) ON DELETE CASCADE ON UPDATE CASCADE)
+2026-10-22 08:49:26 [INFO] Offline INSERT queued: enrollments temp_id=-245
+2026-10-22 08:49:26 [INFO] Offline INSERT queued: enrollments temp_id=-245
+2026-10-22 08:49:26 [WARNING] SP InsertEnrollment error: 1452 (23000): Cannot add or update a child row: a foreign key constraint fails (`certificate_manager`.`enrollments`, CONSTRAINT `enrollments_ibfk_1` FOREIGN KEY (`period_id`) REFERENCES `academic_periods` (`id`) ON DELETE CASCADE ON UPDATE CASCADE)
+2026-10-22 08:49:26 [INFO] Offline INSERT queued: enrollments temp_id=-246
+2026-10-22 08:49:26 [INFO] Offline INSERT queued: enrollments temp_id=-246
+2026-10-22 08:49:26 [WARNING] SP InsertEnrollment error: 1452 (23000): Cannot add or update a child row: a foreign key constraint fails (`certificate_manager`.`enrollments`, CONSTRAINT `enrollments_ibfk_1` FOREIGN KEY (`period_id`) REFERENCES `academic_periods` (`id`) ON DELETE CASCADE ON UPDATE CASCADE)
+2026-10-22 08:49:26 [INFO] Offline INSERT queued: enrollments temp_id=-247
+2026-10-22 08:49:26 [INFO] Offline INSERT queued: enrollments temp_id=-247
+2026-10-22 08:49:26 [WARNING] SP InsertEnrollment error: 1452 (23000): Cannot add or update a child row: a foreign key constraint fails (`certificate_manager`.`enrollments`, CONSTRAINT `enrollments_ibfk_1` FOREIGN KEY (`period_id`) REFERENCES `academic_periods` (`id`) ON DELETE CASCADE ON UPDATE CASCADE)
+2026-10-22 08:49:27 [INFO] Offline INSERT queued: enrollments temp_id=-248
+2026-10-22 08:49:27 [INFO] Offline INSERT queued: enrollments temp_id=-248
+2026-10-22 08:49:27 [WARNING] SP InsertEnrollment error: 1452 (23000): Cannot add or update a child row: a foreign key constraint fails (`certificate_manager`.`enrollments`, CONSTRAINT `enrollments_ibfk_1` FOREIGN KEY (`period_id`) REFERENCES `academic_periods` (`id`) ON DELETE CASCADE ON UPDATE CASCADE)
+2026-10-22 08:49:27 [INFO] Offline INSERT queued: enrollments temp_id=-249
+2026-10-22 08:49:27 [INFO] Offline INSERT queued: enrollments temp_id=-249
+2026-10-22 08:49:27 [WARNING] SP InsertEnrollment error: 1452 (23000): Cannot add or update a child row: a foreign key constraint fails (`certificate_manager`.`enrollments`, CONSTRAINT `enrollments_ibfk_1` FOREIGN KEY (`period_id`) REFERENCES `academic_periods` (`id`) ON DELETE CASCADE ON UPDATE CASCADE)
+2026-10-22 08:49:27 [INFO] Offline INSERT queued: enrollments temp_id=-250
+2026-10-22 08:49:27 [INFO] Offline INSERT queued: enrollments temp_id=-250
+2026-10-22 08:49:27 [WARNING] SP InsertEnrollment error: 1452 (23000): Cannot add or update a child row: a foreign key constraint fails (`certificate_manager`.`enrollments`, CONSTRAINT `enrollments_ibfk_1` FOREIGN KEY (`period_id`) REFERENCES `academic_periods` (`id`) ON DELETE CASCADE ON UPDATE CASCADE)
+2026-10-22 08:49:27 [INFO] Offline INSERT queued: enrollments temp_id=-251
+2026-10-22 08:49:27 [INFO] Offline INSERT queued: enrollments temp_id=-251
+2026-10-22 08:49:27 [WARNING] SP InsertEnrollment error: 1452 (23000): Cannot add or update a child row: a foreign key constraint fails (`certificate_manager`.`enrollments`, CONSTRAINT `enrollments_ibfk_1` FOREIGN KEY (`period_id`) REFERENCES `academic_periods` (`id`) ON DELETE CASCADE ON UPDATE CASCADE)
+2026-10-22 08:49:27 [INFO] Offline INSERT queued: enrollments temp_id=-252
+2026-10-22 08:49:27 [INFO] Offline INSERT queued: enrollments temp_id=-252
+2026-10-22 08:49:27 [WARNING] SP InsertEnrollment error: 1452 (23000): Cannot add or update a child row: a foreign key constraint fails (`certificate_manager`.`enrollments`, CONSTRAINT `enrollments_ibfk_1` FOREIGN KEY (`period_id`) REFERENCES `academic_periods` (`id`) ON DELETE CASCADE ON UPDATE CASCADE)
+2026-10-22 08:49:27 [INFO] Offline INSERT queued: enrollments temp_id=-253
+2026-10-22 08:49:27 [INFO] Offline INSERT queued: enrollments temp_id=-253
+2026-10-22 08:49:27 [WARNING] SP InsertEnrollment error: 1452 (23000): Cannot add or update a child row: a foreign key constraint fails (`certificate_manager`.`enrollments`, CONSTRAINT `enrollments_ibfk_1` FOREIGN KEY (`period_id`) REFERENCES `academic_periods` (`id`) ON DELETE CASCADE ON UPDATE CASCADE)
+2026-10-22 08:49:27 [INFO] Offline INSERT queued: enrollments temp_id=-254
+2026-10-22 08:49:27 [INFO] Offline INSERT queued: enrollments temp_id=-254
+2026-10-22 08:49:27 [WARNING] SP InsertEnrollment error: 1452 (23000): Cannot add or update a child row: a foreign key constraint fails (`certificate_manager`.`enrollments`, CONSTRAINT `enrollments_ibfk_1` FOREIGN KEY (`period_id`) REFERENCES `academic_periods` (`id`) ON DELETE CASCADE ON UPDATE CASCADE)
+2026-10-22 08:49:27 [INFO] Offline INSERT queued: enrollments temp_id=-255
+2026-10-22 08:49:27 [INFO] Offline INSERT queued: enrollments temp_id=-255
+2026-10-22 08:49:27 [WARNING] SP InsertEnrollment error: 1452 (23000): Cannot add or update a child row: a foreign key constraint fails (`certificate_manager`.`enrollments`, CONSTRAINT `enrollments_ibfk_1` FOREIGN KEY (`period_id`) REFERENCES `academic_periods` (`id`) ON DELETE CASCADE ON UPDATE CASCADE)
+2026-10-22 08:49:27 [INFO] Offline INSERT queued: enrollments temp_id=-256
+2026-10-22 08:49:27 [INFO] Offline INSERT queued: enrollments temp_id=-256
+2026-10-22 08:49:27 [WARNING] SP InsertEnrollment error: 1452 (23000): Cannot add or update a child row: a foreign key constraint fails (`certificate_manager`.`enrollments`, CONSTRAINT `enrollments_ibfk_1` FOREIGN KEY (`period_id`) REFERENCES `academic_periods` (`id`) ON DELETE CASCADE ON UPDATE CASCADE)
+2026-10-22 08:49:27 [INFO] Offline INSERT queued: enrollments temp_id=-257
+2026-10-22 08:49:27 [INFO] Offline INSERT queued: enrollments temp_id=-257
+2026-10-22 08:49:27 [WARNING] SP InsertEnrollment error: 1452 (23000): Cannot add or update a child row: a foreign key constraint fails (`certificate_manager`.`enrollments`, CONSTRAINT `enrollments_ibfk_1` FOREIGN KEY (`period_id`) REFERENCES `academic_periods` (`id`) ON DELETE CASCADE ON UPDATE CASCADE)
+2026-10-22 08:49:27 [INFO] Offline INSERT queued: enrollments temp_id=-258
+2026-10-22 08:49:27 [INFO] Offline INSERT queued: enrollments temp_id=-258
+2026-10-22 08:49:27 [WARNING] SP InsertEnrollment error: 1452 (23000): Cannot add or update a child row: a foreign key constraint fails (`certificate_manager`.`enrollments`, CONSTRAINT `enrollments_ibfk_1` FOREIGN KEY (`period_id`) REFERENCES `academic_periods` (`id`) ON DELETE CASCADE ON UPDATE CASCADE)
+2026-10-22 08:49:27 [INFO] Offline INSERT queued: enrollments temp_id=-259
+2026-10-22 08:49:27 [INFO] Offline INSERT queued: enrollments temp_id=-259
+2026-10-22 08:49:27 [WARNING] SP InsertEnrollment error: 1452 (23000): Cannot add or update a child row: a foreign key constraint fails (`certificate_manager`.`enrollments`, CONSTRAINT `enrollments_ibfk_1` FOREIGN KEY (`period_id`) REFERENCES `academic_periods` (`id`) ON DELETE CASCADE ON UPDATE CASCADE)
+2026-10-22 08:49:27 [INFO] Offline INSERT queued: enrollments temp_id=-260
+2026-10-22 08:49:27 [INFO] Offline INSERT queued: enrollments temp_id=-260
+2026-10-22 08:49:27 [WARNING] SP InsertEnrollment error: 1452 (23000): Cannot add or update a child row: a foreign key constraint fails (`certificate_manager`.`enrollments`, CONSTRAINT `enrollments_ibfk_1` FOREIGN KEY (`period_id`) REFERENCES `academic_periods` (`id`) ON DELETE CASCADE ON UPDATE CASCADE)
+2026-10-22 08:49:27 [INFO] Offline INSERT queued: enrollments temp_id=-261
+2026-10-22 08:49:27 [INFO] Offline INSERT queued: enrollments temp_id=-261
+2026-10-22 08:49:27 [WARNING] SP InsertEnrollment error: 1452 (23000): Cannot add or update a child row: a foreign key constraint fails (`certificate_manager`.`enrollments`, CONSTRAINT `enrollments_ibfk_1` FOREIGN KEY (`period_id`) REFERENCES `academic_periods` (`id`) ON DELETE CASCADE ON UPDATE CASCADE)
+2026-10-22 08:49:27 [INFO] Offline INSERT queued: enrollments temp_id=-262
+2026-10-22 08:49:27 [INFO] Offline INSERT queued: enrollments temp_id=-262
+2026-10-22 08:49:27 [WARNING] SP InsertEnrollment error: 1452 (23000): Cannot add or update a child row: a foreign key constraint fails (`certificate_manager`.`enrollments`, CONSTRAINT `enrollments_ibfk_1` FOREIGN KEY (`period_id`) REFERENCES `academic_periods` (`id`) ON DELETE CASCADE ON UPDATE CASCADE)
+2026-10-22 08:49:27 [INFO] Offline INSERT queued: enrollments temp_id=-263
+2026-10-22 08:49:27 [INFO] Offline INSERT queued: enrollments temp_id=-263
+2026-10-22 08:49:27 [WARNING] SP InsertEnrollment error: 1452 (23000): Cannot add or update a child row: a foreign key constraint fails (`certificate_manager`.`enrollments`, CONSTRAINT `enrollments_ibfk_1` FOREIGN KEY (`period_id`) REFERENCES `academic_periods` (`id`) ON DELETE CASCADE ON UPDATE CASCADE)
+2026-10-22 08:49:27 [INFO] Offline INSERT queued: enrollments temp_id=-264
+2026-10-22 08:49:27 [INFO] Offline INSERT queued: enrollments temp_id=-264
+2026-10-22 08:49:27 [WARNING] SP InsertEnrollment error: 1452 (23000): Cannot add or update a child row: a foreign key constraint fails (`certificate_manager`.`enrollments`, CONSTRAINT `enrollments_ibfk_1` FOREIGN KEY (`period_id`) REFERENCES `academic_periods` (`id`) ON DELETE CASCADE ON UPDATE CASCADE)
+2026-10-22 08:49:27 [INFO] Offline INSERT queued: enrollments temp_id=-265
+2026-10-22 08:49:27 [INFO] Offline INSERT queued: enrollments temp_id=-265
+2026-10-22 08:49:27 [WARNING] SP InsertEnrollment error: 1452 (23000): Cannot add or update a child row: a foreign key constraint fails (`certificate_manager`.`enrollments`, CONSTRAINT `enrollments_ibfk_1` FOREIGN KEY (`period_id`) REFERENCES `academic_periods` (`id`) ON DELETE CASCADE ON UPDATE CASCADE)
+2026-10-22 08:49:27 [INFO] Offline INSERT queued: enrollments temp_id=-266
+2026-10-22 08:49:27 [INFO] Offline INSERT queued: enrollments temp_id=-266
+2026-10-22 08:49:28 [WARNING] SP InsertEnrollment error: 1452 (23000): Cannot add or update a child row: a foreign key constraint fails (`certificate_manager`.`enrollments`, CONSTRAINT `enrollments_ibfk_1` FOREIGN KEY (`period_id`) REFERENCES `academic_periods` (`id`) ON DELETE CASCADE ON UPDATE CASCADE)
+2026-10-22 08:49:28 [INFO] Offline INSERT queued: enrollments temp_id=-267
+2026-10-22 08:49:28 [INFO] Offline INSERT queued: enrollments temp_id=-267
+2026-10-22 08:49:28 [WARNING] SP InsertEnrollment error: 1452 (23000): Cannot add or update a child row: a foreign key constraint fails (`certificate_manager`.`enrollments`, CONSTRAINT `enrollments_ibfk_1` FOREIGN KEY (`period_id`) REFERENCES `academic_periods` (`id`) ON DELETE CASCADE ON UPDATE CASCADE)
+2026-10-22 08:49:28 [INFO] Offline INSERT queued: enrollments temp_id=-268
+2026-10-22 08:49:28 [INFO] Offline INSERT queued: enrollments temp_id=-268
+2026-10-22 08:49:28 [WARNING] SP InsertEnrollment error: 1452 (23000): Cannot add or update a child row: a foreign key constraint fails (`certificate_manager`.`enrollments`, CONSTRAINT `enrollments_ibfk_1` FOREIGN KEY (`period_id`) REFERENCES `academic_periods` (`id`) ON DELETE CASCADE ON UPDATE CASCADE)
+2026-10-22 08:49:28 [INFO] Offline INSERT queued: enrollments temp_id=-269
+2026-10-22 08:49:28 [INFO] Offline INSERT queued: enrollments temp_id=-269
+2026-10-22 08:49:28 [WARNING] SP InsertEnrollment error: 1452 (23000): Cannot add or update a child row: a foreign key constraint fails (`certificate_manager`.`enrollments`, CONSTRAINT `enrollments_ibfk_1` FOREIGN KEY (`period_id`) REFERENCES `academic_periods` (`id`) ON DELETE CASCADE ON UPDATE CASCADE)
+2026-10-22 08:49:28 [INFO] Offline INSERT queued: enrollments temp_id=-270
+2026-10-22 08:49:28 [INFO] Offline INSERT queued: enrollments temp_id=-270
+2026-10-22 08:49:28 [WARNING] SP InsertEnrollment error: 1452 (23000): Cannot add or update a child row: a foreign key constraint fails (`certificate_manager`.`enrollments`, CONSTRAINT `enrollments_ibfk_1` FOREIGN KEY (`period_id`) REFERENCES `academic_periods` (`id`) ON DELETE CASCADE ON UPDATE CASCADE)
+2026-10-22 08:49:28 [INFO] Offline INSERT queued: enrollments temp_id=-271
+2026-10-22 08:49:28 [INFO] Offline INSERT queued: enrollments temp_id=-271
+2026-10-22 08:49:28 [WARNING] SP InsertEnrollment error: 1452 (23000): Cannot add or update a child row: a foreign key constraint fails (`certificate_manager`.`enrollments`, CONSTRAINT `enrollments_ibfk_1` FOREIGN KEY (`period_id`) REFERENCES `academic_periods` (`id`) ON DELETE CASCADE ON UPDATE CASCADE)
+2026-10-22 08:49:28 [INFO] Offline INSERT queued: enrollments temp_id=-272
+2026-10-22 08:49:28 [INFO] Offline INSERT queued: enrollments temp_id=-272
+2026-10-22 08:49:28 [WARNING] SP InsertEnrollment error: 1452 (23000): Cannot add or update a child row: a foreign key constraint fails (`certificate_manager`.`enrollments`, CONSTRAINT `enrollments_ibfk_1` FOREIGN KEY (`period_id`) REFERENCES `academic_periods` (`id`) ON DELETE CASCADE ON UPDATE CASCADE)
+2026-10-22 08:49:28 [INFO] Offline INSERT queued: enrollments temp_id=-273
+2026-10-22 08:49:28 [INFO] Offline INSERT queued: enrollments temp_id=-273
+2026-10-22 08:49:28 [WARNING] SP InsertEnrollment error: 1452 (23000): Cannot add or update a child row: a foreign key constraint fails (`certificate_manager`.`enrollments`, CONSTRAINT `enrollments_ibfk_1` FOREIGN KEY (`period_id`) REFERENCES `academic_periods` (`id`) ON DELETE CASCADE ON UPDATE CASCADE)
+2026-10-22 08:49:28 [INFO] Offline INSERT queued: enrollments temp_id=-274
+2026-10-22 08:49:28 [INFO] Offline INSERT queued: enrollments temp_id=-274
+2026-10-22 08:49:28 [WARNING] SP InsertEnrollment error: 1452 (23000): Cannot add or update a child row: a foreign key constraint fails (`certificate_manager`.`enrollments`, CONSTRAINT `enrollments_ibfk_1` FOREIGN KEY (`period_id`) REFERENCES `academic_periods` (`id`) ON DELETE CASCADE ON UPDATE CASCADE)
+2026-10-22 08:49:28 [INFO] Offline INSERT queued: enrollments temp_id=-275
+2026-10-22 08:49:28 [INFO] Offline INSERT queued: enrollments temp_id=-275
+2026-10-22 08:49:28 [WARNING] SP InsertEnrollment error: 1452 (23000): Cannot add or update a child row: a foreign key constraint fails (`certificate_manager`.`enrollments`, CONSTRAINT `enrollments_ibfk_1` FOREIGN KEY (`period_id`) REFERENCES `academic_periods` (`id`) ON DELETE CASCADE ON UPDATE CASCADE)
+2026-10-22 08:49:28 [INFO] Offline INSERT queued: enrollments temp_id=-276
+2026-10-22 08:49:28 [INFO] Offline INSERT queued: enrollments temp_id=-276
+2026-10-22 08:49:28 [WARNING] SP InsertEnrollment error: 1452 (23000): Cannot add or update a child row: a foreign key constraint fails (`certificate_manager`.`enrollments`, CONSTRAINT `enrollments_ibfk_1` FOREIGN KEY (`period_id`) REFERENCES `academic_periods` (`id`) ON DELETE CASCADE ON UPDATE CASCADE)
+2026-10-22 08:49:28 [INFO] Offline INSERT queued: enrollments temp_id=-277
+2026-10-22 08:49:28 [INFO] Offline INSERT queued: enrollments temp_id=-277
+2026-10-22 08:49:28 [WARNING] SP InsertEnrollment error: 1452 (23000): Cannot add or update a child row: a foreign key constraint fails (`certificate_manager`.`enrollments`, CONSTRAINT `enrollments_ibfk_1` FOREIGN KEY (`period_id`) REFERENCES `academic_periods` (`id`) ON DELETE CASCADE ON UPDATE CASCADE)
+2026-10-22 08:49:28 [INFO] Offline INSERT queued: enrollments temp_id=-278
+2026-10-22 08:49:28 [INFO] Offline INSERT queued: enrollments temp_id=-278
+2026-10-22 08:49:28 [WARNING] SP InsertEnrollment error: 1452 (23000): Cannot add or update a child row: a foreign key constraint fails (`certificate_manager`.`enrollments`, CONSTRAINT `enrollments_ibfk_1` FOREIGN KEY (`period_id`) REFERENCES `academic_periods` (`id`) ON DELETE CASCADE ON UPDATE CASCADE)
+2026-10-22 08:49:28 [INFO] Offline INSERT queued: enrollments temp_id=-279
+2026-10-22 08:49:28 [INFO] Offline INSERT queued: enrollments temp_id=-279
+2026-10-22 08:49:28 [WARNING] SP InsertEnrollment error: 1452 (23000): Cannot add or update a child row: a foreign key constraint fails (`certificate_manager`.`enrollments`, CONSTRAINT `enrollments_ibfk_1` FOREIGN KEY (`period_id`) REFERENCES `academic_periods` (`id`) ON DELETE CASCADE ON UPDATE CASCADE)
+2026-10-22 08:49:28 [INFO] Offline INSERT queued: enrollments temp_id=-280
+2026-10-22 08:49:28 [INFO] Offline INSERT queued: enrollments temp_id=-280
+2026-10-22 08:49:28 [WARNING] SP InsertEnrollment error: 1452 (23000): Cannot add or update a child row: a foreign key constraint fails (`certificate_manager`.`enrollments`, CONSTRAINT `enrollments_ibfk_1` FOREIGN KEY (`period_id`) REFERENCES `academic_periods` (`id`) ON DELETE CASCADE ON UPDATE CASCADE)
+2026-10-22 08:49:28 [INFO] Offline INSERT queued: enrollments temp_id=-281
+2026-10-22 08:49:28 [INFO] Offline INSERT queued: enrollments temp_id=-281
+2026-10-22 08:49:29 [WARNING] SP InsertEnrollment error: 1452 (23000): Cannot add or update a child row: a foreign key constraint fails (`certificate_manager`.`enrollments`, CONSTRAINT `enrollments_ibfk_1` FOREIGN KEY (`period_id`) REFERENCES `academic_periods` (`id`) ON DELETE CASCADE ON UPDATE CASCADE)
+2026-10-22 08:49:29 [INFO] Offline INSERT queued: enrollments temp_id=-282
+2026-10-22 08:49:29 [INFO] Offline INSERT queued: enrollments temp_id=-282
+2026-10-22 08:49:29 [WARNING] SP InsertEnrollment error: 1452 (23000): Cannot add or update a child row: a foreign key constraint fails (`certificate_manager`.`enrollments`, CONSTRAINT `enrollments_ibfk_1` FOREIGN KEY (`period_id`) REFERENCES `academic_periods` (`id`) ON DELETE CASCADE ON UPDATE CASCADE)
+2026-10-22 08:49:29 [INFO] Offline INSERT queued: enrollments temp_id=-283
+2026-10-22 08:49:29 [INFO] Offline INSERT queued: enrollments temp_id=-283
+2026-10-22 08:49:29 [WARNING] SP InsertEnrollment error: 1452 (23000): Cannot add or update a child row: a foreign key constraint fails (`certificate_manager`.`enrollments`, CONSTRAINT `enrollments_ibfk_1` FOREIGN KEY (`period_id`) REFERENCES `academic_periods` (`id`) ON DELETE CASCADE ON UPDATE CASCADE)
+2026-10-22 08:49:29 [INFO] Offline INSERT queued: enrollments temp_id=-284
+2026-10-22 08:49:29 [INFO] Offline INSERT queued: enrollments temp_id=-284
+2026-10-22 08:49:29 [WARNING] SP InsertEnrollment error: 1452 (23000): Cannot add or update a child row: a foreign key constraint fails (`certificate_manager`.`enrollments`, CONSTRAINT `enrollments_ibfk_1` FOREIGN KEY (`period_id`) REFERENCES `academic_periods` (`id`) ON DELETE CASCADE ON UPDATE CASCADE)
+2026-10-22 08:49:29 [INFO] Offline INSERT queued: enrollments temp_id=-285
+2026-10-22 08:49:29 [INFO] Offline INSERT queued: enrollments temp_id=-285
+2026-10-22 08:49:29 [WARNING] SP InsertEnrollment error: 1452 (23000): Cannot add or update a child row: a foreign key constraint fails (`certificate_manager`.`enrollments`, CONSTRAINT `enrollments_ibfk_1` FOREIGN KEY (`period_id`) REFERENCES `academic_periods` (`id`) ON DELETE CASCADE ON UPDATE CASCADE)
+2026-10-22 08:49:29 [INFO] Offline INSERT queued: enrollments temp_id=-286
+2026-10-22 08:49:29 [INFO] Offline INSERT queued: enrollments temp_id=-286
+2026-10-22 08:49:29 [WARNING] SP InsertEnrollment error: 1452 (23000): Cannot add or update a child row: a foreign key constraint fails (`certificate_manager`.`enrollments`, CONSTRAINT `enrollments_ibfk_1` FOREIGN KEY (`period_id`) REFERENCES `academic_periods` (`id`) ON DELETE CASCADE ON UPDATE CASCADE)
+2026-10-22 08:49:29 [INFO] Offline INSERT queued: enrollments temp_id=-287
+2026-10-22 08:49:29 [INFO] Offline INSERT queued: enrollments temp_id=-287
+2026-10-22 08:49:29 [WARNING] SP InsertEnrollment error: 1452 (23000): Cannot add or update a child row: a foreign key constraint fails (`certificate_manager`.`enrollments`, CONSTRAINT `enrollments_ibfk_1` FOREIGN KEY (`period_id`) REFERENCES `academic_periods` (`id`) ON DELETE CASCADE ON UPDATE CASCADE)
+2026-10-22 08:49:29 [INFO] Offline INSERT queued: enrollments temp_id=-288
+2026-10-22 08:49:29 [INFO] Offline INSERT queued: enrollments temp_id=-288
+2026-10-22 08:49:29 [WARNING] SP InsertEnrollment error: 1452 (23000): Cannot add or update a child row: a foreign key constraint fails (`certificate_manager`.`enrollments`, CONSTRAINT `enrollments_ibfk_1` FOREIGN KEY (`period_id`) REFERENCES `academic_periods` (`id`) ON DELETE CASCADE ON UPDATE CASCADE)
+2026-10-22 08:49:29 [INFO] Offline INSERT queued: enrollments temp_id=-289
+2026-10-22 08:49:29 [INFO] Offline INSERT queued: enrollments temp_id=-289
+2026-10-22 08:49:29 [WARNING] SP InsertEnrollment error: 1452 (23000): Cannot add or update a child row: a foreign key constraint fails (`certificate_manager`.`enrollments`, CONSTRAINT `enrollments_ibfk_1` FOREIGN KEY (`period_id`) REFERENCES `academic_periods` (`id`) ON DELETE CASCADE ON UPDATE CASCADE)
+2026-10-22 08:49:29 [INFO] Offline INSERT queued: enrollments temp_id=-290
+2026-10-22 08:49:29 [INFO] Offline INSERT queued: enrollments temp_id=-290
+2026-10-22 08:49:29 [WARNING] SP InsertEnrollment error: 1452 (23000): Cannot add or update a child row: a foreign key constraint fails (`certificate_manager`.`enrollments`, CONSTRAINT `enrollments_ibfk_1` FOREIGN KEY (`period_id`) REFERENCES `academic_periods` (`id`) ON DELETE CASCADE ON UPDATE CASCADE)
+2026-10-22 08:49:29 [INFO] Offline INSERT queued: enrollments temp_id=-291
+2026-10-22 08:49:29 [INFO] Offline INSERT queued: enrollments temp_id=-291
+2026-10-22 08:49:29 [WARNING] SP InsertEnrollment error: 1452 (23000): Cannot add or update a child row: a foreign key constraint fails (`certificate_manager`.`enrollments`, CONSTRAINT `enrollments_ibfk_1` FOREIGN KEY (`period_id`) REFERENCES `academic_periods` (`id`) ON DELETE CASCADE ON UPDATE CASCADE)
+2026-10-22 08:49:29 [INFO] Offline INSERT queued: enrollments temp_id=-292
+2026-10-22 08:49:29 [INFO] Offline INSERT queued: enrollments temp_id=-292
+2026-10-22 08:49:29 [WARNING] SP InsertEnrollment error: 1452 (23000): Cannot add or update a child row: a foreign key constraint fails (`certificate_manager`.`enrollments`, CONSTRAINT `enrollments_ibfk_1` FOREIGN KEY (`period_id`) REFERENCES `academic_periods` (`id`) ON DELETE CASCADE ON UPDATE CASCADE)
+2026-10-22 08:49:29 [INFO] Offline INSERT queued: enrollments temp_id=-293
+2026-10-22 08:49:29 [INFO] Offline INSERT queued: enrollments temp_id=-293
+2026-10-22 09:13:02 [INFO] Starting sync: 98 queued operations.
+2026-10-22 09:13:02 [INFO] Starting sync: 98 queued operations.
+2026-10-22 09:13:02 [ERROR] API sync request failed with status 500: {"detail":"Database synchronization failed: 1452 (23000): Cannot add or update a child row: a foreign key constraint fails (`certificate_manager`.`enrollments`, CONSTRAINT `enrollments_ibfk_1` FOREIGN KEY (`period_id`) REFERENCES `academic_periods` (`id`) ON DELETE CASCADE ON UPDATE CASCADE)"}
+2026-10-22 09:13:02 [ERROR] API sync request failed with status 500: {"detail":"Database synchronization failed: 1452 (23000): Cannot add or update a child row: a foreign key constraint fails (`certificate_manager`.`enrollments`, CONSTRAINT `enrollments_ibfk_1` FOREIGN KEY (`period_id`) REFERENCES `academic_periods` (`id`) ON DELETE CASCADE ON UPDATE CASCADE)"}
+2026-10-22 09:13:02 [INFO] Syncing template semester - Temp - Ar.docx from server (Checksum mismatch or missing)...
+2026-10-22 09:13:02 [INFO] Syncing template semester - Temp - Ar.docx from server (Checksum mismatch or missing)...
+2026-10-22 09:13:03 [INFO] Successfully synced template: semester - Temp - Ar.docx
+2026-10-22 09:13:03 [INFO] Successfully synced template: semester - Temp - Ar.docx
+2026-10-22 09:13:03 [INFO] Inbound sync complete: {'tables_synced': 20, 'total_rows': 6205, 'errors': []}
+2026-10-22 09:13:03 [INFO] Inbound sync complete: {'tables_synced': 20, 'total_rows': 6205, 'errors': []}
+2026-10-22 09:13:57 [ERROR] UNHANDLED EXCEPTION:
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+    from data.repositories import StudyRoutineRepository; routines = StudyRoutineRepository().get_all(); print('Routines:', len(routines), [(r.get('id'), r.get('name_ar')) for r in routines])
+                                                                                                         ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\encodings\cp1252.py", line 19, in encode
+    return codecs.charmap_encode(input,self.errors,encoding_table)[0]
+           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeEncodeError: 'charmap' codec can't encode characters in position 6-10: character maps to <undefined>
+
+2026-10-22 10:12:36 [INFO] before_load event fired. injecting pywebview object
+2026-10-22 10:12:36 [INFO] before_load event fired. injecting pywebview object
+2026-10-22 10:12:36 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-22 10:12:36 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-22 10:12:36 [INFO] _pywebviewready event fired
+2026-10-22 10:12:36 [INFO] _pywebviewready event fired
+2026-10-22 10:12:36 [INFO] loaded event fired
+2026-10-22 10:12:36 [INFO] loaded event fired
+2026-10-23 21:13:06 [INFO] SYSTEM STARTUP DIAGNOSTIC CHECK STARTED
+2026-10-23 21:13:08 [WARNING] [CHECK 1/4] FastAPI Connection Check ... [OFFLINE MODE]
+2026-10-23 21:13:08 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-10-23 21:13:08 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-10-23 21:13:08 [OK] [CHECK 2/4] SQLite Replica Database Connection ... [OK]
+2026-10-23 21:13:08 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-10-23 21:13:08 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-10-23 21:13:08 [OK] [CHECK 3/4] Authentication & Core SP Checks ... [OFFLINE MODE]
+2026-10-23 21:13:08 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-10-23 21:13:08 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-10-23 21:13:08 [OK] [CHECK 4/4] Sync Engine & Local Replica Check ... [OK]
+2026-10-23 21:13:08 [OK] Status: OFFLINE MODE ACTIVE. PROCEEDING TO LOGIN/DASHBOARD.
+2026-10-23 21:13:14 [INFO] Using WinForms / Chromium
+2026-10-23 21:13:14 [INFO] Using WinForms / Chromium
+2026-10-23 21:13:19 [INFO] before_load event fired. injecting pywebview object
+2026-10-23 21:13:19 [INFO] before_load event fired. injecting pywebview object
+2026-10-23 21:13:19 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-23 21:13:19 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-23 21:13:20 [INFO] _pywebviewready event fired
+2026-10-23 21:13:20 [INFO] _pywebviewready event fired
+2026-10-23 21:13:21 [INFO] loaded event fired
+2026-10-23 21:13:21 [INFO] loaded event fired
+2026-10-23 21:13:28 [INFO] before_load event fired. injecting pywebview object
+2026-10-23 21:13:28 [INFO] before_load event fired. injecting pywebview object
+2026-10-23 21:13:28 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-23 21:13:28 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-23 21:13:28 [INFO] _pywebviewready event fired
+2026-10-23 21:13:28 [INFO] _pywebviewready event fired
+2026-10-23 21:13:28 [INFO] loaded event fired
+2026-10-23 21:13:28 [INFO] loaded event fired
+2026-10-23 21:18:13 [INFO] Offline Mode: Executing local SQLite replica database engine for student_id=2140...
+2026-10-23 21:18:13 [INFO] Offline Mode: Executing local SQLite replica database engine for student_id=2140...

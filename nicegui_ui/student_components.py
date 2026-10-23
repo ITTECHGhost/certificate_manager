@@ -1209,11 +1209,12 @@ class StudentProfileView:
 
 
 class StudentFormView:
-    def __init__(self, repo, parent_container, on_back, on_save_callback=None):
+    def __init__(self, repo, parent_container, on_back, on_save_callback=None, user_dept_scope=None):
         self.repo = repo
         self.parent = parent_container
         self.on_back = on_back
         self.on_save = on_save_callback
+        self.user_dept_scope = user_dept_scope
         self.dept_repo = DepartmentRepository()
         self.sys_repo = StudySystemRepository()
         self.order_repo = GraduationOrderRepository()
@@ -1263,7 +1264,9 @@ class StudentFormView:
         
         # Load active dynamic dropdown options
         try:
-            depts = self.dept_repo.get_all()
+            depts = self.dept_repo.get_all() or []
+            if self.user_dept_scope:
+                depts = [d for d in depts if d["id"] in self.user_dept_scope]
             dept_opts = {d["id"]: d.get("name_ar", str(d["id"])) for d in depts} if depts else {1: "قسم علوم الحاسوب"}
         except Exception:
             dept_opts = {1: "قسم علوم الحاسوب"}
@@ -1377,6 +1380,8 @@ class StudentFormView:
                     with ui.row().classes('w-full gap-4'):
                         default_dept = list(dept_opts.keys())[0] if dept_opts else 1
                         self.department = UI.select("Department / القسم", dept_opts, value=default_dept).classes('flex-1')
+                        if self.user_dept_scope and len(self.user_dept_scope) == 1:
+                            self.department.disable()
                         self.degree = UI.select("Degree Level / الدرجة العلمية", {1: "Bachelor / بكالوريوس", 2: "Higher Diploma / دبلوم عالي", 3: "Master / ماجستير", 4: "PhD / دكتوراه"}, value=1).classes('flex-1')
                         default_sys = list(sys_opts.keys())[0] if sys_opts else 1
                         self.study_system = UI.select("Study System / نظام الدراسة", sys_opts, value=default_sys).classes('flex-1')

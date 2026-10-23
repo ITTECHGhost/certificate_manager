@@ -29,6 +29,7 @@ from services.excel_import_service import (
     generate_grades_matrix_template,
     parse_grades_file,
 )
+from utils.file_delivery import deliver_file
 from sync_engine import sqlite_read_one, sqlite_read_all, is_online
 
 def safe_cast(val: Any, target_type: type = int, default_val: Any = 0) -> Any:
@@ -101,9 +102,9 @@ class StudentBulkImportView:
 
         # UI Element References
         self.dept_select = None
-        self.stage_select = None
         self.system_select = None
         self.year_input = None
+        self.dl_grades_btn = None
         self.courses_container = None
         self.students_table_container = None
         self.grades_table_container = None
@@ -127,7 +128,7 @@ class StudentBulkImportView:
                                 "text-xl font-bold app-text-primary"
                             )
                             ui.label(
-                                "الخطوة 1: تحديد القسم والمرحلة ◀ الخطوة 2: رفع بيانات الطلاب ◀ الخطوة 3: رفع درجات المواد ◀ الخطوة 4: الحفظ"
+                                "الخطوة 1: تحديد القسم والنظام الدراسي ◀ الخطوة 2: رفع بيانات الطلاب ◀ الخطوة 3: رفع درجات المواد ◀ الخطوة 4: الحفظ"
                             ).classes("text-xs app-text-muted")
 
                     UI.secondary_button(
@@ -142,7 +143,7 @@ class StudentBulkImportView:
                     with ui.row().classes("w-full items-center justify-between"):
                         with ui.row().classes("items-center gap-2"):
                             ui.badge("1", color="primary").classes("text-sm font-bold px-2.5 py-1 rounded-full")
-                            ui.label("تحديد بيانات القسم والمرحلة والنظام الدراسي / Academic Context Setup").classes(
+                            ui.label("تحديد بيانات القسم والنظام الدراسي / Academic Context Setup").classes(
                                 "text-base font-bold app-text-primary"
                             )
                         if self.is_dept_locked:
@@ -150,7 +151,7 @@ class StudentBulkImportView:
                                 ui.icon("lock", size="xs")
                                 ui.label(f"مقيد بصلاحيات حسابك: {self.lock_reason}")
 
-                    # Selection Inputs Row
+                    # Selection Inputs Row (Department, Study System, Academic Year in one row)
                     with ui.row().classes("w-full gap-4 items-center flex-wrap"):
                         # Department
                         dept_opts = {d["id"]: f"{d.get('name_ar')} ({d.get('name_en', '')})" for d in self.departments}
@@ -159,18 +160,9 @@ class StudentBulkImportView:
                             value=self.selected_dept_id,
                             label="القسم العلمي / Department *",
                             on_change=self._on_dept_changed
-                        ).props("outlined dense options-dense").classes("flex-1 min-w-[220px]")
+                        ).props("outlined dense options-dense").classes("flex-1 min-w-[260px]")
                         if self.is_dept_locked:
                             self.dept_select.disable()
-
-                        # Stage
-                        stage_opts = {1: "المرحلة الأولى", 2: "المرحلة الثانية", 3: "المرحلة الثالثة", 4: "المرحلة الرابعة"}
-                        self.stage_select = ui.select(
-                            options=stage_opts,
-                            value=self.selected_stage,
-                            label="المرحلة الدراسية / Stage *",
-                            on_change=self._on_stage_changed
-                        ).props("outlined dense options-dense").classes("w-44")
 
                         # Study System with clear Annual / Semester & Morning / Evening labels
                         sys_opts = {}
@@ -186,14 +178,14 @@ class StudentBulkImportView:
                             value=self.selected_system_id,
                             label="النظام الدراسي / Study System *",
                             on_change=self._on_system_changed
-                        ).props("outlined dense options-dense").classes("flex-1 min-w-[220px]")
+                        ).props("outlined dense options-dense").classes("flex-1 min-w-[260px]")
 
                         # Academic Year
                         self.year_input = UI.text_input(
                             label="العام الدراسي / Academic Year *",
                             value=self.academic_year,
                             on_change=self._on_year_changed
-                        ).classes("w-44").props("dense outlined")
+                        ).classes("w-52").props("dense outlined")
 
                     # Live Courses Chip Preview Container
                     self.courses_container = ui.column().classes("w-full gap-2 mt-2")
@@ -253,6 +245,8 @@ class StudentBulkImportView:
                                 icon="download",
                                 on_click=self._download_grades_template
                             ).classes("text-xs px-3.5 py-1.5 font-bold shadow-sm")
+                            if not self.parsed_students:
+                                self.dl_grades_btn.disable()
 
                     ui.label(
                         "يحتوي كشف الدرجات تلقائياً على أسماء الطلاب المرفوعين من الخطوة 2 مع أعمدة لكافة مواد القسم والمواد المشتركة للمرحلة المحددة:"
@@ -324,61 +318,41 @@ class StudentBulkImportView:
             session_state = app.storage.user.get("session_state") or {}
             emp_id = session_state.get("emp_id", 1)
             user_rec = self.personnel_repo.get_by_id(emp_id) or {}
-            role_key = user_rec.get("personnel_role") or session_state.get("role", "admin")
+            allowed_ids = self.role_repo.get_user_department_scope(emp_id, user_dict=user_rec)
 
-            role_profile = self.role_repo.get_by_id(role_key)
-            if role_profile:
-                dept_scope = role_profile.get("department_scope", "all")
-                if dept_scope != "all":
-                    allowed_depts = []
-                    if isinstance(dept_scope, str):
-                        try:
-                            allowed_depts = json.loads(dept_scope)
-                        except Exception:
-                            allowed_depts = [int(dept_scope)] if dept_scope.isdigit() else []
-                    elif isinstance(dept_scope, (list, tuple)):
-                        allowed_depts = list(dept_scope)
-
-                    allowed_ids = [int(x) for x in allowed_depts if str(x).isdigit()]
-                    if allowed_ids:
-                        # Filter self.departments so user only sees departments they have access to
-                        self.departments = [d for d in self.departments if d["id"] in allowed_ids]
-                        first_dept_id = allowed_ids[0]
-                        self.selected_dept_id = first_dept_id
-                        if len(allowed_ids) == 1:
-                            self.is_dept_locked = True
-                        dept_name = next((d.get("name_ar") for d in self.departments if d["id"] == first_dept_id), str(first_dept_id))
-                        self.lock_reason = f"قسم {dept_name}"
-                        self._resolve_courses()
+            if allowed_ids:
+                # Filter self.departments so user only sees departments they have access to
+                self.departments = [d for d in self.departments if d["id"] in allowed_ids]
+                first_dept_id = allowed_ids[0]
+                self.selected_dept_id = first_dept_id
+                if len(allowed_ids) == 1:
+                    self.is_dept_locked = True
+                dept_name = next((d.get("name_ar") for d in self.departments if d["id"] == first_dept_id), str(first_dept_id))
+                self.lock_reason = f"قسم {dept_name}"
+                self._resolve_courses()
         except Exception as e:
             log.debug(f"Department scope detection notice: {e}")
 
     def _resolve_courses(self):
         """
-        Fetch courses belonging to selected department & stage,
-        PLUS shared courses (college & university requirements for this stage).
+        Fetch courses belonging to selected department,
+        PLUS shared courses (college & university requirements).
         """
         if not self.selected_dept_id:
             self.courses_for_stage = []
             return
 
         try:
-            all_dept_courses = self.course_repo.get_by_department(self.selected_dept_id) or []
-            stage_courses = [c for c in all_dept_courses if int(c.get("stage_number") or 1) == self.selected_stage]
+            dept_courses = self.course_repo.get_by_department(self.selected_dept_id) or []
 
             # Fetch all courses to identify shared courses across departments
             all_courses = self.course_repo.get_all() or []
-            shared_courses_for_stage = []
-            seen_ids = {c["id"] for c in stage_courses}
+            seen_ids = {c["id"] for c in dept_courses}
+            dept_course_names = {str(c.get("name_en") or c.get("name_ar") or "").strip().lower() for c in dept_courses}
 
-            # Any course with department_id IS NULL or shared between dept 1 & dept 2 with identical name
-            dept_course_names = {str(c.get("name_en") or c.get("name_ar") or "").strip().lower() for c in stage_courses}
-
+            shared_courses = []
             for c in all_courses:
                 if c["id"] in seen_ids:
-                    continue
-                c_stage = int(c.get("stage_number") or 1)
-                if c_stage != self.selected_stage:
                     continue
 
                 c_dept = c.get("department_id")
@@ -387,21 +361,21 @@ class StudentBulkImportView:
                 if c_dept is None or c_dept == 0:
                     c_copy = dict(c)
                     c_copy["is_shared"] = True
-                    shared_courses_for_stage.append(c_copy)
+                    shared_courses.append(c_copy)
                     seen_ids.add(c["id"])
                 elif c_name in dept_course_names:
-                    # Shared curriculum requirement
                     c_copy = dict(c)
                     c_copy["is_shared"] = True
-                    # If not already present
-                    if not any(sc.get("name_ar") == c.get("name_ar") for sc in stage_courses):
-                        shared_courses_for_stage.append(c_copy)
+                    if not any(sc.get("name_ar") == c.get("name_ar") for sc in dept_courses):
+                        shared_courses.append(c_copy)
                         seen_ids.add(c["id"])
 
-            for c in stage_courses:
+            for c in dept_courses:
                 c["is_shared"] = False
 
-            self.courses_for_stage = stage_courses + shared_courses_for_stage
+            all_resolved = dept_courses + shared_courses
+            all_resolved.sort(key=lambda x: (int(x.get("stage_number") or 1), x.get("id") or 0))
+            self.courses_for_stage = all_resolved
         except Exception as err:
             log.error(f"Error resolving courses: {err}")
             self.courses_for_stage = []
@@ -413,12 +387,6 @@ class StudentBulkImportView:
     def _on_dept_changed(self, e):
         if e and hasattr(e, "value") and e.value:
             self.selected_dept_id = int(e.value)
-            self._resolve_courses()
-            self._refresh_courses_display()
-
-    def _on_stage_changed(self, e):
-        if e and hasattr(e, "value") and e.value:
-            self.selected_stage = int(e.value)
             self._resolve_courses()
             self._refresh_courses_display()
 
@@ -442,7 +410,7 @@ class StudentBulkImportView:
 
             with ui.row().classes("w-full items-center justify-between text-xs"):
                 ui.label(
-                    f"📚 المواد المشمولة في كشف درجات المرحلة {self.selected_stage} ({len(self.courses_for_stage)} مادة):"
+                    f"📚 المواد المشمولة في كشف درجات قسم {dept_name} ({len(self.courses_for_stage)} مادة):"
                 ).classes("font-bold app-text-primary")
                 with ui.row().classes("items-center gap-3"):
                     ui.label(f"• تخصصية: {len(dept_courses)}").classes("text-blue-500 font-semibold")
@@ -450,14 +418,15 @@ class StudentBulkImportView:
 
             with ui.row().classes("w-full flex-wrap gap-2 pt-1"):
                 if not self.courses_for_stage:
-                    ui.label("⚠️ لا توجد مواد مسجلة لهذا القسم في هذه المرحلة حالياً.").classes("text-xs text-amber-500 italic")
+                    ui.label("⚠️ لا توجد مواد مسجلة لهذا القسم حالياً.").classes("text-xs text-amber-500 italic")
                 for c in self.courses_for_stage:
                     is_sh = c.get("is_shared", False)
+                    c_stg = int(c.get("stage_number") or 1)
                     bg_color = "bg-teal-500/10 text-teal-400 border border-teal-500/30" if is_sh else "bg-blue-500/10 text-blue-400 border border-blue-500/30"
                     tag_text = "مشترك" if is_sh else "تخصصي"
                     with ui.row().classes(f"items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs {bg_color}"):
                         ui.icon("layers" if is_sh else "menu_book", size="xs")
-                        ui.label(f"{c.get('name_ar')} ({c.get('credit_hours', 3)} و)").classes("font-medium")
+                        ui.label(f"{c.get('name_ar')} (م{c_stg} | {c.get('credit_hours', 3)} و)").classes("font-medium")
                         ui.badge(tag_text, color="transparent").classes("text-[10px] p-0 font-mono opacity-80")
 
     # -------------------------------------------------------------------------
@@ -465,12 +434,18 @@ class StudentBulkImportView:
     # -------------------------------------------------------------------------
 
     def _download_students_template(self):
-        """Trigger instant browser download of Students Roster Excel template."""
+        """Generate and deliver Students Roster Excel template directly to Downloads and Excel."""
         try:
             file_bytes = generate_students_template()
-            ui.download(file_bytes, "نموذج_بيانات_الطلاب.xlsx")
-            ui.notify("تم تحميل نموذج بيانات الطلاب بنجاح / Template downloaded", type="positive")
+            deliver_file(
+                content=file_bytes,
+                filename="نموذج_بيانات_الطلاب.xlsx",
+                title="تم تجهيز وحفظ نموذج بيانات الطلاب (Excel) بنجاح",
+                auto_open=True,
+                show_modal=True
+            )
         except Exception as exc:
+            log.error(f"Error generating students template: {exc}")
             ui.notify(f"خطأ في توليد النموذج: {exc}", type="negative")
 
     def _on_students_file_uploaded(self, event):
@@ -496,6 +471,12 @@ class StudentBulkImportView:
 
     def _render_students_table(self):
         """Render staging table for parsed students."""
+        if self.dl_grades_btn:
+            if self.parsed_students:
+                self.dl_grades_btn.enable()
+            else:
+                self.dl_grades_btn.disable()
+
         if not self.students_table_container:
             return
         self.students_table_container.clear()
@@ -554,9 +535,13 @@ class StudentBulkImportView:
     # -------------------------------------------------------------------------
 
     def _download_grades_template(self):
-        """Trigger instant browser download of dynamic Grades Matrix Excel template."""
+        """Generate and deliver dynamic Grades Matrix Excel template directly to Downloads and Excel."""
+        if not self.parsed_students:
+            ui.notify("يرجى رفع ملف بيانات الطلاب (الملف الأول) أولاً قبل تحميل كشف الدرجات.", type="warning")
+            return
+
         if not self.courses_for_stage:
-            ui.notify("يرجى تحديد قسم ومرحلة دراسية تحتوي على مواد أولاً.", type="warning")
+            ui.notify("يرجى تحديد قسم يحتوي على مواد دراسية أولاً.", type="warning")
             return
 
         try:
@@ -565,17 +550,28 @@ class StudentBulkImportView:
                 students=self.parsed_students,
                 courses=self.courses_for_stage,
                 dept_name=dept_name,
-                stage_num=self.selected_stage,
+                stage_num=None,
                 academic_year=self.academic_year
             )
-            filename = f"كشف_درجات_مرحلة_{self.selected_stage}_{dept_name}.xlsx".replace(" ", "_")
-            ui.download(file_bytes, filename)
-            ui.notify("تم تحميل كشف درجات المواد بنجاح!", type="positive")
+            clean_dept = (dept_name or "").replace(" ", "_")
+            filename = f"كشف_درجات_قسم_{clean_dept}.xlsx"
+            deliver_file(
+                content=file_bytes,
+                filename=filename,
+                title=f"تم تجهيز وحفظ كشف درجات المواد ({dept_name}) بنجاح",
+                auto_open=True,
+                show_modal=True
+            )
         except Exception as exc:
+            log.error(f"Error generating grades template: {exc}")
             ui.notify(f"خطأ في توليد كشف الدرجات: {exc}", type="negative")
 
     def _on_grades_file_uploaded(self, event):
         """Handle uploaded Grades Matrix Excel."""
+        if not self.parsed_students:
+            ui.notify("يرجى رفع ملف بيانات الطلاب أولاً (الخطوة 2) قبل رفع ملف الدرجات.", type="warning")
+            return
+
         if not self.courses_for_stage:
             ui.notify("يرجى تحديد قسم ومرحلة دراسية أولاً.", type="warning")
             return
@@ -601,15 +597,28 @@ class StudentBulkImportView:
 
     def _sync_merged_records(self):
         """Correlate students from Step 2 with grades from Step 3."""
-        grades_by_nid = {str(g.get("national_id")).strip(): g for g in self.parsed_grades if g.get("national_id")}
-        grades_by_name = {str(g.get("student_name")).strip(): g for g in self.parsed_grades if g.get("student_name")}
+        grades_by_nid = {
+            str(g.get("national_id")).strip(): g
+            for g in self.parsed_grades
+            if g.get("national_id") and not str(g.get("national_id")).startswith("GEN_")
+        }
+        grades_by_name = {
+            " ".join(str(g.get("student_name", "")).split()): g
+            for g in self.parsed_grades
+            if g.get("student_name")
+        }
 
         self.merged_records = []
         for idx, st in enumerate(self.parsed_students, start=1):
             nid = str(st.get("national_id", "")).strip()
             name = str(st.get("full_name_ar", "")).strip()
+            name_norm = " ".join(name.split())
 
-            grade_info = grades_by_nid.get(nid) or grades_by_name.get(name) or {}
+            grade_info = (
+                (grades_by_nid.get(nid) if (nid and not nid.startswith("GEN_")) else None)
+                or grades_by_name.get(name_norm)
+                or {}
+            )
             scores = grade_info.get("scores", [])
             avg = grade_info.get("average", 0.0)
             res_st = grade_info.get("result_status", "PASSED")
@@ -752,7 +761,7 @@ class StudentBulkImportView:
                         with ui.column().classes("gap-0.5"):
                             ui.label("ملخص الاستيراد والتأكيد النهائي / Ingestion Summary & Confirmation").classes("text-lg font-bold")
                             dept_name = next((d.get("name_ar") for d in self.departments if d["id"] == self.selected_dept_id), "القسم")
-                            ui.label(f"القسم: {dept_name} | المرحلة: {self.selected_stage} | السنة: {self.academic_year}").classes("text-xs text-slate-300")
+                            ui.label(f"القسم: {dept_name} | السنة: {self.academic_year}").classes("text-xs text-slate-300")
 
                 with ui.row().classes("w-full gap-4 items-center"):
                     with ui.column().classes("p-3 rounded-xl bg-slate-800/80 border border-slate-700 flex-1 items-center"):
@@ -761,7 +770,7 @@ class StudentBulkImportView:
 
                     with ui.column().classes("p-3 rounded-xl bg-slate-800/80 border border-slate-700 flex-1 items-center"):
                         ui.label(str(len(self.courses_for_stage))).classes("text-2xl font-bold text-blue-400")
-                        ui.label("المواد المشمولة في المرحلة").classes("text-xs text-slate-300")
+                        ui.label("المواد المشمولة في الكشف").classes("text-xs text-slate-300")
 
                     with ui.column().classes("p-3 rounded-xl bg-slate-800/80 border border-slate-700 flex-1 items-center"):
                         total_scores = sum(len(g.get("scores", [])) for g in self.parsed_grades)
@@ -879,7 +888,8 @@ class StudentBulkImportView:
                             scores_list.append({
                                 "course_id": int(sc["course_id"]),
                                 "score": float(sc["score"]),
-                                "passed_round": int(sc.get("passed_round", 1))
+                                "passed_round": int(sc.get("passed_round", 1)),
+                                "stage_number": safe_cast(sc.get("stage_number"), int, 1)
                             })
                         except (ValueError, TypeError):
                             pass
@@ -898,8 +908,8 @@ class StudentBulkImportView:
                         "admission_year": st.get("admission_year") or self.academic_year,
                         "average": rec.get("average") if rec.get("has_grades") else None,
                         "academic_year": str(self.academic_year).strip(),
-                        "stage_number": self.selected_stage,
-                        "semester_num": self.semester_num or 1,
+                        "stage_number": 1,
+                        "semester_num": 1,
                         "result_status": rec.get("result_status", "PASSED"),
                         "scores": scores_list
                     })
@@ -954,7 +964,36 @@ class StudentBulkImportView:
                             self.student_repo.update(target_student_id, st_payload)
                             updated_students += 1
                         except Exception as st_up_err:
-                            log.error(f"Failed to update student {target_student_id}: {st_up_err}")
+                            log.warning(f"Standard update failed, attempting direct SQLite update: {st_up_err}")
+                            try:
+                                from sync_engine import _get_local_conn
+                                conn_loc = _get_local_conn()
+                                tbl = "local_students" if target_student_id < 0 else "students"
+                                conn_loc.execute(f"""
+                                    UPDATE {tbl} SET
+                                        full_name_en = CASE WHEN ? != '' THEN ? ELSE full_name_en END,
+                                        gender = COALESCE(?, gender),
+                                        date_of_birth = COALESCE(?, date_of_birth),
+                                        birthplace_id = COALESCE(?, birthplace_id),
+                                        nationality_id = COALESCE(?, nationality_id),
+                                        study_system_id = COALESCE(?, study_system_id),
+                                        average = CASE WHEN ? IS NOT NULL THEN ? ELSE average END
+                                    WHERE id = ?
+                                """, (
+                                    st_payload.get("full_name_en") or "", st_payload.get("full_name_en") or "",
+                                    st_payload.get("gender"),
+                                    st_payload.get("date_of_birth"),
+                                    st_payload.get("birthplace_id"),
+                                    st_payload.get("nationality_id"),
+                                    st_payload.get("study_system_id"),
+                                    st_payload.get("average"), st_payload.get("average"),
+                                    target_student_id
+                                ))
+                                conn_loc.commit()
+                                conn_loc.close()
+                                updated_students += 1
+                            except Exception as direct_err:
+                                log.error(f"Failed direct offline update for student {target_student_id}: {direct_err}")
                     else:
                         try:
                             target_student_id = self.student_repo.insert(st_payload)
@@ -963,69 +1002,110 @@ class StudentBulkImportView:
                             log.error(f"Failed to insert student {name_ar}: {st_err}")
                             continue
 
-                    # 2. Check if Academic Period exists -> reuse vs insert
-                    target_period_id = None
+                    # 2. Check or create academic periods & enrollments offline
                     res_status = rec.get("result_status", "PASSED")
-                    try:
-                        existing_periods = self.period_repo.get_by_student(target_student_id) or []
-                        for p in existing_periods:
-                            p_yr = str(p.get("academic_year") or "").strip()
-                            p_stg = safe_cast(p.get("stage_number"), int, 0)
-                            p_sem = safe_cast(p.get("semester_num"), int, 1)
-                            if p_yr == str(self.academic_year).strip() and p_stg == self.selected_stage:
-                                if self.semester_num and p_sem != self.semester_num:
-                                    continue
-                                target_period_id = p.get("id")
-                                break
+                    scores = rec.get("scores", [])
 
-                        if target_period_id is not None:
-                            self.period_repo.update_status(target_period_id, res_status)
-                            reused_periods += 1
-                        else:
-                            target_period_id = self.period_repo.insert(
-                                student_id=target_student_id,
-                                year=self.academic_year,
-                                sys_id=self.selected_system_id or 1,
-                                stage=self.selected_stage,
-                                semester_num=self.semester_num,
-                                result_status=res_status
-                            )
-                            created_periods += 1
-                    except Exception as p_err:
-                        log.error(f"Failed to process academic period for student {target_student_id}: {p_err}")
-                        continue
+                    if scores:
+                        scores_by_stage = {}
+                        for sc in scores:
+                            stg = safe_cast(sc.get("stage_number"), int, 1)
+                            scores_by_stage.setdefault(stg, []).append(sc)
 
-                    # 3. Check existing enrollments for period -> update vs insert
-                    existing_enroll_map = {}
-                    try:
-                        existing_enrolls = self.enroll_repo.get_by_period(target_period_id) or []
-                        for e in existing_enrolls:
-                            cid = safe_cast(e.get("course_id"), int, 0)
-                            if cid and e.get("id"):
-                                existing_enroll_map[cid] = e["id"]
-                    except Exception as e_chk_err:
-                        log.warning(f"Failed to check existing enrollments: {e_chk_err}")
+                        for stg, sc_list in scores_by_stage.items():
+                            target_period_id = None
+                            try:
+                                existing_periods = self.period_repo.get_by_student(target_student_id) or []
+                                for p in existing_periods:
+                                    p_yr = str(p.get("academic_year") or "").strip()
+                                    p_stg = safe_cast(p.get("stage_number"), int, 0)
+                                    if p_yr == str(self.academic_year).strip() and p_stg == stg:
+                                        target_period_id = p.get("id")
+                                        break
 
-                    for sc in rec.get("scores", []):
+                                if target_period_id is not None:
+                                    self.period_repo.update_status(target_period_id, res_status)
+                                    reused_periods += 1
+                                else:
+                                    target_period_id = self.period_repo.insert(
+                                        student_id=target_student_id,
+                                        year=self.academic_year,
+                                        sys_id=self.selected_system_id or 1,
+                                        stage=stg,
+                                        semester_num=1,
+                                        result_status=res_status
+                                    )
+                                    created_periods += 1
+                            except Exception as p_err:
+                                log.error(f"Failed to process academic period for student {target_student_id}: {p_err}")
+                                continue
+
+                            # 3. Check existing enrollments for period -> update vs insert
+                            existing_enroll_map = {}
+                            try:
+                                existing_enrolls = self.enroll_repo.get_by_period(target_period_id) or []
+                                for e in existing_enrolls:
+                                    cid = safe_cast(e.get("course_id"), int, 0)
+                                    if cid and e.get("id"):
+                                        existing_enroll_map[cid] = e["id"]
+                            except Exception as e_chk_err:
+                                log.warning(f"Failed to check existing enrollments: {e_chk_err}")
+
+                            for sc in sc_list:
+                                try:
+                                    cid = int(sc["course_id"])
+                                    score_val = float(sc["score"])
+                                    p_round = int(sc.get("passed_round", 1))
+
+                                    if cid in existing_enroll_map:
+                                        enroll_id = existing_enroll_map[cid]
+                                        try:
+                                            self.enroll_repo.update(enroll_id, score=score_val, is_second=p_round)
+                                            updated_enrollments += 1
+                                        except Exception as e_up_err:
+                                            log.warning(f"Standard enroll update failed, trying direct SQLite update: {e_up_err}")
+                                            try:
+                                                from sync_engine import _get_local_conn
+                                                conn_loc = _get_local_conn()
+                                                tbl = "local_enrollments" if enroll_id < 0 else "enrollments"
+                                                conn_loc.execute(
+                                                    f"UPDATE {tbl} SET score = ?, passed_round = ? WHERE id = ?",
+                                                    (score_val, str(p_round), enroll_id)
+                                                )
+                                                conn_loc.commit()
+                                                conn_loc.close()
+                                                updated_enrollments += 1
+                                            except Exception as d_e_err:
+                                                log.error(f"Direct offline enrollment update failed: {d_e_err}")
+                                    else:
+                                        self.enroll_repo.insert(
+                                            period_id=target_period_id,
+                                            course_id=cid,
+                                            score=score_val,
+                                            is_second=p_round
+                                        )
+                                        created_enrollments += 1
+                                except Exception as e_err:
+                                    log.error(f"Failed to save enrollment {sc}: {e_err}")
+                    else:
+                        # Default period when no scores are provided
                         try:
-                            cid = int(sc["course_id"])
-                            score_val = float(sc["score"])
-                            p_round = int(sc.get("passed_round", 1))
-
-                            if cid in existing_enroll_map:
-                                enroll_id = existing_enroll_map[cid]
-                                self.enroll_repo.update(enroll_id, score=score_val, is_second=p_round)
-                                updated_enrollments += 1
-                            else:
-                                self.enroll_repo.insert(
-                                    period_id=target_period_id,
-                                    course_id=cid,
-                                    score=score_val,
-                                    is_second=p_round
+                            existing_periods = self.period_repo.get_by_student(target_student_id) or []
+                            found_p = any(str(p.get("academic_year") or "").strip() == str(self.academic_year).strip() for p in existing_periods)
+                            if not found_p:
+                                self.period_repo.insert(
+                                    student_id=target_student_id,
+                                    year=self.academic_year,
+                                    sys_id=self.selected_system_id or 1,
+                                    stage=1,
+                                    semester_num=1,
+                                    result_status=res_status
                                 )
-                                created_enrollments += 1
-                        except Exception as e_err:
-                            log.error(f"Failed to save enrollment {sc}: {e_err}")
+                                created_periods += 1
+                            else:
+                                reused_periods += 1
+                        except Exception as p_err:
+                            log.error(f"Failed to process default academic period: {p_err}")
 
             progress_dlg.close()
 

@@ -1618,6 +1618,63 @@ class RoleRepository(BaseRepository):
         log_activity(f"تم تعيين الدور ({role.get('name_ar')}) للمستخدم ID: {personnel_id}")
         return True
 
+    def get_user_department_scope(self, personnel_id: int, user_dict: dict | None = None) -> list[int] | None:
+        """
+        Determines the restricted department IDs for a user, or None if user has full college-wide access.
+        Returns:
+            list[int] of department IDs if user is restricted to those departments.
+            None if user has access to all departments ('admin', 'all', or unrestricted).
+        """
+        if not personnel_id:
+            return None
+        if int(personnel_id) == 1:
+            return None
+
+        role_id = self.get_user_role_id(personnel_id, user_dict=user_dict)
+        if role_id == "admin":
+            return None
+
+        role = self.get_by_id(role_id)
+        if not role:
+            return None
+
+        dept_scope = role.get("department_scope")
+        if not dept_scope or dept_scope == "all":
+            # Check if user responsibility specifically mentions a department (fallback heuristic)
+            user = user_dict
+            if user is None:
+                try:
+                    user = PersonnelRepository().get_by_id(personnel_id) or {}
+                except Exception:
+                    user = {}
+            resp = (user.get("responsibility_ar") or "") + " " + (user.get("responsibility_en") or "")
+            if resp.strip():
+                try:
+                    all_depts = DepartmentRepository().get_all() or []
+                    for d in all_depts:
+                        d_ar = str(d.get("name_ar") or "").strip()
+                        d_en = str(d.get("name_en") or "").strip()
+                        if (d_ar and d_ar in resp) or (d_en and d_en.lower() in resp.lower()):
+                            return [int(d["id"])]
+                except Exception:
+                    pass
+            return None
+
+        allowed_ids = []
+        if isinstance(dept_scope, str):
+            try:
+                parsed = json.loads(dept_scope)
+                if isinstance(parsed, list):
+                    allowed_ids = [int(x) for x in parsed if str(x).isdigit()]
+                elif str(parsed).isdigit():
+                    allowed_ids = [int(parsed)]
+            except Exception:
+                allowed_ids = [int(x.strip()) for x in dept_scope.split(",") if x.strip().isdigit()]
+        elif isinstance(dept_scope, (list, tuple)):
+            allowed_ids = [int(x) for x in dept_scope if str(x).isdigit()]
+
+        return allowed_ids if allowed_ids else None
+
 # ---------------------------------------------------------------------------
 # Module 5: Course Catalog
 # ---------------------------------------------------------------------------
@@ -1753,13 +1810,16 @@ class StudentRepository(BaseRepository):
     def api_base_url(self, value: str) -> None:
         self._api_base_url = value
 
-    def search_students_paginated(self, query: str = "", limit: int = 25, offset: int = 0) -> List[Dict[str, Any]]:
+    def search_students_paginated(self, query: str = "", limit: int = 25, offset: int = 0, dept_id: Optional[int] = None) -> List[Dict[str, Any]]:
         """Paginated student search route supporting online API endpoint with offline SQLite fallback."""
         if is_online():
             try:
+                params = {"query": query, "limit": limit, "offset": offset}
+                if dept_id is not None:
+                    params["dept_id"] = dept_id
                 response = requests.get(
                     f"{self.api_base_url}/students/search", 
-                    params={"query": query, "limit": limit, "offset": offset},
+                    params=params,
                     timeout=3
                 )
                 if response.status_code == 200:
@@ -1777,7 +1837,7 @@ class StudentRepository(BaseRepository):
             except Exception as err:
                 log_system(f"[WARNING][StudentRepository] API request failed, falling back to SQLite: {err}", "WARNING")
 
-        return search_offline_students_paginated(self.local_db_path, query, limit, offset)
+        return search_offline_students_paginated(self.local_db_path, query, limit, offset, dept_id=dept_id)
 
     def get_last_added_students(self, limit: int = 5) -> list[dict]:
         """Fetch the most recently added students (ordered by id DESC)."""
@@ -2307,12 +2367,23 @@ class AcademicPeriodRepository(BaseRepository):
             }
             resp = requests.post(f"{self.api_url}/academic-periods", json=payload, timeout=3.0)
             if resp.status_code == 200:
-                return resp.json()["new_id"]
+                new_id = resp.json()["new_id"]
+                try:
+                    from sync_engine import _get_local_conn
+                    with _get_local_conn() as conn_loc:
+                        conn_loc.execute(
+                            "INSERT OR REPLACE INTO academic_periods (id, student_id, academic_year, study_system_id, stage_number, semester_num, result_status) VALUES (?, ?, ?, ?, ?, ?, ?)",
+                            (new_id, student_id, str(year), sys_id, stage, semester_num, result_status)
+                        )
+                        conn_loc.commit()
+                except Exception:
+                    pass
+                return new_id
         except Exception as e:
             log_system(f"API request failed for academic-periods insert: {e}", "WARNING")
 
         try:
-            new_id = self._call_write("InsertAcademicPeriod", (student_id, str(year), sys_id, stage, semester_num, result_status))
+            new_id = self._call_write("InsertAcademicPeriod", (student_id, str(year), stage, semester_num, result_status))
             if new_id:
                 return new_id
         except Exception as sp_err:
@@ -2411,7 +2482,18 @@ class EnrollmentRepository(BaseRepository):
             }
             resp = requests.post(f"{self.api_url}/enrollments", json=payload, timeout=3.0)
             if resp.status_code == 200:
-                return resp.json()["new_id"]
+                new_id = resp.json()["new_id"]
+                try:
+                    from sync_engine import _get_local_conn
+                    with _get_local_conn() as conn_loc:
+                        conn_loc.execute(
+                            "INSERT OR REPLACE INTO enrollments (id, period_id, course_id, score, passed_round) VALUES (?, ?, ?, ?, ?)",
+                            (new_id, period_id, course_id, float(score), passed_round)
+                        )
+                        conn_loc.commit()
+                except Exception:
+                    pass
+                return new_id
         except Exception as e:
             log_system(f"API request failed for enrollment insert: {e}", "WARNING")
 

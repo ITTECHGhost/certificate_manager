@@ -18,7 +18,11 @@ from data.repositories import StudentRepository
 
 class StudentsScreen:
     def __init__(self, on_issue_certificate=None) -> None:
+        from data.repositories import RoleRepository, PersonnelRepository, DepartmentRepository
+        from nicegui import app
         self.repo = StudentRepository()
+        self.role_repo = RoleRepository()
+        self.dept_repo = DepartmentRepository()
         self.on_issue_certificate = on_issue_certificate
         self.search_input = None
         self.table = None
@@ -26,6 +30,13 @@ class StudentsScreen:
         self.prev_btn = None
         self.next_btn = None
         self.page_info_label = None
+
+        # Resolve logged-in user department restriction
+        session_state = app.storage.user.get("session_state") or {}
+        emp_id = session_state.get("emp_id", 1)
+        user_rec = PersonnelRepository().get_by_id(emp_id) or {}
+        self.user_dept_scope = self.role_repo.get_user_department_scope(emp_id, user_dict=user_rec)
+        self.user_dept_id = self.user_dept_scope[0] if self.user_dept_scope else None
 
         self.current_limit = 25
         self.current_offset = 0
@@ -47,7 +58,7 @@ class StudentsScreen:
             self._refresh_table()
 
         # Instantiate the views with callbacks
-        self.form_view = StudentFormView(self.repo, self.main_container, on_back=_on_form_back, on_save_callback=self._refresh_table)
+        self.form_view = StudentFormView(self.repo, self.main_container, on_back=_on_form_back, on_save_callback=self._refresh_table, user_dept_scope=self.user_dept_scope)
         self.enrollment_view = CourseEnrollmentView(self.repo, self.main_container, on_back=lambda st: self.profile_view.render(st, initial_tab="periods"))
         self.bulk_import_view = StudentBulkImportView(
             self.main_container,
@@ -92,6 +103,12 @@ class StudentsScreen:
                             on_click=lambda: self.perform_search(reset_offset=True)
                         ).classes("h-12 px-4 shadow-sm")
 
+                        if self.user_dept_id:
+                            dept_name = next((d.get("name_ar") for d in self.dept_repo.get_all() if d["id"] == self.user_dept_id), f"قسم {self.user_dept_id}")
+                            with ui.row().classes("items-center gap-1.5 px-3 py-2 rounded-xl bg-amber-500/10 text-amber-500 text-xs font-bold border border-amber-500/30"):
+                                ui.icon("lock", size="xs")
+                                ui.label(f"{dept_name}")
+
                     with ui.row().classes("items-center gap-2"):
                         UI.primary_button(
                             "Add Group of Students / إضافة مجموعة طلاب", 
@@ -116,7 +133,7 @@ class StudentsScreen:
                 # Initial Data Fetch
                 initial_data = []
                 try:
-                    raw_initial = self.repo.search_students_paginated(query="", limit=self.current_limit, offset=self.current_offset)
+                    raw_initial = self.repo.search_students_paginated(query="", limit=self.current_limit, offset=self.current_offset, dept_id=self.user_dept_id)
                     initial_data = self._map_rows(raw_initial)
                 except Exception as e:
                     log.warning(f"Failed to fetch initial students: {e}")
@@ -236,7 +253,8 @@ class StudentsScreen:
             raw_results = self.repo.search_students_paginated(
                 query=search_term,
                 limit=self.current_limit,
-                offset=self.current_offset
+                offset=self.current_offset,
+                dept_id=self.user_dept_id
             )
             mapped = self._map_rows(raw_results)
             if hasattr(self, 'table') and self.table and not getattr(self.table, 'is_deleted', False):

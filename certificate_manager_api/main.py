@@ -560,10 +560,61 @@ def search_students_paginated(
     query: str = Query("", description="Search term (Arabic or English)"),
     limit: int = Query(25, description="Rows per page (25, 50, 100)"),
     offset: int = Query(0, description="Pagination offset"),
+    dept_id: Optional[int] = Query(None, description="Department ID filter"),
     conn=Depends(get_db)
 ):
     try:
-        raw_rows = execute_sp_fetchall(conn, "SearchStudentsPaginated", (query.strip(), limit, offset))
+        search_term = query.strip()
+        if dept_id is not None:
+            cur = conn.cursor(dictionary=True)
+            if len(search_term) < 2:
+                cur.execute("""
+                    SELECT 
+                        s.id AS student_id,
+                        COALESCE(s.full_name_ar, 'Unknown') AS name_ar,
+                        COALESCE(s.full_name_en, 'Unknown') AS name_en,
+                        COALESCE(d.name_ar, 'Unknown') AS department_name_ar,
+                        COALESCE(YEAR(s.graduation_date), 'N/A') AS graduation_year,
+                        COALESCE(s.average, 0.0) AS average
+                    FROM students s
+                    LEFT JOIN departments d ON s.department_id = d.id
+                    WHERE s.department_id = %s
+                    ORDER BY s.id DESC
+                    LIMIT %s OFFSET %s
+                """, (dept_id, limit, offset))
+                raw_rows = cur.fetchall()
+            else:
+                search_pat = f"%{search_term}%"
+                cur.execute("""
+                    SELECT 
+                        s.id AS student_id,
+                        COALESCE(s.full_name_ar, 'Unknown') AS name_ar,
+                        COALESCE(s.full_name_en, 'Unknown') AS name_en,
+                        COALESCE(d.name_ar, 'Unknown') AS department_name_ar,
+                        COALESCE(YEAR(s.graduation_date), 'N/A') AS graduation_year,
+                        COALESCE(s.average, 0.0) AS average
+                    FROM students s
+                    LEFT JOIN departments d ON s.department_id = d.id
+                    WHERE s.department_id = %s
+                      AND (s.full_name_ar LIKE %s OR s.full_name_en LIKE %s OR s.national_id LIKE %s)
+                    ORDER BY 
+                        CASE 
+                            WHEN s.full_name_ar = %s OR s.full_name_en = %s OR s.national_id = %s THEN 1 
+                            WHEN s.full_name_ar LIKE %s OR s.full_name_en LIKE %s OR s.national_id LIKE %s THEN 2 
+                            ELSE 3 
+                        END, 
+                        s.full_name_ar ASC
+                    LIMIT %s OFFSET %s
+                """, (
+                    dept_id, search_pat, search_pat, search_pat,
+                    search_term, search_term, search_term,
+                    f"{search_term}%", f"{search_term}%", f"{search_term}%",
+                    limit, offset
+                ))
+                raw_rows = cur.fetchall()
+        else:
+            raw_rows = execute_sp_fetchall(conn, "SearchStudentsPaginated", (search_term, limit, offset))
+
         results = []
         for row in raw_rows:
             if isinstance(row, dict):
@@ -1204,12 +1255,15 @@ def insert_course(payload: CoursePayload, conn=Depends(get_db)):
                 res = execute_sp_fetchone(conn, "InsertCourse", (payload.name_ar, payload.name_en, payload.credit_hours, dept_id, payload.stage_number))
                 if res and "new_course_id" in res:
                     new_ids.append(res["new_course_id"])
+            conn.commit()
             return {"new_id": new_ids[0] if new_ids else 0}
         else:
             res = execute_sp_fetchone(conn, "InsertCourse", (payload.name_ar, payload.name_en, payload.credit_hours, payload.department_id, payload.stage_number))
             new_id = res.get("new_course_id", 0) if res else 0
+            conn.commit()
             return {"new_id": new_id}
     except Exception as exc:
+        conn.rollback()
         raise HTTPException(status_code=500, detail=str(exc))
 
 
@@ -1650,8 +1704,10 @@ def insert_academic_period(payload: AcademicPeriodPayload, conn=Depends(get_db))
             (payload.student_id, payload.academic_year, payload.stage_number, payload.semester_num, status_val)
         )
         new_id = res.get("new_period_id") or res.get("new_id", 0) if res else 0
+        conn.commit()
         return {"new_id": new_id}
     except Exception as exc:
+        conn.rollback()
         raise HTTPException(status_code=500, detail=str(exc))
 
 
@@ -1730,8 +1786,10 @@ def insert_enrollment(payload: EnrollmentPayload, conn=Depends(get_db)):
             (payload.period_id, payload.course_id, float(payload.score), int(passed_round))
         )
         new_id = res.get("new_enrollment_id") or res.get("new_id", 0) if res else 0
+        conn.commit()
         return {"new_id": new_id}
     except Exception as exc:
+        conn.rollback()
         raise HTTPException(status_code=500, detail=str(exc))
 
 
@@ -3000,6 +3058,12 @@ def process_offline_sync_batch(payload: dict, conn=Depends(get_db)):
 
                 elif tbl == "academic_periods":
                     st_id = data.get("student_id")
+                    if st_id is not None:
+                        try:
+                            st_id_int = int(st_id)
+                            st_id = id_map.get(st_id_int, st_id_int)
+                        except (ValueError, TypeError):
+                            pass
                     yr = data.get("academic_year", "")
                     stg = int(data.get("stage_number") or 1)
                     sem = int(data.get("semester_num") or 1)
@@ -3037,6 +3101,12 @@ def process_offline_sync_batch(payload: dict, conn=Depends(get_db)):
 
                 elif tbl == "enrollments":
                     pid = data.get("period_id")
+                    if pid is not None:
+                        try:
+                            pid_int = int(pid)
+                            pid = id_map.get(pid_int, pid_int)
+                        except (ValueError, TypeError):
+                            pass
                     cid = data.get("course_id")
                     score = float(data.get("score") or 0.0)
                     pr = int(data.get("passed_round") or 1)

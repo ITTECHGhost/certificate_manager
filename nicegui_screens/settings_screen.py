@@ -33,6 +33,7 @@ from nicegui_ui.template_constants import (
     register_template,
     delete_template_config,
 )
+from utils.file_delivery import deliver_file
 
 
 class SettingsScreen:
@@ -2233,7 +2234,7 @@ class SettingsScreen:
                                         ui.notify(f"تعذر فتح الملف: {exc}", type="warning")
 
                                 ui.button(icon="launch", on_click=_open_word).classes("app-btn-secondary p-1.5 rounded-lg text-xs").tooltip("فتح القالب في Word / Open in Word")
-                                ui.button(icon="download", on_click=lambda fp=filepath: ui.download(fp, filename=os.path.basename(fp))).classes("app-btn-secondary p-1.5 rounded-lg text-xs").tooltip("تنزيل القالب / Download Document")
+                                ui.button(icon="download", on_click=lambda fp=filepath: deliver_file(fp, filename=os.path.basename(fp), title=f"تم حفظ القالب ({os.path.basename(fp)}) بنجاح", auto_open=False)).classes("app-btn-secondary p-1.5 rounded-lg text-xs").tooltip("تنزيل القالب / Download Document")
 
             _render_templates_table()
 

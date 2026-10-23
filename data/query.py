@@ -789,10 +789,11 @@ def update_offline_course(course_id: int, name_ar: str, name_en: str, credit_hou
     finally:
         sq_conn.close()
 
-def search_offline_students_paginated(db_path: str, search_term: str, limit: int = 25, offset: int = 0) -> list[dict]:
+def search_offline_students_paginated(db_path: str, search_term: str, limit: int = 25, offset: int = 0, dept_id: int | None = None) -> list[dict]:
     search_term = search_term.strip()
     if len(search_term) < 2:
-        query = """
+        where_clause = "WHERE s.department_id = ?" if dept_id is not None else ""
+        query = f"""
             SELECT 
                 s.id AS student_id, 
                 s.full_name_ar AS name_ar, 
@@ -806,12 +807,14 @@ def search_offline_students_paginated(db_path: str, search_term: str, limit: int
                 SELECT id, full_name_ar, full_name_en, graduation_date, average, department_id FROM local_students
             ) s
             LEFT JOIN departments d ON s.department_id = d.id
+            {where_clause}
             ORDER BY CASE WHEN s.id < 0 THEN 1 ELSE 0 END DESC, ABS(s.id) DESC
             LIMIT ? OFFSET ?
         """
-        params = (limit, offset)
+        params = (dept_id, limit, offset) if dept_id is not None else (limit, offset)
     else:
-        query = """
+        dept_filter = "AND s.department_id = ?" if dept_id is not None else ""
+        query = f"""
             SELECT 
                 s.id AS student_id, 
                 s.full_name_ar AS name_ar, 
@@ -826,9 +829,10 @@ def search_offline_students_paginated(db_path: str, search_term: str, limit: int
             ) s
             LEFT JOIN departments d ON s.department_id = d.id
             WHERE 
-                s.full_name_ar LIKE '%' || ? || '%' 
+                (s.full_name_ar LIKE '%' || ? || '%' 
                 OR s.full_name_en LIKE '%' || ? || '%'
-                OR s.national_id LIKE '%' || ? || '%'
+                OR s.national_id LIKE '%' || ? || '%')
+                {dept_filter}
             ORDER BY 
                 CASE 
                     WHEN s.full_name_ar = ? OR s.full_name_en = ? OR s.national_id = ? THEN 1
@@ -838,7 +842,11 @@ def search_offline_students_paginated(db_path: str, search_term: str, limit: int
                 s.full_name_ar ASC
             LIMIT ? OFFSET ?
         """
-        params = (search_term, search_term, search_term, search_term, search_term, search_term, search_term, search_term, search_term, limit, offset)
+        base_params = [search_term, search_term, search_term]
+        if dept_id is not None:
+            base_params.append(dept_id)
+        base_params.extend([search_term, search_term, search_term, search_term, search_term, search_term, limit, offset])
+        params = tuple(base_params)
 
     try:
         with sqlite3.connect(db_path) as conn:

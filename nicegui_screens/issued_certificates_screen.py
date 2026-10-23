@@ -22,6 +22,7 @@ from nicegui_ui.template_constants import (
     get_template_filter_options,
     load_templates_config,
 )
+from utils.file_delivery import deliver_file
 
 log = logging.getLogger(__name__)
 
@@ -894,8 +895,13 @@ class IssuedCertificatesScreen:
             csv_bytes = output.getvalue().encode("utf-8-sig")
             timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
             filename = f"issued_certificates_report_{timestamp}.csv"
-            ui.download(csv_bytes, filename=filename)
-            ui.notify("تم تصدير التقرير بنجاح / Report exported successfully", type="positive")
+            deliver_file(
+                content=csv_bytes,
+                filename=filename,
+                title="تم تصدير وحفظ تقرير الوثائق المصدّرة بنجاح",
+                auto_open=True,
+                show_modal=True
+            )
         except Exception as ex:
             log.error(f"Failed to export CSV report: {ex}")
             ui.notify(f"خطأ أثناء تصدير التقرير: {ex}", type="negative")

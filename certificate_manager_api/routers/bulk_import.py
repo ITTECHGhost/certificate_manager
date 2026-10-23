@@ -11,13 +11,18 @@ logger = logging.getLogger("api.bulk_import")
 
 router = APIRouter(tags=["bulk-import"])
 
-STATUS_MAP = {
-    "PASSED": 1, "1": 1, 1: 1,
-    "FAILED_REPEAT": 2, "FAILED": 2, "2": 2, 2: 2,
-    "EXCEPTIONAL_PASS": 3, "3": 3, 3: 3,
-    "CARRIED_OVER": 4, "4": 4, 4: 4,
-    "DEFERRED": 5, "5": 5, 5: 5,
-    "DISMISSED": 6, "6": 6, 6: 6,
+VALID_RESULT_STATUSES = {
+    "PASSED", "FAILED_REPEAT", "CARRIED_OVER", "EXCEPTIONAL_PASS", "DEFERRED", "DISMISSED"
+}
+
+STATUS_STR_MAP = {
+    "1": "PASSED",
+    "2": "FAILED_REPEAT",
+    "FAILED": "FAILED_REPEAT",
+    "3": "EXCEPTIONAL_PASS",
+    "4": "CARRIED_OVER",
+    "5": "DEFERRED",
+    "6": "DISMISSED",
 }
 
 
@@ -25,6 +30,7 @@ class BulkImportScoreItem(BaseModel):
     course_id: int
     score: float
     passed_round: Optional[int] = 1
+    stage_number: Optional[int] = None
 
 
 class BulkImportStudentItem(BaseModel):
@@ -41,7 +47,7 @@ class BulkImportStudentItem(BaseModel):
     admission_year: Optional[str] = ""
     average: Optional[float] = None
     academic_year: str
-    stage_number: int
+    stage_number: Optional[int] = 1
     semester_num: Optional[int] = 1
     result_status: Optional[str] = "PASSED"
     scores: Optional[List[BulkImportScoreItem]] = []
@@ -119,7 +125,7 @@ def bulk_import_students(payload: BulkImportRequest, conn=Depends(get_db_depende
                         nationality_id = %s,
                         national_id = CASE WHEN %s != '' AND %s NOT LIKE 'GEN_%%' THEN %s ELSE national_id END,
                         study_system_id = COALESCE(%s, study_system_id),
-                        average = COALESCE(%s, average)
+                        average = CASE WHEN %s IS NOT NULL THEN %s ELSE average END
                     WHERE id = %s
                 """, (
                     item.full_name_en or "", item.full_name_en or "",
@@ -129,7 +135,7 @@ def bulk_import_students(payload: BulkImportRequest, conn=Depends(get_db_depende
                     item.nationality_id or 274,
                     nat_id, nat_id, nat_id,
                     item.study_system_id or 1,
-                    item.average,
+                    item.average, item.average,
                     student_id
                 ))
                 updated_students += 1
@@ -153,53 +159,90 @@ def bulk_import_students(payload: BulkImportRequest, conn=Depends(get_db_depende
                 student_id = cur.lastrowid
                 created_students += 1
 
-            # 2. Check or create academic period
-            period_id = None
+            # 2. Check or create academic periods & enrollments
             sem_num = item.semester_num if item.semester_num is not None else 1
-            status_code = STATUS_MAP.get(str(item.result_status or "").strip().upper(), 1)
+            raw_status = str(item.result_status or "PASSED").strip().upper()
+            result_status_str = STATUS_STR_MAP.get(raw_status, raw_status)
+            if result_status_str not in VALID_RESULT_STATUSES:
+                result_status_str = "PASSED"
 
-            cur.execute("""
-                SELECT id FROM academic_periods
-                WHERE student_id = %s AND academic_year = %s AND stage_number = %s AND semester_num = %s
-                LIMIT 1
-            """, (student_id, item.academic_year.strip(), item.stage_number, sem_num))
-            p_row = cur.fetchone()
-
-            if p_row:
-                period_id = p_row["id"]
-                cur.execute(
-                    "UPDATE academic_periods SET result_status = %s WHERE id = %s",
-                    (status_code, period_id)
-                )
-                reused_periods += 1
-            else:
-                cur.execute("""
-                    INSERT INTO academic_periods (
-                        student_id, academic_year, study_system_id,
-                        stage_number, semester_num, result_status
-                    ) VALUES (%s, %s, %s, %s, %s, %s)
-                """, (
-                    student_id, item.academic_year.strip(), item.study_system_id or 1,
-                    item.stage_number, sem_num, status_code
-                ))
-                period_id = cur.lastrowid
-                created_periods += 1
-
-            # 3. Upsert course enrollments
-            if item.scores and period_id:
+            if item.scores:
+                # Group scores by stage number (from score item, or fallback to student's stage_number or 1)
+                scores_by_stage = {}
                 for sc in item.scores:
-                    round_str = str(sc.passed_round or 1)
-                    if round_str not in ("1", "2", "3"):
-                        round_str = "1"
+                    stg = sc.stage_number or item.stage_number or 1
+                    scores_by_stage.setdefault(stg, []).append(sc)
 
+                for stg, sc_list in scores_by_stage.items():
                     cur.execute("""
-                        INSERT INTO enrollments (period_id, course_id, score, passed_round)
-                        VALUES (%s, %s, %s, %s)
-                        ON DUPLICATE KEY UPDATE
-                            score = VALUES(score),
-                            passed_round = VALUES(passed_round)
-                    """, (period_id, sc.course_id, float(sc.score), round_str))
-                    saved_enrollments += 1
+                        SELECT id FROM academic_periods
+                        WHERE student_id = %s AND academic_year = %s AND stage_number = %s AND semester_num = %s
+                        LIMIT 1
+                    """, (student_id, item.academic_year.strip(), stg, sem_num))
+                    p_row = cur.fetchone()
+
+                    if p_row:
+                        period_id = p_row["id"]
+                        cur.execute(
+                            "UPDATE academic_periods SET result_status = %s WHERE id = %s",
+                            (result_status_str, period_id)
+                        )
+                        reused_periods += 1
+                    else:
+                        cur.execute("""
+                            INSERT INTO academic_periods (
+                                student_id, academic_year, study_system_id,
+                                stage_number, semester_num, result_status
+                            ) VALUES (%s, %s, %s, %s, %s, %s)
+                        """, (
+                            student_id, item.academic_year.strip(), item.study_system_id or 1,
+                            stg, sem_num, result_status_str
+                        ))
+                        period_id = cur.lastrowid
+                        created_periods += 1
+
+                    for sc in sc_list:
+                        round_str = str(sc.passed_round or 1)
+                        if round_str not in ("1", "2", "3"):
+                            round_str = "1"
+
+                        cur.execute("""
+                            INSERT INTO enrollments (period_id, course_id, score, passed_round)
+                            VALUES (%s, %s, %s, %s)
+                            ON DUPLICATE KEY UPDATE
+                                score = VALUES(score),
+                                passed_round = VALUES(passed_round)
+                        """, (period_id, sc.course_id, float(sc.score), round_str))
+                        saved_enrollments += 1
+            else:
+                # No scores provided: ensure base academic period exists
+                stg = item.stage_number or 1
+                cur.execute("""
+                    SELECT id FROM academic_periods
+                    WHERE student_id = %s AND academic_year = %s AND stage_number = %s AND semester_num = %s
+                    LIMIT 1
+                """, (student_id, item.academic_year.strip(), stg, sem_num))
+                p_row = cur.fetchone()
+
+                if p_row:
+                    period_id = p_row["id"]
+                    cur.execute(
+                        "UPDATE academic_periods SET result_status = %s WHERE id = %s",
+                        (result_status_str, period_id)
+                    )
+                    reused_periods += 1
+                else:
+                    cur.execute("""
+                        INSERT INTO academic_periods (
+                            student_id, academic_year, study_system_id,
+                            stage_number, semester_num, result_status
+                        ) VALUES (%s, %s, %s, %s, %s, %s)
+                    """, (
+                        student_id, item.academic_year.strip(), item.study_system_id or 1,
+                        stg, sem_num, result_status_str
+                    ))
+                    period_id = cur.lastrowid
+                    created_periods += 1
 
         conn.commit()
         logger.info(

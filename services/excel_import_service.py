@@ -285,7 +285,7 @@ def generate_grades_matrix_template(
     students: List[Dict[str, Any]],
     courses: List[Dict[str, Any]],
     dept_name: str = "",
-    stage_num: int = 1,
+    stage_num: Optional[int] = None,
     academic_year: str = ""
 ) -> bytes:
     """
@@ -331,8 +331,11 @@ def generate_grades_matrix_template(
     # Row 1: Title Banner
     ws.merge_cells(start_row=1, start_column=1, end_row=1, end_column=max(total_cols, 6))
     title_cell = ws.cell(row=1, column=1)
-    stage_arabic = {1: "الأولى", 2: "الثانية", 3: "الثالثة", 4: "الرابعة"}.get(stage_num, str(stage_num))
-    title_cell.value = f"كشف درجات المواد — قسم: {dept_name or 'العام'} | المرحلة: {stage_arabic} | السنة: {academic_year or 'الحالية'}"
+    if stage_num:
+        stage_arabic = {1: "الأولى", 2: "الثانية", 3: "الثالثة", 4: "الرابعة"}.get(stage_num, str(stage_num))
+        title_cell.value = f"كشف درجات المواد — قسم: {dept_name or 'العام'} | المرحلة: {stage_arabic} | السنة: {academic_year or 'الحالية'}"
+    else:
+        title_cell.value = f"كشف درجات المواد — قسم: {dept_name or 'العام'} | السنة: {academic_year or 'الحالية'}"
     title_cell.font = title_font
     title_cell.fill = title_fill
     title_cell.alignment = center_align
@@ -375,10 +378,11 @@ def generate_grades_matrix_template(
         crs_id = crs.get("id")
         crs_name = crs.get("name_ar") or crs.get("name_en") or f"مادة {crs_id}"
         units = crs.get("credit_hours", 3)
+        crs_stage = int(crs.get("stage_number") or 1)
         is_shared = crs.get("is_shared", False)
 
         tag = " (مشترك)" if is_shared else ""
-        cell.value = f"{crs_name}{tag}\n[ID:{crs_id}] (وحدات: {units})"
+        cell.value = f"{crs_name}{tag}\n[ID:{crs_id}] (م{crs_stage} - {units} و)"
         cell.font = course_font
         cell.fill = shared_course_fill if is_shared else dept_course_fill
         cell.alignment = center_align
@@ -627,6 +631,7 @@ def parse_grades_file(
                 "credit_hours": units,
                 "score": score,
                 "passed_round": passed_round,
+                "stage_number": int(crs.get("stage_number") or 1),
             })
 
         computed_average = 0.0
@@ -638,6 +643,7 @@ def parse_grades_file(
         grades_data.append({
             "national_id": nid_val,
             "student_name": name_val,
+            "student_name_norm": " ".join(name_val.split()),
             "passed_round": passed_round,
             "result_status": result_status,
             "scores": student_scores,
