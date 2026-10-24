@@ -93,11 +93,16 @@ async def app_key_guard(request: Request, call_next):
             request.state.app_name = app_name
     return await call_next(request)
 
-# Database Configuration (supports overrides from environment variables)
-DB_HOST = os.environ.get("DB_HOST", "localhost")
-DB_USER = os.environ.get("DB_USER", "root")
-DB_PASSWORD = os.environ.get("DB_PASSWORD", "12345678")
-DB_NAME = os.environ.get("DB_NAME", "certificate_manager")
+# Database Configuration: config.py (DBConfig) in this folder is the server's own
+# settings file and is never overwritten by update_server.bat; environment variables win.
+try:
+    from config import DBConfig as _DBConfig
+except Exception:
+    _DBConfig = None
+DB_HOST = os.environ.get("DB_HOST", getattr(_DBConfig, "DB_HOST", "localhost"))
+DB_USER = os.environ.get("DB_USER", getattr(_DBConfig, "DB_USER", "root"))
+DB_PASSWORD = os.environ.get("DB_PASSWORD", getattr(_DBConfig, "DB_PASSWORD", "12345678"))
+DB_NAME = os.environ.get("DB_NAME", getattr(_DBConfig, "DB_NAME", "certificate_manager"))
 
 # Global API Connection Pool
 _api_connection_pool = None

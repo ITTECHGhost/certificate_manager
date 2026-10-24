@@ -111,10 +111,11 @@ if ($rule) {
 
 Write-Host ""
 Write-Host "================================================================" -ForegroundColor Green
-Write-Host " DONE. Next steps:" -ForegroundColor Green
-Write-Host "  1. Close the HTTP server console if it is running."
-Write-Host "  2. Start the server with start_server_https.bat"
-Write-Host "  3. Copy client_package\ files to every client laptop (see client_package\README.txt)"
-Write-Host "  4. Later, when every client is updated: set `"enforce`": true in app_keys.json and restart the server"
+Write-Host " DONE. Next steps (details: SERVER_SETUP_GUIDE.md):" -ForegroundColor Green
+Write-Host "  1. Copy client_package\ files to every client laptop (see client_package\README.txt)"
+Write-Host "  2. Switch the server to HTTPS:  switch_server_mode.bat https"
+Write-Host "     (the same day the clients get the new server_config.json)"
+Write-Host "  3. Later, when every client sends the key: set `"enforce`": true in app_keys.json"
+Write-Host "     and restart the service (switch_server_mode.bat https)"
 Write-Host "================================================================" -ForegroundColor Green
 exit 0

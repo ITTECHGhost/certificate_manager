@@ -24,6 +24,15 @@ MANIFEST_FILE = BASE_SERVER_DIR / "version.json"
 
 PATCHES_DIR.mkdir(parents=True, exist_ok=True)
 
+# The updates folder sits in Apache's web root: block direct Apache downloads so
+# patches are only served through this API (which checks the application key).
+_HTACCESS = BASE_SERVER_DIR / ".htaccess"
+if not _HTACCESS.exists():
+    try:
+        _HTACCESS.write_text("# Served only through the FastAPI /api/update endpoints\nRequire all denied\n", encoding="utf-8")
+    except OSError as _ht_err:
+        logger.warning(f"Could not write {_HTACCESS}: {_ht_err}")
+
 
 class VersionManifest(BaseModel):
     latest_version: str

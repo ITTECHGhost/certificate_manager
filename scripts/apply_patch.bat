@@ -34,7 +34,14 @@ if not errorlevel 1 (
 echo Certificate Manager closed. Extracting update package...
 echo [%date% %time%] [OTA_PATCH] Certificate Manager process stopped. Unpacking patch from %ZIP_PATH% >> "%LOG_FILE%"
 
-:: 2. Extract ZIP archive overwriting existing application files
+:: 2. Keep this laptop's own connection settings (server address, HTTPS, app key, college CA).
+::    A patch must never replace them with the settings of the PC that built it.
+set "KEEP_DIR=%TEMP%\cm_keep_%RANDOM%%RANDOM%"
+mkdir "%KEEP_DIR%" >NUL 2>&1
+if exist "%APP_DIR%\server_config.json" copy /y "%APP_DIR%\server_config.json" "%KEEP_DIR%\" >NUL
+if exist "%APP_DIR%\certs" xcopy /e /i /y /q "%APP_DIR%\certs" "%KEEP_DIR%\certs" >NUL
+
+:: 3. Extract ZIP archive overwriting existing application files
 powershell -NoProfile -ExecutionPolicy Bypass -Command "Expand-Archive -Path '%ZIP_PATH%' -DestinationPath '%APP_DIR%' -Force"
 if errorlevel 1 (
     echo [ERROR] Failed to extract update package!
@@ -43,15 +50,21 @@ if errorlevel 1 (
     exit /b 1
 )
 
+:: 4. Put the laptop's own settings back
+if exist "%KEEP_DIR%\server_config.json" copy /y "%KEEP_DIR%\server_config.json" "%APP_DIR%\server_config.json" >NUL
+if exist "%KEEP_DIR%\certs" xcopy /e /i /y /q "%KEEP_DIR%\certs" "%APP_DIR%\certs" >NUL
+rmdir /s /q "%KEEP_DIR%" >NUL 2>&1
+echo [%date% %time%] [OTA_PATCH] Kept local server_config.json and certs. >> "%LOG_FILE%"
+
 echo Update files successfully extracted.
 echo [%date% %time%] [OTA_PATCH] Extraction successful. Cleaning up temporary files. >> "%LOG_FILE%"
 
-:: 3. Clean up the patch archive
+:: 5. Clean up the patch archive
 if exist "%ZIP_PATH%" (
     del /f /q "%ZIP_PATH%" >NUL 2>&1
 )
 
-:: 4. Relaunch the updated application
+:: 6. Relaunch the updated application
 echo Relaunching application...
 echo [%date% %time%] [OTA_PATCH] Relaunching application: %EXE_NAME% >> "%LOG_FILE%"
 

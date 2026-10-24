@@ -54,7 +54,7 @@ del "%CERTS%\server.csr" >nul 2>&1
 
 echo.
 echo [SUCCESS] HTTPS certificate ready for %IP%:
-echo   Server:  %CERTS%\server.crt + server.key  (used by start_server_https.bat)
+echo   Server:  %CERTS%\server.crt + server.key  (used by the service in HTTPS mode)
 echo   Clients: copy %CERTS%\college_ca.crt to each client's certs\ folder
 exit /b 0
 

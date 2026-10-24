@@ -113,9 +113,22 @@ def get_client_settings() -> dict:
     cfg = _client_cfg
     verify: bool | str = True
     if cfg.get("scheme") == "https":
-        ca_path = Path(cfg.get("ca_cert") or DEFAULT_CA_CERT)
-        if not ca_path.is_absolute():
-            ca_path = Path(__file__).resolve().parent / ca_path
-        # Trust only the college CA when its certificate is shipped with the app
-        verify = str(ca_path) if ca_path.exists() else True
+        ca_path = _find_ca_cert(cfg.get("ca_cert") or DEFAULT_CA_CERT)
+        # Trust only the college CA when its certificate is available
+        verify = str(ca_path) if ca_path else True
     return {"verify": verify, "app_key": cfg.get("app_key", "")}
+
+
+def _find_ca_cert(ca_cert: str) -> Path | None:
+    """Locate the college CA file. The laptop's own copy (next to server_config.json / the
+    program) wins over the copy built into the program, so a new server CA can be installed
+    by copying one file, without a new build."""
+    path = Path(ca_cert)
+    if path.is_absolute():
+        return path if path.exists() else None
+    import sys
+    candidates = [Path.cwd() / path]
+    if getattr(sys, "frozen", False):
+        candidates.append(Path(sys.executable).resolve().parent / path)
+    candidates.append(Path(__file__).resolve().parent / path)
+    return next((c for c in candidates if c.exists()), None)
