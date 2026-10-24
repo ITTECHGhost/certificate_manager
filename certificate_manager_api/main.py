@@ -485,10 +485,54 @@ async def admin_restore(personnel_id: Optional[int] = Query(None), file: UploadF
             pass
 
 
+def _has_unresolved_temp_ref(payload: dict, id_map: dict) -> bool:
+    """True when the payload still points at a temporary (negative) parent ID that was not synced."""
+    for key, val in payload.items():
+        if key == "id":
+            continue
+        num = None
+        if isinstance(val, int) and not isinstance(val, bool):
+            num = val
+        elif isinstance(val, str) and val.startswith("-") and val[1:].isdigit():
+            num = int(val)
+        if num is not None and num < 0 and num not in id_map:
+            return True
+    return False
+
+
 @app.post("/sync")
 def sync_offline_queue(payload: SyncPayload, conn=Depends(get_db)):
-    """Synchronize a batch of offline actions to MySQL in a single transaction."""
-    id_map = {}
+    """
+    Synchronize offline actions to MySQL one at a time.
+
+    Each action is its own transaction: good actions are committed, a failing
+    action is rolled back and reported in "failed" without blocking the rest.
+    An action whose parent record (temporary negative ID) did not sync is
+    skipped and reported, so it is never written with a broken link.
+    """
+    id_map: Dict[int, int] = {}
+    failed: List[Dict[str, Any]] = []
+    for action in payload.actions:
+        if _has_unresolved_temp_ref(action.payload, id_map):
+            failed.append({
+                "queue_id": action.id, "table_name": action.table_name, "temp_id": action.temp_id,
+                "error": "Parent record was not synced / السجل الأب لم تتم مزامنته",
+            })
+            continue
+        try:
+            _apply_sync_actions(SyncPayload(actions=[action]), conn, id_map)
+        except HTTPException as exc:
+            failed.append({
+                "queue_id": action.id, "table_name": action.table_name, "temp_id": action.temp_id,
+                "error": str(exc.detail),
+            })
+    if failed:
+        logger.warning(f"Sync finished with {len(failed)} failed action(s) of {len(payload.actions)}")
+    return {"id_map": id_map, "failed": failed}
+
+
+def _apply_sync_actions(payload: SyncPayload, conn, id_map: dict) -> dict:
+    """Apply offline actions to MySQL in a single transaction (all or nothing), filling id_map."""
     try:
         for action in payload.actions:
             tbl = action.table_name
@@ -730,7 +774,10 @@ def sync_offline_queue(payload: SyncPayload, conn=Depends(get_db)):
         return {"id_map": id_map}
     except Exception as exc:
         conn.rollback()
-        logger.exception("Database sync failed. Rolling back transaction.")
+        # One short line per failed action (the caller reports it back to the client); no traceback
+        first = payload.actions[0] if payload.actions else None
+        where = f"{first.table_name} queue_id={first.id} temp_id={first.temp_id}" if first else "empty batch"
+        logger.warning(f"Sync action rolled back ({where}): {exc}")
         raise HTTPException(status_code=500, detail=f"Database synchronization failed: {str(exc)}")
 
 

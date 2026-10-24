@@ -188,7 +188,13 @@ class MainAppShell:
 
         if now_online and not prev_online:
             try:
-                await run.io_bound(sync_offline_queue_to_mysql)
+                sync_result = await run.io_bound(sync_offline_queue_to_mysql)
+                if sync_result and sync_result.get("failed"):
+                    ui.notify(
+                        f"فشلت مزامنة {sync_result['failed']} سجل — راجع الإعدادات > قاعدة البيانات. "
+                        f"/ {sync_result['failed']} offline record(s) failed to sync — see Settings > Database.",
+                        type="warning", timeout=10000
+                    )
                 pull_mysql_to_sqlite_background()
                 import services.template_sync as t_sync
                 await run.io_bound(t_sync.sync_templates_if_online)

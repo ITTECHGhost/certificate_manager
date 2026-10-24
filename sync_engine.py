@@ -657,6 +657,18 @@ def init_local_db() -> None:
             )
         """)
 
+        # Self-healing migration: sync_queue tracking columns (pending / failed, last error, attempts)
+        try:
+            cur.execute("PRAGMA table_info(sync_queue)")
+            sq_cols = [row[1] for row in cur.fetchall()]
+            if "status" not in sq_cols:
+                log.info("Migrating SQLite sync_queue table: adding status/last_error/attempts columns...")
+                cur.execute("ALTER TABLE sync_queue ADD COLUMN status TEXT NOT NULL DEFAULT 'pending'")
+                cur.execute("ALTER TABLE sync_queue ADD COLUMN last_error TEXT")
+                cur.execute("ALTER TABLE sync_queue ADD COLUMN attempts INTEGER NOT NULL DEFAULT 0")
+        except Exception as _sq_mig_err:
+            log.warning("sync_queue migration notice: %s", _sq_mig_err)
+
         # Self-healing migration: add certificate_number column to issued_certificates & local_issued_certificates if missing
         try:
             cur.execute("PRAGMA table_info(issued_certificates)")
@@ -1328,14 +1340,15 @@ def sync_offline_queue_to_mysql(mysql_conn=None) -> dict:
     id_map: dict[int, int] = {}
 
     try:
+        # Only pending rows are sent; rows marked 'failed' wait for the user to retry or discard them
         cur = sqlite_conn.execute(
             "SELECT id, table_name, operation, temp_id, payload "
-            "FROM sync_queue ORDER BY id ASC"
+            "FROM sync_queue WHERE COALESCE(status, 'pending') = 'pending' ORDER BY id ASC"
         )
         queue_rows = cur.fetchall()
 
         if not queue_rows:
-            log.info("Sync queue is empty — nothing to do.")
+            log.info("Sync queue has no pending rows — nothing to do.")
             return {"synced": 0, "failed": 0, "id_map": {}}
 
         log.info("Starting sync: %d queued operations.", len(queue_rows))
@@ -1376,14 +1389,17 @@ def sync_offline_queue_to_mysql(mysql_conn=None) -> dict:
 
         # 2. POST the payload to the API
         try:
-            response = requests.post(f"{get_api_url()}/sync", json=payload, timeout=10.0)
+            # Rows are saved one by one on the server, so allow more time for large queues
+            response = requests.post(f"{get_api_url()}/sync", json=payload, timeout=120.0)
             if response.status_code != 200:
                 log.error("API sync request failed with status %d: %s", response.status_code, response.text)
                 return {"synced": 0, "failed": len(queue_rows), "id_map": {}}
-            
+
             resp_data = response.json()
             # Convert JSON string keys to integers
             api_id_map = {int(k): int(v) for k, v in resp_data.get("id_map", {}).items()}
+            # Rows the server could not save: {queue_id: error message}
+            api_failed = {int(f["queue_id"]): str(f.get("error") or "") for f in resp_data.get("failed", [])}
         except Exception as exc:
             log.error("Failed to connect or communicate with FastAPI sync endpoint: %s", exc)
             return {"synced": 0, "failed": len(queue_rows), "id_map": {}}
@@ -1394,7 +1410,20 @@ def sync_offline_queue_to_mysql(mysql_conn=None) -> dict:
             table_name = row["table_name"]
             temp_id = row["temp_id"]
 
-            if temp_id in api_id_map:
+            if table_name == "settings":
+                continue  # handled above, outside the batch
+
+            if queue_id in api_failed:
+                # Keep the row, but stop retrying it until the user retries or discards it
+                sqlite_conn.execute(
+                    "UPDATE sync_queue SET status = 'failed', last_error = ?, attempts = attempts + 1 WHERE id = ?",
+                    (api_failed[queue_id], queue_id),
+                )
+                sqlite_conn.commit()
+                failed += 1
+                log.warning("Sync failed for queue id=%d (%s temp_id=%d): %s",
+                            queue_id, table_name, temp_id, api_failed[queue_id])
+            elif temp_id in api_id_map:
                 real_id = api_id_map[temp_id]
                 try:
                     # Resolve: cascade the real ID through local tables & queue
@@ -1441,9 +1470,10 @@ def get_queue_status() -> dict:
 
     Returns:
         {
-            "pending": 3,
+            "pending": 3,      # waiting to be sent
+            "failed": 1,       # rejected by the server, waiting for retry/discard
             "entries": [
-                {"id": 1, "table_name": "students", "temp_id": -1, "created_at": "..."},
+                {"id": 1, "table_name": "students", "temp_id": -1, "status": "pending", ...},
                 ...
             ]
         }
@@ -1451,11 +1481,54 @@ def get_queue_status() -> dict:
     conn = _get_local_conn()
     try:
         cur = conn.execute(
-            "SELECT id, table_name, operation, temp_id, created_at "
+            "SELECT id, table_name, operation, temp_id, created_at, payload, "
+            "COALESCE(status, 'pending') AS status, last_error, attempts "
             "FROM sync_queue ORDER BY id ASC"
         )
         rows = [dict(r) for r in cur.fetchall()]
-        return {"pending": len(rows), "entries": rows}
+        return {
+            "pending": sum(1 for r in rows if r["status"] == "pending"),
+            "failed": sum(1 for r in rows if r["status"] == "failed"),
+            "entries": rows,
+        }
+    finally:
+        conn.close()
+
+
+def retry_failed_queue_rows() -> int:
+    """Put every failed queue row back to pending so the next sync sends it again. Returns the count."""
+    conn = _get_local_conn()
+    try:
+        cur = conn.execute("UPDATE sync_queue SET status = 'pending' WHERE status = 'failed'")
+        conn.commit()
+        return cur.rowcount
+    finally:
+        conn.close()
+
+
+def discard_failed_queue_rows(queue_ids: list[int] | None = None) -> int:
+    """
+    Permanently drop failed queue rows (all of them, or only *queue_ids*) and the
+    offline-only local_* records they created. Server data is never touched.
+    Returns the number of queue rows removed.
+    """
+    conn = _get_local_conn()
+    try:
+        sql = "SELECT id, table_name, operation, temp_id FROM sync_queue WHERE status = 'failed'"
+        params: tuple = ()
+        if queue_ids:
+            sql += f" AND id IN ({', '.join('?' * len(queue_ids))})"
+            params = tuple(queue_ids)
+        rows = conn.execute(sql, params).fetchall()
+        for r in rows:
+            meta = _TABLE_REGISTRY.get(r["table_name"])
+            if meta and r["operation"] == "INSERT" and r["temp_id"] < 0:
+                conn.execute(f"DELETE FROM {meta['local_table']} WHERE id = ?", (r["temp_id"],))
+            conn.execute("DELETE FROM sync_queue WHERE id = ?", (r["id"],))
+        conn.commit()
+        if rows:
+            log.warning("Discarded %d failed sync_queue row(s).", len(rows))
+        return len(rows)
     finally:
         conn.close()
 
