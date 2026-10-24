@@ -32,10 +32,9 @@ class StudentsScreen:
         self.page_info_label = None
 
         # Resolve logged-in user department restriction
-        session_state = app.storage.user.get("session_state") or {}
-        emp_id = session_state.get("emp_id", 1)
-        user_rec = PersonnelRepository().get_by_id(emp_id) or {}
-        self.user_dept_scope = self.role_repo.get_user_department_scope(emp_id, user_dict=user_rec)
+        # Department scope cached at login (no network call here)
+        from nicegui_ui.state import app_session
+        self.user_dept_scope = app_session.get_access().get("dept_scope")
         self.user_dept_id = self.user_dept_scope[0] if self.user_dept_scope else None
 
         self.current_limit = 25

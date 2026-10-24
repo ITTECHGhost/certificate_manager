@@ -12,7 +12,7 @@ if workspace_root not in sys.path:
     sys.path.insert(0, workspace_root)
 
 # Import sync engine, logger, and configuration modules (MySQL is only reached through FastAPI)
-import requests
+import api_client
 from api_config import get_api_url
 from sync_engine import (
     is_online,
@@ -66,7 +66,7 @@ def run_system_health_checks() -> bool:
     routines: set[str] = set()
     if is_online():
         try:
-            resp = requests.get(f"{get_api_url()}/health/db", timeout=5.0)
+            resp = api_client.get(f"{get_api_url()}/health/db", timeout=5.0)
             if resp.status_code == 200 and resp.json().get("database") == "ok":
                 routines = {str(p).lower() for p in resp.json().get("procedures") or []}
                 log_system("[CHECK 2/4] MySQL Database Connection (via API) ... [OK]", "OK")

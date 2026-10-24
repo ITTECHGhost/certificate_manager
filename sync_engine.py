@@ -42,6 +42,7 @@ import threading
 from datetime import date, datetime
 from pathlib import Path
 import requests
+import api_client
 from api_config import API_URL, get_api_url
 
 log = logging.getLogger(__name__)
@@ -74,7 +75,7 @@ def check_network_status(target_url: str | None = None) -> bool:
     """
     url = target_url or get_api_url()
     try:
-        response = requests.get(f"{url}/ping", timeout=2.0)
+        response = api_client.get(f"{url}/ping", timeout=2.0)
         return response.status_code == 200
     except requests.RequestException:
         return False
@@ -851,12 +852,11 @@ def pull_mysql_to_sqlite(mysql_conn=None, sqlite_conn=None) -> dict:
         return str(val)
 
     api_url = get_api_url()
-    http = requests.Session()
     try:
         for table_name, _select_sql in _REPLICA_TABLES:
             try:
                 # Fetch from MySQL through FastAPI
-                resp = http.get(f"{api_url}/replica/{table_name}", timeout=60.0)
+                resp = api_client.get(f"{api_url}/replica/{table_name}", timeout=60.0)
                 if resp.status_code != 200:
                     raise RuntimeError(f"HTTP {resp.status_code}: {resp.text[:200]}")
                 body = resp.json()
@@ -895,7 +895,6 @@ def pull_mysql_to_sqlite(mysql_conn=None, sqlite_conn=None) -> dict:
                 errors.append(f"{table_name}: {exc}")
 
     finally:
-        http.close()
         if own_sqlite and sqlite_conn:
             sqlite_conn.close()
 
@@ -1360,7 +1359,7 @@ def sync_offline_queue_to_mysql(mysql_conn=None) -> dict:
                 try:
                     payload = _json_loads(row["payload"])
                     emp_id = row["temp_id"]
-                    resp = requests.put(f"{get_api_url()}/settings/appearance/{emp_id}", json=payload, timeout=5.0)
+                    resp = api_client.put(f"{get_api_url()}/settings/appearance/{emp_id}", json=payload, timeout=5.0)
                     if resp.status_code == 200:
                         sqlite_conn.execute("DELETE FROM sync_queue WHERE id = ?", (row["id"],))
                         sqlite_conn.commit()
@@ -1390,7 +1389,7 @@ def sync_offline_queue_to_mysql(mysql_conn=None) -> dict:
         # 2. POST the payload to the API
         try:
             # Rows are saved one by one on the server, so allow more time for large queues
-            response = requests.post(f"{get_api_url()}/sync", json=payload, timeout=120.0)
+            response = api_client.post(f"{get_api_url()}/sync", json=payload, timeout=120.0)
             if response.status_code != 200:
                 log.error("API sync request failed with status %d: %s", response.status_code, response.text)
                 return {"synced": 0, "failed": len(queue_rows), "id_map": {}}

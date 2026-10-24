@@ -315,10 +315,9 @@ class StudentBulkImportView:
     def _detect_user_department_scope(self):
         """Check if logged-in user is restricted to a specific department."""
         try:
-            session_state = app.storage.user.get("session_state") or {}
-            emp_id = session_state.get("emp_id", 1)
-            user_rec = self.personnel_repo.get_by_id(emp_id) or {}
-            allowed_ids = self.role_repo.get_user_department_scope(emp_id, user_dict=user_rec)
+            # Department scope cached at login (no network call here)
+            from nicegui_ui.state import app_session
+            allowed_ids = app_session.get_access().get("dept_scope")
 
             if allowed_ids:
                 # Filter self.departments so user only sees departments they have access to

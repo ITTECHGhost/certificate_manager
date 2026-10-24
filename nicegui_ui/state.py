@@ -39,6 +39,9 @@ class UserSessionState:
         "font_size_base": 13,
         "is_arabic_rtl": 1
     })
+    # Access profile resolved ONCE at login (role, pages, permissions, department scope).
+    # Screens read it from memory instead of asking the API/SQLite on every screen open.
+    access: Dict[str, Any] = field(default_factory=dict)
 
     def save(self) -> None:
         """Persist current state to NiceGUI browser local storage."""
@@ -51,7 +54,8 @@ class UserSessionState:
                 'name_en': self.name_en,
                 'role': self.role,
                 'is_active': self.is_active,
-                'preferences': self.preferences
+                'preferences': self.preferences,
+                'access': self.access,
             }
         except Exception:
             pass
@@ -69,8 +73,78 @@ class UserSessionState:
                 self.role = state.get('role', self.role)
                 self.is_active = state.get('is_active', self.is_active)
                 self.preferences = state.get('preferences', self.preferences)
+                self.access = state.get('access') or {}
         except Exception:
             pass
+
+    def load_access(self, user_record: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+        """
+        Resolve and cache this user's access profile. Called once at login (and on demand):
+          role_id, is_admin, allowed_screens, permissions (user grants + role actions), dept_scope.
+        """
+        from data.repositories import RoleRepository, PermissionRepository, PersonnelRepository
+        uid = self.emp_id
+        role_repo = RoleRepository()
+        # Full personnel record (responsibility fields drive role / department heuristics)
+        person = PersonnelRepository().get_by_id(uid) or dict(user_record or {})
+
+        role_id = role_repo.get_user_role_id(uid, user_dict=person) or "user"
+        role_def = role_repo.get_by_id(role_id) or {}
+        is_admin = role_id == "admin" or str(person.get("personnel_role") or "").lower() == "admin"
+
+        user_perms = set(PermissionRepository().get_user_permissions(uid) or [])
+        role_actions = set(role_def.get("allowed_actions") or [])
+
+        # Same screen rules the sidebar always used
+        if is_admin:
+            allowed_screens = None  # every screen
+        else:
+            page_perms = {k.replace("page:", "") for k in user_perms if k.startswith("page:")}
+            if page_perms:
+                allowed_screens = set(page_perms)
+            elif role_def.get("allowed_pages"):
+                allowed_screens = set(role_def.get("allowed_pages"))
+            else:
+                allowed_screens = {"home", "students", "orders", "certificate", "issued_certs"}
+            allowed_screens |= {"home", "profile"}
+
+        dept_scope = role_repo.get_user_department_scope(uid, user_dict=person)
+
+        self.access = {
+            "emp_id": uid,
+            "role_id": role_id,
+            "role_name_ar": role_def.get("name_ar") or role_id,
+            "role_name_en": role_def.get("name_en") or role_id,
+            "is_admin": is_admin,
+            "allowed_screens": sorted(allowed_screens) if allowed_screens is not None else None,
+            "user_permissions": sorted(user_perms),
+            "permissions": sorted(user_perms | role_actions),
+            "dept_scope": dept_scope,
+        }
+        self.role = role_id
+        return self.access
+
+    def refresh_access(self, changed_emp_id: Optional[int] = None) -> None:
+        """Re-resolve the cached access profile after roles/permissions change.
+        With changed_emp_id, only refresh when that change concerns the logged-in user."""
+        if changed_emp_id is not None and int(changed_emp_id) != int(self.emp_id):
+            return
+        try:
+            self.load_access()
+            self.save()
+        except Exception as exc:
+            log.warning("Could not refresh access profile for user %s: %s", self.emp_id, exc)
+
+    def get_access(self) -> Dict[str, Any]:
+        """Return the cached access profile, resolving it once if it is missing (e.g. old session)."""
+        if not self.access or self.access.get("emp_id") != self.emp_id:
+            try:
+                self.load_access()
+                self.save()
+            except Exception as exc:
+                log.warning("Could not resolve access profile for user %s: %s", self.emp_id, exc)
+                return {}
+        return self.access
 
     @property
     def theme_mode(self) -> str:
@@ -147,9 +221,11 @@ class UserSessionState:
             self.username = user_record.get("username", self.username)
             self.name_ar = user_record.get("name_ar", self.name_ar)
             try:
-                from data.repositories import RoleRepository
-                self.role = RoleRepository().get_user_role_id(user_id) or user_record.get("personnel_role", self.role)
-            except Exception:
+                # Resolves and caches role, screens, permissions and department scope (sets self.role)
+                self.load_access(user_record)
+            except Exception as exc:
+                log.warning("[login_user] Access profile failed for user %s: %s", user_id, exc)
+                self.access = {}
                 self.role = user_record.get("personnel_role", self.role)
 
         appearance = {}
@@ -212,6 +288,7 @@ class UserSessionState:
         self.name_en = "Admin User"
         self.role = "admin"
         self.is_active = False
+        self.access = {}
         self.save()
 
 

@@ -10,6 +10,7 @@ from typing import Dict, Any, List, Optional
 
 from sync_engine import is_online
 from api_config import get_api_url
+import api_client
 
 logger = logging.getLogger("template_sync")
 
@@ -46,7 +47,7 @@ def fetch_server_manifest() -> Optional[Dict[str, Any]]:
     endpoint = f"{api_url}/api/templates/manifest"
 
     try:
-        resp = requests.get(endpoint, timeout=5.0)
+        resp = api_client.get(endpoint, timeout=5.0)
         if resp.status_code == 200:
             return resp.json()
         logger.warning(f"Failed to fetch templates manifest: HTTP {resp.status_code}")
@@ -71,7 +72,7 @@ def _download_and_atomic_swap(
     tmp_path = os.path.join(templates_dir, f".tmp_{filename}")
 
     try:
-        resp = requests.get(download_url, stream=True, timeout=15.0)
+        resp = api_client.get(download_url, stream=True, timeout=15.0)
         if resp.status_code != 200:
             logger.error(f"Failed to download {filename}: HTTP {resp.status_code}")
             return False

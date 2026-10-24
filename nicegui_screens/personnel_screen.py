@@ -393,6 +393,8 @@ class PersonnelScreen:
                                     if pid is not None:
                                         self.repo.update(person_id=int(pid), data=payload)
                                         self.role_repo.assign_role_to_personnel(int(pid), chosen_role_id)
+                                        from nicegui_ui.state import app_session
+                                        app_session.refresh_access(int(pid))
                                     ui.notify("تم تعديل الكادر وتحديث صلاحيات الدور بنجاح / Personnel updated", type="positive")
                                 self.show_list_view()
                             except OfflineModeError as err:

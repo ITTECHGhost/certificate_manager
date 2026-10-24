@@ -254,31 +254,13 @@ class MainAppShell:
             # [NAVIGATION ITEMS LIST COLUMN]
             with ui.column().classes(Styles.SIDEBAR_NAV_GROUP):
                 from nicegui_ui.state import app_session
-                allowed_screen_keys = set()
-                if app_session.role == "admin":
+                # Screens come from the access profile cached at login (no network call here)
+                access = app_session.get_access()
+                cached_screens = access.get("allowed_screens") if access else None
+                if app_session.role == "admin" or not access or cached_screens is None:
                     allowed_screen_keys = {item["key"] for item in NAV_ITEMS}
                 else:
-                    try:
-                        from data.repositories import PermissionRepository, RoleRepository, PersonnelRepository
-                        uid = app_session.emp_id
-                        p_rec = PersonnelRepository().get_by_id(uid) or {}
-                        if p_rec.get("personnel_role") == "admin":
-                            allowed_screen_keys = {item["key"] for item in NAV_ITEMS}
-                        else:
-                            role_repo = RoleRepository()
-                            assigned_role_id = role_repo.get_user_role_id(uid)
-                            r_rec = role_repo.get_by_id(assigned_role_id) if assigned_role_id else None
-
-                            user_perms = set(PermissionRepository().get_user_permissions(uid) or [])
-                            page_perms = {k.replace("page:", "") for k in user_perms if k.startswith("page:")}
-                            if page_perms:
-                                allowed_screen_keys = page_perms
-                            elif r_rec and r_rec.get("allowed_pages"):
-                                allowed_screen_keys = set(r_rec.get("allowed_pages"))
-                            else:
-                                allowed_screen_keys = {"home", "students", "orders", "certificate", "issued_certs"}
-                    except Exception:
-                        allowed_screen_keys = {item["key"] for item in NAV_ITEMS}
+                    allowed_screen_keys = set(cached_screens)
 
                 allowed_screen_keys.add("home")
                 allowed_screen_keys.add("profile")

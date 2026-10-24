@@ -21,3 +21,15 @@ Thumbs.db
 
 # VS Code settings
 .vscode/
+# Secrets: never commit
+certificate_manager_api/app_keys.json
+certificate_manager_api/certs/
+*.key
+server_config.json
+
+# Runtime files
+logs/
+.nicegui/
+*.db-shm
+*.db-wal
+certificate_manager_api/client_package/

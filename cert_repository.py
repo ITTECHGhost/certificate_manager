@@ -144,10 +144,10 @@ def fetch_raw_certificate_data(
     if online:
         # Attempt 1: Call FastAPI Backend API Route
         try:
-            from api_config import API_URL
-            import requests
-            url = f"{API_URL}/certificates/{st_id}?grouping_mode={grouping_mode}"
-            resp = requests.get(url, timeout=3.5)
+            from api_config import get_api_url
+            import api_client
+            url = f"{get_api_url()}/certificates/{st_id}?grouping_mode={grouping_mode}"
+            resp = api_client.get(url, timeout=3.5)
             if resp.status_code == 200:
                 api_data = resp.json()
                 if api_data and (api_data.get("student_info") or api_data.get("full_name_ar")):

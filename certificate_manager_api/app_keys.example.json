@@ -1,0 +1,6 @@
+{
+    "enforce": false,
+    "apps": {
+        "certificate_manager": "replace-with-a-long-random-key"
+    }
+}

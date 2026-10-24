@@ -12,6 +12,7 @@ from typing import Optional, Dict, Any, Callable
 
 from sync_engine import is_online
 from api_config import get_api_url
+import api_client
 
 logger = logging.getLogger("updater")
 
@@ -48,7 +49,7 @@ def check_for_updates() -> Optional[Dict[str, Any]]:
     endpoint = f"{api_url}/api/update/version.json"
 
     try:
-        resp = requests.get(endpoint, timeout=5.0)
+        resp = api_client.get(endpoint, timeout=5.0)
         if resp.status_code != 200:
             logger.warning(f"OTA check returned HTTP {resp.status_code}")
             return None
@@ -121,7 +122,7 @@ def download_patch(
 
     try:
         logger.info(f"Downloading update patch from {full_url}...")
-        resp = requests.get(full_url, stream=True, timeout=30.0)
+        resp = api_client.get(full_url, stream=True, timeout=30.0)
         if resp.status_code != 200:
             logger.error(f"Failed to download patch: HTTP {resp.status_code}")
             return None

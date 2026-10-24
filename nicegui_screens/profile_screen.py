@@ -46,10 +46,10 @@ class ProfileScreen:
         cur_resp_en = str(user_data.get("responsibility_en") or "")
 
         # Resolve detailed role definition
-        role_id = self.role_repo.get_user_role_id(self.emp_id)
-        role_def = self.role_repo.get_by_id(role_id) or {}
-        role_label_ar = role_def.get("name_ar") or role_id
-        role_label_en = role_def.get("name_en") or role_id
+        access = self.session.get_access()
+        role_id = access.get("role_id") or self.session.role
+        role_label_ar = access.get("role_name_ar") or role_id
+        role_label_en = access.get("role_name_en") or role_id
 
         with ui.column().classes("w-full max-w-5xl mx-auto gap-6 pb-12"):
             # Header Navigation Row (Visible when not embedded in settings tab)

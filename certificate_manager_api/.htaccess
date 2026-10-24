@@ -1,0 +1,4 @@
+# This folder holds the FastAPI server code, database credentials and TLS keys.
+# It sits inside Apache's web root (C:\AppServ\www), so Apache must never serve
+# its files. The API itself is served by uvicorn (start_server.bat), not Apache.
+Require all denied

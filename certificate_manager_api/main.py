@@ -35,6 +35,64 @@ app = FastAPI(title="Certificate Manager API", lifespan=lifespan)
 router = APIRouter()
 app.include_router(router)
 
+
+# ---------------------------------------------------------------------------
+# Application keys: FastAPI guards the database per PROGRAM, not per user.
+# app_keys.json (next to this file, never in git):
+#   {"enforce": false, "apps": {"certificate_manager": "<secret key>"}}
+# enforce=false -> audit mode: requests without a valid key are logged, not blocked.
+# enforce=true  -> requests without a valid X-App-Key header get 401.
+# ---------------------------------------------------------------------------
+import json as _json
+import secrets as _secrets
+from fastapi import Request
+from fastapi.responses import JSONResponse
+
+APP_KEYS_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "app_keys.json")
+# Reachable without a key: the connectivity check only
+APP_KEY_EXEMPT_PATHS = {"/ping"}
+
+
+def _load_app_keys() -> dict:
+    try:
+        # utf-8-sig: also accepts a file saved by Notepad/PowerShell with a byte-order mark
+        with open(APP_KEYS_FILE, "r", encoding="utf-8-sig") as f:
+            data = _json.load(f)
+        apps = {str(k): str(v) for k, v in (data.get("apps") or {}).items() if v}
+        return {"enforce": bool(data.get("enforce", False)), "apps": apps}
+    except FileNotFoundError:
+        return {"enforce": False, "apps": {}}
+    except Exception as exc:
+        logger.error(f"Could not read {APP_KEYS_FILE}: {exc}")
+        return {"enforce": False, "apps": {}}
+
+
+_APP_KEYS = _load_app_keys()
+_audit_seen: set = set()
+logger.info(
+    f"App keys: {len(_APP_KEYS['apps'])} program(s) registered, "
+    f"mode={'ENFORCE' if _APP_KEYS['enforce'] else 'audit (not blocking)'}"
+)
+
+
+@app.middleware("http")
+async def app_key_guard(request: Request, call_next):
+    if request.url.path not in APP_KEY_EXEMPT_PATHS and _APP_KEYS["apps"]:
+        sent = request.headers.get("X-App-Key", "")
+        app_name = next((name for name, key in _APP_KEYS["apps"].items()
+                         if sent and _secrets.compare_digest(sent, key)), None)
+        if app_name is None:
+            if _APP_KEYS["enforce"]:
+                return JSONResponse(status_code=401, content={"detail": "Missing or invalid application key"})
+            client = request.client.host if request.client else "?"
+            if client not in _audit_seen:  # one warning per client address
+                _audit_seen.add(client)
+                logger.warning(f"[app-key audit] {client} called {request.url.path} without a valid X-App-Key "
+                               f"(allowed in audit mode; would be blocked when enforce=true)")
+        else:
+            request.state.app_name = app_name
+    return await call_next(request)
+
 # Database Configuration (supports overrides from environment variables)
 DB_HOST = os.environ.get("DB_HOST", "localhost")
 DB_USER = os.environ.get("DB_USER", "root")

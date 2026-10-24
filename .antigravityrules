@@ -16,4 +16,8 @@ Before suggesting code or modifying files, you MUST read .ai/cerebrum.md to unde
 - INSERT methods that should work offline MUST route to `log_offline_insert()` and return the temp negative ID.
 - When adding a new MySQL table that needs offline access, you MUST: (1) add a matching CREATE TABLE in `init_local_db()`, (2) add it to `_REPLICA_TABLES` in `sync_engine.py`, (3) add it to `REPLICA_TABLES` in `certificate_manager_api/main.py` (the `/replica/{table}` endpoint refuses unlisted tables).
 - The client NEVER connects to MySQL. `BaseRepository._call_*` helpers go through the FastAPI gateway (`POST /sp/read`, `POST /sp/write`). A new stored procedure called through them MUST be added to `SP_READ_WHITELIST` or `SP_WRITE_WHITELIST` in `certificate_manager_api/main.py`, then deployed.
-- Run `python tests/check_no_direct_mysql.py` after any change; it fails if client code imports `db`, `mysql.*` or `DBConfig`.
+- Run `python tests/check_no_direct_mysql.py` after any change; it fails if client code imports `db`, `mysql.*` or `DBConfig`, or calls `requests.get/post/...` directly.
+- Every client HTTP call MUST use `api_client.get/post/put/patch/delete` (shared keep-alive session, HTTPS verification with `certs/college_ca.crt`, `X-App-Key` header). Never call `requests.*` directly.
+- User permissions are resolved ONCE at login into `app_session.access` (`nicegui_ui/state.py`: role_id, allowed_screens, permissions, dept_scope). Screens read `app_session.get_access()`; after changing roles/permissions call `app_session.refresh_access(...)`.
+- Secrets never go in git: `certificate_manager_api/app_keys.json`, `certificate_manager_api/certs/`, `server_config.json` (holds the client app key). Templates: `app_keys.example.json`, `server_config.example.json`.
+- `C:\AppServ\www` is Apache's web root: the deployed API folder MUST keep its `.htaccess` (`Require all denied`) so Apache never serves code, credentials or keys.

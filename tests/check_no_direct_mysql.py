@@ -3,7 +3,8 @@
 #
 # Every database request must go through FastAPI. This check fails if any
 # client module imports mysql.connector, the MySQL helper module `db`, or the
-# credentials class `DBConfig`.
+# credentials class `DBConfig`, or calls requests.get/post/... directly
+# instead of the shared api_client.
 #
 # Run:  python tests/check_no_direct_mysql.py      (exit code 1 = violation)
 # =============================================================================
@@ -17,6 +18,7 @@ ROOT = Path(__file__).resolve().parent.parent
 # Server code, archived code and developer-only DB tools are allowed to reach MySQL.
 EXCLUDED_DIRS = {"old", "certificate_manager_api", "tests", ".git", ".claude", ".agent", ".gemini", "__pycache__"}
 EXCLUDED_FILES = {"db.py", "config.py", "export_db.py", "get_db_schema.py"}
+HTTP_CALLS = {"get", "post", "put", "patch", "delete", "request", "Session"}
 
 
 def find_violations() -> list[str]:
@@ -40,6 +42,11 @@ def find_violations() -> list[str]:
                     violations.append(f"{rel}:{node.lineno}: from {node.module} import ...")
                 elif node.module == "config" and any(a.name == "DBConfig" for a in node.names):
                     violations.append(f"{rel}:{node.lineno}: from config import DBConfig")
+            # Every API call must use api_client (shared session, HTTPS verification, app key)
+            elif (rel.name != "api_client.py" and isinstance(node, ast.Attribute)
+                  and isinstance(node.value, ast.Name) and node.value.id == "requests"
+                  and node.attr in HTTP_CALLS):
+                violations.append(f"{rel}:{node.lineno}: requests.{node.attr} (use api_client.{node.attr.lower()})")
     return violations
 
 

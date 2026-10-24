@@ -18,6 +18,7 @@ app_datas = [
     ('nicegui_ui', 'nicegui_ui'),
     ('csit.png', '.'),
     ('server_config.json', '.'),
+    ('certs/college_ca.crt', 'certs'),
     ('scripts/apply_patch.bat', 'scripts'),
 ]
 

@@ -7,6 +7,7 @@ import json
 import hashlib
 import logging
 import requests
+import api_client
 from datetime import datetime
 from typing import Any, List, Dict, Optional, Union, cast
 from api_config import API_URL, get_api_url
@@ -125,7 +126,7 @@ class BaseRepository:
     def _post_sp(self, endpoint: str, proc_name: str, args: tuple) -> dict:
         """Send a stored-procedure call to the FastAPI gateway (/sp/read or /sp/write) and return its JSON body."""
         body = json.dumps({"proc": proc_name, "args": list(args)}, default=str, ensure_ascii=False)
-        resp = requests.post(
+        resp = api_client.post(
             f"{self.api_url}/sp/{endpoint}",
             data=body.encode("utf-8"),
             headers={"Content-Type": "application/json"},
@@ -199,7 +200,7 @@ class BaseRepository:
         if not is_online() or filter_clause:
             return get_offline_count_table_rows(table, filter_clause)
         try:
-            resp = requests.get(f"{self.api_url}/table-count/{table}", timeout=5.0)
+            resp = api_client.get(f"{self.api_url}/table-count/{table}", timeout=5.0)
             if resp.status_code == 200:
                 return int(resp.json().get("count", 0))
         except Exception as e:
@@ -215,7 +216,7 @@ class SettingsRepository(BaseRepository):
         if not is_online():
             return get_offline_settings()
         try:
-            resp = requests.get(f"{self.api_url}/settings", timeout=5.0)
+            resp = api_client.get(f"{self.api_url}/settings", timeout=5.0)
             if resp.status_code == 200:
                 return resp.json()
             return get_offline_settings()
@@ -235,7 +236,7 @@ class SettingsRepository(BaseRepository):
                 "univ_logo_path": univ_logo,
                 "college_logo_path": college_logo
             }
-            resp = requests.put(f"{self.api_url}/settings", json=payload, timeout=5.0)
+            resp = api_client.put(f"{self.api_url}/settings", json=payload, timeout=5.0)
             if resp.status_code == 200:
                 try:
                     from sync_engine import _get_local_conn
@@ -265,7 +266,7 @@ class SettingsRepository(BaseRepository):
             return get_offline_user_appearance(emp_id)
 
         try:
-            resp = requests.get(f"{self.api_url}/settings/appearance/{emp_id}", timeout=5.0)
+            resp = api_client.get(f"{self.api_url}/settings/appearance/{emp_id}", timeout=5.0)
             if resp.status_code == 200 and resp.json():
                 data = resp.json()
                 return {
@@ -300,7 +301,7 @@ class SettingsRepository(BaseRepository):
                 "font_size_base": size,
                 "rtl": rtl
             }
-            resp = requests.put(f"{self.api_url}/settings/appearance/{emp_id}", json=payload, timeout=5.0)
+            resp = api_client.put(f"{self.api_url}/settings/appearance/{emp_id}", json=payload, timeout=5.0)
             if resp.status_code == 200:
                 log_activity(f"تم تحديث المظهر للمستخدم ID: {emp_id}")
             else:
@@ -317,7 +318,7 @@ class SettingsRepository(BaseRepository):
             log_activity("تم مسح سجل التغييرات بالكامل")
             return
         try:
-            resp = requests.post(f"{self.api_url}/settings/clear-logs", timeout=5.0)
+            resp = api_client.post(f"{self.api_url}/settings/clear-logs", timeout=5.0)
             if resp.status_code == 200:
                 log_activity("تم مسح سجل التغييرات بالكامل")
             else:
@@ -332,7 +333,7 @@ class CountryRepository(BaseRepository):
         if not is_online():
             return get_offline_countries()
         try:
-            resp = requests.get(f"{self.api_url}/lookups/countries", timeout=5.0)
+            resp = api_client.get(f"{self.api_url}/lookups/countries", timeout=5.0)
             if resp.status_code == 200:
                 return resp.json()
             return []
@@ -345,7 +346,7 @@ class GovernorateRepository(BaseRepository):
         if not is_online():
             return get_offline_governorates()
         try:
-            resp = requests.get(f"{self.api_url}/lookups/governorates", timeout=5.0)
+            resp = api_client.get(f"{self.api_url}/lookups/governorates", timeout=5.0)
             if resp.status_code == 200:
                 return resp.json()
             return []
@@ -358,7 +359,7 @@ class DepartmentRepository(BaseRepository):
         if not is_online():
             return get_offline_departments()
         try:
-            resp = requests.get(f"{self.api_url}/departments", timeout=5.0)
+            resp = api_client.get(f"{self.api_url}/departments", timeout=5.0)
             if resp.status_code == 200:
                 return resp.json()
             return []
@@ -370,7 +371,7 @@ class DepartmentRepository(BaseRepository):
         if not is_online():
             return get_offline_department_by_id(dept_id)
         try:
-            resp = requests.get(f"{self.api_url}/departments/{dept_id}", timeout=5.0)
+            resp = api_client.get(f"{self.api_url}/departments/{dept_id}", timeout=5.0)
             if resp.status_code == 200:
                 return resp.json()
             return None
@@ -387,7 +388,7 @@ class DepartmentRepository(BaseRepository):
                 "name_en": name_en,
                 "university_settings_id": uni_settings_id
             }
-            resp = requests.post(f"{self.api_url}/departments", json=payload, timeout=5.0)
+            resp = api_client.post(f"{self.api_url}/departments", json=payload, timeout=5.0)
             if resp.status_code == 200:
                 new_id = resp.json()["new_id"]
                 log_activity(f"تم إضافة قسم جديد: {name_ar}")
@@ -409,7 +410,7 @@ class DepartmentRepository(BaseRepository):
                 "name_en": name_en,
                 "university_settings_id": uni_settings_id
             }
-            resp = requests.put(f"{self.api_url}/departments/{dept_id}", json=payload, timeout=5.0)
+            resp = api_client.put(f"{self.api_url}/departments/{dept_id}", json=payload, timeout=5.0)
             if resp.status_code == 200:
                 log_activity(f"تم تعديل القسم: {name_ar}")
             else:
@@ -424,7 +425,7 @@ class DepartmentRepository(BaseRepository):
             log_activity(f"تم حذف القسم ID: {dept_id}")
             return
         try:
-            resp = requests.delete(f"{self.api_url}/departments/{dept_id}", timeout=5.0)
+            resp = api_client.delete(f"{self.api_url}/departments/{dept_id}", timeout=5.0)
             if resp.status_code == 200:
                 log_activity(f"تم حذف القسم ID: {dept_id}")
             else:
@@ -442,7 +443,7 @@ class StudySystemRepository(BaseRepository):
         if not is_online():
             return get_offline_study_systems()
         try:
-            resp = requests.get(f"{self.api_url}/study-systems", timeout=5.0)
+            resp = api_client.get(f"{self.api_url}/study-systems", timeout=5.0)
             if resp.status_code == 200:
                 return resp.json()
             return []
@@ -454,7 +455,7 @@ class StudySystemRepository(BaseRepository):
         if not is_online():
             return get_offline_active_study_systems()
         try:
-            resp = requests.get(f"{self.api_url}/study-systems/active", timeout=5.0)
+            resp = api_client.get(f"{self.api_url}/study-systems/active", timeout=5.0)
             if resp.status_code == 200:
                 return resp.json()
             return []
@@ -466,7 +467,7 @@ class StudySystemRepository(BaseRepository):
         if not is_online():
             return get_offline_study_system_by_id(system_id)
         try:
-            resp = requests.get(f"{self.api_url}/study-systems/{system_id}", timeout=5.0)
+            resp = api_client.get(f"{self.api_url}/study-systems/{system_id}", timeout=5.0)
             if resp.status_code == 200:
                 return resp.json()
             return None
@@ -487,7 +488,7 @@ class StudySystemRepository(BaseRepository):
                 "period_display": period_display,
                 "is_active": 1
             }
-            resp = requests.post(f"{self.api_url}/study-systems", json=payload, timeout=5.0)
+            resp = api_client.post(f"{self.api_url}/study-systems", json=payload, timeout=5.0)
             if resp.status_code == 200:
                 new_id = resp.json()["new_id"]
                 log_activity(f"تم إضافة نظام دراسي جديد: {name_ar}")
@@ -519,7 +520,7 @@ class StudySystemRepository(BaseRepository):
                 "period_display": period_display,
                 "is_active": active_val
             }
-            resp = requests.put(f"{self.api_url}/study-systems/{sys_id}", json=payload, timeout=5.0)
+            resp = api_client.put(f"{self.api_url}/study-systems/{sys_id}", json=payload, timeout=5.0)
             if resp.status_code == 200:
                 log_activity(f"تم تعديل النظام الدراسي ID: {sys_id}")
             else:
@@ -532,7 +533,7 @@ class StudySystemRepository(BaseRepository):
         if not is_online():
             raise OfflineModeError()
         try:
-            resp = requests.post(f"{self.api_url}/study-systems/{sys_id}/toggle", params={"is_active": new_status}, timeout=5.0)
+            resp = api_client.post(f"{self.api_url}/study-systems/{sys_id}/toggle", params={"is_active": new_status}, timeout=5.0)
             if resp.status_code != 200:
                 raise RuntimeError(f"API toggle failed: {resp.text}")
         except Exception as e:
@@ -545,7 +546,7 @@ class StudySystemRepository(BaseRepository):
             log_activity(f"تم حذف النظام الدراسي ID: {sys_id}")
             return
         try:
-            resp = requests.delete(f"{self.api_url}/study-systems/{sys_id}", timeout=5.0)
+            resp = api_client.delete(f"{self.api_url}/study-systems/{sys_id}", timeout=5.0)
             if resp.status_code == 200:
                 log_activity(f"تم حذف النظام الدراسي ID: {sys_id}")
             else:
@@ -563,7 +564,7 @@ class PersonnelRepository(BaseRepository):
         if not is_online():
             return get_offline_personnel()
         try:
-            resp = requests.get(f"{self.api_url}/personnel", timeout=5.0)
+            resp = api_client.get(f"{self.api_url}/personnel", timeout=5.0)
             if resp.status_code == 200:
                 return resp.json()
             return []
@@ -575,7 +576,7 @@ class PersonnelRepository(BaseRepository):
         if not is_online():
             return get_offline_active_personnel()
         try:
-            resp = requests.get(f"{self.api_url}/personnel/active", timeout=5.0)
+            resp = api_client.get(f"{self.api_url}/personnel/active", timeout=5.0)
             if resp.status_code == 200:
                 return resp.json()
             return []
@@ -587,7 +588,7 @@ class PersonnelRepository(BaseRepository):
         if not is_online():
             return get_offline_personnel_by_id(person_id)
         try:
-            resp = requests.get(f"{self.api_url}/personnel/{person_id}", timeout=5.0)
+            resp = api_client.get(f"{self.api_url}/personnel/{person_id}", timeout=5.0)
             if resp.status_code == 200:
                 return resp.json()
             return None
@@ -631,7 +632,7 @@ class PersonnelRepository(BaseRepository):
             return _check_offline_auth()
         try:
             payload = {"username": username, "password_hash": password_hash}
-            resp = requests.post(f"{self.api_url}/personnel/login", json=payload, timeout=5.0)
+            resp = api_client.post(f"{self.api_url}/personnel/login", json=payload, timeout=5.0)
             if resp.status_code == 200:
                 result = resp.json()
                 pull_mysql_to_sqlite_background()
@@ -663,7 +664,7 @@ class PersonnelRepository(BaseRepository):
                 "is_active": int(data.get("is_active") if data.get("is_active") is not None else 1),
             }
 
-            resp = requests.post(f"{self.api_url}/personnel", json=payload, timeout=5.0)
+            resp = api_client.post(f"{self.api_url}/personnel", json=payload, timeout=5.0)
             if resp.status_code == 200:
                 new_id = resp.json()["new_id"]
                 log_activity(f"تم إضافة كادر جديد: {data.get('name_ar')}")
@@ -694,7 +695,7 @@ class PersonnelRepository(BaseRepository):
                 "is_active": int(data.get("is_active") if data.get("is_active") is not None else 1),
             }
 
-            resp = requests.put(f"{self.api_url}/personnel/{person_id}", json=payload, timeout=5.0)
+            resp = api_client.put(f"{self.api_url}/personnel/{person_id}", json=payload, timeout=5.0)
             if resp.status_code == 200:
                 log_activity(f"تم تعديل بيانات الكادر ID: {person_id}")
             else:
@@ -707,7 +708,7 @@ class PersonnelRepository(BaseRepository):
         if not is_online():
             raise OfflineModeError()
         try:
-            resp = requests.post(f"{self.api_url}/personnel/{person_id}/toggle", params={"is_active": is_active}, timeout=5.0)
+            resp = api_client.post(f"{self.api_url}/personnel/{person_id}/toggle", params={"is_active": is_active}, timeout=5.0)
             if resp.status_code != 200:
                 raise RuntimeError(f"API toggle failed: {resp.text}")
         except Exception as e:
@@ -718,7 +719,7 @@ class PersonnelRepository(BaseRepository):
         if not is_online():
             raise OfflineModeError()
         try:
-            resp = requests.delete(f"{self.api_url}/personnel/{person_id}", timeout=5.0)
+            resp = api_client.delete(f"{self.api_url}/personnel/{person_id}", timeout=5.0)
             if resp.status_code == 200:
                 log_activity(f"تم حذف الكادر ID: {person_id}")
             else:
@@ -981,7 +982,7 @@ class PermissionRepository(BaseRepository):
         results = []
         if is_online():
             try:
-                resp = requests.get(f"{self.api_url}/permissions", timeout=5.0)
+                resp = api_client.get(f"{self.api_url}/permissions", timeout=5.0)
                 if resp.status_code == 200:
                     results = resp.json()
             except Exception as e:
@@ -1008,7 +1009,7 @@ class PermissionRepository(BaseRepository):
             )
             return [r["permission_key"] for r in rows if r["permission_key"] not in ("settings:manage", "settings:view", "catalog:manage")]
         try:
-            resp = requests.get(f"{self.api_url}/personnel/{person_id}/permissions", timeout=5.0)
+            resp = api_client.get(f"{self.api_url}/personnel/{person_id}/permissions", timeout=5.0)
             local_rows = sqlite_read_all(
                 "SELECT permission_key FROM personnel_permissions WHERE personnel_id = ? AND is_granted = 1",
                 (person_id,)
@@ -1048,7 +1049,7 @@ class PermissionRepository(BaseRepository):
 
         try:
             payload = {"permission_keys": keys}
-            resp = requests.put(f"{self.api_url}/personnel/{person_id}/permissions", json=payload, timeout=5.0)
+            resp = api_client.put(f"{self.api_url}/personnel/{person_id}/permissions", json=payload, timeout=5.0)
             if resp.status_code == 200:
                 try:
                     from sync_engine import _get_local_conn
@@ -1186,6 +1187,8 @@ DEFAULT_SYSTEM_ROLES = [
 
 
 _USER_ROLE_CACHE: dict | None = None
+# Roles tables are created/seeded once per app run, not on every RoleRepository()
+_ROLES_INITIALIZED: bool = False
 
 
 class RoleRepository(BaseRepository):
@@ -1203,7 +1206,10 @@ class RoleRepository(BaseRepository):
         self._ensure_initialized()
 
     def _ensure_initialized(self) -> None:
-        """Ensures the SQLite roles table exists, user_roles table exists, and default roles are seeded."""
+        """Ensures the SQLite roles table exists, user_roles table exists, and default roles are seeded (once per run)."""
+        global _ROLES_INITIALIZED
+        if _ROLES_INITIALIZED:
+            return
         try:
             from sync_engine import _get_local_conn
             with _get_local_conn() as conn:
@@ -1261,6 +1267,7 @@ class RoleRepository(BaseRepository):
                         except Exception:
                             pass
             self._save_to_json_file()
+            _ROLES_INITIALIZED = True
         except Exception as exc:
             log_system(f"RoleRepository init error: {exc}", "WARNING")
 
@@ -1659,7 +1666,7 @@ class CourseRepository(BaseRepository):
         if not is_online():
             return get_offline_courses()
         try:
-            resp = requests.get(f"{self.api_url}/courses", timeout=5.0)
+            resp = api_client.get(f"{self.api_url}/courses", timeout=5.0)
             if resp.status_code == 200:
                 return resp.json()
             raise RuntimeError(f"API returned status code {resp.status_code}")
@@ -1671,7 +1678,7 @@ class CourseRepository(BaseRepository):
         if not is_online():
             return get_offline_courses_by_department(dept_id)
         try:
-            resp = requests.get(f"{self.api_url}/courses/by-dept/{dept_id}", timeout=5.0)
+            resp = api_client.get(f"{self.api_url}/courses/by-dept/{dept_id}", timeout=5.0)
             if resp.status_code == 200:
                 return resp.json()
             raise RuntimeError(f"API returned status code {resp.status_code}")
@@ -1683,7 +1690,7 @@ class CourseRepository(BaseRepository):
         if not is_online():
             return get_offline_courses_by_dept_stage_system(dept_id, stage, system_id)
         try:
-            resp = requests.get(
+            resp = api_client.get(
                 f"{self.api_url}/courses/by-dept-stage-system",
                 params={"dept_id": dept_id, "stage": stage, "system_id": system_id},
                 timeout=5.0
@@ -1708,7 +1715,7 @@ class CourseRepository(BaseRepository):
             if "department_id" in payload and payload["department_id"] is not None:
                 payload["department_id"] = int(payload["department_id"])
             
-            resp = requests.post(f"{self.api_url}/courses", json=payload, timeout=5.0)
+            resp = api_client.post(f"{self.api_url}/courses", json=payload, timeout=5.0)
             if resp.status_code == 200:
                 new_id = resp.json()["new_id"]
                 log_activity(f"تم إضافة مادة دراسية جديدة: {data.get('name_ar')}")
@@ -1738,7 +1745,7 @@ class CourseRepository(BaseRepository):
             return
 
         try:
-            resp = requests.put(f"{self.api_url}/courses/{course_id}", json=payload, timeout=5.0)
+            resp = api_client.put(f"{self.api_url}/courses/{course_id}", json=payload, timeout=5.0)
             if resp.status_code == 200:
                 log_activity(f"تم تعديل بيانات المادة الدراسية ID: {course_id}")
             else:
@@ -1761,7 +1768,7 @@ class CourseRepository(BaseRepository):
         if not is_online():
             raise OfflineModeError()
         try:
-            resp = requests.delete(f"{self.api_url}/courses/{course_id}", timeout=5.0)
+            resp = api_client.delete(f"{self.api_url}/courses/{course_id}", timeout=5.0)
             if resp.status_code == 200:
                 log_activity(f"تم حذف المادة الدراسية ID: {course_id}")
             else:
@@ -1792,7 +1799,7 @@ class StudentRepository(BaseRepository):
                 params = {"query": query, "limit": limit, "offset": offset}
                 if dept_id is not None:
                     params["dept_id"] = dept_id
-                response = requests.get(
+                response = api_client.get(
                     f"{self.api_base_url}/students/search", 
                     params=params,
                     timeout=3
@@ -1838,7 +1845,7 @@ class StudentRepository(BaseRepository):
                 if end_date: params["end_date"] = end_date
                 if department_id: params["department_id"] = department_id
                 if template_type: params["template_type"] = template_type
-                resp = requests.get(f"{self.api_url}/issued-certificates/report", params=params, timeout=5.0)
+                resp = api_client.get(f"{self.api_url}/issued-certificates/report", params=params, timeout=5.0)
                 if resp.status_code == 200:
                     return resp.json()
             except Exception as e:
@@ -1850,7 +1857,7 @@ class StudentRepository(BaseRepository):
         """Calls GetIssuedCertificatesByStudent SP via API or SQLite offline fallback."""
         if is_online():
             try:
-                resp = requests.get(f"{self.api_url}/issued-certificates/by-student/{student_id}", timeout=5.0)
+                resp = api_client.get(f"{self.api_url}/issued-certificates/by-student/{student_id}", timeout=5.0)
                 if resp.status_code == 200:
                     return resp.json()
             except Exception as e:
@@ -1862,7 +1869,7 @@ class StudentRepository(BaseRepository):
         """Calls GetIssuedCertificateById SP via API or SQLite offline fallback."""
         if is_online():
             try:
-                resp = requests.get(f"{self.api_url}/issued-certificates/{cert_id}", timeout=5.0)
+                resp = api_client.get(f"{self.api_url}/issued-certificates/{cert_id}", timeout=5.0)
                 if resp.status_code == 200:
                     return resp.json()
             except Exception as e:
@@ -1896,7 +1903,7 @@ class StudentRepository(BaseRepository):
                     supp_data = {}
                     for sid in student_ids:
                         try:
-                            resp = requests.get(f"{self.api_url}/students/{sid}", timeout=5.0)
+                            resp = api_client.get(f"{self.api_url}/students/{sid}", timeout=5.0)
                             if resp.status_code == 200:
                                 sdata = resp.json()
                                 supp_data[sid] = {
@@ -1926,7 +1933,7 @@ class StudentRepository(BaseRepository):
             res = get_offline_students_paginated(limit=limit, offset=offset, name_query=name_query, dept_id=dept_id, year=year)
         else:
             try:
-                resp = requests.get(
+                resp = api_client.get(
                     f"{self.api_url}/students/paginated",
                     params={
                         "limit": limit,
@@ -1954,7 +1961,7 @@ class StudentRepository(BaseRepository):
             res = get_offline_student_by_id(student_id)
         else:
             try:
-                resp = requests.get(f"{self.api_url}/students/{student_id}", timeout=5.0)
+                resp = api_client.get(f"{self.api_url}/students/{student_id}", timeout=5.0)
                 if resp.status_code == 200:
                     res = resp.json()
                 else:
@@ -1978,7 +1985,7 @@ class StudentRepository(BaseRepository):
         else:
             # 3. Online Mode: FastAPI Call
             try:
-                resp = requests.get(
+                resp = api_client.get(
                     f"{self.api_url}/students/search/all",
                     params={"query": clean_query, "limit": limit},
                     timeout=5.0
@@ -2010,7 +2017,7 @@ class StudentRepository(BaseRepository):
         if not is_online():
             return count_offline_students(name_query=name_query, dept_id=dept_id, year=year)
         try:
-            resp = requests.get(
+            resp = api_client.get(
                 f"{self.api_url}/students/count/all",
                 params={
                     "name_query": name_query,
@@ -2032,7 +2039,7 @@ class StudentRepository(BaseRepository):
         if not is_online():
             return get_offline_students_by_order_id(order_id)
         try:
-            resp = requests.get(f"{self.api_url}/students/by-order/{order_id}", timeout=5.0)
+            resp = api_client.get(f"{self.api_url}/students/by-order/{order_id}", timeout=5.0)
             if resp.status_code == 200:
                 return resp.json()
             return []
@@ -2046,7 +2053,7 @@ class StudentRepository(BaseRepository):
             log_activity(f"تم ربط الطالب ID {student_id} بالأمر الجامعي ID {order_id}")
             return
         try:
-            resp = requests.put(f"{self.api_url}/students/{student_id}/link-order/{order_id}", timeout=5.0)
+            resp = api_client.put(f"{self.api_url}/students/{student_id}/link-order/{order_id}", timeout=5.0)
             if resp.status_code != 200:
                 st = self.get_by_id(student_id)
                 if st:
@@ -2062,7 +2069,7 @@ class StudentRepository(BaseRepository):
             log_activity(f"تم إلغاء ربط الطالب ID {student_id} من الأمر الجامعي")
             return
         try:
-            resp = requests.put(f"{self.api_url}/students/{student_id}/unlink-order", timeout=5.0)
+            resp = api_client.put(f"{self.api_url}/students/{student_id}/unlink-order", timeout=5.0)
             if resp.status_code != 200:
                 st = self.get_by_id(student_id)
                 if st:
@@ -2075,7 +2082,7 @@ class StudentRepository(BaseRepository):
     def search_unlinked(self, name_query: str = "", dept_id: int | None = None, year: int | None = None, limit: int = 50) -> list[dict[str, Any]]:
         if is_online():
             try:
-                resp = requests.get(
+                resp = api_client.get(
                     f"{self.api_url}/students/search/unlinked",
                     params={
                         "name_query": name_query,
@@ -2108,7 +2115,7 @@ class StudentRepository(BaseRepository):
         if not is_online():
             raise OfflineModeError()
         try:
-            resp = requests.post(f"{self.api_url}/students/{student_id}/unlink-order", timeout=5.0)
+            resp = api_client.post(f"{self.api_url}/students/{student_id}/unlink-order", timeout=5.0)
             if resp.status_code == 200:
                 log_activity(f"تم فك ارتباط الطالب ID: {student_id} بالأمر الجامعي")
             else:
@@ -2121,7 +2128,7 @@ class StudentRepository(BaseRepository):
         if not is_online():
             raise OfflineModeError()
         try:
-            resp = requests.post(f"{self.api_url}/students/link-order/{order_id}", timeout=5.0)
+            resp = api_client.post(f"{self.api_url}/students/link-order/{order_id}", timeout=5.0)
             if resp.status_code == 200:
                 row = resp.json()
                 count = row.get('affected_rows', 0)
@@ -2138,7 +2145,7 @@ class StudentRepository(BaseRepository):
         if not is_online():
             raise OfflineModeError()
         try:
-            resp = requests.post(f"{self.api_url}/students/{student_id}/link-order/{order_id}", timeout=5.0)
+            resp = api_client.post(f"{self.api_url}/students/{student_id}/link-order/{order_id}", timeout=5.0)
             if resp.status_code == 200:
                 log_activity(f"تم ربط الطالب ID: {student_id} بالأمر الجامعي ID: {order_id}")
             else:
@@ -2155,7 +2162,7 @@ class StudentRepository(BaseRepository):
         if not is_online():
             return get_offline_distinct_admission_years()
         try:
-            resp = requests.get(f"{self.api_url}/students/distinct/years", timeout=5.0)
+            resp = api_client.get(f"{self.api_url}/students/distinct/years", timeout=5.0)
             if resp.status_code == 200:
                 return resp.json()
             return []
@@ -2189,7 +2196,7 @@ class StudentRepository(BaseRepository):
                 "graduation_date": str(data.get('graduation_date')) if data.get('graduation_date') else None,
                 "graduation_semester": data.get('graduation_semester')
             }
-            resp = requests.post(f"{self.api_url}/students", json=payload, timeout=5.0)
+            resp = api_client.post(f"{self.api_url}/students", json=payload, timeout=5.0)
             if resp.status_code == 200:
                 new_id = resp.json()["new_id"]
                 log_activity(f"تم إضافة طالب جديد: {data.get('full_name_ar')}")
@@ -2229,7 +2236,7 @@ class StudentRepository(BaseRepository):
             return
 
         try:
-            resp = requests.put(f"{self.api_url}/students/{student_id}", json=payload, timeout=5.0)
+            resp = api_client.put(f"{self.api_url}/students/{student_id}", json=payload, timeout=5.0)
             if resp.status_code == 200:
                 log_activity(f"تم تعديل بيانات الطالب ID: {student_id}")
             else:
@@ -2243,7 +2250,7 @@ class StudentRepository(BaseRepository):
         if not is_online():
             raise OfflineModeError("Bulk import requires active online connection to central server.")
         try:
-            resp = requests.post(
+            resp = api_client.post(
                 f"{self.api_url}/api/students/bulk-import",
                 json={"students": students_payload},
                 timeout=60.0
@@ -2266,7 +2273,7 @@ class StudentRepository(BaseRepository):
             return
 
         try:
-            resp = requests.delete(f"{self.api_url}/students/{student_id}", timeout=5.0)
+            resp = api_client.delete(f"{self.api_url}/students/{student_id}", timeout=5.0)
             if resp.status_code == 200:
                 log_activity(f"تم حذف الطالب ID: {student_id}")
             else:
@@ -2286,7 +2293,7 @@ class AcademicPeriodRepository(BaseRepository):
         periods = []
         if is_online():
             try:
-                resp = requests.get(f"{self.api_url}/academic-periods/by-student/{student_id}", timeout=3.0)
+                resp = api_client.get(f"{self.api_url}/academic-periods/by-student/{student_id}", timeout=3.0)
                 if resp.status_code == 200:
                     periods = resp.json()
             except Exception as e:
@@ -2340,7 +2347,7 @@ class AcademicPeriodRepository(BaseRepository):
                 "semester_num": semester_num,
                 "result_status": result_status,
             }
-            resp = requests.post(f"{self.api_url}/academic-periods", json=payload, timeout=3.0)
+            resp = api_client.post(f"{self.api_url}/academic-periods", json=payload, timeout=3.0)
             if resp.status_code == 200:
                 new_id = resp.json()["new_id"]
                 try:
@@ -2388,7 +2395,7 @@ class AcademicPeriodRepository(BaseRepository):
             return
 
         try:
-            resp = requests.patch(
+            resp = api_client.patch(
                 f"{self.api_url}/academic-periods/{period_id}/status",
                 json={"result_status": str(st_code)},
                 timeout=3.0
@@ -2403,7 +2410,7 @@ class AcademicPeriodRepository(BaseRepository):
             return
 
         try:
-            resp = requests.patch(
+            resp = api_client.patch(
                 f"{self.api_url}/academic-periods/{period_id}/stage",
                 json={"stage_number": stage_number},
                 timeout=3.0
@@ -2417,7 +2424,7 @@ class AcademicPeriodRepository(BaseRepository):
             log_activity(f"تم حذف المرحلة الدراسية (أوفلاين) ID: {period_id}")
             return
         try:
-            resp = requests.delete(f"{self.api_url}/academic-periods/{period_id}", timeout=5.0)
+            resp = api_client.delete(f"{self.api_url}/academic-periods/{period_id}", timeout=5.0)
             if resp.status_code != 200:
                 log_system(f"API delete warning for academic-period {period_id}: {resp.text}", "WARNING")
         except Exception as e:
@@ -2430,7 +2437,7 @@ class EnrollmentRepository(BaseRepository):
         if not is_online():
             return get_offline_enrollments_by_period(period_id)
         try:
-            resp = requests.get(f"{self.api_url}/enrollments/by-period/{period_id}", timeout=5.0)
+            resp = api_client.get(f"{self.api_url}/enrollments/by-period/{period_id}", timeout=5.0)
             if resp.status_code == 200:
                 return resp.json()
             return []
@@ -2455,7 +2462,7 @@ class EnrollmentRepository(BaseRepository):
                 "score": float(score),
                 "is_second": int(is_second)
             }
-            resp = requests.post(f"{self.api_url}/enrollments", json=payload, timeout=3.0)
+            resp = api_client.post(f"{self.api_url}/enrollments", json=payload, timeout=3.0)
             if resp.status_code == 200:
                 new_id = resp.json()["new_id"]
                 try:
@@ -2501,7 +2508,7 @@ class EnrollmentRepository(BaseRepository):
             return
 
         try:
-            resp = requests.put(
+            resp = api_client.put(
                 f"{self.api_url}/enrollments/{enrollment_id}",
                 params={"score": float(score), "is_second": int(is_second)},
                 timeout=3.0
@@ -2515,7 +2522,7 @@ class EnrollmentRepository(BaseRepository):
             log_activity(f"تم حذف تسجيل المادة (أوفلاين) ID: {enrollment_id}")
             return
         try:
-            resp = requests.delete(f"{self.api_url}/enrollments/{enrollment_id}", timeout=5.0)
+            resp = api_client.delete(f"{self.api_url}/enrollments/{enrollment_id}", timeout=5.0)
             if resp.status_code != 200:
                 raise RuntimeError(f"API delete failed: {resp.text}")
         except Exception as e:
@@ -2540,7 +2547,7 @@ class CertificateRepository(BaseRepository):
         """Delegates flat-yearly course transcript fetching to cert_repository.py / data.query."""
         if is_online():
             try:
-                resp = requests.get(f"{self.api_url}/certificates/flat-yearly/{student_id}", timeout=5.0)
+                resp = api_client.get(f"{self.api_url}/certificates/flat-yearly/{student_id}", timeout=5.0)
                 if resp.status_code == 200:
                     rows = resp.json()
                     if isinstance(rows, list):
@@ -2565,7 +2572,7 @@ class GraduationOrderRepository(BaseRepository):
         if not is_online():
             return get_offline_graduation_orders(limit=limit, offset=offset)
         try:
-            resp = requests.get(f"{self.api_url}/graduation-orders", params={"limit": limit, "offset": offset}, timeout=5.0)
+            resp = api_client.get(f"{self.api_url}/graduation-orders", params={"limit": limit, "offset": offset}, timeout=5.0)
             if resp.status_code == 200:
                 return resp.json()
             return []
@@ -2577,7 +2584,7 @@ class GraduationOrderRepository(BaseRepository):
         if not is_online():
             return get_offline_graduation_order_by_id(order_id)
         try:
-            resp = requests.get(f"{self.api_url}/graduation-orders/{order_id}", timeout=5.0)
+            resp = api_client.get(f"{self.api_url}/graduation-orders/{order_id}", timeout=5.0)
             if resp.status_code == 200:
                 return resp.json()
             return None
@@ -2585,7 +2592,7 @@ class GraduationOrderRepository(BaseRepository):
             log_system(f"API request failed: {e}", "WARNING")
             return None
         try:
-            resp = requests.get(f"{self.api_url}/graduation-orders/{order_id}", timeout=5.0)
+            resp = api_client.get(f"{self.api_url}/graduation-orders/{order_id}", timeout=5.0)
             if resp.status_code == 200:
                 return resp.json()
             return None
@@ -2621,7 +2628,7 @@ class GraduationOrderRepository(BaseRepository):
                 "notes": data.get('notes'),
                 "study_system_id": int(data.get('study_system_id', 1))
             }
-            resp = requests.post(f"{self.api_url}/graduation-orders", json=payload, timeout=5.0)
+            resp = api_client.post(f"{self.api_url}/graduation-orders", json=payload, timeout=5.0)
             if resp.status_code == 200:
                 new_id = resp.json()["new_id"]
                 log_activity(f"تم إضافة أمر جامعي جديد: {data.get('order_number')}")
@@ -2661,7 +2668,7 @@ class GraduationOrderRepository(BaseRepository):
                 "notes": data.get('notes'),
                 "study_system_id": int(data.get('study_system_id', 1))
             }
-            resp = requests.put(f"{self.api_url}/graduation-orders/{order_id}", json=payload, timeout=5.0)
+            resp = api_client.put(f"{self.api_url}/graduation-orders/{order_id}", json=payload, timeout=5.0)
             if resp.status_code == 200:
                 log_activity(f"تم تعديل بيانات الأمر الجامعي: {data.get('order_number')}")
             else:
@@ -2676,7 +2683,7 @@ class GraduationOrderRepository(BaseRepository):
             log_activity(f"تم حذف الأمر الجامعي ID: {order_id}")
             return
         try:
-            resp = requests.delete(f"{self.api_url}/graduation-orders/{order_id}", timeout=5.0)
+            resp = api_client.delete(f"{self.api_url}/graduation-orders/{order_id}", timeout=5.0)
             if resp.status_code == 200:
                 log_activity(f"تم حذف الأمر الجامعي ID: {order_id}")
             else:
@@ -2689,7 +2696,7 @@ class GraduationOrderRepository(BaseRepository):
         if not is_online():
             return get_offline_students_by_order_id(order_id)
         try:
-            resp = requests.get(f"{self.api_url}/students/by-order/{order_id}", timeout=5.0)
+            resp = api_client.get(f"{self.api_url}/students/by-order/{order_id}", timeout=5.0)
             if resp.status_code == 200:
                 return resp.json()
             return []
@@ -2705,7 +2712,7 @@ class GraduationOrderRepository(BaseRepository):
                 log_activity(f"تم ربط {count} طالب بالأمر الجامعي ID: {order_id}")
             return count
         try:
-            resp = requests.post(f"{self.api_url}/students/link-order/{order_id}", timeout=5.0)
+            resp = api_client.post(f"{self.api_url}/students/link-order/{order_id}", timeout=5.0)
             if resp.status_code == 200:
                 row = resp.json()
                 count = row.get('affected_rows', 0)
@@ -2723,7 +2730,7 @@ class GraduationOrderRepository(BaseRepository):
             log_activity(f"تم فك ارتباط الطالب ID: {student_id} بالأمر الجامعي")
             return
         try:
-            resp = requests.post(f"{self.api_url}/students/{student_id}/unlink-order", timeout=5.0)
+            resp = api_client.post(f"{self.api_url}/students/{student_id}/unlink-order", timeout=5.0)
             if resp.status_code == 200:
                 log_activity(f"تم فك ارتباط الطالب ID: {student_id} بالأمر الجامعي")
             else:
@@ -2740,7 +2747,7 @@ class ThesisRepository(BaseRepository):
         if not is_online():
             return self._call_read_all("GetThesisByStudent", (student_id,))
         try:
-            resp = requests.get(f"{self.api_url}/thesis/by-student/{student_id}", timeout=5.0)
+            resp = api_client.get(f"{self.api_url}/thesis/by-student/{student_id}", timeout=5.0)
             if resp.status_code == 200:
                 return resp.json()
             return []
@@ -2763,7 +2770,7 @@ class ThesisRepository(BaseRepository):
                 "committee_decision": committee_decision,
                 "final_grade": float(final_grade) if final_grade is not None else None
             }
-            resp = requests.post(f"{self.api_url}/thesis", json=payload, timeout=5.0)
+            resp = api_client.post(f"{self.api_url}/thesis", json=payload, timeout=5.0)
             if resp.status_code == 200:
                 new_id = resp.json()["new_id"]
                 log_activity(f"تم إضافة سجل أطروحة للطالب ID: {student_id}")
@@ -2789,7 +2796,7 @@ class ThesisRepository(BaseRepository):
                 "committee_decision": committee_decision,
                 "final_grade": float(final_grade) if final_grade is not None else None
             }
-            resp = requests.put(f"{self.api_url}/thesis/{thesis_id}", json=payload, timeout=5.0)
+            resp = api_client.put(f"{self.api_url}/thesis/{thesis_id}", json=payload, timeout=5.0)
             if resp.status_code == 200:
                 log_activity(f"تم تعديل سجل الأطروحة ID: {thesis_id}")
             else:
@@ -2804,7 +2811,7 @@ class ThesisRepository(BaseRepository):
             log_activity(f"تم حذف سجل الأطروحة ID: {thesis_id}")
             return
         try:
-            resp = requests.delete(f"{self.api_url}/thesis/{thesis_id}", timeout=5.0)
+            resp = api_client.delete(f"{self.api_url}/thesis/{thesis_id}", timeout=5.0)
             if resp.status_code == 200:
                 log_activity(f"تم حذف سجل الأطروحة ID: {thesis_id}")
             else:
@@ -2829,7 +2836,7 @@ class StudentSupervisorRepository(BaseRepository):
         if not is_online():
             return self._call_read_all("GetSupervisorsByStudent", (student_id,))
         try:
-            resp = requests.get(f"{self.api_url}/supervisors/by-student/{student_id}", timeout=5.0)
+            resp = api_client.get(f"{self.api_url}/supervisors/by-student/{student_id}", timeout=5.0)
             if resp.status_code == 200:
                 return resp.json()
             return []
@@ -2848,7 +2855,7 @@ class StudentSupervisorRepository(BaseRepository):
                 "personnel_id": personnel_id,
                 "supervision_role": supervision_role
             }
-            resp = requests.post(f"{self.api_url}/supervisors", json=payload, timeout=5.0)
+            resp = api_client.post(f"{self.api_url}/supervisors", json=payload, timeout=5.0)
             if resp.status_code == 200:
                 new_id = resp.json()["new_id"]
                 log_activity(f"تم إضافة مشرف جديد للطالب ID: {student_id}")
@@ -2870,7 +2877,7 @@ class StudentSupervisorRepository(BaseRepository):
                 "personnel_id": personnel_id,
                 "supervision_role": supervision_role
             }
-            resp = requests.put(f"{self.api_url}/supervisors/{record_id}", json=payload, timeout=5.0)
+            resp = api_client.put(f"{self.api_url}/supervisors/{record_id}", json=payload, timeout=5.0)
             if resp.status_code == 200:
                 log_activity(f"تم تعديل بيانات الإشراف ID: {record_id}")
             else:
@@ -2885,7 +2892,7 @@ class StudentSupervisorRepository(BaseRepository):
             log_activity(f"تم حذف سجل الإشراف ID: {record_id}")
             return
         try:
-            resp = requests.delete(f"{self.api_url}/supervisors/{record_id}", timeout=5.0)
+            resp = api_client.delete(f"{self.api_url}/supervisors/{record_id}", timeout=5.0)
             if resp.status_code == 200:
                 log_activity(f"تم حذف سجل الإشراف ID: {record_id}")
             else:
@@ -2963,7 +2970,7 @@ class DashboardRepository(BaseRepository):
             return get_offline_dashboard_counts()
         
         try:
-            resp = requests.get(f"{self.api_url}/api/dashboard/counts", timeout=5.0)
+            resp = api_client.get(f"{self.api_url}/api/dashboard/counts", timeout=5.0)
             if resp.status_code == 200:
                 return resp.json()
             raise RuntimeError(f"API returned status code {resp.status_code}")
@@ -2983,7 +2990,7 @@ class StudyRoutineRepository(BaseRepository):
         routines = []
         if is_online():
             try:
-                resp = requests.get(f"{self.api_url}/study-routines", timeout=3.0)
+                resp = api_client.get(f"{self.api_url}/study-routines", timeout=3.0)
                 if resp.status_code == 200:
                     routines = resp.json()
             except Exception as e:
@@ -3007,7 +3014,7 @@ class StudyRoutineRepository(BaseRepository):
                 courses = []
                 if is_online():
                     try:
-                        c_resp = requests.get(f"{self.api_url}/study-routine-courses/{rid}", timeout=3.0)
+                        c_resp = api_client.get(f"{self.api_url}/study-routine-courses/{rid}", timeout=3.0)
                         if c_resp.status_code == 200:
                             courses = c_resp.json()
                     except Exception:
@@ -3089,7 +3096,7 @@ class StudyRoutineRepository(BaseRepository):
                 "department_id": dept_id,
                 "study_system_id": sys_id,
             }
-            resp = requests.put(f"{self.api_url}/study-routines/{routine_id}", json=payload, timeout=3.0)
+            resp = api_client.put(f"{self.api_url}/study-routines/{routine_id}", json=payload, timeout=3.0)
             if resp.status_code != 200:
                 self._call_write("UpdateStudyRoutine", (routine_id, name_ar, name_en, dept_id, sys_id))
         except Exception as e:
@@ -3100,7 +3107,7 @@ class StudyRoutineRepository(BaseRepository):
 
         for cid in course_ids:
             try:
-                requests.post(
+                api_client.post(
                     f"{self.api_url}/study-routine-courses",
                     json={"routine_id": routine_id, "course_id": cid},
                     timeout=3.0
@@ -3123,7 +3130,7 @@ class StudyRoutineRepository(BaseRepository):
 
         api_success = False
         try:
-            resp = requests.delete(f"{self.api_url}/study-routines/{routine_id}", timeout=5.0)
+            resp = api_client.delete(f"{self.api_url}/study-routines/{routine_id}", timeout=5.0)
             if resp.status_code == 200:
                 api_success = True
                 log_activity(f"تم حذف الروتين الدراسي ID: {routine_id} عبر API")
@@ -3371,7 +3378,7 @@ class IssuedCertificateRepository(BaseRepository):
             from data.query import get_offline_issued_certificates_report
             return get_offline_issued_certificates_report()
         try:
-            resp = requests.get(f"{self.api_url}/issued-certificates/report", timeout=5.0)
+            resp = api_client.get(f"{self.api_url}/issued-certificates/report", timeout=5.0)
             if resp.status_code == 200:
                 return resp.json()
             return []
@@ -3385,7 +3392,7 @@ class IssuedCertificateRepository(BaseRepository):
             from data.query import get_offline_issued_certificates_by_student
             return get_offline_issued_certificates_by_student(student_id)
         try:
-            resp = requests.get(f"{self.api_url}/issued-certificates/by-student/{student_id}", timeout=5.0)
+            resp = api_client.get(f"{self.api_url}/issued-certificates/by-student/{student_id}", timeout=5.0)
             if resp.status_code == 200:
                 return resp.json()
             return []
@@ -3399,7 +3406,7 @@ class IssuedCertificateRepository(BaseRepository):
             from data.query import get_offline_issued_certificate_by_id
             return get_offline_issued_certificate_by_id(cert_id)
         try:
-            resp = requests.get(f"{self.api_url}/issued-certificates/{cert_id}", timeout=5.0)
+            resp = api_client.get(f"{self.api_url}/issued-certificates/{cert_id}", timeout=5.0)
             if resp.status_code == 200:
                 return resp.json()
             return None
@@ -3438,7 +3445,7 @@ class IssuedCertificateRepository(BaseRepository):
             if graduation_year is not None and graduation_year != 0: params["graduation_year"] = graduation_year
             if study_system_id is not None and study_system_id != 0: params["study_system_id"] = study_system_id
             if search_text: params["search_text"] = search_text
-            resp = requests.get(f"{self.api_url}/issued-certificates/report", params=params, timeout=5.0)
+            resp = api_client.get(f"{self.api_url}/issued-certificates/report", params=params, timeout=5.0)
             if resp.status_code == 200:
                 return resp.json()
             return []
@@ -3458,7 +3465,7 @@ class IssuedCertificateRepository(BaseRepository):
     def get_latest_number(self) -> str | None:
         if is_online():
             try:
-                resp = requests.get(f"{self.api_url}/issued-certificates/latest-number", timeout=3.0)
+                resp = api_client.get(f"{self.api_url}/issued-certificates/latest-number", timeout=3.0)
                 if resp.status_code == 200:
                     data = resp.json()
                     if data.get("latest_number"):
@@ -3554,7 +3561,7 @@ class IssuedCertificateRepository(BaseRepository):
             )
         else:
             try:
-                resp = requests.post(f"{self.api_url}/issued-certificates", json=payload, timeout=5.0)
+                resp = api_client.post(f"{self.api_url}/issued-certificates", json=payload, timeout=5.0)
                 if resp.status_code == 200:
                     res_data = resp.json()
                     new_id = res_data.get("new_id") or res_data.get("inserted_id")
@@ -3607,7 +3614,7 @@ class IssuedCertificateRepository(BaseRepository):
             return
 
         try:
-            resp = requests.put(f"{self.api_url}/issued-certificates/{cert_id}", json=payload, timeout=5.0)
+            resp = api_client.put(f"{self.api_url}/issued-certificates/{cert_id}", json=payload, timeout=5.0)
             if resp.status_code != 200:
                 log_system(f"API update issued certificate warning: {resp.text}", "WARNING")
                 from data.query import update_offline_issued_certificate
@@ -3635,7 +3642,7 @@ class IssuedCertificateRepository(BaseRepository):
             delete_offline_issued_certificate(cert_id)
             return
         try:
-            resp = requests.delete(f"{self.api_url}/issued-certificates/{cert_id}", timeout=5.0)
+            resp = api_client.delete(f"{self.api_url}/issued-certificates/{cert_id}", timeout=5.0)
             if resp.status_code != 200:
                 log_system(f"API delete failed: {resp.text}", "WARNING")
                 from data.query import delete_offline_issued_certificate

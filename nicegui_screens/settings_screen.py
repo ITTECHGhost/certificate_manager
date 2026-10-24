@@ -19,7 +19,7 @@ from data.repositories import (
     PermissionRepository, RoleRepository, DepartmentRepository,
     ALL_PERMISSION_KEYS
 )
-import requests
+import api_client
 from api_config import get_api_url
 from nicegui_ui.ui_components import UI
 from nicegui_ui.state import get_user_session
@@ -156,20 +156,8 @@ class SettingsScreen:
         - Other tabs (institution, appearance, roles, templates, logs) require specific permissions.
         """
         is_admin = (self.session.role == "admin")
-        user_perms = set()
-        try:
-            user_perms = set(self.perm_repo.get_user_permissions(self.emp_id) or [])
-        except Exception:
-            pass
-
-        role_actions = set()
-        try:
-            role_def = self.role_repo.get_by_id(self.session.role) or {}
-            role_actions = set(role_def.get("allowed_actions") or [])
-        except Exception:
-            pass
-
-        effective_perms = user_perms | role_actions
+        # User grants + role actions, cached at login (no network call here)
+        effective_perms = set(self.session.get_access().get("permissions") or [])
 
         # Granular permissions checking - strictly governed by specific granular permission keys
         can_inst = is_admin or "settings:institution" in effective_perms or "settings:study_systems" in effective_perms
@@ -1307,6 +1295,7 @@ class SettingsScreen:
 
                     try:
                         self.role_repo.save_role(payload)
+                        self.session.refresh_access()  # the edited role may be the logged-in user's
                         ui.notify(f"تم حفظ الدور ({nar}) بنجاح!", type="positive")
                         self._return_to_roles_overview()
                     except Exception as exc:
@@ -1558,6 +1547,7 @@ class SettingsScreen:
                         granted_pages = [f"page:{p_key}" for p_key, cb in state["page_checkboxes"].items() if cb.value]
                         all_to_save = granted_actions + granted_pages
                         self.perm_repo.set_user_permissions(uid, all_to_save)
+                        self.session.refresh_access(uid)
                         ui.notify(
                             f"تم حفظ الصلاحيات والشاشات للمستخدم بنجاح! ({len(granted_actions)} إجراء + {len(granted_pages)} شاشة)",
                             type="positive"
@@ -1983,7 +1973,7 @@ class SettingsScreen:
         ui.notify("جاري إنشاء النسخة الاحتياطية... / Creating backup...", type="info")
         try:
             resp = await run.io_bound(
-                requests.get, f"{get_api_url()}/admin/backup",
+                api_client.get, f"{get_api_url()}/admin/backup",
                 params={"personnel_id": self.emp_id}, timeout=300.0
             )
             if resp.status_code != 200:
@@ -2030,7 +2020,7 @@ class SettingsScreen:
                 ui.notify("جاري الاستعادة... / Restoring...", type="info")
                 try:
                     resp = await run.io_bound(
-                        requests.post, f"{get_api_url()}/admin/restore",
+                        api_client.post, f"{get_api_url()}/admin/restore",
                         params={"personnel_id": self.emp_id},
                         files={"file": (picked["name"], picked["content"], "application/sql")},
                         timeout=600.0,

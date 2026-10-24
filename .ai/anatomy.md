@@ -6,12 +6,14 @@
 - `db.py`: MySQL connection factory (`get_connection`), read-only schema check (`init_db`), grade helper, and backup/restore via `mysqldump`/`mysql` CLI. (Client use of this is an architecture violation being phased out — see Bug Ledger #226.)
 - `sync_engine.py`: Offline sync engine. Local SQLite cache (`local_cache.db`), network status flag (`is_online`/`set_online`/`check_network_status`), outbound sync queue (temp negative IDs → API `/sync`), inbound replica pull, SP result cache, and SQLite helpers (`sqlite_read_all`/`sqlite_read_one`).
 - `config.py`: Holds `DBConfig` (still used by `db.py`); the rest is dead CustomTkinter-era theme code.
-- `api_config.py` / `server_config.json`: API URL resolution for the client.
+- `api_config.py` / `server_config.json`: API URL (http/https), CA file and app key for the client. `server_config.example.json` is the git template (the real file holds the app key and is not committed).
+- `api_client.py`: the ONLY way the client talks to FastAPI — per-thread keep-alive session, HTTPS verification with `certs/college_ca.crt`, `X-App-Key` header, safe retries.
+- `certs/college_ca.crt`: public certificate of the college CA, shipped with the client (bundled by `client.spec`).
 - `data/repositories.py`: Data Access Layer with online/offline routing (API via `requests`, SQLite fallback). `data/query.py`: offline SQLite query helpers. `data/roles_config.json`, `data/user_roles.json`: role persistence.
 - `repositories/auth_repository.py`: thin wrapper over `PersonnelRepository`/`SettingsRepository`.
 - `cert_repository.py`: certificate payload building.
 - `services/`: `excel_import_service`, `template_sync`, `updater`. `utils/`: `logger`, `file_delivery`, `health_check`, `error_formatter`.
-- `certificate_manager_api/`: FastAPI server (GitHub copy). Deployed copy runs from `C:\AppServ\www\certificate_manager_api\` on port 2030.
+- `certificate_manager_api/`: FastAPI server (GitHub copy). Deployed copy runs from `C:\AppServ\www\certificate_manager_api\` on port 2030. `start_server.bat` (HTTP) / `start_server_https.bat` (HTTPS), `make_https_cert.bat <ip>` (college CA + server certificate into `certs\`), `app_keys.json` (program keys, audit/enforce), `.htaccess` (blocks Apache from serving the folder).
 - `templets/`, `certificates/`: Word templates and generated certificates.
 - `tools/`: `migrate_mysql.py` (still imported by settings screen). `export_db.py`, `get_db_schema.py`: DB inspection tools. `sql/`: exported schema/SP files.
 - `old/`: **Everything legacy** — CustomTkinter UI (`temp_archive/old design/`), scratch scripts, backups, copies, old themes, stray DBs. Not imported by anything; safe to delete when confirmed.
