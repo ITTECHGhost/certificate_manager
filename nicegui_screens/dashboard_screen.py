@@ -165,7 +165,7 @@ class MainAppShell:
                 self._build_top_header()
 
                 # Scrollable Content Body Area
-                with ui.scroll_area().classes("flex-1 min-w-0 max-w-full h-full p-4 overflow-x-auto"):
+                with ui.scroll_area().classes("app-main-scroll flex-1 min-w-0 max-w-full h-full p-4 overflow-x-hidden"):
                     # Dynamic Screen View Container (Swapped when navigating)
                     self.content_container = ui.column().classes("w-full max-w-full min-w-0 gap-4")
                     self._render_active_screen()
@@ -283,15 +283,18 @@ class MainAppShell:
         with self._sidebar_col:
             # [SIDEBAR HEADER ROW]
             with ui.row().classes(Styles.SIDEBAR_HEADER):
-                # Title Label (Visible when expanded)
-                self._sidebar_title_label = ui.label("Certificate Manager").classes(
-                    Styles.SIDEBAR_APP_TITLE
-                )
-                # Logo Icon (Visible when collapsed)
-                self._sidebar_title_icon = ui.icon(
-                    "workspace_premium", size="md"
-                ).classes("app-text-accent self-center mx-auto")
-                self._sidebar_title_icon.set_visibility(False)
+                # Toggle button in the corner. Expanded: menu icon; collapsed: the certificate logo.
+                self._sidebar_toggle_btn = ui.button(
+                    icon="menu", color=None, on_click=self.toggle_sidebar
+                ).props("flat dense").classes("app-btn-primary p-2 rounded-xl shadow-none shrink-0")
+                self._sidebar_toggle_btn.tooltip("طي / توسيع القائمة — Collapse / expand menu")
+
+                # Title (Arabic above English) — hidden when collapsed
+                self._sidebar_title_label = ui.column().classes("app-sidebar-titles gap-0 min-w-0 flex-1")
+                with self._sidebar_title_label:
+                    ui.label("مدير الشهادات").classes(f"{Styles.SIDEBAR_APP_TITLE} leading-tight")
+                    ui.label("Certificate Manager").classes("app-sidebar-title text-xs font-semibold leading-tight opacity-80")
+                self._sidebar_title_icon = None
 
             # [NAVIGATION ITEMS LIST COLUMN]
             with ui.column().classes(Styles.SIDEBAR_NAV_GROUP):
@@ -456,8 +459,7 @@ class MainAppShell:
             )
             if self._sidebar_title_label:
                 self._sidebar_title_label.set_visibility(True)
-            if self._sidebar_title_icon:
-                self._sidebar_title_icon.set_visibility(False)
+            self._sidebar_toggle_btn.props("icon=menu")
 
             for row, label_col, _ in self._nav_labels:
                 label_col.set_visibility(True)
@@ -475,8 +477,7 @@ class MainAppShell:
             )
             if self._sidebar_title_label:
                 self._sidebar_title_label.set_visibility(False)
-            if self._sidebar_title_icon:
-                self._sidebar_title_icon.set_visibility(True)
+            self._sidebar_toggle_btn.props("icon=workspace_premium")
 
             for row, label_col, _ in self._nav_labels:
                 label_col.set_visibility(False)
@@ -503,22 +504,15 @@ class MainAppShell:
         """
         with ui.row().classes(Styles.HEADER_BAR):
             # Left Header Section (Sidebar Toggle Button + Active Screen Title Labels)
-            with ui.row().classes("items-center gap-4"):
-                # [BUTTON: SIDEBAR MENU TOGGLE]
-                ui.button(
-                    icon="menu",
-                    color=None,
-                    on_click=self.toggle_sidebar
-                ).classes("app-btn-primary p-2 rounded-xl shadow-none")
-
-                # Dynamic Screen Title Labels (Arabic — English)
+            with ui.row().classes("items-center gap-4 min-w-0"):
+                # Dynamic Screen Title Labels (Arabic above English)
                 title_ar, title_en = self._get_screen_header_titles()
-                with ui.row().classes("items-baseline gap-3"):
+                with ui.column().classes("gap-0 min-w-0"):
                     self._header_title_ar = ui.label(title_ar).classes(
-                        "app-text-primary text-xl font-bold tracking-wide"
+                        "app-text-primary text-xl font-bold leading-tight truncate"
                     )
-                    self._header_title_en = ui.label(f"—  {title_en}").classes(
-                        "app-text-muted text-sm font-medium"
+                    self._header_title_en = ui.label(title_en).classes(
+                        "app-text-muted text-xs font-medium leading-tight truncate"
                     )
 
             # Corner Header Section (Refresh Button in 2nd Column + User Card in the Corner)
@@ -631,7 +625,7 @@ class MainAppShell:
         if self._header_title_ar:
             self._header_title_ar.set_text(title_ar)
         if self._header_title_en:
-            self._header_title_en.set_text(f"—  {title_en}")
+            self._header_title_en.set_text(title_en)
 
         # Render the selected screen
         self._render_active_screen()

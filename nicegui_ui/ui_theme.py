@@ -257,5 +257,56 @@ def inject_global_styles(is_rtl: Optional[bool] = None):
         {css}
         </style>
         """)
+        ui.add_head_html(_BILINGUAL_SPLIT_JS)
     except Exception as exc:
         log.warning(f"[inject_global_styles] Error loading theme.css: {exc}")
+
+
+# Stacks "عربي / English" strings as two lines (Arabic on top) wherever the app writes them as
+# one label: buttons, tabs, field labels, toggles and plain labels.
+_BILINGUAL_SPLIT_JS = """
+<script>
+(function () {
+  var AR = /[\\u0600-\\u06FF]/, LAT = /[A-Za-z]/;
+  var SEL = 'div, span, th, label, p, h1, h2, h3, h4, h5, h6';
+  function split(el) {
+    if (el.childNodes.length !== 1 || el.firstChild.nodeType !== 3) return;
+    if (el.closest('.q-field__label')) return;
+    var txt = el.firstChild.nodeValue;
+    if (txt.length > 100) return;
+    var parts = txt.split(/ [/—–] /);
+    if (parts.length !== 2) return;
+    var a = parts[0].trim(), b = parts[1].trim(), ar, en;
+    if (AR.test(a) && !AR.test(b) && LAT.test(b)) { ar = a; en = b; }
+    else if (AR.test(b) && !AR.test(a) && LAT.test(a)) { ar = b; en = a; }
+    else return;
+    el.textContent = '';
+    var s1 = document.createElement('span'), s2 = document.createElement('span');
+    s1.className = 'bi-ar'; s1.textContent = ar;
+    s2.className = 'bi-en'; s2.textContent = en;
+    var wrap = document.createElement('span');
+    wrap.className = 'bi-stack';
+    wrap.style.setProperty('display', 'inline-flex', 'important');
+    wrap.style.setProperty('flex-direction', 'column', 'important');
+    wrap.appendChild(s1); wrap.appendChild(s2);
+    el.appendChild(wrap);
+  }
+  function scan(root) {
+    if (!root || root.nodeType !== 1) return;
+    if (root.matches && root.matches(SEL)) split(root);
+    var list = root.querySelectorAll ? root.querySelectorAll(SEL) : [];
+    for (var i = 0; i < list.length; i++) split(list[i]);
+  }
+  function start() {
+    scan(document.body);
+    new MutationObserver(function (muts) {
+      muts.forEach(function (m) {
+        if (m.type === 'characterData') { if (m.target.parentElement) scan(m.target.parentElement); }
+        else m.addedNodes.forEach(function (n) { scan(n.nodeType === 3 ? n.parentElement : n); });
+      });
+    }).observe(document.body, { childList: true, subtree: true, characterData: true });
+  }
+  if (document.body) start(); else document.addEventListener('DOMContentLoaded', start);
+})();
+</script>
+"""

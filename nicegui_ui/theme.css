@@ -1542,3 +1542,101 @@ input, textarea {
     animation-duration: 0.01ms !important;
   }
 }
+
+/* ── 10. Layout & bilingual refinements ─────────────────────────────────── */
+
+/* Arabic line above English line, wherever a label carries both */
+.bi-stack.bi-stack {
+  display: inline-flex !important;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0;
+  line-height: 1.15;
+  text-align: start;
+}
+.q-btn .bi-stack.bi-stack,
+.q-tab .bi-stack.bi-stack { align-items: center; text-align: center; }
+.bi-stack .bi-ar { font-weight: 700; }
+.bi-stack .bi-en { font-size: 0.82em; opacity: 0.8; font-weight: 500; }
+.q-btn .bi-stack { white-space: normal; }
+.q-btn:has(.bi-stack) { min-height: 44px; }
+
+/* Main page scroll: still scrolls (wheel / touch / keys) but shows no vertical bar */
+.app-main-scroll .q-scrollarea__bar--h,
+.app-main-scroll .q-scrollarea__thumb--h { display: none !important; }
+.app-main-scroll .q-scrollarea__bar--v,
+.app-main-scroll .q-scrollarea__thumb--v { display: block !important; opacity: 1 !important; }
+.app-main-scroll .q-scrollarea__thumb--v { width: 8px; background: var(--border-strong, #64748b); border-radius: 8px; }
+.app-main-scroll .scroll { overflow-x: hidden !important; }
+.app-main-scroll .scroll::-webkit-scrollbar { width: 8px; height: 0; }
+
+/* Collapsed sidebar: centre the certificate logo button */
+.app-sidebar.w-20 .app-sidebar-header { justify-content: center; padding-inline: 0; }
+
+/* Readable placeholders in app inputs */
+/* (Quasar hides the placeholder until the label floats; keep that behaviour, just colour it) */
+.app-input input::placeholder,
+.app-input textarea::placeholder { color: var(--text-muted, #94a3b8); }
+
+/* Controls rows wrap instead of overflowing or overlapping */
+.app-main-scroll .q-field { min-width: 0; }
+
+/* Responsive shell: content never forces the page wider than the window */
+.app-main-scroll .q-scrollarea__content { width: 100% !important; max-width: 100%; }
+.app-header-bar {
+  height: auto !important;
+  min-height: 4rem;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  padding-block: 0.5rem;
+}
+@media (max-width: 1000px) {
+  /* Narrow window: sidebar shrinks to an icon rail */
+  .app-sidebar { width: 5rem !important; align-items: center; }
+  .app-sidebar .app-sidebar-titles,
+  .app-sidebar .nav-title-ar,
+  .app-sidebar .nav-title-en { display: none !important; }
+  .app-sidebar .app-nav-item,
+  .app-sidebar .app-nav-item--active { justify-content: center; padding-inline: 0.5rem; }
+  .app-sidebar .app-sidebar-header { justify-content: center; padding-inline: 0; }
+}
+@media (max-width: 720px) {
+  .app-header-bar { padding-inline: 0.75rem; }
+  .app-header-bar .app-user-name { display: none; }
+}
+
+/* Sidebar list scrolls silently when the window is short */
+.app-sidebar * { scrollbar-width: none; }
+.app-sidebar *::-webkit-scrollbar { width: 0; height: 0; }
+
+/* Field labels: single line, never wrap onto the value */
+.q-field__label {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+.q-field--dense .q-field__control,
+.q-field--dense .q-field__marginal { min-height: 48px; }
+.q-field--dense.q-field--labeled .q-field__native,
+.q-field--dense.q-field--labeled .q-field__input { padding-top: 18px; }
+
+/* Hide the placeholder while the label sits in the middle of the field
+   (empty + unfocused); it reappears once the label floats up. */
+.q-field--labeled:not(.q-field--float):not(.q-field--stack-label) .q-placeholder::placeholder,
+.q-field--labeled:not(.q-field--float) .q-placeholder::placeholder {
+  color: transparent !important;
+}
+.q-field--labeled.q-field--stack-label .q-placeholder::placeholder { color: var(--text-muted) !important; }
+
+/* Responsive tables: fit the container, wrap text, tighten as width shrinks */
+.app-table { max-width: 100%; }
+.app-table .q-table__middle { overflow-x: hidden !important; }
+.app-table .q-table { width: 100%; table-layout: auto; }
+.app-table .q-table th { white-space: normal !important; }
+.app-table .q-table th,
+.app-table .q-table td { padding-left: 8px; padding-right: 8px; overflow-wrap: anywhere; }
+@media (max-width: 1100px) {
+  .app-table .q-table th,
+  .app-table .q-table td { padding-left: 4px; padding-right: 4px; font-size: 12px !important; }
+}

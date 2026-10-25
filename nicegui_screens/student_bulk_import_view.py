@@ -125,7 +125,7 @@ class StudentBulkImportView:
                     with ui.row().classes("items-center gap-3"):
                         ui.icon("group_add", size="md").classes("app-text-accent")
                         with ui.column().classes("gap-0.5"):
-                            ui.label("إضافة مجموعة طلاب ودرجاتهم (استيراد Excel) — Bulk Import Students & Grades").classes(
+                            ui.label("إضافة مجموعة طلاب ودرجاتهم (استيراد Excel) / Bulk Import Students & Grades").classes(
                                 "text-xl font-bold app-text-primary"
                             )
                             ui.label(
@@ -153,7 +153,7 @@ class StudentBulkImportView:
                                 ui.label(f"مقيد بصلاحيات حسابك: {self.lock_reason}")
 
                     # Selection Inputs Row (Department, Study System, Academic Year in one row)
-                    with ui.row().classes("w-full gap-4 items-center flex-wrap"):
+                    with ui.row().classes("w-full gap-3 items-center flex-wrap"):
                         # Department
                         dept_opts = {d["id"]: f"{d.get('name_ar')} ({d.get('name_en', '')})" for d in self.departments}
                         self.dept_select = ui.select(
@@ -161,7 +161,7 @@ class StudentBulkImportView:
                             value=self.selected_dept_id,
                             label="القسم العلمي / Department *",
                             on_change=self._on_dept_changed
-                        ).props("outlined dense options-dense").classes("flex-1 min-w-[260px]")
+                        ).props("outlined dense options-dense").classes("flex-1 min-w-[150px]")
                         if self.is_dept_locked:
                             self.dept_select.disable()
 
@@ -179,14 +179,14 @@ class StudentBulkImportView:
                             value=self.selected_system_id,
                             label="النظام الدراسي / Study System *",
                             on_change=self._on_system_changed
-                        ).props("outlined dense options-dense").classes("flex-1 min-w-[260px]")
+                        ).props("outlined dense options-dense").classes("flex-1 min-w-[150px]")
 
                         # Academic Year
                         self.year_input = UI.text_input(
                             label="العام الدراسي / Academic Year *",
                             value=self.academic_year,
                             on_change=self._on_year_changed
-                        ).classes("w-52").props("dense outlined")
+                        ).classes("flex-1 min-w-[130px]").props("dense outlined")
 
                     # Live Courses Chip Preview Container
                     self.courses_container = ui.column().classes("w-full gap-2 mt-2")
@@ -408,26 +408,27 @@ class StudentBulkImportView:
             dept_courses = [c for c in self.courses_for_stage if not c.get("is_shared")]
             shared_courses = [c for c in self.courses_for_stage if c.get("is_shared")]
 
-            with ui.row().classes("w-full items-center justify-between text-xs"):
-                ui.label(
-                    f"📚 المواد المشمولة في كشف درجات قسم {dept_name} ({len(self.courses_for_stage)} مادة):"
-                ).classes("font-bold app-text-primary")
-                with ui.row().classes("items-center gap-3"):
-                    ui.label(f"• تخصصية: {len(dept_courses)}").classes("text-blue-500 font-semibold")
-                    ui.label(f"• مشتركة ومتطلبات كلية: {len(shared_courses)}").classes("text-teal-500 font-semibold")
-
-            with ui.row().classes("w-full flex-wrap gap-2 pt-1"):
-                if not self.courses_for_stage:
-                    ui.label("⚠️ لا توجد مواد مسجلة لهذا القسم حالياً.").classes("text-xs text-amber-500 italic")
-                for c in self.courses_for_stage:
-                    is_sh = c.get("is_shared", False)
-                    c_stg = int(c.get("stage_number") or 1)
-                    bg_color = "bg-teal-500/10 text-teal-400 border border-teal-500/30" if is_sh else "bg-blue-500/10 text-blue-400 border border-blue-500/30"
-                    tag_text = "مشترك" if is_sh else "تخصصي"
-                    with ui.row().classes(f"items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs {bg_color}"):
-                        ui.icon("layers" if is_sh else "menu_book", size="xs")
-                        ui.label(f"{c.get('name_ar')} (م{c_stg} | {c.get('credit_hours', 3)} و)").classes("font-medium")
-                        ui.badge(tag_text, color="transparent").classes("text-[10px] p-0 font-mono opacity-80")
+            # Collapsed by default: the course list is long and only needed on demand
+            with ui.expansion(
+                f"المواد المشمولة في كشف درجات قسم {dept_name} ({len(self.courses_for_stage)} مادة) — "
+                f"تخصصية: {len(dept_courses)} • مشتركة: {len(shared_courses)}",
+                icon="menu_book",
+                value=False,
+            ).props("dense expand-separator").classes(
+                "w-full rounded-xl border border-[var(--border-default)] bg-[var(--surface-card)] text-sm font-bold app-text-primary"
+            ):
+                with ui.row().classes("w-full flex-wrap gap-2 p-3"):
+                    if not self.courses_for_stage:
+                        ui.label("لا توجد مواد مسجلة لهذا القسم حالياً.").classes("text-xs text-amber-500 italic")
+                    for c in self.courses_for_stage:
+                        is_sh = c.get("is_shared", False)
+                        c_stg = int(c.get("stage_number") or 1)
+                        bg_color = "bg-teal-500/10 text-teal-500 border border-teal-500/30" if is_sh else "bg-blue-500/10 text-blue-500 border border-blue-500/30"
+                        tag_text = "مشترك" if is_sh else "تخصصي"
+                        with ui.row().classes(f"items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs {bg_color}"):
+                            ui.icon("layers" if is_sh else "menu_book", size="xs")
+                            ui.label(f"{c.get('name_ar')} (م{c_stg} | {c.get('credit_hours', 3)} و)").classes("font-medium")
+                            ui.badge(tag_text, color="transparent").classes("text-[10px] p-0 font-mono opacity-80")
 
     # -------------------------------------------------------------------------
     # Zone 2: Students File Upload & Table
@@ -754,34 +755,34 @@ class StudentBulkImportView:
         has_data = st_count > 0
 
         with self.summary_container:
-            with UI.card().classes("w-full p-6 gap-5 bg-gradient-to-r from-slate-900 to-slate-800 rounded-2xl border border-slate-700 shadow-xl text-white"):
+            with UI.card().classes("app-card w-full p-6 gap-5 rounded-2xl"):
                 with ui.row().classes("w-full items-center justify-between"):
                     with ui.row().classes("items-center gap-3"):
-                        ui.icon("verified", size="md").classes("text-emerald-400")
+                        ui.icon("verified", size="md").classes("app-text-success")
                         with ui.column().classes("gap-0.5"):
-                            ui.label("ملخص الاستيراد والتأكيد النهائي / Ingestion Summary & Confirmation").classes("text-lg font-bold")
+                            ui.label("ملخص الاستيراد والتأكيد النهائي / Ingestion Summary & Confirmation").classes("text-lg font-bold app-text-primary")
                             dept_name = next((d.get("name_ar") for d in self.departments if d["id"] == self.selected_dept_id), "القسم")
-                            ui.label(f"القسم: {dept_name} | السنة: {self.academic_year}").classes("text-xs text-slate-300")
+                            ui.label(f"القسم: {dept_name} | السنة: {self.academic_year}").classes("text-xs app-text-muted")
 
-                with ui.row().classes("w-full gap-4 items-center"):
-                    with ui.column().classes("p-3 rounded-xl bg-slate-800/80 border border-slate-700 flex-1 items-center"):
-                        ui.label(str(st_count)).classes("text-2xl font-bold text-emerald-400")
-                        ui.label("إجمالي الطلاب المرفوعين").classes("text-xs text-slate-300")
+                with ui.row().classes("w-full gap-4 items-stretch flex-wrap"):
+                    with ui.column().classes("p-3 rounded-xl bg-[var(--surface-ground)] border border-[var(--border-default)] flex-1 min-w-[140px] items-center"):
+                        ui.label(str(st_count)).classes("text-2xl font-bold text-emerald-500")
+                        ui.label("إجمالي الطلاب المرفوعين").classes("text-xs app-text-muted")
 
-                    with ui.column().classes("p-3 rounded-xl bg-slate-800/80 border border-slate-700 flex-1 items-center"):
-                        ui.label(str(len(self.courses_for_stage))).classes("text-2xl font-bold text-blue-400")
-                        ui.label("المواد المشمولة في الكشف").classes("text-xs text-slate-300")
+                    with ui.column().classes("p-3 rounded-xl bg-[var(--surface-ground)] border border-[var(--border-default)] flex-1 min-w-[140px] items-center"):
+                        ui.label(str(len(self.courses_for_stage))).classes("text-2xl font-bold text-blue-500")
+                        ui.label("المواد المشمولة في الكشف").classes("text-xs app-text-muted")
 
-                    with ui.column().classes("p-3 rounded-xl bg-slate-800/80 border border-slate-700 flex-1 items-center"):
+                    with ui.column().classes("p-3 rounded-xl bg-[var(--surface-ground)] border border-[var(--border-default)] flex-1 min-w-[140px] items-center"):
                         total_scores = sum(len(g.get("scores", [])) for g in self.parsed_grades)
-                        ui.label(str(total_scores)).classes("text-2xl font-bold text-amber-400")
-                        ui.label("إجمالي الدرجات المرصودة").classes("text-xs text-slate-300")
+                        ui.label(str(total_scores)).classes("text-2xl font-bold text-amber-500")
+                        ui.label("إجمالي الدرجات المرصودة").classes("text-xs app-text-muted")
 
                 with ui.row().classes("w-full justify-end items-center gap-4 pt-2"):
-                    UI.secondary_button("إلغاء ومسح الكل / Reset All", on_click=self._reset_all).classes("text-xs px-4 py-2 text-slate-300")
+                    UI.secondary_button("إلغاء ومسح الكل / Reset All", on_click=self._reset_all).classes("text-xs px-4 py-2")
 
                     commit_btn = UI.success_button(
-                        f"💾 تأكيد واستيراد {st_count} طالب وحفظ درجاتهم في قاعدة البيانات",
+                        f"تأكيد واستيراد {st_count} طالب وحفظ درجاتهم في قاعدة البيانات",
                         icon="cloud_upload",
                         on_click=self._execute_batch_import
                     ).classes("text-sm px-6 py-3 font-bold shadow-lg")

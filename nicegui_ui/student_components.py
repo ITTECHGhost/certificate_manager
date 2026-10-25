@@ -545,7 +545,7 @@ class StudentProfileView:
         is_annual = sys_id in [1, 3]
 
         # Top Action Bar: Add Academic Year input & Stage Selector & Layout Switch in ONE SINGLE ROW
-        with ui.row().classes("w-full items-center justify-between gap-3 p-3 rounded-xl app-card-header flex-nowrap"):
+        with ui.column().classes("w-full items-stretch gap-3 p-3 rounded-xl app-card-header"):
             def on_add_year():
                 yr_str = year_input.value.strip() if year_input.value else ""
                 if not yr_str:
@@ -571,37 +571,38 @@ class StudentProfileView:
                 except Exception as err:
                     ui.notify(f"Error adding year: {err}", type="negative")
 
-            # Component 1 & 2: Inputs (Compact widths)
-            with ui.row().classes("items-center gap-3 flex-nowrap shrink-0 min-w-0"):
-                year_input = UI.text_input(
-                    label="السنة الدراسية (Academic Year)",
-                    placeholder="مثال: 2024-2025"
-                ).props("dense").style("width: 220px !important;").classes("text-xs shrink-0")
-                
-                stage_add_opts = {1: "المرحلة الأولى (1)", 2: "المرحلة الثانية (2)", 3: "المرحلة الثالثة (3)", 4: "المرحلة الرابعة (4)"}
-                stage_add_sel = UI.select("المرحلة الدراسية / Stage", options=stage_add_opts, value=1).props("dense").style("width: 190px !important;").classes("text-xs shrink-0")
-
-            # Component 3 & 4: Action Buttons & Layout Toggle Switch
-            with ui.row().classes("items-center gap-4 flex-nowrap shrink-0"):
+            # Row 1: layout toggle + routine button sit above everything else
+            with ui.row().classes("w-full items-center gap-4 flex-wrap"):
                 def toggle_layout(e):
                     self.timeline_layout_mode = "horizontal" if e.value else "vertical"
                     refresh_timeline()
 
                 layout_switch = ui.switch(
-                    "تخطيط أفقي / Horizontal", 
-                    value=False, 
+                    "تخطيط أفقي / Horizontal",
+                    value=False,
                     on_change=toggle_layout
-                ).classes("text-xs font-bold shrink-0")
-                
-                UI.success_button("إضافة سنة دراسية / Add Academic Year", icon="add", on_click=on_add_year).classes("text-xs px-3 py-2 shrink-0")
+                ).classes("text-xs font-bold")
+
                 ui.button(
                     "تطبيق روتين دراسي / Apply Routine",
                     icon="auto_mode",
                     on_click=lambda: show_apply_routine_dialog(
-                        student=student_data, 
+                        student=student_data,
                         on_success_callback=refresh_timeline
                     )
-                ).classes("bg-teal-600 text-white font-bold rounded-lg shadow-sm text-xs px-3 py-2 shrink-0")
+                ).classes("bg-teal-600 text-white font-bold rounded-lg shadow-sm text-xs px-3 py-2")
+
+            # Row 2: add-year inputs; wrap instead of overflowing
+            with ui.row().classes("w-full items-center gap-3 flex-wrap"):
+                year_input = UI.text_input(
+                    label="السنة الدراسية (Academic Year)",
+                    placeholder="مثال: 2024-2025"
+                ).props("dense stack-label").classes("text-xs flex-1 min-w-[180px]")
+
+                stage_add_opts = {1: "المرحلة الأولى (1)", 2: "المرحلة الثانية (2)", 3: "المرحلة الثالثة (3)", 4: "المرحلة الرابعة (4)"}
+                stage_add_sel = UI.select("المرحلة الدراسية / Stage", options=stage_add_opts, value=1).props("dense").classes("text-xs flex-1 min-w-[170px]")
+
+                UI.success_button("إضافة سنة دراسية / Add Academic Year", icon="add", on_click=on_add_year).classes("text-xs px-3 py-2")
 
         # Container for reactive timeline cards
         timeline_cards_container = ui.column().classes("w-full gap-6")
@@ -858,7 +859,7 @@ class StudentProfileView:
                                 ui.notify(f"تم تغيير حالة الفترة إلى: {RESULT_STATUS_MAP.get(st_key, {}).get('label_ar', st_key)}", type="positive")
                                 refresh_callback()
 
-                        UI.select("النتيجة", status_opts, value=cur_status, on_change=on_status_change).classes("text-xs w-36 shrink-0 font-bold", remove="w-full")
+                        UI.select("النتيجة", status_opts, value=cur_status, on_change=on_status_change).classes("text-xs w-36 shrink-0 font-bold order-last", remove="w-full")
 
                         # Action Buttons (Icons Only)
                         ui.button(
@@ -1121,14 +1122,7 @@ class StudentProfileView:
 
                     dlg.open()
 
-                with ui.row().classes("w-full justify-between items-center gap-2 flex-nowrap"):
-                    ui.select(
-                        options=status_opts,
-                        value=cur_status,
-                        label="النتيجة",
-                        on_change=on_status_change
-                    ).props("dense outlined options-dense").classes("text-xs flex-1 min-w-[100px] font-bold")
-
+                with ui.row().classes("w-full items-center gap-2 flex-wrap"):
                     with ui.row().classes("items-center gap-1.5 shrink-0"):
                         ui.button(
                             icon="save",
@@ -1146,6 +1140,13 @@ class StudentProfileView:
                             color="negative",
                             on_click=confirm_delete_period
                         ).props("dense outlined").classes("p-1.5 rounded-lg shrink-0").tooltip("حذف الفصل الدراسي / Delete Period")
+
+                    ui.select(
+                        options=status_opts,
+                        value=cur_status,
+                        label="النتيجة",
+                        on_change=on_status_change
+                    ).props("dense outlined options-dense").classes("text-xs flex-1 min-w-[140px] font-bold")
 
             # List Enrolled Courses with Arabic and English names (Editable Score & Round)
             if enrollments:

@@ -150,8 +150,12 @@ class StudentsScreen:
                 self.table.add_slot("body-cell-actions", """
                     <q-td :props="props">
                         <div class="row items-center justify-center gap-2">
-                            <q-btn size="sm" color="primary" icon="visibility" label="View Profile" @click="$parent.$emit('view_profile', props.row)" />
-                            <q-btn size="sm" color="negative" icon="delete" label="Delete / حذف" @click="$parent.$emit('delete_student', props.row)" />
+                            <q-btn size="sm" round dense color="primary" icon="visibility" @click="$parent.$emit('view_profile', props.row)">
+                                <q-tooltip>عرض الملف / View Profile</q-tooltip>
+                            </q-btn>
+                            <q-btn size="sm" round dense color="negative" icon="delete" @click="$parent.$emit('delete_student', props.row)">
+                                <q-tooltip>حذف / Delete</q-tooltip>
+                            </q-btn>
                         </div>
                     </q-td>
                 """)

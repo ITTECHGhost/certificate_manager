@@ -48,17 +48,31 @@ class CoursesScreen:
             with ui.tab_panels(tabs, value="courses").classes("w-full flex-1 bg-transparent overflow-y-auto"):
                 # Panel 1: Course Catalog
                 with ui.tab_panel("courses").classes("w-full h-full p-0 gap-6 flex-col"):
-                    with UI.card().classes("flex-1 gap-6 p-6 overflow-hidden flex-col w-full h-full"):
-                        # Single Responsive Action & Filter Bar (All in One Row)
-                        with ui.row().classes("w-full items-center justify-between gap-2 p-2 rounded-xl border border-[var(--border-default)] bg-[var(--bg-card)] flex-nowrap shrink-0 overflow-x-auto"):
-                            # 1. Add Course Button
+                    with UI.card().classes("gap-6 p-6 flex-col w-full"):
+                        # Toolbar: Add + rows-per-page stay together first; filters wrap below when room runs out
+                        with ui.row().classes("w-full items-center gap-2 p-2 rounded-xl border border-[var(--border-default)] bg-[var(--bg-card)] flex-wrap shrink-0"):
                             UI.success_button(
                                 "+ إضافة مادة / Add Course",
                                 icon="add",
                                 on_click=lambda: self.show_edit_view(mode="add")
                             ).classes("text-xs px-3 py-2 shrink-0")
 
-                            # 2. Department Filter Dropdown (Compact & Responsive Width)
+                            def on_limit_change(e):
+                                val = extract_event_value(e, default=25)
+                                try:
+                                    self.current_limit = int(val or 25)
+                                except Exception:
+                                    self.current_limit = 25
+                                self.current_offset = 0
+                                self._render_content()
+
+                            UI.select(
+                                label="عرض / Show",
+                                options={25: "25", 50: "50", 75: "75", 100: "100"},
+                                value=self.current_limit,
+                                on_change=on_limit_change
+                            ).props("dense outlined").classes("w-24 text-xs shrink-0 app-input rounded-lg", remove="w-full")
+
                             def on_dept_change(e):
                                 val = extract_event_value(e, default=0)
                                 try:
@@ -73,9 +87,8 @@ class CoursesScreen:
                                 options=filter_dept_opts,
                                 value=self.filter_dept,
                                 on_change=on_dept_change
-                            ).props("dense outlined").style("min-width: 130px; max-width: 170px;").classes("text-xs shrink-0 app-input rounded-lg")
+                            ).props("dense outlined").classes("flex-1 min-w-[180px] text-xs app-input rounded-lg")
 
-                            # 3. Search Field (Flexible & Responsive to fill remaining width)
                             def on_search_change(e):
                                 val = extract_event_value(e, default="")
                                 self.search_term = str(val or "").strip().lower()
@@ -83,29 +96,10 @@ class CoursesScreen:
                                 self._render_content()
 
                             UI.text_input(
-                                label="",
-                                placeholder="بحث باسم المادة... 🔍 / Search course...",
+                                label="بحث / Search",
+                                placeholder="اسم المادة",
                                 on_change=on_search_change
-                            ).props('dense outlined icon="search"').classes("flex-1 text-xs app-input rounded-lg").style("min-width: 120px;")
-
-                            # 4. Show Limit Dropdown (Compact Width)
-                            def on_limit_change(e):
-                                val = extract_event_value(e, default=25)
-                                try:
-                                    self.current_limit = int(val or 25)
-                                except Exception:
-                                    self.current_limit = 25
-                                self.current_offset = 0
-                                self._render_content()
-
-                            with ui.row().classes("items-center gap-1 shrink-0 flex-nowrap"):
-                                ui.label("عرض:").classes("text-xs font-bold app-text-muted shrink-0")
-                                UI.select(
-                                    label="",
-                                    options={25: "25", 50: "50", 75: "75", 100: "100"},
-                                    value=self.current_limit,
-                                    on_change=on_limit_change
-                                ).props("dense outlined").style("width: 65px !important;").classes("text-xs shrink-0 app-input rounded-lg")
+                            ).props('dense outlined clearable icon="search"').classes("flex-1 min-w-[200px] text-xs app-input rounded-lg")
 
                         @ui.refreshable
                         def content_view():
@@ -162,7 +156,7 @@ class CoursesScreen:
         end_idx = start_idx + self.current_limit
         page_rows = all_rows[start_idx:end_idx]
 
-        with ui.column().classes("w-full flex-1 gap-3 overflow-y-auto min-h-[300px]"):
+        with ui.column().classes("w-full gap-3"):
             if not page_rows:
                 with ui.column().classes("w-full items-center py-12 text-center bg-[var(--bg-card)] rounded-xl border border-[var(--border-default)]"):
                     ui.icon("menu_book", size="lg").classes("app-text-muted mb-2")
@@ -196,15 +190,15 @@ class CoursesScreen:
         if not dept_opts:
             dept_opts = {cur_dept: row.get("dept_name_ar") or "قسم عام"} if cur_dept else {1: "علوم الحاسوب"}
 
-        with ui.row().classes("w-full items-center justify-between p-4 rounded-xl bg-[var(--bg-card)] border border-[var(--border-default)] gap-4 flex-nowrap overflow-hidden hover:border-[var(--color-accent)] transition-all shadow-sm"):
-            with ui.row().classes("items-center gap-4 flex-1 min-w-0"):
+        with ui.row().classes("w-full items-center justify-between p-4 rounded-xl bg-[var(--bg-card)] border border-[var(--border-default)] gap-4 flex-wrap hover:border-[var(--color-accent)] transition-all shadow-sm"):
+            with ui.row().classes("items-center gap-4 flex-1 min-w-[220px] overflow-hidden flex-nowrap"):
                 ui.icon("book", size="md").classes("app-text-accent shrink-0")
-                with ui.column().classes("gap-0 min-w-0 flex-1"):
-                    ui.label(row.get("name_ar") or "—").classes("font-bold text-base app-text-primary truncate")
-                    ui.label(row.get("name_en") or "—").classes("text-xs text-slate-400 font-mono truncate")
+                with ui.column().classes("gap-0 min-w-0 flex-1 overflow-hidden"):
+                    ui.label(row.get("name_ar") or "—").classes("font-bold text-base app-text-primary truncate w-full")
+                    ui.label(row.get("name_en") or "—").classes("text-xs text-slate-400 font-mono truncate w-full")
 
             # Single Row Metadata & Inline Editing Controls (Department, Stage, Credits)
-            with ui.row().classes("items-center gap-3 shrink-0 flex-nowrap"):
+            with ui.row().classes("items-center gap-3 flex-wrap shrink-0"):
                 def make_quick_saver(c_id, orig_row):
                     def _on_change(e=None):
                         try:
@@ -247,18 +241,18 @@ class CoursesScreen:
                 ).props("dense outlined").style("width: 90px !important;").classes("text-xs shrink-0 app-input rounded-lg")
 
             # Action Buttons
-            with ui.row().classes("items-center gap-2 shrink-0 flex-nowrap"):
+            with ui.row().classes("items-center gap-2 shrink-0"):
                 UI.primary_button(
-                    "تعديل / Edit",
+                    "",
                     icon="edit",
                     on_click=lambda r=row: self.show_edit_view(row=r, mode="edit")
-                ).classes("text-xs px-3 py-1.5")
+                ).props("round dense").classes("text-xs p-1.5").tooltip("تعديل / Edit")
 
                 UI.danger_button(
-                    "حذف / Delete",
+                    "",
                     icon="delete",
                     on_click=lambda r=row: self.confirm_delete(r)
-                ).classes("text-xs px-3 py-1.5")
+                ).props("round dense").classes("text-xs p-1.5").tooltip("حذف / Delete")
 
     def go_prev(self):
         self.current_offset = max(0, self.current_offset - self.current_limit)
@@ -278,7 +272,7 @@ class CoursesScreen:
             log.warning(f"Failed to fetch routines: {err}")
             routines = []
 
-        with ui.column().classes("w-full flex-1 gap-4 overflow-y-auto min-h-[300px]"):
+        with ui.column().classes("w-full gap-4"):
             if not routines:
                 with ui.column().classes("w-full items-center py-12 text-center bg-[var(--bg-card)] rounded-xl border border-[var(--border-default)]"):
                     ui.icon("playlist_add_check", size="lg").classes("app-text-muted mb-2")
@@ -317,8 +311,8 @@ class CoursesScreen:
                     ui.label("الخطة الكاملة (4 سنوات)").classes("text-xs font-bold px-3 py-1.5 rounded-lg bg-emerald-500/10 border border-emerald-500/30 text-emerald-600 dark:text-emerald-400")
                     ui.label(f"إجمالي المواد: {len(courses)} مادة").classes("text-xs font-bold px-3 py-1.5 rounded-lg bg-[var(--bg-main)] border border-[var(--border-default)] app-text-accent")
 
-                    UI.primary_button("تعديل / Edit", icon="edit", on_click=lambda rt=routine: self.show_routine_edit_dialog(rt)).classes("text-xs px-3 py-1.5 ml-2")
-                    UI.danger_button("حذف / Delete", icon="delete", on_click=lambda rt=routine: self.confirm_delete_routine(rt)).classes("text-xs px-3 py-1.5")
+                    UI.primary_button("", icon="edit", on_click=lambda rt=routine: self.show_routine_edit_dialog(rt)).props("round dense").classes("text-xs p-1.5 ml-2").tooltip("تعديل / Edit")
+                    UI.danger_button("", icon="delete", on_click=lambda rt=routine: self.confirm_delete_routine(rt)).props("round dense").classes("text-xs p-1.5").tooltip("حذف / Delete")
 
             with ui.column().classes("w-full gap-3 pt-1"):
                 if not courses:

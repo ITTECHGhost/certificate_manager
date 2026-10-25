@@ -1190,3 +1190,10 @@
 2026-10-25 10:47:23 [INFO] تم تغيير كلمة مرور الكادر ID: 36
 2026-10-25 10:47:31 [INFO] User 'admin' (ID: 1) logged out successfully using function app_session.logout_user()
 2026-10-25 10:47:54 [INFO] تم تغيير كلمة مرور الكادر ID: 36
+2026-10-25 10:54:17 [INFO] User 'admin' (ID: 36) logged out successfully using function app_session.logout_user()
+2026-10-25 11:06:16 [INFO] User 'admin' (ID: 1) logged out successfully using function app_session.logout_user()
+2026-10-25 12:04:52 [INFO] تم تحديث المظهر للمستخدم ID: 8
+2026-10-25 12:11:27 [INFO] تم تحديث إعدادات المؤسسة والنظام
+2026-10-25 12:51:31 [INFO] User 'admin' (ID: 1) logged out successfully using function app_session.logout_user()
+2026-10-25 13:01:24 [INFO] User 'admin' (ID: 1) logged out successfully using function app_session.logout_user()
+2026-10-25 14:09:04 [INFO] User 'admin' (ID: 8) logged out successfully using function app_session.logout_user()

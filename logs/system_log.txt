@@ -38012,3 +38012,252 @@ IndexError: list index out of range
 2026-10-25 10:47:54 [INFO] _pywebviewready event fired
 2026-10-25 10:47:54 [INFO] loaded event fired
 2026-10-25 10:47:54 [INFO] loaded event fired
+2026-10-25 10:52:50 [INFO] Inbound sync complete: {'tables_synced': 6, 'total_rows': 0, 'errors': []}
+2026-10-25 10:52:50 [INFO] Inbound sync complete: {'tables_synced': 6, 'total_rows': 0, 'errors': []}
+2026-10-25 10:54:19 [INFO] before_load event fired. injecting pywebview object
+2026-10-25 10:54:19 [INFO] before_load event fired. injecting pywebview object
+2026-10-25 10:54:19 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-25 10:54:19 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-25 10:54:20 [INFO] _pywebviewready event fired
+2026-10-25 10:54:20 [INFO] _pywebviewready event fired
+2026-10-25 10:54:20 [INFO] loaded event fired
+2026-10-25 10:54:20 [INFO] loaded event fired
+2026-10-25 10:54:32 [INFO] Inbound sync complete: {'tables_synced': 22, 'total_rows': 44, 'errors': []}
+2026-10-25 10:54:32 [INFO] Inbound sync complete: {'tables_synced': 22, 'total_rows': 44, 'errors': []}
+2026-10-25 10:54:33 [INFO] before_load event fired. injecting pywebview object
+2026-10-25 10:54:33 [INFO] before_load event fired. injecting pywebview object
+2026-10-25 10:54:33 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-25 10:54:33 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-25 10:54:33 [INFO] _pywebviewready event fired
+2026-10-25 10:54:33 [INFO] _pywebviewready event fired
+2026-10-25 10:54:33 [INFO] loaded event fired
+2026-10-25 10:54:33 [INFO] loaded event fired
+2026-10-25 10:59:29 [INFO] Inbound sync complete: {'tables_synced': 6, 'total_rows': 0, 'errors': []}
+2026-10-25 10:59:29 [INFO] Inbound sync complete: {'tables_synced': 6, 'total_rows': 0, 'errors': []}
+2026-10-25 11:00:33 [INFO] SYSTEM STARTUP DIAGNOSTIC CHECK STARTED
+2026-10-25 11:00:33 [OK] [CHECK 1/4] FastAPI Connection Check ... [OK]
+2026-10-25 11:00:33 [OK] [CHECK 2/4] MySQL Database Connection (via API) ... [OK]
+2026-10-25 11:00:33 [OK] [CHECK 3/4] Authentication & Core SP Checks ... [OK]
+2026-10-25 11:00:33 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-10-25 11:00:33 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-10-25 11:00:33 [OK] [CHECK 4/4] Sync Engine & Local Replica Check ... [OK]
+2026-10-25 11:00:33 [OK] Status: ALL CHECKS PASSED. PROCEEDING TO LOGIN/DASHBOARD.
+2026-10-25 11:00:37 [INFO] Using WinForms / Chromium
+2026-10-25 11:00:37 [INFO] Using WinForms / Chromium
+2026-10-25 11:00:40 [INFO] before_load event fired. injecting pywebview object
+2026-10-25 11:00:40 [INFO] before_load event fired. injecting pywebview object
+2026-10-25 11:00:40 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-25 11:00:40 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-25 11:00:40 [INFO] _pywebviewready event fired
+2026-10-25 11:00:40 [INFO] _pywebviewready event fired
+2026-10-25 11:00:40 [INFO] loaded event fired
+2026-10-25 11:00:40 [INFO] loaded event fired
+2026-10-25 11:00:49 [INFO] Inbound sync complete: {'tables_synced': 22, 'total_rows': 25, 'errors': []}
+2026-10-25 11:00:49 [INFO] Inbound sync complete: {'tables_synced': 22, 'total_rows': 25, 'errors': []}
+2026-10-25 11:00:50 [INFO] before_load event fired. injecting pywebview object
+2026-10-25 11:00:50 [INFO] before_load event fired. injecting pywebview object
+2026-10-25 11:00:50 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-25 11:00:50 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-25 11:00:50 [INFO] _pywebviewready event fired
+2026-10-25 11:00:50 [INFO] _pywebviewready event fired
+2026-10-25 11:00:50 [INFO] loaded event fired
+2026-10-25 11:00:50 [INFO] loaded event fired
+2026-10-25 11:05:46 [INFO] Inbound sync complete: {'tables_synced': 6, 'total_rows': 0, 'errors': []}
+2026-10-25 11:05:46 [INFO] Inbound sync complete: {'tables_synced': 6, 'total_rows': 0, 'errors': []}
+2026-10-25 11:06:17 [INFO] before_load event fired. injecting pywebview object
+2026-10-25 11:06:17 [INFO] before_load event fired. injecting pywebview object
+2026-10-25 11:06:17 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-25 11:06:17 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-25 11:06:17 [INFO] _pywebviewready event fired
+2026-10-25 11:06:17 [INFO] _pywebviewready event fired
+2026-10-25 11:06:17 [INFO] loaded event fired
+2026-10-25 11:06:17 [INFO] loaded event fired
+2026-10-25 11:06:29 [INFO] Inbound sync complete: {'tables_synced': 22, 'total_rows': 25, 'errors': []}
+2026-10-25 11:06:29 [INFO] Inbound sync complete: {'tables_synced': 22, 'total_rows': 25, 'errors': []}
+2026-10-25 11:06:29 [INFO] Inbound sync complete: {'tables_synced': 22, 'total_rows': 25, 'errors': []}
+2026-10-25 11:06:29 [INFO] Inbound sync complete: {'tables_synced': 22, 'total_rows': 25, 'errors': []}
+2026-10-25 11:06:29 [INFO] before_load event fired. injecting pywebview object
+2026-10-25 11:06:29 [INFO] before_load event fired. injecting pywebview object
+2026-10-25 11:06:29 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-25 11:06:29 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-25 11:06:29 [INFO] _pywebviewready event fired
+2026-10-25 11:06:29 [INFO] _pywebviewready event fired
+2026-10-25 11:06:30 [INFO] loaded event fired
+2026-10-25 11:06:30 [INFO] loaded event fired
+2026-10-25 11:11:25 [INFO] Inbound sync complete: {'tables_synced': 6, 'total_rows': 0, 'errors': []}
+2026-10-25 11:11:25 [INFO] Inbound sync complete: {'tables_synced': 6, 'total_rows': 0, 'errors': []}
+2026-10-25 11:12:38 [INFO] File successfully delivered to: C:\Users\IT_TECK\Downloads\نموذج_بيانات_الطلاب.xlsx (6339 bytes)
+2026-10-25 11:12:38 [INFO] File successfully delivered to: C:\Users\IT_TECK\Downloads\نموذج_بيانات_الطلاب.xlsx (6339 bytes)
+2026-10-25 11:16:26 [INFO] Inbound sync complete: {'tables_synced': 6, 'total_rows': 0, 'errors': []}
+2026-10-25 11:16:26 [INFO] Inbound sync complete: {'tables_synced': 6, 'total_rows': 0, 'errors': []}
+2026-10-25 11:21:26 [INFO] Inbound sync complete: {'tables_synced': 6, 'total_rows': 0, 'errors': []}
+2026-10-25 11:21:26 [INFO] Inbound sync complete: {'tables_synced': 6, 'total_rows': 0, 'errors': []}
+2026-10-25 11:26:27 [INFO] Inbound sync complete: {'tables_synced': 6, 'total_rows': 0, 'errors': []}
+2026-10-25 11:26:27 [INFO] Inbound sync complete: {'tables_synced': 6, 'total_rows': 0, 'errors': []}
+2026-10-25 11:31:27 [INFO] Inbound sync complete: {'tables_synced': 6, 'total_rows': 0, 'errors': []}
+2026-10-25 11:31:27 [INFO] Inbound sync complete: {'tables_synced': 6, 'total_rows': 0, 'errors': []}
+2026-10-25 11:36:28 [INFO] Inbound sync complete: {'tables_synced': 6, 'total_rows': 0, 'errors': []}
+2026-10-25 11:36:28 [INFO] Inbound sync complete: {'tables_synced': 6, 'total_rows': 0, 'errors': []}
+2026-10-25 11:41:28 [INFO] Inbound sync complete: {'tables_synced': 6, 'total_rows': 0, 'errors': []}
+2026-10-25 11:41:28 [INFO] Inbound sync complete: {'tables_synced': 6, 'total_rows': 0, 'errors': []}
+2026-10-25 11:46:29 [INFO] Inbound sync complete: {'tables_synced': 6, 'total_rows': 0, 'errors': []}
+2026-10-25 11:46:29 [INFO] Inbound sync complete: {'tables_synced': 6, 'total_rows': 0, 'errors': []}
+2026-10-25 11:51:29 [INFO] Inbound sync complete: {'tables_synced': 6, 'total_rows': 0, 'errors': []}
+2026-10-25 11:51:29 [INFO] Inbound sync complete: {'tables_synced': 6, 'total_rows': 0, 'errors': []}
+2026-10-25 11:56:30 [INFO] Inbound sync complete: {'tables_synced': 6, 'total_rows': 0, 'errors': []}
+2026-10-25 11:56:30 [INFO] Inbound sync complete: {'tables_synced': 6, 'total_rows': 0, 'errors': []}
+2026-10-25 12:01:31 [INFO] Inbound sync complete: {'tables_synced': 6, 'total_rows': 0, 'errors': []}
+2026-10-25 12:01:31 [INFO] Inbound sync complete: {'tables_synced': 6, 'total_rows': 0, 'errors': []}
+2026-10-25 12:01:53 [INFO] Online Mode: Successfully fetched raw certificate payload via API for student_id=12.
+2026-10-25 12:01:53 [INFO] Online Mode: Successfully fetched raw certificate payload via API for student_id=12.
+2026-10-25 12:06:34 [INFO] Inbound sync complete: {'tables_synced': 6, 'total_rows': 0, 'errors': []}
+2026-10-25 12:06:34 [INFO] Inbound sync complete: {'tables_synced': 6, 'total_rows': 0, 'errors': []}
+2026-10-25 12:11:36 [INFO] Inbound sync complete: {'tables_synced': 6, 'total_rows': 0, 'errors': []}
+2026-10-25 12:11:36 [INFO] Inbound sync complete: {'tables_synced': 6, 'total_rows': 0, 'errors': []}
+2026-10-25 12:11:53 [WARNING] Failed to delete user data folder: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\IT_TECK\\AppData\\Local\\Temp\\tmp92362j_0\\EBWebView\\Default\\Network\\Network Persistent State73e6f9f5-0742-4867-9b3c-ae301707c10f.tmp'
+2026-10-25 12:11:53 [WARNING] Failed to delete user data folder: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\IT_TECK\\AppData\\Local\\Temp\\tmp92362j_0\\EBWebView\\Default\\Network\\Network Persistent State73e6f9f5-0742-4867-9b3c-ae301707c10f.tmp'
+2026-10-25 12:50:06 [INFO] SYSTEM STARTUP DIAGNOSTIC CHECK STARTED
+2026-10-25 12:50:06 [OK] [CHECK 1/4] FastAPI Connection Check ... [OK]
+2026-10-25 12:50:06 [OK] [CHECK 2/4] MySQL Database Connection (via API) ... [OK]
+2026-10-25 12:50:06 [OK] [CHECK 3/4] Authentication & Core SP Checks ... [OK]
+2026-10-25 12:50:07 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-10-25 12:50:07 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-10-25 12:50:07 [OK] [CHECK 4/4] Sync Engine & Local Replica Check ... [OK]
+2026-10-25 12:50:07 [OK] Status: ALL CHECKS PASSED. PROCEEDING TO LOGIN/DASHBOARD.
+2026-10-25 12:50:11 [INFO] Using WinForms / Chromium
+2026-10-25 12:50:11 [INFO] Using WinForms / Chromium
+2026-10-25 12:50:16 [INFO] before_load event fired. injecting pywebview object
+2026-10-25 12:50:16 [INFO] before_load event fired. injecting pywebview object
+2026-10-25 12:50:16 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-25 12:50:16 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-25 12:50:16 [INFO] _pywebviewready event fired
+2026-10-25 12:50:16 [INFO] _pywebviewready event fired
+2026-10-25 12:50:16 [INFO] loaded event fired
+2026-10-25 12:50:16 [INFO] loaded event fired
+2026-10-25 12:50:22 [INFO] Inbound sync complete: {'tables_synced': 22, 'total_rows': 27, 'errors': []}
+2026-10-25 12:50:22 [INFO] Inbound sync complete: {'tables_synced': 22, 'total_rows': 27, 'errors': []}
+2026-10-25 12:50:23 [INFO] before_load event fired. injecting pywebview object
+2026-10-25 12:50:23 [INFO] before_load event fired. injecting pywebview object
+2026-10-25 12:50:23 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-25 12:50:23 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-25 12:50:23 [INFO] _pywebviewready event fired
+2026-10-25 12:50:23 [INFO] _pywebviewready event fired
+2026-10-25 12:50:23 [INFO] loaded event fired
+2026-10-25 12:50:23 [INFO] loaded event fired
+2026-10-25 12:51:31 [INFO] before_load event fired. injecting pywebview object
+2026-10-25 12:51:31 [INFO] before_load event fired. injecting pywebview object
+2026-10-25 12:51:31 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-25 12:51:31 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-25 12:51:31 [INFO] _pywebviewready event fired
+2026-10-25 12:51:31 [INFO] _pywebviewready event fired
+2026-10-25 12:51:31 [INFO] loaded event fired
+2026-10-25 12:51:31 [INFO] loaded event fired
+2026-10-25 12:51:38 [INFO] Inbound sync complete: {'tables_synced': 22, 'total_rows': 25, 'errors': []}
+2026-10-25 12:51:38 [INFO] Inbound sync complete: {'tables_synced': 22, 'total_rows': 25, 'errors': []}
+2026-10-25 12:51:38 [INFO] before_load event fired. injecting pywebview object
+2026-10-25 12:51:38 [INFO] before_load event fired. injecting pywebview object
+2026-10-25 12:51:38 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-25 12:51:38 [INFO] Loading JS files from C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\webview\js
+2026-10-25 12:51:39 [INFO] _pywebviewready event fired
+2026-10-25 12:51:39 [INFO] _pywebviewready event fired
+2026-10-25 12:51:39 [INFO] loaded event fired
+2026-10-25 12:51:39 [INFO] loaded event fired
+2026-10-25 12:54:00 [INFO] SYSTEM STARTUP DIAGNOSTIC CHECK STARTED
+2026-10-25 12:54:00 [OK] [CHECK 1/4] FastAPI Connection Check ... [OK]
+2026-10-25 12:54:00 [OK] [CHECK 2/4] MySQL Database Connection (via API) ... [OK]
+2026-10-25 12:54:00 [OK] [CHECK 3/4] Authentication & Core SP Checks ... [OK]
+2026-10-25 12:54:00 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-10-25 12:54:00 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-10-25 12:54:00 [OK] [CHECK 4/4] Sync Engine & Local Replica Check ... [OK]
+2026-10-25 12:54:00 [OK] Status: ALL CHECKS PASSED. PROCEEDING TO LOGIN/DASHBOARD.
+2026-10-25 12:54:00 [INFO] Certificate Manager starting in Web Server / Fallback mode on 0.0.0.0:2323
+2026-10-25 12:55:43 [INFO] SYSTEM STARTUP DIAGNOSTIC CHECK STARTED
+2026-10-25 12:55:43 [OK] [CHECK 1/4] FastAPI Connection Check ... [OK]
+2026-10-25 12:55:43 [OK] [CHECK 2/4] MySQL Database Connection (via API) ... [OK]
+2026-10-25 12:55:43 [OK] [CHECK 3/4] Authentication & Core SP Checks ... [OK]
+2026-10-25 12:55:43 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-10-25 12:55:43 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-10-25 12:55:43 [OK] [CHECK 4/4] Sync Engine & Local Replica Check ... [OK]
+2026-10-25 12:55:43 [OK] Status: ALL CHECKS PASSED. PROCEEDING TO LOGIN/DASHBOARD.
+2026-10-25 12:55:43 [INFO] Certificate Manager starting in Web Server / Fallback mode on 0.0.0.0:2323
+2026-10-25 12:57:24 [INFO] SYSTEM STARTUP DIAGNOSTIC CHECK STARTED
+2026-10-25 12:57:24 [OK] [CHECK 1/4] FastAPI Connection Check ... [OK]
+2026-10-25 12:57:24 [OK] [CHECK 2/4] MySQL Database Connection (via API) ... [OK]
+2026-10-25 12:57:24 [OK] [CHECK 3/4] Authentication & Core SP Checks ... [OK]
+2026-10-25 12:57:24 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-10-25 12:57:24 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-10-25 12:57:24 [OK] [CHECK 4/4] Sync Engine & Local Replica Check ... [OK]
+2026-10-25 12:57:24 [OK] Status: ALL CHECKS PASSED. PROCEEDING TO LOGIN/DASHBOARD.
+2026-10-25 12:57:24 [INFO] Certificate Manager starting in Web Server / Fallback mode on 0.0.0.0:2323
+2026-10-25 12:58:43 [INFO] SYSTEM STARTUP DIAGNOSTIC CHECK STARTED
+2026-10-25 12:58:43 [OK] [CHECK 1/4] FastAPI Connection Check ... [OK]
+2026-10-25 12:58:43 [OK] [CHECK 2/4] MySQL Database Connection (via API) ... [OK]
+2026-10-25 12:58:43 [OK] [CHECK 3/4] Authentication & Core SP Checks ... [OK]
+2026-10-25 12:58:43 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-10-25 12:58:43 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-10-25 12:58:43 [OK] [CHECK 4/4] Sync Engine & Local Replica Check ... [OK]
+2026-10-25 12:58:43 [OK] Status: ALL CHECKS PASSED. PROCEEDING TO LOGIN/DASHBOARD.
+2026-10-25 12:58:43 [INFO] Certificate Manager starting in Web Server / Fallback mode on 0.0.0.0:2323
+2026-10-25 13:01:34 [INFO] Inbound sync complete: {'tables_synced': 22, 'total_rows': 25, 'errors': []}
+2026-10-25 13:01:34 [INFO] Inbound sync complete: {'tables_synced': 22, 'total_rows': 25, 'errors': []}
+2026-10-25 13:06:30 [INFO] Inbound sync complete: {'tables_synced': 6, 'total_rows': 0, 'errors': []}
+2026-10-25 13:06:30 [INFO] Inbound sync complete: {'tables_synced': 6, 'total_rows': 0, 'errors': []}
+2026-10-25 13:12:43 [INFO] Inbound sync complete: {'tables_synced': 6, 'total_rows': 0, 'errors': []}
+2026-10-25 13:12:43 [INFO] Inbound sync complete: {'tables_synced': 6, 'total_rows': 0, 'errors': []}
+2026-10-25 13:18:16 [INFO] Inbound sync complete: {'tables_synced': 6, 'total_rows': 0, 'errors': []}
+2026-10-25 13:18:16 [INFO] Inbound sync complete: {'tables_synced': 6, 'total_rows': 0, 'errors': []}
+2026-10-25 13:23:16 [INFO] Inbound sync complete: {'tables_synced': 6, 'total_rows': 0, 'errors': []}
+2026-10-25 13:23:16 [INFO] Inbound sync complete: {'tables_synced': 6, 'total_rows': 0, 'errors': []}
+2026-10-25 13:28:17 [INFO] Inbound sync complete: {'tables_synced': 6, 'total_rows': 0, 'errors': []}
+2026-10-25 13:28:17 [INFO] Inbound sync complete: {'tables_synced': 6, 'total_rows': 0, 'errors': []}
+2026-10-25 13:34:27 [INFO] Inbound sync complete: {'tables_synced': 6, 'total_rows': 0, 'errors': []}
+2026-10-25 13:34:27 [INFO] Inbound sync complete: {'tables_synced': 6, 'total_rows': 0, 'errors': []}
+2026-10-25 13:39:27 [INFO] Inbound sync complete: {'tables_synced': 6, 'total_rows': 0, 'errors': []}
+2026-10-25 13:39:27 [INFO] Inbound sync complete: {'tables_synced': 6, 'total_rows': 0, 'errors': []}
+2026-10-25 13:44:28 [INFO] Inbound sync complete: {'tables_synced': 6, 'total_rows': 0, 'errors': []}
+2026-10-25 13:44:28 [INFO] Inbound sync complete: {'tables_synced': 6, 'total_rows': 0, 'errors': []}
+2026-10-25 13:49:28 [INFO] Inbound sync complete: {'tables_synced': 6, 'total_rows': 0, 'errors': []}
+2026-10-25 13:49:28 [INFO] Inbound sync complete: {'tables_synced': 6, 'total_rows': 0, 'errors': []}
+2026-10-25 13:51:29 [WARNING] Retrying (Retry(total=1, connect=1, read=1, redirect=None, status=0)) after connection broken by 'ConnectTimeoutError(<HTTPConnection(host='127.0.0.1', port=2030) at 0x16c8a4379d0>, 'Connection to 127.0.0.1 timed out. (connect timeout=2.0)')': /ping
+2026-10-25 13:51:29 [WARNING] Retrying (Retry(total=1, connect=1, read=1, redirect=None, status=0)) after connection broken by 'ConnectTimeoutError(<HTTPConnection(host='127.0.0.1', port=2030) at 0x16c8a4379d0>, 'Connection to 127.0.0.1 timed out. (connect timeout=2.0)')': /ping
+2026-10-25 13:51:31 [WARNING] Retrying (Retry(total=0, connect=0, read=1, redirect=None, status=0)) after connection broken by 'ConnectTimeoutError(<HTTPConnection(host='127.0.0.1', port=2030) at 0x16c8a76fdf0>, 'Connection to 127.0.0.1 timed out. (connect timeout=2.0)')': /ping
+2026-10-25 13:51:31 [WARNING] Retrying (Retry(total=0, connect=0, read=1, redirect=None, status=0)) after connection broken by 'ConnectTimeoutError(<HTTPConnection(host='127.0.0.1', port=2030) at 0x16c8a76fdf0>, 'Connection to 127.0.0.1 timed out. (connect timeout=2.0)')': /ping
+2026-10-25 13:51:34 [INFO] Sync queue has no pending rows — nothing to do.
+2026-10-25 13:51:34 [INFO] Sync queue has no pending rows — nothing to do.
+2026-10-25 13:51:35 [INFO] Inbound sync complete: {'tables_synced': 22, 'total_rows': 25, 'errors': []}
+2026-10-25 13:51:35 [INFO] Inbound sync complete: {'tables_synced': 22, 'total_rows': 25, 'errors': []}
+2026-10-25 13:52:19 [INFO] Inbound sync complete: {'tables_synced': 22, 'total_rows': 25, 'errors': []}
+2026-10-25 13:52:19 [INFO] Inbound sync complete: {'tables_synced': 22, 'total_rows': 25, 'errors': []}
+2026-10-25 13:53:41 [WARNING] Retrying (Retry(total=1, connect=1, read=1, redirect=None, status=0)) after connection broken by 'ConnectTimeoutError(<HTTPConnection(host='127.0.0.1', port=2030) at 0x16c8a5b5150>, 'Connection to 127.0.0.1 timed out. (connect timeout=2.0)')': /ping
+2026-10-25 13:53:41 [WARNING] Retrying (Retry(total=1, connect=1, read=1, redirect=None, status=0)) after connection broken by 'ConnectTimeoutError(<HTTPConnection(host='127.0.0.1', port=2030) at 0x16c8a5b5150>, 'Connection to 127.0.0.1 timed out. (connect timeout=2.0)')': /ping
+2026-10-25 13:53:44 [WARNING] Retrying (Retry(total=0, connect=0, read=1, redirect=None, status=0)) after connection broken by 'ConnectTimeoutError(<HTTPConnection(host='127.0.0.1', port=2030) at 0x16c8c1fcc00>, 'Connection to 127.0.0.1 timed out. (connect timeout=2.0)')': /ping
+2026-10-25 13:53:44 [WARNING] Retrying (Retry(total=0, connect=0, read=1, redirect=None, status=0)) after connection broken by 'ConnectTimeoutError(<HTTPConnection(host='127.0.0.1', port=2030) at 0x16c8c1fcc00>, 'Connection to 127.0.0.1 timed out. (connect timeout=2.0)')': /ping
+2026-10-25 13:53:48 [WARNING] Retrying (Retry(total=1, connect=1, read=1, redirect=None, status=0)) after connection broken by 'ConnectTimeoutError(<HTTPConnection(host='127.0.0.1', port=2030) at 0x16c8bc297f0>, 'Connection to 127.0.0.1 timed out. (connect timeout=2.0)')': /ping
+2026-10-25 13:53:48 [WARNING] Retrying (Retry(total=1, connect=1, read=1, redirect=None, status=0)) after connection broken by 'ConnectTimeoutError(<HTTPConnection(host='127.0.0.1', port=2030) at 0x16c8bc297f0>, 'Connection to 127.0.0.1 timed out. (connect timeout=2.0)')': /ping
+2026-10-25 13:53:50 [WARNING] Retrying (Retry(total=0, connect=0, read=1, redirect=None, status=0)) after connection broken by 'ConnectTimeoutError(<HTTPConnection(host='127.0.0.1', port=2030) at 0x16c8c1fd8c0>, 'Connection to 127.0.0.1 timed out. (connect timeout=2.0)')': /ping
+2026-10-25 13:53:50 [WARNING] Retrying (Retry(total=0, connect=0, read=1, redirect=None, status=0)) after connection broken by 'ConnectTimeoutError(<HTTPConnection(host='127.0.0.1', port=2030) at 0x16c8c1fd8c0>, 'Connection to 127.0.0.1 timed out. (connect timeout=2.0)')': /ping
+2026-10-25 13:53:54 [WARNING] Retrying (Retry(total=1, connect=1, read=1, redirect=None, status=0)) after connection broken by 'ConnectTimeoutError(<HTTPConnection(host='127.0.0.1', port=2030) at 0x16c8c1fd260>, 'Connection to 127.0.0.1 timed out. (connect timeout=2.0)')': /ping
+2026-10-25 13:53:54 [WARNING] Retrying (Retry(total=1, connect=1, read=1, redirect=None, status=0)) after connection broken by 'ConnectTimeoutError(<HTTPConnection(host='127.0.0.1', port=2030) at 0x16c8c1fd260>, 'Connection to 127.0.0.1 timed out. (connect timeout=2.0)')': /ping
+2026-10-25 13:53:54 [INFO] Sync queue has no pending rows — nothing to do.
+2026-10-25 13:53:54 [INFO] Sync queue has no pending rows — nothing to do.
+2026-10-25 13:53:55 [INFO] Inbound sync complete: {'tables_synced': 22, 'total_rows': 25, 'errors': []}
+2026-10-25 13:53:55 [INFO] Inbound sync complete: {'tables_synced': 22, 'total_rows': 25, 'errors': []}
+2026-10-25 13:55:57 [INFO] SYSTEM STARTUP DIAGNOSTIC CHECK STARTED
+2026-10-25 13:55:57 [OK] [CHECK 1/4] FastAPI Connection Check ... [OK]
+2026-10-25 13:55:57 [OK] [CHECK 2/4] MySQL Database Connection (via API) ... [OK]
+2026-10-25 13:55:57 [OK] [CHECK 3/4] Authentication & Core SP Checks ... [OK]
+2026-10-25 13:55:58 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-10-25 13:55:58 [INFO] Local SQLite cache initialised at F:\CR_PY\certificate_manager\local_cache.db
+2026-10-25 13:55:58 [OK] [CHECK 4/4] Sync Engine & Local Replica Check ... [OK]
+2026-10-25 13:55:58 [OK] Status: ALL CHECKS PASSED. PROCEEDING TO LOGIN/DASHBOARD.
+2026-10-25 13:55:58 [INFO] Certificate Manager starting in Web Server / Fallback mode on 0.0.0.0:2323
+2026-10-25 13:56:20 [INFO] Inbound sync complete: {'tables_synced': 22, 'total_rows': 25, 'errors': []}
+2026-10-25 13:56:20 [INFO] Inbound sync complete: {'tables_synced': 22, 'total_rows': 25, 'errors': []}
+2026-10-25 14:00:56 [INFO] Inbound sync complete: {'tables_synced': 6, 'total_rows': 0, 'errors': []}
+2026-10-25 14:00:56 [INFO] Inbound sync complete: {'tables_synced': 6, 'total_rows': 0, 'errors': []}
+2026-10-25 14:06:45 [INFO] Inbound sync complete: {'tables_synced': 6, 'total_rows': 0, 'errors': []}
+2026-10-25 14:06:45 [INFO] Inbound sync complete: {'tables_synced': 6, 'total_rows': 0, 'errors': []}
+2026-10-25 14:09:16 [INFO] Inbound sync complete: {'tables_synced': 22, 'total_rows': 25, 'errors': []}
+2026-10-25 14:09:16 [INFO] Inbound sync complete: {'tables_synced': 22, 'total_rows': 25, 'errors': []}
+2026-10-25 14:15:06 [WARNING] Retrying (Retry(total=1, connect=1, read=1, redirect=None, status=0)) after connection broken by 'ConnectTimeoutError(<HTTPConnection(host='127.0.0.1', port=2030) at 0x236a7b7f750>, 'Connection to 127.0.0.1 timed out. (connect timeout=2.0)')': /ping
+2026-10-25 14:15:06 [WARNING] Retrying (Retry(total=1, connect=1, read=1, redirect=None, status=0)) after connection broken by 'ConnectTimeoutError(<HTTPConnection(host='127.0.0.1', port=2030) at 0x236a7b7f750>, 'Connection to 127.0.0.1 timed out. (connect timeout=2.0)')': /ping

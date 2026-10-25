@@ -27,7 +27,7 @@ class PersonnelScreen:
         self.current_offset = 0
         self.search_term = ""
 
-        self.container = ui.column().classes("w-full h-full p-6 gap-6 overflow-y-auto")
+        self.container = ui.column().classes("w-full h-full p-6 gap-6")
         self.show_list_view()
 
     def show_list_view(self):
@@ -122,7 +122,7 @@ class PersonnelScreen:
         end_idx = start_idx + self.current_limit
         page_rows = all_rows[start_idx:end_idx]
 
-        with ui.column().classes("w-full flex-1 gap-3 overflow-y-auto min-h-[300px]"):
+        with ui.column().classes("w-full flex-1 gap-3"):
             if not page_rows:
                 with ui.column().classes("w-full items-center py-12 text-center bg-[var(--bg-card)] rounded-xl border border-[var(--border-default)]"):
                     ui.icon("group_off", size="lg").classes("app-text-muted mb-2")
@@ -200,16 +200,16 @@ class PersonnelScreen:
                     UI.success_button("تفعيل / Enable", on_click=toggle_act).classes("text-xs px-2 py-1.5")
 
                 UI.primary_button(
-                    "تعديل / Edit",
+                    "",
                     icon="edit",
                     on_click=lambda r=row: self.show_edit_view(row=r, mode="edit")
-                ).classes("text-xs px-3 py-1.5")
+                ).props("round dense").classes("text-xs p-1.5").tooltip("تعديل / Edit")
 
                 UI.danger_button(
-                    "حذف / Delete",
+                    "",
                     icon="delete",
                     on_click=lambda r=row: self.confirm_delete(r)
-                ).classes("text-xs px-2 py-1.5")
+                ).props("round dense").classes("text-xs p-1.5").tooltip("حذف / Delete")
 
     def go_prev(self):
         self.current_offset = max(0, self.current_offset - self.current_limit)

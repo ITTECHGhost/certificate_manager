@@ -83,7 +83,7 @@ class GraduationOrdersScreen:
         self.search_term = ""
 
         # Main Viewport Container
-        self.container = ui.column().classes("w-full h-full p-6 gap-6 overflow-y-auto")
+        self.container = ui.column().classes("w-full h-full p-6 gap-6")
         self.show_list_view()
 
     # ── VIEW 1: Primary Orders Table List View ──────────────────────────────
@@ -93,11 +93,11 @@ class GraduationOrdersScreen:
         with self.container:
             with UI.card().classes("flex-1 gap-6 p-6 overflow-hidden"):
                 # Header Bar
-                with ui.row().classes("w-full justify-between items-center pb-4 border-b border-[var(--border-default)] app-card-header"):
+                with ui.row().classes("w-full justify-between items-center gap-3 flex-wrap pb-4 border-b border-[var(--border-default)] app-card-header"):
                     with ui.row().classes("items-center gap-3"):
                         ui.icon("school", size="md").classes("app-text-accent")
                         with ui.column().classes("gap-0"):
-                            ui.label("إدارة أوامر التخرج — Graduation Orders").classes("text-xl font-bold app-text-primary")
+                            ui.label("إدارة أوامر التخرج / Graduation Orders").classes("text-xl font-bold app-text-primary")
                             ui.label("إدارة وحفظ الأوامر الجامعية وربطها بالدفعة والطلاب").classes("text-xs app-text-muted")
 
                     UI.success_button(
@@ -106,39 +106,37 @@ class GraduationOrdersScreen:
                         on_click=lambda: self.show_edit_view(mode="add")
                     ).classes("text-sm px-5 py-2.5 shrink-0")
 
-                # Controls Row (Search Box & Limit Picker)
-                with ui.row().classes("w-full items-center justify-between gap-4 flex-wrap"):
-                    with ui.row().classes("items-center gap-3 flex-1 min-w-[300px]"):
-                        def on_search_change(e):
-                            val = extract_event_value(e, default="")
-                            self.search_term = str(val or "").strip().lower()
-                            self.current_offset = 0
-                            self._render_content()
+                # Controls Row: rows-per-page first, search fills the remaining width (wraps below if tight)
+                with ui.row().classes("w-full items-center gap-3 flex-wrap"):
+                    def on_limit_change(e):
+                        val = extract_event_value(e, default=25)
+                        try:
+                            self.current_limit = int(val or 25)
+                        except Exception:
+                            self.current_limit = 25
+                        self.current_offset = 0
+                        self._render_content()
 
-                        search_inp = UI.text_input(
-                            label="",
-                            placeholder="بحث برقم الأمر، القسم، أو سنة التخرج... / Search by order #, dept, or year...",
-                            on_change=on_search_change
-                        ).classes("flex-1 text-sm")
+                    limit_select = UI.select(
+                        label="عرض / Show",
+                        options={25: "25", 50: "50", 75: "75", 100: "100"},
+                        value=self.current_limit,
+                        on_change=on_limit_change
+                    ).props("dense").classes("w-28 text-sm shrink-0", remove="w-full")
 
-                    with ui.row().classes("items-center gap-2 shrink-0"):
-                        ui.label("عرض / Show:").classes("text-xs font-bold app-text-muted")
+                    def on_search_change(e):
+                        val = extract_event_value(e, default="")
+                        self.search_term = str(val or "").strip().lower()
+                        self.current_offset = 0
+                        self._render_content()
 
-                        def on_limit_change(e):
-                            val = extract_event_value(e, default=25)
-                            try:
-                                self.current_limit = int(val or 25)
-                            except Exception:
-                                self.current_limit = 25
-                            self.current_offset = 0
-                            self._render_content()
-
-                        limit_select = UI.select(
-                            label="",
-                            options={25: "25", 50: "50", 75: "75", 100: "100"},
-                            value=self.current_limit,
-                            on_change=on_limit_change
-                        ).classes("w-24 text-sm")
+                    search_inp = UI.text_input(
+                        label="بحث / Search",
+                        placeholder="رقم الأمر، القسم، أو سنة التخرج",
+                        on_change=on_search_change
+                    ).props("dense clearable").classes("flex-1 min-w-[220px] text-sm")
+                    with search_inp.add_slot("prepend"):
+                        ui.icon("search").classes("app-text-muted")
 
                 # Refreshable Content Container
                 @ui.refreshable
@@ -182,7 +180,7 @@ class GraduationOrdersScreen:
         orders = self._get_filtered_orders()
 
         # Orders List Scroll Container
-        with ui.column().classes("w-full flex-1 gap-3 overflow-y-auto min-h-[340px]"):
+        with ui.column().classes("w-full flex-1 gap-3"):
             if not orders:
                 with ui.column().classes("w-full items-center py-12 text-center bg-[var(--bg-card)] rounded-xl border border-[var(--border-default)]"):
                     ui.icon("school", size="lg").classes("app-text-muted mb-2")
@@ -234,16 +232,16 @@ class GraduationOrdersScreen:
                 # Right Action Buttons
                 with ui.row().classes("items-center gap-2 shrink-0"):
                     UI.primary_button(
-                        "تعديل وربط الطلاب / Edit & Link Students",
+                        "",
                         icon="edit",
                         on_click=lambda r=row: self.show_edit_view(row=r, mode="edit")
-                    ).classes("text-xs px-3.5 py-1.5")
+                    ).props("round dense").classes("text-xs p-1.5").tooltip("تعديل وربط الطلاب / Edit & Link Students")
 
                     UI.danger_button(
-                        "Delete / حذف",
+                        "",
                         icon="delete",
                         on_click=lambda r=row: self.confirm_delete(r)
-                    ).classes("text-xs px-3 py-1.5")
+                    ).props("round dense").classes("text-xs p-1.5").tooltip("حذف / Delete")
 
             # Bottom Row: Badges Details (Department, Batch, Study Mode, Semester, Linked Count)
             with ui.row().classes("w-full items-center justify-between pt-2.5 border-t border-[var(--border-default)] gap-3 flex-wrap"):
