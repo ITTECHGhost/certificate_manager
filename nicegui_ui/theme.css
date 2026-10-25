@@ -1456,3 +1456,89 @@ body.body--dark .q-menu .q-item:hover,
     background-color: #334155 !important;
     color: #38bdf8 !important;
 }
+
+/* ── 9. Polish layer ────────────────────────────────────────────────────────
+   Browser surfaces and interaction states themed from the accent palette.   */
+
+/* Text selection & caret */
+::selection {
+  background: var(--accent-soft-border, rgba(59, 130, 246, 0.35));
+  color: inherit;
+}
+input, textarea {
+  caret-color: var(--accent-primary);
+}
+
+/* Keyboard focus: visible, accent-colored, never on mouse click */
+.q-btn:focus-visible,
+.q-tab:focus-visible,
+.app-nav-item:focus-visible,
+.q-item:focus-visible {
+  outline: 2px solid var(--accent-primary) !important;
+  outline-offset: 2px;
+}
+
+/* Thin themed scrollbars */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-strong, #64748b) transparent;
+}
+*::-webkit-scrollbar { width: 8px; height: 8px; }
+*::-webkit-scrollbar-track { background: transparent; }
+*::-webkit-scrollbar-thumb {
+  background: var(--border-strong, #64748b);
+  border-radius: 8px;
+}
+*::-webkit-scrollbar-thumb:hover { background: var(--accent-primary); }
+
+/* Tables: aligned numerals, calmer header, row hover, dates/IDs never wrap */
+.app-table,
+.app-stat-card {
+  font-variant-numeric: tabular-nums;
+}
+.app-table .q-table th {
+  letter-spacing: 0;
+  white-space: nowrap;
+  border-bottom: 1px solid var(--border-strong, var(--border-default)) !important;
+}
+.app-table .q-table tbody tr {
+  transition: background-color 0.15s;
+}
+.app-table .q-table tbody tr:hover {
+  background-color: var(--btn-ghost-bg-hover, rgba(148, 163, 184, 0.10)) !important;
+}
+.app-table .q-table tbody td {
+  padding-top: 10px;
+  padding-bottom: 10px;
+}
+
+/* Cards: depth with offset + blur, subtle lift on stat tiles */
+.app-stat-card:hover {
+  border-color: var(--accent-soft-border, var(--border-strong)) !important;
+  box-shadow: 0 6px 18px rgba(2, 6, 23, 0.18);
+  transform: translateY(-1px);
+}
+.app-stat-card {
+  transition: background-color 0.2s, border-color 0.2s, box-shadow 0.2s, transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Buttons: tactile press, clear disabled state, no fake glow on primary */
+.q-btn { border-radius: 10px; }
+.q-btn:active:not(.disabled):not([disabled]) { transform: translateY(1px); }
+.q-btn.disabled, .q-btn[disabled] { opacity: 0.45 !important; }
+.app-btn-primary { box-shadow: 0 2px 8px var(--accent-shadow); }
+.app-btn-primary:hover { box-shadow: 0 4px 12px var(--accent-shadow); }
+
+/* Dialogs: calm backdrop, consistent radius and depth */
+.q-dialog__backdrop { background: rgba(2, 6, 23, 0.55) !important; }
+.q-dialog .app-card {
+  box-shadow: 0 20px 48px rgba(2, 6, 23, 0.35);
+}
+
+/* Respect reduced-motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
+}

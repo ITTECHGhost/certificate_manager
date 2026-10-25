@@ -891,13 +891,13 @@ def search_offline_students_paginated(db_path: str, search_term: str, limit: int
 
 def get_offline_last_added_students(limit: int = 5) -> list[dict]:
     query = (
-        "SELECT s.id, s.full_name_ar, s.full_name_en, s.admission_year, s.status, "
+        "SELECT s.id, s.full_name_ar, s.full_name_en, s.admission_year, s.status, s.graduation_date, "
         "d.name_ar AS dept_name_ar "
         "FROM ("
         "  SELECT id, full_name_ar, full_name_en, CAST(admission_year AS TEXT) AS admission_year, "
-        "  CASE WHEN order_id IS NOT NULL THEN 'متخرج' ELSE 'مستمر' END AS status, department_id FROM students "
+        "  CASE WHEN order_id IS NOT NULL THEN 'متخرج' ELSE 'مستمر' END AS status, department_id, graduation_date FROM students "
         "  UNION ALL "
-        "  SELECT id, full_name_ar, full_name_en, CAST(admission_year AS TEXT) AS admission_year, 'مستمر' AS status, department_id FROM local_students"
+        "  SELECT id, full_name_ar, full_name_en, CAST(admission_year AS TEXT) AS admission_year, 'مستمر' AS status, department_id, graduation_date FROM local_students"
         ") s "
         "LEFT JOIN departments d ON s.department_id = d.id "
         "ORDER BY CASE WHEN s.id < 0 THEN 1 ELSE 0 END DESC, ABS(s.id) DESC LIMIT ?"

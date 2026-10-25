@@ -899,7 +899,7 @@ class IssuedCertificatesScreen:
                 content=csv_bytes,
                 filename=filename,
                 title="تم تصدير وحفظ تقرير الوثائق المصدّرة بنجاح",
-                auto_open=True,
+                auto_open=False,
                 show_modal=True
             )
         except Exception as ex:

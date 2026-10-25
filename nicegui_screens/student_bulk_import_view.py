@@ -441,7 +441,7 @@ class StudentBulkImportView:
                 content=file_bytes,
                 filename="نموذج_بيانات_الطلاب.xlsx",
                 title="تم تجهيز وحفظ نموذج بيانات الطلاب (Excel) بنجاح",
-                auto_open=True,
+                auto_open=False,
                 show_modal=True
             )
         except Exception as exc:
@@ -559,7 +559,7 @@ class StudentBulkImportView:
                 content=file_bytes,
                 filename=filename,
                 title=f"تم تجهيز وحفظ كشف درجات المواد ({dept_name}) بنجاح",
-                auto_open=True,
+                auto_open=False,
                 show_modal=True
             )
         except Exception as exc:

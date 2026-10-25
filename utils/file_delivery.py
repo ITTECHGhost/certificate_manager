@@ -189,7 +189,7 @@ def deliver_file(
     content: Union[bytes, str, Path],
     filename: str,
     title: str = "تم تجهيز وتنزيل ملف Excel بنجاح",
-    auto_open: bool = True,
+    auto_open: bool = False,
     show_modal: bool = True,
 ) -> Path:
     """

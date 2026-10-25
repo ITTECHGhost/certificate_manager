@@ -36,6 +36,14 @@ from nicegui_screens.certificate_screen import CertificateScreen
 from nicegui_screens.issued_certificates_screen import IssuedCertificatesScreen
 
 
+def _fmt_grad_date(value) -> str:
+    """Graduation date as YYYY-MM-DD, or '—' when empty / the 1970 placeholder."""
+    text = str(value or "").strip()[:10]
+    if not text or text.startswith("1970-01-01") or text.lower() in ("none", "null"):
+        return "—"
+    return text
+
+
 class MainAppShell:
     """
     Main Application Shell managing the Collapsible Sidebar, Top Header,
@@ -788,7 +796,7 @@ class MainAppShell:
                             {"name": "name",   "label": "اسم الطالب / Student Name", "field": "name",   "align": "right",  "headerClasses": "text-slate-600 dark:text-slate-400 font-bold bg-transparent"},
                             {"name": "dept",   "label": "القسم / Department",        "field": "dept",   "align": "right",  "headerClasses": "text-slate-600 dark:text-slate-400 font-bold bg-transparent"},
                             {"name": "year",   "label": "سنة القبول / Batch",        "field": "year",   "align": "center", "headerClasses": "text-slate-600 dark:text-slate-400 font-bold bg-transparent"},
-                            {"name": "status", "label": "الحالة / Status",           "field": "status", "align": "center", "headerClasses": "text-slate-600 dark:text-slate-400 font-bold bg-transparent"},
+                            {"name": "grad",   "label": "تاريخ التخرج / Graduation", "field": "grad",   "align": "center", "headerClasses": "text-slate-600 dark:text-slate-400 font-bold bg-transparent"},
                             {"name": "action", "label": "إصدار / Issue",             "field": "action", "align": "center", "headerClasses": "text-slate-600 dark:text-slate-400 font-bold bg-transparent"},
                         ]
                         rows_s = [
@@ -797,7 +805,7 @@ class MainAppShell:
                                 "name":   s.get("full_name_ar") or s.get("student_name_ar") or s.get("full_name_en") or "—",
                                 "dept":   s.get("dept_name_ar") or s.get("department_name_ar") or "—",
                                 "year":   s.get("admission_year") or s.get("graduation_year") or "—",
-                                "status": "متخرج" if s.get("order_id") or s.get("graduation_date") else "مستمر",
+                                "grad":   _fmt_grad_date(s.get("graduation_date")),
                                 "raw_data": s,
                             }
                             for s in (self.recent_students or [])
@@ -807,15 +815,11 @@ class MainAppShell:
                             columns=cols_s, rows=rows_s, row_key="id"
                         ).classes(Styles.TABLE_CLASSES).props("flat separator='horizontal'")
 
-                        # Status Column Badge Custom Template Slot
-                        s_table.add_slot("body-cell-status", '''
+                        # Graduation date cell: date text, or a muted dash when not graduated yet
+                        s_table.add_slot("body-cell-grad", '''
                             <q-td :props="props" class="text-center">
-                                <q-badge
-                                    :color="props.row.status === 'متخرج' ? 'positive' : 'info'"
-                                    class="px-2.5 py-1 text-xs font-bold rounded-full shadow-sm"
-                                >
-                                    {{ props.row.status }}
-                                </q-badge>
+                                <span v-if="props.row.grad !== '—'" class="font-mono text-xs font-semibold">{{ props.row.grad }}</span>
+                                <span v-else class="opacity-40">—</span>
                             </q-td>
                         ''')
 
