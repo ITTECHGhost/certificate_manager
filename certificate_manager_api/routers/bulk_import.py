@@ -25,6 +25,13 @@ STATUS_STR_MAP = {
     "6": "DISMISSED",
 }
 
+# academic_periods.result_status is an INT column: store the code, never the key text
+# (writing 'PASSED' into it stores 0)
+STATUS_CODE = {
+    "PASSED": 1, "FAILED_REPEAT": 2, "EXCEPTIONAL_PASS": 3,
+    "CARRIED_OVER": 4, "DEFERRED": 5, "DISMISSED": 6,
+}
+
 
 class BulkImportScoreItem(BaseModel):
     course_id: int
@@ -165,6 +172,7 @@ def bulk_import_students(payload: BulkImportRequest, conn=Depends(get_db_depende
             result_status_str = STATUS_STR_MAP.get(raw_status, raw_status)
             if result_status_str not in VALID_RESULT_STATUSES:
                 result_status_str = "PASSED"
+            result_status_db = STATUS_CODE[result_status_str]
 
             if item.scores:
                 # Group scores by stage number (from score item, or fallback to student's stage_number or 1)
@@ -185,7 +193,7 @@ def bulk_import_students(payload: BulkImportRequest, conn=Depends(get_db_depende
                         period_id = p_row["id"]
                         cur.execute(
                             "UPDATE academic_periods SET result_status = %s WHERE id = %s",
-                            (result_status_str, period_id)
+                            (result_status_db, period_id)
                         )
                         reused_periods += 1
                     else:
@@ -196,7 +204,7 @@ def bulk_import_students(payload: BulkImportRequest, conn=Depends(get_db_depende
                             ) VALUES (%s, %s, %s, %s, %s, %s)
                         """, (
                             student_id, item.academic_year.strip(), item.study_system_id or 1,
-                            stg, sem_num, result_status_str
+                            stg, sem_num, result_status_db
                         ))
                         period_id = cur.lastrowid
                         created_periods += 1
@@ -228,7 +236,7 @@ def bulk_import_students(payload: BulkImportRequest, conn=Depends(get_db_depende
                     period_id = p_row["id"]
                     cur.execute(
                         "UPDATE academic_periods SET result_status = %s WHERE id = %s",
-                        (result_status_str, period_id)
+                        (result_status_db, period_id)
                     )
                     reused_periods += 1
                 else:
@@ -239,7 +247,7 @@ def bulk_import_students(payload: BulkImportRequest, conn=Depends(get_db_depende
                         ) VALUES (%s, %s, %s, %s, %s, %s)
                     """, (
                         student_id, item.academic_year.strip(), item.study_system_id or 1,
-                        stg, sem_num, result_status_str
+                        stg, sem_num, result_status_db
                     ))
                     period_id = cur.lastrowid
                     created_periods += 1

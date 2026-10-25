@@ -658,6 +658,58 @@ def init_local_db() -> None:
             )
         """)
 
+        # Self-healing migration: personnel.must_change_password (forced password change)
+        try:
+            cur.execute("PRAGMA table_info(personnel)")
+            if "must_change_password" not in [row[1] for row in cur.fetchall()]:
+                cur.execute("ALTER TABLE personnel ADD COLUMN must_change_password INTEGER DEFAULT 0")
+        except Exception as _pw_mig_err:
+            log.warning("personnel migration notice: %s", _pw_mig_err)
+
+        # Roles copied from MySQL (roles / user_roles); also used before the server has them
+        cur.execute("""
+            CREATE TABLE IF NOT EXISTS roles (
+                id               TEXT PRIMARY KEY,
+                name_ar          TEXT NOT NULL,
+                name_en          TEXT NOT NULL,
+                description_ar   TEXT,
+                base_role        TEXT NOT NULL DEFAULT 'user',
+                allowed_pages    TEXT NOT NULL DEFAULT '[]',
+                allowed_actions  TEXT NOT NULL DEFAULT '[]',
+                department_scope TEXT NOT NULL DEFAULT 'all',
+                is_system        INTEGER NOT NULL DEFAULT 0,
+                created_at       TEXT DEFAULT CURRENT_TIMESTAMP
+            )
+        """)
+        cur.execute("""
+            CREATE TABLE IF NOT EXISTS user_roles (
+                personnel_id INTEGER PRIMARY KEY,
+                role_id      TEXT NOT NULL,
+                updated_at   TEXT DEFAULT CURRENT_TIMESTAMP
+            )
+        """)
+
+        # Change-only download: per-table "since" marker and the time of the last full download
+        cur.execute("""
+            CREATE TABLE IF NOT EXISTS replica_sync_state (
+                table_name TEXT PRIMARY KEY,
+                since      TEXT,
+                last_full  TEXT
+            )
+        """)
+        # This laptop's reserved block of certificate numbers (offline printing)
+        cur.execute("""
+            CREATE TABLE IF NOT EXISTS cert_number_block (
+                id          INTEGER PRIMARY KEY CHECK (id = 1),
+                year_suffix TEXT NOT NULL,
+                start_no    INTEGER NOT NULL,
+                end_no      INTEGER NOT NULL,
+                next_no     INTEGER NOT NULL
+            )
+        """)
+        # Stable identifier of this laptop (sent when reserving certificate numbers)
+        cur.execute("CREATE TABLE IF NOT EXISTS device_info (key TEXT PRIMARY KEY, value TEXT)")
+
         # Self-healing migration: sync_queue tracking columns (pending / failed, last error, attempts)
         try:
             cur.execute("PRAGMA table_info(sync_queue)")
@@ -813,10 +865,65 @@ _REPLICA_TABLES: list[tuple[str, str]] = [
     ("study_routine_courses", "SELECT * FROM study_routine_courses"),
     ("permissions",         "SELECT * FROM permissions"),
     ("personnel_permissions", "SELECT * FROM personnel_permissions"),
+    ("roles",               "SELECT * FROM roles"),
+    ("user_roles",          "SELECT * FROM user_roles"),
 ]
 
+# Tables a laptop must not wipe when the server returns no rows: an empty roles
+# table means the server is not set up for roles yet, not "delete every role".
+_KEEP_LOCAL_IF_SERVER_EMPTY = {"roles", "user_roles"}
 
-def pull_mysql_to_sqlite(mysql_conn=None, sqlite_conn=None) -> dict:
+
+FULL_REPLICA_EVERY_HOURS = 24
+
+# MySQL deletes these child rows automatically (ON DELETE CASCADE) but cascaded deletes do
+# not fire the delete triggers, so the change-only download never reports them:
+# parent table -> [(child table, foreign key column)]
+_CASCADE_CHILDREN = {
+    "students": [("academic_periods", "student_id"), ("student_supervisors", "student_id"),
+                 ("thesis_records", "student_id"), ("issued_certificates", "student_id")],
+    "academic_periods": [("enrollments", "period_id")],
+    "study_routines": [("study_routine_period", "routine_id")],
+    "study_routine_period": [("study_routine_courses", "period_id")],
+    "personnel": [("personnel_permissions", "personnel_id"), ("settings", "EMP_ID")],
+}
+
+
+def _hours_since(timestamp_text: str) -> float:
+    try:
+        return (datetime.now() - datetime.strptime(str(timestamp_text)[:19], "%Y-%m-%d %H:%M:%S")).total_seconds() / 3600
+    except (TypeError, ValueError):
+        return float("inf")
+
+
+def _save_sync_state(sqlite_conn, table_name: str, since: str | None, last_full: str | None) -> None:
+    sqlite_conn.execute(
+        "INSERT INTO replica_sync_state (table_name, since, last_full) VALUES (?, ?, ?) "
+        "ON CONFLICT(table_name) DO UPDATE SET since = excluded.since, last_full = excluded.last_full",
+        (table_name, since, last_full),
+    )
+
+
+def _remove_orphaned_children(sqlite_conn, parents: set[str]) -> None:
+    """After rows were deleted from parent tables, delete local child rows that lost their parent."""
+    todo = list(parents)
+    while todo:
+        parent = todo.pop()
+        for child, fk in _CASCADE_CHILDREN.get(parent, []):
+            try:
+                cur = sqlite_conn.execute(
+                    f"DELETE FROM {child} WHERE {fk} IS NOT NULL AND {fk} NOT IN (SELECT id FROM {parent})"
+                )
+                if cur.rowcount:
+                    log.info("Removed %d %s rows whose %s was deleted on the server", cur.rowcount, child, parent)
+                    todo.append(child)
+            except Exception as exc:
+                log.debug("Orphan cleanup %s.%s skipped: %s", child, fk, exc)
+    sqlite_conn.commit()
+
+
+def pull_mysql_to_sqlite(mysql_conn=None, sqlite_conn=None, tables: list[str] | None = None,
+                         force_full: bool = False) -> dict:
     """
     Download a full read-only replica of essential MySQL tables into SQLite, through FastAPI.
 
@@ -828,6 +935,12 @@ def pull_mysql_to_sqlite(mysql_conn=None, sqlite_conn=None) -> dict:
     Args:
         mysql_conn: Unused; kept so older callers keep working. MySQL is only reached through FastAPI.
         sqlite_conn: Optional pre-opened SQLite connection. If None, one is created internally.
+        tables: Only these tables (None = all replicated tables).
+        force_full: Download every row even when a change-only download is possible.
+
+    Once the server has updated_at columns (sql/fixes/2026-10-24_03), only rows changed
+    since the last download (and deleted ids) are fetched; a full download still happens
+    once every FULL_REPLICA_EVERY_HOURS.
 
     Returns:
         {"tables_synced": int, "total_rows": int, "errors": list[str]}
@@ -852,38 +965,84 @@ def pull_mysql_to_sqlite(mysql_conn=None, sqlite_conn=None) -> dict:
         return str(val)
 
     api_url = get_api_url()
+    sqlite_conn.execute(
+        "CREATE TABLE IF NOT EXISTS replica_sync_state (table_name TEXT PRIMARY KEY, since TEXT, last_full TEXT)"
+    )
+    sync_state = {
+        r["table_name"]: (r["since"], r["last_full"])
+        for r in sqlite_conn.execute("SELECT table_name, since, last_full FROM replica_sync_state").fetchall()
+    }
+    now_text = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    tables_with_deletions: set[str] = set()
     try:
         for table_name, _select_sql in _REPLICA_TABLES:
+            if tables is not None and table_name not in tables:
+                continue
             try:
+                # Change-only download when this table has a marker and had a full download in
+                # the last 24 h; otherwise everything (the daily full download also corrects
+                # anything a change-only download cannot see)
+                since, last_full = sync_state.get(table_name, (None, None))
+                params = {}
+                if since and not force_full and last_full and _hours_since(last_full) < FULL_REPLICA_EVERY_HOURS:
+                    params["since"] = since
+
                 # Fetch from MySQL through FastAPI
-                resp = api_client.get(f"{api_url}/replica/{table_name}", timeout=60.0)
+                resp = api_client.get(f"{api_url}/replica/{table_name}", params=params, timeout=60.0)
                 if resp.status_code != 200:
                     raise RuntimeError(f"HTTP {resp.status_code}: {resp.text[:200]}")
                 body = resp.json()
                 columns = body.get("columns") or []
                 rows = body.get("rows") or []
+                is_delta = body.get("mode") == "delta"
 
-                if not rows:
+                if not rows and not is_delta:
+                    if table_name in _KEEP_LOCAL_IF_SERVER_EMPTY:
+                        log.info("Server has no %s rows yet; keeping this laptop's copy", table_name)
+                        continue
                     # Still clear local data even if MySQL table is empty
                     sqlite_conn.execute(f"DELETE FROM {table_name}")
+                    _save_sync_state(sqlite_conn, table_name, body.get("next_since"), now_text)
                     sqlite_conn.commit()
                     tables_synced += 1
                     continue
 
+                # A column added in MySQL (e.g. by an update SQL file) is added here too,
+                # otherwise every INSERT for this table would fail with "no such column"
+                local_cols = {r[1] for r in sqlite_conn.execute(f"PRAGMA table_info({table_name})").fetchall()}
+                for col in columns:
+                    if local_cols and col not in local_cols:
+                        sqlite_conn.execute(f'ALTER TABLE {table_name} ADD COLUMN "{col}"')
+                        log.info("Added column %s.%s to the local copy", table_name, col)
+
                 col_clause = ", ".join(columns)
                 placeholders = ", ".join(["?"] * len(columns))
-
-                # Clear + insert
-                sqlite_conn.execute(f"DELETE FROM {table_name}")
                 insert_data = [tuple(safe_cast(v) for v in row) for row in rows]
-                sqlite_conn.executemany(
-                    f"INSERT OR REPLACE INTO {table_name} ({col_clause}) VALUES ({placeholders})",
-                    insert_data,
-                )
+
+                if is_delta:
+                    # Only changed rows: upsert them, remove rows deleted on the server
+                    deleted_ids = [int(i) for i in (body.get("deleted_ids") or [])]
+                    if deleted_ids:
+                        sqlite_conn.executemany(f"DELETE FROM {table_name} WHERE id = ?", [(i,) for i in deleted_ids])
+                        tables_with_deletions.add(table_name)
+                    if insert_data:
+                        sqlite_conn.executemany(
+                            f"INSERT OR REPLACE INTO {table_name} ({col_clause}) VALUES ({placeholders})",
+                            insert_data,
+                        )
+                    _save_sync_state(sqlite_conn, table_name, body.get("next_since"), last_full)
+                else:
+                    # Clear + insert
+                    sqlite_conn.execute(f"DELETE FROM {table_name}")
+                    sqlite_conn.executemany(
+                        f"INSERT OR REPLACE INTO {table_name} ({col_clause}) VALUES ({placeholders})",
+                        insert_data,
+                    )
+                    _save_sync_state(sqlite_conn, table_name, body.get("next_since"), now_text)
                 sqlite_conn.commit()
                 tables_synced += 1
                 total_rows += len(rows)
-                log.debug("Replicated %s: %d rows", table_name, len(rows))
+                log.debug("Replicated %s (%s): %d rows", table_name, "changes" if is_delta else "full", len(rows))
 
             except requests.exceptions.ConnectionError as exc:
                 # Server unreachable: stop instead of waiting on every remaining table
@@ -894,13 +1053,42 @@ def pull_mysql_to_sqlite(mysql_conn=None, sqlite_conn=None) -> dict:
                 log.error("Failed to replicate table %s: %s", table_name, exc)
                 errors.append(f"{table_name}: {exc}")
 
+        if tables_with_deletions:
+            _remove_orphaned_children(sqlite_conn, tables_with_deletions)
+
     finally:
         if own_sqlite and sqlite_conn:
             sqlite_conn.close()
 
+    # Role assignments may have changed: drop the in-memory copy so the next lookup reads the new data
+    try:
+        import data.repositories as _repos
+        _repos._USER_ROLE_CACHE = None
+    except Exception:
+        pass
+
     summary = {"tables_synced": tables_synced, "total_rows": total_rows, "errors": errors}
     log.info("Inbound sync complete: %s", summary)
     return summary
+
+
+# Reference tables screens read from the local copy first (repositories, "local-first").
+# They are small, change rarely, and their local rows match the API's rows field for field.
+LOCAL_FIRST_TABLES = ["departments", "study_systems", "courses", "countries", "governorates", "graduation_orders"]
+
+
+def refresh_replica_tables(tables: list[str]) -> bool:
+    """Re-download just these tables (e.g. right after a change was saved online). True on success."""
+    if not is_online():
+        return False
+    result = pull_mysql_to_sqlite(tables=list(tables))
+    return not result["errors"]
+
+
+def refresh_replica_tables_background(tables: list[str]) -> None:
+    """Same as refresh_replica_tables, on a background thread (never blocks the UI)."""
+    threading.Thread(target=lambda: refresh_replica_tables(tables), daemon=True,
+                     name="replica-refresh").start()
 
 
 def pull_mysql_to_sqlite_background() -> None:
@@ -1109,6 +1297,14 @@ def log_offline_update(table_name: str, record_id: int, payload_dict: dict) -> N
     conn = _get_local_conn()
     try:
         cur = conn.cursor()
+        # Version of the server record this edit starts from (conflict check at sync time)
+        base_updated_at = None
+        if record_id > 0:
+            try:
+                base_row = cur.execute(f"SELECT updated_at FROM {target_table} WHERE id = ?", (record_id,)).fetchone()
+                base_updated_at = base_row[0] if base_row else None
+            except sqlite3.OperationalError:
+                pass  # no updated_at column yet (server SQL not run)
         cur.execute(f"UPDATE {target_table} SET {set_clause} WHERE id = ?", tuple(values))
 
         if record_id < 0:
@@ -1138,10 +1334,13 @@ def log_offline_update(table_name: str, record_id: int, payload_dict: dict) -> N
                     (_json_dumps(existing_payload), row["id"])
                 )
             else:
+                queued = dict(payload_dict)
+                if base_updated_at:
+                    queued["_base_updated_at"] = base_updated_at
                 cur.execute(
                     "INSERT INTO sync_queue (table_name, operation, temp_id, payload) "
                     "VALUES (?, 'UPDATE', ?, ?)",
-                    (table_name, record_id, _json_dumps(payload_dict))
+                    (table_name, record_id, _json_dumps(queued))
                 )
 
         conn.commit()
@@ -1195,6 +1394,110 @@ def log_offline_delete(table_name: str, record_id: int) -> None:
 # Task 4 — Synchronisation & ID Resolution Loop
 # ---------------------------------------------------------------------------
 
+def get_device_id() -> str:
+    """Stable id of this laptop (computer name + random suffix), created on first use."""
+    conn = _get_local_conn()
+    try:
+        conn.execute("CREATE TABLE IF NOT EXISTS device_info (key TEXT PRIMARY KEY, value TEXT)")
+        row = conn.execute("SELECT value FROM device_info WHERE key = 'device_id'").fetchone()
+        if row:
+            return row["value"]
+        import socket
+        import uuid
+        device_id = f"{socket.gethostname()}-{uuid.uuid4().hex[:8]}"
+        conn.execute("INSERT INTO device_info (key, value) VALUES ('device_id', ?)", (device_id,))
+        conn.commit()
+        return device_id
+    finally:
+        conn.close()
+
+
+def get_cert_number_block() -> dict | None:
+    """This laptop's reserved certificate numbers: {year_suffix, start_no, end_no, next_no} or None."""
+    try:
+        return sqlite_read_one("SELECT year_suffix, start_no, end_no, next_no FROM cert_number_block WHERE id = 1")
+    except Exception:
+        return None
+
+
+def save_cert_number_block(year_suffix: str, start_no: int, end_no: int) -> None:
+    """Store a newly reserved block (replaces the previous one)."""
+    conn = _get_local_conn()
+    try:
+        conn.execute(
+            "INSERT OR REPLACE INTO cert_number_block (id, year_suffix, start_no, end_no, next_no) VALUES (1, ?, ?, ?, ?)",
+            (year_suffix, start_no, end_no, start_no),
+        )
+        conn.commit()
+    finally:
+        conn.close()
+
+
+def mark_cert_number_used(certificate_number: str) -> None:
+    """After a certificate is saved: if its number came from this laptop's block, move past it."""
+    import re
+    m = re.match(r"^\s*(\d+)\s*/\s*(\S+)\s*$", str(certificate_number or ""))
+    if not m:
+        return
+    number, suffix = int(m.group(1)), m.group(2)
+    conn = _get_local_conn()
+    try:
+        conn.execute(
+            "UPDATE cert_number_block SET next_no = ? "
+            "WHERE id = 1 AND year_suffix = ? AND ? BETWEEN start_no AND end_no AND ? >= next_no",
+            (number + 1, suffix, number, number),
+        )
+        conn.commit()
+    except sqlite3.OperationalError:
+        pass  # table not created yet
+    finally:
+        conn.close()
+
+
+def set_local_personnel_password(personnel_id: int, password_hash: str, must_change: bool) -> None:
+    """Store a password hash (and the must-change flag) in this laptop's personnel copy."""
+    conn = _get_local_conn()
+    try:
+        conn.execute(
+            "UPDATE personnel SET password_hash = ?, must_change_password = ? WHERE id = ?",
+            (password_hash, 1 if must_change else 0, personnel_id),
+        )
+        conn.commit()
+    finally:
+        conn.close()
+
+
+def queue_password_change(personnel_id: int, new_hash: str, base_hash: str, must_change: bool) -> None:
+    """
+    Queue a password set offline. Only the HASH is queued, never the typed password.
+    base_hash is the server's hash this laptop knew; the server refuses the change if
+    its password changed since. One pending change per person: a newer one replaces an
+    older pending one but keeps the older base_hash (still the server's last value).
+    """
+    conn = _get_local_conn()
+    try:
+        prev = conn.execute(
+            "SELECT id, payload FROM sync_queue WHERE table_name = 'personnel_password' "
+            "AND temp_id = ? AND COALESCE(status, 'pending') = 'pending' ORDER BY id ASC LIMIT 1",
+            (personnel_id,),
+        ).fetchone()
+        if prev:
+            base_hash = _json_loads(prev["payload"]).get("base_hash", base_hash)
+            conn.execute(
+                "DELETE FROM sync_queue WHERE table_name = 'personnel_password' AND temp_id = ? "
+                "AND COALESCE(status, 'pending') = 'pending'",
+                (personnel_id,),
+            )
+        payload = {"password_hash": new_hash, "base_hash": base_hash, "must_change": bool(must_change)}
+        conn.execute(
+            "INSERT INTO sync_queue (table_name, operation, temp_id, payload) VALUES ('personnel_password', 'UPDATE', ?, ?)",
+            (personnel_id, _json_dumps(payload)),
+        )
+        conn.commit()
+    finally:
+        conn.close()
+
+
 def _resolve_temp_id(
     sqlite_conn: sqlite3.Connection,
     table_name: str,
@@ -1222,8 +1525,13 @@ def _resolve_temp_id(
     # Move resolved record from local mirror table to primary replica table
     try:
         primary_table = table_name
+        # Copy by column NAME: the two tables can differ (e.g. updated_at exists only in the copy
+        # of the server table), and a positional SELECT * would fail
+        primary_cols = {r[1] for r in sqlite_conn.execute(f"PRAGMA table_info({primary_table})")}
+        common = [r[1] for r in sqlite_conn.execute(f"PRAGMA table_info({local_table})") if r[1] in primary_cols]
+        col_list = ", ".join(f'"{c}"' for c in common)
         sqlite_conn.execute(
-            f"INSERT OR REPLACE INTO {primary_table} SELECT * FROM {local_table} WHERE id = ?",
+            f"INSERT OR REPLACE INTO {primary_table} ({col_list}) SELECT {col_list} FROM {local_table} WHERE id = ?",
             (real_id,)
         )
         sqlite_conn.execute(
@@ -1412,6 +1720,14 @@ def sync_offline_queue_to_mysql(mysql_conn=None) -> dict:
             if table_name == "settings":
                 continue  # handled above, outside the batch
 
+            if queue_id not in api_failed and table_name not in _TABLE_REGISTRY and temp_id in api_id_map:
+                # Actions without a local mirror table (e.g. personnel_password): nothing to resolve
+                sqlite_conn.execute("DELETE FROM sync_queue WHERE id = ?", (queue_id,))
+                sqlite_conn.commit()
+                synced += 1
+                log.info("Synced %s for id=%d", table_name, temp_id)
+                continue
+
             if queue_id in api_failed:
                 # Keep the row, but stop retrying it until the user retries or discards it
                 sqlite_conn.execute(
@@ -1494,10 +1810,22 @@ def get_queue_status() -> dict:
         conn.close()
 
 
-def retry_failed_queue_rows() -> int:
-    """Put every failed queue row back to pending so the next sync sends it again. Returns the count."""
+def retry_failed_queue_rows(override: bool = False) -> int:
+    """
+    Put every failed queue row back to pending so the next sync sends it again. Returns the count.
+    override=True: the user checked the failures and wants this laptop's data saved anyway -
+    the server then skips the "changed on the server meanwhile" and "possible duplicate
+    student" checks for these rows (other errors still fail).
+    """
     conn = _get_local_conn()
     try:
+        if override:
+            rows = conn.execute("SELECT id, payload FROM sync_queue WHERE status = 'failed'").fetchall()
+            for r in rows:
+                payload = _json_loads(r["payload"])
+                payload["_override"] = True
+                payload["_allow_duplicate"] = True
+                conn.execute("UPDATE sync_queue SET payload = ? WHERE id = ?", (_json_dumps(payload), r["id"]))
         cur = conn.execute("UPDATE sync_queue SET status = 'pending' WHERE status = 'failed'")
         conn.commit()
         return cur.rowcount

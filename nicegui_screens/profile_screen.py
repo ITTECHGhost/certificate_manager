@@ -171,10 +171,20 @@ class ProfileScreen:
                 "university_settings_id": cur_rec.get("university_settings_id", 1),
                 "is_active": cur_rec.get("is_active", 1),
             }
-            if new_pwd:
-                payload["password_hash"] = new_pwd
+            from sync_engine import is_online
+            if is_online():
+                self.p_repo.update(self.emp_id, payload)
+            elif not new_pwd:
+                ui.notify("تعديل بيانات الحساب يتطلب الاتصال بالسيرفر / Profile changes need a server connection",
+                          type="warning")
+                return
 
-            self.p_repo.update(self.emp_id, payload)
+            if new_pwd:
+                # Works offline too: saved on this laptop and sent to the server at the next sync
+                pwd_result = self.p_repo.set_password(self.emp_id, new_pwd, must_change=False)
+                if pwd_result == "queued":
+                    ui.notify("تم حفظ كلمة المرور على هذا الجهاز وستُرسل للسيرفر عند الاتصال / "
+                              "Password saved on this PC; sent to the server when online", type="info", timeout=8000)
 
             self.session.name_ar = name_ar
             self.session.name_en = name_en

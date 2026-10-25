@@ -100,6 +100,27 @@ Requests without the right key now get **401** and are refused.
 
 ---
 
+## Database updates (run once, in order)
+
+The project folder `sql\fixes\` contains MySQL change files. Run each **once**, in number order,
+in phpMyAdmin (SQL tab) or MySQL Workbench, on the `certificate_manager` database.
+The program keeps working before they are run; each file switches on the features listed.
+
+| File | What it does |
+|---|---|
+| `2026-10-24_01_fix_result_status_zero.sql` | Repairs semesters saved with status 0 instead of "passed". Run the SELECT first, check the list, then the UPDATE. |
+| `2026-10-24_02_accounts_roles_passwords.sql` | "Must change password" after an admin sets a password; roles shared by all laptops (copied from the developer laptop). |
+| `2026-10-24_03_change_tracking_and_cert_blocks.sql` | Laptops download only what changed; conflict check for offline edits; reserved certificate numbers for offline printing. |
+
+Then:
+1. Double-click **`hash_existing_passwords.bat`** in this folder. It lists the accounts whose
+   password is still stored as plain text and asks before converting them. Users keep the same
+   passwords. (Passwords are also converted one by one at each user's next login; this does
+   all of them at once, so no laptop keeps a readable password.)
+2. Restart the service: `switch_server_mode.bat https` (or `http`).
+
+---
+
 ## Updates
 
 ### How updates work

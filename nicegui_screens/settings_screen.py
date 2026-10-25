@@ -34,6 +34,7 @@ from nicegui_ui.template_constants import (
     delete_template_config,
 )
 from utils.file_delivery import deliver_file
+from nicegui_ui.upload_utils import read_upload
 
 
 _SYNC_KIND_LABELS = {
@@ -70,6 +71,13 @@ def _summarize_sync_payload(table_name: str | None, payload_text: str | None) ->
 def _friendly_sync_reason(error_text: str | None) -> str:
     """Explain a server sync error in plain words (Arabic / English)."""
     err = str(error_text or "")
+    if "Conflict:" in err or "changed on the server" in err:
+        return ("تعارض: تم تعديل السجل على السيرفر بعد نسخة هذا الجهاز / Conflict: the record was changed on the server "
+                "after this laptop's copy — Discard keeps the server version, Override saves this laptop's version")
+    if "Possible duplicate" in err:
+        dup = err.split("Possible duplicate:", 1)[-1].strip()
+        return (f"طالب مكرر محتمل: {dup} / Possible duplicate student: {dup} — "
+                "Discard if it is the same person, Override to keep it as a new student")
     if "1452" in err:
         return "السجل المرتبط (مثل الفصل الدراسي) غير موجود في قاعدة البيانات الرئيسية / Linked record (e.g. the semester) does not exist on the server"
     if "Parent record was not synced" in err:
@@ -301,13 +309,13 @@ class SettingsScreen:
                                     ui.icon("account_balance", size="md").classes("app-text-muted opacity-40")
                                     ui.label("لا يوجد شعار محدد").classes("text-[11px] app-text-muted")
 
-                        def _handle_univ_logo_upload(e):
+                        async def _handle_univ_logo_upload(e):
                             try:
-                                content = e.content.read() if hasattr(e, "content") else None
+                                up_name, content = await read_upload(e)
                                 if not content:
                                     ui.notify("تعذر قراءة الصورة!", type="warning")
                                     return
-                                ext = os.path.splitext(getattr(e, "name", "logo.png"))[1].lower()
+                                ext = os.path.splitext(up_name or "logo.png")[1].lower()
                                 if ext not in [".png", ".jpg", ".jpeg", ".webp", ".svg"]:
                                     ext = ".png"
                                 os.makedirs("assets", exist_ok=True)
@@ -354,13 +362,13 @@ class SettingsScreen:
                                     ui.icon("school", size="md").classes("app-text-muted opacity-40")
                                     ui.label("لا يوجد شعار محدد").classes("text-[11px] app-text-muted")
 
-                        def _handle_college_logo_upload(e):
+                        async def _handle_college_logo_upload(e):
                             try:
-                                content = e.content.read() if hasattr(e, "content") else None
+                                up_name, content = await read_upload(e)
                                 if not content:
                                     ui.notify("تعذر قراءة الصورة!", type="warning")
                                     return
-                                ext = os.path.splitext(getattr(e, "name", "logo.png"))[1].lower()
+                                ext = os.path.splitext(up_name or "logo.png")[1].lower()
                                 if ext not in [".png", ".jpg", ".jpeg", ".webp", ".svg"]:
                                     ext = ".png"
                                 os.makedirs("assets", exist_ok=True)
@@ -2181,6 +2189,27 @@ class SettingsScreen:
                 self._refresh_sync_status()
                 ui.notify(f"سيعاد إرسال {count} سجل في المزامنة القادمة / {count} record(s) will be sent at the next sync.", type="info")
 
+            def _override_all():
+                with ui.dialog() as confirm, UI.card():
+                    ui.label(
+                        "إعادة الإرسال مع تجاوز فحص التعارض والتكرار؟ سيتم حفظ نسخة هذا الجهاز فوق تعديلات السيرفر، "
+                        "وحفظ الطلاب المكررين المحتملين كطلاب جدد. / Send again WITHOUT the conflict and duplicate "
+                        "checks? This laptop's version overwrites changes made on the server, and possible duplicate "
+                        "students are saved as new students."
+                    ).classes("text-sm font-bold")
+
+                    def _do_override():
+                        count = retry_failed_queue_rows(override=True)
+                        confirm.close()
+                        dialog.close()
+                        self._refresh_sync_status()
+                        ui.notify(f"سيعاد إرسال {count} سجل مع التجاوز / {count} record(s) will be sent with override.", type="info")
+
+                    with ui.row().classes("w-full justify-end gap-2 pt-2"):
+                        ui.button("إلغاء / Cancel", on_click=confirm.close).props("flat")
+                        ui.button("تجاوز وإرسال / Override", icon="published_with_changes", on_click=_do_override).props("color=warning")
+                confirm.open()
+
             def _discard_all():
                 with ui.dialog() as confirm, UI.card():
                     ui.label(
@@ -2202,6 +2231,7 @@ class SettingsScreen:
             with ui.row().classes("w-full justify-end gap-2 pt-2"):
                 ui.button("إغلاق / Close", on_click=dialog.close).props("flat")
                 ui.button("إعادة المحاولة / Retry All", icon="replay", on_click=_retry_all).props("color=primary")
+                ui.button("إعادة مع التجاوز / Override", icon="published_with_changes", on_click=_override_all).props("color=warning")
                 ui.button("حذف الكل / Discard All", icon="delete_forever", on_click=_discard_all).props("color=negative")
         dialog.open()
 
@@ -2212,7 +2242,7 @@ class SettingsScreen:
             ui.notify("لا يوجد اتصال بالسيرفر حالياً لتنزيل الجداول.", type="warning")
             return
         try:
-            pull_mysql_to_sqlite()
+            pull_mysql_to_sqlite(force_full=True)
             ui.notify("تم تحديث وتنزيل نسخ الجداول الحديثة بنجاح! / Fresh table replicas downloaded!", type="positive")
         except Exception as exc:
             ui.notify(f"خطأ أثناء تنزيل الجداول: {exc}", type="negative")
@@ -2510,14 +2540,13 @@ class SettingsScreen:
                 # Selected file status indicator
                 file_status_label = ui.label("لم يتم اختيار ملف Word بعد").classes("text-xs app-text-muted italic")
 
-                def _handle_upload(e):
+                async def _handle_upload(e):
                     try:
-                        fname = getattr(e, "name", None) or getattr(e, "filename", "")
+                        fname, content = await read_upload(e)
                         if not fname.lower().endswith(".docx"):
                             ui.notify("الملف غير مدعوم! يجب أن يكون ملف Word بتنسيق docx.", type="warning")
                             return
 
-                        content = e.content.read() if hasattr(e, "content") else None
                         if not content:
                             ui.notify("تعذر قراءة محتوى الملف المرفوع", type="warning")
                             return

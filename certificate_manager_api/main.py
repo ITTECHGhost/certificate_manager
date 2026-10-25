@@ -47,6 +47,7 @@ import json as _json
 import secrets as _secrets
 from fastapi import Request
 from fastapi.responses import JSONResponse
+from password_hashing import hash_password, verify_password, needs_upgrade, prepare_for_storage, is_hashed
 
 APP_KEYS_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "app_keys.json")
 # Reachable without a key: the connectivity check only
@@ -425,6 +426,7 @@ REPLICA_TABLES = [
     "student_supervisors", "thesis_records", "issued_certificates",
     "study_routines", "study_routine_period", "study_routine_courses",
     "permissions", "personnel_permissions",
+    "roles", "user_roles",
 ]
 
 
@@ -446,20 +448,77 @@ def replica_tables():
     return REPLICA_TABLES
 
 
+_UPDATED_AT_CACHE: Dict[str, tuple] = {}
+
+
+def table_has_updated_at(conn, table_name: str) -> bool:
+    """True when the table has the updated_at column (added by sql/fixes/2026-10-24_03). Cached 5 min."""
+    import time as _time
+    hit = _UPDATED_AT_CACHE.get(table_name)
+    if hit and _time.time() - hit[1] < 300:
+        return hit[0]
+    cur = conn.cursor(buffered=True)
+    try:
+        cur.execute(
+            "SELECT COUNT(*) FROM information_schema.COLUMNS "
+            "WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = %s AND COLUMN_NAME = 'updated_at'",
+            (table_name,)
+        )
+        value = bool(cur.fetchone()[0])
+    except Exception:
+        value = False
+    finally:
+        cur.close()
+    _UPDATED_AT_CACHE[table_name] = (value, _time.time())
+    return value
+
+
 @app.get("/replica/{table_name}")
-def replica_table(table_name: str, conn=Depends(get_db)):
-    """Return every row of one replicated table for the client's offline SQLite copy."""
+def replica_table(table_name: str, since: Optional[str] = Query(None), conn=Depends(get_db)):
+    """
+    Rows of one replicated table for the client's offline SQLite copy.
+
+    Without `since` (or if the table has no updated_at column yet): every row ("mode": "full").
+    With `since`: only rows changed at or after that time, plus the ids deleted since then
+    ("mode": "delta"). `next_since` is what the client sends next time; it lies 60 s in the
+    past so rows committed by transactions that were still running are not missed.
+    """
     if table_name not in REPLICA_TABLES:
         raise HTTPException(status_code=403, detail=f"Table not allowed: {table_name}")
-    cur = conn.cursor(dictionary=True)
+    # buffered: several queries run one after another on this connection
+    cur = conn.cursor(dictionary=True, buffered=True)
     try:
-        cur.execute(f"SELECT * FROM `{table_name}`")
-        rows = cur.fetchall()
-        columns = list(cur.column_names) if cur.column_names else []
+        has_updated_at = table_has_updated_at(conn, table_name)
+        cur.execute("SELECT NOW(3) - INTERVAL 60 SECOND AS next_since")
+        next_since = str(cur.fetchone()["next_since"]) if has_updated_at else None
+
+        if since and has_updated_at:
+            cur.execute(f"SELECT * FROM `{table_name}` WHERE updated_at >= %s", (since,))
+            rows = cur.fetchall()
+            columns = list(cur.column_names) if cur.column_names else []
+            deleted_ids: List[int] = []
+            try:
+                cur.execute(
+                    "SELECT row_id FROM sync_deletions WHERE table_name = %s AND deleted_at >= %s",
+                    (table_name, since)
+                )
+                deleted_ids = [int(r["row_id"]) for r in cur.fetchall()]
+            except Exception:
+                pass  # sync_deletions not created yet
+            mode = "delta"
+        else:
+            cur.execute(f"SELECT * FROM `{table_name}`")
+            rows = cur.fetchall()
+            columns = list(cur.column_names) if cur.column_names else []
+            deleted_ids = []
+            mode = "full"
         return {
             "table": table_name,
+            "mode": mode,
             "columns": columns,
             "rows": [[_replica_cast(r.get(c)) for c in columns] for r in rows],
+            "deleted_ids": deleted_ids,
+            "next_since": next_since,
         }
     except Exception as exc:
         raise HTTPException(status_code=500, detail=str(exc))
@@ -472,7 +531,7 @@ def table_count(table_name: str, conn=Depends(get_db)):
     """Count rows in one of the dashboard tables."""
     if table_name not in ("students", "departments", "courses", "personnel", "graduation_orders", "study_systems"):
         raise HTTPException(status_code=403, detail=f"Table not allowed: {table_name}")
-    cur = conn.cursor()
+    cur = conn.cursor(buffered=True)
     try:
         cur.execute(f"SELECT COUNT(*) FROM `{table_name}`")
         row = cur.fetchone()
@@ -489,7 +548,7 @@ def _require_admin(conn, personnel_id: Optional[int]) -> None:
     """Refuse the request unless personnel_id belongs to an active admin account."""
     if not personnel_id:
         raise HTTPException(status_code=403, detail="Admin account required")
-    cur = conn.cursor(dictionary=True)
+    cur = conn.cursor(dictionary=True, buffered=True)
     try:
         cur.execute("SELECT personnel_role, is_active FROM personnel WHERE id = %s", (personnel_id,))
         row = cur.fetchone()
@@ -576,6 +635,16 @@ def sync_offline_queue(payload: SyncPayload, conn=Depends(get_db)):
     id_map: Dict[int, int] = {}
     failed: List[Dict[str, Any]] = []
     for action in payload.actions:
+        if action.table_name == "personnel_password":
+            try:
+                _apply_offline_password_change(conn, action)
+                id_map[action.temp_id] = action.temp_id
+            except HTTPException as exc:
+                failed.append({
+                    "queue_id": action.id, "table_name": action.table_name, "temp_id": action.temp_id,
+                    "error": str(exc.detail),
+                })
+            continue
         if _has_unresolved_temp_ref(action.payload, id_map):
             failed.append({
                 "queue_id": action.id, "table_name": action.table_name, "temp_id": action.temp_id,
@@ -594,6 +663,103 @@ def sync_offline_queue(payload: SyncPayload, conn=Depends(get_db)):
     return {"id_map": id_map, "failed": failed}
 
 
+def _normalize_ts(value) -> str:
+    """Compare timestamps written as '2026-10-24 10:00:00.123000' or '2026-10-24T10:00:00.123'."""
+    text = str(value or "").replace("T", " ").strip()
+    if "." in text:
+        head, frac = text.split(".", 1)
+        text = f"{head}.{frac[:3].ljust(3, '0')}"
+    else:
+        text = f"{text}.000" if text else ""
+    return text
+
+
+def _check_offline_edit_conflict(conn, table_name: str, record_id: int, payload: dict) -> None:
+    """
+    An offline edit carries "_base_updated_at": the version of the record the laptop had.
+    If the server's record changed since then (someone else edited it), refuse the edit
+    (409) instead of silently overwriting the newer data. "_override": true skips the check.
+    """
+    base = payload.get("_base_updated_at")
+    if not base or payload.get("_override") or not table_has_updated_at(conn, table_name):
+        return
+    cur = conn.cursor(buffered=True)
+    try:
+        cur.execute(f"SELECT updated_at FROM `{table_name}` WHERE id = %s", (record_id,))
+        row = cur.fetchone()
+    finally:
+        cur.close()
+    if row and _normalize_ts(row[0]) != _normalize_ts(base):
+        raise HTTPException(
+            status_code=409,
+            detail=f"Conflict: this {table_name} record was changed on the server after this laptop's copy "
+                   f"(server {row[0]}, laptop {base}); the offline edit was not applied",
+        )
+
+
+def _check_duplicate_student(conn, payload: dict) -> None:
+    """
+    A student created offline may already exist (added on another laptop or on the server).
+    Same national ID, or same Arabic name in the same department -> refuse (409) unless
+    "_allow_duplicate" is set (the user chose "keep as new student").
+    """
+    if payload.get("_allow_duplicate") or payload.get("_override"):
+        return
+    national_id = str(payload.get("national_id") or "").strip()
+    name_ar = " ".join(str(payload.get("full_name_ar") or "").split())
+    cur = conn.cursor(dictionary=True, buffered=True)
+    try:
+        row = None
+        if national_id:
+            cur.execute("SELECT id, full_name_ar FROM students WHERE national_id = %s LIMIT 1", (national_id,))
+            row = cur.fetchone()
+        if not row and name_ar and payload.get("department_id"):
+            cur.execute(
+                "SELECT id, full_name_ar FROM students WHERE TRIM(full_name_ar) = %s AND department_id = %s LIMIT 1",
+                (name_ar, payload.get("department_id"))
+            )
+            row = cur.fetchone()
+    finally:
+        cur.close()
+    if row:
+        raise HTTPException(
+            status_code=409,
+            detail=f"Possible duplicate: student #{row['id']} ({decode_db_value(row['full_name_ar'])}) already exists",
+        )
+
+
+def _apply_offline_password_change(conn, action: "SyncAction") -> None:
+    """
+    Password set on a laptop while offline (admin temporary reset, or the user's own change).
+    payload: {"password_hash": <hash made on the laptop>, "base_hash": <hash the laptop had>, "must_change": bool}
+    temp_id is the personnel id. If the server's password changed in the meantime, the newer
+    server password wins and this change is reported as failed (409).
+    """
+    data = action.payload or {}
+    new_hash = str(data.get("password_hash") or "")
+    if not is_hashed(new_hash):
+        raise HTTPException(status_code=400, detail="Offline password change must carry a hashed password")
+    cur = conn.cursor(dictionary=True, buffered=True)
+    try:
+        cur.execute("SELECT password_hash FROM personnel WHERE id = %s", (action.temp_id,))
+        row = cur.fetchone()
+        if not row:
+            raise HTTPException(status_code=404, detail=f"Personnel {action.temp_id} not found")
+        if "base_hash" in data and (row.get("password_hash") or "") != (data.get("base_hash") or ""):
+            raise HTTPException(status_code=409, detail="Password was changed on the server meanwhile; the offline change was not applied")
+        cur.execute("UPDATE personnel SET password_hash = %s WHERE id = %s", (new_hash, action.temp_id))
+        _set_must_change_password(conn, action.temp_id, bool(data.get("must_change")))
+        conn.commit()
+    except HTTPException:
+        conn.rollback()
+        raise
+    except Exception as exc:
+        conn.rollback()
+        raise HTTPException(status_code=500, detail=f"Database synchronization failed: {exc}")
+    finally:
+        cur.close()
+
+
 def _apply_sync_actions(payload: SyncPayload, conn, id_map: dict) -> dict:
     """Apply offline actions to MySQL in a single transaction (all or nothing), filling id_map."""
     try:
@@ -606,10 +772,13 @@ def _apply_sync_actions(payload: SyncPayload, conn, id_map: dict) -> dict:
 
             resolved_payload = resolve_payload_fks(action.payload, id_map)
             resolved_payload.pop("id", None)
+            if tbl == "academic_periods" and "result_status" in resolved_payload:
+                resolved_payload["result_status"] = result_status_code(resolved_payload["result_status"])
             meta = TABLE_REGISTRY[tbl]
             cur = conn.cursor(dictionary=True)
             try:
                 if action.operation == "UPDATE" and "update_sp_name" in meta:
+                    _check_offline_edit_conflict(conn, tbl, temp_id, resolved_payload)
                     sp_name = meta["update_sp_name"]
                     # For UpdateStudent, student_id is the first arg, then the rest
                     sp_args = [temp_id] + [resolved_payload.get(k) for k in meta["sp_args"]]
@@ -644,6 +813,8 @@ def _apply_sync_actions(payload: SyncPayload, conn, id_map: dict) -> dict:
                             raise
                     continue
 
+                if tbl == "students":
+                    _check_duplicate_student(conn, resolved_payload)
                 if meta["sp_name"]:
                     sp_args = tuple(resolved_payload.get(k) for k in meta["sp_args"])
                     logger.info(f"Calling SP {meta['sp_name']} with args {sp_args}")
@@ -1663,10 +1834,11 @@ class PersonnelPayload(BaseModel):
     responsibility_en: Optional[str] = None
     display_order: Optional[int] = 0
     username: str
-    password_hash: Optional[str] = None
+    password_hash: Optional[str] = None   # the typed password; stored hashed
     personnel_role: Optional[str] = "user"
     university_settings_id: Optional[int] = 1
     is_active: Optional[int] = 1
+    must_change_password: Optional[bool] = None
 
 
 class PersonnelResponse(BaseModel):
@@ -1732,10 +1904,68 @@ def get_personnel_by_id(person_id: int, conn=Depends(get_db)):
         raise HTTPException(status_code=500, detail=str(exc))
 
 
+def _must_change_password(conn, person_id: int) -> bool:
+    """personnel.must_change_password (added by the 2026-10-24_02 SQL); False if the column is missing."""
+    cur = conn.cursor(buffered=True)
+    try:
+        cur.execute("SELECT must_change_password FROM personnel WHERE id = %s", (person_id,))
+        row = cur.fetchone()
+        return bool(row and row[0])
+    except Exception:
+        return False
+    finally:
+        cur.close()
+
+
+def _set_must_change_password(conn, person_id: int, value: bool) -> None:
+    cur = conn.cursor()
+    try:
+        cur.execute("UPDATE personnel SET must_change_password = %s WHERE id = %s", (1 if value else 0, person_id))
+    except Exception:
+        pass  # column not created yet: nothing to record
+    finally:
+        cur.close()
+
+
+def _authenticate_user(conn, username: str, password: str) -> Optional[dict]:
+    """
+    Check a login. Passwords are stored hashed (password_hashing.py); a legacy
+    plain-text password is still accepted once and replaced by its hash.
+    Returns the same fields AuthenticateUser returned, plus must_change_password.
+    """
+    cur = conn.cursor(dictionary=True, buffered=True)
+    try:
+        cur.execute(
+            "SELECT id, name_ar, name_en, personnel_role, password_hash FROM personnel "
+            "WHERE username = %s AND is_active = 1 LIMIT 1",
+            (username,)
+        )
+        row = cur.fetchone()
+    finally:
+        cur.close()
+    if not row or not verify_password(password, row.get("password_hash")):
+        return None
+    if needs_upgrade(row.get("password_hash")):
+        upd = conn.cursor()
+        try:
+            upd.execute("UPDATE personnel SET password_hash = %s WHERE id = %s", (hash_password(password), row["id"]))
+            conn.commit()
+            logger.info(f"Password of personnel {row['id']} upgraded to a hash")
+        except Exception as exc:
+            conn.rollback()
+            logger.warning(f"Could not upgrade password hash for personnel {row['id']}: {exc}")
+        finally:
+            upd.close()
+    user = decode_db_value({k: row[k] for k in ("id", "name_ar", "name_en", "personnel_role")})
+    user["must_change_password"] = _must_change_password(conn, row["id"])
+    return user
+
+
 @app.post("/personnel/login")
 def authenticate_personnel(payload: LoginPayload, conn=Depends(get_db)):
+    # payload.password_hash carries the password the user typed (historic field name)
     try:
-        row = execute_sp_fetchone(conn, "AuthenticateUser", (payload.username, payload.password_hash))
+        row = _authenticate_user(conn, payload.username, payload.password_hash)
         if not row:
             raise HTTPException(status_code=401, detail="Invalid username or password")
         return row
@@ -1748,7 +1978,7 @@ def authenticate_personnel(payload: LoginPayload, conn=Depends(get_db)):
 @app.post("/api/login")
 def api_login(req: LoginRequest, conn=Depends(get_db)):
     try:
-        row = execute_sp_fetchone(conn, "AuthenticateUser", (req.username, req.password))
+        row = _authenticate_user(conn, req.username, req.password)
         if not row:
             raise HTTPException(status_code=401, detail="Invalid username or password")
         return {"success": True, "user": row}
@@ -1756,6 +1986,40 @@ def api_login(req: LoginRequest, conn=Depends(get_db)):
         raise
     except Exception as exc:
         raise HTTPException(status_code=500, detail=str(exc))
+
+
+class PasswordChangePayload(BaseModel):
+    password: str
+    must_change: Optional[bool] = False
+    # Offline resets send the hash they started from; if the server's hash changed
+    # meanwhile, the newer server password wins and this request is refused (409).
+    base_hash: Optional[str] = None
+
+
+@app.put("/personnel/{person_id}/password")
+def change_personnel_password(person_id: int, payload: PasswordChangePayload, conn=Depends(get_db)):
+    cur = conn.cursor(dictionary=True, buffered=True)
+    try:
+        cur.execute("SELECT password_hash FROM personnel WHERE id = %s", (person_id,))
+        row = cur.fetchone()
+        if not row:
+            raise HTTPException(status_code=404, detail=f"Personnel {person_id} not found")
+        if payload.base_hash is not None and (row.get("password_hash") or "") != payload.base_hash:
+            raise HTTPException(status_code=409, detail="Password was changed on the server meanwhile; this change was not applied")
+        stored = prepare_for_storage(payload.password)
+        cur.execute("UPDATE personnel SET password_hash = %s WHERE id = %s", (stored, person_id))
+        _set_must_change_password(conn, person_id, bool(payload.must_change))
+        conn.commit()
+        # The laptop keeps this exact hash for offline logins and for later offline resets
+        return {"status": "success", "password_hash": stored}
+    except HTTPException:
+        conn.rollback()
+        raise
+    except Exception as exc:
+        conn.rollback()
+        raise HTTPException(status_code=500, detail=str(exc))
+    finally:
+        cur.close()
 
 
 @app.post("/api/logout")
@@ -1776,7 +2040,7 @@ def insert_personnel(payload: PersonnelPayload, conn=Depends(get_db)):
             payload.responsibility_en or "",
             payload.display_order if payload.display_order is not None else 0,
             payload.username,
-            payload.password_hash or "",
+            prepare_for_storage(payload.password_hash),
             payload.personnel_role or "user",
             payload.university_settings_id,
             payload.is_active if payload.is_active is not None else 1
@@ -1799,6 +2063,8 @@ def insert_personnel(payload: PersonnelPayload, conn=Depends(get_db)):
         except Exception:
             pass
 
+        if inserted_id and payload.must_change_password is not None:
+            _set_must_change_password(conn, int(inserted_id), bool(payload.must_change_password))
         conn.commit()
         return {"new_id": inserted_id, "inserted_id": inserted_id, "status": "success"}
     except Exception as exc:
@@ -1833,12 +2099,14 @@ def update_personnel(person_id: int, payload: PersonnelPayload, conn=Depends(get
             pass
 
         if payload.password_hash:
-            cur.callproc("UpdatePersonnelPassword", (person_id, payload.password_hash))
+            cur.callproc("UpdatePersonnelPassword", (person_id, prepare_for_storage(payload.password_hash)))
             try:
                 while cur.nextset():
                     pass
             except Exception:
                 pass
+            if payload.must_change_password is not None:
+                _set_must_change_password(conn, person_id, bool(payload.must_change_password))
 
         conn.commit()
         return {"status": "success"}
@@ -1970,33 +2238,117 @@ class RolePayload(BaseModel):
     department_scope: Optional[str] = "all"
     is_system: Optional[int] = 0
 
+# Roles live in MySQL tables `roles` and `user_roles`
+# (created by sql/fixes/2026-10-24_02_accounts_roles_passwords.sql).
+# allowed_pages / allowed_actions are stored as JSON text, as in the client's SQLite copy.
+
+def _role_row_out(row: dict) -> dict:
+    item = decode_db_value(dict(row))
+    for key in ("allowed_pages", "allowed_actions"):
+        try:
+            item[key] = _json.loads(item.get(key) or "[]")
+        except Exception:
+            item[key] = []
+    return item
+
+
 @app.get("/roles")
-def get_all_roles():
+def get_all_roles(conn=Depends(get_db)):
+    cur = conn.cursor(dictionary=True)
     try:
-        from data.repositories import RoleRepository
-        return RoleRepository().get_all()
+        cur.execute("SELECT * FROM roles ORDER BY is_system DESC, id ASC")
+        return [_role_row_out(r) for r in cur.fetchall()]
     except Exception as exc:
         raise HTTPException(status_code=500, detail=str(exc))
+    finally:
+        cur.close()
+
 
 @app.post("/roles")
-def save_role_endpoint(payload: RolePayload):
+def save_role_endpoint(payload: RolePayload, conn=Depends(get_db)):
+    role_id = (payload.id or "").strip()
+    if not role_id:
+        raise HTTPException(status_code=400, detail="Role id is required")
+    cur = conn.cursor()
     try:
-        from data.repositories import RoleRepository
-        saved = RoleRepository().save_role(payload.dict())
-        return saved
+        cur.execute("""
+            INSERT INTO roles (id, name_ar, name_en, description_ar, base_role,
+                               allowed_pages, allowed_actions, department_scope, is_system)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+            ON DUPLICATE KEY UPDATE
+                name_ar = VALUES(name_ar), name_en = VALUES(name_en),
+                description_ar = VALUES(description_ar), base_role = VALUES(base_role),
+                allowed_pages = VALUES(allowed_pages), allowed_actions = VALUES(allowed_actions),
+                department_scope = VALUES(department_scope), is_system = VALUES(is_system)
+        """, (
+            role_id, payload.name_ar, payload.name_en, payload.description_ar or "",
+            payload.base_role or "user",
+            _json.dumps(payload.allowed_pages or [], ensure_ascii=False),
+            _json.dumps(payload.allowed_actions or [], ensure_ascii=False),
+            str(payload.department_scope or "all"), int(payload.is_system or 0),
+        ))
+        conn.commit()
+        return {"status": "success", "id": role_id}
     except Exception as exc:
+        conn.rollback()
         raise HTTPException(status_code=500, detail=str(exc))
+    finally:
+        cur.close()
+
 
 @app.delete("/roles/{role_id}")
-def delete_role_endpoint(role_id: str):
+def delete_role_endpoint(role_id: str, conn=Depends(get_db)):
+    cur = conn.cursor(dictionary=True, buffered=True)
     try:
-        from data.repositories import RoleRepository
-        success = RoleRepository().delete_role(role_id)
-        return {"status": "success" if success else "not_found"}
-    except ValueError as ve:
-        raise HTTPException(status_code=400, detail=str(ve))
+        cur.execute("SELECT is_system FROM roles WHERE id = %s", (role_id,))
+        row = cur.fetchone()
+        if not row:
+            return {"status": "not_found"}
+        if int(row.get("is_system") or 0):
+            raise HTTPException(status_code=400, detail="Cannot delete built-in system roles")
+        cur.execute("DELETE FROM roles WHERE id = %s", (role_id,))
+        conn.commit()
+        return {"status": "success"}
+    except HTTPException:
+        raise
+    except Exception as exc:
+        conn.rollback()
+        raise HTTPException(status_code=500, detail=str(exc))
+    finally:
+        cur.close()
+
+
+class UserRolePayload(BaseModel):
+    role_id: str
+
+
+@app.get("/user-roles")
+def get_user_roles(conn=Depends(get_db)):
+    cur = conn.cursor(dictionary=True)
+    try:
+        cur.execute("SELECT personnel_id, role_id FROM user_roles")
+        return decode_db_value(cur.fetchall())
     except Exception as exc:
         raise HTTPException(status_code=500, detail=str(exc))
+    finally:
+        cur.close()
+
+
+@app.put("/user-roles/{personnel_id}")
+def set_user_role(personnel_id: int, payload: UserRolePayload, conn=Depends(get_db)):
+    cur = conn.cursor()
+    try:
+        cur.execute("""
+            INSERT INTO user_roles (personnel_id, role_id) VALUES (%s, %s)
+            ON DUPLICATE KEY UPDATE role_id = VALUES(role_id)
+        """, (personnel_id, payload.role_id.strip()))
+        conn.commit()
+        return {"status": "success"}
+    except Exception as exc:
+        conn.rollback()
+        raise HTTPException(status_code=500, detail=str(exc))
+    finally:
+        cur.close()
 
 
 
@@ -2027,6 +2379,14 @@ STATUS_STR_TO_INT = {
 }
 
 
+def result_status_code(value) -> int:
+    """academic_periods.result_status is an INT column (1=PASSED ... 6=DISMISSED).
+    Writing a status key such as 'PASSED' into it stores 0, so convert every write."""
+    if value is None or value == "":
+        return 1
+    return STATUS_STR_TO_INT.get(value, STATUS_STR_TO_INT.get(str(value).strip().upper(), 1))
+
+
 @app.get("/academic-periods/by-student/{student_id}")
 def get_academic_periods_by_student(student_id: int, conn=Depends(get_db)):
     try:
@@ -2038,7 +2398,7 @@ def get_academic_periods_by_student(student_id: int, conn=Depends(get_db)):
 @app.post("/academic-periods")
 def insert_academic_period(payload: AcademicPeriodPayload, conn=Depends(get_db)):
     try:
-        status_val = payload.result_status or "PASSED"
+        status_val = result_status_code(payload.result_status)
         res = execute_sp_fetchone(
             conn, "InsertAcademicPeriod",
             (payload.student_id, payload.academic_year, payload.stage_number, payload.semester_num, status_val)
@@ -2057,7 +2417,7 @@ def update_academic_period_status(period_id: int, payload: AcademicPeriodStatusP
     cur = conn.cursor()
     try:
         raw_st = payload.result_status
-        code_val = STATUS_STR_TO_INT.get(raw_st, STATUS_STR_TO_INT.get(str(raw_st).strip().upper(), 1))
+        code_val = result_status_code(raw_st)
         cur.callproc("UpdateAcademicPeriodStatus", (period_id, str(code_val)))
         try:
             while cur.nextset():
@@ -3152,7 +3512,7 @@ def get_all_issued_certificates(conn=Depends(get_db)):
 @app.get("/api/issued-certificates/latest-number")
 @app.get("/issued-certificates/latest-number")
 def get_latest_certificate_number(conn=Depends(get_db)):
-    cur = conn.cursor(dictionary=True)
+    cur = conn.cursor(dictionary=True, buffered=True)
     try:
         cur.execute(
             "SELECT certificate_number FROM issued_certificates "
@@ -3160,10 +3520,82 @@ def get_latest_certificate_number(conn=Depends(get_db)):
             "ORDER BY id DESC LIMIT 1"
         )
         row = cur.fetchone()
-        return {"latest_number": row["certificate_number"] if row else None}
+        latest = row["certificate_number"] if row else None
+        # Numbers reserved by laptops for offline use must never be handed out online:
+        # report the end of the highest reserved block if it is above the latest issued number
+        parts = _cert_number_parts(latest)
+        if parts:
+            block_end = _max_reserved_block_end(conn, parts[1])
+            if block_end and block_end >= parts[0]:
+                latest = f"{block_end}/{parts[1]}"
+        return {"latest_number": latest}
     except Exception as exc:
         raise HTTPException(status_code=500, detail=str(exc))
     finally:
+        cur.close()
+
+
+def _cert_number_parts(number) -> Optional[tuple]:
+    """'893/26' -> (893, '26'); anything else -> None."""
+    import re as _re
+    m = _re.match(r"^\s*(\d+)\s*/\s*(\S+)\s*$", str(number or ""))
+    return (int(m.group(1)), m.group(2)) if m else None
+
+
+def _max_reserved_block_end(conn, year_suffix: str) -> Optional[int]:
+    cur = conn.cursor(buffered=True)
+    try:
+        cur.execute("SELECT MAX(end_no) FROM certificate_number_blocks WHERE year_suffix = %s", (year_suffix,))
+        row = cur.fetchone()
+        return int(row[0]) if row and row[0] is not None else None
+    except Exception:
+        return None  # table not created yet
+    finally:
+        cur.close()
+
+
+class CertificateBlockRequest(BaseModel):
+    device_id: str
+    count: Optional[int] = 20
+    year_suffix: Optional[str] = None
+
+
+@app.post("/certificate-numbers/reserve")
+def reserve_certificate_numbers(payload: CertificateBlockRequest, conn=Depends(get_db)):
+    """
+    Reserve a block of certificate numbers for one laptop to use while offline, so two
+    offline laptops can never print the same number. The block starts above every number
+    already issued or reserved for that year.
+    """
+    suffix = (payload.year_suffix or datetime.now().strftime("%y")).strip()
+    count = max(1, min(int(payload.count or 20), 200))
+    cur = conn.cursor(buffered=True)
+    try:
+        cur.execute("SELECT GET_LOCK('certificate_number_blocks', 10)")
+        cur.fetchone()
+        cur.execute(
+            "SELECT certificate_number FROM issued_certificates WHERE certificate_number LIKE %s",
+            (f"%/{suffix}",)
+        )
+        issued_max = max((p[0] for p in (_cert_number_parts(r[0]) for r in cur.fetchall()) if p and p[1] == suffix),
+                         default=0)
+        start = max(issued_max, _max_reserved_block_end(conn, suffix) or 0) + 1
+        end = start + count - 1
+        cur.execute(
+            "INSERT INTO certificate_number_blocks (device_id, year_suffix, start_no, end_no) VALUES (%s, %s, %s, %s)",
+            (payload.device_id[:64], suffix, start, end)
+        )
+        conn.commit()
+        return {"year_suffix": suffix, "start_no": start, "end_no": end}
+    except Exception as exc:
+        conn.rollback()
+        raise HTTPException(status_code=500, detail=str(exc))
+    finally:
+        try:
+            cur.execute("SELECT RELEASE_LOCK('certificate_number_blocks')")
+            cur.fetchone()
+        except Exception:
+            pass
         cur.close()
 
 
@@ -3407,7 +3839,7 @@ def process_offline_sync_batch(payload: dict, conn=Depends(get_db)):
                     yr = data.get("academic_year", "")
                     stg = int(data.get("stage_number") or 1)
                     sem = int(data.get("semester_num") or 1)
-                    raw_st = data.get("result_status", "PASSED")
+                    raw_st = result_status_code(data.get("result_status", "PASSED"))
 
                     try:
                         cur.callproc("InsertAcademicPeriod", (st_id, yr, stg, sem, str(raw_st)))
@@ -3562,7 +3994,7 @@ def process_offline_sync_batch(payload: dict, conn=Depends(get_db)):
                         target_id = id_map[target_id]
                     if target_id and target_id > 0:
                         if "result_status" in data:
-                            raw_st = str(data.get("result_status"))
+                            raw_st = str(result_status_code(data.get("result_status")))
                             cur.callproc("UpdateAcademicPeriodStatus", (target_id, raw_st))
                             try:
                                 while cur.nextset(): pass

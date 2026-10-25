@@ -751,7 +751,8 @@ def get_offline_personnel_by_id(person_id: int) -> dict | None:
     return sqlite_read_one("SELECT * FROM personnel WHERE id = ?", (person_id,))
 
 def get_offline_personnel_by_username(username: str) -> dict | None:
-    return sqlite_read_one("SELECT * FROM personnel WHERE username = ?", (username,))
+    # NOCASE: same as the MySQL login, which ignores upper/lower case in usernames
+    return sqlite_read_one("SELECT * FROM personnel WHERE username = ? COLLATE NOCASE", (username,))
 
 def get_offline_courses() -> list[dict]:
     return sqlite_read_all(

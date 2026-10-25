@@ -30,6 +30,7 @@ from services.excel_import_service import (
     parse_grades_file,
 )
 from utils.file_delivery import deliver_file
+from nicegui_ui.upload_utils import read_upload
 from sync_engine import sqlite_read_one, sqlite_read_all, is_online
 
 def safe_cast(val: Any, target_type: type = int, default_val: Any = 0) -> Any:
@@ -447,10 +448,10 @@ class StudentBulkImportView:
             log.error(f"Error generating students template: {exc}")
             ui.notify(f"خطأ في توليد النموذج: {exc}", type="negative")
 
-    def _on_students_file_uploaded(self, event):
+    async def _on_students_file_uploaded(self, event):
         """Handle uploaded Students Roster Excel."""
         try:
-            content = event.content.read()
+            _name, content = await read_upload(event)
             students, errors = parse_students_file(content)
             if errors:
                 for err in errors[:3]:
@@ -565,7 +566,7 @@ class StudentBulkImportView:
             log.error(f"Error generating grades template: {exc}")
             ui.notify(f"خطأ في توليد كشف الدرجات: {exc}", type="negative")
 
-    def _on_grades_file_uploaded(self, event):
+    async def _on_grades_file_uploaded(self, event):
         """Handle uploaded Grades Matrix Excel."""
         if not self.parsed_students:
             ui.notify("يرجى رفع ملف بيانات الطلاب أولاً (الخطوة 2) قبل رفع ملف الدرجات.", type="warning")
@@ -576,7 +577,7 @@ class StudentBulkImportView:
             return
 
         try:
-            content = event.content.read()
+            _name, content = await read_upload(event)
             grades, errors = parse_grades_file(content, self.courses_for_stage)
             if errors:
                 for err in errors[:3]:

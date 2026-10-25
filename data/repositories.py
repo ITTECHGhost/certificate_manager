@@ -5,9 +5,13 @@
 import os
 import json
 import hashlib
+import functools
 import logging
 import requests
 import api_client
+from utils.password_hashing import (
+    verify_password, hash_password, is_disabled as is_password_disabled,
+)
 from datetime import datetime
 from typing import Any, List, Dict, Optional, Union, cast
 from api_config import API_URL, get_api_url
@@ -15,6 +19,7 @@ from sync_engine import (
     is_online, log_offline_insert, log_offline_update,
     cache_read_result, get_cached_read,
     pull_mysql_to_sqlite_background,
+    refresh_replica_tables,
     generate_temp_id,
     DB_PATH,
     sqlite_read_all,
@@ -97,6 +102,30 @@ def safe_cast(val: Any, target_type: type = int, default_val: Any = 0) -> Any:
         return default_val
 
 from utils.logger import log_activity, log_system
+
+
+def _local_ready(table: str) -> bool:
+    """True when this laptop's copy of a local-first table has data (it is filled at login/sync)."""
+    return sqlite_read_one(f"SELECT 1 AS present FROM {table} LIMIT 1") is not None
+
+
+def _refreshes_local_copy(*tables: str):
+    """
+    Decorator for writes to local-first tables: after the write succeeds online, re-download
+    those tables so screens (which read the local copy) show the change immediately.
+    """
+    def decorator(fn):
+        @functools.wraps(fn)
+        def wrapper(*args, **kwargs):
+            result = fn(*args, **kwargs)
+            if is_online():
+                try:
+                    refresh_replica_tables(list(tables))
+                except Exception as exc:
+                    log_system(f"Local copy refresh after {fn.__qualname__} failed: {exc}", "WARNING")
+            return result
+        return wrapper
+    return decorator
 
 
 class OfflineModeError(Exception):
@@ -330,7 +359,8 @@ class SettingsRepository(BaseRepository):
 # ---------------------------------------------------------
 class CountryRepository(BaseRepository):
     def get_all(self) -> list[dict]:
-        if not is_online():
+        # Local-first: the local copy matches the API row for row
+        if not is_online() or _local_ready("countries"):
             return get_offline_countries()
         try:
             resp = api_client.get(f"{self.api_url}/lookups/countries", timeout=5.0)
@@ -343,7 +373,8 @@ class CountryRepository(BaseRepository):
 
 class GovernorateRepository(BaseRepository):
     def get_all(self) -> list[dict]:
-        if not is_online():
+        # Local-first: the local copy matches the API row for row
+        if not is_online() or _local_ready("governorates"):
             return get_offline_governorates()
         try:
             resp = api_client.get(f"{self.api_url}/lookups/governorates", timeout=5.0)
@@ -356,7 +387,8 @@ class GovernorateRepository(BaseRepository):
 
 class DepartmentRepository(BaseRepository):
     def get_all(self) -> list[dict]:
-        if not is_online():
+        # Local-first: the local copy matches the API row for row (refreshed after every change)
+        if not is_online() or _local_ready("departments"):
             return get_offline_departments()
         try:
             resp = api_client.get(f"{self.api_url}/departments", timeout=5.0)
@@ -379,6 +411,7 @@ class DepartmentRepository(BaseRepository):
             log_system(f"API request failed: {e}", "WARNING")
             return None
 
+    @_refreshes_local_copy("departments")
     def insert(self, name_ar: str, name_en: str, uni_settings_id: int = 1, **_ignored) -> int:
         if not is_online():
             return self._call_write("InsertDepartment", (name_ar, name_en, uni_settings_id))
@@ -399,6 +432,7 @@ class DepartmentRepository(BaseRepository):
             log_system(f"API request failed: {e}", "WARNING")
             raise
 
+    @_refreshes_local_copy("departments")
     def update(self, dept_id: int, name_ar: str, name_en: str, uni_settings_id: int = 1, **_ignored) -> None:
         if not is_online():
             self._call_write("UpdateDepartment", (dept_id, name_ar, name_en, uni_settings_id))
@@ -419,6 +453,7 @@ class DepartmentRepository(BaseRepository):
             log_system(f"API request failed: {e}", "WARNING")
             raise
 
+    @_refreshes_local_copy("departments")
     def delete(self, dept_id: int) -> None:
         if not is_online():
             self._call_write("DeleteDepartment", (dept_id,))
@@ -440,7 +475,8 @@ class DepartmentRepository(BaseRepository):
 
 class StudySystemRepository(BaseRepository):
     def get_all(self) -> list[dict]:
-        if not is_online():
+        # Local-first: the local copy matches the API row for row (refreshed after every change)
+        if not is_online() or _local_ready("study_systems"):
             return get_offline_study_systems()
         try:
             resp = api_client.get(f"{self.api_url}/study-systems", timeout=5.0)
@@ -475,6 +511,7 @@ class StudySystemRepository(BaseRepository):
             log_system(f"API request failed: {e}", "WARNING")
             return None
 
+    @_refreshes_local_copy("study_systems")
     def insert(self, name_ar: str, name_en: str, calc_rule: str, period_display: str = 'year', calculation_weights: str = None, study_day_type: str = 'Morning') -> int:
         if not is_online():
             return self._call_write("InsertStudySystem", (name_ar, name_en, study_day_type, calc_rule, calculation_weights, period_display, 1))
@@ -499,6 +536,7 @@ class StudySystemRepository(BaseRepository):
             log_system(f"API request failed: {e}", "WARNING")
             raise
 
+    @_refreshes_local_copy("study_systems")
     def update(self, sys_id: int, name_ar: str, name_en: str, calc_rule: str, period_display: str = 'year', calculation_weights: str = None, study_day_type: str = 'Morning', is_active: int = 1, **_ignored) -> None:
         if not is_online():
             existing = self.get_by_id(sys_id)
@@ -529,6 +567,7 @@ class StudySystemRepository(BaseRepository):
             log_system(f"API request failed: {e}", "WARNING")
             raise
 
+    @_refreshes_local_copy("study_systems")
     def toggle(self, sys_id: int, new_status: int) -> None:
         if not is_online():
             raise OfflineModeError()
@@ -540,6 +579,7 @@ class StudySystemRepository(BaseRepository):
             log_system(f"API request failed: {e}", "WARNING")
             raise
 
+    @_refreshes_local_copy("study_systems")
     def delete(self, sys_id: int) -> None:
         if not is_online():
             self._call_write("DeleteStudySystem", (sys_id,))
@@ -600,31 +640,23 @@ class PersonnelRepository(BaseRepository):
         """Authenticate a user. Online: check MySQL via API + trigger background pull.
         Offline: check local SQLite replica and verify password."""
         def _check_offline_auth() -> dict | None:
+            # Accounts are synced to every laptop with their password HASHES, so any
+            # user can log in on any laptop while the server is offline. No built-in
+            # fallback account: an admin logs in with their own synced password.
             user = get_offline_personnel_by_username(username)
             if not user or not user.get("is_active"):
-                if username.lower() == "admin" and password_hash == "admin":
-                    return {
-                        "id": 1,
-                        "username": "admin",
-                        "name_ar": "مدير النظام",
-                        "name_en": "System Admin",
-                        "personnel_role": "admin",
-                        "is_active": 1,
-                    }
+                log_activity(f"Offline authentication failed for '{username}' (unknown or inactive account)", "WARNING")
                 return None
             stored = str(user.get("password_hash") or "").strip()
-            if not stored or stored.lower() == "disabled":
+            if is_password_disabled(stored):
                 log_activity(f"Offline authentication rejected for '{username}' (account login is disabled)", "WARNING")
                 return None
-
-            input_sha256 = hashlib.sha256(password_hash.encode("utf-8")).hexdigest()
-            if (
-                stored == password_hash or
-                stored.lower() == input_sha256.lower() or
-                (username.lower() == "admin" and password_hash == "admin")
-            ):
+            if verify_password(password_hash, stored):
                 log_activity(f"Offline authentication successful for '{username}'", "OK")
-                return dict(user)
+                result = dict(user)
+                result.pop("password_hash", None)
+                result["must_change_password"] = bool(result.get("must_change_password"))
+                return result
             log_activity(f"Offline authentication failed for '{username}' (invalid password)", "WARNING")
             return None
 
@@ -663,6 +695,8 @@ class PersonnelRepository(BaseRepository):
                 "university_settings_id": int(data.get("university_settings_id") or 1),
                 "is_active": int(data.get("is_active") if data.get("is_active") is not None else 1),
             }
+            if data.get("must_change_password") is not None:
+                payload["must_change_password"] = bool(data.get("must_change_password"))
 
             resp = api_client.post(f"{self.api_url}/personnel", json=payload, timeout=5.0)
             if resp.status_code == 200:
@@ -703,6 +737,40 @@ class PersonnelRepository(BaseRepository):
         except Exception as e:
             log_system(f"API request failed: {e}", "WARNING")
             raise
+
+    def set_password(self, person_id: int, new_password: str, must_change: bool = False) -> str:
+        """
+        Set a person's password. Returns "saved" (on the server now) or "queued".
+
+        Online: saved on the server. Offline (or server unreachable): hashed and saved on
+        this laptop, so the new password works for offline logins immediately, and queued;
+        at the next sync the server applies it unless the password was changed on the
+        server meanwhile (then the server's password wins).
+        must_change=True makes the user choose a new password at the next login.
+        """
+        from sync_engine import queue_password_change, set_local_personnel_password
+        if is_online():
+            try:
+                resp = api_client.put(
+                    f"{self.api_url}/personnel/{person_id}/password",
+                    json={"password": new_password, "must_change": bool(must_change)},
+                    timeout=15.0,
+                )
+                if resp.status_code == 200:
+                    stored = resp.json().get("password_hash")
+                    if stored:
+                        set_local_personnel_password(person_id, stored, must_change)
+                    log_activity(f"تم تغيير كلمة مرور الكادر ID: {person_id}")
+                    return "saved"
+                raise RuntimeError(f"API password change failed: {resp.text}")
+            except requests.exceptions.RequestException as e:
+                log_system(f"Server unreachable for password change, saving offline: {e}", "WARNING")
+        row = sqlite_read_one("SELECT password_hash FROM personnel WHERE id = ?", (person_id,)) or {}
+        new_hash = hash_password(new_password)
+        queue_password_change(person_id, new_hash, row.get("password_hash") or "", must_change)
+        set_local_personnel_password(person_id, new_hash, must_change)
+        log_activity(f"تم تغيير كلمة مرور الكادر ID: {person_id} على هذا الجهاز (بانتظار المزامنة)")
+        return "queued"
 
     def toggle_active(self, person_id: int, is_active: int) -> None:
         if not is_online():
@@ -1186,6 +1254,16 @@ DEFAULT_SYSTEM_ROLES = [
 ]
 
 
+# academic_periods.result_status codes (MySQL column is INT): key/text/number -> code
+_RESULT_STATUS_CODES = {
+    "PASSED": 1, "1": 1, 1: 1,
+    "FAILED_REPEAT": 2, "FAILED": 2, "2": 2, 2: 2,
+    "EXCEPTIONAL_PASS": 3, "3": 3, 3: 3,
+    "CARRIED_OVER": 4, "4": 4, 4: 4,
+    "DEFERRED": 5, "5": 5, 5: 5,
+    "DISMISSED": 6, "6": 6, 6: 6,
+}
+
 _USER_ROLE_CACHE: dict | None = None
 # Roles tables are created/seeded once per app run, not on every RoleRepository()
 _ROLES_INITIALIZED: bool = False
@@ -1323,6 +1401,30 @@ class RoleRepository(BaseRepository):
                 return r
         return None
 
+    def _server_write(self, method: str, path: str, payload: dict | None = None) -> bool:
+        """
+        Send a role change to the server so every laptop gets it at the next sync.
+        Roles can only be changed while online (two laptops editing roles offline would
+        conflict). Returns False when the server has no roles tables yet (run
+        sql/fixes/2026-10-24_02_accounts_roles_passwords.sql): the change then stays on
+        this laptop only, as before.
+        """
+        offline_msg = ("لا يمكن تعديل الأدوار والصلاحيات في وضع عدم الاتصال / "
+                       "Roles can only be changed while connected to the server.")
+        if not is_online():
+            raise OfflineModeError(offline_msg)
+        try:
+            resp = api_client.request(method, f"{self.api_url}{path}", json=payload, timeout=10.0)
+        except requests.exceptions.RequestException as exc:
+            raise OfflineModeError(offline_msg) from exc
+        if resp.status_code == 200:
+            return True
+        if resp.status_code == 400:
+            raise ValueError(resp.json().get("detail", resp.text))
+        log_system(f"Server did not store the role change ({resp.status_code}: {resp.text[:120]}); "
+                   f"saved on this laptop only", "WARNING")
+        return False
+
     def save_role(self, role_dict: dict) -> dict:
         """Insert or update a role / responsibility profile."""
         role_id = str(role_dict.get("id") or "").strip().lower()
@@ -1365,6 +1467,13 @@ class RoleRepository(BaseRepository):
             dept_scope = str(dept_scope)
 
         is_system = int(role_dict.get("is_system", 0))
+
+        # Shared roles live in MySQL; this laptop's copy is updated right after
+        self._server_write("POST", "/roles", {
+            "id": role_id, "name_ar": name_ar, "name_en": name_en, "description_ar": desc_ar,
+            "base_role": base_role, "allowed_pages": allowed_pages, "allowed_actions": allowed_actions,
+            "department_scope": dept_scope, "is_system": is_system,
+        })
 
         from sync_engine import _get_local_conn
         with _get_local_conn() as conn:
@@ -1424,6 +1533,8 @@ class RoleRepository(BaseRepository):
         if existing.get("is_system"):
             raise ValueError("لا يمكن حذف الأدوار الافتراضية للنظام / Cannot delete built-in system roles")
 
+        self._server_write("DELETE", f"/roles/{role_id}")
+
         from sync_engine import _get_local_conn
         with _get_local_conn() as conn:
             conn.execute("DELETE FROM roles WHERE id = ?", (role_id,))
@@ -1434,9 +1545,11 @@ class RoleRepository(BaseRepository):
         return True
 
     def _save_user_role_assignment(self, personnel_id: int, role_id: str) -> None:
-        """Persists personnel_id -> role_id assignment in both SQLite and data/user_roles.json, invalidating cache."""
+        """Persists personnel_id -> role_id assignment on the server, in SQLite and data/user_roles.json, invalidating cache."""
         global _USER_ROLE_CACHE
         _USER_ROLE_CACHE = None
+
+        self._server_write("PUT", f"/user-roles/{int(personnel_id)}", {"role_id": str(role_id).strip()})
 
         try:
             from sync_engine import _get_local_conn
@@ -1663,7 +1776,8 @@ class RoleRepository(BaseRepository):
 
 class CourseRepository(BaseRepository):
     def get_all(self) -> list[dict]:
-        if not is_online():
+        # Local-first: the local copy matches the API row for row (refreshed after every change)
+        if not is_online() or _local_ready("courses"):
             return get_offline_courses()
         try:
             resp = api_client.get(f"{self.api_url}/courses", timeout=5.0)
@@ -1705,6 +1819,7 @@ class CourseRepository(BaseRepository):
     def get_shared_dept_ids(self, course_id: int) -> list[int]:
         return []
 
+    @_refreshes_local_copy("courses")
     def insert(self, data: dict) -> int:
         if not is_online():
             raise OfflineModeError()
@@ -1726,6 +1841,7 @@ class CourseRepository(BaseRepository):
             log_system(f"API request failed: {e}", "WARNING")
             raise
 
+    @_refreshes_local_copy("courses")
     def update(self, course_id: int, data: dict) -> None:
         payload = dict(data)
         payload["credit_hours"] = int(payload.get("credit_hours", 3))
@@ -1764,6 +1880,7 @@ class CourseRepository(BaseRepository):
             log_system(f"API request failed: {e}", "WARNING")
             raise
 
+    @_refreshes_local_copy("courses")
     def delete(self, course_id: int) -> None:
         if not is_online():
             raise OfflineModeError()
@@ -2329,6 +2446,9 @@ class AcademicPeriodRepository(BaseRepository):
         return norm_periods
 
     def insert(self, student_id: int, year: str, sys_id: int, stage: int, semester_num: int = 1, result_status: str = "PASSED") -> int:
+        # MySQL academic_periods.result_status is a number (1=PASSED ... 6=DISMISSED);
+        # sending the key text 'PASSED' made MySQL store 0, so always send the code
+        result_status = _RESULT_STATUS_CODES.get(result_status, _RESULT_STATUS_CODES.get(str(result_status).strip().upper(), 1))
         if not is_online():
             return log_offline_insert("academic_periods", {
                 "student_id": student_id,
@@ -2345,7 +2465,7 @@ class AcademicPeriodRepository(BaseRepository):
                 "study_system_id": sys_id,
                 "stage_number": stage,
                 "semester_num": semester_num,
-                "result_status": result_status,
+                "result_status": str(result_status),
             }
             resp = api_client.post(f"{self.api_url}/academic-periods", json=payload, timeout=3.0)
             if resp.status_code == 200:
@@ -2378,15 +2498,7 @@ class AcademicPeriodRepository(BaseRepository):
         })
 
     def update_status(self, period_id: int, result_status: str | int) -> None:
-        status_to_code = {
-            "PASSED": 1, "1": 1, 1: 1,
-            "FAILED_REPEAT": 2, "FAILED": 2, "2": 2, 2: 2,
-            "EXCEPTIONAL_PASS": 3, "3": 3, 3: 3,
-            "CARRIED_OVER": 4, "4": 4, 4: 4,
-            "DEFERRED": 5, "5": 5, 5: 5,
-            "DISMISSED": 6, "6": 6, 6: 6,
-        }
-        st_code = status_to_code.get(result_status, status_to_code.get(str(result_status).strip().upper(), 1))
+        st_code = _RESULT_STATUS_CODES.get(result_status, _RESULT_STATUS_CODES.get(str(result_status).strip().upper(), 1))
         st_key = {1: "PASSED", 2: "FAILED_REPEAT", 3: "EXCEPTIONAL_PASS", 4: "CARRIED_OVER", 5: "DEFERRED", 6: "DISMISSED"}.get(st_code, "PASSED")
 
         update_offline_academic_period_status(period_id, st_key)
@@ -2569,7 +2681,8 @@ class CertificateRepository(BaseRepository):
 class GraduationOrderRepository(BaseRepository):
     
     def get_all(self, limit: int = 25, offset: int = 0) -> list[dict]:
-        if not is_online():
+        # Local-first: the local copy matches the API row for row (refreshed after every change)
+        if not is_online() or _local_ready("graduation_orders"):
             return get_offline_graduation_orders(limit=limit, offset=offset)
         try:
             resp = api_client.get(f"{self.api_url}/graduation-orders", params={"limit": limit, "offset": offset}, timeout=5.0)
@@ -2600,6 +2713,7 @@ class GraduationOrderRepository(BaseRepository):
             log_system(f"API request failed: {e}", "WARNING")
             return None
 
+    @_refreshes_local_copy("graduation_orders")
     def insert(self, data: dict) -> int:
         if not is_online():
             args = (
@@ -2639,6 +2753,7 @@ class GraduationOrderRepository(BaseRepository):
             log_system(f"API request failed: {e}", "WARNING")
             raise
 
+    @_refreshes_local_copy("graduation_orders")
     def update(self, order_id: int, data: dict) -> None:
         if not is_online():
             args = (
@@ -2677,6 +2792,7 @@ class GraduationOrderRepository(BaseRepository):
             log_system(f"API request failed: {e}", "WARNING")
             raise
 
+    @_refreshes_local_copy("graduation_orders")
     def delete(self, order_id: int) -> None:
         if not is_online():
             self._call_write("DeleteGraduationOrder", (order_id,))
@@ -2704,6 +2820,7 @@ class GraduationOrderRepository(BaseRepository):
             log_system(f"API request failed: {e}", "WARNING")
             return []
 
+    @_refreshes_local_copy("graduation_orders")
     def link_students(self, order_id: int) -> int:
         if not is_online():
             row = self._call_read_one("LinkStudentsToOrder", (order_id,))
@@ -2724,6 +2841,7 @@ class GraduationOrderRepository(BaseRepository):
             log_system(f"API request failed: {e}", "WARNING")
             return 0
 
+    @_refreshes_local_copy("graduation_orders")
     def unlink_student(self, student_id: int) -> None:
         if not is_online():
             self._call_write("UnlinkStudentFromOrder", (student_id,))
@@ -3476,14 +3594,76 @@ class IssuedCertificateRepository(BaseRepository):
         from data.query import get_offline_latest_certificate_number
         return get_offline_latest_certificate_number()
 
+    CERT_BLOCK_SIZE = 20
+
+    def ensure_number_block(self) -> None:
+        """
+        While online, make sure this laptop holds a block of reserved certificate numbers for
+        the current year, so certificates printed offline can never repeat a number printed
+        on another laptop. Renewed when fewer than 5 numbers are left.
+        """
+        if not is_online():
+            return
+        from datetime import datetime as _dt
+        from sync_engine import get_cert_number_block, save_cert_number_block, get_device_id
+        suffix = _dt.now().strftime("%y")
+        block = get_cert_number_block()
+        if block and block["year_suffix"] == suffix and block["end_no"] - block["next_no"] + 1 >= 5:
+            return
+        try:
+            resp = api_client.post(
+                f"{self.api_url}/certificate-numbers/reserve",
+                json={"device_id": get_device_id(), "count": self.CERT_BLOCK_SIZE, "year_suffix": suffix},
+                timeout=10.0,
+            )
+            if resp.status_code == 200:
+                data = resp.json()
+                save_cert_number_block(data["year_suffix"], int(data["start_no"]), int(data["end_no"]))
+                log_system(f"Reserved certificate numbers {data['start_no']}-{data['end_no']}/{data['year_suffix']} for offline use", "INFO")
+            else:
+                log_system(f"Certificate number block not reserved ({resp.status_code}): {resp.text[:120]}", "DEBUG")
+        except Exception as exc:
+            log_system(f"Certificate number block reservation failed: {exc}", "DEBUG")
+
+    def _offline_next_number(self) -> str:
+        """Next number when the server cannot be asked: this laptop's reserved block first,
+        otherwise one above the highest number this laptop knows for the current year."""
+        import re
+        from datetime import datetime as _dt
+        from sync_engine import get_cert_number_block
+        suffix = _dt.now().strftime("%y")
+        block = get_cert_number_block()
+        if block and block["year_suffix"] == suffix and block["next_no"] <= block["end_no"]:
+            return f"{block['next_no']}/{suffix}"
+        rows = sqlite_read_all(
+            "SELECT certificate_number FROM issued_certificates WHERE certificate_number LIKE ? "
+            "UNION ALL SELECT certificate_number FROM local_issued_certificates WHERE certificate_number LIKE ?",
+            (f"%/{suffix}", f"%/{suffix}"),
+        )
+        numbers = [int(m.group(1)) for m in (re.match(r"^\s*(\d+)\s*/", str(r.get("certificate_number") or "")) for r in rows) if m]
+        return f"{max(numbers, default=0) + 1}/{suffix}"
+
     def get_next_number(self) -> str:
         """
         Auto-increments the latest certificate number.
         Handles patterns like '420/44' -> '421/44', '105' -> '106'.
         Defaults to '1' if no previous certificate number exists.
+        Offline (or server unreachable): uses this laptop's reserved block (_offline_next_number).
         """
         import re
-        latest = self.get_latest_number()
+        latest = None
+        if is_online():
+            try:
+                resp = api_client.get(f"{self.api_url}/issued-certificates/latest-number", timeout=3.0)
+                if resp.status_code == 200:
+                    latest = resp.json().get("latest_number")
+                    if not latest:
+                        from datetime import datetime
+                        return f"1/{datetime.now().strftime('%y')}"
+            except Exception as e:
+                log_system(f"API request latest certificate number failed: {e}", "WARNING")
+        if latest is None:
+            return self._offline_next_number()
         if not latest:
             from datetime import datetime
             curr_year_short = datetime.now().strftime("%y")
@@ -3579,6 +3759,11 @@ class IssuedCertificateRepository(BaseRepository):
                     issue_date=payload["issue_date"],
                     certificate_number=payload["certificate_number"]
                 )
+
+        # A number taken from this laptop's reserved block is now used
+        if payload["certificate_number"]:
+            from sync_engine import mark_cert_number_used
+            mark_cert_number_used(payload["certificate_number"])
 
         # Log user activity with user_id, user_name, certificate_id, certificate_number
         u_id = user_id if user_id is not None else "—"

@@ -178,6 +178,58 @@ class LoginScreen:
             self.dark_mode.disable()
 
 
+    def _finish_login(self, user_record: dict, username: str) -> None:
+        from nicegui_ui.state import app_session
+        user_id = user_record.get("id", 1)
+
+        # Login user session and initialize user appearance preferences
+        app_session.login_user(user_id, user_record)
+
+        if self.on_login_success:
+            self.on_login_success(user_record)
+
+        ui.notify(f"مرحباً بك {user_record.get('name_ar', username)} / Welcome!", type="positive")
+        ui.navigate.to("/dashboard")
+
+    def _ask_new_password(self, user_record: dict, username: str) -> None:
+        """Forced password change after logging in with a temporary password."""
+        with ui.dialog().props("persistent") as dialog, UI.login_card():
+            ui.label("تغيير كلمة المرور مطلوب / Password change required").classes("text-base font-bold app-text-primary")
+            ui.label(
+                "تم تعيين كلمة مرور مؤقتة لحسابك. اختر كلمة مرور جديدة للمتابعة. "
+                "Your password was set by an administrator. Choose a new one to continue."
+            ).classes("text-xs app-text-muted")
+            new_inp = ui.input("كلمة المرور الجديدة / New password", password=True, password_toggle_button=True).classes("w-full")
+            conf_inp = ui.input("تأكيد كلمة المرور / Confirm password", password=True).classes("w-full")
+
+            def _save():
+                new_pwd = new_inp.value or ""
+                if len(new_pwd) < 4:
+                    ui.notify("كلمة المرور قصيرة جداً (4 أحرف على الأقل) / At least 4 characters", type="warning")
+                    return
+                if new_pwd != (conf_inp.value or ""):
+                    ui.notify("كلمتا المرور غير متطابقتين / Passwords do not match", type="warning")
+                    return
+                if self.password_input and new_pwd == (self.password_input.value or ""):
+                    ui.notify("اختر كلمة مرور مختلفة عن المؤقتة / Choose a different password", type="warning")
+                    return
+                try:
+                    result = PersonnelRepository().set_password(int(user_record["id"]), new_pwd, must_change=False)
+                except Exception as exc:
+                    ui.notify(f"تعذر حفظ كلمة المرور: {exc}", type="negative")
+                    return
+                dialog.close()
+                if result == "queued":
+                    ui.notify("تم حفظ كلمة المرور على هذا الجهاز وستُرسل للسيرفر عند الاتصال / Saved on this PC; sent to the server when online",
+                              type="info", timeout=8000)
+                user_record["must_change_password"] = False
+                self._finish_login(user_record, username)
+
+            with ui.row().classes("w-full justify-end gap-2 pt-2"):
+                ui.button("إلغاء / Cancel", on_click=dialog.close).props("flat")
+                ui.button("حفظ ومتابعة / Save and continue", icon="lock_reset", on_click=_save).props("color=primary")
+        dialog.open()
+
     def handle_login(self, e=None) -> None:
         """Validates credentials via PersonnelRepository and updates session state."""
         if not self.username_input or not self.password_input:
@@ -202,17 +254,11 @@ class LoginScreen:
                 if self.error_label:
                     self.error_label.set_visibility(False)
                 
-                from nicegui_ui.state import app_session
-                user_id = user_record.get("id", 1)
-                
-                # Login user session and initialize user appearance preferences
-                app_session.login_user(user_id, user_record)
-
-                if self.on_login_success:
-                    self.on_login_success(user_record)
-
-                ui.notify(f"مرحباً بك {user_record.get('name_ar', username)} / Welcome!", type="positive")
-                ui.navigate.to("/dashboard")
+                if user_record.get("must_change_password"):
+                    # A temporary password given by an admin: choose your own before continuing
+                    self._ask_new_password(user_record, username)
+                    return
+                self._finish_login(user_record, username)
             else:
                 msg = "اسم المستخدم أو كلمة المرور غير صحيحة / Invalid username or password"
                 if self.error_label:

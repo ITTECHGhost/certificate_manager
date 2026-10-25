@@ -8,7 +8,7 @@ log = logging.getLogger(__name__)
 # This file contains ONLY structural layout classes (w-*, h-*, p-*, gap-*, flex, etc.)
 # =============================================================================
 
-from nicegui import ui
+from nicegui import ui, run, background_tasks
 from nicegui_ui.ui_components import UI
 from nicegui_ui.ui_theme import Styles
 from nicegui_ui.student_components import StudentProfileView, StudentFormView, CourseEnrollmentView
@@ -129,17 +129,10 @@ class StudentsScreen:
                     {"name": "actions", "label": "Actions / الإجراءات", "field": "actions", "align": "center"},
                 ]
 
-                # Initial Data Fetch
-                initial_data = []
-                try:
-                    raw_initial = self.repo.search_students_paginated(query="", limit=self.current_limit, offset=self.current_offset, dept_id=self.user_dept_id)
-                    initial_data = self._map_rows(raw_initial)
-                except Exception as e:
-                    log.warning(f"Failed to fetch initial students: {e}")
-
+                # The screen appears at once; rows are loaded in the background (see perform_search)
                 self.table = ui.table(
                     columns=columns,
-                    rows=initial_data,
+                    rows=[],
                     row_key="student_id"
                 ).classes(Styles.TABLE_CLASSES).props("flat bordered hide-bottom")
 
@@ -191,7 +184,8 @@ class StudentsScreen:
                             on_click=self._next_page
                         ).props("dense outlined")
 
-                self._update_pagination_controls(len(initial_data))
+                self._update_pagination_controls(0)
+                self.perform_search(reset_offset=False)
 
     def _map_rows(self, raw_rows) -> list[dict]:
         """Format raw database student records for ui.table compatibility."""
@@ -230,7 +224,11 @@ class StudentsScreen:
         self.perform_search(reset_offset=True)
 
     def perform_search(self, event=None, reset_offset: bool = False) -> None:
-        """Execute paginated student search via 4-tier backend pipeline."""
+        """
+        Start a paginated student search. The server call runs on a worker thread, so the
+        app never freezes while it waits; when several searches overlap (fast typing),
+        only the newest one updates the table.
+        """
         if not hasattr(self, 'table') or self.table is None or getattr(self.table, 'is_deleted', False):
             return
 
@@ -248,24 +246,31 @@ class StudentsScreen:
         # If search term length is < 2, query parameter is empty string to fetch latest students ordered by ID DESC
         search_term = "" if len(query) < 2 else query
 
+        self._search_seq = getattr(self, "_search_seq", 0) + 1
+        background_tasks.create(
+            self._run_search(self._search_seq, search_term, self.current_limit, self.current_offset),
+            name="students-search",
+        )
+
+    async def _run_search(self, seq: int, search_term: str, limit: int, offset: int) -> None:
         try:
-            raw_results = self.repo.search_students_paginated(
+            raw_results = await run.io_bound(
+                self.repo.search_students_paginated,
                 query=search_term,
-                limit=self.current_limit,
-                offset=self.current_offset,
+                limit=limit,
+                offset=offset,
                 dept_id=self.user_dept_id
             )
             mapped = self._map_rows(raw_results)
-            if hasattr(self, 'table') and self.table and not getattr(self.table, 'is_deleted', False):
-                self.table.rows = mapped
-                self.table.update()
-                self._update_pagination_controls(len(mapped))
         except Exception as exc:
             log.warning(f"[StudentsScreen] Search error: {exc}")
-            if hasattr(self, 'table') and self.table and not getattr(self.table, 'is_deleted', False):
-                self.table.rows = []
-                self.table.update()
-                self._update_pagination_controls(0)
+            mapped = []
+        if seq != self._search_seq:
+            return  # a newer search was started while this one was running
+        if hasattr(self, 'table') and self.table and not getattr(self.table, 'is_deleted', False):
+            self.table.rows = mapped
+            self.table.update()
+            self._update_pagination_controls(len(mapped))
 
     def _on_limit_change(self, e) -> None:
         """Handle rows-per-page dropdown selection change."""

@@ -15,7 +15,9 @@
 - `services/`: `excel_import_service`, `template_sync`, `updater`. `utils/`: `logger`, `file_delivery`, `health_check`, `error_formatter`.
 - `certificate_manager_api/`: FastAPI server (GitHub copy). Deployed copy runs from `C:\AppServ\www\certificate_manager_api\` on port 2030. Production runs it as the `FastAPICertificateManager` Windows service (`fastapi_service.py`, settings in `server_settings.json`, log `logs\api_service.log`). Server tools: `install_service.bat`, `switch_server_mode.bat https|http`, `update_server.bat <folder>`, `setup_server_https.bat` (+ `make_https_cert.bat`), `publish_client_update.bat`; console runs for testing: `start_server.bat` / `start_server_https.bat`. `app_keys.json` (program keys, audit/enforce), `.htaccess` (blocks Apache). Full guide: `certificate_manager_api/SERVER_SETUP_GUIDE.md`. Client patches: `scripts/build_client.bat` → `scripts/make_client_patch.bat`; `scripts/apply_patch.bat` keeps each laptop's `server_config.json` + `certs\`.
 - `templets/`, `certificates/`: Word templates and generated certificates.
-- `tools/`: `migrate_mysql.py` (still imported by settings screen). `export_db.py`, `get_db_schema.py`: DB inspection tools. `sql/`: exported schema/SP files.
+- `sql/fixes/`: numbered MySQL change files the user runs in order (`2026-10-24_01` result_status repair, `_02` accounts/roles, `_03` change tracking + certificate blocks).
+- `utils/password_hashing.py` (+ identical `certificate_manager_api/password_hashing.py`): PBKDF2 password hashing. `nicegui_ui/upload_utils.py`: `read_upload()` for NiceGUI 2/3 upload events.
+- `tools/`: empty package (the old `migrate_mysql.py` is in `old/tools/`). `export_db.py`, `get_db_schema.py`: DB inspection tools. `sql/`: exported schema/SP files.
 - `old/`: **Everything legacy** — CustomTkinter UI (`temp_archive/old design/`), scratch scripts, backups, copies, old themes, stray DBs. Not imported by anything; safe to delete when confirmed.
 - `logs/system_log.txt`, `logs/activity_log.txt`: runtime logs.
 

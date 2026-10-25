@@ -380,8 +380,14 @@ class PersonnelScreen:
                                 "is_active": existing_data.get("is_active", 1)
                             }
 
-                            if pwd:
+                            from nicegui_ui.state import app_session
+                            from sync_engine import is_online
+                            # A password an admin types for SOMEONE ELSE is temporary: they must change it at login
+                            temp_pwd = bool(pwd) and (pid is None or int(pid) != int(app_session.emp_id))
+
+                            if mode == "add" and pwd:
                                 payload["password_hash"] = pwd
+                                payload["must_change_password"] = True
 
                             try:
                                 if mode == "add":
@@ -389,11 +395,21 @@ class PersonnelScreen:
                                     if new_id:
                                         self.role_repo.assign_role_to_personnel(int(new_id), chosen_role_id)
                                     ui.notify("تمت إضافة الكادر وتعيين صلاحيات الدور بنجاح / Personnel added", type="positive")
+                                elif not is_online() and pwd and pid is not None:
+                                    # Offline: only the password can be reset (temporary, queued for the server)
+                                    self.repo.set_password(int(pid), pwd, must_change=temp_pwd)
+                                    ui.notify(
+                                        "تم تعيين كلمة مرور مؤقتة على هذا الجهاز، وسترسل للسيرفر عند الاتصال. "
+                                        "باقي التعديلات تتطلب الاتصال. / Temporary password set on this PC (sent to the "
+                                        "server when online). Other changes need a connection.",
+                                        type="info", timeout=10000
+                                    )
                                 else:
                                     if pid is not None:
                                         self.repo.update(person_id=int(pid), data=payload)
                                         self.role_repo.assign_role_to_personnel(int(pid), chosen_role_id)
-                                        from nicegui_ui.state import app_session
+                                        if pwd:
+                                            self.repo.set_password(int(pid), pwd, must_change=temp_pwd)
                                         app_session.refresh_access(int(pid))
                                     ui.notify("تم تعديل الكادر وتحديث صلاحيات الدور بنجاح / Personnel updated", type="positive")
                                 self.show_list_view()

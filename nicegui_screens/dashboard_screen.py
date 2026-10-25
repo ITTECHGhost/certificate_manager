@@ -180,6 +180,14 @@ class MainAppShell:
         now_online = bool(await run.io_bound(check_network_status))
         set_online(now_online)
 
+        # Every 5 minutes (60 x 5 s): pick up reference data changed on other laptops
+        self._net_loop_count = getattr(self, "_net_loop_count", 0) + 1
+        if now_online and prev_online and self._net_loop_count % 60 == 0:
+            from sync_engine import refresh_replica_tables_background, LOCAL_FIRST_TABLES
+            refresh_replica_tables_background(LOCAL_FIRST_TABLES)
+            from data.repositories import IssuedCertificateRepository
+            await run.io_bound(IssuedCertificateRepository().ensure_number_block)
+
         # Refresh DOM status badges
         if hasattr(self, '_refresh_status') and self._refresh_status:
             self._refresh_status.refresh()
@@ -196,10 +204,32 @@ class MainAppShell:
                         type="warning", timeout=10000
                     )
                 pull_mysql_to_sqlite_background()
+                from data.repositories import IssuedCertificateRepository
+                await run.io_bound(IssuedCertificateRepository().ensure_number_block)
                 import services.template_sync as t_sync
                 await run.io_bound(t_sync.sync_templates_if_online)
             except Exception as exc:
                 log.warning(f"[MainAppShell] Sync error on reconnection: {exc}")
+        elif now_online and not getattr(self, "_startup_queue_checked", False):
+            # Started while already online: send anything still waiting from an offline session
+            self._startup_queue_checked = True
+            try:
+                from data.repositories import IssuedCertificateRepository
+                await run.io_bound(IssuedCertificateRepository().ensure_number_block)
+            except Exception as exc:
+                log.debug(f"[MainAppShell] Certificate number block check: {exc}")
+            try:
+                from sync_engine import get_queue_status
+                if get_queue_status().get("pending"):
+                    sync_result = await run.io_bound(sync_offline_queue_to_mysql)
+                    if sync_result and sync_result.get("failed"):
+                        ui.notify(
+                            f"فشلت مزامنة {sync_result['failed']} سجل — راجع الإعدادات > قاعدة البيانات. "
+                            f"/ {sync_result['failed']} offline record(s) failed to sync — see Settings > Database.",
+                            type="warning", timeout=10000
+                        )
+            except Exception as exc:
+                log.warning(f"[MainAppShell] Startup queue sync error: {exc}")
 
     async def _on_refresh_click(self) -> None:
         """
@@ -217,6 +247,10 @@ class MainAppShell:
             self._refresh_status.refresh()
         if hasattr(self, '_header_status') and self._header_status:
             self._header_status.refresh()
+
+        if now_online:
+            from sync_engine import refresh_replica_tables, LOCAL_FIRST_TABLES
+            await run.io_bound(refresh_replica_tables, LOCAL_FIRST_TABLES)
 
         self.refresh_data()
         if self._refresh_cards:

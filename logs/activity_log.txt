@@ -1169,3 +1169,24 @@
 2026-10-22 08:49:29 [INFO] تم تطبيق الروتين الشامل (روتين نظام فصلي صباحي علوم حاسوب) على الطالب ID: 2140 — تم إضافة 49 مادة عبر 8 فترة دراسية
 2026-10-22 09:14:22 [INFO] تم تطبيق الروتين الشامل (روتين نظام فصلي صباحي علوم حاسوب) على الطالب ID: 2140 — تم إضافة 49 مادة عبر 8 فترة دراسية
 2026-10-23 21:13:27 [OK] Offline authentication successful for '1'
+2026-10-24 23:10:17 [WARNING] Offline authentication failed for 'admin' (unknown or inactive account)
+2026-10-24 23:10:17 [INFO] تم تغيير كلمة مرور الكادر ID: 1 على هذا الجهاز (بانتظار المزامنة)
+2026-10-24 23:10:17 [OK] Offline authentication successful for '1'
+2026-10-24 23:10:18 [WARNING] Offline authentication failed for '1' (invalid password)
+2026-10-24 23:10:18 [INFO] تم تغيير كلمة مرور الكادر ID: 1 على هذا الجهاز (بانتظار المزامنة)
+2026-10-24 23:10:34 [WARNING] Offline authentication failed for 'admin' (unknown or inactive account)
+2026-10-24 23:10:34 [WARNING] Offline authentication failed for 'no_such_user' (unknown or inactive account)
+2026-10-24 23:15:41 [INFO] تم إضافة قسم جديد: قسم
+2026-10-24 23:15:41 [INFO] تم تعديل القسم: قسم
+2026-10-24 23:15:41 [INFO] تم حذف المادة الدراسية ID: 999
+2026-10-24 23:15:41 [INFO] تم فك ارتباط الطالب ID: 999 بالأمر الجامعي
+2026-10-25 10:31:25 [INFO] User 'admin' (ID: 1) logged out successfully using function app_session.logout_user()
+2026-10-25 10:32:13 [INFO] تم حذف الكادر ID: 5
+2026-10-25 10:32:53 [INFO] User 'admin' (ID: 1) logged out successfully using function app_session.logout_user()
+2026-10-25 10:43:11 [INFO] User 'admin' (ID: 8) logged out successfully using function app_session.logout_user()
+2026-10-25 10:47:22 [INFO] تم تعديل بيانات الكادر ID: 36
+2026-10-25 10:47:23 [INFO] تم تحديث صلاحيات الكادر ID: 36
+2026-10-25 10:47:23 [INFO] تم تعيين الدور (مدير النظام) للمستخدم ID: 36
+2026-10-25 10:47:23 [INFO] تم تغيير كلمة مرور الكادر ID: 36
+2026-10-25 10:47:31 [INFO] User 'admin' (ID: 1) logged out successfully using function app_session.logout_user()
+2026-10-25 10:47:54 [INFO] تم تغيير كلمة مرور الكادر ID: 36

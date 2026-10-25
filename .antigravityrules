@@ -19,5 +19,11 @@ Before suggesting code or modifying files, you MUST read .ai/cerebrum.md to unde
 - Run `python tests/check_no_direct_mysql.py` after any change; it fails if client code imports `db`, `mysql.*` or `DBConfig`, or calls `requests.get/post/...` directly.
 - Every client HTTP call MUST use `api_client.get/post/put/patch/delete` (shared keep-alive session, HTTPS verification with `certs/college_ca.crt`, `X-App-Key` header). Never call `requests.*` directly.
 - User permissions are resolved ONCE at login into `app_session.access` (`nicegui_ui/state.py`: role_id, allowed_screens, permissions, dept_scope). Screens read `app_session.get_access()`; after changing roles/permissions call `app_session.refresh_access(...)`.
+- Passwords: never store or compare plain text. Use `password_hashing.py` (`prepare_for_storage`, `verify_password`); the copies in `utils/` and `certificate_manager_api/` must stay identical. Password changes go through `PersonnelRepository.set_password()` (works offline, queues only the hash).
+- `academic_periods.result_status` is an INT code (1=PASSED … 6=DISMISSED): convert keys with `result_status_code()` (server) / `_RESULT_STATUS_CODES` (client) before every write.
+- Local-first tables (`sync_engine.LOCAL_FIRST_TABLES`) are read from SQLite; every write method on them MUST carry `@_refreshes_local_copy("<table>")`. Only add a table there after checking its local rows match the API rows field for field.
+- Uploads: read files with `nicegui_ui.upload_utils.read_upload(e)` (NiceGUI 3 uses `e.file`).
+- Server MySQL cursors that read ONE row (`fetchone`) or run several queries on the same connection MUST be `cursor(buffered=True)` (else "Unread result found").
+- MySQL schema changes are delivered as numbered files in `sql/fixes/` for the user to run; code must keep working before they are run.
 - Secrets never go in git: `certificate_manager_api/app_keys.json`, `certificate_manager_api/certs/`, `server_config.json` (holds the client app key). Templates: `app_keys.example.json`, `server_config.example.json`.
 - `C:\AppServ\www` is Apache's web root: the deployed API folder MUST keep its `.htaccess` (`Require all denied`) so Apache never serves code, credentials or keys.
