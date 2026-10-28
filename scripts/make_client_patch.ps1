@@ -2,7 +2,7 @@
 # make_client_patch.ps1 - build the update ZIP for client laptops (developer laptop)
 # Run through make_client_patch.bat AFTER scripts\build_client.bat.
 #
-# Version = CURRENT_APP_VERSION in services\updater.py (raise it before building,
+# Version = APP_VERSION in app_version.py (raise it before building,
 # otherwise clients keep seeing the same version and never update).
 # The ZIP holds the contents of dist\CertificateManager EXCEPT server_config.json,
 # so an update never replaces a laptop's server address, HTTPS setting or app key.
@@ -11,8 +11,8 @@ $ErrorActionPreference = "Stop"
 $root = Split-Path $PSScriptRoot -Parent
 $distApp = Join-Path $root "dist\CertificateManager"
 
-$verLine = Select-String -Path (Join-Path $root "services\updater.py") -Pattern '^CURRENT_APP_VERSION\s*=\s*"([^"]+)"' | Select-Object -First 1
-if (-not $verLine) { Write-Host "[ERROR] CURRENT_APP_VERSION not found in services\updater.py" -ForegroundColor Red; exit 1 }
+$verLine = Select-String -Path (Join-Path $root "app_version.py") -Pattern '^APP_VERSION\s*=\s*"([^"]+)"' | Select-Object -First 1
+if (-not $verLine) { Write-Host "[ERROR] APP_VERSION not found in app_version.py" -ForegroundColor Red; exit 1 }
 $version = $verLine.Matches[0].Groups[1].Value
 
 if (-not (Test-Path (Join-Path $distApp "CertificateManager.exe"))) {

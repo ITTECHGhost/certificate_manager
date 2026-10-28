@@ -20,6 +20,7 @@ from data.repositories import (
     ALL_PERMISSION_KEYS
 )
 import api_client
+import app_paths
 from api_config import get_api_url
 from nicegui_ui.ui_components import UI
 from nicegui_ui.state import get_user_session
@@ -531,7 +532,7 @@ class SettingsScreen:
     def _load_printer_config(self) -> dict:
         """Loads persistent printer setup from config/printer_config.json."""
         from nicegui_screens.certificate_screen import get_default_printer
-        config_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "config", "printer_config.json")
+        config_path = str(app_paths.data_path("config", "printer_config.json"))
         def_p = get_default_printer()
         default_cfg = {
             "cert_printer": def_p,
@@ -553,7 +554,7 @@ class SettingsScreen:
 
     def _save_printer_config_file(self, cfg: dict) -> bool:
         """Saves printer setup to config/printer_config.json."""
-        config_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "config", "printer_config.json")
+        config_path = str(app_paths.data_path("config", "printer_config.json"))
         try:
             os.makedirs(os.path.dirname(config_path), exist_ok=True)
             with open(config_path, "w", encoding="utf-8") as f:
@@ -1573,7 +1574,7 @@ class SettingsScreen:
     def _section_system_logs(self) -> None:
         with UI.card():
             UI.card_header("سجلات حركة النظام — System Activity Logs", "terminal", icon_css="stat-text-amber")
-            log_file = Path("logs/system_log.txt")
+            log_file = app_paths.data_path("logs", "system_log.txt")
             log_content = ""
             if log_file.exists():
                 try:
@@ -2279,7 +2280,7 @@ class SettingsScreen:
 
     def _section_templates_management(self) -> None:
         """Dedicated settings tab to inspect, manage, upload, and understand certificate Word templates."""
-        templates_dir = "templets"
+        templates_dir = str(app_paths.data_path("templets"))
         if not os.path.exists(templates_dir):
             os.makedirs(templates_dir, exist_ok=True)
 

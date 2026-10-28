@@ -11,6 +11,8 @@ from itertools import zip_longest
 from docxtpl import DocxTemplate
 from nicegui import ui
 
+import app_paths
+
 from nicegui_ui.ui_components import UI
 from nicegui_ui.template_constants import get_friendly_template_name
 from data.repositories import StudentRepository, CertificateRepository, PersonnelRepository, IssuedCertificateRepository
@@ -831,7 +833,7 @@ def build_certificate_context(data: dict, options: dict) -> dict:
 
 
 # Register static path for certificates preview in NiceGUI
-_cert_dir = os.path.abspath("certificates")
+_cert_dir = str(app_paths.data_path("certificates"))
 os.makedirs(_cert_dir, exist_ok=True)
 try:
     from nicegui import app
@@ -916,7 +918,7 @@ class CertificateScreen:
         self.generated_file_path = None
         self.current_grouping_mode = "DEFAULT"
 
-        self.templates_dir = "templets"
+        self.templates_dir = str(app_paths.data_path("templets"))
         if not os.path.exists(self.templates_dir):
             os.makedirs(self.templates_dir, exist_ok=True)
 
@@ -1949,7 +1951,7 @@ class CertificateScreen:
 
     def generate_docx(self, tpl_name: str, options: dict) -> bool:
         """Generates Word document from template and returns True on success."""
-        tpl_path = os.path.join("templets", tpl_name)
+        tpl_path = str(app_paths.data_path("templets", tpl_name))
         if not os.path.exists(tpl_path):
             UI.notify(f"قالب الوثيقة غير موجود: {tpl_name}", type="negative")
             return False
@@ -1981,7 +1983,7 @@ class CertificateScreen:
             self.print_certificate_context(ctx)
     
             # Ensure output directory exists
-            out_dir = os.path.abspath("certificates")
+            out_dir = str(app_paths.data_path("certificates"))
             os.makedirs(out_dir, exist_ok=True)
     
             student_name = ctx.get("student_name", "Student")
@@ -2121,7 +2123,7 @@ class CertificateScreen:
                         def_p = get_default_printer()
                         try:
                             import json
-                            p_cfg_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "config", "printer_config.json")
+                            p_cfg_path = str(app_paths.data_path("config", "printer_config.json"))
                             if os.path.exists(p_cfg_path):
                                 with open(p_cfg_path, "r", encoding="utf-8") as f:
                                     p_cfg = json.load(f)

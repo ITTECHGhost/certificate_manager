@@ -11,6 +11,7 @@ from typing import Dict, Any, List, Optional
 from sync_engine import is_online
 from api_config import get_api_url
 import api_client
+import app_paths
 
 logger = logging.getLogger("template_sync")
 
@@ -32,8 +33,7 @@ def calculate_file_sha256(filepath: str) -> str:
 
 def get_local_templates_dir() -> str:
     """Returns absolute path to the local templates directory (templets/)."""
-    base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    templates_dir = os.path.join(base_dir, "templets")
+    templates_dir = str(app_paths.data_path("templets"))
     os.makedirs(templates_dir, exist_ok=True)
     return templates_dir
 

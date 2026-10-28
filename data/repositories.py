@@ -9,6 +9,7 @@ import functools
 import logging
 import requests
 import api_client
+import app_paths
 from utils.password_hashing import (
     verify_password, hash_password, is_disabled as is_password_disabled,
 )
@@ -1276,8 +1277,8 @@ class RoleRepository(BaseRepository):
     Stores profiles in SQLite `roles` table and JSON persistence file for cross-session durability.
     """
 
-    _CONFIG_FILE = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "data", "roles_config.json")
-    _USER_ROLES_FILE = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "data", "user_roles.json")
+    _CONFIG_FILE = str(app_paths.data_path("data", "roles_config.json"))
+    _USER_ROLES_FILE = str(app_paths.data_path("data", "user_roles.json"))
 
     def __init__(self):
         super().__init__()
@@ -3040,7 +3041,7 @@ class SupervisorRepository(BaseRepository):
 # ---------------------------------------------------------------------------
 class AuditRepository(BaseRepository):
     def _read_activity_logs(self) -> list[dict]:
-        log_path = os.path.join("logs", "activity_log.txt")
+        log_path = str(app_paths.data_path("logs", "activity_log.txt"))
         if not os.path.exists(log_path):
             return []
         logs = []
@@ -3072,7 +3073,7 @@ class AuditRepository(BaseRepository):
 
     def clear_audit_logs(self) -> None:
         try:
-            log_path = os.path.join("logs", "activity_log.txt")
+            log_path = str(app_paths.data_path("logs", "activity_log.txt"))
             with open(log_path, "w", encoding="utf-8") as f:
                 f.write("")
         except Exception:

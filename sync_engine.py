@@ -43,6 +43,7 @@ from datetime import date, datetime
 from pathlib import Path
 import requests
 import api_client
+import app_paths
 from api_config import API_URL, get_api_url
 
 log = logging.getLogger(__name__)
@@ -84,7 +85,7 @@ def check_network_status(target_url: str | None = None) -> bool:
 # Constants
 # ---------------------------------------------------------------------------
 
-_LOCAL_DB_PATH = Path(__file__).resolve().parent / "local_cache.db"
+_LOCAL_DB_PATH = app_paths.data_path("local_cache.db")
 DB_PATH = str(_LOCAL_DB_PATH)
 
 # Maps a logical table name to:

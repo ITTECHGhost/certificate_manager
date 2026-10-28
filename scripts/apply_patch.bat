@@ -8,18 +8,21 @@ setlocal enabledelayedexpansion
 ::   %2 = Full path to the downloaded patch ZIP file
 ::   %3 = Application root directory
 ::   %4 = Application executable name (e.g. CertificateManager.exe or main.py)
+::   %5 = Folder for system_log.txt (optional; default: the application folder)
 :: =============================================================================
 
 set "TARGET_PID=%~1"
 set "ZIP_PATH=%~2"
 set "APP_DIR=%~3"
 set "EXE_NAME=%~4"
+set "LOG_DIR=%~5"
+if "%LOG_DIR%"=="" set "LOG_DIR=%APP_DIR%"
 
 if "%TARGET_PID%"=="" goto USAGE_ERROR
 if "%ZIP_PATH%"=="" goto USAGE_ERROR
 if "%APP_DIR%"=="" goto USAGE_ERROR
 
-set "LOG_FILE=%APP_DIR%\system_log.txt"
+set "LOG_FILE=%LOG_DIR%\system_log.txt"
 echo [%date% %time%] [OTA_PATCH] Starting update bootstrap for PID %TARGET_PID% >> "%LOG_FILE%"
 
 :: 1. Wait for the main application process to terminate
@@ -63,6 +66,9 @@ echo [%date% %time%] [OTA_PATCH] Extraction successful. Cleaning up temporary fi
 if exist "%ZIP_PATH%" (
     del /f /q "%ZIP_PATH%" >NUL 2>&1
 )
+
+:: Test hook: tests/test_updater.py sets CM_PATCH_NO_RELAUNCH=1 to stop here.
+if "%CM_PATCH_NO_RELAUNCH%"=="1" exit /b 0
 
 :: 6. Relaunch the updated application
 echo Relaunching application...

@@ -7,16 +7,18 @@ import sys
 import logging
 import hashlib
 import requests
+import shutil
 import subprocess
+import tempfile
 from typing import Optional, Dict, Any, Callable
 
 from sync_engine import is_online
 from api_config import get_api_url
 import api_client
+import app_paths
+from app_version import APP_VERSION as CURRENT_APP_VERSION
 
 logger = logging.getLogger("updater")
-
-CURRENT_APP_VERSION = "2.0.0"
 
 
 def parse_version(ver_str: str) -> tuple:
@@ -113,8 +115,7 @@ def download_patch(
     else:
         full_url = f"{api_url}{download_path if download_path.startswith('/') else '/' + download_path}"
 
-    base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    temp_dir = os.path.join(base_dir, "temp")
+    temp_dir = str(app_paths.data_path("temp"))
     os.makedirs(temp_dir, exist_ok=True)
 
     filename = update_info.get("patch_filename") or f"patch_v{update_info.get('latest_version')}.zip"
@@ -160,20 +161,39 @@ def download_patch(
         return None
 
 
+def build_temp_patch_script_path(pid: str) -> str:
+    """Where the running copy of apply_patch.bat is placed (outside the program folder)."""
+    return os.path.join(tempfile.gettempdir(), f"cm_apply_patch_{pid}.bat")
+
+
+def build_patch_command(script_path: str, pid: str, zip_path: str, app_dir: str, exe_name: str, log_dir: str) -> str:
+    """cmd.exe line for apply_patch.bat. /s keeps every quoted path intact (spaces, Arabic letters)."""
+    args = " ".join(f'"{value}"' for value in (pid, zip_path, app_dir, exe_name, log_dir))
+    return f'cmd.exe /s /c ""{script_path}" {args}"'
+
+
 def apply_patch_and_restart(zip_path: str) -> bool:
     """
-    Spawns scripts/apply_patch.bat as an independent detached process and prepares
-    for application shutdown.
+    Copies scripts/apply_patch.bat to %TEMP% and starts that copy as an independent
+    detached process (a batch file must not be overwritten while it runs), then the
+    caller shuts the application down. The patch is extracted next to the program
+    (app_paths.INSTALL_DIR), never into the _internal resources folder.
     """
-    base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    script_path = os.path.join(base_dir, "scripts", "apply_patch.bat")
-
-    if not os.path.exists(script_path):
-        logger.error(f"apply_patch.bat not found at {script_path}")
+    source_script = app_paths.resource_path("scripts", "apply_patch.bat")
+    if not source_script.exists():
+        logger.error(f"apply_patch.bat not found at {source_script}")
         return False
 
     current_pid = str(os.getpid())
-    app_dir = base_dir
+    script_path = build_temp_patch_script_path(current_pid)
+    try:
+        shutil.copy2(source_script, script_path)
+    except OSError as e:
+        logger.error(f"Could not copy apply_patch.bat to {script_path}: {e}")
+        return False
+
+    app_dir = str(app_paths.INSTALL_DIR)
+    log_dir = str(app_paths.data_path("logs"))
 
     # Determine executable name / command
     if getattr(sys, 'frozen', False):
@@ -190,13 +210,7 @@ def apply_patch_and_restart(zip_path: str) -> bool:
         flags = DETACHED_PROCESS | CREATE_NEW_PROCESS_GROUP
 
         subprocess.Popen(
-            [
-                "cmd.exe", "/c", script_path,
-                current_pid,
-                zip_path,
-                app_dir,
-                exe_name
-            ],
+            build_patch_command(script_path, current_pid, zip_path, app_dir, exe_name, log_dir),
             creationflags=flags,
             close_fds=True
         )

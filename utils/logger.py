@@ -8,6 +8,8 @@ import logging
 import traceback
 from datetime import datetime
 
+import app_paths
+
 # ANSI Color Codes for terminal formatting
 COLOR_RESET = "\033[0m"
 COLOR_RED = "\033[91m"
@@ -51,7 +53,7 @@ def log_system(msg: str, level: str = "INFO") -> None:
     log_line = f"{dt_str} {tag} {msg}"
 
     # Write strictly to logs/system_log.txt
-    _write_to_file(os.path.join("logs", "system_log.txt"), log_line)
+    _write_to_file(str(app_paths.data_path("logs", "system_log.txt")), log_line)
 
     try:
         print(f"{color}{log_line}{COLOR_RESET}", flush=True)
@@ -72,7 +74,7 @@ def log_activity(msg: str, level: str = "INFO") -> None:
     log_line = f"{dt_str} {tag} {msg}"
 
     # Write strictly to logs/activity_log.txt
-    _write_to_file(os.path.join("logs", "activity_log.txt"), log_line)
+    _write_to_file(str(app_paths.data_path("logs", "activity_log.txt")), log_line)
 
     try:
         print(f"{color}{log_line}{COLOR_RESET}", flush=True)

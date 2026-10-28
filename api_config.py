@@ -2,7 +2,9 @@
 import json
 from pathlib import Path
 
-CONFIG_FILE = Path("server_config.json")
+import app_paths
+
+CONFIG_FILE = app_paths.data_path("server_config.json")
 
 DEFAULT_HOST = "127.0.0.1"
 DEFAULT_PORT = 2030
@@ -126,9 +128,5 @@ def _find_ca_cert(ca_cert: str) -> Path | None:
     path = Path(ca_cert)
     if path.is_absolute():
         return path if path.exists() else None
-    import sys
-    candidates = [Path.cwd() / path]
-    if getattr(sys, "frozen", False):
-        candidates.append(Path(sys.executable).resolve().parent / path)
-    candidates.append(Path(__file__).resolve().parent / path)
+    candidates = [app_paths.DATA_DIR / path, app_paths.INSTALL_DIR / path, app_paths.RESOURCE_DIR / path]
     return next((c for c in candidates if c.exists()), None)

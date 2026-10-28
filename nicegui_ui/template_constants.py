@@ -7,9 +7,11 @@ import json
 import logging
 from typing import Dict, Any, List, Optional
 
+import app_paths
+
 log = logging.getLogger(__name__)
 
-TEMPLATES_DIR = "templets"
+TEMPLATES_DIR = str(app_paths.data_path("templets"))
 CONFIG_FILE = os.path.join(TEMPLATES_DIR, "templates_config.json")
 
 # Standard abbreviation and terminology legend (aligned with official naming)
