@@ -8,7 +8,8 @@ REM
 REM Stops the service, copies the new code here, starts the service again.
 REM NEVER overwritten (this server's own settings and data):
 REM   certs\  client_package\  logs\  templets\  app_keys.json  server_settings.json
-REM   config.py (database login)  update_server.bat (this file)
+REM   db_config.json (database login)  update_server.bat (this file)
+REM Prefer setup_server.bat from the server bundle: it also migrates an old config.py.
 REM Asks for Administrator.
 REM =============================================================================
 net session >nul 2>&1
@@ -45,7 +46,7 @@ echo Stopping the service...
 net stop %SVC% >nul 2>&1
 
 echo Copying the new code...
-robocopy "%SRC%" "%DEST%" /E /XD certs client_package logs templets __pycache__ _backup_before_update /XF app_keys.json server_settings.json config.py update_server.bat *.log /NFL /NDL /NJH /NP /R:2 /W:2
+robocopy "%SRC%" "%DEST%" /E /XD certs client_package logs templets __pycache__ _backup_before_update /XF app_keys.json server_settings.json db_config.json update_server.bat *.log /NFL /NDL /NJH /NP /R:2 /W:2
 if %errorlevel% geq 8 (
     echo [ERROR] Copy failed ^(robocopy code %errorlevel%^). Restoring the backup...
     robocopy "%DEST%\_backup_before_update" "%DEST%" /E /NFL /NDL /NJH /NJS /R:1 /W:1 >nul
