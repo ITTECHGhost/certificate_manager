@@ -1,0 +1,6 @@
+{
+  "host": "localhost",
+  "user": "certman_api",
+  "password": "put-the-certman_api-password-here",
+  "database": "certificate_manager"
+}
