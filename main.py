@@ -4,6 +4,17 @@
 
 import sys
 import asyncio
+from multiprocessing import freeze_support
+
+# Required for the native window in the PyInstaller build (does nothing when run from source).
+freeze_support()
+
+import app_paths
+
+# Create the data folder and make it the working directory BEFORE NiceGUI is imported:
+# NiceGUI reads NICEGUI_STORAGE_PATH, and relative paths resolve against the data folder.
+app_paths.prepare_data_dir()
+
 from nicegui import ui
 from utils.logger import setup_global_exception_logging, log_system
 
@@ -148,8 +159,9 @@ if __name__ in {"__main__", "__mp_main__"}:
     # Ensure all background processes and threads exit cleanly when closing the app
     from nicegui import app
     import os
-    os.makedirs("assets", exist_ok=True)
-    app.add_static_files('/assets', 'assets')
+    assets_dir = app_paths.data_path("assets")
+    assets_dir.mkdir(parents=True, exist_ok=True)
+    app.add_static_files('/assets', str(assets_dir))
     app.on_shutdown(lambda: os._exit(0))
 
     async def _on_app_startup():
@@ -177,5 +189,5 @@ if __name__ in {"__main__", "__mp_main__"}:
         title       = "Certificate Manager",
         reload      = False,
         dark        = None,
-        storage_secret = "certificate_manager_secret_key"
+        storage_secret = app_paths.get_storage_secret()
     )
