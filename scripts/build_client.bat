@@ -1,57 +1,43 @@
 @echo off
-setlocal enabledelayedexpansion
+setlocal
 
 :: =============================================================================
-:: scripts/build_client.bat — Build Standalone Client Package
+:: scripts/build_client.bat - build the client program folder dist\CertificateManager
+:: Usage: build_client.bat             (waits for a key at the end)
+::        build_client.bat /nopause    (used by scripts\build_release.bat)
 :: =============================================================================
 
-echo =======================================================================
-echo  Certificate Manager — Client Executable Build Pipeline
-echo =======================================================================
+set "NOPAUSE="
+if /i "%~1"=="/nopause" set "NOPAUSE=1"
 
-set "PYTHON_EXE=C:\Users\IT_TECK\AppData\Local\Python\pythoncore-3.14-64\python.exe"
-if not exist "%PYTHON_EXE%" (
-    set "PYTHON_EXE=python"
-)
+cd /d "%~dp0.."
 
-set "PROJECT_ROOT=%~dp0.."
-cd /d "%PROJECT_ROOT%"
-
-echo [1/4] Checking Python environment...
-"%PYTHON_EXE%" -V
+echo [1/4] Checking Python...
+py -3 -V
 if errorlevel 1 (
-    echo [ERROR] Python interpreter not accessible!
-    pause
+    echo [ERROR] The Python launcher py was not found. Install Python 3.14 for all users.
+    if not defined NOPAUSE pause
     exit /b 1
 )
 
-echo [2/4] Cleaning previous build artifacts...
-if exist "dist\CertificateManager" (
-    rmdir /s /q "dist\CertificateManager"
-)
-if exist "build\CertificateManager" (
-    rmdir /s /q "build\CertificateManager"
-)
+echo [2/4] Cleaning previous build output...
+if exist "dist\CertificateManager" rmdir /s /q "dist\CertificateManager"
+if exist "build\CertificateManager" rmdir /s /q "build\CertificateManager"
 
-echo [3/4] Compiling client executable via PyInstaller...
-"%PYTHON_EXE%" -m PyInstaller --noconfirm client.spec
+echo [3/4] Running PyInstaller...
+py -3 -m PyInstaller --noconfirm --log-level WARN client.spec
 if errorlevel 1 (
-    echo [ERROR] PyInstaller compilation failed! Check output logs above.
-    pause
+    echo [ERROR] PyInstaller failed. See the messages above.
+    if not defined NOPAUSE pause
     exit /b 1
 )
 
-echo [4/4] Verifying packaged output...
-if exist "dist\CertificateManager\CertificateManager.exe" (
-    echo =======================================================================
-    echo  BUILD SUCCESSFUL!
-    echo  Standalone distribution ready at:
-    echo  %PROJECT_ROOT%\dist\CertificateManager\CertificateManager.exe
-    echo =======================================================================
-) else (
-    echo [ERROR] Output executable was not found in dist\CertificateManager!
-    pause
+echo [4/4] Checking the output...
+if not exist "dist\CertificateManager\CertificateManager.exe" (
+    echo [ERROR] dist\CertificateManager\CertificateManager.exe was not created.
+    if not defined NOPAUSE pause
     exit /b 1
 )
-
-pause
+echo BUILD SUCCESSFUL: %CD%\dist\CertificateManager\CertificateManager.exe
+if not defined NOPAUSE pause
+exit /b 0

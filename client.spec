@@ -1,9 +1,11 @@
 # -*- mode: python ; coding: utf-8 -*-
 # =============================================================================
-# client.spec — PyInstaller Specification for Certificate Manager Client
+# client.spec — PyInstaller specification for the Certificate Manager client
+# Build: scripts\build_client.bat (or scripts\build_release.bat for a full release).
+# Never bundle server_config.json: every laptop gets its own (installer / data folder).
 # =============================================================================
 
-from PyInstaller.utils.hooks import collect_all, collect_data_files
+from PyInstaller.utils.hooks import collect_all
 
 block_cipher = None
 
@@ -11,13 +13,15 @@ block_cipher = None
 nicegui_datas, nicegui_binaries, nicegui_hiddenimports = collect_all('nicegui')
 webview_datas, webview_binaries, webview_hiddenimports = collect_all('webview')
 
-# Application static assets and configuration
+# Read-only program resources. On first start app_paths.prepare_data_dir() copies the
+# seed files (templets, assets, data/*.json, certs) into %LOCALAPPDATA%\CertificateManager.
 app_datas = [
     ('templets', 'templets'),
-    ('sql', 'sql'),
+    ('assets', 'assets'),
     ('nicegui_ui', 'nicegui_ui'),
-    ('assets/csit.png', 'assets'),
-    ('server_config.json', '.'),
+    ('data/roles_config.json', 'data'),
+    ('data/user_roles.json', 'data'),
+    ('server_config.example.json', '.'),
     ('certs/college_ca.crt', 'certs'),
     ('scripts/apply_patch.bat', 'scripts'),
 ]
@@ -29,6 +33,8 @@ hiddenimports = (
     nicegui_hiddenimports
     + webview_hiddenimports
     + [
+        'app_paths',
+        'app_version',
         'services.updater',
         'services.template_sync',
         'services.excel_import_service',
@@ -45,6 +51,7 @@ hiddenimports = (
         'utils.health_check',
         'utils.logger',
         'docx',
+        'docxtpl',
         'openpyxl',
         'psutil',
         'requests',
@@ -86,7 +93,7 @@ exe = EXE(
     target_arch=None,
     codesign_identity=None,
     entitlements_file=None,
-    icon='assets/csit.png'
+    icon='assets/app.ico'
 )
 
 coll = COLLECT(
