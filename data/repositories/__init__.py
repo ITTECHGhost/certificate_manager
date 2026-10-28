@@ -2,8 +2,9 @@
 import sys as _sys
 import types as _types
 
-from ._legacy import *
-from .base import _local_ready, _refreshes_local_copy
+from .base import (
+    API_URL, DB_PATH, safe_cast, _local_ready, _refreshes_local_copy, OfflineModeError, BaseRepository,
+)
 from .settings import SettingsRepository, CountryRepository, GovernorateRepository
 from .departments import DepartmentRepository, StudySystemRepository
 from .personnel import (
@@ -13,6 +14,12 @@ from .personnel import (
 from .courses import CourseRepository
 from .certificates import CertificateRepository, IssuedCertificateRepository
 from .students import StudentRepository, AcademicPeriodRepository, EnrollmentRepository
+from .graduation import (
+    GraduationOrderRepository, ThesisRepository, StudentSupervisorRepository, SupervisorRepository,
+)
+from .audit import AuditRepository, DashboardRepository
+from .study_routines import StudyRoutineRepository
+from .auth import AuthRepository
 from . import personnel as _role_state_owner
 
 # RoleRepository keeps its caches in module globals, and sync_engine resets one through this package
