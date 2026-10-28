@@ -2205,6 +2205,8 @@ class CertificateScreen:
 
                 pdf_path = pdf_res if isinstance(pdf_res, str) and os.path.exists(pdf_res) else None
                 html_path = html_res if isinstance(html_res, str) and os.path.exists(html_res) else None
+                if pdf_path is None and html_path is None:
+                    UI.notify("تعذر تحويل الوثيقة: يتطلب برنامج Microsoft Word / Microsoft Word is required for preview and PDF", type="warning")
 
                 self.show_in_app_print_dialog(pdf_path, html_path, self.generated_file_path)
             except Exception as err:
