@@ -1,0 +1,36 @@
+# Read-only GET routes compared before/after a change (tests/test_api_golden.py).
+# Not listed: /admin/backup (writes a file), /courses and /api/courses (row order changes between calls).
+/ping
+/health/db
+/replica/tables
+/students/paginated
+/students/search/all
+/students/search/basic
+/students/count/all
+/students/search/unlinked
+/students/distinct/years
+/students/1174
+/departments
+/departments/2
+/study-systems
+/study-systems/active
+/study-systems/1
+/personnel
+/personnel/active
+/permissions
+/roles
+/user-roles
+/orders
+/graduation-orders
+/settings
+/lookups/countries
+/lookups/governorates
+/api/dashboard/counts
+/study-routines
+/api/study-routines
+/issued-certificates
+/api/issued-certificates
+/issued-certificates/latest-number
+/api/issued-certificates/latest-number
+/issued-certificates/report
+/api/issued-certificates/report

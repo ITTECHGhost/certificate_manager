@@ -36,3 +36,7 @@ certificate_manager_api/client_package/
 certificate_manager_api/server_settings.json
 certificate_manager_api/_backup_before_update/
 certificate_manager_api/logs/
+
+# Tests (golden files hold real student data: never commit them)
+tests/.golden/
+.pytest_cache/
