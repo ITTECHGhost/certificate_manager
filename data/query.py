@@ -16,6 +16,34 @@ def safe_cast(val: Any, target_type: type = int, default_val: Any = 0) -> Any:
         return default_val
 
 
+# Synced tables and their local_ twins differ in column order and in the
+# synced-only updated_at column, so every combine names its columns.
+_AP_UNION = (
+    "(SELECT id, student_id, academic_year, stage_number, semester_num, study_system_id, result_status "
+    "FROM academic_periods UNION ALL "
+    "SELECT id, student_id, academic_year, stage_number, semester_num, study_system_id, result_status "
+    "FROM local_academic_periods)"
+)
+_EN_UNION = (
+    "(SELECT id, period_id, course_id, score, passed_round FROM enrollments UNION ALL "
+    "SELECT id, period_id, course_id, score, passed_round FROM local_enrollments)"
+)
+
+Q_ACADEMIC_TIMELINE = (
+    "SELECT MIN(ap.id) AS primary_period_id, "
+    "       CASE WHEN ap.academic_year IS NULL OR ap.academic_year = '' THEN '' "
+    "            WHEN ap.academic_year LIKE '%-%' THEN ap.academic_year "
+    "            ELSE ap.academic_year || ' - ' || CAST(CAST(ap.academic_year AS INTEGER) + 1 AS TEXT) "
+    "       END AS academic_year, "
+    "       MAX(ap.stage_number) AS stage_number, "
+    "       COALESCE(ap.semester_num, 1) AS semester_num, "
+    "       REPLACE(GROUP_CONCAT(COALESCE(ap.result_status, 'PASSED')), ',', ' / ') AS result_status "
+    f"FROM {_AP_UNION} ap "
+    "WHERE ap.student_id = ? "
+    "GROUP BY ap.academic_year, ap.semester_num "
+    "ORDER BY ap.academic_year ASC, ap.semester_num ASC"
+)
+
 Q_COURSES_SEMESTER_BY_STAGE = '''
 SELECT
     CASE 
@@ -40,14 +68,14 @@ SELECT
     CAST(ap.stage_number AS TEXT) || '_' || CAST(COALESCE(ap.semester_num, 1) AS TEXT) AS grouping_key,
     1 AS result_status_code,
     'PASSED' AS result_status_label
-FROM (SELECT * FROM academic_periods UNION ALL SELECT * FROM local_academic_periods) ap
-JOIN (SELECT * FROM enrollments UNION ALL SELECT * FROM local_enrollments) e ON CAST(e.period_id AS INTEGER) = CAST(ap.id AS INTEGER) OR e.period_id = ap.id
+FROM {AP} ap
+JOIN {EN} e ON CAST(e.period_id AS INTEGER) = CAST(ap.id AS INTEGER) OR e.period_id = ap.id
 JOIN courses c ON CAST(e.course_id AS INTEGER) = CAST(c.id AS INTEGER) OR e.course_id = c.id
 WHERE (CAST(ap.student_id AS INTEGER) = CAST(? AS INTEGER) OR ap.student_id = ?)
   AND COALESCE(e.score, 0.0) >= 50
 GROUP BY ap.stage_number, COALESCE(ap.semester_num, 1), c.id
 ORDER BY ap.stage_number ASC, COALESCE(ap.semester_num, 1) ASC, c.name_ar ASC;
-'''
+'''.format(AP=_AP_UNION, EN=_EN_UNION)
 
 Q_COURSES_SEMESTER_BY_YEAR = '''
 SELECT
@@ -67,14 +95,14 @@ SELECT
     ap.academic_year || '_' || CAST(COALESCE(ap.semester_num, 1) AS TEXT) AS grouping_key,
     1 AS result_status_code,
     'PASSED' AS result_status_label
-FROM (SELECT * FROM academic_periods UNION ALL SELECT * FROM local_academic_periods) ap
-JOIN (SELECT * FROM enrollments UNION ALL SELECT * FROM local_enrollments) e ON CAST(e.period_id AS INTEGER) = CAST(ap.id AS INTEGER) OR e.period_id = ap.id
+FROM {AP} ap
+JOIN {EN} e ON CAST(e.period_id AS INTEGER) = CAST(ap.id AS INTEGER) OR e.period_id = ap.id
 JOIN courses c ON CAST(e.course_id AS INTEGER) = CAST(c.id AS INTEGER) OR e.course_id = c.id
 WHERE (CAST(ap.student_id AS INTEGER) = CAST(? AS INTEGER) OR ap.student_id = ?)
   AND COALESCE(e.score, 0.0) >= 50
 GROUP BY ap.academic_year, ap.semester_num, c.id
 ORDER BY ap.academic_year ASC, COALESCE(ap.semester_num, 1) ASC, c.name_ar ASC;
-'''
+'''.format(AP=_AP_UNION, EN=_EN_UNION)
 
 Q_COURSES_YEARLY_BY_PERIOD_STAGE = '''
 SELECT
@@ -98,14 +126,14 @@ SELECT
     CAST(ap.stage_number AS TEXT) AS grouping_key,
     1 AS result_status_code,
     'PASSED' AS result_status_label
-FROM (SELECT * FROM academic_periods UNION ALL SELECT * FROM local_academic_periods) ap
-JOIN (SELECT * FROM enrollments UNION ALL SELECT * FROM local_enrollments) e ON CAST(e.period_id AS INTEGER) = CAST(ap.id AS INTEGER) OR e.period_id = ap.id
+FROM {AP} ap
+JOIN {EN} e ON CAST(e.period_id AS INTEGER) = CAST(ap.id AS INTEGER) OR e.period_id = ap.id
 JOIN courses c ON CAST(e.course_id AS INTEGER) = CAST(c.id AS INTEGER) OR e.course_id = c.id
 WHERE (CAST(ap.student_id AS INTEGER) = CAST(? AS INTEGER) OR ap.student_id = ?)
   AND COALESCE(e.score, 0.0) >= 50
 GROUP BY ap.academic_year, ap.stage_number, c.id
 ORDER BY ap.academic_year ASC, COALESCE(ap.semester_num, 1) ASC, c.name_ar ASC;
-'''
+'''.format(AP=_AP_UNION, EN=_EN_UNION)
 
 Q_COURSES_YEARLY_BY_CURRICULUM_STAGE = '''
 SELECT
@@ -129,14 +157,14 @@ SELECT
     CAST(COALESCE(c.stage_number, ap.stage_number) AS TEXT) AS grouping_key,
     1 AS result_status_code,
     'PASSED' AS result_status_label
-FROM (SELECT * FROM academic_periods UNION ALL SELECT * FROM local_academic_periods) ap
-JOIN (SELECT * FROM enrollments UNION ALL SELECT * FROM local_enrollments) e ON CAST(e.period_id AS INTEGER) = CAST(ap.id AS INTEGER) OR e.period_id = ap.id
+FROM {AP} ap
+JOIN {EN} e ON CAST(e.period_id AS INTEGER) = CAST(ap.id AS INTEGER) OR e.period_id = ap.id
 JOIN courses c ON CAST(e.course_id AS INTEGER) = CAST(c.id AS INTEGER) OR e.course_id = c.id
 WHERE (CAST(ap.student_id AS INTEGER) = CAST(? AS INTEGER) OR ap.student_id = ?)
   AND COALESCE(e.score, 0.0) >= 50
 GROUP BY ap.academic_year, COALESCE(c.stage_number, ap.stage_number), c.id
 ORDER BY ap.academic_year ASC, COALESCE(ap.semester_num, 1) ASC, c.name_ar ASC;
-'''
+'''.format(AP=_AP_UNION, EN=_EN_UNION)
 
 Q_COURSES_YEARLY_BY_ACADEMIC_YEAR = '''
 SELECT
@@ -160,14 +188,14 @@ SELECT
     ap.academic_year AS grouping_key,
     1 AS result_status_code,
     'PASSED' AS result_status_label
-FROM (SELECT * FROM academic_periods UNION ALL SELECT * FROM local_academic_periods) ap
-JOIN (SELECT * FROM enrollments UNION ALL SELECT * FROM local_enrollments) e ON CAST(e.period_id AS INTEGER) = CAST(ap.id AS INTEGER) OR e.period_id = ap.id
+FROM {AP} ap
+JOIN {EN} e ON CAST(e.period_id AS INTEGER) = CAST(ap.id AS INTEGER) OR e.period_id = ap.id
 JOIN courses c ON CAST(e.course_id AS INTEGER) = CAST(c.id AS INTEGER) OR e.course_id = c.id
 WHERE (CAST(ap.student_id AS INTEGER) = CAST(? AS INTEGER) OR ap.student_id = ?)
   AND COALESCE(e.score, 0.0) >= 50
 GROUP BY ap.academic_year, c.id
 ORDER BY ap.academic_year ASC, COALESCE(ap.semester_num, 1) ASC, c.name_ar ASC;
-'''
+'''.format(AP=_AP_UNION, EN=_EN_UNION)
 
 
 def get_offline_academic_courses(student_id: int, grouping_mode: str = "DEFAULT") -> List[Dict[str, Any]]:
@@ -336,21 +364,7 @@ def get_offline_certificate_data(student_id: int, grouping_mode: str = "DEFAULT"
     response_data["signers"] = signers or []
 
     # 4. Academic Timeline
-    timeline = sqlite_read_all(
-        "SELECT MIN(ap.id) AS primary_period_id, "
-        "       CASE WHEN ap.academic_year IS NULL OR ap.academic_year = '' THEN '' "
-        "            WHEN ap.academic_year LIKE '%-%' THEN ap.academic_year "
-        "            ELSE ap.academic_year || ' - ' || CAST(CAST(ap.academic_year AS INTEGER) + 1 AS TEXT) "
-        "       END AS academic_year, "
-        "       MAX(ap.stage_number) AS stage_number, "
-        "       COALESCE(ap.semester_num, 1) AS semester_num, "
-        "       REPLACE(GROUP_CONCAT(COALESCE(ap.result_status, 'PASSED')), ',', ' / ') AS result_status "
-        "FROM (SELECT * FROM academic_periods UNION ALL SELECT * FROM local_academic_periods) ap "
-        "WHERE ap.student_id = ? "
-        "GROUP BY ap.academic_year, ap.semester_num "
-        "ORDER BY ap.academic_year ASC, ap.semester_num ASC",
-        (st_id,)
-    )
+    timeline = sqlite_read_all(Q_ACADEMIC_TIMELINE, (st_id,))
     response_data["academic_timeline"] = timeline or []
 
     
