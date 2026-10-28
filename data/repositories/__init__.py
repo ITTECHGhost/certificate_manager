@@ -4,6 +4,8 @@ import types as _types
 
 from ._legacy import *
 from ._legacy import _RESULT_STATUS_CODES, _local_ready, _refreshes_local_copy
+from .settings import SettingsRepository, CountryRepository, GovernorateRepository
+from .departments import DepartmentRepository, StudySystemRepository
 from . import _legacy as _role_state_owner
 
 # RoleRepository keeps its caches in module globals, and sync_engine resets one through this package
