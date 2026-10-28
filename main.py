@@ -154,7 +154,8 @@ if __name__ in {"__main__", "__mp_main__"}:
         app.native.window_args['min_size'] = (1280, 720)
         app.native.window_args['maximized'] = True
         app.native.start_args['gui'] = 'edgechromium'
-        app.native.start_args['debug'] = True
+        # DevTools (F12) only when running from source, never in the installed exe
+        app.native.start_args['debug'] = not getattr(sys, 'frozen', False)
 
     # Ensure all background processes and threads exit cleanly when closing the app
     from nicegui import app
