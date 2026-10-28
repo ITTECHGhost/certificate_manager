@@ -1,0 +1,7 @@
+# Developer PC: everything to run, test and build both programs.
+-r requirements.txt
+-r requirements-server.txt
+pyinstaller==6.21.0
+pytest==9.1.1
+httpx==0.28.1
+pillow==12.2.0

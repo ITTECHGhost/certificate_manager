@@ -1,9 +1,9 @@
-customtkinter
-mysql-connector-python
-python-docx
-requests
-fastapi
-uvicorn
-pydantic
-pywin32
-nicegui
+# Client program (CertificateManager.exe / py -3 main.py). Exact versions = tested versions.
+nicegui==3.14.0
+pywebview==6.2.1
+requests==2.34.2
+python-docx==1.2.0
+docxtpl==0.20.2
+openpyxl==3.1.5
+psutil==7.2.2
+pywin32==311

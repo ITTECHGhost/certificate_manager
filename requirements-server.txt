@@ -1,0 +1,7 @@
+# FastAPI server (certificate_manager_api). Exact versions = tested versions.
+fastapi==0.137.2
+uvicorn==0.49.0
+pydantic==2.13.4
+mysql-connector-python==9.7.0
+python-multipart==0.0.32
+pywin32==311
