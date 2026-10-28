@@ -14,13 +14,20 @@ sys.path.insert(0, os.getcwd())
 import main  # noqa: E402  (certificate_manager_api/main.py)
 
 
-def list_routes() -> list:
+def _walk_routes(routes, found: list) -> None:
     from fastapi.routing import APIRoute
-    found = []
-    for route in main.app.routes:
-        if isinstance(route, APIRoute):
+    for route in routes:
+        if type(route).__name__ == "_IncludedRouter":
+            # FastAPI >= 0.137 keeps include_router() lazy: one entry that holds the router's routes
+            _walk_routes(route.effective_candidates(), found)
+        elif isinstance(route, APIRoute) or type(route).__name__ == "_EffectiveRouteContext":
             for method in sorted(route.methods):
                 found.append([method, route.path])
+
+
+def list_routes() -> list:
+    found = []
+    _walk_routes(main.app.routes, found)
     return found
 
 

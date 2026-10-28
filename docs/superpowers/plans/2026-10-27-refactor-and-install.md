@@ -79,7 +79,7 @@ Phase 8 rebuilds the release after the splits.
 - Legacy files move to `old/`, never deleted. Files that hold passwords or student data go to the ignored
   `old/root_duplicates/` or `old/sql_dumps/`.
 - Code is changed with Write/Edit only, never with scripts that rewrite source files (`.ai/cerebrum.md`).
-- Every API method+path stays registered **in the same order** (`tests/snapshots/api_routes.json`, 153 entries).
+- Every API method+path stays registered **in the same order** (`tests/snapshots/api_routes.json`, 161 entries since Phase 3: the probe now also lists routes inside `include_router` routers).
 - Every name in `tests/snapshots/public_names.json` stays importable from the same module path.
 - `tests/check_no_direct_mysql.py` stays green: the client never talks to MySQL.
 - From source, all data stays in the project root. The installed build writes only to the data folder (`app_paths`).

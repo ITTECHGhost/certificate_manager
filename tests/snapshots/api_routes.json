@@ -1,6 +1,38 @@
 [
  [
   "GET",
+  "/students/search"
+ ],
+ [
+  "POST",
+  "/students/bulk-import"
+ ],
+ [
+  "POST",
+  "/api/students/bulk-import"
+ ],
+ [
+  "GET",
+  "/api/update/version.json"
+ ],
+ [
+  "GET",
+  "/api/update/download/{patch_filename}"
+ ],
+ [
+  "GET",
+  "/api/templates/manifest"
+ ],
+ [
+  "GET",
+  "/api/templates/download/{template_name}"
+ ],
+ [
+  "POST",
+  "/api/templates/upload"
+ ],
+ [
+  "GET",
   "/ping"
  ],
  [
