@@ -40,3 +40,17 @@ certificate_manager_api/logs/
 # Tests (golden files hold real student data: never commit them)
 tests/.golden/
 .pytest_cache/
+
+# Generated documents, local data dumps and build output
+certificates/
+sql/SQLite.sql
+dist/
+build/
+
+# Archived files that hold data or passwords (kept on disk, never in git)
+old/sql_dumps/
+old/root_duplicates/
+
+# Per-install secrets (server and client)
+certificate_manager_api/db_config.json
+.storage_secret
