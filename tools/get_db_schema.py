@@ -29,7 +29,8 @@ for stream in (sys.stdout, sys.stderr):
         except Exception:
             pass
 
-# Try importing DB connection from project db.py
+# Try importing the DB connection from the API folder (certificate_manager_api/db.py)
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "certificate_manager_api"))
 try:
     import db
     from config import DBConfig

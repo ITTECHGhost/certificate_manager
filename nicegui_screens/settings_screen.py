@@ -349,8 +349,8 @@ class SettingsScreen:
                             col_src = None
                             if self.college_logo_path and os.path.exists(self.college_logo_path):
                                 col_src = self.college_logo_path
-                            elif os.path.exists("csit.png"):
-                                col_src = "csit.png"
+                            elif os.path.exists("assets/csit.png"):
+                                col_src = "assets/csit.png"
 
                             if col_src:
                                 self.college_logo_img = ui.image(f"{col_src}?t={datetime.now().timestamp()}").classes("max-h-24 max-w-[140px] object-contain")

@@ -158,8 +158,8 @@ class LoginScreen:
                 if not logo_src:
                     if os.path.exists("assets/college_logo.png"):
                         logo_src = "assets/college_logo.png"
-                    elif os.path.exists("csit.png"):
-                        logo_src = "csit.png"
+                    elif os.path.exists("assets/csit.png"):
+                        logo_src = "assets/csit.png"
 
                 if logo_src:
                     ui.image(logo_src).classes(

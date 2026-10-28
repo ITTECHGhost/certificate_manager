@@ -16,7 +16,7 @@ app_datas = [
     ('templets', 'templets'),
     ('sql', 'sql'),
     ('nicegui_ui', 'nicegui_ui'),
-    ('csit.png', '.'),
+    ('assets/csit.png', 'assets'),
     ('server_config.json', '.'),
     ('certs/college_ca.crt', 'certs'),
     ('scripts/apply_patch.bat', 'scripts'),
@@ -86,7 +86,7 @@ exe = EXE(
     target_arch=None,
     codesign_identity=None,
     entitlements_file=None,
-    icon='csit.png'
+    icon='assets/csit.png'
 )
 
 coll = COLLECT(
