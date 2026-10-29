@@ -431,6 +431,14 @@ class CertificateScreen:
 
         self.selected_student = student_row
         student_id = student_row.get("student_id") or student_row.get("id")
+
+        # A new student starts clean: no edit mode and no document from the previous one.
+        self.reissue_cert_id = None
+        self.generated_file_path = None
+        if hasattr(self, "edit_mode_banner") and self.edit_mode_banner:
+            self.edit_mode_banner.set_visibility(False)
+        if hasattr(self, "btn_generate") and self.btn_generate:
+            self.btn_generate.text = "إصدار وتوليد الوثيقة (Word)"
         self.current_grouping_mode = getattr(self, "current_grouping_mode", "DEFAULT")
 
         try:
@@ -492,43 +500,9 @@ class CertificateScreen:
 
             # If arriving with an existing certificate record (e.g. from Issued Certificates registry Edit button)
             if self.initial_cert_record:
-                rec = self.initial_cert_record
-                cert_num = rec.get("certificate_number") or ""
-                to_title = rec.get("to_title") or rec.get("recipient_name") or ""
-                issue_date = rec.get("issue_date") or ""
-                tpl_type = rec.get("template_type") or rec.get("template_file") or rec.get("template_name") or ""
-
-                if hasattr(self, "cert_number_input") and self.cert_number_input and cert_num:
-                    self.cert_number_input.value = str(cert_num)
-                if hasattr(self, "to_input") and self.to_input and to_title:
-                    self.to_input.value = str(to_title)
-                if hasattr(self, "issue_date_input") and self.issue_date_input and issue_date:
-                    self.issue_date_input.value = str(issue_date)[:10]
-
-                # Match template in dropdown
-                if hasattr(self, "template_sel") and self.template_sel and tpl_type:
-                    tpl_clean = str(tpl_type).strip().lower()
-                    matched = None
-                    opts = self.template_sel.options
-                    opt_keys = list(opts.keys()) if isinstance(opts, dict) else list(opts)
-                    for opt_k in opt_keys:
-                        opt_clean = os.path.splitext(opt_k)[0].strip().lower()
-                        if tpl_clean == opt_clean or tpl_clean in opt_clean or opt_clean in tpl_clean:
-                            matched = opt_k
-                            break
-                    if matched:
-                        self.template_sel.value = matched
-                        self.template_sel.update()
-
-                self.reissue_cert_id = rec.get("certificate_id") or rec.get("id")
                 student_display_name = student_row.get("full_name_ar") or self.student_full_data.get("full_name_ar", "")
-                if hasattr(self, "edit_mode_banner") and self.edit_mode_banner:
-                    if hasattr(self, "edit_mode_label") and self.edit_mode_label:
-                        self.edit_mode_label.text = f"وضع التعديل: تعديل قيد الوثيقة رقم ({cert_num or self.reissue_cert_id}) للطالب ({student_display_name})"
-                    self.edit_mode_banner.set_visibility(True)
-
-                if hasattr(self, "btn_generate") and self.btn_generate:
-                    self.btn_generate.text = "تحديث وتوليد الوثيقة (Word) / Update & Generate"
+                self._enter_edit_mode(self.initial_cert_record, student_display_name)
+                self.initial_cert_record = None  # used once; selecting another student must not re-enter it
 
                 # Directly show print options view as requested
                 self.show_options_view()
@@ -906,6 +880,44 @@ class CertificateScreen:
                                                 ui.label(f"الدرجة: {score}").classes("font-extrabold text-emerald-400 font-mono text-xs")
                                                 ui.label(f"{units} وحدات").classes("text-[10px] font-bold px-2 py-0.5 bg-[var(--bg-card)] rounded-lg text-slate-300 font-mono border border-[var(--border-default)]")
 
+    def _enter_edit_mode(self, rec: dict, student_display_name: str = "") -> None:
+        """Loads an issued certificate record into the form; generating then updates that record."""
+        cert_num = rec.get("certificate_number") or ""
+        to_title = rec.get("to_title") or rec.get("recipient_name") or ""
+        issue_date = rec.get("issue_date") or ""
+        tpl_type = rec.get("template_type") or rec.get("template_file") or rec.get("template_name") or ""
+
+        if hasattr(self, "cert_number_input") and self.cert_number_input and cert_num:
+            self.cert_number_input.value = str(cert_num)
+        if hasattr(self, "to_input") and self.to_input and to_title:
+            self.to_input.value = str(to_title)
+        if hasattr(self, "issue_date_input") and self.issue_date_input and issue_date:
+            self.issue_date_input.value = str(issue_date)[:10]
+
+        # Match template in dropdown
+        if hasattr(self, "template_sel") and self.template_sel and tpl_type:
+            tpl_clean = str(tpl_type).strip().lower()
+            matched = None
+            opts = self.template_sel.options
+            opt_keys = list(opts.keys()) if isinstance(opts, dict) else list(opts)
+            for opt_k in opt_keys:
+                opt_clean = os.path.splitext(opt_k)[0].strip().lower()
+                if tpl_clean == opt_clean or tpl_clean in opt_clean or opt_clean in tpl_clean:
+                    matched = opt_k
+                    break
+            if matched:
+                self.template_sel.value = matched
+                self.template_sel.update()
+
+        self.reissue_cert_id = rec.get("certificate_id") or rec.get("id")
+        if hasattr(self, "edit_mode_banner") and self.edit_mode_banner:
+            if hasattr(self, "edit_mode_label") and self.edit_mode_label:
+                self.edit_mode_label.text = f"وضع التعديل: تعديل قيد الوثيقة رقم ({cert_num or self.reissue_cert_id}) للطالب ({student_display_name})"
+            self.edit_mode_banner.set_visibility(True)
+
+        if hasattr(self, "btn_generate") and self.btn_generate:
+            self.btn_generate.text = "تحديث وتوليد الوثيقة (Word) / Update & Generate"
+
     def _show_reissue_warning_modal(self, cert_num: str, tpl_name: str, options: dict, reissue_cert_id: Optional[int] = None) -> None:
         """Opens a confirmation modal warning the user to destroy the old physical paper copy before re-issuing."""
         with ui.dialog() as dialog, UI.card().classes("w-full max-w-lg p-6 gap-4 bg-[var(--bg-card)] rounded-2xl border border-[var(--border-default)] shadow-2xl"):
@@ -933,6 +945,38 @@ class CertificateScreen:
 
                 UI.danger_button("تأكيد وإتلاف القديمة / Confirm & Overwrite", icon="done", on_click=_confirm_reissue).classes("text-xs px-4 py-2 font-bold")
 
+        dialog.open()
+
+    def _find_issued_record(self, student_id, issue_date: str, to_title: str, tpl_type: str) -> dict | None:
+        """The issued record matching the database's unique key (student, date, recipient, template)."""
+        for rec in self.issued_cert_repo.get_by_student(student_id) or []:
+            if (str(rec.get("issue_date") or "")[:10] == (issue_date or "")[:10]
+                    and (rec.get("to_title") or "").strip() == to_title
+                    and (rec.get("template_type") or "").strip() == tpl_type):
+                return rec
+        return None
+
+    def _show_already_issued_modal(self, rec: dict) -> None:
+        """The student already has this certificate: offer to open it in edit mode instead of a new record."""
+        with ui.dialog() as dialog, UI.card().classes("w-full max-w-lg p-6 gap-4 bg-[var(--bg-card)] rounded-2xl border border-[var(--border-default)] shadow-2xl"):
+            with ui.row().classes("items-center gap-3"):
+                ui.icon("edit_document", size="lg").classes("text-amber-500")
+                with ui.column().classes("gap-0"):
+                    ui.label("الوثيقة صادرة مسبقاً لهذا الطالب").classes("text-base font-bold app-text-primary")
+                    ui.label("Certificate Already Issued").classes("text-xs app-text-muted")
+            ui.label(
+                f"صدرت هذه الوثيقة بالرقم ({rec.get('certificate_number') or '-'}) بتاريخ {str(rec.get('issue_date') or '')[:10]} "
+                "لنفس الجهة ونفس القالب. افتحها في وضع التعديل لإعادة إصدارها (Word أو PDF) وتحديث قيدها."
+            ).classes("text-sm app-text-primary leading-relaxed")
+            with ui.row().classes("w-full justify-end gap-3 mt-2"):
+                UI.secondary_button("إلغاء / Cancel", icon="close", on_click=dialog.close).classes("text-xs px-4 py-2")
+
+                def _open_edit():
+                    dialog.close()
+                    self._enter_edit_mode(rec, self.student_full_data.get("full_name_ar", ""))
+                    UI.notify("تم فتح الوثيقة في وضع التعديل. اضغط زر الإصدار مرة أخرى.", type="info")
+
+                UI.primary_button("فتح في وضع التعديل / Edit", icon="edit", on_click=_open_edit).classes("text-xs px-4 py-2 font-bold")
         dialog.open()
 
     def generate_certificate(self, bypass_duplicate_check: bool = False) -> bool:
@@ -975,6 +1019,18 @@ class CertificateScreen:
             "national_id": (self.student_full_data.get("national_id") if self.student_full_data else None) or (self.selected_student.get("national_id") if hasattr(self, "selected_student") and self.selected_student else None) or "",
             "reissue_cert_id": getattr(self, "reissue_cert_id", None),
         }
+
+        # Already issued (same student, date, recipient, template)? Offer edit mode instead of a refused insert.
+        if not getattr(self, "reissue_cert_id", None) and student_id:
+            existing = self._find_issued_record(
+                student_id,
+                (self.issue_date_input.value or "").strip() if hasattr(self, "issue_date_input") else "",
+                (self.to_input.value or "").strip() or "من يهمه الأمر",
+                os.path.splitext(tpl_name)[0],
+            )
+            if existing:
+                self._show_already_issued_modal(existing)
+                return False
 
         # Check duplicate certificate number
         if cert_num and not bypass_duplicate_check:
@@ -1172,9 +1228,12 @@ class CertificateScreen:
                             user_name=u_name
                         )
                         log.info(f"Successfully recorded issued certificate for student ID {student_id} via InsertIssuedCertificate SP.")
-                    # Automatically prepare next sequence number in UI if not editing
-                    if not reissue_id and hasattr(self, "cert_number_input") and self.cert_number_input:
-                        self.cert_number_input.value = self.issued_cert_repo.get_next_number()
+                    # Stay on the record just issued, so the Word and PDF buttons re-issue it
+                    # (update) instead of trying to insert a second record.
+                    if not reissue_id:
+                        new_rec = self._find_issued_record(student_id, issue_dt or "", to_title, tpl_type)
+                        if new_rec:
+                            self._enter_edit_mode(new_rec, self.student_full_data.get("full_name_ar", ""))
             except CertificateRejected as rej:
                 log.warning(f"Server refused to record the issued certificate: {rej}")
                 UI.notify(
