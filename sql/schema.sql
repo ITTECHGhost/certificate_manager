@@ -131,7 +131,7 @@ CREATE TABLE `issued_certificates` (
   `issue_date` date NOT NULL,
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `uq_student_cert_record` (`certificate_number`,`student_id`,`issue_date`,`template_type`,`to_title`),
+  UNIQUE KEY `uq_student_cert_record` (`student_id`,`issue_date`,`to_title`,`template_type`),
   KEY `idx_cert_log_entry` (`certificate_number`,`issue_date`,`student_id`,`to_title`(100),`template_type`(50)),
   KEY `idx_cert_num` (`certificate_number`),
   CONSTRAINT `fk_issued_cert_student` FOREIGN KEY (`student_id`) REFERENCES `students` (`id`) ON DELETE CASCADE

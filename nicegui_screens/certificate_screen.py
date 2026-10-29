@@ -1180,8 +1180,7 @@ class CertificateScreen:
             except CertificateRejected as rej:
                 log.warning(f"Server refused to record the issued certificate: {rej}")
                 UI.notify(
-                    "لم يتم تسجيل الوثيقة: يوجد سجل مطابق مسبقاً (نفس الرقم والطالب والتاريخ والنوع والجهة).\n"
-                    f"The server refused to record this certificate ({rej.status_code}): a matching record already exists.",
+                    f"لم يتم تسجيل الوثيقة في قاعدة البيانات / The server refused to record this certificate ({rej.status_code}):\n{rej.detail}",
                     type="warning"
                 )
             except Exception as sp_err:
