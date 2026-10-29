@@ -989,7 +989,6 @@ class CertificateScreen:
                     UI.notify(
                         f"⚠️ خطأ: رقم الوثيقة ({cert_num}) مستخدم بالفعل للطالب ({owner_name})! يرجى اختيار رقم فريد.",
                         type="negative",
-                        close_button="حسناً"
                     )
                     return False
                 else:
