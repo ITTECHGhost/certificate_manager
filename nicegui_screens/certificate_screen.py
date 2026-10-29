@@ -349,12 +349,10 @@ class CertificateScreen:
                         ).classes("flex-1 py-3 text-base font-bold")
 
                         self.btn_open = UI.primary_button(
-                            "فتح المعاينة والطباعة",
+                            "إصدار ومعاينة PDF والطباعة",
                             icon="print",
                             on_click=self.print_certificate
                         ).classes("flex-1 py-3 text-base")
-                        self.btn_open.disable()
-                        self.btn_open.set_visibility(False)
 
                         UI.primary_button("العودة لبيانات الطالب", icon="arrow_forward", on_click=self.show_info_view).classes("px-6 py-3 text-sm")
 
@@ -1321,9 +1319,9 @@ class CertificateScreen:
 
     async def print_certificate(self):
         """Fills Word template, converts to PDF/HTML asynchronously in background, and opens full in-app preview modal."""
+        # Filling the template also records the certificate, so only do it once.
         if not self.generated_file_path or not os.path.exists(self.generated_file_path):
-            success = self.generate_certificate()
-            if not success:
+            if not self.generate_certificate():
                 return
 
         if self.generated_file_path and os.path.exists(self.generated_file_path):
