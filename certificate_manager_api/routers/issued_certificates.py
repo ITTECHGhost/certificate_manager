@@ -35,28 +35,16 @@ def get_all_issued_certificates(conn=Depends(get_db)):
 @router.get("/api/issued-certificates/latest-number")
 @router.get("/issued-certificates/latest-number")
 def get_latest_certificate_number(conn=Depends(get_db)):
-    cur = conn.cursor(dictionary=True, buffered=True)
+    # The highest number of the current year, not the newest row: a re-issue or a synced
+    # offline certificate is saved later with a lower number, and a mistyped year suffix
+    # must not move the sequence. Numbers reserved by laptops for offline use count too,
+    # so they are never handed out online. None = no number this year yet (client starts at 1).
+    suffix = datetime.now().strftime("%y")
     try:
-        cur.execute(
-            "SELECT certificate_number FROM issued_certificates "
-            "WHERE certificate_number IS NOT NULL AND certificate_number != '' "
-            "ORDER BY id DESC LIMIT 1"
-        )
-        row = cur.fetchone()
-        latest = row["certificate_number"] if row else None
-        # The newest row is not always the highest number (a re-issue or a synced offline
-        # certificate can be saved later with a lower one), so report the highest number of
-        # that year. Numbers reserved by laptops for offline use must never be handed out
-        # online either, so the end of the highest reserved block counts too.
-        parts = _cert_number_parts(latest)
-        if parts:
-            highest = max(_max_issued_number(conn, parts[1]), _max_reserved_block_end(conn, parts[1]) or 0)
-            latest = f"{highest}/{parts[1]}"
-        return {"latest_number": latest}
+        highest = max(_max_issued_number(conn, suffix), _max_reserved_block_end(conn, suffix) or 0)
+        return {"latest_number": f"{highest}/{suffix}" if highest else None}
     except Exception as exc:
         raise HTTPException(status_code=500, detail=str(exc))
-    finally:
-        cur.close()
 
 
 def _cert_number_parts(number) -> Optional[tuple]:

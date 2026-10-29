@@ -1181,13 +1181,17 @@ class CertificateScreen:
                     f"لم يتم تسجيل الوثيقة في قاعدة البيانات / The server refused to record this certificate ({rej.status_code}):\n{rej.detail}",
                     type="warning"
                 )
+                # A certificate the server refused has no record and no valid number: never print it.
+                try:
+                    os.remove(out_file)
+                except OSError:
+                    pass
+                self.generated_file_path = None
+                return False
             except Exception as sp_err:
                 log.error(f"Failed to record issued certificate into database via SP: {sp_err}")
 
             UI.notify(f"تم إصدار وتوليد الوثيقة بنجاح: {os.path.basename(out_file)}", type="positive")
-
-            # Trigger automatic browser download
-            ui.download(out_file, filename=os.path.basename(out_file))
             return True
         except PermissionError as pe:
             log.error(f"Permission denied while saving certificate file {out_file}: {pe}")
