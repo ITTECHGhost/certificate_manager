@@ -61,7 +61,7 @@ if errorlevel 1 (
 )
 
 echo [5/6] Server bundle...
-powershell.exe -NoProfile -ExecutionPolicy Bypass -File scriptsuild_server_bundle.ps1 -OutDir "%OUT%"
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File scripts\build_server_bundle.ps1 -OutDir "%OUT%"
 if errorlevel 1 exit /b 1
 
 echo [6/6] Checksums and install package...
