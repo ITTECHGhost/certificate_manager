@@ -16,6 +16,7 @@ import app_paths
 from nicegui_ui.ui_components import UI
 from nicegui_ui.template_constants import get_friendly_template_name
 from data.repositories import StudentRepository, CertificateRepository, PersonnelRepository, IssuedCertificateRepository
+from data.repositories.certificates import CertificateRejected
 from nicegui_screens.graduation_orders_screen import extract_event_value
 
 from services.certificate_context import (
@@ -1176,6 +1177,13 @@ class CertificateScreen:
                     # Automatically prepare next sequence number in UI if not editing
                     if not reissue_id and hasattr(self, "cert_number_input") and self.cert_number_input:
                         self.cert_number_input.value = self.issued_cert_repo.get_next_number()
+            except CertificateRejected as rej:
+                log.warning(f"Server refused to record the issued certificate: {rej}")
+                UI.notify(
+                    "لم يتم تسجيل الوثيقة: يوجد سجل مطابق مسبقاً (نفس الرقم والطالب والتاريخ والنوع والجهة).\n"
+                    f"The server refused to record this certificate ({rej.status_code}): a matching record already exists.",
+                    type="warning"
+                )
             except Exception as sp_err:
                 log.error(f"Failed to record issued certificate into database via SP: {sp_err}")
 

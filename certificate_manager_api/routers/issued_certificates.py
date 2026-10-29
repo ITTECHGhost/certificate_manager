@@ -213,7 +213,7 @@ def insert_issued_certificate(payload: IssuedCertificatePayload, conn=Depends(ge
     except mysql.connector.errors.IntegrityError as db_err:
         conn.rollback()
         if "Duplicate entry" in str(db_err) or "1062" in str(db_err):
-            raise HTTPException(status_code=409, detail="Certificate record already exists for this student, date, and template.")
+            raise HTTPException(status_code=409, detail="Certificate record already exists for this number, student, date, type and title.")
         raise HTTPException(status_code=400, detail=str(db_err))
     except Exception as exc:
         conn.rollback()

@@ -36,6 +36,15 @@ class CertificateRepository(BaseRepository):
             return []
 
 
+class CertificateRejected(Exception):
+    """The server refused to record the certificate (4xx, e.g. 409 duplicate); it is not queued offline."""
+
+    def __init__(self, status_code: int, detail: str):
+        super().__init__(f"{status_code}: {detail}")
+        self.status_code = status_code
+        self.detail = detail
+
+
 class IssuedCertificateRepository(BaseRepository):
     def get_all(self) -> list[dict]:
         if not is_online():
@@ -291,8 +300,14 @@ class IssuedCertificateRepository(BaseRepository):
                 if resp.status_code == 200:
                     res_data = resp.json()
                     new_id = res_data.get("new_id") or res_data.get("inserted_id")
+                elif 400 <= resp.status_code < 500:
+                    # The server answered and refused (e.g. 409 duplicate): queueing it offline would only fail again
+                    log_system(f"API refused issued certificate ({resp.status_code}): {resp.text}", "WARNING")
+                    raise CertificateRejected(resp.status_code, resp.text)
                 else:
                     log_system(f"API insert issued certificate warning: {resp.text}", "WARNING")
+            except CertificateRejected:
+                raise
             except Exception as e:
                 log_system(f"API request failed for insert issued certificate: {e}", "WARNING")
 
