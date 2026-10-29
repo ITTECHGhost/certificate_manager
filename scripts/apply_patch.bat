@@ -83,7 +83,8 @@ if /I "%EXE_NAME:~-4%"==".exe" (
 )
 
 echo [%date% %time%] [OTA_PATCH] Update workflow complete. >> "%LOG_FILE%"
-exit /b 0
+:: This copy lives in %TEMP% (services/updater.py): delete it on the way out
+(goto) 2>nul & del "%~f0"
 
 :USAGE_ERROR
 echo [ERROR] Missing required arguments for apply_patch.bat.

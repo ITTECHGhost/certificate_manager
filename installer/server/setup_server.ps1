@@ -167,7 +167,7 @@ $https = $false
 if (Test-Path $settingsFile) {
     $settings = Get-Content $settingsFile -Raw | ConvertFrom-Json
     if ($settings.port) { $port = [int]$settings.port }
-    $https = [bool]$settings.https
+    $https = ($settings.https -eq $true) -or ("$($settings.https)" -eq "true")
 }
 if ($SkipService) { Skip "Windows service" } else {
     $installBat = Join-Path $TargetDir "install_service.bat"

@@ -148,7 +148,9 @@ begin
   begin
     Port := StrToIntDef(Trim(AddressPage.Values[1]), 0);
     Scheme := LowerCase(Trim(AddressPage.Values[2]));
-    if (Trim(AddressPage.Values[0]) = '') or (Port <= 0) or (Port > 65535) or ((Scheme <> 'http') and (Scheme <> 'https')) then
+    { The host goes into server_config.json as-is: no quotes, backslashes or spaces }
+    if (Trim(AddressPage.Values[0]) = '') or (Pos('"', AddressPage.Values[0]) > 0) or (Pos('', AddressPage.Values[0]) > 0)
+       or (Pos(' ', Trim(AddressPage.Values[0])) > 0) or (Port <= 0) or (Port > 65535) or ((Scheme <> 'http') and (Scheme <> 'https')) then
     begin
       MsgBox('Fill in the server address, a port number and http or https.', mbError, MB_OK);
       Result := False;
