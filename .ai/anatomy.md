@@ -19,7 +19,12 @@
 - `utils/password_hashing.py` (+ identical `certificate_manager_api/password_hashing.py`): PBKDF2 password hashing. `nicegui_ui/upload_utils.py`: `read_upload()` for NiceGUI 2/3 upload events.
 - `tools/`: developer DB tools `export_db.py` and `get_db_schema.py` (they use the API folder's `config.py`/`db.py`; the old `migrate_mysql.py` is in `old/tools/`). `sql/`: `schema.sql`, `SP.sql` and `fixes/` in git; `SQLite.sql` is a local dump (ignored); old dumps are in `old/sql_dumps/` (ignored). `docs/`: guides, `db_schema_report.md`, `template_mapping_guide.md`, `UI_OVERVIEW.md`. `assets/csit.png`: fallback logo.
 - `old/`: **Everything legacy** — CustomTkinter UI (`temp_archive/old design/`), scratch scripts, backups, copies, old themes, stray DBs. Not imported by anything; safe to delete when confirmed.
-- `logs/system_log.txt`, `logs/activity_log.txt`: runtime logs.
+- `logs/system_log.txt`, `logs/activity_log.txt`: runtime logs (in the data folder; see `app_paths.py`).
+- `app_paths.py`: the only place that decides file locations. From source everything is in the project folder; installed, the data (cache, logs, templets, certificates, server_config.json) is in `%LOCALAPPDATA%\CertificateManager` and the program in `%LOCALAPPDATA%\Programs\CertificateManager`. `CERTMAN_DATA_DIR` overrides the data folder (tests).
+- `app_version.py`: `APP_VERSION`, the one version number (updater, patch ZIP, installer).
+- `installer/client/CertificateManager.iss` (+ `test_install.ps1`): Inno Setup per-user installer. `installer/server/setup_server.bat|ps1` (+ `test_setup_server.ps1`): server install/update. `scripts/build_release.bat`: client release. `scripts/build_server_bundle.ps1`: server bundle.
+- `tests/`: pytest suite. `py -3 -m pytest` (fast); `-m mysql` compares read-only API answers with `tests/.golden/` (ignored, holds student data). Snapshots in `tests/snapshots/` (API route order, public names) guard refactors.
+- `docs/superpowers/plans/`: the refactor plan and the Haiku runbooks.
 
 > **AGENT RULE:** When investigating system behavior, errors, or tracing recent actions (e.g., failed logins, API/SP failures, offline fallback triggers), ALWAYS search `logs/system_log.txt` and `logs/activity_log.txt` to gather context on what actually happened during runtime.
 

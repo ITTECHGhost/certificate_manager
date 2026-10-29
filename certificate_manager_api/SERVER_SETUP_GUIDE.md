@@ -32,13 +32,14 @@ The service writes its output to `logs\api_service.log` in this folder.
 1. **Fixed IP.** Windows Settings → Network & Internet → (Ethernet / Wi-Fi) → IP assignment → Edit → **Manual**,
    or ask the network admin to reserve an IP for this laptop. Write it down (example: `192.168.1.20`).
 2. **AppServ** (Apache + MySQL) is installed, and the database is restored.
-3. **Python** is installed for all users, with these packages:
-
-       python -m pip install fastapi uvicorn mysql-connector-python pydantic python-multipart pywin32
-
-4. Copy the project's `certificate_manager_api` folder to `C:\AppServ\www\certificate_manager_api\`.
-5. Check `config.py` in that folder: the MySQL login (`DBConfig`) must be correct for this laptop.
-   Updates never overwrite `config.py`.
+3. **Python 3.14 (64-bit)** is installed **for all users**, with "Add python.exe to PATH".
+4. Unzip the server bundle `CertificateManagerServer-<version>.zip` (made on the developer laptop with
+   `scripts\build_server_bundle.ps1`) somewhere, e.g. `D:\release\`.
+5. Double-click **`setup_server.bat`** in the unzipped folder (admin). It installs the Python packages
+   (from the bundle's `wheels\`, no internet needed), copies the code to `C:\AppServ\www\certificate_manager_api\`,
+   asks once for the MySQL login and saves it in `db_config.json`, adds the templates, installs and starts the
+   service (HTTP first), opens the firewall port and checks `/ping`. Steps 3 and the firewall command in step 4
+   below are then already done; they stay here for reference. Updates never overwrite `db_config.json`.
 
 ### 2. Make sure Apache cannot serve this folder
 The folder is inside Apache's web folder. Open in a browser:
@@ -70,12 +71,16 @@ If it says there is no firewall rule, open **Command Prompt as Administrator** o
 ### 5. Switch the clients and the server to HTTPS (same day)
 The server speaks **either** HTTP **or** HTTPS on port 2030, so do these together:
 
-1. On every client laptop, copy from `client_package\` into the Certificate Manager program folder:
+1. On every client laptop, give the program the files from `client_package\`:
+   - **Installed with the setup (2.1.0 or later):** run the setup again and choose "Import settings from a
+     folder" → `client_package`. Or copy the files into `%LOCALAPPDATA%\CertificateManager\`:
 
-   | From `client_package\` | To the client's program folder |
-   |---|---|
-   | `server_config.json` | replace the existing `server_config.json` |
-   | `certs\college_ca.crt` | `certs\college_ca.crt` (create the `certs` folder) |
+     | From `client_package\` | To `%LOCALAPPDATA%\CertificateManager\` |
+     |---|---|
+     | `server_config.json` | replace the existing `server_config.json` |
+     | `certs\college_ca.crt` | `certs\college_ca.crt` (create the `certs` folder) |
+
+   - **Old portable folder (before 2.1.0):** copy them into the program folder, as before.
 
 2. On the server: **`switch_server_mode.bat https`** (admin), or double-click it and type `https`.
 3. Restart the program on the clients. The top bar should show **Online**.
@@ -128,16 +133,18 @@ Then:
 ```
 Developer laptop                              Server laptop                         Client laptops
 ----------------                              -------------                         --------------
-Server code changed  ── copy folder ──▶  update_server.bat <folder>
-                                         (stops service, copies code,
+Server code changed:
+ scripts\build_server_bundle.ps1 ── copy ZIP ──▶  unzip, setup_server.bat
+                                         (backs up, stops service, copies code,
                                           keeps settings, starts service)
 
 Client program changed:
- 1. raise CURRENT_APP_VERSION in
-    services\updater.py (e.g. 2.1.0)
- 2. scripts\build_client.bat
- 3. scripts\make_client_patch.bat
-    → dist\patch_v2.1.0.zip   ── copy ZIP ──▶  publish_client_update.bat <zip>  ──▶  Settings ›
+ 1. raise APP_VERSION in
+    app_version.py (e.g. 2.1.1)
+ 2. scripts\build_release.bat
+    → dist\release\2.1.1\patch_v2.1.1.zip
+      (+ CertificateManager-Setup-2.1.1.exe for new laptops)
+                              ── copy ZIP ──▶  publish_client_update.bat <zip>  ──▶  Settings ›
                                                 (version.json + ZIP in            Check for updates
                                                  C:\AppServ\www\updates)           → download → restart
 ```
@@ -156,9 +163,9 @@ If the new code fails to start: copy the files from `_backup_before_update\` bac
 `install_service.bat`.
 
 ### Updating the client program
-1. Developer laptop: raise `CURRENT_APP_VERSION` in `services\updater.py` (e.g. `2.0.0` → `2.1.0`).
+1. Developer laptop: raise `APP_VERSION` in `app_version.py` (e.g. `2.1.0` → `2.1.1`).
    **Do not skip this** - clients compare this number to decide if there is an update.
-2. Run `scripts\build_client.bat`, then `scripts\make_client_patch.bat` → `dist\patch_v2.1.0.zip`.
+2. Run `scripts\build_release.bat` → `dist\release\2.1.1\patch_v2.1.1.zip` (plus the setup for new laptops).
 3. Copy the ZIP to the server laptop and drag it onto **`publish_client_update.bat`**.
 4. On each client: Settings › Server, Maintenance & Logs › **Check for updates** → install.
 
@@ -175,7 +182,8 @@ during an update - the patch never contains `server_config.json`, and the update
 1. Run `setup_server_https.bat` again with the new IP. The college CA and the program key are kept;
    a new server certificate and a new `client_package\` are made.
 2. Restart the service: `switch_server_mode.bat https` (admin).
-3. Copy the new `client_package\server_config.json` to every client (the `college_ca.crt` did not change).
+3. Copy the new `client_package\server_config.json` to every client: into `%LOCALAPPDATA%\CertificateManager\`
+   (installed program) or the program folder (old portable version). The `college_ca.crt` did not change.
 
 ## Going back to plain HTTP (emergency)
 1. Server: `switch_server_mode.bat http` (admin).
@@ -205,7 +213,7 @@ The new program must send its key in the `X-App-Key` header on every request.
 | `certs\ca\college_ca.key` | server only | **YES** - with it anyone can make a fake server. Keep a backup. |
 | `certs\server.key` | server only | **YES** |
 | `app_keys.json` | server only | **YES** |
-| `config.py` | server only | **YES** (MySQL password) |
+| `db_config.json` | server only | **YES** (MySQL password) |
 | `client_package\server_config.json` | server + clients | **YES** (program key) |
 | `certs\college_ca.crt` | server + clients | no (public) |
 | `.htaccess` (here and in `C:\AppServ\www\updates`) | server | no - but must exist |
@@ -216,7 +224,7 @@ None of the secret files are in git (see `.gitignore`).
 
 | Problem | Fix |
 |---|---|
-| Service does not start | Read `logs\api_service.log`. Common causes: port 2030 used by a `start_server.bat` window (close it), HTTPS mode without certificates (run `setup_server_https.bat`), wrong MySQL login in `config.py`, `pywin32` not installed. |
+| Service does not start | Read `logs\api_service.log`. Common causes: port 2030 used by a `start_server.bat` window (close it), HTTPS mode without certificates (run `setup_server_https.bat`), wrong MySQL login in `db_config.json`, `pywin32` not installed. |
 | Client shows **Offline** after switching to HTTPS | Client `server_config.json` (`scheme`, `host`, `api_url`), `certs\college_ca.crt` in the program folder, server in HTTPS mode, firewall rule. |
 | `SSLError` / certificate verify failed in the client log | The client has a different `college_ca.crt` than the server. Copy the server's `certs\college_ca.crt` again. |
 | `401 Missing or invalid application key` | The client's `app_key` differs from `app_keys.json`. Copy `client_package\server_config.json` again. |
