@@ -99,13 +99,6 @@ class MainAppShell:
             log.warning(f"[MainAppShell] Failed to fetch recent students: {exc}")
             self.recent_students = []
 
-        # Fallback sample data if DB is empty
-        if not self.recent_students:
-            self.recent_students = [
-                {"id": 3, "full_name_ar": "علي حسن أحمد", "dept_name_ar": "علوم الحاسوب", "admission_year": "2023-2024", "status": "مستمر"},
-                {"id": 2, "full_name_ar": "سارة محمود علي", "dept_name_ar": "نظم المعلومات", "admission_year": "2023-2024", "status": "مستمر"},
-                {"id": 1, "full_name_ar": "منى يوسف حسين", "dept_name_ar": "أمن الشبكات", "admission_year": "2022-2023", "status": "متخرج"},
-            ]
 
         # 2. Fetch recent issued certificates (students linked to a graduation order)
         try:
@@ -114,13 +107,6 @@ class MainAppShell:
             log.warning(f"[MainAppShell] Failed to fetch recent certificates: {exc}")
             self.recent_certificates = []
 
-        # Fallback sample data if DB is empty
-        if not self.recent_certificates:
-            self.recent_certificates = [
-                {"id": 10, "full_name_ar": "حسين فلاح مهدي", "dept_name_ar": "علوم الحاسوب", "order_number": "1042 / 2024", "issue_date": "2024-06-15"},
-                {"id": 9, "full_name_ar": "زينب عبد الكاظم", "dept_name_ar": "نظم المعلومات", "order_number": "988 / 2024", "issue_date": "2024-06-12"},
-                {"id": 8, "full_name_ar": "أحمد جاسم محمد", "dept_name_ar": "أمن الشبكات", "order_number": "854 / 2024", "issue_date": "2024-06-01"},
-            ]
 
         # 3. Fetch recent printed certificates
         try:

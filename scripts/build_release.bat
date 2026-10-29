@@ -50,7 +50,7 @@ if errorlevel 1 exit /b 1
 
 echo [3/6] Update ZIP...
 powershell.exe -NoProfile -ExecutionPolicy Bypass -File scripts\make_client_patch.ps1
-if errorlevel 1 exit /b 1
+if %errorlevel% neq 0 exit /b 1
 
 echo [4/6] Installer...
 if not exist "%OUT%" mkdir "%OUT%"
@@ -62,7 +62,7 @@ if errorlevel 1 (
 
 echo [5/6] Server bundle...
 powershell.exe -NoProfile -ExecutionPolicy Bypass -File scripts\build_server_bundle.ps1 -OutDir "%OUT%"
-if errorlevel 1 exit /b 1
+if %errorlevel% neq 0 exit /b 1
 
 echo [6/6] Checksums and install package...
 move /y "dist\patch_v%VER%.zip" "%OUT%\" >nul

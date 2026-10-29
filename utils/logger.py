@@ -113,10 +113,12 @@ def setup_global_exception_logging() -> None:
             except Exception:
                 pass
 
-    # Avoid duplicate handlers
-    has_custom = any(isinstance(h, SystemLogFileHandler) for h in root_logger.handlers)
-    if not has_custom:
-        root_logger.addHandler(SystemLogFileHandler())
+    # Avoid duplicate handlers: this module can be imported under two names
+    # ("utils.logger" and "logger"), each with its own class, so mark the handler instead
+    if not any(getattr(h, "_cm_system_log", False) for h in root_logger.handlers):
+        handler = SystemLogFileHandler()
+        handler._cm_system_log = True
+        root_logger.addHandler(handler)
 
 
 # Automatically setup exception logging when logger module is imported
