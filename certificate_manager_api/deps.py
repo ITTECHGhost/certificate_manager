@@ -13,16 +13,19 @@ from fastapi import HTTPException
 
 logger = logging.getLogger("api")
 
-# Database Configuration: config.py (DBConfig) in this folder is the server's own
-# settings file and is never overwritten by update_server.bat; environment variables win.
+# Database login: db_config.json (read by config.py); environment variables win.
+# There is no built-in fallback login: without db_config.json, get_db() refuses to connect.
 try:
     from config import DBConfig as _DBConfig
-except Exception:
+    _DB_CONFIG_ERROR = None
+except Exception as _err:
     _DBConfig = None
-DB_HOST = os.environ.get("DB_HOST", getattr(_DBConfig, "DB_HOST", "localhost"))
-DB_USER = os.environ.get("DB_USER", getattr(_DBConfig, "DB_USER", "root"))
-DB_PASSWORD = os.environ.get("DB_PASSWORD", getattr(_DBConfig, "DB_PASSWORD", "12345678"))
-DB_NAME = os.environ.get("DB_NAME", getattr(_DBConfig, "DB_NAME", "certificate_manager"))
+    _DB_CONFIG_ERROR = str(_err)
+    logger.error("MySQL login not loaded: %s", _DB_CONFIG_ERROR)
+DB_HOST = os.environ.get("DB_HOST", getattr(_DBConfig, "DB_HOST", None))
+DB_USER = os.environ.get("DB_USER", getattr(_DBConfig, "DB_USER", None))
+DB_PASSWORD = os.environ.get("DB_PASSWORD", getattr(_DBConfig, "DB_PASSWORD", None))
+DB_NAME = os.environ.get("DB_NAME", getattr(_DBConfig, "DB_NAME", None))
 
 # Global API Connection Pool
 _api_connection_pool = None
@@ -32,6 +35,8 @@ def get_db():
     """Dependency to retrieve a MySQL database connection from the connection pool."""
     global _api_connection_pool
     if _api_connection_pool is None:
+        if not (DB_HOST and DB_USER and DB_PASSWORD is not None and DB_NAME):
+            raise RuntimeError(f"MySQL login missing ({_DB_CONFIG_ERROR or 'incomplete DB_* settings'}); run setup_server.bat")
         _api_connection_pool = pooling.MySQLConnectionPool(
             pool_name="api_pool",
             pool_size=15,

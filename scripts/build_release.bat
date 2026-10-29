@@ -28,6 +28,15 @@ if not exist "%ISCC%" (
 set "OUT=%CD%\dist\release\%VER%"
 echo === Release %VER% ===
 
+:: Uncommitted edits would ship inside the installer (e.g. data\roles_config.json is a seed file).
+set "DIRTY="
+for /f "delims=" %%s in ('git status --porcelain --untracked-files^=no') do set "DIRTY=1"
+if defined DIRTY (
+    echo [ERROR] The working tree has uncommitted changes. Commit or stash them first:
+    git status --short --untracked-files=no
+    exit /b 1
+)
+
 echo [1/5] Tests...
 py -3 -m pytest
 if errorlevel 1 (

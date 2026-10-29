@@ -27,6 +27,12 @@ def test_db_config_missing_names_setup(tmp_path):
         config.load_db_settings(tmp_path / "db_config.json")
 
 
+def test_api_has_no_fallback_db_login():
+    source = (API_DIR / "deps.py").read_text(encoding="utf-8")
+    assert "12345678" not in source
+    assert '"root"' not in source
+
+
 def test_no_db_password_literal_in_tracked_python():
     listing = subprocess.run(["git", "ls-files", "-z", "--", "*.py"], cwd=PROJECT_ROOT,
                              capture_output=True, check=True).stdout.decode("utf-8")

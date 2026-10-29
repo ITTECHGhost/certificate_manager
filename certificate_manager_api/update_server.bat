@@ -39,6 +39,13 @@ if /i "%SRC%"=="%DEST%" (
     exit /b 1
 )
 
+if not exist "%DEST%\db_config.json" (
+    echo [ERROR] "%DEST%\db_config.json" is missing. The new code reads the MySQL login only from that file.
+    echo Run setup_server.bat from the server bundle instead: it moves the login out of the old config.py.
+    pause
+    exit /b 1
+)
+
 echo Backing up the current code to "%DEST%\_backup_before_update"...
 robocopy "%DEST%" "%DEST%\_backup_before_update" *.py *.bat *.ps1 *.md /S /XD _backup_before_update certs client_package logs templets __pycache__ /NFL /NDL /NJH /NJS /R:1 /W:1 >nul
 
