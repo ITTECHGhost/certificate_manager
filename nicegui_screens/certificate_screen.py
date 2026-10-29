@@ -1188,7 +1188,10 @@ class CertificateScreen:
             safe_tpl = re.sub(r'[\\/*?:"<>|]', "", os.path.splitext(tpl_name)[0]).strip()
             grouping_mode = getattr(self, "current_grouping_mode", "DEFAULT")
             safe_grouping = re.sub(r'[\\/*?:"<>|]', "", str(grouping_mode)).strip()
-            out_file = os.path.join(out_dir, f"{safe_tpl} - {safe_student} - {safe_grouping}.docx")
+            # The certificate number leads the file name, so each issued certificate is easy to find.
+            safe_num = re.sub(r'[\\/*?:"<>|]', "-", str(options.get("certificate_number") or "")).strip()
+            name_parts = [p for p in (safe_num, safe_tpl, safe_student, safe_grouping) if p]
+            out_file = os.path.join(out_dir, " - ".join(name_parts) + ".docx")
     
             doc = DocxTemplate(tpl_path)
             doc.render(ctx)
@@ -1364,27 +1367,20 @@ class CertificateScreen:
 
                         UI.success_button("🖨️ طباعة الآن / Print Now", icon="print", on_click=do_print_now).classes("w-full py-3 text-sm font-bold shadow-md")
                         if pdf_path:
-                            UI.secondary_button("⬇️ حفظ ملف PDF", icon="download", on_click=lambda: self._save_pdf_to_downloads(pdf_path)).classes("w-full py-2.5 text-xs")
+                            UI.secondary_button("📂 عرض ملف PDF في مجلد الوثائق", icon="folder_open", on_click=lambda: self._show_in_folder(pdf_path)).classes("w-full py-2.5 text-xs")
                         UI.secondary_button("إغلاق / Close", icon="cancel", on_click=print_dialog.close).classes("w-full py-2 text-xs")
 
         print_dialog.open()
 
     @staticmethod
-    def _save_pdf_to_downloads(pdf_path: str):
-        """Copies the PDF to the user's Downloads folder and shows it in Explorer.
-        The desktop window cannot receive browser downloads, so ui.download does nothing there."""
-        import shutil
+    def _show_in_folder(pdf_path: str):
+        """Opens the certificates folder in Explorer with the PDF selected (it is saved there already)."""
         import subprocess
         try:
-            target_dir = os.path.join(os.path.expanduser("~"), "Downloads")
-            os.makedirs(target_dir, exist_ok=True)
-            target = os.path.join(target_dir, os.path.basename(pdf_path))
-            shutil.copyfile(pdf_path, target)
-            subprocess.Popen(["explorer", "/select,", target])
-            UI.notify(f"تم حفظ ملف PDF في مجلد التنزيلات: {os.path.basename(target)}", type="positive")
+            subprocess.Popen(["explorer", "/select,", os.path.abspath(pdf_path)])
         except Exception as err:
-            log.error(f"Error saving PDF to Downloads: {err}")
-            UI.notify(f"تعذر حفظ ملف PDF: {err}", type="negative")
+            log.error(f"Error opening the certificates folder: {err}")
+            UI.notify(f"تعذر فتح مجلد الوثائق: {err}", type="negative")
 
     def generate_and_open_word(self):
         """Generates the certificate and opens the Word document directly in Microsoft Word."""
