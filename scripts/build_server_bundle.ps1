@@ -31,6 +31,8 @@ Copy-Item -LiteralPath (Join-Path $root "requirements-server.txt") -Destination 
 Copy-Item -LiteralPath (Join-Path $root "installer\server\setup_server.bat"), (Join-Path $root "installer\server\setup_server.ps1") -Destination $bundle
 Copy-Item -LiteralPath (Join-Path $root "certificate_manager_api\SERVER_SETUP_GUIDE.md") -Destination $bundle
 Set-Content -Encoding ascii -LiteralPath (Join-Path $bundle "VERSION.txt") -Value $version
+robocopy (Join-Path $root "installer\server\prereqs") (Join-Path $bundle "prereqs") /E /NFL /NDL /NJH /NJS /NP | Out-Null
+if ($LASTEXITCODE -ge 8) { throw "robocopy of the prereqs failed (code $LASTEXITCODE)" }
 
 # 3. Python packages for a server without internet
 if (-not $SkipWheels) {
