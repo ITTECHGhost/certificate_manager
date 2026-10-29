@@ -113,8 +113,8 @@ def setup_global_exception_logging() -> None:
             except Exception:
                 pass
 
-    # Avoid duplicate handlers: this module can be imported under two names
-    # ("utils.logger" and "logger"), each with its own class, so mark the handler instead
+    # Avoid duplicate handlers: this runs on import AND from main.py, and each call defines
+    # a new SystemLogFileHandler class (so isinstance never matches); mark the handler instead
     if not any(getattr(h, "_cm_system_log", False) for h in root_logger.handlers):
         handler = SystemLogFileHandler()
         handler._cm_system_log = True
