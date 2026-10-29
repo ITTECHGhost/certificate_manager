@@ -459,20 +459,38 @@ def build_certificate_context(data: dict, options: dict) -> dict:
         stg = c0.get("period_stage") or c0.get("stage_number") or c0.get("course_curriculum_stage")
         return stg if stg is not None else default_val
 
-    for i in range(0, len(group_lists), 2):
-        pair_idx = i // 2
+    # Annual: two consecutive years per row. Semester: one row per (year, stage);
+    # semester 1 always in the first column, semester 2 / summer in the second,
+    # so a missing semester never shifts the later rows.
+    pairs = []
+    if is_annual:
+        for i in range(0, len(group_lists), 2):
+            pairs.append((group_lists[i], group_lists[i + 1] if i + 1 < len(group_lists) else []))
+    else:
+        rows_by_key = {}
+        for g in group_lists:
+            ay, stg, sem = _group_sort_key(g)
+            slot = 0 if sem == 1 else 1
+            row = rows_by_key.get((ay, stg))
+            if row is None or row[slot]:
+                row = [[], []]
+                rows_by_key[(ay, stg)] = row
+                pairs.append(row)
+            row[slot] = g
+
+    for pair_idx, (first_group, second_group) in enumerate(pairs):
         first_stg_default = pair_idx * 2 + 1
         second_stg_default = pair_idx * 2 + 2
 
         if is_english:
-            left_courses = group_lists[i]
-            right_courses = group_lists[i + 1] if i + 1 < len(group_lists) else []
+            left_courses = first_group
+            right_courses = second_group
 
             stg_left = _extract_group_stage(left_courses, first_stg_default)
             stg_right = _extract_group_stage(right_courses, second_stg_default if right_courses else (stg_left + 1))
         else:
-            right_courses = group_lists[i]
-            left_courses = group_lists[i + 1] if i + 1 < len(group_lists) else []
+            right_courses = first_group
+            left_courses = second_group
 
             stg_right = _extract_group_stage(right_courses, first_stg_default)
             stg_left = _extract_group_stage(left_courses, second_stg_default if left_courses else (stg_right + 1))
@@ -483,8 +501,9 @@ def build_certificate_context(data: dict, options: dict) -> dict:
         ay_right = right_c.get("academic_year_formatted") or right_c.get("academic_year", "")
         ay_left = left_c.get("academic_year_formatted") or left_c.get("academic_year", "")
 
-        sem_right = right_c.get("semester_num") or 1
-        sem_left = left_c.get("semester_num") or 2
+        # The first column (right in Arabic, left in English) holds semester 1
+        sem_right = parse_stage_num(right_c.get("semester_num"), 2 if is_english else 1)
+        sem_left = parse_stage_num(left_c.get("semester_num"), 1 if is_english else 2)
 
         stg_num_right_str = to_arabic_num(stg_right, is_english)
         stg_num_left_str = to_arabic_num(stg_left, is_english) if left_courses else ""
@@ -555,12 +574,12 @@ def build_certificate_context(data: dict, options: dict) -> dict:
                 "attempt_left": attempt_left,
             })
         else:
-            right_sem_label = "First Semester" if is_english else "الفصل الأول"
-            left_sem_label = "Second Semester" if is_english else "الفصل الثاني"
-            if sem_right == 3: right_sem_label = "Summer Semester" if is_english else "الفصل الصيفي"
-            if sem_left == 3: left_sem_label = "Summer Semester" if is_english else "الفصل الصيفي"
+            sem_labels = {1: ("First Semester", "الفصل الأول"), 2: ("Second Semester", "الفصل الثاني"), 3: ("Summer Semester", "الفصل الصيفي")}
+            right_sem_label = sem_labels.get(sem_right, sem_labels[1])[0 if is_english else 1]
+            left_sem_label = sem_labels.get(sem_left, sem_labels[2])[0 if is_english else 1]
 
-            row_year_display = f"العام الدراسي {right_year_disp}" if (right_year_disp and not is_english) else (f"Academic Year {right_year_disp}" if right_year_disp else "")
+            row_year = right_year_disp or format_academic_year_ltr(ay_left, is_english)
+            row_year_display = f"العام الدراسي {row_year}" if (row_year and not is_english) else (f"Academic Year {row_year}" if row_year else "")
 
             paired_semesters.append({
                 "left_label": left_sem_label,
