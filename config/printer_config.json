@@ -1,6 +1,6 @@
 {
-  "cert_printer": "Canon G3010 series",
-  "report_printer": "Canon G3010 series",
+  "cert_printer": "Microsoft Print to PDF",
+  "report_printer": "Microsoft Print to PDF",
   "paper_size": "A4",
   "orientation": "Portrait",
   "auto_print": false,
