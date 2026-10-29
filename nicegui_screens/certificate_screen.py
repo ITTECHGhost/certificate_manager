@@ -1240,9 +1240,10 @@ class CertificateScreen:
                 with ui.column().classes("flex-1 h-full rounded-xl overflow-hidden p-0 border border-[var(--border-default)] bg-slate-900 shadow-inner"):
                     if pdf_url:
                         # The PDF itself is the preview: what you see is exactly what prints.
-                        ui.html(
-                            f'<iframe src="{pdf_url}#view=FitH" style="width:100%;height:100%;min-height:600px;border:0;background:white"></iframe>'
-                        ).classes("w-full h-full")
+                        # A real element: ui.html sanitizes its content and strips iframes.
+                        ui.element("iframe").props(f'src="{pdf_url}#view=FitH"').classes(
+                            "w-full h-full min-h-[600px] border-0 bg-white"
+                        )
                     else:
                         with ui.column().classes("w-full h-full justify-center items-center gap-2 text-slate-400"):
                             ui.icon("description", size="xl")
@@ -1300,10 +1301,27 @@ class CertificateScreen:
 
                         UI.success_button("🖨️ طباعة الآن / Print Now", icon="print", on_click=do_print_now).classes("w-full py-3 text-sm font-bold shadow-md")
                         if pdf_path:
-                            UI.secondary_button("⬇️ تحميل ملف PDF", icon="download", on_click=lambda: ui.download(pdf_path)).classes("w-full py-2.5 text-xs")
+                            UI.secondary_button("⬇️ حفظ ملف PDF", icon="download", on_click=lambda: self._save_pdf_to_downloads(pdf_path)).classes("w-full py-2.5 text-xs")
                         UI.secondary_button("إغلاق / Close", icon="cancel", on_click=print_dialog.close).classes("w-full py-2 text-xs")
 
         print_dialog.open()
+
+    @staticmethod
+    def _save_pdf_to_downloads(pdf_path: str):
+        """Copies the PDF to the user's Downloads folder and shows it in Explorer.
+        The desktop window cannot receive browser downloads, so ui.download does nothing there."""
+        import shutil
+        import subprocess
+        try:
+            target_dir = os.path.join(os.path.expanduser("~"), "Downloads")
+            os.makedirs(target_dir, exist_ok=True)
+            target = os.path.join(target_dir, os.path.basename(pdf_path))
+            shutil.copyfile(pdf_path, target)
+            subprocess.Popen(["explorer", "/select,", target])
+            UI.notify(f"تم حفظ ملف PDF في مجلد التنزيلات: {os.path.basename(target)}", type="positive")
+        except Exception as err:
+            log.error(f"Error saving PDF to Downloads: {err}")
+            UI.notify(f"تعذر حفظ ملف PDF: {err}", type="negative")
 
     def generate_and_open_word(self):
         """Generates the certificate and opens the Word document directly in Microsoft Word."""

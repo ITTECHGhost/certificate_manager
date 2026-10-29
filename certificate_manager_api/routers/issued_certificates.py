@@ -44,13 +44,14 @@ def get_latest_certificate_number(conn=Depends(get_db)):
         )
         row = cur.fetchone()
         latest = row["certificate_number"] if row else None
-        # Numbers reserved by laptops for offline use must never be handed out online:
-        # report the end of the highest reserved block if it is above the latest issued number
+        # The newest row is not always the highest number (a re-issue or a synced offline
+        # certificate can be saved later with a lower one), so report the highest number of
+        # that year. Numbers reserved by laptops for offline use must never be handed out
+        # online either, so the end of the highest reserved block counts too.
         parts = _cert_number_parts(latest)
         if parts:
-            block_end = _max_reserved_block_end(conn, parts[1])
-            if block_end and block_end >= parts[0]:
-                latest = f"{block_end}/{parts[1]}"
+            highest = max(_max_issued_number(conn, parts[1]), _max_reserved_block_end(conn, parts[1]) or 0)
+            latest = f"{highest}/{parts[1]}"
         return {"latest_number": latest}
     except Exception as exc:
         raise HTTPException(status_code=500, detail=str(exc))
@@ -63,6 +64,19 @@ def _cert_number_parts(number) -> Optional[tuple]:
     import re as _re
     m = _re.match(r"^\s*(\d+)\s*/\s*(\S+)\s*$", str(number or ""))
     return (int(m.group(1)), m.group(2)) if m else None
+
+
+def _max_issued_number(conn, year_suffix: str) -> int:
+    cur = conn.cursor(buffered=True)
+    try:
+        cur.execute(
+            "SELECT certificate_number FROM issued_certificates WHERE certificate_number LIKE %s",
+            (f"%/{year_suffix}",)
+        )
+        return max((p[0] for p in (_cert_number_parts(r[0]) for r in cur.fetchall()) if p and p[1] == year_suffix),
+                   default=0)
+    finally:
+        cur.close()
 
 
 def _max_reserved_block_end(conn, year_suffix: str) -> Optional[int]:
@@ -96,13 +110,7 @@ def reserve_certificate_numbers(payload: CertificateBlockRequest, conn=Depends(g
     try:
         cur.execute("SELECT GET_LOCK('certificate_number_blocks', 10)")
         cur.fetchone()
-        cur.execute(
-            "SELECT certificate_number FROM issued_certificates WHERE certificate_number LIKE %s",
-            (f"%/{suffix}",)
-        )
-        issued_max = max((p[0] for p in (_cert_number_parts(r[0]) for r in cur.fetchall()) if p and p[1] == suffix),
-                         default=0)
-        start = max(issued_max, _max_reserved_block_end(conn, suffix) or 0) + 1
+        start = max(_max_issued_number(conn, suffix), _max_reserved_block_end(conn, suffix) or 0) + 1
         end = start + count - 1
         cur.execute(
             "INSERT INTO certificate_number_blocks (device_id, year_suffix, start_no, end_no) VALUES (%s, %s, %s, %s)",
