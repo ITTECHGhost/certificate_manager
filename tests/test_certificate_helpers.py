@@ -79,7 +79,7 @@ MOVED = {
         "to_arabic_num", "format_date_rtl", "format_academic_year_ltr", "get_subj_display", "build_certificate_context",
     ],
     "services.office_automation": [
-        "generate_pdf_from_docx", "convert_docx_to_html", "get_installed_printers", "get_default_printer",
+        "generate_pdf_from_docx", "warm_up_word", "get_installed_printers", "get_default_printer",
         "print_file_to_printer",
     ],
 }

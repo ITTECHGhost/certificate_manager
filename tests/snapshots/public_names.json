@@ -41,7 +41,7 @@
   "build_certificate_context",
   "consolidate_course_history",
   "consolidate_courses_for_certificate",
-  "convert_docx_to_html",
+  "warm_up_word",
   "format_academic_year_ltr",
   "format_date_rtl",
   "generate_pdf_from_docx",

@@ -24,7 +24,7 @@ from services.certificate_context import (
     to_arabic_num, format_date_rtl, format_academic_year_ltr, get_subj_display, build_certificate_context,
 )
 from services.office_automation import (
-    generate_pdf_from_docx, convert_docx_to_html, get_installed_printers, get_default_printer,
+    generate_pdf_from_docx, warm_up_word, get_installed_printers, get_default_printer,
     print_file_to_printer,
 )
 
@@ -49,6 +49,7 @@ class CertificateScreen:
 
     def __init__(self, on_edit_student=None, initial_student=None, initial_cert_record=None):
         self.on_edit_student = on_edit_student
+        warm_up_word()  # start the hidden Word now so the first preview is fast
         self.initial_cert_record = initial_cert_record
         self.reissue_cert_id = (initial_cert_record.get("certificate_id") or initial_cert_record.get("id")) if initial_cert_record else None
         self.student_repo = StudentRepository()
@@ -1212,26 +1213,18 @@ class CertificateScreen:
                 log.error(f"Error generating certificate: {err}")
                 UI.notify(f"خطأ أثناء توليد الوثيقة: {err}", type="negative")
             return False
-    def show_in_app_print_dialog(self, pdf_path: str | None, html_path: str | None, docx_path: str):
+    def show_in_app_print_dialog(self, pdf_path: str | None, docx_path: str):
         """
         Opens a modern in-app modal dialog featuring live document preview,
         system printer selection, copies count, and one-click direct printing.
         """
         rel_doc_name = os.path.basename(docx_path)
 
-        # Read HTML content if available for 100% reliable in-app document preview
-        html_content = ""
-        if html_path and os.path.exists(html_path):
-            try:
-                with open(html_path, "r", encoding="utf-8", errors="ignore") as f:
-                    html_content = f.read()
-            except Exception as e:
-                log.error(f"Error reading html preview file: {e}")
-
         pdf_url = ""
         if pdf_path:
             quoted_pdf = urllib.parse.quote(os.path.basename(pdf_path))
-            pdf_url = f"/certificates_files/{quoted_pdf}"
+            # The query string stops the viewer showing a cached PDF of the same name.
+            pdf_url = f"/certificates_files/{quoted_pdf}?v={int(os.path.getmtime(pdf_path))}"
 
         with ui.dialog() as print_dialog, UI.card().classes(
             "w-[94vw] max-w-6xl h-[90vh] p-6 gap-4 flex-col bg-[var(--bg-card)] border border-[var(--border-default)] rounded-2xl shadow-2xl"
@@ -1247,16 +1240,11 @@ class CertificateScreen:
             # Main Body: Left Document Previewer + Right Printer Controls Panel
             with ui.row().classes("w-full flex-1 gap-6 items-stretch overflow-hidden"):
                 # Left Column: In-App Document Previewer
-                with ui.column().classes("flex-1 h-full rounded-xl overflow-y-auto p-4 border border-[var(--border-default)] bg-slate-900 shadow-inner"):
-                    if html_content:
-                        # Clean white document container wrapping Word's HTML output
-                        with UI.card().classes("w-full min-h-full p-8 bg-white text-black shadow-lg rounded-lg overflow-x-auto"):
-                            ui.html(html_content).classes("w-full font-sans text-slate-900")
-                    elif pdf_url:
+                with ui.column().classes("flex-1 h-full rounded-xl overflow-hidden p-0 border border-[var(--border-default)] bg-slate-900 shadow-inner"):
+                    if pdf_url:
+                        # The PDF itself is the preview: what you see is exactly what prints.
                         ui.html(
-                            f'<object data="{pdf_url}#toolbar=0" type="application/pdf" class="w-full h-full min-h-[600px]">'
-                            f'<embed src="{pdf_url}" type="application/pdf" class="w-full h-full min-h-[600px]" />'
-                            f'</object>'
+                            f'<iframe src="{pdf_url}#view=FitH" style="width:100%;height:100%;min-height:600px;border:0;background:white"></iframe>'
                         ).classes("w-full h-full")
                     else:
                         with ui.column().classes("w-full h-full justify-center items-center gap-2 text-slate-400"):
@@ -1342,22 +1330,13 @@ class CertificateScreen:
             try:
                 UI.notify("جاري تحويل الوثيقة وتحضير المعاينة...", type="info")
 
-                # Run COM conversions asynchronously off main event loop thread to prevent connection loss!
-                res = await asyncio.gather(
-                    asyncio.to_thread(generate_pdf_from_docx, self.generated_file_path),
-                    asyncio.to_thread(convert_docx_to_html, self.generated_file_path),
-                    return_exceptions=True
-                )
-
-                pdf_res = res[0] if len(res) > 0 else None
-                html_res = res[1] if len(res) > 1 else None
-
-                pdf_path = pdf_res if isinstance(pdf_res, str) and os.path.exists(pdf_res) else None
-                html_path = html_res if isinstance(html_res, str) and os.path.exists(html_res) else None
-                if pdf_path is None and html_path is None:
+                # Word runs on its own background thread, so the UI stays responsive.
+                pdf_res = await asyncio.to_thread(generate_pdf_from_docx, self.generated_file_path)
+                pdf_path = pdf_res if pdf_res and os.path.exists(pdf_res) else None
+                if pdf_path is None:
                     UI.notify("تعذر تحويل الوثيقة: يتطلب برنامج Microsoft Word / Microsoft Word is required for preview and PDF", type="warning")
 
-                self.show_in_app_print_dialog(pdf_path, html_path, self.generated_file_path)
+                self.show_in_app_print_dialog(pdf_path, self.generated_file_path)
             except Exception as err:
                 log.error(f"Error opening in-app print dialog: {err}")
                 UI.notify(f"تعذر فتح نافذة المعاينة والطباعة: {err}", type="negative")
