@@ -284,40 +284,8 @@ class IssuedCertificatesScreen:
                         "sortable": True,
                     },
                     {
-                        "name": "student_id",
-                        "label": "ID",
-                        "field": "student_id",
-                        "align": "center",
-                        "headerClasses": "text-center w-14",
-                        "sortable": True,
-                    },
-                    {
-                        "name": "department_name",
-                        "label": "القسم",
-                        "field": "department_name_ar",
-                        "align": "right",
-                        "headerClasses": "text-right w-24",
-                        "sortable": True,
-                    },
-                    {
-                        "name": "graduation_year",
-                        "label": "السنة",
-                        "field": "graduation_year",
-                        "align": "center",
-                        "headerClasses": "text-center w-14",
-                        "sortable": True,
-                    },
-                    {
-                        "name": "study_type",
-                        "label": "الدراسة",
-                        "field": "study_day_type",
-                        "align": "center",
-                        "headerClasses": "text-center w-14",
-                        "sortable": True,
-                    },
-                    {
                         "name": "template_type",
-                        "label": "النموذج",
+                        "label": "نوع الوثيقة",
                         "field": "template_type_display",
                         "align": "center",
                         "headerClasses": "text-center w-24",
@@ -325,15 +293,15 @@ class IssuedCertificatesScreen:
                     },
                     {
                         "name": "to_title",
-                        "label": "الجهة",
+                        "label": "الجهة المرسل إليها",
                         "field": "to_title",
                         "align": "right",
-                        "headerClasses": "text-right w-20",
+                        "headerClasses": "text-right w-32",
                         "sortable": True,
                     },
                     {
                         "name": "issue_date",
-                        "label": "التاريخ",
+                        "label": "تاريخ الإصدار",
                         "field": "issue_date",
                         "align": "center",
                         "headerClasses": "text-center w-20",
@@ -414,10 +382,10 @@ class IssuedCertificatesScreen:
                         """
                         <q-td :props="props">
                             <div class="row items-center justify-center gap-1 no-wrap">
-                                <q-btn size="sm" flat round dense color="primary" icon="edit" title="تعديل القيد" @click="$parent.$emit('edit_cert', props.row)">
+                                <q-btn size="sm" flat round dense color="primary" icon="edit" title="تعديل القيد" @click.stop="$parent.$emit('edit_cert', props.row)">
                                     <q-tooltip class="bg-indigo-700 text-white font-bold">تعديل قيد الوثيقة</q-tooltip>
                                 </q-btn>
-                                <q-btn size="sm" flat round dense color="negative" icon="delete" title="حذف القيد" @click="$parent.$emit('delete_cert', props.row)">
+                                <q-btn size="sm" flat round dense color="grey-7" class="hover:text-red-500" icon="delete" title="حذف القيد" @click.stop="$parent.$emit('delete_cert', props.row)">
                                     <q-tooltip class="bg-rose-700 text-white font-bold">حذف قيد الوثيقة</q-tooltip>
                                 </q-btn>
                             </div>
@@ -425,6 +393,8 @@ class IssuedCertificatesScreen:
                         """
                     )
 
+                    # Row click opens the detail dialog: the table keeps only the main fields
+                    self.table.on("rowClick", lambda e: self._show_cert_detail(e.args[1]))
                     self.table.on("delete_cert", self._on_delete_clicked)
                     self.table.on("edit_cert", self._on_edit_clicked)
 
@@ -633,6 +603,27 @@ class IssuedCertificatesScreen:
             self.tmpl_select.value = "all"
 
         self.load_data()
+
+    def _show_cert_detail(self, row: dict) -> None:
+        """Detail dialog for a clicked row: the fields the table no longer shows."""
+        if not row:
+            return
+        details = (
+            ("الطالب", row.get("student_name_ar")),
+            ("الرقم الجامعي", row.get("student_id")),
+            ("القسم", row.get("department_name_ar")),
+            ("سنة التخرج", row.get("graduation_year")),
+            ("نظام الدراسة", row.get("study_day_type")),
+        )
+        with ui.dialog() as dialog, UI.card().classes("w-[420px] max-w-full gap-3"):
+            ui.label(f"الوثيقة رقم {row.get('certificate_number') or '—'}").classes("text-lg font-bold app-text-primary")
+            for label, value in details:
+                with ui.row().classes("w-full justify-between items-center no-wrap"):
+                    ui.label(label).classes("app-text-muted text-sm")
+                    ui.label(str(value or "—")).classes("app-text-primary text-sm font-bold text-right")
+            with ui.row().classes("w-full justify-end"):
+                UI.ghost_button("إغلاق", on_click=dialog.close)
+        dialog.open()
 
     def _on_edit_clicked(self, msg) -> None:
         """Triggered when the edit button is clicked on a table row."""
