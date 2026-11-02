@@ -30,7 +30,7 @@ class TemplatesMixin:
                 with ui.row().classes("items-center gap-3"):
                     ui.icon("menu_book", size="md").classes("stat-text-blue")
                     with ui.column().classes("gap-0"):
-                        ui.label("دليل معاني واختصارات أسماء القوالب — Template Legend & Code Guide").classes("text-base font-bold app-text-primary")
+                        ui.label("دليل معاني واختصارات أسماء القوالب").classes("text-base font-bold app-text-primary")
                         ui.label("توضيح معايير التسمية المعتمدة لقوالب الوثائق: [اللغة]، [النظام / الدرجة]، [SBS إن وجد]، cr").classes("text-xs app-text-muted")
 
             with ui.grid(columns=4).classes("w-full gap-3 pt-2"):
@@ -59,7 +59,7 @@ class TemplatesMixin:
                 with ui.row().classes("items-center gap-3"):
                     ui.icon("article", size="md").classes("stat-text-purple")
                     with ui.column().classes("gap-0"):
-                        ui.label("قوالب الوثائق الرسمية المتوفرة — Certificate Word Templates").classes("text-base font-bold app-text-primary")
+                        ui.label("قوالب الوثائق الرسمية المتوفرة").classes("text-base font-bold app-text-primary")
                         ui.label("إدارة ملفات نماذج Word، تعديل مسمياتها المعتمدة، وفتحها مباشرة في Microsoft Word").classes("text-xs app-text-muted")
 
                 with ui.row().classes("items-center gap-2"):
@@ -75,28 +75,28 @@ class TemplatesMixin:
                     async def _sync_templates_from_server():
                         from sync_engine import is_online
                         if not is_online():
-                            ui.notify("لا يمكن المزامنة في الوضع غير المتصل / Offline mode", type="warning")
+                            ui.notify("لا يمكن المزامنة في الوضع غير المتصل", type="warning")
                             return
-                        n = ui.notification("جاري مزامنة نماذج الوثائق مع الخادم المركزي... / Syncing...", timeout=None, spinner=True)
+                        n = ui.notification("جاري مزامنة نماذج الوثائق مع الخادم المركزي...", timeout=None, spinner=True)
                         try:
                             from nicegui import run
                             import services.template_sync as t_sync
                             res = await run.io_bound(t_sync.sync_templates_if_online)
                             n.dismiss()
                             if res.get("synced_files"):
-                                ui.notify(f"تم تحديث {len(res['synced_files'])} ملف بنجاح / Synced successfully", type="positive")
+                                ui.notify(f"تم تحديث {len(res['synced_files'])} ملف بنجاح", type="positive")
                                 _render_templates_table.refresh()
                             elif res.get("up_to_date"):
-                                ui.notify("جميع القوالب محدثة ومطابقة للخادم المركزي / Up to date", type="info")
+                                ui.notify("جميع القوالب محدثة ومطابقة للخادم المركزي", type="info")
                             else:
                                 ui.notify(f"فشلت مزامنة بعض الملفات: {res.get('errors')}", type="negative")
                         except Exception as e:
                             n.dismiss()
                             ui.notify(f"خطأ أثناء المزامنة: {e}", type="negative")
 
-                    ui.button("مزامنة مع الخادم / Sync from Server", icon="cloud_sync", on_click=_sync_templates_from_server).classes("app-btn-secondary px-3 py-1.5 text-xs rounded-xl")
-                    ui.button("فتح مجلد القوالب / Open Folder", icon="folder_open", on_click=_open_templates_dir).classes("app-btn-secondary px-3 py-1.5 text-xs rounded-xl")
-                    ui.button("تحديث / Refresh", icon="refresh", on_click=lambda: _render_templates_table.refresh()).classes("app-btn-secondary px-3 py-1.5 text-xs rounded-xl")
+                    ui.button("مزامنة مع الخادم", icon="cloud_sync", on_click=_sync_templates_from_server).classes("app-btn-secondary px-3 py-1.5 text-xs rounded-xl")
+                    ui.button("فتح مجلد القوالب", icon="folder_open", on_click=_open_templates_dir).classes("app-btn-secondary px-3 py-1.5 text-xs rounded-xl")
+                    ui.button("تحديث", icon="refresh", on_click=lambda: _render_templates_table.refresh()).classes("app-btn-secondary px-3 py-1.5 text-xs rounded-xl")
 
             @ui.refreshable
             def _render_templates_table():
@@ -153,7 +153,7 @@ class TemplatesMixin:
                                         "p-5 gap-4 w-[420px] max-w-full rounded-2xl border border-blue-500/30 shadow-2xl bg-[var(--surface-card)]"
                                     ):
                                         with ui.row().classes("w-full justify-between items-center pb-2 border-b border-[var(--border-default)]"):
-                                            ui.label("تعديل اسم القالب / Edit Template Name").classes("text-sm font-bold app-text-primary")
+                                            ui.label("تعديل اسم القالب").classes("text-sm font-bold app-text-primary")
                                             ui.button(icon="close", on_click=rename_dlg.close).classes("app-btn-secondary p-1 rounded-lg text-xs")
 
                                         ui.label(f"الملف: {filename}").classes("text-xs font-mono app-text-muted")
@@ -177,7 +177,7 @@ class TemplatesMixin:
                                             UI.primary_button("حفظ", icon="save", on_click=_do_rename).classes("text-xs px-3 py-1.5")
                                     rename_dlg.open()
 
-                                ui.button(icon="edit", on_click=_open_rename_dialog).classes("app-btn-secondary p-1.5 rounded-lg text-xs").tooltip("تعديل اسم القالب / Edit Display Name")
+                                ui.button(icon="edit", on_click=_open_rename_dialog).classes("app-btn-secondary p-1.5 rounded-lg text-xs").tooltip("تعديل اسم القالب")
 
                                 def _open_word(fp=filepath):
                                     try:
@@ -186,8 +186,8 @@ class TemplatesMixin:
                                     except Exception as exc:
                                         ui.notify(f"تعذر فتح الملف: {exc}", type="warning")
 
-                                ui.button(icon="launch", on_click=_open_word).classes("app-btn-secondary p-1.5 rounded-lg text-xs").tooltip("فتح القالب في Word / Open in Word")
-                                ui.button(icon="download", on_click=lambda fp=filepath: deliver_file(fp, filename=os.path.basename(fp), title=f"تم حفظ القالب ({os.path.basename(fp)}) بنجاح", auto_open=False)).classes("app-btn-secondary p-1.5 rounded-lg text-xs").tooltip("تنزيل القالب / Download Document")
+                                ui.button(icon="launch", on_click=_open_word).classes("app-btn-secondary p-1.5 rounded-lg text-xs").tooltip("فتح القالب في Word")
+                                ui.button(icon="download", on_click=lambda fp=filepath: deliver_file(fp, filename=os.path.basename(fp), title=f"تم حفظ القالب ({os.path.basename(fp)}) بنجاح", auto_open=False)).classes("app-btn-secondary p-1.5 rounded-lg text-xs").tooltip("تنزيل القالب")
 
             _render_templates_table()
 
@@ -197,7 +197,7 @@ class TemplatesMixin:
                 with ui.row().classes("items-center gap-3"):
                     ui.icon("add_circle", size="md").classes("stat-text-emerald")
                     with ui.column().classes("gap-0"):
-                        ui.label("إضافة قالب وثيقة جديد وتحديد اسمه — Add New Template & Set Name").classes("text-base font-bold app-text-primary")
+                        ui.label("إضافة قالب وثيقة جديد وتحديد اسمه").classes("text-base font-bold app-text-primary")
                         ui.label("رفع ملف Word (.docx) وتحديد الاسم المعتمد للقالب (مثال: Ar, Master, cr أو En, Master, cr)").classes("text-xs app-text-muted")
 
             new_template_state = {
@@ -268,7 +268,7 @@ class TemplatesMixin:
                 # Name input row
                 with ui.row().classes("w-full items-center gap-3"):
                     name_input = ui.input(
-                        label="الاسم المعتمد للقالب / Template Name",
+                        label="الاسم المعتمد للقالب",
                         value=new_template_state["display_name"],
                         placeholder="مثال: Ar, Master, cr أو En, Master, cr"
                     ).classes("flex-1 app-input text-xs").props("outlined dense")
@@ -347,7 +347,7 @@ class TemplatesMixin:
                             ui.notify(f"خطأ أثناء حفظ القالب: {err}", type="negative")
 
                     UI.primary_button(
-                        "حفظ وتسجيل القالب / Save & Register Template",
+                        "حفظ وتسجيل القالب",
                         icon="save",
                         on_click=_save_new_template
                     ).classes("text-xs px-4 py-2")

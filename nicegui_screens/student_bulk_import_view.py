@@ -125,7 +125,7 @@ class StudentBulkImportView:
                     with ui.row().classes("items-center gap-3"):
                         ui.icon("group_add", size="md").classes("app-text-accent")
                         with ui.column().classes("gap-0.5"):
-                            ui.label("إضافة مجموعة طلاب ودرجاتهم (استيراد Excel) / Bulk Import Students & Grades").classes(
+                            ui.label("إضافة مجموعة طلاب ودرجاتهم (استيراد Excel)").classes(
                                 "text-xl font-bold app-text-primary"
                             )
                             ui.label(
@@ -133,7 +133,7 @@ class StudentBulkImportView:
                             ).classes("text-xs app-text-muted")
 
                     UI.secondary_button(
-                        "← العودة لقائمة الطلاب / Back to Students",
+                        "← العودة لقائمة الطلاب",
                         on_click=self._handle_back
                     ).classes("text-xs px-4 py-2 font-bold shadow-sm")
 
@@ -144,7 +144,7 @@ class StudentBulkImportView:
                     with ui.row().classes("w-full items-center justify-between"):
                         with ui.row().classes("items-center gap-2"):
                             ui.badge("1", color="primary").classes("text-sm font-bold px-2.5 py-1 rounded-full")
-                            ui.label("تحديد بيانات القسم والنظام الدراسي / Academic Context Setup").classes(
+                            ui.label("تحديد بيانات القسم والنظام الدراسي").classes(
                                 "text-base font-bold app-text-primary"
                             )
                         if self.is_dept_locked:
@@ -159,7 +159,7 @@ class StudentBulkImportView:
                         self.dept_select = ui.select(
                             options=dept_opts,
                             value=self.selected_dept_id,
-                            label="القسم العلمي / Department *",
+                            label="القسم العلمي",
                             on_change=self._on_dept_changed
                         ).props("outlined dense options-dense").classes("flex-1 min-w-[150px]")
                         if self.is_dept_locked:
@@ -177,13 +177,13 @@ class StudentBulkImportView:
                         self.system_select = ui.select(
                             options=sys_opts,
                             value=self.selected_system_id,
-                            label="النظام الدراسي / Study System *",
+                            label="النظام الدراسي",
                             on_change=self._on_system_changed
                         ).props("outlined dense options-dense").classes("flex-1 min-w-[150px]")
 
                         # Academic Year
                         self.year_input = UI.text_input(
-                            label="العام الدراسي / Academic Year *",
+                            label="العام الدراسي",
                             value=self.academic_year,
                             on_change=self._on_year_changed
                         ).classes("flex-1 min-w-[130px]").props("dense outlined")
@@ -199,7 +199,7 @@ class StudentBulkImportView:
                     with ui.row().classes("w-full items-center justify-between"):
                         with ui.row().classes("items-center gap-2"):
                             ui.badge("2", color="secondary").classes("text-sm font-bold px-2.5 py-1 rounded-full")
-                            ui.label("بيانات الطلاب الديموغرافية (الملف الأول) / Students Demographics (File 1)").classes(
+                            ui.label("بيانات الطلاب الديموغرافية (الملف الأول)").classes(
                                 "text-base font-bold app-text-primary"
                             )
                         with ui.row().classes("items-center gap-2"):
@@ -237,7 +237,7 @@ class StudentBulkImportView:
                     with ui.row().classes("w-full items-center justify-between"):
                         with ui.row().classes("items-center gap-2"):
                             ui.badge("3", color="accent").classes("text-sm font-bold px-2.5 py-1 rounded-full")
-                            ui.label("درجات ومواد الطلاب (الملف الثاني) / Courses & Grades Matrix (File 2)").classes(
+                            ui.label("درجات ومواد الطلاب (الملف الثاني)").classes(
                                 "text-base font-bold app-text-primary"
                             )
                         with ui.row().classes("items-center gap-2"):
@@ -487,7 +487,7 @@ class StudentBulkImportView:
         with self.students_table_container:
             with ui.row().classes("w-full items-center justify-between mt-3 px-2"):
                 ui.label(f"قائمة الطلاب المرفوعين ({len(self.parsed_students)} طالب):").classes("text-sm font-bold text-emerald-500")
-                UI.secondary_button("مسح القائمة / Clear", on_click=self._clear_students).classes("text-xs px-2.5 py-1")
+                UI.secondary_button("مسح القائمة", on_click=self._clear_students).classes("text-xs px-2.5 py-1")
 
             cols = [
                 {"name": "index", "label": "#", "field": "index", "align": "center", "classes": "w-12"},
@@ -651,7 +651,7 @@ class StudentBulkImportView:
         with self.grades_table_container:
             with ui.row().classes("w-full items-center justify-between mt-3 px-2"):
                 ui.label(f"معاينة كشف الدرجات والنتائج المحسوبة ({len(self.parsed_grades)} طالب):").classes("text-sm font-bold text-blue-500")
-                UI.secondary_button("مسح الدرجات / Clear", on_click=self._clear_grades).classes("text-xs px-2.5 py-1")
+                UI.secondary_button("مسح الدرجات", on_click=self._clear_grades).classes("text-xs px-2.5 py-1")
 
             cols = [
                 {"name": "index", "label": "#", "field": "index", "align": "center", "classes": "w-12"},
@@ -736,7 +736,7 @@ class StudentBulkImportView:
 
             with ui.row().classes("w-full justify-between items-center pt-3 border-t border-[var(--border-default)]"):
                 ui.label(f"المعدل النهائي: {row_data.get('average', 0.0):.3f}").classes("font-bold text-sm app-text-accent")
-                UI.secondary_button("إغلاق / Close", on_click=dlg.close).classes("text-xs px-4 py-1.5")
+                UI.secondary_button("إغلاق", on_click=dlg.close).classes("text-xs px-4 py-1.5")
 
         dlg.open()
 
@@ -760,7 +760,7 @@ class StudentBulkImportView:
                     with ui.row().classes("items-center gap-3"):
                         ui.icon("verified", size="md").classes("app-text-success")
                         with ui.column().classes("gap-0.5"):
-                            ui.label("ملخص الاستيراد والتأكيد النهائي / Ingestion Summary & Confirmation").classes("text-lg font-bold app-text-primary")
+                            ui.label("ملخص الاستيراد والتأكيد النهائي").classes("text-lg font-bold app-text-primary")
                             dept_name = next((d.get("name_ar") for d in self.departments if d["id"] == self.selected_dept_id), "القسم")
                             ui.label(f"القسم: {dept_name} | السنة: {self.academic_year}").classes("text-xs app-text-muted")
 
@@ -779,7 +779,7 @@ class StudentBulkImportView:
                         ui.label("إجمالي الدرجات المرصودة").classes("text-xs app-text-muted")
 
                 with ui.row().classes("w-full justify-end items-center gap-4 pt-2"):
-                    UI.secondary_button("إلغاء ومسح الكل / Reset All", on_click=self._reset_all).classes("text-xs px-4 py-2")
+                    UI.secondary_button("إلغاء ومسح الكل", on_click=self._reset_all).classes("text-xs px-4 py-2")
 
                     commit_btn = UI.success_button(
                         f"تأكيد واستيراد {st_count} طالب وحفظ درجاتهم في قاعدة البيانات",
@@ -1115,7 +1115,7 @@ class StudentBulkImportView:
                 with ui.row().classes("items-center gap-3"):
                     ui.icon("check_circle", size="lg").classes("text-emerald-500")
                     with ui.column().classes("gap-0.5"):
-                        ui.label("اكتمل الاستيراد بنجاح! / Import Successful").classes("text-lg font-bold text-emerald-500")
+                        ui.label("اكتمل الاستيراد بنجاح!").classes("text-lg font-bold text-emerald-500")
                         ui.label("تمت معالجة كافة السجلات وتحديث قاعدة البيانات بنجاح").classes("text-xs text-[var(--text-secondary)]")
 
                 with ui.column().classes("w-full p-3.5 rounded-xl bg-[var(--surface-ground)] border border-[var(--border-default)] gap-2 text-xs"):
@@ -1151,7 +1151,7 @@ class StudentBulkImportView:
                         else:
                             self._handle_back()
 
-                    UI.success_button("الانتقال إلى قائمة الطلاب / View Students", icon="people", on_click=on_finish).classes("text-xs px-4 py-2 font-bold")
+                    UI.success_button("الانتقال إلى قائمة الطلاب", icon="people", on_click=on_finish).classes("text-xs px-4 py-2 font-bold")
 
             success_dlg.open()
 

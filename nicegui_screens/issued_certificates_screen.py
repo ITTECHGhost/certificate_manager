@@ -114,7 +114,7 @@ class IssuedCertificatesScreen:
                 ):
                     with ui.row().classes("items-center gap-2.5"):
                         ui.icon("fact_check", size="sm").classes("app-text-accent")
-                        ui.label("سجل الوثائق الصادرة — Issued Certificates").classes(
+                        ui.label("سجل الوثائق الصادرة").classes(
                             "text-base font-bold app-text-primary"
                         )
                         self.count_badge = ui.label("0 وثيقة").classes(
@@ -124,14 +124,14 @@ class IssuedCertificatesScreen:
                     with ui.row().classes("items-center gap-2 shrink-0"):
                         # Export CSV button
                         UI.success_button(
-                            "تصدير CSV / Export",
+                            "تصدير CSV",
                             icon="file_download",
                             on_click=self._export_csv
                         ).classes("text-xs px-3 py-1.5")
 
                         # Refresh button
                         UI.secondary_button(
-                            "تحديث / Refresh",
+                            "تحديث",
                             icon="refresh",
                             on_click=self.load_data
                         ).classes("text-xs px-3 py-1.5")
@@ -264,13 +264,13 @@ class IssuedCertificatesScreen:
                         on_click=self._reset_filters
                     ).classes(
                         "app-btn-secondary p-2 rounded-xl text-xs shrink-0 shadow-none"
-                    ).tooltip("مسح الفلاتر / Reset Filters")
+                    ).tooltip("مسح الفلاتر")
 
                 # ── 3. Main Data Table (100% Window Width, NO Horizontal Scroll) ─
                 columns = [
                     {
                         "name": "certificate_number",
-                        "label": "الرقم / No",
+                        "label": "الرقم",
                         "field": "certificate_number",
                         "align": "center",
                         "headerClasses": "text-center w-20",
@@ -278,7 +278,7 @@ class IssuedCertificatesScreen:
                     },
                     {
                         "name": "student_name",
-                        "label": "الطالب / Student",
+                        "label": "الطالب",
                         "field": "student_name_ar",
                         "align": "right",
                         "sortable": True,
@@ -293,7 +293,7 @@ class IssuedCertificatesScreen:
                     },
                     {
                         "name": "department_name",
-                        "label": "القسم / Dept",
+                        "label": "القسم",
                         "field": "department_name_ar",
                         "align": "right",
                         "headerClasses": "text-right w-24",
@@ -301,7 +301,7 @@ class IssuedCertificatesScreen:
                     },
                     {
                         "name": "graduation_year",
-                        "label": "السنة / Year",
+                        "label": "السنة",
                         "field": "graduation_year",
                         "align": "center",
                         "headerClasses": "text-center w-14",
@@ -317,7 +317,7 @@ class IssuedCertificatesScreen:
                     },
                     {
                         "name": "template_type",
-                        "label": "النموذج / Template",
+                        "label": "النموذج",
                         "field": "template_type_display",
                         "align": "center",
                         "headerClasses": "text-center w-24",
@@ -325,7 +325,7 @@ class IssuedCertificatesScreen:
                     },
                     {
                         "name": "to_title",
-                        "label": "الجهة / To",
+                        "label": "الجهة",
                         "field": "to_title",
                         "align": "right",
                         "headerClasses": "text-right w-20",
@@ -333,7 +333,7 @@ class IssuedCertificatesScreen:
                     },
                     {
                         "name": "issue_date",
-                        "label": "التاريخ / Date",
+                        "label": "التاريخ",
                         "field": "issue_date",
                         "align": "center",
                         "headerClasses": "text-center w-20",
@@ -414,11 +414,11 @@ class IssuedCertificatesScreen:
                         """
                         <q-td :props="props">
                             <div class="row items-center justify-center gap-1 no-wrap">
-                                <q-btn size="sm" flat round dense color="primary" icon="edit" title="تعديل القيد / Edit" @click="$parent.$emit('edit_cert', props.row)">
-                                    <q-tooltip class="bg-indigo-700 text-white font-bold">تعديل قيد الوثيقة / Edit Record</q-tooltip>
+                                <q-btn size="sm" flat round dense color="primary" icon="edit" title="تعديل القيد" @click="$parent.$emit('edit_cert', props.row)">
+                                    <q-tooltip class="bg-indigo-700 text-white font-bold">تعديل قيد الوثيقة</q-tooltip>
                                 </q-btn>
-                                <q-btn size="sm" flat round dense color="negative" icon="delete" title="حذف القيد / Delete" @click="$parent.$emit('delete_cert', props.row)">
-                                    <q-tooltip class="bg-rose-700 text-white font-bold">حذف قيد الوثيقة / Delete Record</q-tooltip>
+                                <q-btn size="sm" flat round dense color="negative" icon="delete" title="حذف القيد" @click="$parent.$emit('delete_cert', props.row)">
+                                    <q-tooltip class="bg-rose-700 text-white font-bold">حذف قيد الوثيقة</q-tooltip>
                                 </q-btn>
                             </div>
                         </q-td>
@@ -686,7 +686,7 @@ class IssuedCertificatesScreen:
                 with ui.row().classes("items-center gap-2.5"):
                     ui.icon("edit_document", size="md").classes("text-blue-500")
                     with ui.column().classes("gap-0"):
-                        ui.label("تعديل قيد الوثيقة الصادرة / Edit Issued Certificate").classes(
+                        ui.label("تعديل قيد الوثيقة الصادرة").classes(
                             "text-base font-bold app-text-primary"
                         )
                         ui.label(f"معرف قيد الوثيقة: #{cert_id}").classes("text-[11px] app-text-muted font-mono")
@@ -706,30 +706,30 @@ class IssuedCertificatesScreen:
             # Form Inputs
             with ui.column().classes("w-full gap-3"):
                 num_input = ui.input(
-                    label="رقم الوثيقة / Certificate Number",
+                    label="رقم الوثيقة",
                     value=current_num,
                     placeholder="مثال: 420/44 أو 105"
                 ).classes("w-full app-input text-xs").props("outlined dense")
 
                 to_input = ui.input(
-                    label="الجهة المعنية / To Title",
+                    label="الجهة المعنية",
                     value=current_to or "من يهمه الأمر",
                     placeholder="مثال: من يهمه الأمر / وزارة التعليم العالي"
                 ).classes("w-full app-input text-xs").props("outlined dense")
 
                 tmpl_input = ui.select(
-                    label="نموذج الوثيقة / Certificate Template",
+                    label="نموذج الوثيقة",
                     options=tmpl_options,
                     value=selected_key
                 ).classes("w-full app-input text-xs").props("outlined dense options-dense")
 
                 date_input = UI.attach_date_picker(ui.input(
-                    label="تاريخ الإصدار / Issue Date (YYYY-MM-DD)",
+                    label="تاريخ الإصدار",
                     value=current_date
                 ).classes("w-full app-input text-xs").props("outlined dense"))
 
             with ui.row().classes("w-full justify-end gap-2.5 mt-2 pt-2 border-t border-[var(--border-default)]"):
-                UI.secondary_button("إلغاء / Cancel", on_click=dlg.close).classes("text-xs px-3 py-1.5")
+                UI.secondary_button("إلغاء", on_click=dlg.close).classes("text-xs px-3 py-1.5")
 
                 def _confirm_save():
                     new_number = (num_input.value or "").strip()
@@ -763,7 +763,7 @@ class IssuedCertificatesScreen:
                         ui.notify(f"خطأ أثناء تعديل بيانات الوثيقة: {err}", type="negative")
 
                 UI.primary_button(
-                    "حفظ التعديلات / Save Changes",
+                    "حفظ التعديلات",
                     icon="save",
                     on_click=_confirm_save
                 ).classes("text-xs px-3 py-1.5")
@@ -789,7 +789,7 @@ class IssuedCertificatesScreen:
         ):
             with ui.row().classes("items-center gap-2.5"):
                 ui.icon("warning", size="md").classes("text-rose-500")
-                ui.label("تأكيد حذف قيد الوثيقة / Confirm Delete").classes(
+                ui.label("تأكيد حذف قيد الوثيقة").classes(
                     "text-base font-bold text-rose-500"
                 )
 
@@ -805,7 +805,7 @@ class IssuedCertificatesScreen:
                 )
 
             with ui.row().classes("w-full justify-end gap-2.5 mt-1"):
-                UI.secondary_button("إلغاء / Cancel", on_click=dlg.close).classes(
+                UI.secondary_button("إلغاء", on_click=dlg.close).classes(
                     "text-xs px-3 py-1.5"
                 )
 
@@ -823,7 +823,7 @@ class IssuedCertificatesScreen:
                         ui.notify(f"خطأ أثناء حذف قيد الوثيقة: {err}", type="negative")
 
                 UI.danger_button(
-                    "تأكيد الحذف / Confirm Delete",
+                    "تأكيد الحذف",
                     icon="delete",
                     on_click=_confirm_delete
                 ).classes("text-xs px-3 py-1.5")
@@ -833,7 +833,7 @@ class IssuedCertificatesScreen:
     def _export_csv(self) -> None:
         """Exports the active filtered records list as an Excel-compatible CSV file."""
         if not self.all_records:
-            ui.notify("لا توجد بيانات متاحة للتصدير / No records to export", type="warning")
+            ui.notify("لا توجد بيانات متاحة للتصدير", type="warning")
             return
 
         try:

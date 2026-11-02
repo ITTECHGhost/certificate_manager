@@ -102,7 +102,7 @@ class CertificateScreen:
         try:
             files = [f for f in os.listdir(self.templates_dir) if f.endswith(".docx") and not f.startswith("~")]
             if not files:
-                return ["لا توجد قوالب / No templates found"]
+                return ["لا توجد قوالب"]
 
             if not data:
                 data = self.student_full_data or {}
@@ -124,7 +124,7 @@ class CertificateScreen:
 
             return files
         except Exception:
-            return ["لا توجد قوالب / No templates found"]
+            return ["لا توجد قوالب"]
 
     def build_ui(self):
         self.container.clear()
@@ -135,7 +135,7 @@ class CertificateScreen:
                     with ui.row().classes("items-center gap-3"):
                         ui.icon("school", size="md").classes("app-text-accent")
                         with ui.column().classes("gap-0"):
-                            ui.label("إصدار الوثيقة — Issue Certificate").classes("text-xl font-bold app-text-primary")
+                            ui.label("إصدار الوثيقة").classes("text-xl font-bold app-text-primary")
                             ui.label("البحث عن الطالب، عرض السجل الأكاديمي، وتخصيص إعدادات الطباعة وتوليد قوالب Word").classes("text-xs app-text-muted")
 
                     # Search Box Container with Live Auto-Complete Results Below
@@ -155,7 +155,7 @@ class CertificateScreen:
                             ).classes("flex-1 text-sm")
                             self.search_input.on("keydown.enter", lambda: self.perform_search())
 
-                            UI.primary_button("بحث / Search", icon="search", on_click=lambda: self.perform_search()).classes("px-5 py-2.5 text-sm")
+                            UI.primary_button("بحث", icon="search", on_click=lambda: self.perform_search()).classes("px-5 py-2.5 text-sm")
 
                         # Live Search Results Card right below input
                         self.search_results_card = ui.column().classes("w-full pt-2 gap-2 border-t border-[var(--border-default)] mt-2")
@@ -182,7 +182,7 @@ class CertificateScreen:
                             ui.label("إعدادات طباعة وثيقة الطالب وقوالب Word").classes("text-lg font-bold app-text-primary")
                             ui.label("ضبط الخيارات المستثناة، الأمر الجامعي، الترتيب وتخصيص القالب").classes("text-xs app-text-muted")
 
-                        UI.primary_button("العودة لبيانات الطالب / Back to Student", icon="arrow_forward", on_click=self.show_info_view).classes("text-xs px-4 py-2 font-bold")
+                        UI.primary_button("العودة لبيانات الطالب", icon="arrow_forward", on_click=self.show_info_view).classes("text-xs px-4 py-2 font-bold")
 
                     # Edit Mode Banner (Visible when editing an existing certificate record)
                     self.edit_mode_banner = ui.row().classes(
@@ -193,25 +193,25 @@ class CertificateScreen:
                         with ui.row().classes("items-center gap-2.5"):
                             ui.icon("edit_document", size="sm").classes("text-amber-400 text-lg")
                             with ui.column().classes("gap-0"):
-                                self.edit_mode_label = ui.label("تعديل قيد الوثيقة / Editing Certificate Record").classes(
+                                self.edit_mode_label = ui.label("تعديل قيد الوثيقة").classes(
                                     "text-sm font-bold text-amber-300"
                                 )
                                 ui.label("سيتم تحديث سجل الوثيقة في قاعدة البيانات مباشرة عند التوليد والحفظ").classes(
                                     "text-[11px] text-amber-200/70"
                                 )
-                        ui.badge("وضع التعديل / Edit Mode", color="amber-700").classes("text-xs font-bold px-2.5 py-1")
+                        ui.badge("وضع التعديل", color="amber-700").classes("text-xs font-bold px-2.5 py-1")
 
                     # Row 1: Template Selector + Issued To + Edit Student (3 Components in 1 Row)
                     with ui.row().classes("w-full gap-4 items-center"):
                         initial_templates = self.get_templates()
                         self.template_sel = UI.select(
-                            "قالب الوثيقة / Certificate Template",
+                            "قالب الوثيقة",
                             options=self._format_template_options(initial_templates),
                             value=initial_templates[0] if initial_templates else None
                         ).classes("flex-1 text-sm")
 
                         self.to_input = UI.text_input(
-                            "إلى (الجهة المعنية) / Issued To",
+                            "إلى (الجهة المعنية)",
                             value="من يهمه الأمر",
                             placeholder="اسم الجهة الموجه إليها..."
                         ).classes("flex-1 text-sm")
@@ -234,20 +234,20 @@ class CertificateScreen:
                             "BY_SEMESTER_year": "مقررات - حسب السنة"
                         }
                         self.grouping_sel = UI.select(
-                            "نمط التجميع / Grouping",
+                            "نمط التجميع",
                             options=grouping_options,
                             value="DEFAULT",
                             on_change=on_grouping_change
                         ).classes("flex-1 text-sm")
 
-                        UI.primary_button("تعديل الطالب / Edit", icon="edit", on_click=self.handle_edit_student).classes("text-sm px-4 py-3.5 mt-2")
+                        UI.primary_button("تعديل الطالب", icon="edit", on_click=self.handle_edit_student).classes("text-sm px-4 py-3.5 mt-2")
 
                     # Row 1.5: Certificate Registry Info (Certificate Number & Auto Issue Date in 1 Row)
                     with ui.row().classes("w-full gap-4 items-center flex-nowrap"):
                         with ui.row().classes("flex-1 min-w-0 gap-2 items-center flex-nowrap"):
                             init_cert_num = self.issued_cert_repo.get_next_number()
                             self.cert_number_input = UI.text_input(
-                                "رقم الوثيقة / Certificate Number",
+                                "رقم الوثيقة",
                                 value=init_cert_num,
                                 placeholder="مثال: 420/44 أو 105"
                             ).classes("flex-1 min-w-0 text-sm")
@@ -259,12 +259,12 @@ class CertificateScreen:
 
                             ui.button(icon="autorenew", on_click=_refresh_cert_number).classes(
                                 "p-2.5 mt-2 rounded-xl bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 shadow-none hover:bg-slate-300 dark:hover:bg-slate-700 shrink-0"
-                            ).tooltip("توليد الرقم التالي تلقائياً / Auto-Generate Next Number")
+                            ).tooltip("توليد الرقم التالي تلقائياً")
 
                         from datetime import datetime
                         today_str = datetime.now().strftime("%Y-%m-%d")
                         self.issue_date_input = UI.text_input(
-                            "تاريخ الإصدار / Issue Date (تلقائي اليوم)",
+                            "تاريخ الإصدار",
                             value=today_str
                         ).classes("flex-1 min-w-0 text-sm").props("readonly")
 
@@ -272,18 +272,18 @@ class CertificateScreen:
 
                     # Row 2: University Order Section (3 Components in 1 Row)
                     with UI.card().classes("w-full p-4 gap-3 bg-[var(--bg-main)] rounded-xl border border-[var(--border-default)]"):
-                        ui.label("بيانات الأمر الجامعي — University Order").classes("text-xs font-bold app-text-accent")
+                        ui.label("بيانات الأمر الجامعي").classes("text-xs font-bold app-text-accent")
                         with ui.row().classes("w-full gap-4 items-center"):
-                            self.sw_order = UI.switch("تفعيل الأمر الجامعي / Enable Order", value=False).classes("w-64")
-                            self.inp_order_num = UI.text_input("رقم الأمر الجامعي / Order No", value="").classes("flex-1 text-sm")
-                            self.inp_order_date = UI.date_input("تاريخ الأمر / Order Date", value="").classes("flex-1 text-sm")
+                            self.sw_order = UI.switch("تفعيل الأمر الجامعي", value=False).classes("w-64")
+                            self.inp_order_num = UI.text_input("رقم الأمر الجامعي", value="").classes("flex-1 text-sm")
+                            self.inp_order_date = UI.date_input("تاريخ الأمر", value="").classes("flex-1 text-sm")
 
                     # Row 3: Graduation Rank Section (5 Components in 1 Row)
                     with UI.card().classes("w-full p-4 gap-3 bg-[var(--bg-main)] rounded-xl border border-[var(--border-default)]"):
-                        ui.label("بيانات تسلسل التخرج والترتيب — Graduation Rank").classes("text-xs font-bold app-text-accent")
+                        ui.label("بيانات تسلسل التخرج والترتيب").classes("text-xs font-bold app-text-accent")
                         with ui.row().classes("w-full gap-4 items-center"):
-                            self.sw_rank = UI.switch("تفعيل تسلسل التخرج / Enable Rank", value=False).classes("w-52")
-                            self.inp_rank_val = UI.text_input("تسلسل الطالب / Rank", value="").classes("flex-1 text-sm")
+                            self.sw_rank = UI.switch("تفعيل تسلسل التخرج", value=False).classes("w-52")
+                            self.inp_rank_val = UI.text_input("تسلسل الطالب", value="").classes("flex-1 text-sm")
 
                             def on_rank_source_change(e):
                                 if not hasattr(self, "student_full_data") or not self.student_full_data: return
@@ -308,35 +308,35 @@ class CertificateScreen:
                                     self.rank_str_label.text = f"المرتبة {rank_v} من {sel_val} خريج" if rank_v and sel_val != "" else "—"
 
                             self.rank_source_sel = UI.select(
-                                "مصدر العدد / Count Source",
+                                "مصدر العدد",
                                 options={
-                                    "order": "الأمر الجامعي / Order Count",
-                                    "custom": "يدوي للطالب / Total Postgrad Students",
-                                    "db": "قاعدة البيانات / DB Count"
+                                    "order": "الأمر الجامعي",
+                                    "custom": "يدوي للطالب",
+                                    "db": "قاعدة البيانات"
                                 },
                                 value="order",
                                 on_change=on_rank_source_change
                             ).classes("flex-1 text-sm")
 
-                            self.inp_rank_total = UI.text_input("إجمالي المتخرجين / Total", value="").classes("flex-1 text-sm")
-                            self.inp_rank_avg = UI.text_input("معدل الطالب الأول / Top Avg", value="").classes("flex-1 text-sm")
+                            self.inp_rank_total = UI.text_input("إجمالي المتخرجين", value="").classes("flex-1 text-sm")
+                            self.inp_rank_avg = UI.text_input("معدل الطالب الأول", value="").classes("flex-1 text-sm")
 
                     # Row 4: Academic Exceptions Grid (3 Cards Grid)
                     with ui.grid(columns=3).classes("w-full gap-4"):
                         # Card 1: Summer Training
                         with UI.card().classes("p-4 gap-2 bg-[var(--bg-main)] rounded-xl border border-[var(--border-default)]"):
-                            self.sw_summer = UI.switch("التدريب الصيفي / Summer Training", value=False)
-                            self.inp_summer_year = UI.text_input("سنة التدريب / Training Year", value="").classes("w-full text-sm mt-1")
+                            self.sw_summer = UI.switch("التدريب الصيفي", value=False)
+                            self.inp_summer_year = UI.text_input("سنة التدريب", value="").classes("w-full text-sm mt-1")
 
                         # Card 2: Postponed Years
                         with UI.card().classes("p-4 gap-2 bg-[var(--bg-main)] rounded-xl border border-[var(--border-default)]"):
-                            self.sw_postpone = UI.switch("سنوات التأجيل / Postponed Years", value=False)
-                            self.inp_postpone_years = UI.text_input("سنوات التأجيل / Postponed Years", value="").classes("w-full text-sm mt-1")
+                            self.sw_postpone = UI.switch("سنوات التأجيل", value=False)
+                            self.inp_postpone_years = UI.text_input("سنوات التأجيل", value="").classes("w-full text-sm mt-1")
 
                         # Card 3: Second Trial Subjects
                         with UI.card().classes("p-4 gap-2 bg-[var(--bg-main)] rounded-xl border border-[var(--border-default)]"):
-                            self.sw_second = UI.switch("الدور الثاني / Second Trial", value=False)
-                            self.inp_second_subjects = UI.text_input("مواد الدور الثاني / Subjects", value="").classes("w-full text-sm mt-1")
+                            self.sw_second = UI.switch("الدور الثاني", value=False)
+                            self.inp_second_subjects = UI.text_input("مواد الدور الثاني", value="").classes("w-full text-sm mt-1")
 
                     ui.separator().classes("my-2")
 
@@ -382,7 +382,7 @@ class CertificateScreen:
 
             if not results:
                 with self.search_results_container:
-                    ui.label("لم يتم العثور على طالب بهذا الاسم / No matching student found").classes(
+                    ui.label("لم يتم العثور على طالب بهذا الاسم").classes(
                         "text-xs app-text-muted italic p-4 text-center w-full"
                     )
                 self.search_results_card.set_visibility(True)
@@ -446,7 +446,7 @@ class CertificateScreen:
                 student_id, grouping_mode="DEFAULT"
             )
             if not self.student_full_data:
-                UI.notify("لا توجد بيانات دراسية للطالب المحدد / No academic data found", type="warning")
+                UI.notify("لا توجد بيانات دراسية للطالب المحدد", type="warning")
                 return
 
             # Dynamic grouping options update based on student's study system (semester vs yearly)
@@ -520,7 +520,7 @@ class CertificateScreen:
         if self.on_edit_student:
             self.on_edit_student(self.selected_student)
         else:
-            UI.notify("الانتقال لصفحة تعديل الطالب... / Redirecting to edit student", type="info")
+            UI.notify("الانتقال لصفحة تعديل الطالب...", type="info")
 
     def update_student_ui(self):
         data = self.student_full_data
@@ -651,7 +651,7 @@ class CertificateScreen:
                             "px-4 py-2 text-sm font-bold rounded-xl bg-[var(--bg-card)] border border-[var(--border-default)] app-text-accent shadow-sm"
                         )
                         UI.primary_button("خيارات وتوليد الوثيقة", icon="tune", on_click=self.show_options_view).classes("text-xs px-5 py-2.5 font-bold shadow-md")
-                        UI.primary_button("تعديل الطالب / Edit Student", icon="edit", on_click=self.handle_edit_student).classes("text-xs px-4 py-2.5")
+                        UI.primary_button("تعديل الطالب", icon="edit", on_click=self.handle_edit_student).classes("text-xs px-4 py-2.5")
 
             # 4 Unified Non-Duplicated Key Metric Cards
             avg = data.get("average")
@@ -708,7 +708,7 @@ class CertificateScreen:
                 with ui.row().classes("w-full justify-between items-center pb-2 border-b border-[var(--border-default)]"):
                     with ui.row().classes("items-center gap-2"):
                         ui.icon("history_edu", size="sm").classes("text-amber-400")
-                        ui.label("مواد الدور الثاني — Second Trial Subjects List").classes("text-sm font-extrabold app-text-accent tracking-wide")
+                        ui.label("مواد الدور الثاني").classes("text-sm font-extrabold app-text-accent tracking-wide")
                     if second_courses:
                         ui.label(f"إجمالي المواد: {len(second_courses)}").classes("text-s font-bold px-3 py-1 rounded-full bg-amber-500/20 text-amber-400 border border-amber-500/30")
 
@@ -768,10 +768,10 @@ class CertificateScreen:
                         UI.notify(f"خطأ في تحديث التجميع: {exc}", type="negative")
 
             with ui.row().classes("w-full justify-between items-center mt-2 pb-1"):
-                ui.label("السجل الأكاديمي والدرجات — Academic Transcript").classes("text-lg font-extrabold app-text-primary tracking-wide")
+                ui.label("السجل الأكاديمي والدرجات").classes("text-lg font-extrabold app-text-primary tracking-wide")
                 
                 UI.select(
-                    "خيارات التجميع / Grouping Options",
+                    "خيارات التجميع",
                     options=group_opts,
                     value=current_mode,
                     on_change=lambda e: on_grouping_change(e)
@@ -780,7 +780,7 @@ class CertificateScreen:
             with ui.column().classes("w-full border border-[var(--border-default)] rounded-2xl p-5 bg-[var(--bg-main)] gap-5 h-auto"):
                 courses = data.get("courses_grouped", [])
                 if not courses:
-                    ui.label("لا توجد سجلات دراسية / No course records").classes("text-sm app-text-muted italic p-4")
+                    ui.label("لا توجد سجلات دراسية").classes("text-sm app-text-muted italic p-4")
                 else:
                     grouped_data = {}
                     for c in courses:
@@ -916,7 +916,7 @@ class CertificateScreen:
             self.edit_mode_banner.set_visibility(True)
 
         if hasattr(self, "btn_generate") and self.btn_generate:
-            self.btn_generate.text = "تحديث وتوليد الوثيقة (Word) / Update & Generate"
+            self.btn_generate.text = "تحديث وتوليد الوثيقة (Word)"
 
     def _show_reissue_warning_modal(self, cert_num: str, tpl_name: str, options: dict, reissue_cert_id: Optional[int] = None) -> None:
         """Opens a confirmation modal warning the user to destroy the old physical paper copy before re-issuing."""
@@ -935,7 +935,7 @@ class CertificateScreen:
                 ui.label("هل ترغب في متابعة التوليد وتحديث بيانات القيد في السجل؟").classes("text-xs font-semibold")
 
             with ui.row().classes("w-full justify-end gap-3 mt-2"):
-                UI.secondary_button("إلغاء / Cancel", icon="close", on_click=dialog.close).classes("text-xs px-4 py-2")
+                UI.secondary_button("إلغاء", icon="close", on_click=dialog.close).classes("text-xs px-4 py-2")
                 
                 def _confirm_reissue():
                     dialog.close()
@@ -943,7 +943,7 @@ class CertificateScreen:
                         options["reissue_cert_id"] = reissue_cert_id
                     self.generate_docx(tpl_name, options)
 
-                UI.danger_button("تأكيد وإتلاف القديمة / Confirm & Overwrite", icon="done", on_click=_confirm_reissue).classes("text-xs px-4 py-2 font-bold")
+                UI.danger_button("تأكيد وإتلاف القديمة", icon="done", on_click=_confirm_reissue).classes("text-xs px-4 py-2 font-bold")
 
         dialog.open()
 
@@ -969,24 +969,24 @@ class CertificateScreen:
                 "لنفس الجهة ونفس القالب. افتحها في وضع التعديل لإعادة إصدارها (Word أو PDF) وتحديث قيدها."
             ).classes("text-sm app-text-primary leading-relaxed")
             with ui.row().classes("w-full justify-end gap-3 mt-2"):
-                UI.secondary_button("إلغاء / Cancel", icon="close", on_click=dialog.close).classes("text-xs px-4 py-2")
+                UI.secondary_button("إلغاء", icon="close", on_click=dialog.close).classes("text-xs px-4 py-2")
 
                 def _open_edit():
                     dialog.close()
                     self._enter_edit_mode(rec, self.student_full_data.get("full_name_ar", ""))
                     UI.notify("تم فتح الوثيقة في وضع التعديل. اضغط زر الإصدار مرة أخرى.", type="info")
 
-                UI.primary_button("فتح في وضع التعديل / Edit", icon="edit", on_click=_open_edit).classes("text-xs px-4 py-2 font-bold")
+                UI.primary_button("فتح في وضع التعديل", icon="edit", on_click=_open_edit).classes("text-xs px-4 py-2 font-bold")
         dialog.open()
 
     def generate_certificate(self, bypass_duplicate_check: bool = False) -> bool:
         if not self.student_full_data:
-            UI.notify("الرجاء اختيار طالب أولاً / Please select a student first", type="warning")
+            UI.notify("الرجاء اختيار طالب أولاً", type="warning")
             return False
 
         tpl_name = self.template_sel.value
         if not tpl_name or "لا توجد" in tpl_name:
-            UI.notify("الرجاء اختيار قالب وثيقة صالح / Please select a valid document template", type="warning")
+            UI.notify("الرجاء اختيار قالب وثيقة صالح", type="warning")
             return False
 
         tpl_path = os.path.join(self.templates_dir, tpl_name)
@@ -1240,7 +1240,7 @@ class CertificateScreen:
             except CertificateRejected as rej:
                 log.warning(f"Server refused to record the issued certificate: {rej}")
                 UI.notify(
-                    f"لم يتم تسجيل الوثيقة في قاعدة البيانات / The server refused to record this certificate ({rej.status_code}):\n{rej.detail}",
+                    f"لم يتم تسجيل الوثيقة في قاعدة البيانات ({rej.status_code}):\n{rej.detail}",
                     type="warning"
                 )
                 # A certificate the server refused has no record and no valid number: never print it.
@@ -1259,7 +1259,7 @@ class CertificateScreen:
             log.error(f"Permission denied while saving certificate file {out_file}: {pe}")
             UI.notify(
                 "الملف مفتوح حالياً في برنامج Word! يرجى إغلاق ملف الوثيقة المفتوح وإعادة التوليد.\n"
-                "Permission denied: The certificate document is open in Microsoft Word. Please close Word and try again.",
+                "تعذر الحفظ: ملف الوثيقة مفتوح في Microsoft Word. أغلق البرنامج وأعد المحاولة.",
                 type="warning"
             )
             return False
@@ -1269,7 +1269,7 @@ class CertificateScreen:
                 log.error(f"Permission denied saving document: {err}")
                 UI.notify(
                     "الملف مفتوح حالياً في برنامج Word! يرجى إغلاق ملف الوثيقة المفتوح وإعادة المحاولة.\n"
-                    "The certificate document is open in Word. Please close Word and try again.",
+                    "ملف الوثيقة مفتوح في Word. أغلق البرنامج وأعد المحاولة.",
                     type="warning"
                 )
             else:
@@ -1296,9 +1296,9 @@ class CertificateScreen:
             with ui.row().classes("w-full justify-between items-center pb-3 border-b border-[var(--border-default)]"):
                 with ui.row().classes("items-center gap-3"):
                     ui.icon("print", size="md").classes("app-text-accent")
-                    ui.label("معاينة الوثيقة والطباعة المباشرة — Certificate Preview & Print").classes("text-lg font-bold app-text-primary")
+                    ui.label("معاينة الوثيقة والطباعة المباشرة").classes("text-lg font-bold app-text-primary")
 
-                UI.secondary_button("إغلاق / Close", icon="close", on_click=print_dialog.close).classes("text-xs px-3 py-1.5")
+                UI.secondary_button("إغلاق", icon="close", on_click=print_dialog.close).classes("text-xs px-3 py-1.5")
 
             # Main Body: Left Document Previewer + Right Printer Controls Panel
             with ui.row().classes("w-full flex-1 gap-6 items-stretch overflow-hidden"):
@@ -1318,7 +1318,7 @@ class CertificateScreen:
                 # Right Column: Printer Controls Panel
                 with ui.column().classes("w-80 h-full p-5 rounded-xl border border-[var(--border-default)] bg-[var(--bg-main)] gap-4 justify-between"):
                     with ui.column().classes("w-full gap-4"):
-                        ui.label("إعدادات الطابعة — Printer Selection").classes("text-sm font-extrabold app-text-accent pb-2 border-b border-[var(--border-default)]")
+                        ui.label("إعدادات الطابعة").classes("text-sm font-extrabold app-text-accent pb-2 border-b border-[var(--border-default)]")
 
                         printers = get_installed_printers()
                         def_p = get_default_printer()
@@ -1335,12 +1335,12 @@ class CertificateScreen:
                             pass
 
                         printer_select = UI.select(
-                            "اختيار الطابعة / Select Printer",
+                            "اختيار الطابعة",
                             options={p: p for p in printers},
                             value=def_p if def_p in printers else (printers[0] if printers else None)
                         ).classes("w-full text-sm")
 
-                        copies_input = UI.text_input("عدد النسخ / Copies", value="1").classes("w-full text-sm")
+                        copies_input = UI.text_input("عدد النسخ", value="1").classes("w-full text-sm")
 
                         # Document Details Summary Box
                         with UI.card().classes("w-full p-3.5 gap-1.5 text-xs bg-[var(--bg-card)] rounded-xl border border-[var(--border-default)] app-text-muted shadow-sm"):
@@ -1365,10 +1365,10 @@ class CertificateScreen:
                             else:
                                 UI.notify(f"تعذر إرسال الوثيقة للطباعة على {sel_printer}", type="negative")
 
-                        UI.success_button("🖨️ طباعة الآن / Print Now", icon="print", on_click=do_print_now).classes("w-full py-3 text-sm font-bold shadow-md")
+                        UI.success_button("🖨️ طباعة الآن", icon="print", on_click=do_print_now).classes("w-full py-3 text-sm font-bold shadow-md")
                         if pdf_path:
                             UI.secondary_button("📂 عرض ملف PDF في مجلد الوثائق", icon="folder_open", on_click=lambda: self._show_in_folder(pdf_path)).classes("w-full py-2.5 text-xs")
-                        UI.secondary_button("إغلاق / Close", icon="cancel", on_click=print_dialog.close).classes("w-full py-2 text-xs")
+                        UI.secondary_button("إغلاق", icon="cancel", on_click=print_dialog.close).classes("w-full py-2 text-xs")
 
         print_dialog.open()
 
@@ -1388,7 +1388,7 @@ class CertificateScreen:
         if success and self.generated_file_path and os.path.exists(self.generated_file_path):
             try:
                 os.startfile(self.generated_file_path)
-                UI.notify("تم فتح وثيقة Word في البرنامج / Word document opened", type="positive")
+                UI.notify("تم فتح وثيقة Word في البرنامج", type="positive")
             except Exception as err:
                 log.error(f"Error opening generated Word doc: {err}")
                 UI.notify(f"تعذر فتح ملف Word: {err}", type="warning")
@@ -1408,7 +1408,7 @@ class CertificateScreen:
                 pdf_res = await asyncio.to_thread(generate_pdf_from_docx, self.generated_file_path)
                 pdf_path = pdf_res if pdf_res and os.path.exists(pdf_res) else None
                 if pdf_path is None:
-                    UI.notify("تعذر تحويل الوثيقة: يتطلب برنامج Microsoft Word / Microsoft Word is required for preview and PDF", type="warning")
+                    UI.notify("تعذر تحويل الوثيقة: يتطلب برنامج Microsoft Word", type="warning")
 
                 self.show_in_app_print_dialog(pdf_path, self.generated_file_path)
             except Exception as err:
@@ -1422,7 +1422,7 @@ class CertificateScreen:
         if self.generated_file_path and os.path.exists(self.generated_file_path):
             try:
                 os.startfile(self.generated_file_path)
-                UI.notify("تم فتح الوثيقة في المستعرض / Document opened", type="info")
+                UI.notify("تم فتح الوثيقة في المستعرض", type="info")
             except Exception as err:
                 log.error(f"Error opening generated doc: {err}")
                 UI.notify(f"تعذر فتح الملف: {err}", type="warning")

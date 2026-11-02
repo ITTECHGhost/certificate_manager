@@ -36,14 +36,14 @@ class CoursesScreen:
             
         self.depts_list = depts
         self.depts_map = {d["id"]: d for d in depts}
-        filter_dept_opts = {0: "كل الأقسام / All Departments"}
+        filter_dept_opts = {0: "كل الأقسام"}
         for d in depts:
             filter_dept_opts[d["id"]] = f"{d.get('name_ar', '')} / {d.get('name_en', '')}"
 
         with self.container:
             with ui.tabs().classes("w-full bg-[var(--bg-card)] rounded-xl border border-[var(--border-default)] p-1 shrink-0") as tabs:
-                courses_tab = ui.tab("courses", label="دليل المواد الدراسية / Course Catalog", icon="book")
-                routines_tab = ui.tab("routines", label="الروتينات الدراسية الجاهزة / Predefined Routines", icon="playlist_add_check")
+                courses_tab = ui.tab("courses", label="دليل المواد الدراسية", icon="book")
+                routines_tab = ui.tab("routines", label="الروتينات الدراسية الجاهزة", icon="playlist_add_check")
 
             with ui.tab_panels(tabs, value="courses").classes("w-full flex-1 bg-transparent overflow-y-auto"):
                 # Panel 1: Course Catalog
@@ -52,7 +52,7 @@ class CoursesScreen:
                         # Toolbar: Add + rows-per-page stay together first; filters wrap below when room runs out
                         with ui.row().classes("w-full items-center gap-2 p-2 rounded-xl border border-[var(--border-default)] bg-[var(--bg-card)] flex-wrap shrink-0"):
                             UI.success_button(
-                                "+ إضافة مادة / Add Course",
+                                "+ إضافة مادة",
                                 icon="add",
                                 on_click=lambda: self.show_edit_view(mode="add")
                             ).classes("text-xs px-3 py-2 shrink-0")
@@ -67,7 +67,7 @@ class CoursesScreen:
                                 self._render_content()
 
                             UI.select(
-                                label="عرض / Show",
+                                label="عرض",
                                 options={25: "25", 50: "50", 75: "75", 100: "100"},
                                 value=self.current_limit,
                                 on_change=on_limit_change
@@ -96,7 +96,7 @@ class CoursesScreen:
                                 self._render_content()
 
                             UI.text_input(
-                                label="بحث / Search",
+                                label="بحث",
                                 placeholder="اسم المادة",
                                 on_change=on_search_change
                             ).props('dense outlined clearable icon="search"').classes("flex-1 min-w-[200px] text-xs app-input rounded-lg")
@@ -170,13 +170,13 @@ class CoursesScreen:
         disp_end = min(end_idx, total_count)
 
         with ui.row().classes("w-full items-center justify-between pt-4 border-t border-[var(--border-default)] shrink-0"):
-            prev_btn = UI.secondary_button("◄ السابق / Previous", on_click=self.go_prev).classes("text-xs px-4 py-2")
+            prev_btn = UI.secondary_button("◄ السابق", on_click=self.go_prev).classes("text-xs px-4 py-2")
             if self.current_offset == 0 or self.search_term:
                 prev_btn.disable()
 
-            ui.label(f"السجلات {disp_start} - {disp_end} من {total_count}  |  Records {disp_start} - {disp_end} of {total_count}").classes("text-xs font-bold app-text-primary")
+            ui.label(f"السجلات {disp_start} - {disp_end} من {total_count}").classes("text-xs font-bold app-text-primary")
 
-            next_btn = UI.secondary_button("التالي / Next ►", on_click=self.go_next).classes("text-xs px-4 py-2")
+            next_btn = UI.secondary_button("التالي", on_click=self.go_next).classes("text-xs px-4 py-2")
             if end_idx >= total_count or self.search_term:
                 next_btn.disable()
 
@@ -211,7 +211,7 @@ class CoursesScreen:
                                 up_data["credit_hours"] = int(credits_sel.value)
                             
                             self.repo.update(c_id, up_data)
-                            ui.notify("تم تعديل المادة بنجاح! / Course updated!", type="positive", duration=1.5)
+                            ui.notify("تم تعديل المادة بنجاح!", type="positive", duration=1.5)
                             self._render_content()
                         except Exception as err:
                             ui.notify(f"خطأ أثناء التحديث: {err}", type="negative")
@@ -220,21 +220,21 @@ class CoursesScreen:
                 quick_save_cb = make_quick_saver(cid, row)
 
                 dept_sel = UI.select(
-                    label="القسم / Department",
+                    label="القسم",
                     options=dept_opts,
                     value=cur_dept,
                     on_change=quick_save_cb
                 ).props("dense outlined").style("width: 150px !important;").classes("text-xs shrink-0 app-input rounded-lg")
 
                 stage_sel = UI.select(
-                    label="المرحلة / Stage",
+                    label="المرحلة",
                     options={1: "1", 2: "2", 3: "3", 4: "4"},
                     value=cur_stage,
                     on_change=quick_save_cb
                 ).props("dense outlined").style("width: 90px !important;").classes("text-xs shrink-0 app-input rounded-lg")
 
                 credits_sel = UI.select(
-                    label="الوحدات / Credits",
+                    label="الوحدات",
                     options={1: "1", 2: "2", 3: "3", 4: "4", 5: "5", 6: "6"},
                     value=cur_credits,
                     on_change=quick_save_cb
@@ -246,13 +246,13 @@ class CoursesScreen:
                     "",
                     icon="edit",
                     on_click=lambda r=row: self.show_edit_view(row=r, mode="edit")
-                ).props("round dense").classes("text-xs p-1.5").tooltip("تعديل / Edit")
+                ).props("round dense").classes("text-xs p-1.5").tooltip("تعديل")
 
                 UI.danger_button(
                     "",
                     icon="delete",
                     on_click=lambda r=row: self.confirm_delete(r)
-                ).props("round dense").classes("text-xs p-1.5").tooltip("حذف / Delete")
+                ).props("round dense").classes("text-xs p-1.5").tooltip("حذف")
 
     def go_prev(self):
         self.current_offset = max(0, self.current_offset - self.current_limit)
@@ -311,8 +311,8 @@ class CoursesScreen:
                     ui.label("الخطة الكاملة (4 سنوات)").classes("text-xs font-bold px-3 py-1.5 rounded-lg bg-emerald-500/10 border border-emerald-500/30 text-emerald-600 dark:text-emerald-400")
                     ui.label(f"إجمالي المواد: {len(courses)} مادة").classes("text-xs font-bold px-3 py-1.5 rounded-lg bg-[var(--bg-main)] border border-[var(--border-default)] app-text-accent")
 
-                    UI.primary_button("", icon="edit", on_click=lambda rt=routine: self.show_routine_edit_dialog(rt)).props("round dense").classes("text-xs p-1.5 ml-2").tooltip("تعديل / Edit")
-                    UI.danger_button("", icon="delete", on_click=lambda rt=routine: self.confirm_delete_routine(rt)).props("round dense").classes("text-xs p-1.5").tooltip("حذف / Delete")
+                    UI.primary_button("", icon="edit", on_click=lambda rt=routine: self.show_routine_edit_dialog(rt)).props("round dense").classes("text-xs p-1.5 ml-2").tooltip("تعديل")
+                    UI.danger_button("", icon="delete", on_click=lambda rt=routine: self.confirm_delete_routine(rt)).props("round dense").classes("text-xs p-1.5").tooltip("حذف")
 
             with ui.column().classes("w-full gap-3 pt-1"):
                 if not courses:
@@ -370,16 +370,16 @@ class CoursesScreen:
                 with ui.row().classes("items-center gap-3"):
                     ui.icon("playlist_add_check", size="md").classes("app-text-accent")
                     with ui.column().classes("gap-0"):
-                        title_txt = f"تعديل الخطة الدراسية (4 سنوات): {existing.get('name_ar')}" if rid else "إضافة خطة دراسية جديدة (4 سنوات) — Complete Study Routine"
+                        title_txt = f"تعديل الخطة الدراسية (4 سنوات): {existing.get('name_ar')}" if rid else "إضافة خطة دراسية جديدة (4 سنوات)"
                         ui.label(title_txt).classes("text-lg font-bold app-text-primary")
                         ui.label("تحديد الخطة الكاملة للقسم وتوزيع المواد على جميع المراحل (1-4) والفصول الدراسية").classes("text-xs app-text-muted")
 
             with ui.column().classes("w-full gap-4 overflow-y-auto max-h-[75vh] pr-1"):
                 with ui.row().classes("w-full gap-3 items-center flex-nowrap py-1"):
-                    name_ar_inp = UI.text_input("اسم الروتين (عربي) / Routine Name (Arabic)", value=existing.get("name_ar", "")).classes("flex-1 min-w-0 text-sm")
-                    name_en_inp = UI.text_input("اسم الروتين (إنكليزي) / Routine Name (English)", value=existing.get("name_en", "")).classes("flex-1 min-w-0 text-sm")
-                    dept_sel = UI.select("القسم / Department", options=dept_opts, value=init_dept).classes("w-56 shrink-0 text-sm")
-                    sys_sel = UI.select("النظام الدراسي / System", options={1: "سنوي", 2: "فصلي", 3: "مقررات"}, value=init_sys).classes("w-36 shrink-0 text-sm")
+                    name_ar_inp = UI.text_input("اسم الروتين (عربي)", value=existing.get("name_ar", "")).classes("flex-1 min-w-0 text-sm")
+                    name_en_inp = UI.text_input("اسم الروتين (إنكليزي)", value=existing.get("name_en", "")).classes("flex-1 min-w-0 text-sm")
+                    dept_sel = UI.select("القسم", options=dept_opts, value=init_dept).classes("w-56 shrink-0 text-sm")
+                    sys_sel = UI.select("النظام الدراسي", options={1: "سنوي", 2: "فصلي", 3: "مقررات"}, value=init_sys).classes("w-36 shrink-0 text-sm")
 
                 @ui.refreshable
                 def render_stages_view():
@@ -405,7 +405,7 @@ class CoursesScreen:
                         c_en = c.get("name_en", "")
                         units = c.get("credit_hours", 1)
                         stg = c.get("stage_number", 1)
-                        label = f"المرحلة {stg} — {c_ar}" + (f"  /  {c_en}" if c_en else "") + f" ({units} وحدة)"
+                        label = f"المرحلة {stg} — {c_ar}" + f" ({units} وحدة)"
                         course_dropdown_opts[cid] = label
 
                     with ui.tabs().classes("w-full bg-[var(--bg-main)] rounded-xl border border-[var(--border-default)] p-1 shrink-0") as stage_tabs:
@@ -430,13 +430,13 @@ class CoursesScreen:
                                         with ui.row().classes("w-full justify-between items-center pb-2 border-b border-[var(--border-default)] flex-wrap gap-2"):
                                             with ui.row().classes("items-center gap-2"):
                                                 ui.icon("looks_one", size="xs").classes("app-text-accent")
-                                                ui.label("الفصل الدراسي الأول / Semester 1").classes("text-xs font-bold app-text-primary")
+                                                ui.label("الفصل الدراسي الأول").classes("text-xs font-bold app-text-primary")
                                                 ui.label(f"({len(sem1_added)} مادة مختارة)").classes("text-[10px] app-text-accent font-bold")
 
                                         if course_dropdown_opts:
                                             with ui.row().classes("w-full gap-2 items-center p-2 rounded-lg bg-[var(--bg-main)] border border-[var(--border-default)] flex-nowrap"):
                                                 init_c1 = list(course_dropdown_opts.keys())[0]
-                                                sem1_select = UI.select("إضافة مادة للفصل الأول / Select Course", course_dropdown_opts, value=init_c1, with_input=True).classes("flex-1 min-w-0 text-sm")
+                                                sem1_select = UI.select("إضافة مادة للفصل الأول", course_dropdown_opts, value=init_c1, with_input=True).classes("flex-1 min-w-0 text-sm")
                                                 
                                                 def do_add_sem1(sel_widget=sem1_select):
                                                     cid = sel_widget.value
@@ -475,13 +475,13 @@ class CoursesScreen:
                                         with ui.row().classes("w-full justify-between items-center pb-2 border-b border-[var(--border-default)] flex-wrap gap-2"):
                                             with ui.row().classes("items-center gap-2"):
                                                 ui.icon("looks_two", size="xs").classes("app-text-accent")
-                                                ui.label("الفصل الدراسي الثاني / Semester 2").classes("text-xs font-bold app-text-primary")
+                                                ui.label("الفصل الدراسي الثاني").classes("text-xs font-bold app-text-primary")
                                                 ui.label(f"({len(sem2_added)} مادة مختارة)").classes("text-[10px] app-text-accent font-bold")
 
                                         if course_dropdown_opts:
                                             with ui.row().classes("w-full gap-2 items-center p-2 rounded-lg bg-[var(--bg-main)] border border-[var(--border-default)] flex-nowrap"):
                                                 init_c2 = list(course_dropdown_opts.keys())[0]
-                                                sem2_select = UI.select("إضافة مادة للفصل الثاني / Select Course", course_dropdown_opts, value=init_c2, with_input=True).classes("flex-1 min-w-0 text-sm")
+                                                sem2_select = UI.select("إضافة مادة للفصل الثاني", course_dropdown_opts, value=init_c2, with_input=True).classes("flex-1 min-w-0 text-sm")
                                                 
                                                 def do_add_sem2(sel_widget=sem2_select):
                                                     cid = sel_widget.value
@@ -543,10 +543,10 @@ class CoursesScreen:
                         try:
                             if rid:
                                 self.routine_repo.update(rid, payload)
-                                ui.notify("تم تعديل الروتين بنجاح / Routine updated", type="positive")
+                                ui.notify("تم تعديل الروتين بنجاح", type="positive")
                             else:
                                 self.routine_repo.insert(payload)
-                                ui.notify("تم إضافة الروتين بنجاح / Routine added", type="positive")
+                                ui.notify("تم إضافة الروتين بنجاح", type="positive")
                             dialog.close()
                             if hasattr(self, "_refresh_routines") and self._refresh_routines:
                                 self._refresh_routines.refresh()
@@ -556,8 +556,8 @@ class CoursesScreen:
                             log.error(f"Error saving routine: {err}")
                             ui.notify(f"Error saving routine: {err}", type="negative")
 
-                    UI.secondary_button("إلغاء / Cancel", on_click=dialog.close).classes("text-sm px-5 py-2")
-                    UI.success_button("حفظ الخطة الدراسية / Save Routine", icon="save", on_click=save_routine_action).classes("text-sm px-5 py-2")
+                    UI.secondary_button("إلغاء", on_click=dialog.close).classes("text-sm px-5 py-2")
+                    UI.success_button("حفظ الخطة الدراسية", icon="save", on_click=save_routine_action).classes("text-sm px-5 py-2")
 
         dialog.open()
 
@@ -565,22 +565,22 @@ class CoursesScreen:
         rid = routine["id"]
         dialog = ui.dialog()
         with dialog, UI.card().classes("p-6 gap-6 w-full max-w-md bg-[var(--bg-card)] rounded-2xl border border-[var(--border-default)]"):
-            ui.label("تأكيد الحذف — Confirm Delete Routine").classes("text-lg font-bold app-text-primary")
+            ui.label("تأكيد الحذف").classes("text-lg font-bold app-text-primary")
             ui.label(f"هل أنت متأكد من رغبتك في حذف الروتين: ({routine.get('name_ar')})؟\nلن يؤثر ذلك على الطلاب المسجلين سابقاً.").classes("text-sm app-text-muted whitespace-pre-line")
 
             with ui.row().classes("w-full justify-end gap-3 pt-2"):
                 def do_del():
                     try:
                         self.routine_repo.delete(rid)
-                        ui.notify("تم حذف الروتين / Routine deleted", type="positive")
+                        ui.notify("تم حذف الروتين", type="positive")
                         dialog.close()
                         if hasattr(self, "_refresh_routines"):
                             self._refresh_routines.refresh()
                     except Exception as err:
                         ui.notify(f"خطأ أثناء الحذف: {err}", type="negative")
 
-                UI.danger_button("حذف / Delete", icon="delete", on_click=do_del).classes("text-sm px-4 py-2")
-                UI.secondary_button("إلغاء / Cancel", on_click=dialog.close).classes("text-sm px-4 py-2")
+                UI.danger_button("حذف", icon="delete", on_click=do_del).classes("text-sm px-4 py-2")
+                UI.secondary_button("إلغاء", on_click=dialog.close).classes("text-sm px-4 py-2")
         dialog.open()
 
     # -----------------------------------------------------------------------
@@ -612,46 +612,46 @@ class CoursesScreen:
                 with ui.row().classes("w-full justify-between items-center pb-4 border-b border-[var(--border-default)] shrink-0"):
                     with ui.row().classes("items-center gap-3"):
                         ui.button(icon="arrow_back", on_click=self.show_list_view).props("flat round dense").classes("app-text-primary")
-                        title_text = "إضافة مادة جديدة — Add Course" if mode == "add" else f"تعديل المادة — Edit {existing_data.get('name_en', '')}"
+                        title_text = "إضافة مادة جديدة" if mode == "add" else f"تعديل المادة {existing_data.get('name_en', '')}"
                         ui.label(title_text).classes("text-xl font-bold app-text-primary")
 
                 with ui.column().classes("w-full gap-6 overflow-y-auto pr-1"):
                     with UI.card().classes("w-full p-5 gap-4 rounded-xl border border-[var(--border-default)] bg-[var(--bg-card)] shrink-0"):
-                        ui.label("معلومات المادة — Course Info").classes("text-base font-bold app-text-accent")
+                        ui.label("معلومات المادة").classes("text-base font-bold app-text-accent")
 
                         with ui.row().classes("w-full gap-4"):
                             name_ar_inp = UI.text_input(
-                                "اسم المادة بالعربية / Arabic Name",
+                                "اسم المادة بالعربية",
                                 value=existing_data.get("name_ar", "") if existing_data else ""
                             ).classes("flex-1 text-sm")
 
                             name_en_inp = UI.text_input(
-                                "اسم المادة بالإنكليزية / English Name",
+                                "اسم المادة بالإنكليزية",
                                 value=existing_data.get("name_en", "") if existing_data else ""
                             ).classes("flex-1 text-sm")
 
                         with ui.row().classes("w-full gap-4"):
                             credits_inp = UI.select(
-                                "الوحدات الدراسية / Credit Hours",
+                                "الوحدات الدراسية",
                                 options={i: str(i) for i in range(1, 7)},
                                 value=int(existing_data.get("credit_hours", 3)) if existing_data else 3
                             ).classes("flex-1 text-sm")
 
                             stage_inp = UI.select(
-                                "المرحلة / Stage",
+                                "المرحلة",
                                 options={i: str(i) for i in range(1, 9)},
                                 value=int(existing_data.get("stage_number", 1)) if existing_data else 1
                             ).classes("flex-1 text-sm")
 
                     with UI.card().classes("w-full p-5 gap-4 rounded-xl border border-[var(--border-default)] bg-[var(--bg-card)] shrink-0"):
-                        ui.label("نطاق المادة — Course Scope").classes("text-base font-bold app-text-accent")
+                        ui.label("نطاق المادة").classes("text-base font-bold app-text-accent")
 
-                        is_shared_chk = ui.checkbox("مادة مشتركة بين أقسام / Shared across departments", value=shared_state["is_shared"])
+                        is_shared_chk = ui.checkbox("مادة مشتركة بين أقسام", value=shared_state["is_shared"])
 
                         @ui.refreshable
                         def dept_selector():
                             if is_shared_chk.value:
-                                ui.label("الأقسام المشتركة / Shared Departments").classes("text-sm font-bold app-text-primary mt-2")
+                                ui.label("الأقسام المشتركة").classes("text-sm font-bold app-text-primary mt-2")
                                 with ui.row().classes("gap-4 flex-wrap w-full p-4 rounded-xl bg-[var(--bg-main)] border border-[var(--border-default)]"):
                                     for did, dname in dept_opts.items():
                                         def toggle_dept(e, d_id=did):
@@ -666,7 +666,7 @@ class CoursesScreen:
                             else:
                                 default_dept_val = existing_data.get("department_id") if existing_data and existing_data.get("department_id") else (list(dept_opts.keys())[0] if dept_opts else None)
                                 dept_sel = UI.select(
-                                    "القسم / Department",
+                                    "القسم",
                                     options=dept_opts,
                                     value=default_dept_val
                                 ).classes("w-1/2 text-sm")
@@ -678,17 +678,17 @@ class CoursesScreen:
                     with ui.row().classes("w-full justify-end gap-3 pt-4 border-t border-[var(--border-default)] shrink-0"):
                         def save_action():
                             if not depts:
-                                ui.notify("يجب إضافة قسم أولاً / Please add a department first", type="warning")
+                                ui.notify("يجب إضافة قسم أولاً", type="warning")
                                 return
 
                             n_ar = name_ar_inp.value.strip() if name_ar_inp.value else ""
                             n_en = name_en_inp.value.strip() if name_en_inp.value else ""
 
                             if not n_ar:
-                                ui.notify("اسم المادة بالعربية مطلوب / Arabic course name is required", type="warning")
+                                ui.notify("اسم المادة بالعربية مطلوب", type="warning")
                                 return
                             if not n_en:
-                                ui.notify("اسم المادة بالإنكليزية مطلوب / English course name is required", type="warning")
+                                ui.notify("اسم المادة بالإنكليزية مطلوب", type="warning")
                                 return
 
                             is_shared = is_shared_chk.value
@@ -701,7 +701,7 @@ class CoursesScreen:
 
                             if is_shared:
                                 if not selected_depts:
-                                    ui.notify("اختر قسماً واحداً على الأقل / Select at least one department", type="warning")
+                                    ui.notify("اختر قسماً واحداً على الأقل", type="warning")
                                     return
                                 payload["department_id"] = None
                                 payload["shared_dept_ids"] = list(set(selected_depts))
@@ -712,11 +712,11 @@ class CoursesScreen:
                             try:
                                 if mode == "add":
                                     self.repo.insert(data=payload)
-                                    ui.notify("تمت إضافة المادة بنجاح / Course added", type="positive")
+                                    ui.notify("تمت إضافة المادة بنجاح", type="positive")
                                 else:
                                     if cid is not None:
                                         self.repo.update(course_id=int(cid), data=payload)
-                                    ui.notify("تم تعديل المادة بنجاح / Course updated", type="positive")
+                                    ui.notify("تم تعديل المادة بنجاح", type="positive")
                                 self.show_list_view()
                             except OfflineModeError as err:
                                 ui.notify(str(err), type="warning")
@@ -724,14 +724,14 @@ class CoursesScreen:
                                 log.error(f"Error saving course: {err}")
                                 ui.notify(f"Error: {err}", type="negative")
 
-                        UI.secondary_button("إلغاء / Cancel", on_click=self.show_list_view).classes("text-sm px-5 py-2")
-                        UI.success_button("حفظ / Save", icon="save", on_click=save_action).classes("text-sm px-5 py-2")
+                        UI.secondary_button("إلغاء", on_click=self.show_list_view).classes("text-sm px-5 py-2")
+                        UI.success_button("حفظ", icon="save", on_click=save_action).classes("text-sm px-5 py-2")
 
     def confirm_delete(self, row: dict):
         cid = row["id"]
         dialog = ui.dialog()
         with dialog, UI.card().classes("p-6 gap-6 w-full max-w-md bg-[var(--bg-card)] rounded-2xl border border-[var(--border-default)]"):
-            ui.label("تأكيد الحذف — Confirm Delete").classes("text-lg font-bold app-text-primary")
+            ui.label("تأكيد الحذف").classes("text-lg font-bold app-text-primary")
             ui.label(
                 f"هل أنت متأكد من رغبتك في حذف المادة: ({row.get('name_ar', '')})؟\n"
                 f"لا يمكن حذف المادة إذا كان هناك طلاب مسجلون فيها."
@@ -741,14 +741,14 @@ class CoursesScreen:
                 def do_delete():
                     try:
                         self.repo.delete(cid)
-                        ui.notify("تم حذف المادة / Course deleted", type="positive")
+                        ui.notify("تم حذف المادة", type="positive")
                         dialog.close()
                         self.show_list_view()
                     except OfflineModeError as err:
                         ui.notify(str(err), type="warning")
                     except Exception as err:
-                        ui.notify(f"لا يمكن الحذف (مرتبط بطلاب). / Cannot delete: {err}", type="negative")
+                        ui.notify(f"لا يمكن الحذف (مرتبط بطلاب).{err}", type="negative")
 
-                UI.danger_button("حذف / Delete", icon="delete", on_click=do_delete).classes("text-sm px-4 py-2")
-                UI.secondary_button("إلغاء / Cancel", on_click=dialog.close).classes("text-sm px-4 py-2")
+                UI.danger_button("حذف", icon="delete", on_click=do_delete).classes("text-sm px-4 py-2")
+                UI.secondary_button("إلغاء", on_click=dialog.close).classes("text-sm px-4 py-2")
         dialog.open()

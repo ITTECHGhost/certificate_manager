@@ -249,7 +249,7 @@ class MainAppShell:
         self.refresh_data()
         if self._refresh_cards:
             self._refresh_cards.refresh()
-        ui.notify("تم تحديث البيانات / Data refreshed!", type="info")
+        ui.notify("تم تحديث البيانات", type="info")
 
     # =========================================================================
     # 2. SIDEBAR CONTAINER DEFINITION
@@ -273,13 +273,12 @@ class MainAppShell:
                 self._sidebar_toggle_btn = ui.button(
                     icon="menu", color=None, on_click=self.toggle_sidebar
                 ).props("flat dense").classes("app-btn-primary p-2 rounded-xl shadow-none shrink-0")
-                self._sidebar_toggle_btn.tooltip("طي / توسيع القائمة — Collapse / expand menu")
+                self._sidebar_toggle_btn.tooltip("طي / توسيع القائمة")
 
                 # Title (Arabic above English) — hidden when collapsed
                 self._sidebar_title_label = ui.column().classes("app-sidebar-titles gap-0 min-w-0 flex-1")
                 with self._sidebar_title_label:
                     ui.label("مدير الشهادات").classes(f"{Styles.SIDEBAR_APP_TITLE} leading-tight")
-                    ui.label("Certificate Manager").classes("app-sidebar-title text-xs font-semibold leading-tight opacity-80")
                 self._sidebar_title_icon = None
 
             # [NAVIGATION ITEMS LIST COLUMN]
@@ -322,13 +321,12 @@ class MainAppShell:
         with row:
             # Nav Item Icon + Tooltip
             icon_el = ui.icon(item["icon"], size="sm")
-            icon_el.tooltip(f"{item['ar']}  —  {item['en']}")
+            icon_el.tooltip(item["ar"])
 
             # Nav Item Labels Column
             label_col = ui.column().classes("gap-0")
             with label_col:
                 ui.label(item["ar"]).classes("nav-title-ar font-bold text-sm leading-tight")
-                ui.label(item["en"]).classes("nav-title-en font-normal text-xs leading-tight")
 
             self._nav_labels.append((row, label_col, item["key"]))
 
@@ -364,17 +362,17 @@ class MainAppShell:
                 # Modal Actions Footer Row
                 with ui.row().classes("w-full items-center justify-end gap-3 pt-3 border-t mt-1"):
                     # Cancel Button
-                    UI.ghost_button("إلغاء / Cancel", on_click=dialog.close).classes("px-4 py-2 text-xs font-semibold")
+                    UI.ghost_button("إلغاء", on_click=dialog.close).classes("px-4 py-2 text-xs font-semibold")
                     
                     def _confirm():
                         dialog.close()
                         from nicegui_ui.state import app_session
                         app_session.logout_user()
-                        ui.notify("تم تسجيل الخروج بنجاح / Logged out successfully!", type="info")
+                        ui.notify("تم تسجيل الخروج بنجاح", type="info")
                         ui.navigate.to("/")
 
                     # Confirm Logout Button (Red Danger Button)
-                    UI.danger_button("تسجيل الخروج / Logout", icon="logout", on_click=_confirm).classes("px-5 py-2 text-xs font-bold")
+                    UI.danger_button("تسجيل الخروج", icon="logout", on_click=_confirm).classes("px-5 py-2 text-xs font-bold")
 
         dialog.open()
 
@@ -413,7 +411,7 @@ class MainAppShell:
                     online = is_online()
                     color_cls = "app-user-status-online" if online else "app-user-status-offline"
                     dot = "🟢" if online else "🔴"
-                    text = "متصل / Online" if online else "غير متصل / Offline"
+                    text = "متصل" if online else "غير متصل"
                     ui.label(f"{dot} {text}").classes(f"text-[10px] {color_cls} font-semibold")
                 
                 status_indicator()
@@ -424,7 +422,7 @@ class MainAppShell:
                 "app-user-logout cursor-pointer ml-auto"
             )
             logout_btn.on("click", self._handle_logout)
-            logout_btn.tooltip("تسجيل الخروج / Logout")
+            logout_btn.tooltip("تسجيل الخروج")
 
             self._user_chip_row.on("click", self._handle_logout)
 
@@ -486,7 +484,7 @@ class MainAppShell:
           b. Screen Title Labels (`_header_title_ar`, `_header_title_en`)
         - Right Group:
           a. Live Network Connection Badge (`header_status_badge`)
-          b. Refresh Data Button (`app-btn-refresh`, `ui.button("تحديث البيانات...", icon="sync")`)
+          b. Refresh Data Button (`app-btn-refresh`, `ui.button("تحديث البيانات", icon="sync")`)
         """
         with ui.row().classes(Styles.HEADER_BAR):
             # Left Header Section (Sidebar Toggle Button + Active Screen Title Labels)
@@ -505,7 +503,7 @@ class MainAppShell:
             with ui.row().classes("items-center gap-3"):
                 # [BUTTON: REFRESH DATA] (Second column from the corner)
                 ui.button(
-                    "تحديث البيانات / Refresh Data",
+                    "تحديث البيانات",
                     icon="sync",
                     color=None,
                     on_click=self._on_refresh_click
@@ -535,7 +533,7 @@ class MainAppShell:
             account_click_area = ui.row().classes(
                 "items-center gap-2.5 cursor-pointer hover:opacity-85 transition-opacity"
             ).on("click", lambda: self._switch_screen("profile"))
-            account_click_area.tooltip("الملف الشخصي والحساب / Profile & Account")
+            account_click_area.tooltip("الملف الشخصي والحساب")
 
             with account_click_area:
                 # User Avatar Initials Badge Circle
@@ -559,7 +557,7 @@ class MainAppShell:
                             "bg-red-50 dark:bg-red-500/10 text-red-700 dark:text-red-400 border-red-200 dark:border-red-500/30"
                         )
                         dot = "🟢" if online else "🔴"
-                        text = "متصل / Online" if online else "غير متصل / Offline"
+                        text = "متصل" if online else "غير متصل"
                         ui.label(f"{dot} {text}").classes(f"px-2 py-0.5 rounded-md border text-[10px] font-bold leading-none {bg}")
 
                     header_status_badge()
@@ -572,7 +570,7 @@ class MainAppShell:
                 "app-user-logout cursor-pointer hover:text-red-400 transition-colors p-1 rounded-lg"
             )
             logout_btn.on("click", self._handle_logout)
-            logout_btn.tooltip("تسجيل الخروج / Logout")
+            logout_btn.tooltip("تسجيل الخروج")
 
     def _get_screen_header_titles(self) -> tuple[str, str]:
         """Returns Arabic and English title strings for the active screen."""
@@ -594,7 +592,7 @@ class MainAppShell:
     def _switch_screen(self, screen_key: str) -> None:
         """Handles navigation between screens when a sidebar button is clicked."""
         if screen_key != "profile" and hasattr(self, "allowed_screens") and self.allowed_screens and screen_key not in self.allowed_screens:
-            ui.notify("عذراً، ليس لديك صلاحية للوصول إلى هذه الشاشة / Access Denied", type="warning")
+            ui.notify("عذراً، ليس لديك صلاحية للوصول إلى هذه الشاشة", type="warning")
             return
 
         self.current_screen = screen_key
@@ -743,7 +741,6 @@ class MainAppShell:
                             # Action Row Labels
                             with ui.column().classes("gap-0 min-w-0 flex-1"):
                                 ui.label(action["label_ar"]).classes("nav-title-ar font-bold text-sm leading-tight")
-                                ui.label(action["label_en"]).classes("nav-title-en font-normal text-xs leading-tight")
                             
                             # Navigation Arrow Icon
                             ui.icon("arrow_back_ios", size="xs").classes("app-text-faint ml-auto opacity-60")
@@ -773,11 +770,11 @@ class MainAppShell:
                     # ── TAB 1 VIEW: RECENT STUDENTS TABLE ────────────────────
                     with ui.tab_panel(tab_students).classes("w-full p-0 pt-2 bg-transparent"):
                         cols_s = [
-                            {"name": "name",   "label": "اسم الطالب / Student Name", "field": "name",   "align": "right",  "headerClasses": "text-slate-600 dark:text-slate-400 font-bold bg-transparent"},
-                            {"name": "dept",   "label": "القسم / Department",        "field": "dept",   "align": "right",  "headerClasses": "text-slate-600 dark:text-slate-400 font-bold bg-transparent"},
-                            {"name": "year",   "label": "سنة القبول / Batch",        "field": "year",   "align": "center", "headerClasses": "text-slate-600 dark:text-slate-400 font-bold bg-transparent"},
-                            {"name": "grad",   "label": "تاريخ التخرج / Graduation", "field": "grad",   "align": "center", "headerClasses": "text-slate-600 dark:text-slate-400 font-bold bg-transparent"},
-                            {"name": "action", "label": "إصدار / Issue",             "field": "action", "align": "center", "headerClasses": "text-slate-600 dark:text-slate-400 font-bold bg-transparent"},
+                            {"name": "name",   "label": "اسم الطالب", "field": "name",   "align": "right",  "headerClasses": "text-slate-600 dark:text-slate-400 font-bold bg-transparent"},
+                            {"name": "dept",   "label": "القسم",        "field": "dept",   "align": "right",  "headerClasses": "text-slate-600 dark:text-slate-400 font-bold bg-transparent"},
+                            {"name": "year",   "label": "سنة القبول",        "field": "year",   "align": "center", "headerClasses": "text-slate-600 dark:text-slate-400 font-bold bg-transparent"},
+                            {"name": "grad",   "label": "تاريخ التخرج", "field": "grad",   "align": "center", "headerClasses": "text-slate-600 dark:text-slate-400 font-bold bg-transparent"},
+                            {"name": "action", "label": "إصدار",             "field": "action", "align": "center", "headerClasses": "text-slate-600 dark:text-slate-400 font-bold bg-transparent"},
                         ]
                         rows_s = [
                             {
@@ -813,7 +810,7 @@ class MainAppShell:
                                     class="app-btn-secondary"
                                     @click="$parent.$emit('issue_cert', props.row)"
                                 >
-                                    <q-tooltip class="bg-slate-800 text-white font-bold">إصدار وثيقة للطالب / Issue Certificate</q-tooltip>
+                                    <q-tooltip class="bg-slate-800 text-white font-bold">إصدار وثيقة للطالب</q-tooltip>
                                 </q-btn>
                             </q-td>
                         ''')
@@ -822,11 +819,11 @@ class MainAppShell:
                     # ── TAB 2 VIEW: ISSUED & PRINTED CERTIFICATES TABLE (MERGED) ─
                     with ui.tab_panel(tab_certs).classes("w-full p-0 pt-2 bg-transparent"):
                         cols_c = [
-                            {"name": "name",     "label": "اسم الطالب / Student Name", "field": "name",     "align": "right",  "headerClasses": "text-slate-600 dark:text-slate-400 font-bold bg-transparent"},
-                            {"name": "dept",     "label": "القسم / Department",        "field": "dept",     "align": "right",  "headerClasses": "text-slate-600 dark:text-slate-400 font-bold bg-transparent"},
-                            {"name": "to_title", "label": "الجهة الصادرة إليها / Issued To", "field": "to_title", "align": "center", "headerClasses": "text-slate-600 dark:text-slate-400 font-bold bg-transparent"},
-                            {"name": "date",     "label": "تاريخ الإصدار / Date",     "field": "date",     "align": "left",   "headerClasses": "text-slate-600 dark:text-slate-400 font-bold bg-transparent"},
-                            {"name": "action",   "label": "إصدار / Issue",             "field": "action",   "align": "center", "headerClasses": "text-slate-600 dark:text-slate-400 font-bold bg-transparent"},
+                            {"name": "name",     "label": "اسم الطالب", "field": "name",     "align": "right",  "headerClasses": "text-slate-600 dark:text-slate-400 font-bold bg-transparent"},
+                            {"name": "dept",     "label": "القسم",        "field": "dept",     "align": "right",  "headerClasses": "text-slate-600 dark:text-slate-400 font-bold bg-transparent"},
+                            {"name": "to_title", "label": "الجهة الصادرة إليها", "field": "to_title", "align": "center", "headerClasses": "text-slate-600 dark:text-slate-400 font-bold bg-transparent"},
+                            {"name": "date",     "label": "تاريخ الإصدار",     "field": "date",     "align": "left",   "headerClasses": "text-slate-600 dark:text-slate-400 font-bold bg-transparent"},
+                            {"name": "action",   "label": "إصدار",             "field": "action",   "align": "center", "headerClasses": "text-slate-600 dark:text-slate-400 font-bold bg-transparent"},
                         ]
                         
                         combined_certs_data = []
@@ -874,7 +871,7 @@ class MainAppShell:
                                     class="app-btn-secondary"
                                     @click="$parent.$emit('issue_cert', props.row)"
                                 >
-                                    <q-tooltip class="bg-slate-800 text-white font-bold">إصدار وثيقة للطالب / Issue Certificate</q-tooltip>
+                                    <q-tooltip class="bg-slate-800 text-white font-bold">إصدار وثيقة للطالب</q-tooltip>
                                 </q-btn>
                             </q-td>
                         ''')

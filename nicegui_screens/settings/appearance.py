@@ -15,7 +15,7 @@ class AppearanceMixin:
 
     def _section_appearance(self) -> None:
         with UI.card():
-            UI.card_header("المظهر والسمات — Appearance & Theme", "palette", icon_css="stat-text-purple")
+            UI.card_header("المظهر والسمات", "palette", icon_css="stat-text-purple")
 
             # Always read from session.preferences — it IS the source of truth after login.
             # The DB load in _load_data() already synced into session.preferences.
@@ -35,38 +35,38 @@ class AppearanceMixin:
 
             with ui.grid(columns=2).classes("w-full gap-4"):
                 self.theme_select = UI.select(
-                    "الوضع (فاتح/داكن) / Theme Mode",
+                    "الوضع (فاتح/داكن)",
                     options=["System", "Light", "Dark"],
                     value=saved_theme,
                     on_change=self._on_theme_select_change
                 )
 
                 self.accent_select = UI.select(
-                    "اللون الأساسي / Accent Color",
+                    "اللون الأساسي",
                     options=valid_accents,
                     value=saved_accent,
                     on_change=self._on_accent_select_change
                 )
 
                 self.font_select = UI.select(
-                    "نوع الخط / Font Family",
+                    "نوع الخط",
                     options=["Arial", "Segoe UI", "Roboto", "Cairo", "Tahoma", "Noto Sans Arabic", "times new roman"],
                     value=saved_font,
                     on_change=self._on_font_select_change
                 )
 
                 self.font_size_input = UI.number_input(
-                    "حجم الخط الأساسي / Base Font Size",
+                    "حجم الخط الأساسي",
                     value=saved_size, min=10, max=24,
                     on_change=self._on_font_size_change
                 )
 
             with ui.row().classes("app-tile w-full items-center justify-between p-3 rounded-xl border"):
-                UI.standard_label("اتجاه الواجهة من اليمين إلى اليسار / Arabic RTL Layout")
-                self.rtl_switch = UI.switch("تفعيل RTL / Enable RTL", value=bool(saved_rtl), on_change=self._on_rtl_switch_change)
+                UI.standard_label("اتجاه الواجهة من اليمين إلى اليسار")
+                self.rtl_switch = UI.switch("تفعيل RTL", value=bool(saved_rtl), on_change=self._on_rtl_switch_change)
 
             UI.success_button(
-                "حفظ وتطبيق المظهر / Save Appearance",
+                "حفظ وتطبيق المظهر",
                 icon="brush",
                 on_click=self._save_appearance
             ).classes("self-end")
@@ -115,7 +115,7 @@ class AppearanceMixin:
         })
 
         ui.notify(
-            f"تم تغيير المظهر إلى {'الداكن' if val == 'Dark' else ('الفاتح' if val == 'Light' else 'النظام')} / Theme set to {val}!",
+            f"تم تغيير المظهر إلى {'الداكن' if val == 'Dark' else ('الفاتح' if val == 'Light' else 'النظام')}",
             type="info"
         )
 
@@ -126,7 +126,7 @@ class AppearanceMixin:
         val = str(raw_val or "blue")
         set_accent(val)
         self.session.update_preferences(accent_color=val)
-        ui.notify(f"تم تغيير اللون الأساسي / Accent set to {val}!", type="info")
+        ui.notify(f"تم تغيير اللون الأساسي{val}!", type="info")
 
     def _on_font_select_change(self, e=None) -> None:
         """Live font family switch when Font Family dropdown option changes."""
@@ -135,7 +135,7 @@ class AppearanceMixin:
         val = str(raw_val or "Segoe UI")
         set_font_family(val)
         self.session.update_preferences(font_family=val)
-        ui.notify(f"تم تغيير نوع الخط إلى {val} / Font family set to {val}!", type="info")
+        ui.notify(f"تم تغيير نوع الخط إلى {val}", type="info")
 
     def _on_font_size_change(self, e=None) -> None:
         """Live base font size scale when Base Font Size number input changes."""
@@ -156,7 +156,7 @@ class AppearanceMixin:
             val = bool(raw_val)
             set_rtl(val)
             self.session.update_preferences(is_arabic_rtl=1 if val else 0)
-            ui.notify(f"تم تغيير اتجاه الواجهة إلى {'اليمين (RTL)' if val else 'اليسار (LTR)'} / Layout set to {'RTL' if val else 'LTR'}!", type="info")
+            ui.notify(f"تم تغيير اتجاه الواجهة إلى {'اليمين (RTL)' if val else 'اليسار (LTR)'}", type="info")
         except Exception:
             pass
 
@@ -202,6 +202,6 @@ class AppearanceMixin:
                 "mysql_update_result": mysql_result
             })
 
-            ui.notify("تم حفظ وتطبيق تفضيلات المظهر بنجاح / Appearance saved & applied!", type="positive")
+            ui.notify("تم حفظ وتطبيق تفضيلات المظهر بنجاح", type="positive")
         except Exception as exc:
             ui.notify(f"Error saving appearance: {exc}", type="negative")

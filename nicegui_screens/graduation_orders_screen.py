@@ -14,14 +14,14 @@ from data.repositories import (
 log = logging.getLogger(__name__)
 
 STUDY_TYPE_OPTIONS = {
-    "morning": "صباحي / Morning",
-    "evening": "مسائي / Evening",
+    "morning": "صباحي",
+    "evening": "مسائي",
 }
 
 SEMESTER_OPTIONS = {
-    "first": "الفصل الأول / Term 1",
-    "second": "الفصل الثاني / Term 2",
-    "summer": "الفصل الصيفي / Summer",
+    "first": "الفصل الأول",
+    "second": "الفصل الثاني",
+    "summer": "الفصل الصيفي",
 }
 
 
@@ -62,7 +62,7 @@ def validate_and_format_date(date_str: str | None, label_ar: str = "التاري
         except ValueError:
             pass
 
-    ui.notify(f"تاريخ غير صالح في ({label_ar}). يرجى كتابة التاريخ بصيغة YYYY-MM-DD (مثال: 2025-12-05)", type="warning")
+    ui.notify(f"تاريخ غير صالح في ({label_ar}). يرجى كتابة التاريخ بصيغة YYYY-MM-DD", type="warning")
     return False, None
 
 
@@ -97,11 +97,11 @@ class GraduationOrdersScreen:
                     with ui.row().classes("items-center gap-3"):
                         ui.icon("school", size="md").classes("app-text-accent")
                         with ui.column().classes("gap-0"):
-                            ui.label("إدارة أوامر التخرج / Graduation Orders").classes("text-xl font-bold app-text-primary")
+                            ui.label("إدارة أوامر التخرج").classes("text-xl font-bold app-text-primary")
                             ui.label("إدارة وحفظ الأوامر الجامعية وربطها بالدفعة والطلاب").classes("text-xs app-text-muted")
 
                     UI.success_button(
-                        "+ إضافة أمر تخرج / Add Order",
+                        "+ إضافة أمر تخرج",
                         icon="add",
                         on_click=lambda: self.show_edit_view(mode="add")
                     ).classes("text-sm px-5 py-2.5 shrink-0")
@@ -118,7 +118,7 @@ class GraduationOrdersScreen:
                         self._render_content()
 
                     limit_select = UI.select(
-                        label="عرض / Show",
+                        label="عرض",
                         options={25: "25", 50: "50", 75: "75", 100: "100"},
                         value=self.current_limit,
                         on_change=on_limit_change
@@ -131,7 +131,7 @@ class GraduationOrdersScreen:
                         self._render_content()
 
                     search_inp = UI.text_input(
-                        label="بحث / Search",
+                        label="بحث",
                         placeholder="رقم الأمر، القسم، أو سنة التخرج",
                         on_change=on_search_change
                     ).props("dense clearable").classes("flex-1 min-w-[220px] text-sm")
@@ -195,13 +195,13 @@ class GraduationOrdersScreen:
         end_idx = self.current_offset + len(orders)
 
         with ui.row().classes("w-full items-center justify-between pt-4 border-t border-[var(--border-default)] shrink-0"):
-            prev_btn = UI.secondary_button("◄ السابق / Previous", on_click=self.go_prev).classes("text-xs px-4 py-2")
+            prev_btn = UI.secondary_button("◄ السابق", on_click=self.go_prev).classes("text-xs px-4 py-2")
             if self.current_offset == 0 or self.search_term:
                 prev_btn.disable()
 
-            ui.label(f"السجلات {start_idx} - {end_idx}  |  Records {start_idx} - {end_idx}").classes("text-sm font-bold app-text-primary")
+            ui.label(f"السجلات {start_idx} - {end_idx}").classes("text-sm font-bold app-text-primary")
 
-            next_btn = UI.secondary_button("التالي / Next ►", on_click=self.go_next).classes("text-xs px-4 py-2")
+            next_btn = UI.secondary_button("التالي", on_click=self.go_next).classes("text-xs px-4 py-2")
             if len(orders) < self.current_limit or self.search_term:
                 next_btn.disable()
 
@@ -235,13 +235,13 @@ class GraduationOrdersScreen:
                         "",
                         icon="edit",
                         on_click=lambda r=row: self.show_edit_view(row=r, mode="edit")
-                    ).props("round dense").classes("text-xs p-1.5").tooltip("تعديل وربط الطلاب / Edit & Link Students")
+                    ).props("round dense").classes("text-xs p-1.5").tooltip("تعديل وربط الطلاب")
 
                     UI.danger_button(
                         "",
                         icon="delete",
                         on_click=lambda r=row: self.confirm_delete(r)
-                    ).props("round dense").classes("text-xs p-1.5").tooltip("حذف / Delete")
+                    ).props("round dense").classes("text-xs p-1.5").tooltip("حذف")
 
             # Bottom Row: Badges Details (Department, Batch, Study Mode, Semester, Linked Count)
             with ui.row().classes("w-full items-center justify-between pt-2.5 border-t border-[var(--border-default)] gap-3 flex-wrap"):
@@ -305,10 +305,10 @@ class GraduationOrdersScreen:
 
         # Department options for student linking panel search
         try:
-            filter_dept_opts = {0: "كل الأقسام / All Depts"}
+            filter_dept_opts = {0: "كل الأقسام"}
             filter_dept_opts.update({d["id"]: d.get("name_ar", "") for d in depts})
         except Exception:
-            filter_dept_opts = {0: "كل الأقسام / All Depts"}
+            filter_dept_opts = {0: "كل الأقسام"}
 
         with self.container:
             with UI.card().classes("flex-1 gap-6 p-6 overflow-hidden flex-col"):
@@ -317,61 +317,61 @@ class GraduationOrdersScreen:
                 with ui.row().classes("w-full justify-between items-center pb-4 border-b border-[var(--border-default)] shrink-0"):
                     with ui.row().classes("items-center gap-3"):
                         ui.button(icon="arrow_back", on_click=self.show_list_view).props("flat round dense").classes("app-text-primary")
-                        title_text = "إضافة أمر تخرج جديد — Add Graduation Order" if mode == "add" else f"تعديل أمر التخرج ورابط الطلاب — Order #{existing_data.get('order_number', '')}"
+                        title_text = "إضافة أمر تخرج جديد" if mode == "add" else f"تعديل أمر التخرج ورابط الطلاب {existing_data.get('order_number', '')}"
                         ui.label(title_text).classes("text-xl font-bold app-text-primary")
 
-                    UI.secondary_button("◄ العودة للأوامر / Back to Orders", on_click=self.show_list_view).classes("text-xs px-4 py-2")
+                    UI.secondary_button("◄ العودة للأوامر", on_click=self.show_list_view).classes("text-xs px-4 py-2")
 
                 # Scrollable Content Area containing Order Details Form + Student Linker
                 with ui.column().classes("w-full flex-1 gap-6 overflow-y-auto pr-1"):
                     
                     # ── SECTION 1: Order Details Form ─────────────────────────
                     with UI.card().classes("w-full p-5 gap-4 rounded-xl border border-[var(--border-default)] bg-[var(--bg-card)] shrink-0"):
-                        ui.label("بيانات أمر التخرج — Order Details").classes("text-base font-bold app-text-accent")
+                        ui.label("بيانات أمر التخرج").classes("text-base font-bold app-text-accent")
 
                         # Row 1: Order Number & Date
                         with ui.row().classes("w-full gap-4"):
                             order_num_inp = UI.text_input(
-                                "رقم الأمر / Order Number",
+                                "رقم الأمر",
                                 value=existing_data.get("order_number", "") if existing_data else "",
                                 placeholder="مثال: 18515/13/2"
                             ).classes("flex-1 text-sm")
 
                             order_date_inp = UI.date_input(
-                                "تاريخ الأمر / Order Date",
+                                "تاريخ الأمر",
                                 value=existing_data.get("order_date", "") if existing_data else "",
                             ).classes("flex-1 text-sm")
 
                         # Row 2: Academic Details (Dept, Study Type, Year, Semester)
                         with ui.row().classes("w-full gap-4"):
                             def_dept = existing_data.get("department_id") if existing_data else (list(dept_opts.keys())[0] if dept_opts else 1)
-                            dept_sel = UI.select("القسم / Department", dept_opts, value=def_dept).classes("flex-1 text-sm")
+                            dept_sel = UI.select("القسم", dept_opts, value=def_dept).classes("flex-1 text-sm")
 
                             def_st = existing_data.get("study_type", "morning") if existing_data else "morning"
-                            st_sel = UI.select("نوع الدراسة / Study Type", STUDY_TYPE_OPTIONS, value=def_st).classes("flex-1 text-sm")
+                            st_sel = UI.select("نوع الدراسة", STUDY_TYPE_OPTIONS, value=def_st).classes("flex-1 text-sm")
 
                         with ui.row().classes("w-full gap-4"):
                             grad_yr_inp = UI.text_input(
-                                "سنة التخرج (الدفعة) / Graduation Year",
+                                "سنة التخرج (الدفعة)",
                                 value=str(existing_data.get("graduation_year", "")) if existing_data and existing_data.get("graduation_year") else "",
                                 placeholder="مثال: 2025"
                             ).classes("flex-1 text-sm")
 
                             def_sem = existing_data.get("graduation_semester", "first") if existing_data else "first"
-                            sem_sel = UI.select("فصل التخرج / Graduation Semester", SEMESTER_OPTIONS, value=def_sem).classes("flex-1 text-sm")
+                            sem_sel = UI.select("فصل التخرج", SEMESTER_OPTIONS, value=def_sem).classes("flex-1 text-sm")
 
                         # Row 3: Student Count & Notes
                         with ui.row().classes("w-full gap-4"):
                             num_st_inp = UI.text_input(
-                                "عدد الطلاب (حسب الوثيقة) / Student Count",
+                                "عدد الطلاب (حسب الوثيقة)",
                                 value=str(existing_data.get("num_students", "")) if existing_data and existing_data.get("num_students") else "",
-                                placeholder="اختياري / Optional"
+                                placeholder="اختياري"
                             ).classes("flex-1 text-sm")
 
                             notes_inp = UI.text_input(
-                                "ملاحظات / Notes",
+                                "ملاحظات",
                                 value=existing_data.get("notes", "") if existing_data else "",
-                                placeholder="اختياري / Optional"
+                                placeholder="اختياري"
                             ).classes("flex-1 text-sm")
 
                         # Save Order Details Button
@@ -379,7 +379,7 @@ class GraduationOrdersScreen:
                             def save_order_action():
                                 onum = order_num_inp.value.strip() if order_num_inp.value else ""
                                 if not onum:
-                                    ui.notify("رقم الأمر مطلوب / Order number is required", type="warning")
+                                    ui.notify("رقم الأمر مطلوب", type="warning")
                                     return
 
                                 odate_raw = order_date_inp.value.strip() if order_date_inp.value else ""
@@ -408,20 +408,20 @@ class GraduationOrdersScreen:
                                 try:
                                     if mode == "add":
                                         new_id = self.repo.insert(payload)
-                                        ui.notify("تم إضافة أمر التخرج بنجاح / Order added successfully", type="positive")
+                                        ui.notify("تم إضافة أمر التخرج بنجاح", type="positive")
                                         # Switch to edit mode for newly created order so user can link students immediately
                                         payload["id"] = new_id
                                         self.show_edit_view(row=payload, mode="edit")
                                     else:
                                         self.repo.update(oid, payload)
-                                        ui.notify("تم تعديل أمر التخرج بنجاح / Order updated successfully", type="positive")
+                                        ui.notify("تم تعديل أمر التخرج بنجاح", type="positive")
                                 except OfflineModeError as err:
                                     ui.notify(str(err), type="warning")
                                 except Exception as err:
                                     log.error(f"Error saving order: {err}")
                                     ui.notify(f"Error saving order: {err}", type="negative")
 
-                            UI.success_button("حفظ بيانات الأمر / Save Order Details", icon="save", on_click=save_order_action).classes("text-sm px-5 py-2")
+                            UI.success_button("حفظ بيانات الأمر", icon="save", on_click=save_order_action).classes("text-sm px-5 py-2")
 
                     # ── SECTION 2: Integrated Student Linking Panel (For Edit Mode) ──
                     if mode == "edit" and oid:
@@ -429,17 +429,17 @@ class GraduationOrdersScreen:
                             with ui.row().classes("w-full justify-between items-center pb-2 border-b border-[var(--border-default)]"):
                                 with ui.row().classes("items-center gap-2"):
                                     ui.icon("groups", size="sm").classes("app-text-accent")
-                                    ui.label("ربط وإلغاء ربط الطلاب بهذا الأمر — Link & Unlink Students").classes("text-base font-bold app-text-primary")
+                                    ui.label("ربط وإلغاء ربط الطلاب بهذا الأمر").classes("text-base font-bold app-text-primary")
 
                                 def auto_link_action():
                                     try:
                                         count = self.student_repo.auto_link_matching(oid, existing_data)
-                                        ui.notify(f"تم ربط {count} طالب تلقائياً بهذا الأمر / Auto-linked {count} students", type="positive")
+                                        ui.notify(f"تم ربط {count} طالب تلقائياً بهذا الأمر{count} students", type="positive")
                                         refresh_both_student_panels()
                                     except Exception as err:
                                         ui.notify(f"Error auto-linking: {err}", type="negative")
 
-                                UI.primary_button("🔗 ربط تلقائي المطابقين / Auto-Link Matching", on_click=auto_link_action).classes("text-xs px-4 py-2")
+                                UI.primary_button("🔗 ربط تلقائي المطابقين", on_click=auto_link_action).classes("text-xs px-4 py-2")
 
                             # 2-Column Panel Layout
                             with ui.row().classes("w-full gap-6 min-h-[380px] items-start"):
@@ -478,18 +478,18 @@ class GraduationOrdersScreen:
                                                         def unlink_act(s_id=sid):
                                                             try:
                                                                 self.student_repo.unlink_from_order(s_id)
-                                                                ui.notify("تم إلغاء ربط الطالب / Student unlinked", type="positive")
+                                                                ui.notify("تم إلغاء ربط الطالب", type="positive")
                                                                 refresh_both_student_panels()
                                                             except Exception as err:
                                                                 ui.notify(f"Error unlinking: {err}", type="negative")
 
-                                                        UI.danger_button("Unlink / إلغاء الربط", on_click=unlink_act).classes("text-[10px] px-2.5 py-1 shrink-0")
+                                                        UI.danger_button("إلغاء الربط", on_click=unlink_act).classes("text-[10px] px-2.5 py-1 shrink-0")
 
                                     linked_panel()
 
                                 # Right Column: Unlinked Students Search & Link Panel (50%)
                                 with ui.column().classes("flex-1 min-h-[360px] gap-3 p-4 rounded-xl border border-[var(--border-default)] bg-[var(--bg-card)]"):
-                                    ui.label("إضافة وربط الطلاب — Add & Link Students").classes("text-sm font-bold app-text-primary shrink-0")
+                                    ui.label("إضافة وربط الطلاب").classes("text-sm font-bold app-text-primary shrink-0")
 
                                     # Filters Row
                                     with ui.row().classes("w-full items-center gap-2 shrink-0 flex-wrap"):
@@ -509,7 +509,7 @@ class GraduationOrdersScreen:
                                             search_state["name"] = str(val or "").strip()
                                             unlinked_panel.refresh()
 
-                                        name_filter = UI.text_input("", placeholder="بحث بالاسم... / Search name...", on_change=on_name_filter_change).classes("flex-1 text-xs")
+                                        name_filter = UI.text_input("", placeholder="بحث بالاسم...", on_change=on_name_filter_change).classes("flex-1 text-xs")
 
                                     @ui.refreshable
                                     def unlinked_panel():
@@ -547,12 +547,12 @@ class GraduationOrdersScreen:
                                                             def link_act(s_id=sid):
                                                                 try:
                                                                     self.student_repo.link_to_order(s_id, oid)
-                                                                    ui.notify("تم ربط الطالب بالأمر / Student linked", type="positive")
+                                                                    ui.notify("تم ربط الطالب بالأمر", type="positive")
                                                                     refresh_both_student_panels()
                                                                 except Exception as err:
                                                                     ui.notify(f"Error linking: {err}", type="negative")
 
-                                                            UI.success_button("Link / ربط ➕", on_click=link_act).classes("text-[10px] px-2.5 py-1 shrink-0")
+                                                            UI.success_button("ربط ➕", on_click=link_act).classes("text-[10px] px-2.5 py-1 shrink-0")
 
                                     unlinked_panel()
 
@@ -568,7 +568,7 @@ class GraduationOrdersScreen:
 
         dialog = ui.dialog()
         with dialog, UI.card().classes("p-6 gap-6 w-full max-w-md bg-[var(--bg-card)] rounded-2xl border border-[var(--border-default)]"):
-            ui.label("تأكيد حذف أمر التخرج — Delete Graduation Order").classes("text-lg font-bold app-text-primary")
+            ui.label("تأكيد حذف أمر التخرج").classes("text-lg font-bold app-text-primary")
             ui.label(
                 f"هل أنت تأكد من رغبتك في حذف الأمر: ({order_num})؟\n"
                 f"سيتم إلغاء ربط جميع الطلاب ({linked_cnt} طالب) المرتبطين بهذا الأمر."
@@ -578,7 +578,7 @@ class GraduationOrdersScreen:
                 def do_delete():
                     try:
                         self.repo.delete(oid)
-                        ui.notify("تم حذف أمر التخرج بنجاح / Order deleted", type="positive")
+                        ui.notify("تم حذف أمر التخرج بنجاح", type="positive")
                         dialog.close()
                         self.show_list_view()
                     except OfflineModeError as err:
@@ -586,7 +586,7 @@ class GraduationOrdersScreen:
                     except Exception as err:
                         ui.notify(f"Error deleting order: {err}", type="negative")
 
-                UI.danger_button("Delete / حذف", icon="delete", on_click=do_delete).classes("text-sm px-4 py-2")
-                UI.secondary_button("Cancel / إلغاء", on_click=dialog.close).classes("text-sm px-4 py-2")
+                UI.danger_button("حذف", icon="delete", on_click=do_delete).classes("text-sm px-4 py-2")
+                UI.secondary_button("إلغاء", on_click=dialog.close).classes("text-sm px-4 py-2")
 
         dialog.open()

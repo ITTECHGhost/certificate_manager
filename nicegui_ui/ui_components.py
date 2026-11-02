@@ -59,7 +59,7 @@ class UI:
         """Live network status badge. Colors via `.app-status-online`/`.app-status-offline` in theme.css."""
         status_cls = "app-status-online" if online else "app-status-offline"
         dot = "🟢" if online else "🔴"
-        text = "متصل / Online" if online else "غير متصل / Offline"
+        text = "متصل" if online else "غير متصل"
         return ui.label(f"{dot} {text}").classes(f"px-3 py-1.5 rounded-xl text-xs font-bold transition-colors {status_cls}")
 
     @staticmethod
@@ -325,7 +325,7 @@ class UI:
             icon=icon_name,
             position=position,
             timeout=timeout_ms,
-            close_button="إغلاق / Close",
+            close_button="إغلاق",
             html=True,
             multi_line=True
         )

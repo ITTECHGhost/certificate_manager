@@ -125,7 +125,7 @@ class PrintersMixin:
         cur_copies = int(cfg.get("copies", 1))
 
         with UI.card().classes("w-full p-6 gap-6"):
-            UI.card_header("إعداد وتهيئة الطابعات — Printer & Hardware Setup", "print", icon_css="stat-text-blue")
+            UI.card_header("إعداد وتهيئة الطابعات", "print", icon_css="stat-text-blue")
 
             # Status Banner & Current Default
             with ui.row().classes("w-full items-center justify-between p-4 bg-[var(--bg-main)] rounded-2xl border border-[var(--border-default)] flex-wrap gap-4"):
@@ -143,42 +143,42 @@ class PrintersMixin:
             with ui.grid(columns=2).classes("w-full gap-5"):
                 # 1. Certificate Printer
                 cert_printer_select = UI.select(
-                    "طابعة الوثائق والشهادات / Certificate Printer",
+                    "طابعة الوثائق والشهادات",
                     options={p: p for p in installed_printers},
                     value=cur_cert_printer
                 ).classes("w-full")
 
                 # 2. Report Printer
                 report_printer_select = UI.select(
-                    "طابعة التقارير والجداول / Reports & Lists Printer",
+                    "طابعة التقارير والجداول",
                     options={p: p for p in installed_printers},
                     value=cur_report_printer
                 ).classes("w-full")
 
                 # 3. Paper Size
                 paper_size_select = UI.select(
-                    "حجم الورق الافتراضي / Default Paper Size",
+                    "حجم الورق الافتراضي",
                     options=["A4", "Letter", "A3", "Legal"],
                     value=cur_paper
                 ).classes("w-full")
 
                 # 4. Orientation
                 orientation_select = UI.select(
-                    "اتجاه الطباعة / Print Orientation",
+                    "اتجاه الطباعة",
                     options=["Portrait", "Landscape"],
                     value=cur_orientation
                 ).classes("w-full")
 
                 # 5. Default Copies
                 copies_input = UI.number_input(
-                    "عدد النسخ الافتراضي / Default Copies",
+                    "عدد النسخ الافتراضي",
                     value=cur_copies, min=1, max=10
                 ).classes("w-full")
 
             # Automation & Options
             with ui.row().classes("app-tile w-full items-center justify-between p-4 rounded-xl border border-[var(--border-default)] mt-2"):
                 with ui.column().classes("gap-0.5"):
-                    ui.label("طباعة فورية تلقائية / Auto-print immediately").classes("text-sm font-bold app-text-primary")
+                    ui.label("طباعة فورية تلقائية").classes("text-sm font-bold app-text-primary")
                     ui.label("إرسال الوثيقة للطباعة فور اكتمال توليدها دون طلب تأكيد يدوي").classes("text-xs app-text-muted")
                 auto_print_switch = UI.switch("", value=cur_auto_print)
 
@@ -198,7 +198,7 @@ class PrintersMixin:
                             UI.notify(f"تعذر إرسال صفحة الفحص: {msg}", type="negative")
 
                     UI.secondary_button(
-                        "طباعة صفحة فحص / Test Print",
+                        "طباعة صفحة فحص",
                         icon="receipt_long",
                         on_click=do_test_print
                     ).classes("text-xs")
@@ -217,7 +217,7 @@ class PrintersMixin:
                             UI.notify(f"فشل تعيين الطابعة الافتراضية: {ex}", type="negative")
 
                     UI.secondary_button(
-                        "تعيين كافتراضية في النظام / Set as Windows Default",
+                        "تعيين كافتراضية في النظام",
                         icon="star",
                         on_click=do_set_win_default
                     ).classes("text-xs")
@@ -238,7 +238,7 @@ class PrintersMixin:
                         UI.notify("فشل حفظ إعدادات الطابعات!", type="negative")
 
                 UI.success_button(
-                    "حفظ إعدادات الطابعات / Save Printer Settings",
+                    "حفظ إعدادات الطابعات",
                     icon="save",
                     on_click=do_save_printer_cfg
                 ).classes("text-sm px-6 py-2.5 font-bold shadow-md")

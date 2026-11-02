@@ -67,7 +67,7 @@ class LoginScreen:
 
                     # Title & Subtitle
                     with ui.column().classes("w-full items-center gap-1 text-center mt-2"):
-                        ui.label("تسجيل الدخول / SYSTEM LOGIN").classes(
+                        ui.label("تسجيل الدخول").classes(
                             "app-login-title text-[1.2rem] font-bold tracking-wide"
                         )
                         ui.label("يرجى إدخال بيانات الاعتماد الخاصة بك للوصول").classes(
@@ -84,7 +84,7 @@ class LoginScreen:
                             ui.label("Username").classes("app-text-muted text-xs font-medium")
 
                         self.username_input = ui.input(
-                            placeholder="أدخل اسم المستخدم / Enter Username"
+                            placeholder="أدخل اسم المستخدم"
                         ).classes(
                             "w-full app-input"
                         ).props(
@@ -101,7 +101,7 @@ class LoginScreen:
                             ui.label("Password").classes("app-text-muted text-xs font-medium")
 
                         self.password_input = ui.input(
-                            placeholder="أدخل كلمة المرور / Enter Password",
+                            placeholder="أدخل كلمة المرور",
                             password=True,
                             password_toggle_button=True
                         ).classes(
@@ -124,7 +124,7 @@ class LoginScreen:
                         "app-btn-primary w-full text-sm py-3 rounded-xl font-bold "
                         "normal-case mt-2 cursor-pointer flex-row justify-between px-6"
                     ):
-                        ui.label("تسجيل الدخول / SIGN IN")
+                        ui.label("تسجيل الدخول")
                         ui.icon("arrow_back", size="sm")
 
                 # Bottom Actions (Theme Toggle)
@@ -188,30 +188,30 @@ class LoginScreen:
         if self.on_login_success:
             self.on_login_success(user_record)
 
-        ui.notify(f"مرحباً بك {user_record.get('name_ar', username)} / Welcome!", type="positive")
+        ui.notify(f"مرحباً بك {user_record.get('name_ar', username)}", type="positive")
         ui.navigate.to("/dashboard")
 
     def _ask_new_password(self, user_record: dict, username: str) -> None:
         """Forced password change after logging in with a temporary password."""
         with ui.dialog().props("persistent") as dialog, UI.login_card():
-            ui.label("تغيير كلمة المرور مطلوب / Password change required").classes("text-base font-bold app-text-primary")
+            ui.label("تغيير كلمة المرور مطلوب").classes("text-base font-bold app-text-primary")
             ui.label(
                 "تم تعيين كلمة مرور مؤقتة لحسابك. اختر كلمة مرور جديدة للمتابعة. "
-                "Your password was set by an administrator. Choose a new one to continue."
+                "تم تعيين كلمة المرور من قبل المسؤول. اختر كلمة مرور جديدة للمتابعة."
             ).classes("text-xs app-text-muted")
-            new_inp = ui.input("كلمة المرور الجديدة / New password", password=True, password_toggle_button=True).classes("w-full")
-            conf_inp = ui.input("تأكيد كلمة المرور / Confirm password", password=True).classes("w-full")
+            new_inp = ui.input("كلمة المرور الجديدة", password=True, password_toggle_button=True).classes("w-full")
+            conf_inp = ui.input("تأكيد كلمة المرور", password=True).classes("w-full")
 
             def _save():
                 new_pwd = new_inp.value or ""
                 if len(new_pwd) < 4:
-                    ui.notify("كلمة المرور قصيرة جداً (4 أحرف على الأقل) / At least 4 characters", type="warning")
+                    ui.notify("كلمة المرور قصيرة جداً (4 أحرف على الأقل)", type="warning")
                     return
                 if new_pwd != (conf_inp.value or ""):
-                    ui.notify("كلمتا المرور غير متطابقتين / Passwords do not match", type="warning")
+                    ui.notify("كلمتا المرور غير متطابقتين", type="warning")
                     return
                 if self.password_input and new_pwd == (self.password_input.value or ""):
-                    ui.notify("اختر كلمة مرور مختلفة عن المؤقتة / Choose a different password", type="warning")
+                    ui.notify("اختر كلمة مرور مختلفة عن المؤقتة", type="warning")
                     return
                 try:
                     result = PersonnelRepository().set_password(int(user_record["id"]), new_pwd, must_change=False)
@@ -220,14 +220,14 @@ class LoginScreen:
                     return
                 dialog.close()
                 if result == "queued":
-                    ui.notify("تم حفظ كلمة المرور على هذا الجهاز وستُرسل للسيرفر عند الاتصال / Saved on this PC; sent to the server when online",
+                    ui.notify("تم حفظ كلمة المرور على هذا الجهاز وستُرسل للسيرفر عند الاتصال",
                               type="info", timeout=8000)
                 user_record["must_change_password"] = False
                 self._finish_login(user_record, username)
 
             with ui.row().classes("w-full justify-end gap-2 pt-2"):
-                ui.button("إلغاء / Cancel", on_click=dialog.close).props("flat")
-                ui.button("حفظ ومتابعة / Save and continue", icon="lock_reset", on_click=_save).props("color=primary")
+                ui.button("إلغاء", on_click=dialog.close).props("flat")
+                ui.button("حفظ ومتابعة", icon="lock_reset", on_click=_save).props("color=primary")
         dialog.open()
 
     def handle_login(self, e=None) -> None:
@@ -239,7 +239,7 @@ class LoginScreen:
         password = self.password_input.value or ""
 
         if not username or not password:
-            msg = "يرجى إدخال اسم المستخدم وكلمة المرور / Please enter username and password"
+            msg = "يرجى إدخال اسم المستخدم وكلمة المرور"
             if self.error_label:
                 self.error_label.set_text(msg)
                 self.error_label.set_visibility(True)
@@ -260,7 +260,7 @@ class LoginScreen:
                     return
                 self._finish_login(user_record, username)
             else:
-                msg = "اسم المستخدم أو كلمة المرور غير صحيحة / Invalid username or password"
+                msg = "اسم المستخدم أو كلمة المرور غير صحيحة"
                 if self.error_label:
                     self.error_label.set_text(msg)
                     self.error_label.set_visibility(True)
@@ -268,7 +268,7 @@ class LoginScreen:
 
         except Exception as exc:
             log.warning(f"[LoginScreen] Authentication Error: {exc}")
-            msg = "خطأ في عملية المصادقة / Authentication failed. Check connection."
+            msg = "خطأ في عملية المصادقة"
             if self.error_label:
                 self.error_label.set_text(msg)
                 self.error_label.set_visibility(True)

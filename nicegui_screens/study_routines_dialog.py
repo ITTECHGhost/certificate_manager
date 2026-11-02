@@ -64,7 +64,7 @@ def show_apply_routine_dialog(student: dict, on_success_callback: Callable[[], A
         with ui.row().classes("w-full items-center gap-2 pb-3 border-b border-[var(--border-default)]"):
             ui.icon("auto_mode", size="sm").classes("text-teal-600 dark:text-teal-400 shrink-0")
             with ui.column().classes("gap-0"):
-                ui.label("تطبيق روتين دراسي / Apply Study Routine").classes("text-base font-bold text-[var(--text-primary)]")
+                ui.label("تطبيق روتين دراسي").classes("text-base font-bold text-[var(--text-primary)]")
                 ui.label("إسناد خطة دراسية كاملة وتوليد الفصول والمواد تلقائياً").classes("text-xs text-[var(--text-muted)]")
 
         # Student Information Confirmation Box
@@ -86,13 +86,13 @@ def show_apply_routine_dialog(student: dict, on_success_callback: Callable[[], A
             routine_select = ui.select(
                 options=routine_options,
                 value=init_selection,
-                label="الروتين الدراسي المتاح / Available Routine",
+                label="الروتين الدراسي المتاح",
                 with_input=True
             ).classes("w-full text-sm").props("outlined dense use-input fill-input")
 
         # Action Buttons
         with ui.row().classes("w-full justify-end gap-2 pt-3 border-t border-[var(--border-default)]"):
-            ui.button("إلغاء / Cancel", on_click=dialog.close).props("flat").classes("text-[var(--text-muted)] text-sm")
+            ui.button("إلغاء", on_click=dialog.close).props("flat").classes("text-[var(--text-muted)] text-sm")
 
             def handle_apply_click():
                 if not routine_select or not routine_select.value:
@@ -146,7 +146,7 @@ def show_apply_routine_dialog(student: dict, on_success_callback: Callable[[], A
                 confirm_dialog.open()
 
             apply_btn = ui.button(
-                "تطبيق / Apply",
+                "تطبيق",
                 icon="check_circle",
                 on_click=handle_apply_click
             ).classes("bg-teal-600 hover:bg-teal-700 text-white text-sm px-4 py-2 rounded-lg")

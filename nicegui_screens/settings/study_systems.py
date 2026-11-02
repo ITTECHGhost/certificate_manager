@@ -12,7 +12,7 @@ class StudySystemsMixin:
     def _section_study_systems(self) -> None:
         with UI.card():
             with ui.row().classes("w-full justify-between items-center pb-3 app-card-header"):
-                UI.section_label("أنظمة الدراسة — Study Systems")
+                UI.section_label("أنظمة الدراسة")
                 ui.button("+ إضافة نظام", color=None, on_click=self._add_study_system).classes(
                     "app-btn-primary text-sm px-4 py-2 rounded-lg normal-case font-medium"
                 )
@@ -25,18 +25,18 @@ class StudySystemsMixin:
         self._systems_container.clear()
         with self._systems_container:
             if not self.systems:
-                ui.label("لا توجد أنظمة دراسية معرفة. / No study systems defined.").classes(
+                ui.label("لا توجد أنظمة دراسية معرفة.").classes(
                     "app-text-muted text-sm italic py-4 px-2"
                 )
                 return
 
             cols = [
-                {"name": "name",    "label": "System / النظام",         "field": "name",    "align": "left"},
+                {"name": "name",    "label": "النظام",         "field": "name",    "align": "left"},
                 {"name": "rule",    "label": "Calc Rule",                "field": "rule",    "align": "center"},
                 {"name": "display", "label": "Period",                   "field": "display", "align": "center"},
                 {"name": "weights", "label": "Weights",                  "field": "weights", "align": "center"},
                 {"name": "active",  "label": "Active",                   "field": "active",  "align": "center"},
-                {"name": "actions", "label": "حذف / Delete",                     "field": "actions", "align": "right"},
+                {"name": "actions", "label": "حذف",                     "field": "actions", "align": "right"},
             ]
             rows = [
                 {
@@ -87,7 +87,7 @@ class StudySystemsMixin:
                 period_display="year",
                 calculation_weights="10:20:30:40"
             )
-            ui.notify("تمت إضافة نظام الدراسة بنجاح / Study system added!", type="positive")
+            ui.notify("تمت إضافة نظام الدراسة بنجاح", type="positive")
             self._load_data()
             self._render_systems_list()
         except Exception as exc:
@@ -103,7 +103,7 @@ class StudySystemsMixin:
     def _delete_study_system(self, sys_id: int) -> None:
         try:
             self.sys_repo.delete(sys_id)
-            ui.notify("تم حذف نظام الدراسة / System deleted!", type="info")
+            ui.notify("تم حذف نظام الدراسة", type="info")
             self._load_data()
             self._render_systems_list()
         except Exception as exc:

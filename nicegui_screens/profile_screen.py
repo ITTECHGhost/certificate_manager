@@ -60,19 +60,19 @@ class ProfileScreen:
                             ui.icon("account_circle", size="sm").classes("text-blue-400")
 
                         with ui.column().classes("gap-0"):
-                            ui.label("الملف الشخصي والحساب — Profile & Account").classes("text-lg font-bold app-text-primary")
+                            ui.label("الملف الشخصي والحساب").classes("text-lg font-bold app-text-primary")
                             ui.label("إدارة بياناتك الشخصية والوظيفية وكلمة المرور الخاصة بك.").classes("text-xs app-text-muted")
 
                     if self.on_navigate:
                         UI.secondary_button(
-                            "← العودة إلى لوحة التحكم / Back to Dashboard",
+                            "← العودة إلى لوحة التحكم",
                             icon="arrow_forward",
                             on_click=lambda: self.on_navigate("home")
                         ).classes("text-xs px-4 py-2 font-bold shadow-sm")
 
             with UI.card().classes("w-full p-6 gap-6 shadow-md"):
                 if self.embedded:
-                    UI.card_header("الملف الشخصي والحساب — Profile & Account", "account_circle", icon_css="stat-text-blue")
+                    UI.card_header("الملف الشخصي والحساب", "account_circle", icon_css="stat-text-blue")
 
                 # 1. Identity Header Banner
                 with ui.row().classes("w-full items-center justify-between p-4 bg-[var(--bg-main)] rounded-2xl border border-[var(--border-default)] flex-wrap gap-4"):
@@ -93,17 +93,17 @@ class ProfileScreen:
                 with ui.column().classes("w-full gap-4 mt-2"):
                     with ui.row().classes("items-center gap-2"):
                         ui.icon("edit_note", size="xs").classes("text-blue-400")
-                        ui.label("تعديل البيانات الشخصية والوظيفية / Edit Personal & Job Info").classes("text-xs font-bold app-text-primary")
+                        ui.label("تعديل البيانات الشخصية والوظيفية").classes("text-xs font-bold app-text-primary")
 
                     with ui.grid(columns=2).classes("w-full gap-4"):
-                        self.prof_name_ar_input = UI.text_input("الاسم الكامل بالعربية / Full Name (AR)", value=cur_name_ar)
-                        self.prof_name_en_input = UI.text_input("الاسم الكامل بالإنكليزية / Full Name (EN)", value=cur_name_en)
-                        self.prof_title_ar_input = UI.text_input("اللقب العلمي (عربي) / Academic Title (AR)", value=cur_title_ar)
-                        self.prof_title_en_input = UI.text_input("اللقب العلمي (إنكليزي) / Academic Title (EN)", value=cur_title_en)
-                        self.prof_resp_ar_input = UI.text_input("المنصب / الصفة الوظيفية (عربي) / Responsibility (AR)", value=cur_resp_ar)
-                        self.prof_resp_en_input = UI.text_input("المنصب / الصفة الوظيفية (إنكليزي) / Responsibility (EN)", value=cur_resp_en)
-                        self.prof_username_input = UI.text_input("اسم المستخدم لتسجيل الدخول / Username", value=cur_username)
-                        self.prof_role_display = UI.text_input("نوع الصلاحية / Role", value=f"{role_label_ar} — {role_id}")
+                        self.prof_name_ar_input = UI.text_input("الاسم الكامل بالعربية", value=cur_name_ar)
+                        self.prof_name_en_input = UI.text_input("الاسم الكامل بالإنكليزية", value=cur_name_en)
+                        self.prof_title_ar_input = UI.text_input("اللقب العلمي (عربي)", value=cur_title_ar)
+                        self.prof_title_en_input = UI.text_input("اللقب العلمي (إنكليزي)", value=cur_title_en)
+                        self.prof_resp_ar_input = UI.text_input("المنصب / الصفة الوظيفية (عربي)", value=cur_resp_ar)
+                        self.prof_resp_en_input = UI.text_input("المنصب / الصفة الوظيفية (إنكليزي)", value=cur_resp_en)
+                        self.prof_username_input = UI.text_input("اسم المستخدم لتسجيل الدخول", value=cur_username)
+                        self.prof_role_display = UI.text_input("نوع الصلاحية", value=f"{role_label_ar} — {role_id}")
                         self.prof_role_display.props("readonly")
 
                 # 3. Change Password Subsection
@@ -111,23 +111,23 @@ class ProfileScreen:
                     with ui.row().classes("items-center justify-between w-full flex-wrap gap-2"):
                         with ui.row().classes("items-center gap-2"):
                             ui.icon("lock", size="xs").classes("text-amber-400")
-                            ui.label("تغيير كلمة المرور / Change Password").classes("text-xs font-bold app-text-primary")
+                            ui.label("تغيير كلمة المرور").classes("text-xs font-bold app-text-primary")
                         ui.label("(اترك الحقول فارغة إذا كنت لا ترغب بتغيير كلمة المرور)").classes("text-[11px] app-text-muted italic")
 
                     with ui.grid(columns=2).classes("w-full gap-4"):
                         self.prof_new_pass_input = UI.text_input(
-                            "كلمة المرور الجديدة / New Password",
+                            "كلمة المرور الجديدة",
                             placeholder="أدخل كلمة المرور الجديدة"
                         ).props("type=password")
                         self.prof_confirm_pass_input = UI.text_input(
-                            "تأكيد كلمة المرور / Confirm Password",
+                            "تأكيد كلمة المرور",
                             placeholder="أعد إدخال كلمة المرور للتأكيد"
                         ).props("type=password")
 
                 # 4. Save Button
                 with ui.row().classes("w-full justify-end items-center pt-3 border-t border-[var(--border-default)] mt-2"):
                     UI.success_button(
-                        "حفظ بيانات الحساب / Save Profile",
+                        "حفظ بيانات الحساب",
                         icon="save",
                         on_click=self._save_profile_data
                     ).classes("px-6 py-2.5 text-xs font-bold shadow-md")
@@ -143,7 +143,7 @@ class ProfileScreen:
             resp_en = (self.prof_resp_en_input.value if self.prof_resp_en_input else "").strip()
 
             if not name_ar or not username:
-                ui.notify("يرجى ملء الاسم بالعربية واسم المستخدم! / Name and Username are required", type="warning")
+                ui.notify("يرجى ملء الاسم بالعربية واسم المستخدم!", type="warning")
                 return
 
             new_pwd = (self.prof_new_pass_input.value if self.prof_new_pass_input else "").strip()
@@ -151,10 +151,10 @@ class ProfileScreen:
 
             if new_pwd:
                 if len(new_pwd) < 3:
-                    ui.notify("كلمة المرور يجب أن لا تقل عن 3 أحرف! / Password too short", type="warning")
+                    ui.notify("كلمة المرور يجب أن لا تقل عن 3 أحرف!", type="warning")
                     return
                 if new_pwd != conf_pwd:
-                    ui.notify("كلمة المرور وتأكيدها غير متطابقين! / Passwords do not match", type="warning")
+                    ui.notify("كلمة المرور وتأكيدها غير متطابقين!", type="warning")
                     return
 
             cur_rec = self.p_repo.get_by_id(self.emp_id) or {}
@@ -175,7 +175,7 @@ class ProfileScreen:
             if is_online():
                 self.p_repo.update(self.emp_id, payload)
             elif not new_pwd:
-                ui.notify("تعديل بيانات الحساب يتطلب الاتصال بالسيرفر / Profile changes need a server connection",
+                ui.notify("تعديل بيانات الحساب يتطلب الاتصال بالسيرفر",
                           type="warning")
                 return
 
@@ -196,7 +196,7 @@ class ProfileScreen:
             if self.prof_confirm_pass_input:
                 self.prof_confirm_pass_input.value = ""
 
-            ui.notify("تم حفظ وتحديث بيانات حسابك بنجاح! / Profile updated successfully!", type="positive")
+            ui.notify("تم حفظ وتحديث بيانات حسابك بنجاح!", type="positive")
         except Exception as exc:
             log.error(f"[ProfileScreen] Error saving profile: {exc}", exc_info=True)
             ui.notify(f"خطأ أثناء حفظ الحساب: {exc}", type="negative")

@@ -14,23 +14,23 @@ class InstitutionMixin:
 
     def _section_institution_info(self) -> None:
         with UI.card():
-            UI.card_header("معلومات المؤسسة — Institution Info", "domain", icon_css="stat-text-blue")
+            UI.card_header("معلومات المؤسسة", "domain", icon_css="stat-text-blue")
 
             with ui.grid(columns=2).classes("w-full gap-4"):
                 self.univ_ar_input = UI.text_input(
-                    "اسم الجامعة بالعربية / Univ. Name (AR)",
+                    "اسم الجامعة بالعربية",
                     value=self.settings_data.get("univ_name_ar") or ""
                 )
                 self.univ_en_input = UI.text_input(
-                    "اسم الجامعة بالإنكليزية / Univ. Name (EN)",
+                    "اسم الجامعة بالإنكليزية",
                     value=self.settings_data.get("univ_name_en") or ""
                 )
                 self.college_ar_input = UI.text_input(
-                    "اسم الكلية بالعربية / College Name (AR)",
+                    "اسم الكلية بالعربية",
                     value=self.settings_data.get("college_name_ar") or ""
                 )
                 self.college_en_input = UI.text_input(
-                    "اسم الكلية بالإنجليزية / College Name (EN)",
+                    "اسم الكلية بالإنجليزية",
                     value=self.settings_data.get("college_name_en") or ""
                 )
 
@@ -38,7 +38,7 @@ class InstitutionMixin:
             with ui.column().classes("w-full gap-3 pt-3 border-t border-[var(--border-default)] mt-2"):
                 with ui.row().classes("items-center gap-2"):
                     ui.icon("image", size="sm").classes("text-blue-400")
-                    ui.label("شعارات المؤسسة والكلية — Official Logos").classes("font-bold text-sm app-text-primary")
+                    ui.label("شعارات المؤسسة والكلية").classes("font-bold text-sm app-text-primary")
                     ui.label("(يدعم ملفات الصور بصيغ PNG, JPG, WebP, SVG)").classes("text-xs app-text-muted")
 
                 with ui.grid(columns=2).classes("w-full gap-4"):
@@ -47,7 +47,7 @@ class InstitutionMixin:
                         with ui.row().classes("items-center justify-between w-full"):
                             with ui.row().classes("items-center gap-2"):
                                 ui.icon("account_balance", size="xs").classes("text-blue-400")
-                                ui.label("شعار الجامعة / University Logo").classes("font-semibold text-xs app-text-primary")
+                                ui.label("شعار الجامعة").classes("font-semibold text-xs app-text-primary")
                             self.univ_logo_status = ui.label(os.path.basename(self.univ_logo_path) if self.univ_logo_path else "").classes("text-[10px] app-text-muted font-mono truncate max-w-[150px]")
 
                         with ui.row().classes("w-full items-center justify-center p-3 rounded-xl border border-dashed border-[var(--border-default)] min-h-[110px] bg-[var(--surface-card)]"):
@@ -95,7 +95,7 @@ class InstitutionMixin:
                         with ui.row().classes("items-center justify-between w-full"):
                             with ui.row().classes("items-center gap-2"):
                                 ui.icon("school", size="xs").classes("text-emerald-400")
-                                ui.label("شعار الكلية / College Logo").classes("font-semibold text-xs app-text-primary")
+                                ui.label("شعار الكلية").classes("font-semibold text-xs app-text-primary")
                             self.college_logo_status = ui.label(os.path.basename(self.college_logo_path) if self.college_logo_path else "").classes("text-[10px] app-text-muted font-mono truncate max-w-[150px]")
 
                         with ui.row().classes("w-full items-center justify-center p-3 rounded-xl border border-dashed border-[var(--border-default)] min-h-[110px] bg-[var(--surface-card)]"):
@@ -145,7 +145,7 @@ class InstitutionMixin:
 
             with ui.row().classes("w-full justify-end items-center pt-3 border-t border-[var(--border-default)] mt-2"):
                 UI.success_button(
-                    "حفظ معلومات المؤسسة والشعارات / Save Info & Logos",
+                    "حفظ معلومات المؤسسة والشعارات",
                     icon="save",
                     on_click=self._save_institution_info
                 ).classes("px-5 py-2 text-xs font-bold")
@@ -160,6 +160,6 @@ class InstitutionMixin:
                 univ_logo=self.univ_logo_path,
                 college_logo=self.college_logo_path
             )
-            ui.notify("تم حفظ معلومات المؤسسة والشعارات بنجاح / Institution info & logos saved!", type="positive")
+            ui.notify("تم حفظ معلومات المؤسسة والشعارات بنجاح", type="positive")
         except Exception as exc:
             ui.notify(f"Error saving settings: {exc}", type="negative")

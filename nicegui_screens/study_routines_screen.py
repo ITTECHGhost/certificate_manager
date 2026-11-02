@@ -48,7 +48,7 @@ class StudyRoutinesController:
                 with ui.row().classes("items-center gap-3"):
                     ui.icon("playlist_add_check", size="md").classes("text-teal-600 dark:text-teal-400 shrink-0")
                     with ui.column().classes("gap-0.5"):
-                        ui.label("الروتينات والخطط الدراسية — Predefined Study Routines").classes(
+                        ui.label("الروتينات والخطط الدراسية").classes(
                             "text-xl font-bold text-[var(--text-primary)]"
                         )
                         ui.label(
@@ -57,7 +57,7 @@ class StudyRoutinesController:
 
                 # Left Side: Green Add Routine Button
                 ui.button(
-                    "+ إضافة روتين جديد / Add Routine",
+                    "+ إضافة روتين جديد",
                     icon="add",
                     on_click=self.open_routine_dialog
                 ).classes("bg-teal-600 hover:bg-teal-700 text-white font-bold rounded-xl px-5 py-2.5 text-sm shadow-sm")
@@ -193,12 +193,12 @@ class StudyRoutinesController:
                         ui.button(
                             icon="edit",
                             on_click=lambda _, r=routine: self.open_routine_dialog(r)
-                        ).props("flat round dense color=primary").tooltip("تعديل الروتين / Edit Routine")
+                        ).props("flat round dense color=primary").tooltip("تعديل الروتين")
 
                         ui.button(
                             icon="delete",
                             on_click=lambda _, r_id=routine_id: self._delete_routine(r_id)
-                        ).props("flat round dense color=negative").tooltip("حذف الروتين / Delete Routine")
+                        ).props("flat round dense color=negative").tooltip("حذف الروتين")
 
             # Fetch periods for the routine
             periods = []
@@ -268,7 +268,7 @@ class StudyRoutinesController:
                                     with ui.row().classes("w-full p-3 rounded-lg border border-dashed border-[var(--border-default)] bg-[var(--bg-main)] items-center justify-between"):
                                         ui.label("لا توجد مواد دراسية مسندة لهذه الفترة بعد.").classes("text-xs italic text-[var(--text-muted)]")
                                         ui.button(
-                                            "+ إضافة مادة الآن / Add Course",
+                                            "+ إضافة مادة الآن",
                                             icon="add_circle",
                                             on_click=lambda _, p_id=period_id, d_id=dept_id, s_num=stg_num, sem_n=sem_num: self.open_course_assignment_dialog(p_id, d_id, s_num, sem_n)
                                         ).props("flat dense size=xs").classes("text-teal-600 font-bold")
@@ -291,14 +291,14 @@ class StudyRoutinesController:
 
                                     # Add button inline with course chips
                                     ui.button(
-                                        "+ إضافة مادة / Add Course",
+                                        "+ إضافة مادة",
                                         icon="add_circle",
                                         on_click=lambda _, p_id=period_id, d_id=dept_id, s_num=stg_num, sem_n=sem_num: self.open_course_assignment_dialog(p_id, d_id, s_num, sem_n)
                                     ).classes("bg-teal-600/10 hover:bg-teal-600/20 text-teal-600 dark:text-teal-400 font-bold rounded-xl px-3 py-1.5 text-xs border border-teal-600/30 shadow-none")
 
             # Footer: Add New Period Button
             ui.button(
-                "+ إضافة مرحلة/فصل جديد / Add New Period",
+                "+ إضافة مرحلة/فصل جديد",
                 icon="add_circle",
                 on_click=lambda: self.open_period_dialog(self.active_routine_id)
             ).classes("w-full py-3 bg-teal-600 hover:bg-teal-700 text-white font-bold rounded-xl shadow-md text-sm mt-auto")
@@ -338,9 +338,9 @@ class StudyRoutinesController:
             name_en = s.get("name_en") or ""
             day_raw = str(s.get("study_day_type") or s.get("study_type") or "").strip().lower()
             if day_raw in ["morning", "day", "صباحي", "الصباحية"]:
-                type_label = "الدراسة الصباحية / Morning"
+                type_label = "الدراسة الصباحية]"
             elif day_raw in ["evening", "night", "مسائي", "المسائية"]:
-                type_label = "الدراسة المسائية / Evening"
+                type_label = "الدراسة المسائية]"
             else:
                 type_label = s.get("study_day_type") or s.get("study_type") or ""
 
@@ -350,10 +350,10 @@ class StudyRoutinesController:
 
         if not sys_options:
             sys_options = {
-                1: "نظام فصلي [الدراسة الصباحية / Morning] — Semester System",
-                2: "نظام فصلي [الدراسة المسائية / Evening] — Semester System",
-                3: "نظام سنوي [الدراسة الصباحية / Morning] — Annual System",
-                4: "نظام سنوي [الدراسة المسائية / Evening] — Annual System",
+                1: "نظام فصلي [الدراسة الصباحية]",
+                2: "نظام فصلي [الدراسة المسائية]",
+                3: "نظام سنوي [الدراسة الصباحية]",
+                4: "نظام سنوي [الدراسة المسائية]",
             }
         
         target_sys = routine.get("study_system_id") if is_edit else None
@@ -366,18 +366,18 @@ class StudyRoutinesController:
         with dialog, ui.card().classes("w-full max-w-lg p-6 shadow-xl rounded-2xl gap-4 bg-[var(--bg-card)] border border-[var(--border-default)]"):
             with ui.row().classes("w-full items-center gap-2 pb-2 border-b border-[var(--border-default)]"):
                 ui.icon("edit_note" if is_edit else "post_add", size="sm").classes("text-teal-600 dark:text-teal-400")
-                ui.label("تعديل الروتين الدراسي / Edit Routine" if is_edit else "إضافة روتين دراسي جديد / Add Routine").classes("text-lg font-bold text-[var(--text-primary)]")
+                ui.label("تعديل الروتين الدراسي" if is_edit else "إضافة روتين دراسي جديد").classes("text-lg font-bold text-[var(--text-primary)]")
 
             name_ar_val = routine.get("name_ar", "") if is_edit else ""
             name_en_val = routine.get("name_en", "") if is_edit else ""
 
-            name_ar_input = ui.input("اسم الروتين بالعربية / Routine Name (AR)", value=name_ar_val).classes("w-full text-sm").props("outlined dense")
-            name_en_input = ui.input("اسم الروتين بالإنجليزية / Routine Name (EN)", value=name_en_val).classes("w-full text-sm").props("outlined dense")
-            dept_select = ui.select(options=dept_options, value=init_dept, label="القسم التابع له / Department").classes("w-full text-sm").props("outlined dense")
-            sys_select = ui.select(options=sys_options, value=init_sys, label="النظام الدراسي / Study System").classes("w-full text-sm").props("outlined dense")
+            name_ar_input = ui.input("اسم الروتين بالعربية", value=name_ar_val).classes("w-full text-sm").props("outlined dense")
+            name_en_input = ui.input("اسم الروتين بالإنجليزية", value=name_en_val).classes("w-full text-sm").props("outlined dense")
+            dept_select = ui.select(options=dept_options, value=init_dept, label="القسم التابع له").classes("w-full text-sm").props("outlined dense")
+            sys_select = ui.select(options=sys_options, value=init_sys, label="النظام الدراسي").classes("w-full text-sm").props("outlined dense")
 
             with ui.row().classes("w-full justify-end gap-2 pt-3 border-t border-slate-200 dark:border-slate-700"):
-                ui.button("إلغاء / Cancel", on_click=dialog.close).props("flat").classes("text-slate-500 text-sm")
+                ui.button("إلغاء", on_click=dialog.close).props("flat").classes("text-slate-500 text-sm")
 
                 def save_routine():
                     name_ar = (name_ar_input.value or "").strip()
@@ -413,7 +413,7 @@ class StudyRoutinesController:
                         log.error(f"Failed to save routine: {err}")
                         ui.notify(f"خطأ أثناء الحفظ: {err}", type="negative")
 
-                ui.button("حفظ الروتين / Save", icon="save", on_click=save_routine).classes("bg-teal-600 hover:bg-teal-700 text-white text-sm px-4 py-2 rounded-lg")
+                ui.button("حفظ الروتين", icon="save", on_click=save_routine).classes("bg-teal-600 hover:bg-teal-700 text-white text-sm px-4 py-2 rounded-lg")
 
         dialog.open()
 
@@ -427,13 +427,13 @@ class StudyRoutinesController:
         with dialog, ui.card().classes("w-full max-w-sm p-6 shadow-xl rounded-2xl gap-4 bg-[var(--bg-card)] border border-[var(--border-default)]"):
             with ui.row().classes("w-full items-center gap-2 pb-2 border-b border-[var(--border-default)]"):
                 ui.icon("event", size="sm").classes("text-teal-600 dark:text-teal-400")
-                ui.label("إضافة فترة دراسية / Add Period").classes("text-lg font-bold text-[var(--text-primary)]")
+                ui.label("إضافة فترة دراسية").classes("text-lg font-bold text-[var(--text-primary)]")
 
-            stage_input = ui.number(label="رقم المرحلة / Stage Number", value=1, min=1, max=6, step=1).classes("w-full text-sm").props("outlined dense")
-            sem_input = ui.number(label="رقم الفصل / Semester Number", value=1, min=1, max=3, step=1).classes("w-full text-sm").props("outlined dense")
+            stage_input = ui.number(label="رقم المرحلة", value=1, min=1, max=6, step=1).classes("w-full text-sm").props("outlined dense")
+            sem_input = ui.number(label="رقم الفصل", value=1, min=1, max=3, step=1).classes("w-full text-sm").props("outlined dense")
 
             with ui.row().classes("w-full justify-end gap-2 pt-3 border-t border-slate-200 dark:border-slate-700"):
-                ui.button("إلغاء / Cancel", on_click=dialog.close).props("flat").classes("text-slate-500 text-sm")
+                ui.button("إلغاء", on_click=dialog.close).props("flat").classes("text-slate-500 text-sm")
 
                 def save_period():
                     stg = int(stage_input.value or 1)
@@ -458,7 +458,7 @@ class StudyRoutinesController:
                         log.error(f"Failed to insert period: {err}")
                         ui.notify(f"خطأ أثناء إضافة الفترة: {err}", type="negative")
 
-                ui.button("إضافة / Add", icon="add", on_click=save_period).classes("bg-teal-600 hover:bg-teal-700 text-white text-sm px-4 py-2 rounded-lg")
+                ui.button("إضافة", icon="add", on_click=save_period).classes("bg-teal-600 hover:bg-teal-700 text-white text-sm px-4 py-2 rounded-lg")
 
         dialog.open()
 
@@ -509,7 +509,7 @@ class StudyRoutinesController:
                 d_str = d_name if d_name.startswith("قسم") else f"قسم {d_name}"
                 badge = f" [{d_str}]"
             else:
-                badge = " [مادة عامة / General]"
+                badge = " [مادة عامة]"
 
             label = f"{name_ar} / {name_en} (المرحلة {stage}){badge}" if name_en else f"{name_ar} (المرحلة {stage}){badge}"
             course_options[cid] = label
@@ -520,7 +520,7 @@ class StudyRoutinesController:
         with dialog, ui.card().classes("w-full max-w-md p-6 shadow-xl rounded-2xl gap-4 bg-[var(--bg-card)] border border-[var(--border-default)]"):
             with ui.row().classes("w-full items-center gap-2 pb-2 border-b border-[var(--border-default)]"):
                 ui.icon("library_add", size="sm").classes("text-teal-600 dark:text-teal-400")
-                ui.label("إسناد مادة دراسية / Assign Course").classes("text-lg font-bold text-[var(--text-primary)]")
+                ui.label("إسناد مادة دراسية").classes("text-lg font-bold text-[var(--text-primary)]")
 
             if not course_options:
                 ui.label("لا توجد مواد متاحة للقسم المحدد.").classes("text-xs text-amber-500 italic py-2")
@@ -528,12 +528,12 @@ class StudyRoutinesController:
                 course_select = ui.select(
                     options=course_options,
                     value=init_course,
-                    label="اختر المادة الدراسية / Select Course",
+                    label="اختر المادة الدراسية",
                     with_input=True
                 ).classes("w-full text-sm").props("outlined dense use-input fill-input")
 
             with ui.row().classes("w-full justify-end gap-2 pt-3 border-t border-slate-200 dark:border-slate-700"):
-                ui.button("إلغاء / Cancel", on_click=dialog.close).props("flat").classes("text-slate-500 text-sm")
+                ui.button("إلغاء", on_click=dialog.close).props("flat").classes("text-slate-500 text-sm")
 
                 def save_course_assignment():
                     if not course_options or not course_select.value:
@@ -559,7 +559,7 @@ class StudyRoutinesController:
                         log.error(f"Failed to assign course to period: {err}")
                         ui.notify(f"خطأ أثناء ربط المادة: {err}", type="negative")
 
-                ui.button("إسناد المادة / Assign", icon="check", on_click=save_course_assignment).classes("bg-teal-600 hover:bg-teal-700 text-white text-sm px-4 py-2 rounded-lg")
+                ui.button("إسناد المادة", icon="check", on_click=save_course_assignment).classes("bg-teal-600 hover:bg-teal-700 text-white text-sm px-4 py-2 rounded-lg")
 
         dialog.open()
 

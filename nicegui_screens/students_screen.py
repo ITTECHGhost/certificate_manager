@@ -84,7 +84,7 @@ class StudentsScreen:
         self.main_container.clear()
         with self.main_container:
             with UI.card().classes('flex-1'):
-                UI.card_header("إدارة الطلاب — Students Management", "people", icon_css="stat-text-blue")
+                UI.card_header("إدارة الطلاب", "people", icon_css="stat-text-blue")
 
                 # Top Search & Action Bar
                 with ui.row().classes("w-full items-center justify-between gap-4 mt-2"):
@@ -97,7 +97,7 @@ class StudentsScreen:
                         self.search_input.on("keydown.enter", lambda: self.perform_search(reset_offset=True))
 
                         UI.primary_button(
-                            "Search / بحث",
+                            "بحث",
                             icon="search",
                             on_click=lambda: self.perform_search(reset_offset=True)
                         ).classes("h-12 px-4 shadow-sm")
@@ -110,23 +110,23 @@ class StudentsScreen:
 
                     with ui.row().classes("items-center gap-2"):
                         UI.primary_button(
-                            "Add Group of Students / إضافة مجموعة طلاب", 
+                            "إضافة مجموعة طلاب", 
                             icon="group_add", 
                             on_click=self.show_bulk_import_view
                         ).classes("h-12 px-4 shadow-sm bg-indigo-600 hover:bg-indigo-700 text-white font-bold")
 
                         UI.success_button(
-                            "Add Student / إضافة طالب", 
+                            "إضافة طالب", 
                             icon="person_add", 
                             on_click=self.form_view.render_add
                         ).classes("h-12 px-4 shadow-sm")
 
                 columns = [
-                    {"name": "name_ar", "label": "Name / الاسم", "field": "name_ar", "align": "right", "sortable": True},
-                    {"name": "department_name_ar", "label": "Department / القسم", "field": "department_name_ar", "align": "left", "sortable": True},
-                    {"name": "graduation_year", "label": "Grad Year / سنة التخرج", "field": "graduation_year", "align": "center", "sortable": True},
-                    {"name": "average", "label": "Average / المعدل", "field": "average", "align": "center", "sortable": True},
-                    {"name": "actions", "label": "Actions / الإجراءات", "field": "actions", "align": "center"},
+                    {"name": "name_ar", "label": "الاسم", "field": "name_ar", "align": "right", "sortable": True},
+                    {"name": "department_name_ar", "label": "القسم", "field": "department_name_ar", "align": "left", "sortable": True},
+                    {"name": "graduation_year", "label": "سنة التخرج", "field": "graduation_year", "align": "center", "sortable": True},
+                    {"name": "average", "label": "المعدل", "field": "average", "align": "center", "sortable": True},
+                    {"name": "actions", "label": "الإجراءات", "field": "actions", "align": "center"},
                 ]
 
                 # The screen appears at once; rows are loaded in the background (see perform_search)
@@ -151,10 +151,10 @@ class StudentsScreen:
                     <q-td :props="props">
                         <div class="row items-center justify-center gap-2">
                             <q-btn size="sm" round dense color="primary" icon="visibility" @click="$parent.$emit('view_profile', props.row)">
-                                <q-tooltip>عرض الملف / View Profile</q-tooltip>
+                                <q-tooltip>عرض الملف</q-tooltip>
                             </q-btn>
                             <q-btn size="sm" round dense color="negative" icon="delete" @click="$parent.$emit('delete_student', props.row)">
-                                <q-tooltip>حذف / Delete</q-tooltip>
+                                <q-tooltip>حذف</q-tooltip>
                             </q-btn>
                         </div>
                     </q-td>
@@ -166,7 +166,7 @@ class StudentsScreen:
                 # Pagination & Rows-Per-Page Controls Footer
                 with ui.row().classes("w-full items-center justify-between mt-4 px-2 py-2 border-t border-[var(--border-default)]"):
                     with ui.row().classes("items-center gap-3"):
-                        ui.label("Rows per page / عدد الصفوف:").classes("text-sm app-text-muted font-medium")
+                        ui.label("عدد الصفوف:").classes("text-sm app-text-muted font-medium")
                         self.limit_select = ui.select(
                             options=[25, 50, 100],
                             value=self.current_limit,
@@ -177,13 +177,13 @@ class StudentsScreen:
 
                     with ui.row().classes("items-center gap-2"):
                         self.prev_btn = UI.primary_button(
-                            "Previous / السابق",
+                            "السابق",
                             icon="chevron_right",
                             on_click=self._prev_page
                         ).props("dense outlined")
 
                         self.next_btn = UI.primary_button(
-                            "Next / التالي",
+                            "التالي",
                             icon="chevron_left",
                             on_click=self._next_page
                         ).props("dense outlined")
@@ -329,23 +329,23 @@ class StudentsScreen:
             return
 
         with ui.dialog() as confirm_dlg, UI.card().classes("p-6 gap-4 w-96 bg-[var(--surface-card)] text-[var(--text-primary)] rounded-2xl border border-[var(--border-default)] shadow-2xl"):
-            ui.label("تأكيد حذف الطالب / Confirm Delete").classes("text-lg font-bold text-rose-500")
+            ui.label("تأكيد حذف الطالب").classes("text-lg font-bold text-rose-500")
             ui.label(f"هل أنت تأكد من رغبتك في حذف الطالب ({name_ar})؟ سيتم حذف كافة المراحل والدرجات المرتبطة به ولا يمكن التراجع عن هذا الإجراء.").classes("text-xs text-[var(--text-secondary)] leading-relaxed")
 
             with ui.row().classes("w-full justify-end gap-3 mt-2"):
-                UI.secondary_button("إلغاء / Cancel", on_click=confirm_dlg.close).classes("text-xs px-4 py-2")
+                UI.secondary_button("إلغاء", on_click=confirm_dlg.close).classes("text-xs px-4 py-2")
 
                 def do_delete():
                     confirm_dlg.close()
                     try:
                         self.repo.delete(student_id)
-                        ui.notify(f"تم حذف الطالب ({name_ar}) بنجاح / Student deleted", type="positive")
+                        ui.notify(f"تم حذف الطالب ({name_ar}) بنجاح", type="positive")
                         self.perform_search(reset_offset=False)
                     except Exception as err:
                         log.error(f"Failed to delete student {student_id}: {err}")
                         ui.notify(f"خطأ في حذف الطالب: {err}", type="negative")
 
-                UI.danger_button("🗑 تأكيد الحذف / Delete", on_click=do_delete).classes("text-xs px-4 py-2 font-bold")
+                UI.danger_button("🗑 تأكيد الحذف", on_click=do_delete).classes("text-xs px-4 py-2 font-bold")
 
         confirm_dlg.open()
 

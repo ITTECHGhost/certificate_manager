@@ -262,7 +262,7 @@ def inject_global_styles(is_rtl: Optional[bool] = None):
         log.warning(f"[inject_global_styles] Error loading theme.css: {exc}")
 
 
-# Stacks "عربي / English" strings as two lines (Arabic on top) wherever the app writes them as
+# Stacks "عربي" strings as two lines (Arabic on top) wherever the app writes them as
 # one label: buttons, tabs, field labels, toggles and plain labels.
 _BILINGUAL_SPLIT_JS = """
 <script>

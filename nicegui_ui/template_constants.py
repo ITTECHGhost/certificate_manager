@@ -318,7 +318,7 @@ def get_template_filter_options() -> Dict[str, str]:
     Begins with 'all' followed strictly by the standard template names.
     """
     options: Dict[str, str] = {
-        "all": "كل النماذج / All Templates"
+        "all": "كل النماذج"
     }
     config = load_templates_config()
     for _, item in config.items():

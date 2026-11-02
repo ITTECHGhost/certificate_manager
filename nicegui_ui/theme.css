@@ -16,7 +16,7 @@
 
 /* ── 1a. Light Mode Tokens (Default) ────────────────────────────────────── */
 :root {
-  --font-primary: 'Arial', 'Roboto', 'Cairo', 'Segoe UI', 'Tahoma', 'times new roman', sans-serif;
+  --font-primary: 'Cairo', 'Arial', 'Segoe UI', 'Tahoma', 'times new roman', sans-serif;
 
   /* Surfaces */
   --surface-main: #f1f5f9;

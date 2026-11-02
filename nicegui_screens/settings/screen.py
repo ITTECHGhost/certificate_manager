@@ -224,22 +224,22 @@ class SettingsScreen(
 
     def _section_about(self) -> None:
         with UI.card():
-            UI.card_header("حول البرنامج — About", "info", icon_css="app-text-faint")
+            UI.card_header("حول البرنامج", "info", icon_css="app-text-faint")
 
             with ui.column().classes("w-full items-center text-center gap-2 p-4"):
                 UI.section_label("نظام إدارة الشهادات - الإصدار 2.0 (NiceGUI Native UI)")
                 UI.muted_label("Certificate Manager - v2.0")
                 UI.muted_label("تم التطوير لأتمتة عمليات إصدار الوثائق والشهادات الجامعية.").classes("mt-2")
-                ui.label("Developed by M. Hussein / تم التطوير بواسطة م. حسين").classes(
+                ui.label("تم التطوير بواسطة م. حسين").classes(
                     "app-text-success text-xs font-semibold mt-1"
                 )
 
                 async def _check_updates_dialog():
                     from sync_engine import is_online
                     if not is_online():
-                        ui.notify("لا يمكن التحقق من التحديثات في الوضع غير المتصل / Offline mode", type="warning")
+                        ui.notify("لا يمكن التحقق من التحديثات في الوضع غير المتصل", type="warning")
                         return
-                    n = ui.notification("جاري التحقق من وجود تحديثات جديدة... / Checking for updates...", timeout=None, spinner=True)
+                    n = ui.notification("جاري التحقق من وجود تحديثات جديدة...", timeout=None, spinner=True)
                     try:
                         import asyncio
                         from nicegui import run
@@ -247,11 +247,11 @@ class SettingsScreen(
                         res = await run.io_bound(upd.check_for_updates)
                         n.dismiss()
                         if not res or not res.get("has_update"):
-                            ui.notify("البرنامج محدث إلى آخر إصدار متاح / Application is up to date", type="positive")
+                            ui.notify("البرنامج محدث إلى آخر إصدار متاح", type="positive")
                             return
 
                         with ui.dialog() as dlg, ui.card().classes("w-[500px] p-6 gap-4"):
-                            UI.card_header(f"تحديث جديد متاح / Update Available: v{res['latest_version']}", "system_update")
+                            UI.card_header(f"تحديث جديد متاح{res['latest_version']}", "system_update")
                             ui.label(f"الإصدار الحالي: v{res['current_version']} ➔ الجديد: v{res['latest_version']}").classes("text-sm font-bold text-sky-500")
                             if res.get("changelog_ar"):
                                 ui.label(f"سجل التغييرات: {res['changelog_ar']}").classes("text-xs text-slate-400")
@@ -260,27 +260,27 @@ class SettingsScreen(
 
                             async def _start_ota():
                                 dlg.close()
-                                prog_notif = ui.notification("جاري تنزيل التحديث... / Downloading patch...", timeout=None, spinner=True)
+                                prog_notif = ui.notification("جاري تنزيل التحديث...", timeout=None, spinner=True)
                                 zip_p = await run.io_bound(upd.download_patch, res)
                                 prog_notif.dismiss()
                                 if not zip_p:
-                                    ui.notify("فشل تنزيل ملف التحديث / Failed to download patch", type="negative")
+                                    ui.notify("فشل تنزيل ملف التحديث", type="negative")
                                     return
-                                ui.notify("تم تنزيل التحديث. جاري إعادة تشغيل التطبيق... / Restarting...", type="positive")
+                                ui.notify("تم تنزيل التحديث. جاري إعادة تشغيل التطبيق...", type="positive")
                                 await asyncio.sleep(1.0)
                                 upd.apply_patch_and_restart(zip_p)
                                 import os
                                 os._exit(0)
 
                             with ui.row().classes("w-full justify-end gap-2 mt-4"):
-                                ui.button("إلغاء / Cancel", on_click=dlg.close).classes("app-btn-secondary px-4 py-1.5 text-xs rounded-xl")
-                                ui.button("تحديث الآن / Update Now", icon="system_update", on_click=_start_ota).classes("app-btn-primary px-4 py-1.5 text-xs rounded-xl")
+                                ui.button("إلغاء", on_click=dlg.close).classes("app-btn-secondary px-4 py-1.5 text-xs rounded-xl")
+                                ui.button("تحديث الآن", icon="system_update", on_click=_start_ota).classes("app-btn-primary px-4 py-1.5 text-xs rounded-xl")
                         dlg.open()
                     except Exception as e:
                         n.dismiss()
                         ui.notify(f"خطأ أثناء التحقق: {e}", type="negative")
 
-                ui.button("التحقق من التحديثات / Check for Updates", icon="system_update_alt", on_click=_check_updates_dialog).classes("app-btn-secondary px-4 py-2 text-xs rounded-xl mt-3")
+                ui.button("التحقق من التحديثات", icon="system_update_alt", on_click=_check_updates_dialog).classes("app-btn-secondary px-4 py-2 text-xs rounded-xl mt-3")
 
     def _get_event_value(self, e, element, default_val):
         if e is not None:

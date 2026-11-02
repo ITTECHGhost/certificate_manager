@@ -61,7 +61,7 @@ class RolesMixin:
 
     def _render_roles_overview(self) -> None:
         with UI.card().classes("w-full p-6 gap-6"):
-            UI.card_header("إدارة الأدوار والمسؤوليات والصلاحيات — Roles & Permissions Matrix", "admin_panel_settings", icon_css="stat-text-emerald")
+            UI.card_header("إدارة الأدوار والمسؤوليات والصلاحيات", "admin_panel_settings", icon_css="stat-text-emerald")
 
             # Header Banner & Action Buttons
             with ui.row().classes("w-full items-center justify-between p-4 bg-[var(--bg-main)] rounded-2xl border border-[var(--border-default)] flex-wrap gap-4"):
@@ -75,13 +75,13 @@ class RolesMixin:
                 with ui.row().classes("items-center gap-2 flex-wrap"):
                     if self.on_navigate:
                         UI.secondary_button(
-                            "شاشة الكوادر / Personnel Screen",
+                            "شاشة الكوادر",
                             icon="group",
                             on_click=lambda: self.on_navigate("personnel")
                         ).classes("text-xs")
 
                     UI.secondary_button(
-                        "تخصيص مستخدم / User Matrix",
+                        "تخصيص مستخدم",
                         icon="tune",
                         on_click=lambda: self._open_user_matrix_view()
                     ).classes("text-xs px-3 py-1.5")
@@ -163,25 +163,25 @@ class RolesMixin:
                                     with ui.row().classes("items-center gap-2 flex-wrap"):
                                         ui.label(r_name_ar).classes("text-sm font-bold app-text-primary")
                                         if is_sys:
-                                            ui.label("افتراضي / Built-in").classes("text-[10px] px-1.5 py-0.5 rounded bg-blue-500/15 text-blue-400 font-semibold border border-blue-500/30")
+                                            ui.label("افتراضي").classes("text-[10px] px-1.5 py-0.5 rounded bg-blue-500/15 text-blue-400 font-semibold border border-blue-500/30")
                                         else:
-                                            ui.label("مخصص / Custom").classes("text-[10px] px-1.5 py-0.5 rounded bg-emerald-500/15 text-emerald-400 font-semibold border border-emerald-500/30")
+                                            ui.label("مخصص").classes("text-[10px] px-1.5 py-0.5 rounded bg-emerald-500/15 text-emerald-400 font-semibold border border-emerald-500/30")
                                     ui.label(r_name_en).classes("text-xs app-text-muted font-mono")
 
                             with ui.row().classes("items-center gap-1 shrink-0"):
                                 ui.button(
                                     icon="edit",
                                     on_click=lambda r=role: self._open_role_editor_view(r)
-                                ).props("flat round dense size=sm color=primary").tooltip("تعديل هذا الدور والصلاحيات / Edit Role (Full Page)")
+                                ).props("flat round dense size=sm color=primary").tooltip("تعديل هذا الدور والصلاحيات")
 
                                 if not is_sys:
                                     def _confirm_delete_role(rid=role_id, rname=r_name_ar):
                                         del_dlg = ui.dialog()
                                         with del_dlg, UI.card().classes("p-6 gap-4 w-96 rounded-2xl bg-[var(--surface-card)] border border-[var(--border-default)] shadow-2xl"):
-                                            ui.label("تأكيد حذف الدور — Confirm Delete").classes("text-base font-bold text-red-400")
+                                            ui.label("تأكيد حذف الدور").classes("text-base font-bold text-red-400")
                                             ui.label(f"هل أنت متأكد من حذف الدور المخصص ({rname}) نهائياً؟").classes("text-xs app-text-muted leading-relaxed")
                                             with ui.row().classes("w-full justify-end gap-2 pt-2"):
-                                                UI.ghost_button("إلغاء / Cancel", on_click=del_dlg.close).classes("text-xs")
+                                                UI.ghost_button("إلغاء", on_click=del_dlg.close).classes("text-xs")
                                                 def _do_del():
                                                     try:
                                                         self.role_repo.delete_role(rid)
@@ -196,7 +196,7 @@ class RolesMixin:
                                     ui.button(
                                         icon="delete",
                                         on_click=_confirm_delete_role
-                                    ).props("flat round dense size=sm color=negative").tooltip("حذف هذا الدور المخصص / Delete Role")
+                                    ).props("flat round dense size=sm color=negative").tooltip("حذف هذا الدور المخصص")
 
                         if desc_ar:
                             ui.label(desc_ar).classes("text-xs app-text-muted leading-relaxed")
@@ -259,7 +259,7 @@ class RolesMixin:
             with ui.row().classes("w-full items-center justify-between pb-4 border-b border-[var(--border-default)] shrink-0 gap-4 flex-wrap"):
                 with ui.row().classes("items-center gap-3"):
                     UI.secondary_button(
-                        "← العودة لقائمة الأدوار / Back to Roles",
+                        "← العودة لقائمة الأدوار",
                         icon="arrow_forward",
                         on_click=self._return_to_roles_overview
                     ).classes("text-xs px-4 py-2 font-bold shadow-sm")
@@ -268,14 +268,14 @@ class RolesMixin:
                         ui.icon("admin_panel_settings", size="sm").classes("text-blue-400")
 
                     with ui.column().classes("gap-0"):
-                        title_lbl = f"تعديل الدور: {initial_data.get('name_ar', '')}" if is_edit else "إنشاء دور / مسؤولية جديدة — Create Role Profile"
+                        title_lbl = f"تعديل الدور: {initial_data.get('name_ar', '')}" if is_edit else "إنشاء دور / مسؤولية جديدة"
                         ui.label(title_lbl).classes("text-base font-bold app-text-primary")
                         ui.label("تحديد صلاحيات الوصول إلى الشاشات والإجراءات والأقسام لهذا الدور بالتفصيل.").classes("text-xs app-text-muted")
 
                 with ui.row().classes("items-center gap-2"):
-                    UI.ghost_button("إلغاء / Cancel", on_click=self._return_to_roles_overview).classes("text-xs px-3 py-2")
+                    UI.ghost_button("إلغاء", on_click=self._return_to_roles_overview).classes("text-xs px-3 py-2")
                     save_btn_top = UI.success_button(
-                        "حفظ الدور والصلاحيات / Save Role",
+                        "حفظ الدور والصلاحيات",
                         icon="check_circle",
                         on_click=lambda: _save_role()
                     ).classes("text-xs px-5 py-2 font-bold shadow-md")
@@ -287,20 +287,20 @@ class RolesMixin:
                 with UI.card().classes("p-5 gap-4 rounded-2xl border border-[var(--border-default)] bg-[var(--bg-main)]"):
                     with ui.row().classes("items-center gap-2"):
                         ui.icon("badge", size="sm").classes("text-blue-400")
-                        ui.label("المعلومات الأساسية للدور — Role Details").classes("text-sm font-bold text-blue-400")
+                        ui.label("المعلومات الأساسية للدور").classes("text-sm font-bold text-blue-400")
 
                     with ui.grid(columns=2).classes("w-full gap-4"):
                         name_ar_input = UI.text_input("اسم الدور / المسؤولية (بالعربية) *", value=initial_data.get("name_ar", ""))
                         name_en_input = UI.text_input("اسم الدور / المسؤولية (بالإنكليزية) *", value=initial_data.get("name_en", ""))
 
-                    desc_ar_input = UI.text_input("وصف الدور والمهام / Description", value=initial_data.get("description_ar", "")).classes("w-full")
+                    desc_ar_input = UI.text_input("وصف الدور والمهام", value=initial_data.get("description_ar", "")).classes("w-full")
 
                 # ── 2. Department Accessibility Scope (Granular Catalog Access) ─
                 with UI.card().classes("p-5 gap-4 rounded-2xl border border-[var(--border-default)] bg-[var(--bg-main)]"):
                     with ui.row().classes("w-full items-center justify-between"):
                         with ui.row().classes("items-center gap-2"):
                             ui.icon("domain", size="sm").classes("text-amber-400")
-                            ui.label("نطاق الأقسام المسموح بالوصول إليها — Department Accessibility Scope").classes("text-sm font-bold text-amber-400")
+                            ui.label("نطاق الأقسام المسموح بالوصول إليها").classes("text-sm font-bold text-amber-400")
                         ui.label("تحكم بالأقسام التي يستطيع هذا الدور الاطلاع على طلبتها ومقرراتها").classes("text-xs app-text-muted")
 
                     init_scope = initial_data.get("department_scope") or "all"
@@ -356,7 +356,7 @@ class RolesMixin:
                     with ui.row().classes("w-full items-center justify-between"):
                         with ui.row().classes("items-center gap-2"):
                             ui.icon("layers", size="sm").classes("text-purple-400")
-                            ui.label("الشاشات والصفحات المتاح الوصول إليها — Accessible Pages").classes("text-sm font-bold text-purple-400")
+                            ui.label("الشاشات والصفحات المتاح الوصول إليها").classes("text-sm font-bold text-purple-400")
                         with ui.row().classes("gap-2"):
                             def _select_all_pages():
                                 for cb in page_checkboxes.values():
@@ -368,16 +368,16 @@ class RolesMixin:
                             UI.ghost_button("إلغاء الكل", icon="clear_all", on_click=_clear_all_pages).classes("text-xs px-2.5 py-1")
 
                     all_pages_map = {
-                        "home": ("الرئيسية / Dashboard", "home"),
-                        "students": ("إدارة الطلاب والدرجات / Students", "school"),
-                        "orders": ("أوامر التخرج / Orders", "history_edu"),
-                        "departments": ("إدارة الأقسام / Departments", "domain"),
-                        "courses": ("المواد الدراسية / Courses", "menu_book"),
-                        "personnel": ("إدارة الكوادر / Personnel", "group"),
-                        "certificate": ("إصدار الوثيقة / Certificates", "print"),
-                        "issued_certs": ("سجل الوثائق الصادرة / Log", "list_alt"),
-                        "settings": ("إعدادات النظام / Settings", "settings"),
-                        "history": ("سجل النشاط والتغييرات / History", "history"),
+                        "home": ("الرئيسية", "home"),
+                        "students": ("إدارة الطلاب والدرجات", "school"),
+                        "orders": ("أوامر التخرج", "history_edu"),
+                        "departments": ("إدارة الأقسام", "domain"),
+                        "courses": ("المواد الدراسية", "menu_book"),
+                        "personnel": ("إدارة الكوادر", "group"),
+                        "certificate": ("إصدار الوثيقة", "print"),
+                        "issued_certs": ("سجل الوثائق الصادرة", "list_alt"),
+                        "settings": ("إعدادات النظام", "settings"),
+                        "history": ("سجل النشاط والتغييرات", "history"),
                     }
 
                     current_pages = set(initial_data.get("allowed_pages") or [])
@@ -399,7 +399,7 @@ class RolesMixin:
                     with ui.row().classes("w-full items-center justify-between"):
                         with ui.row().classes("items-center gap-2"):
                             ui.icon("verified_user", size="sm").classes("text-emerald-400")
-                            ui.label("صلاحيات الإجراءات والعمليات المفصلة — Granular Action Permissions").classes("text-sm font-bold text-emerald-400")
+                            ui.label("صلاحيات الإجراءات والعمليات المفصلة").classes("text-sm font-bold text-emerald-400")
                         with ui.row().classes("gap-2"):
                             def _grant_all_acts():
                                 for sw in action_switches.values():
@@ -413,42 +413,42 @@ class RolesMixin:
                     # 8 Distinct, Comprehensive Categories
                     categories = {
                         "students": {
-                            "title": "🎓 شؤون الطلاب والدرجات — Students & Grades",
+                            "title": "🎓 شؤون الطلاب والدرجات",
                             "color": "text-blue-400",
                             "desc": "صلاحيات الاطلاع والإضافة والتعديل والحذف وإدارة درجات الطلبة"
                         },
                         "orders": {
-                            "title": "📜 أوامر التخرج — Graduation Orders",
+                            "title": "📜 أوامر التخرج",
                             "color": "text-purple-400",
                             "desc": "صلاحيات استعراض وإنشاء وتعديل وحذف أوامر التخرج وربط الطلبة"
                         },
                         "certificates": {
-                            "title": "🖨️ إصدار الوثائق الرسمية — Issue Certificates",
+                            "title": "🖨️ إصدار الوثائق الرسمية",
                             "color": "text-emerald-400",
                             "desc": "صلاحية توليد وتعيين أرقام وثائق التخرج الرسمية وطباعتها"
                         },
                         "issued_certs": {
-                            "title": "📋 سجل الوثائق الصادرة — Issued Records & Logs",
+                            "title": "📋 سجل الوثائق الصادرة",
                             "color": "text-teal-400",
                             "desc": "صلاحيات البحث في الأرشيف وتصدير السجلات وحذف القيود الصادرة"
                         },
                         "departments": {
-                            "title": "🏢 إدارة الأقسام العلمية — Departments Management",
+                            "title": "🏢 إدارة الأقسام العلمية",
                             "color": "text-amber-400",
                             "desc": "صلاحيات استعراض وإضافة وتعديل وحذف الأقسام العلمية والتخصصات"
                         },
                         "courses": {
-                            "title": "📚 المقررات والمناهج الدراسية — Courses Catalog",
+                            "title": "📚 المقررات والمناهج الدراسية",
                             "color": "text-indigo-400",
                             "desc": "صلاحيات عرض وإضافة وتعديل وحذف المواد الدراسية وتعيين ساعاتها ووحداتها"
                         },
                         "personnel": {
-                            "title": "👥 الكوادر والمستخدمين — Personnel & Accounts",
+                            "title": "👥 الكوادر والمستخدمين",
                             "color": "text-orange-400",
                             "desc": "صلاحيات عرض ملفات الكوادر وإدارة الحسابات وتعيين الأدوار"
                         },
                         "settings": {
-                            "title": "⚙️ إعدادات النظام — System Settings Views & Alter",
+                            "title": "⚙️ إعدادات النظام",
                             "color": "text-cyan-400",
                             "desc": "صلاحيات الوصول وتعديل كل شاشة من شاشات إعدادات النظام بشكل منفصل"
                         },
@@ -572,7 +572,7 @@ class RolesMixin:
                         ui.notify(f"خطأ أثناء حفظ الدور: {exc}", type="negative")
 
                 UI.success_button(
-                    "حفظ الدور والصلاحيات / Save Role Profile",
+                    "حفظ الدور والصلاحيات",
                     icon="check_circle",
                     on_click=_save_role
                 ).classes("text-xs px-6 py-2.5 font-bold shadow-md")
@@ -596,7 +596,7 @@ class RolesMixin:
 
         if not personnel_list:
             with UI.card().classes("w-full p-6 gap-4"):
-                ui.label("لا توجد حسابات كوادر مسجلة! / No personnel accounts found").classes("text-sm text-red-400 font-bold")
+                ui.label("لا توجد حسابات كوادر مسجلة!").classes("text-sm text-red-400 font-bold")
                 UI.secondary_button("← العودة لقائمة الأدوار", on_click=self._return_to_roles_overview)
             return
 
@@ -609,7 +609,7 @@ class RolesMixin:
             with ui.row().classes("w-full items-center justify-between pb-4 border-b border-[var(--border-default)] shrink-0 gap-4 flex-wrap"):
                 with ui.row().classes("items-center gap-3"):
                     UI.secondary_button(
-                        "← العودة لقائمة الأدوار / Back to Roles",
+                        "← العودة لقائمة الأدوار",
                         icon="arrow_forward",
                         on_click=self._return_to_roles_overview
                     ).classes("text-xs px-4 py-2 font-bold shadow-sm")
@@ -618,13 +618,13 @@ class RolesMixin:
                         ui.icon("shield", size="sm").classes("text-emerald-400")
 
                     with ui.column().classes("gap-0"):
-                        ui.label("لوحة التحكم بصلاحيات المستخدمين — User Permissions Matrix").classes("text-base font-bold app-text-primary")
+                        ui.label("لوحة التحكم بصلاحيات المستخدمين").classes("text-base font-bold app-text-primary")
                         ui.label("تخصيص الصلاحيات الفردية الممنوحة لكل حساب كادر في النظام بشكل مباشر ومفصل.").classes("text-xs app-text-muted")
 
                 with ui.row().classes("items-center gap-2"):
-                    UI.ghost_button("إلغاء / Cancel", on_click=self._return_to_roles_overview).classes("text-xs px-3 py-2")
+                    UI.ghost_button("إلغاء", on_click=self._return_to_roles_overview).classes("text-xs px-3 py-2")
                     save_btn_top = UI.success_button(
-                        "حفظ الصلاحيات / Save Permissions",
+                        "حفظ الصلاحيات",
                         icon="check_circle",
                         on_click=lambda: _save_user_permissions()
                     ).classes("text-xs px-5 py-2 font-bold shadow-md")
@@ -635,16 +635,16 @@ class RolesMixin:
             }
 
             all_pages_map = {
-                "home": ("الرئيسية / Dashboard", "home"),
-                "students": ("إدارة الطلاب والدرجات / Students", "school"),
-                "orders": ("أوامر التخرج / Orders", "history_edu"),
-                "departments": ("إدارة الأقسام / Departments", "domain"),
-                "courses": ("المواد الدراسية / Courses", "menu_book"),
-                "personnel": ("إدارة الكوادر / Personnel", "group"),
-                "certificate": ("إصدار الوثيقة / Certificates", "print"),
-                "issued_certs": ("سجل الوثائق الصادرة / Log", "list_alt"),
-                "settings": ("إعدادات النظام / Settings", "settings"),
-                "history": ("سجل النشاط والتغييرات / History", "history"),
+                "home": ("الرئيسية", "home"),
+                "students": ("إدارة الطلاب والدرجات", "school"),
+                "orders": ("أوامر التخرج", "history_edu"),
+                "departments": ("إدارة الأقسام", "domain"),
+                "courses": ("المواد الدراسية", "menu_book"),
+                "personnel": ("إدارة الكوادر", "group"),
+                "certificate": ("إصدار الوثيقة", "print"),
+                "issued_certs": ("سجل الوثائق الصادرة", "list_alt"),
+                "settings": ("إعدادات النظام", "settings"),
+                "history": ("سجل النشاط والتغييرات", "history"),
             }
 
             state = {
@@ -689,7 +689,7 @@ class RolesMixin:
             # Controls Toolbar: User Selection & Quick Presets
             with ui.row().classes("w-full items-center justify-between gap-3 p-4 bg-[var(--bg-main)] rounded-2xl border border-[var(--border-default)] flex-wrap"):
                 with ui.row().classes("items-center gap-2 flex-1 min-w-[320px]"):
-                    ui.label("المستخدم المحدد / User:").classes("text-xs font-bold app-text-primary shrink-0")
+                    ui.label("المستخدم المحدد").classes("text-xs font-bold app-text-primary shrink-0")
                     user_select = UI.select(
                         "",
                         options=user_options,
@@ -748,7 +748,7 @@ class RolesMixin:
                 with ui.row().classes("w-full items-center justify-between pb-2 border-b border-[var(--border-default)]"):
                     with ui.row().classes("items-center gap-2"):
                         ui.icon("layers", size="sm").classes("text-purple-400")
-                        ui.label("الشاشات والصفحات المتاح الوصول إليها للمستخدم — Accessible Pages").classes("text-sm font-bold text-purple-400")
+                        ui.label("الشاشات والصفحات المتاح الوصول إليها للمستخدم").classes("text-sm font-bold text-purple-400")
                     with ui.row().classes("gap-2"):
                         def _sel_all_p():
                             for cb in state["page_checkboxes"].values():
@@ -770,14 +770,14 @@ class RolesMixin:
 
             # 8 Categories Cards
             categories = {
-                "students": {"title": "🎓 شؤون الطلاب والدرجات — Students & Grades", "color": "text-blue-400"},
-                "orders": {"title": "📜 أوامر التخرج — Graduation Orders", "color": "text-purple-400"},
-                "certificates": {"title": "🖨️ إصدار الوثائق الرسمية — Issue Certificates", "color": "text-emerald-400"},
-                "issued_certs": {"title": "📋 سجل الوثائق الصادرة — Issued Records & Logs", "color": "text-teal-400"},
-                "departments": {"title": "🏢 إدارة الأقسام العلمية — Departments Management", "color": "text-amber-400"},
-                "courses": {"title": "📚 المقررات والمناهج الدراسية — Courses Catalog", "color": "text-indigo-400"},
-                "personnel": {"title": "👥 الكوادر والمستخدمين — Personnel & Accounts", "color": "text-orange-400"},
-                "settings": {"title": "⚙️ إعدادات النظام — System Settings Views & Alter", "color": "text-cyan-400"},
+                "students": {"title": "🎓 شؤون الطلاب والدرجات", "color": "text-blue-400"},
+                "orders": {"title": "📜 أوامر التخرج", "color": "text-purple-400"},
+                "certificates": {"title": "🖨️ إصدار الوثائق الرسمية", "color": "text-emerald-400"},
+                "issued_certs": {"title": "📋 سجل الوثائق الصادرة", "color": "text-teal-400"},
+                "departments": {"title": "🏢 إدارة الأقسام العلمية", "color": "text-amber-400"},
+                "courses": {"title": "📚 المقررات والمناهج الدراسية", "color": "text-indigo-400"},
+                "personnel": {"title": "👥 الكوادر والمستخدمين", "color": "text-orange-400"},
+                "settings": {"title": "⚙️ إعدادات النظام", "color": "text-cyan-400"},
             }
 
             with ui.column().classes("w-full gap-5"):
@@ -826,7 +826,7 @@ class RolesMixin:
                         ui.notify(f"خطأ أثناء حفظ الصلاحيات: {err}", type="negative")
 
                 UI.success_button(
-                    "حفظ صلاحيات وشاشات المستخدم / Save Permissions",
+                    "حفظ صلاحيات وشاشات المستخدم",
                     icon="check_circle",
                     on_click=_save_user_permissions
                 ).classes("text-xs px-6 py-2.5 font-bold shadow-md")

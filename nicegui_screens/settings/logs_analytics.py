@@ -12,7 +12,7 @@ class LogsAnalyticsMixin:
 
     def _section_system_logs(self) -> None:
         with UI.card():
-            UI.card_header("سجلات حركة النظام — System Activity Logs", "terminal", icon_css="stat-text-amber")
+            UI.card_header("سجلات حركة النظام", "terminal", icon_css="stat-text-amber")
             log_file = app_paths.data_path("logs", "system_log.txt")
             log_content = ""
             if log_file.exists():
@@ -21,15 +21,15 @@ class LogsAnalyticsMixin:
                         lines = f.readlines()
                         log_content = "".join(lines[-100:])
                 except Exception:
-                    log_content = "تعذر قراءة ملف السجلات / Could not read log file"
+                    log_content = "تعذر قراءة ملف السجلات"
             else:
-                log_content = "لا يوجد سجل نشاطات حالياً / No activity log file found"
+                log_content = "لا يوجد سجل نشاطات حالياً"
 
             ui.textarea(value=log_content).classes("w-full h-48 font-mono text-xs bg-[var(--bg-main)] rounded-xl p-3").props("readonly")
 
     def _section_analytics(self) -> None:
         with UI.card():
-            UI.card_header("تحليلات وإحصائيات النظام — Analytics Summary", "analytics", icon_css="stat-text-purple")
+            UI.card_header("تحليلات وإحصائيات النظام", "analytics", icon_css="stat-text-purple")
             with ui.grid(columns=4).classes("w-full gap-4"):
                 UI.stat_card("إجمالي السجلات", "Total DB Records", "1,250+", "storage", variant="blue")
                 UI.stat_card("الوثائق المصدرة", "Issued Certificates", "340+", "description", variant="emerald")
@@ -39,6 +39,6 @@ class LogsAnalyticsMixin:
     def _do_clear_logs(self) -> None:
         try:
             self.s_repo.clear_audit_logs()
-            ui.notify("تم مسح سجل التغييرات / Audit logs cleared!", type="info")
+            ui.notify("تم مسح سجل التغييرات", type="info")
         except Exception as exc:
             ui.notify(f"Clear logs failed: {exc}", type="negative")

@@ -35,11 +35,11 @@ class DepartmentsScreen:
                     with ui.row().classes("items-center gap-3"):
                         ui.icon("business", size="md").classes("app-text-accent")
                         with ui.column().classes("gap-0"):
-                            ui.label("إدارة الأقسام — Departments").classes("text-xl font-bold app-text-primary")
+                            ui.label("إدارة الأقسام").classes("text-xl font-bold app-text-primary")
                             ui.label("إدارة الأقسام والكليات في النظام").classes("text-xs app-text-muted")
 
                     UI.success_button(
-                        "+ إضافة قسم / Add Department",
+                        "+ إضافة قسم",
                         icon="add",
                         on_click=self.open_add_panel
                     ).classes("text-sm px-5 py-2.5 shrink-0")
@@ -55,12 +55,12 @@ class DepartmentsScreen:
 
                         UI.text_input(
                             label="",
-                            placeholder="بحث باسم القسم أو الكلية... / Search by name or college...",
+                            placeholder="بحث باسم القسم أو الكلية...",
                             on_change=on_search_change
                         ).classes("flex-1 text-sm")
 
                     with ui.row().classes("items-center gap-2 shrink-0"):
-                        ui.label("عرض / Show:").classes("text-xs font-bold app-text-muted")
+                        ui.label("عرض").classes("text-xs font-bold app-text-muted")
 
                         def on_limit_change(e):
                             val = extract_event_value(e, default=25)
@@ -158,13 +158,13 @@ class DepartmentsScreen:
         disp_end = min(end_idx, total_count)
 
         with ui.row().classes("w-full items-center justify-between pt-4 border-t border-[var(--border-default)] shrink-0"):
-            prev_btn = UI.secondary_button("◄ السابق / Previous", on_click=self.go_prev).classes("text-xs px-4 py-2")
+            prev_btn = UI.secondary_button("◄ السابق", on_click=self.go_prev).classes("text-xs px-4 py-2")
             if self.current_offset == 0 or self.search_term:
                 prev_btn.disable()
 
-            ui.label(f"السجلات {disp_start} - {disp_end} من {total_count}  |  Records {disp_start} - {disp_end} of {total_count}").classes("text-xs font-bold app-text-primary")
+            ui.label(f"السجلات {disp_start} - {disp_end} من {total_count}").classes("text-xs font-bold app-text-primary")
 
-            next_btn = UI.secondary_button("التالي / Next ►", on_click=self.go_next).classes("text-xs px-4 py-2")
+            next_btn = UI.secondary_button("التالي", on_click=self.go_next).classes("text-xs px-4 py-2")
             if end_idx >= total_count or self.search_term:
                 next_btn.disable()
 
@@ -183,7 +183,7 @@ class DepartmentsScreen:
 
             with ui.row().classes("items-center gap-3 shrink-0 flex-nowrap"):
                 with ui.column().classes("items-center gap-0 shrink-0 text-center"):
-                    ui.label("الكلية / College").classes("text-[10px] app-text-muted font-semibold")
+                    ui.label("الكلية").classes("text-[10px] app-text-muted font-semibold")
                     ui.label(col_ar).classes("text-xs font-bold px-2.5 py-1 rounded-lg bg-[var(--bg-card)] border border-[var(--border-default)] app-text-accent truncate max-w-[180px]")
 
             with ui.row().classes("items-center gap-2 shrink-0 flex-nowrap"):
@@ -191,13 +191,13 @@ class DepartmentsScreen:
                     "",
                     icon="edit",
                     on_click=lambda r=row: self.open_edit_panel(r)
-                ).props("round dense").classes("text-xs p-1.5").tooltip("تعديل / Edit")
+                ).props("round dense").classes("text-xs p-1.5").tooltip("تعديل")
 
                 UI.danger_button(
                     "",
                     icon="delete",
                     on_click=lambda r=row: self.confirm_delete(r)
-                ).props("round dense").classes("text-xs p-1.5").tooltip("حذف / Delete")
+                ).props("round dense").classes("text-xs p-1.5").tooltip("حذف")
 
     def go_prev(self):
         self.current_offset = max(0, self.current_offset - self.current_limit)
@@ -224,29 +224,29 @@ class DepartmentsScreen:
 
             # Form Fields
             with ui.column().classes("w-full gap-4 py-2"):
-                ui.label("معلومات القسم — Department Info").classes("text-xs font-bold app-text-muted")
+                ui.label("معلومات القسم").classes("text-xs font-bold app-text-muted")
 
                 name_ar_inp = UI.text_input(
-                    "اسم القسم بالعربية / Arabic Name",
+                    "اسم القسم بالعربية",
                     value=existing_data.get("name_ar", "")
                 ).classes("w-full text-sm")
 
                 name_en_inp = UI.text_input(
-                    "اسم القسم بالإنكليزية / English Name",
+                    "اسم القسم بالإنكليزية",
                     value=existing_data.get("name_en", "")
                 ).classes("w-full text-sm")
 
-                ui.label("معلومات الكلية — College Info").classes("text-xs font-bold app-text-muted mt-2")
+                ui.label("معلومات الكلية").classes("text-xs font-bold app-text-muted mt-2")
 
                 col_ar_val = existing_data.get("college_name_ar") or existing_data.get("college_ar") or ""
                 col_ar_inp = UI.text_input(
-                    "اسم الكلية بالعربية / Arabic College Name",
+                    "اسم الكلية بالعربية",
                     value=col_ar_val
                 ).classes("w-full text-sm")
 
                 col_en_val = existing_data.get("college_name_en") or existing_data.get("college_en") or ""
                 col_en_inp = UI.text_input(
-                    "اسم الكلية بالإنكليزية / English College Name",
+                    "اسم الكلية بالإنكليزية",
                     value=col_en_val
                 ).classes("w-full text-sm")
 
@@ -260,16 +260,16 @@ class DepartmentsScreen:
 
                     # Full validation matching legacy SidePanel
                     if not n_ar:
-                        ui.notify("اسم القسم بالعربية مطلوب  —  Arabic department name is required", type="warning")
+                        ui.notify("اسم القسم بالعربية مطلوب", type="warning")
                         return
                     if not n_en:
-                        ui.notify("اسم القسم بالإنكليزية مطلوب  —  English department name is required", type="warning")
+                        ui.notify("اسم القسم بالإنكليزية مطلوب", type="warning")
                         return
                     if not c_ar:
-                        ui.notify("اسم الكلية بالعربية مطلوب  —  Arabic college name is required", type="warning")
+                        ui.notify("اسم الكلية بالعربية مطلوب", type="warning")
                         return
                     if not c_en:
-                        ui.notify("اسم الكلية بالإنكليزية مطلوب  —  English college name is required", type="warning")
+                        ui.notify("اسم الكلية بالإنكليزية مطلوب", type="warning")
                         return
 
                     payload = {
@@ -282,11 +282,11 @@ class DepartmentsScreen:
                     try:
                         if mode == "add":
                             self.repo.insert(**payload)
-                            ui.notify("تمت إضافة القسم بنجاح / Department added", type="positive")
+                            ui.notify("تمت إضافة القسم بنجاح", type="positive")
                         else:
                             if did is not None:
                                 self.repo.update(dept_id=int(did), **payload)
-                            ui.notify("تم تعديل القسم بنجاح / Department updated", type="positive")
+                            ui.notify("تم تعديل القسم بنجاح", type="positive")
                         self.close_panel()
                     except OfflineModeError as err:
                         ui.notify(str(err), type="warning")
@@ -294,14 +294,14 @@ class DepartmentsScreen:
                         log.error(f"Error saving department: {err}")
                         ui.notify(f"Error: {err}", type="negative")
 
-                UI.secondary_button("إلغاء / Cancel", on_click=self.close_panel).classes("text-sm px-4 py-2")
-                UI.success_button("حفظ / Save", icon="save", on_click=save_action).classes("text-sm px-4 py-2")
+                UI.secondary_button("إلغاء", on_click=self.close_panel).classes("text-sm px-4 py-2")
+                UI.success_button("حفظ", icon="save", on_click=save_action).classes("text-sm px-4 py-2")
 
     def confirm_delete(self, row: dict):
         did = row["id"]
         dialog = ui.dialog()
         with dialog, UI.card().classes("p-6 gap-6 w-full max-w-md bg-[var(--bg-card)] rounded-2xl border border-[var(--border-default)]"):
-            ui.label("تأكيد الحذف — Confirm Delete").classes("text-lg font-bold app-text-primary")
+            ui.label("تأكيد الحذف").classes("text-lg font-bold app-text-primary")
             ui.label(
                 f"هل أنت متأكد من رغبتك في حذف القسم: ({row.get('name_ar', '')})؟\n"
                 f"لا يمكن حذف القسم إذا كان يحتوي على طلاب أو مواد دراسية."
@@ -311,14 +311,14 @@ class DepartmentsScreen:
                 def do_delete():
                     try:
                         self.repo.delete(did)
-                        ui.notify("تم حذف القسم / Department deleted", type="positive")
+                        ui.notify("تم حذف القسم", type="positive")
                         dialog.close()
                         self._render_content()
                     except OfflineModeError as err:
                         ui.notify(str(err), type="warning")
                     except Exception as err:
-                        ui.notify(f"لا يمكن الحذف (مرتبط بطلاب/مواد). / Cannot delete: {err}", type="negative")
+                        ui.notify(f"لا يمكن الحذف (مرتبط بطلاب/مواد).{err}", type="negative")
 
-                UI.danger_button("حذف / Delete", icon="delete", on_click=do_delete).classes("text-sm px-4 py-2")
-                UI.secondary_button("إلغاء / Cancel", on_click=dialog.close).classes("text-sm px-4 py-2")
+                UI.danger_button("حذف", icon="delete", on_click=do_delete).classes("text-sm px-4 py-2")
+                UI.secondary_button("إلغاء", on_click=dialog.close).classes("text-sm px-4 py-2")
         dialog.open()
