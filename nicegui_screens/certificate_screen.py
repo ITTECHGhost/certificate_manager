@@ -276,7 +276,7 @@ class CertificateScreen:
                         with ui.row().classes("w-full gap-4 items-center"):
                             self.sw_order = UI.switch("تفعيل الأمر الجامعي / Enable Order", value=False).classes("w-64")
                             self.inp_order_num = UI.text_input("رقم الأمر الجامعي / Order No", value="").classes("flex-1 text-sm")
-                            self.inp_order_date = UI.text_input("تاريخ الأمر / Order Date", value="").classes("flex-1 text-sm")
+                            self.inp_order_date = UI.date_input("تاريخ الأمر / Order Date", value="").classes("flex-1 text-sm")
 
                     # Row 3: Graduation Rank Section (5 Components in 1 Row)
                     with UI.card().classes("w-full p-4 gap-3 bg-[var(--bg-main)] rounded-xl border border-[var(--border-default)]"):

@@ -148,6 +148,24 @@ class UI:
         return inp
 
     @staticmethod
+    def attach_date_picker(inp: ui.input) -> ui.input:
+        """Make an input take YYYY-MM-DD only: digits are auto-formatted and a calendar opens from the icon."""
+        inp.props('mask="####-##-##" hint="YYYY-MM-DD"')
+        with inp:
+            with ui.menu().props("no-parent-event") as menu:
+                with ui.date().bind_value(inp):
+                    with ui.row().classes("justify-end"):
+                        ui.button("Close", on_click=menu.close).props("flat")
+        with inp.add_slot("append"):
+            ui.icon("edit_calendar").on("click", menu.open).classes("cursor-pointer app-text-accent")
+        return inp
+
+    @staticmethod
+    def date_input(label: str, value: str = "", placeholder: str = "YYYY-MM-DD") -> ui.input:
+        """Date text field in the uniform YYYY-MM-DD format, with a calendar picker."""
+        return UI.attach_date_picker(UI.input(label=label, value=value, placeholder=placeholder))
+
+    @staticmethod
     def text_input(label: str, value: str = "", placeholder: str = "", on_change = None) -> ui.input:
         """Alias for UI.input for standard text fields."""
         return UI.input(label=label, value=value, placeholder=placeholder, on_change=on_change)

@@ -723,10 +723,10 @@ class IssuedCertificatesScreen:
                     value=selected_key
                 ).classes("w-full app-input text-xs").props("outlined dense options-dense")
 
-                date_input = ui.input(
+                date_input = UI.attach_date_picker(ui.input(
                     label="تاريخ الإصدار / Issue Date (YYYY-MM-DD)",
                     value=current_date
-                ).classes("w-full app-input text-xs").props("outlined dense")
+                ).classes("w-full app-input text-xs").props("outlined dense"))
 
             with ui.row().classes("w-full justify-end gap-2.5 mt-2 pt-2 border-t border-[var(--border-default)]"):
                 UI.secondary_button("إلغاء / Cancel", on_click=dlg.close).classes("text-xs px-3 py-1.5")

@@ -337,10 +337,9 @@ class GraduationOrdersScreen:
                                 placeholder="مثال: 18515/13/2"
                             ).classes("flex-1 text-sm")
 
-                            order_date_inp = UI.text_input(
-                                "تاريخ الأمر / Order Date (YYYY-MM-DD)",
+                            order_date_inp = UI.date_input(
+                                "تاريخ الأمر / Order Date",
                                 value=existing_data.get("order_date", "") if existing_data else "",
-                                placeholder="2025-12-05"
                             ).classes("flex-1 text-sm")
 
                         # Row 2: Academic Details (Dept, Study Type, Year, Semester)

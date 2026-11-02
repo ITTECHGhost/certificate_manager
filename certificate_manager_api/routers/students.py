@@ -382,14 +382,21 @@ def link_students_to_order(order_id: int, conn=Depends(get_db)):
 def link_student_to_order(student_id: int, order_id: int, conn=Depends(get_db)):
     cur = conn.cursor(dictionary=True)
     try:
-        cur.callproc("LinkStudentsToOrder", (order_id,))
-        try:
-            while cur.nextset():
-                pass
-        except Exception:
-            pass
+        # Link only this student; LinkStudentsToOrder would link every matching student.
+        cur.execute(
+            """
+            UPDATE students s
+            JOIN graduation_orders o ON o.id = %s
+            SET s.order_id = o.id,
+                s.graduation_date = o.order_date,
+                s.graduation_semester = o.graduation_semester
+            WHERE s.id = %s AND s.order_id IS NULL
+            """,
+            (order_id, student_id),
+        )
+        affected = cur.rowcount
         conn.commit()
-        return {"status": "success"}
+        return {"status": "success", "affected_rows": affected}
     except Exception as exc:
         conn.rollback()
         logger.error(f"Error linking student to order: {exc}")

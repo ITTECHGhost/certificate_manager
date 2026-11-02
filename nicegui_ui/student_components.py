@@ -1368,7 +1368,7 @@ class StudentFormView:
                     # Section 2: Personal Details
                     ui.label("Personal Details / البيانات الشخصية").classes('text-lg font-bold app-text-accent w-full')
                     with ui.row().classes('w-full gap-4'):
-                        self.dob = UI.text_input("Date of Birth / تاريخ الميلاد (YYYY-MM-DD)").classes('flex-1')
+                        self.dob = UI.date_input("Date of Birth / تاريخ الميلاد").classes('flex-1')
                         self.gender = UI.select("Gender / الجنس", {1: "Male / ذكر", 2: "Female / أنثى"}, value=1).classes('flex-1')
                         default_gov = 2 if 2 in gov_opts else (list(gov_opts.keys())[0] if gov_opts else 2)
                         self.birthplace = UI.select("Birthplace / مكان الولادة", gov_opts, value=default_gov).classes('flex-1')
@@ -1404,7 +1404,7 @@ class StudentFormView:
                     ui.label("Graduation & Ministerial Order / التخرج والأمر الجامعي").classes('text-lg font-bold app-text-accent w-full')
                     with ui.row().classes('w-full gap-4'):
                         self.order_id = UI.select("Graduation Order / الأمر الجامعي", order_opts, value=0).classes('flex-1')
-                        self.grad_date = UI.text_input("Graduation Date / تاريخ التخرج (YYYY-MM-DD)").classes('flex-1')
+                        self.grad_date = UI.date_input("Graduation Date / تاريخ التخرج").classes('flex-1')
                         self.grad_semester = UI.select("Graduation Semester / فصل التخرج", SEMESTER_OPTS, value="first").classes('flex-1')
 
                     with ui.row().classes('w-full gap-4'):
