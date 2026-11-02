@@ -25,7 +25,6 @@ Pass 1 left commits `e9d307f`…`4efa1a4`. 45 items are still `open`.
 ## Do everything in ONE run
 
 Don't stop between steps for approval. Stop only for:
-- (nothing else)
 - a git problem.
 
 ## Step 0: Setup (no questions needed)
