@@ -28,14 +28,14 @@ The full design review is in `docs/design-review-2026-10-31.md`. Read it first; 
    - Run `py -3 -m pytest`. It must pass.
    - Make one separate commit for the step. End every commit message with `Co-Authored-By: Claude Haiku 5.5 <noreply@anthropic.com>`.
    - In the report, set the Status of each item you fixed to `fixed (<short sha>)`.
-7. **Do not push.** Stop after each step and show the user a summary of what changed. Wait for the user's OK before starting the next step.
+7. **Do not push.** Do all steps in ONE run without stopping to ask for approval between steps. Keep going until step 10 and the UX checklist are done.
 8. Keep the existing code style: match the naming, the comment density and the `UI` helper components in `nicegui_ui/ui_components.py`. Reuse those helpers instead of adding new ad-hoc styling.
+9. **Git problems: stop and report, never force.** If anything in git goes wrong (rebase/merge conflict, a failing commit hook, a changed file you did not touch, detached HEAD, a branch that moved), stop. Do not use `--force`, `reset --hard`, `checkout --`, `clean` or `--no-verify`. Tell the user exactly what happened and include the `git status` output. If pytest fails and you cannot fix it within a step, do not commit that step; report it and continue with the next independent step.
 
 ## Step 0: Prepare
 
-- Commit `docs/design-review-2026-10-31.md` and this file (`docs: design review and UI handover prompt`).
-- Rebase onto the latest `refactor/install-ready`, which is at `571f6aa` or later: `git rebase refactor/install-ready`.
-  - If `data/roles_config.json` blocks the rebase, run `git stash push -m haiku-roles` first, then `git stash apply` that entry's SHA (see the shared-stash note in the environment). Do not use a bare `git stash pop`.
+- Already done: the docs are committed and the branch is rebased onto `refactor/install-ready` (`571f6aa`). Check with `git log --oneline -3`; if `571f6aa` is not in the history, stop and report.
+- `data/roles_config.json` is modified by the running app. Leave it alone and never stage it: use `git add <files>`, never `git add -A` or `git add .`.
 - Start the app in web mode with `py -3 main.py --web` on port 2323 so you can check each change in the browser. Ask the user to sign in; never type passwords yourself.
 
 ## Design direction (applies to every step)
@@ -60,7 +60,7 @@ The goal is a simple, calm, easy-to-read Arabic (RTL) admin app.
 - **Feedback:** every save, delete or issue action shows a short Arabic notification. Destructive actions ask for confirmation.
 - **Test at 800×600 and at 1366×768, in dark and light themes.**
 
-## Steps (one commit each, stop after each)
+## Steps (one commit each, all in one run)
 
 1. **Global shell:** G1, G2, G3, G4, G5, G8, G9, G11.
    - Fonts.
@@ -120,3 +120,11 @@ The goal is a simple, calm, easy-to-read Arabic (RTL) admin app.
 - Is the contrast at least 4.5:1 for text in both themes?
 
 Write the answers in a short "UX check" section at the end of `docs/design-review-2026-10-31.md`, and commit it.
+
+## Final report to the user
+
+When finished, reply with:
+- one line per step: commit sha and what changed, or "skipped: why";
+- every git problem met, with the `git status` output;
+- the final `py -3 -m pytest` result;
+- the report items still `open`.
