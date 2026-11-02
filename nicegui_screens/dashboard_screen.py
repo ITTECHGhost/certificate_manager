@@ -29,7 +29,6 @@ from nicegui_ui.ui_components import UI
 from nicegui_screens.settings_screen import SettingsScreen
 from nicegui_screens.students_screen import StudentsScreen
 from nicegui_screens.graduation_orders_screen import GraduationOrdersScreen
-from nicegui_screens.departments_screen import DepartmentsScreen
 from nicegui_screens.courses_screen import CoursesScreen
 from nicegui_screens.personnel_screen import PersonnelScreen
 from nicegui_screens.certificate_screen import CertificateScreen
@@ -578,7 +577,6 @@ class MainAppShell:
             "home":        ("لوحة التحكم", "Dashboard Overview"),
             "students":    ("إدارة الطلاب", "Students Management"),
             "orders":      ("أوامر التخرج", "Graduation Orders"),
-            "departments": ("إدارة الأقسام", "Departments"),
             "courses":     ("المواد الدراسية", "Courses"),
             "personnel":   ("إدارة الكوادر", "Personnel"),
             "certificate":  ("إصدار الوثائق", "Certificate Issuance"),
@@ -633,8 +631,6 @@ class MainAppShell:
                 self._active_students_screen = StudentsScreen(on_issue_certificate=_on_issue_cert_handler)
             elif self.current_screen == "orders":
                 GraduationOrdersScreen()
-            elif self.current_screen == "departments":
-                DepartmentsScreen()
             elif self.current_screen == "courses":
                 CoursesScreen()
             elif self.current_screen == "personnel":
