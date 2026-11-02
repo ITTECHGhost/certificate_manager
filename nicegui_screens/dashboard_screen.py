@@ -63,6 +63,7 @@ class MainAppShell:
         self.counts = {
             "total_students": 0,
             "total_departments": 0,
+            "total_issued": 0,
             "total_courses": 0,
             "total_personnel": 0,
         }
@@ -90,6 +91,12 @@ class MainAppShell:
             self.counts = self.repo.get_counts()
         except Exception as exc:
             log.warning(f"[MainAppShell] Failed to fetch counts: {exc}")
+
+        # Issued certificates total (not in the counts API): count the existing report
+        try:
+            self.counts["total_issued"] = len(self.student_repo.get_issued_certificates_report() or [])
+        except Exception as exc:
+            log.warning(f"[MainAppShell] Failed to count issued certificates: {exc}")
 
         # 1. Fetch recent students (from last added ID to the first)
         try:
@@ -700,7 +707,6 @@ class MainAppShell:
                     # Individual Metric Stat Card Component
                     UI.stat_card(
                         title_ar   = card_cfg["label_ar"],
-                        title_en   = card_cfg["label_en"],
                         value      = value,
                         icon_name  = card_cfg["icon"],
                         variant    = card_cfg["variant"],

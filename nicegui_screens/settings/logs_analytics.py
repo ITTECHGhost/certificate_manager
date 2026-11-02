@@ -31,10 +31,10 @@ class LogsAnalyticsMixin:
         with UI.card():
             UI.card_header("تحليلات وإحصائيات النظام", "analytics", icon_css="stat-text-purple")
             with ui.grid(columns=4).classes("w-full gap-4"):
-                UI.stat_card("إجمالي السجلات", "Total DB Records", "1,250+", "storage", variant="blue")
-                UI.stat_card("الوثائق المصدرة", "Issued Certificates", "340+", "description", variant="emerald")
-                UI.stat_card("المستخدمين النشطين", "Active System Users", "12", "people", variant="amber")
-                UI.stat_card("حالة مزامنة SQLite", "Sync Engine Status", "100%", "cloud_done", variant="purple")
+                UI.stat_card("إجمالي السجلات", "1,250+", "storage", variant="blue")
+                UI.stat_card("الوثائق المصدرة", "340+", "description", variant="emerald")
+                UI.stat_card("المستخدمين النشطين", "12", "people", variant="amber")
+                UI.stat_card("حالة مزامنة SQLite", "100%", "cloud_done", variant="purple")
 
     def _do_clear_logs(self) -> None:
         try:

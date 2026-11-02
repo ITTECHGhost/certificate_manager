@@ -209,7 +209,7 @@ class UI:
     # ── Complex Widgets ─────────────────────────────────────────────────────
 
     @staticmethod
-    def stat_card(title_ar: str, title_en: str, value: int | str, icon_name: str, variant: str = "blue"):
+    def stat_card(title_ar: str, value: int | str, icon_name: str, variant: str = "blue"):
         """Dashboard metric stat card. Colors via `.app-stat-card` in theme.css."""
         with ui.row().classes(
             "app-stat-card p-5 rounded-2xl w-full items-center flex-nowrap transition-all"
@@ -225,7 +225,6 @@ class UI:
                 )
                 ui.element("div").classes(f"h-1 w-12 rounded-full stat-icon-{variant} mt-2 mb-1")
                 ui.label(title_ar).classes("app-text-primary text-sm font-bold truncate")
-                ui.label(title_en).classes("app-text-muted text-xs font-normal truncate")
 
     @staticmethod
     def action_tile(

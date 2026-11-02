@@ -126,10 +126,10 @@ NAV_ITEMS: list[dict] = [
 
 
 STAT_CARDS: list[dict] = [
-    {"label_ar": "إجمالي الطلاب", "label_en": "Total Students", "count_key": "total_students", "icon": "people",    "variant": "blue"},
-    {"label_ar": "الأقسام",       "label_en": "Departments",    "count_key": "total_departments", "icon": "domain",  "variant": "emerald"},
-    {"label_ar": "المواد الدراسية", "label_en": "Courses",        "count_key": "total_courses",  "icon": "menu_book",  "variant": "amber"},
-    {"label_ar": "الكوادر",       "label_en": "Personnel",      "count_key": "total_personnel", "icon": "badge",     "variant": "purple"},
+    {"label_ar": "إجمالي الطلاب",     "count_key": "total_students",  "icon": "people",     "variant": "blue"},
+    {"label_ar": "الوثائق الصادرة",   "count_key": "total_issued",    "icon": "description", "variant": "emerald"},
+    {"label_ar": "المواد الدراسية",   "count_key": "total_courses",   "icon": "menu_book",  "variant": "amber"},
+    {"label_ar": "الكوادر",           "count_key": "total_personnel", "icon": "badge",      "variant": "purple"},
 ]
 
 
