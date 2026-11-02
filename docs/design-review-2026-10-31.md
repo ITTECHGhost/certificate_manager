@@ -14,7 +14,7 @@ Severity: **H** = looks broken or blocks the user · **M** = clearly unprofessio
 | ID | Sev | Problem | Fix | Status |
 |----|-----|---------|-----|--------|
 | G1 | H | **Bilingual text everywhere, at two sizes.** Every label, button, tab and title is "Arabic big + English tiny" (English ~8–9px). The English is unreadable and doubles the visual noise. | Pick one UI language (Arabic) with an optional English setting; at most keep English in page titles. | fixed (e9d307f) |
-| G2 | H | **Labels truncated with "…" all over** (field labels "رقم الأمر الجامعي / …", "Certificate Number / …", "تسلسل …", "معدل ال…", "…icate Printer", "ility (EN)…", template "… D - SBS.docx]"). The bilingual labels don't fit. | Shorter single-language labels; allow 2-line labels; widen fields. | fixed (e9d307f) |
+| G2 | H | **Labels truncated with "…" all over** (field labels "رقم الأمر الجامعي / …", "Certificate Number / …", "تسلسل …", "معدل ال…", "…icate Printer", "ility (EN)…", template "… D - SBS.docx]"). The bilingual labels don't fit. | Shorter single-language labels; allow 2-line labels; widen fields. | partly (e9d307f): English removed, not verified |
 | G3 | M | **Double scrollbars.** The page content has its own scrollbar at the left edge *and* the outer window scrollbar between content and sidebar. | One scroll container (the content area only). | open |
 | G4 | M | **Scrollbar on the wrong side.** In RTL, the content scrollbar sits at the far left, separated from the content it scrolls. | Follow the native RTL position or hide the inner one (see G3). | open |
 | G5 | M | **Font stack is not bundled** (`nicegui_ui/theme.css:19`: Arial first, Cairo third). Arabic falls back to whatever the PC has, so the installed exe looks different from source. | Bundle Cairo (or IBM Plex Sans Arabic) woff2 in `assets/fonts` and load it with `@font-face`; put it first. | open |
@@ -48,7 +48,7 @@ Severity: **H** = looks broken or blocks the user · **M** = clearly unprofessio
 
 | ID | Sev | Problem | Fix | Status |
 |----|-----|---------|-----|--------|
-| S1 | M | Search placeholder is cut: "ابحث بالاسم (…nt by name)". | Shorter placeholder. | fixed (e9d307f) |
+| S1 | M | Search placeholder is cut: "ابحث بالاسم (…nt by name)". | Shorter placeholder. | partly (e9d307f): English removed, not verified |
 | S2 | M | Test data shown: "test2…test5", "تست تست", average "0", grad year "N/A". These look like bugs to a viewer. (Data, not design, but it hurts every screenshot.) | Clean test students from the dataset used for demos. | open |
 | S3 | L | Averages have inconsistent decimals (90, 56.895, 61.019). | Always 2 decimals. | open |
 | S4 | M | Student view: the **Add Student** button does nothing while a student is open (the view replaces the list in place, with no clear "back" button except a small arrow). | Make the view a page with a clear back button, or a side panel over the list. | open |
@@ -76,13 +76,13 @@ Severity: **H** = looks broken or blocks the user · **M** = clearly unprofessio
 | ID | Sev | Problem | Fix | Status |
 |----|-----|---------|-----|--------|
 | C1 | M | Search input text is vertically off (text sits at the bottom) and the field is very tall. | Normal input height, centered text. | open |
-| C2 | M | Options view: many truncated labels (G2) plus template name "…D - SBS.docx]" showing a raw file name with a stray bracket. | Show template display_name from templates_config.json. | fixed (e9d307f) |
+| C2 | M | Options view: many truncated labels (G2) plus template name "…D - SBS.docx]" showing a raw file name with a stray bracket. | Show template display_name from templates_config.json. | partly (e9d307f): English removed, not verified |
 | C3 | M | Toggle states are ambiguous: the "on" toggle (green track, dark knob) looks like "off", and the "Postponed years" toggle (white knob) looks like "on" but is off. | Standard switch styling: clear on/off colors. | open |
 | C4 | L | The Rank dropdown shows overlapping text "الأمر ال… / r Count". | Fix width/label. | open |
 | C5 | L | Transcript: course rows are bordered boxes inside a bordered card inside a bordered card (3 nested borders). | Flat table rows. | open |
 | C6 | L | Grade chips "الدرجة: 90" use monospace + letter-spacing, unlike the rest of the app. | One font. | open |
 | C7 | M | The bottom action row has 3 buttons of similar weight; the main action "Issue + PDF preview" is not the most prominent. | One primary button. | open |
-| C8 | M | (From earlier) printer dialog label "…ect Printer" truncated, long file name truncated (`certificate_screen.py` ~1338–1349). | See G2. | fixed (e9d307f) |
+| C8 | M | (From earlier) printer dialog label "…ect Printer" truncated, long file name truncated (`certificate_screen.py` ~1338–1349). | See G2. | partly (e9d307f): English removed, not verified |
 
 ## R: Issued Certificates log
 
@@ -100,7 +100,7 @@ Severity: **H** = looks broken or blocks the user · **M** = clearly unprofessio
 | T2 | M | Institution: "College Name (EN)" value is clipped at the start: "…ge of Computer Science and Information Technology". | Wider field / textarea. | open |
 | T3 | M | Logo upload: the green upload bar shows "0.0B / 0.00%" and a large empty black box under it. Looks broken. | Hide the progress text until uploading; drop the empty box. | open |
 | T4 | L | Appearance: "Enable RTL" toggle appears in an Arabic-only app; turning it off would break every page. | Remove or move to an advanced section. | fixed (36d9693) |
-| T5 | L | Printers: field labels truncated ("…icate Printer", "Lists Printer &…"). | See G2. | fixed (e9d307f) |
+| T5 | L | Printers: field labels truncated ("…icate Printer", "Lists Printer &…"). | See G2. | partly (e9d307f): English removed, not verified |
 | T6 | L | Roles: cards are dense; four badges per card ("افتراضي Built-in", access, counts). | Simplify card. | open |
 
 ## U: Profile
@@ -108,7 +108,7 @@ Severity: **H** = looks broken or blocks the user · **M** = clearly unprofessio
 | ID | Sev | Problem | Fix | Status |
 |----|-----|---------|-----|--------|
 | U1 | L | Tooltip "الملف الشخصي والحساب" overlaps the "Back to Dashboard" button. | Tooltip below/side. | open |
-| U2 | L | Labels truncated ("…ility (EN)"). | See G2. | fixed (e9d307f) |
+| U2 | L | Labels truncated ("…ility (EN)"). | See G2. | partly (e9d307f): English removed, not verified |
 
 ## W: Word templates (from the earlier template audit)
 
