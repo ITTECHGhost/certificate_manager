@@ -148,46 +148,47 @@ class SettingsScreen(
         default_tab_name = "institution" if can_inst else ("appearance" if can_app else "printers")
 
         with ui.column().classes("w-full max-w-full min-w-0 gap-6 pb-12 overflow-hidden"):
-            with ui.tabs().classes("w-full max-w-full min-w-0 app-tabs border-b border-[var(--border-default)]").props("dense shrink inline-label mobile-arrows outside-arrows") as self.tabs:
-                self.tab_institution = ui.tab(name="institution", label="المؤسسة", icon="domain") if can_inst else None
-                self.tab_departments = ui.tab(name="departments", label="الأقسام", icon="business") if can_depts else None
-                self.tab_app = ui.tab(name="appearance", label="المظهر والسمات", icon="palette") if can_app else None
-                self.tab_printers = ui.tab(name="printers", label="إعداد الطابعات", icon="print")
-                self.tab_roles = ui.tab(name="roles", label="الأدوار والصلاحيات", icon="admin_panel_settings") if can_roles else None
-                self.tab_templates = ui.tab(name="templates", label="قوالب الوثائق", icon="description") if can_templates else None
-                self.tab_logs = ui.tab(name="logs", label="السيرفر والصيانة والسجلات", icon="dns") if can_logs else None
+            with ui.row().classes("w-full max-w-full min-w-0 gap-6 items-start no-wrap"):
+                with ui.tabs().classes("app-tabs w-60 shrink-0 max-w-full").props("vertical dense") as self.tabs:
+                    self.tab_institution = ui.tab(name="institution", label="المؤسسة", icon="domain") if can_inst else None
+                    self.tab_departments = ui.tab(name="departments", label="الأقسام", icon="business") if can_depts else None
+                    self.tab_app = ui.tab(name="appearance", label="المظهر والسمات", icon="palette") if can_app else None
+                    self.tab_printers = ui.tab(name="printers", label="إعداد الطابعات", icon="print")
+                    self.tab_roles = ui.tab(name="roles", label="الأدوار والصلاحيات", icon="admin_panel_settings") if can_roles else None
+                    self.tab_templates = ui.tab(name="templates", label="قوالب الوثائق", icon="description") if can_templates else None
+                    self.tab_logs = ui.tab(name="logs", label="السيرفر والصيانة والسجلات", icon="dns") if can_logs else None
 
-            initial_tab = getattr(self, f"tab_{default_tab_name}", self.tab_printers)
-            with ui.tab_panels(self.tabs, value=initial_tab).classes("w-full bg-transparent p-0 gap-6"):
-                if self.tab_institution:
-                    with ui.tab_panel(self.tab_institution).classes("w-full gap-6 p-0 flex flex-col"):
-                        self._section_institution_info()
-                        self._section_study_systems()
+                initial_tab = getattr(self, f"tab_{default_tab_name}", self.tab_printers)
+                with ui.tab_panels(self.tabs, value=initial_tab).classes("flex-1 min-w-0 bg-transparent p-0"):
+                    if self.tab_institution:
+                        with ui.tab_panel(self.tab_institution).classes("w-full gap-6 p-0 flex flex-col"):
+                            self._section_institution_info()
+                            self._section_study_systems()
 
-                if self.tab_departments:
-                    with ui.tab_panel(self.tab_departments).classes("w-full gap-6 p-0 flex flex-col"):
-                        self._section_departments()
+                    if self.tab_departments:
+                        with ui.tab_panel(self.tab_departments).classes("w-full gap-6 p-0 flex flex-col"):
+                            self._section_departments()
 
-                if self.tab_app:
-                    with ui.tab_panel(self.tab_app).classes("w-full gap-6 p-0 flex flex-col"):
-                        self._section_appearance()
+                    if self.tab_app:
+                        with ui.tab_panel(self.tab_app).classes("w-full gap-6 p-0 flex flex-col"):
+                            self._section_appearance()
 
-                with ui.tab_panel(self.tab_printers).classes("w-full gap-6 p-0 flex flex-col"):
-                    self._section_printer_settings()
+                    with ui.tab_panel(self.tab_printers).classes("w-full gap-6 p-0 flex flex-col"):
+                        self._section_printer_settings()
 
-                if self.tab_roles:
-                    with ui.tab_panel(self.tab_roles).classes("w-full gap-6 p-0 flex flex-col"):
-                        self._section_roles_and_permissions()
+                    if self.tab_roles:
+                        with ui.tab_panel(self.tab_roles).classes("w-full gap-6 p-0 flex flex-col"):
+                            self._section_roles_and_permissions()
 
-                if self.tab_templates:
-                    with ui.tab_panel(self.tab_templates).classes("w-full gap-6 p-0 flex flex-col"):
-                        self._section_templates_management()
+                    if self.tab_templates:
+                        with ui.tab_panel(self.tab_templates).classes("w-full gap-6 p-0 flex flex-col"):
+                            self._section_templates_management()
 
-                if self.tab_logs:
-                    with ui.tab_panel(self.tab_logs).classes("w-full gap-6 p-0 flex flex-col"):
-                        self._section_server_config()
-                        self._section_database_maintenance()
-                        self._section_system_logs()
+                    if self.tab_logs:
+                        with ui.tab_panel(self.tab_logs).classes("w-full gap-6 p-0 flex flex-col"):
+                            self._section_server_config()
+                            self._section_database_maintenance()
+                            self._section_system_logs()
 
     def _section_about(self) -> None:
         with UI.card():

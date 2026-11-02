@@ -61,9 +61,11 @@ class AppearanceMixin:
                     on_change=self._on_font_size_change
                 )
 
-            with ui.row().classes("app-tile w-full items-center justify-between p-3 rounded-xl border"):
-                UI.standard_label("اتجاه الواجهة من اليمين إلى اليسار")
-                self.rtl_switch = UI.switch("تفعيل RTL", value=bool(saved_rtl), on_change=self._on_rtl_switch_change)
+            # Advanced: the app is Arabic-first; turning RTL off flips every page to LTR
+            with ui.expansion("إعدادات متقدمة").classes("w-full app-text-muted"):
+                with ui.row().classes("app-tile w-full items-center justify-between p-3 rounded-xl border"):
+                    UI.standard_label("اتجاه الواجهة من اليمين إلى اليسار")
+                    self.rtl_switch = UI.switch("تفعيل RTL", value=bool(saved_rtl), on_change=self._on_rtl_switch_change)
 
             UI.success_button(
                 "حفظ وتطبيق المظهر",
