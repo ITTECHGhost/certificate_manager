@@ -22,7 +22,10 @@ class DepartmentPayload(BaseModel):
 @router.get("/departments")
 def get_departments(conn=Depends(get_db)):
     try:
-        return execute_sp_fetchall(conn, "GetAllDepartments")
+        rows = execute_sp_fetchall(conn, "GetAllDepartments")
+        # Newest first, as the local copy (the SP orders by name)
+        rows.sort(key=lambda r: int(r.get("id") or 0), reverse=True)
+        return rows
     except Exception as exc:
         raise HTTPException(status_code=500, detail=str(exc))
 

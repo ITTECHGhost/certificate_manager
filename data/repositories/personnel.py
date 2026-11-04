@@ -770,7 +770,7 @@ class RoleRepository(BaseRepository):
         """Reads and deserializes roles from SQLite."""
         try:
             from sync_engine import sqlite_read_all
-            rows = sqlite_read_all("SELECT * FROM roles ORDER BY is_system DESC, id ASC")
+            rows = sqlite_read_all("SELECT * FROM roles ORDER BY is_system DESC, created_at DESC, id DESC")
             results = []
             for r in rows:
                 item = dict(r)
@@ -816,8 +816,7 @@ class RoleRepository(BaseRepository):
         sql/fixes/2026-10-24_02_accounts_roles_passwords.sql): the change then stays on
         this laptop only, as before.
         """
-        offline_msg = ("لا يمكن تعديل الأدوار والصلاحيات في وضع عدم الاتصال / "
-                       "Roles can only be changed while connected to the server.")
+        offline_msg = "لا يمكن تعديل الأدوار والصلاحيات دون اتصال. اتصل بالسيرفر ثم أعد المحاولة."
         if not is_online():
             raise OfflineModeError(offline_msg)
         try:

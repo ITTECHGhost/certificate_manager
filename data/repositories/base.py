@@ -44,6 +44,7 @@ from data.query import (
     get_offline_personnel_by_id,
     get_offline_personnel_by_username,
     get_offline_courses,
+    get_offline_courses_newest_first,
     get_offline_courses_by_department,
     get_offline_courses_by_dept_stage_system,
     update_offline_course,

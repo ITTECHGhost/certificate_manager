@@ -119,7 +119,7 @@ class CoursesScreen:
 
     def _get_filtered_data(self) -> list[dict]:
         try:
-            rows = self.repo.get_all() or []
+            rows = self.repo.get_all_newest_first() or []
         except Exception as err:
             log.warning(f"Failed to fetch courses: {err}")
             rows = []
