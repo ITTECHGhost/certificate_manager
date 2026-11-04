@@ -1,129 +1,172 @@
 # =============================================================================
 # nicegui_ui/ui_components.py — Component Factory for NiceGUI
 #
-# All visual styling (colors, backgrounds, borders, shadows, hover states)
-# is handled by CSS hook classes (app-*) defined in theme.css.
-# This file contains ONLY structural Tailwind classes (sizing, padding, flex,
-# grid, rounded, gaps, transitions) and CSS hook class names.
+# The design system in code. Colours, sizes and spacing come from the tokens
+# in theme.css; this file only picks the hook classes (app-*) and structure.
+# Screens build their UI from these helpers:
+#
+#   Buttons     primary_button · secondary_button · ghost_button · icon_button
+#               danger_icon_button (quiet, red on hover)
+#   Fields      input · select · number_input · date_input · switch · textarea
+#   Layout      page_header · card · card_header · section_label · dl
+#   Lists       data_table · paginator · search_input · empty_state · skeleton
+#   Overlays    confirm_dialog · side_panel · notify (toast)
+#   Flow        stepper · chip
 # =============================================================================
 
 from nicegui import ui
 from nicegui_ui.ui_theme import Typography, Styles
 
 
+def _apply_component_defaults() -> None:
+    """Every field is outlined and 40 px tall; every button is flat, sentence case."""
+    ui.input.default_props("outlined dense")
+    ui.select.default_props("outlined dense options-dense")
+    ui.number.default_props("outlined dense")
+    ui.textarea.default_props("outlined")
+    ui.button.default_props("unelevated no-caps")
+
+
+_apply_component_defaults()
+
+
 class UI:
-    """
-    Component Factory providing static methods for creating pre-styled,
-    theme-aware NiceGUI UI elements.
+    """Static factory for the app's themed components."""
 
-    Colors are driven entirely by CSS hook classes in theme.css.
-    This file only assigns structural layout + hook class names.
-    """
+    # ── Layout ──────────────────────────────────────────────────────────────
 
-    # ── Containers ──────────────────────────────────────────────────────────
+    @staticmethod
+    def page():
+        """Content column of a screen: standard padding and gap, centred, max width."""
+        return ui.column().classes("app-page")
+
+    @staticmethod
+    def page_header(title: str, subtitle: str = "", actions=None):
+        """Section heading for a screen's main card. The page title itself lives in the top bar."""
+        with ui.row().classes("w-full items-center justify-between gap-3 no-wrap") as row:
+            with ui.column().classes("gap-0 min-w-0"):
+                ui.label(title).classes("app-section-title")
+                if subtitle:
+                    ui.label(subtitle).classes("app-caption")
+            if actions:
+                with ui.row().classes("items-center gap-2 no-wrap shrink-0"):
+                    actions()
+        return row
 
     @staticmethod
     def card(extra_classes: str = ""):
-        """Standard card container. Colors via `.app-card` in theme.css."""
-        css = f"app-card rounded-2xl p-6 gap-4 w-full max-w-full min-w-0 {extra_classes}".strip()
+        """Card container: one border, radius 8, padding 24."""
+        css = f"app-card w-full max-w-full min-w-0 {extra_classes}".strip()
         return ui.column().classes(css)
 
     @staticmethod
     def login_card(extra_classes: str = ""):
-        """Login card container. Colors via `.app-login-card` in theme.css."""
-        css = f"app-login-card login-card-glow w-[440px] max-w-full rounded-[24px] p-8 pt-10 gap-5 relative mt-8 {extra_classes}".strip()
+        css = f"app-login-card w-[400px] max-w-full {extra_classes}".strip()
         return ui.column().classes(css)
 
     @staticmethod
     def sidebar(expanded: bool = True, extra_classes: str = ""):
-        """Sidebar container. Colors via `.app-sidebar` in theme.css."""
-        width_cls = "w-64" if expanded else "w-20 items-center"
-        css = f"app-sidebar {width_cls} h-full p-0 justify-between shrink-0 transition-all duration-300 {extra_classes}".strip()
-        return ui.column().classes(css)
+        width_cls = "w-56" if expanded else "w-16 items-center"
+        return ui.column().classes(f"app-sidebar {width_cls} h-full p-0 shrink-0 {extra_classes}".strip())
 
     @staticmethod
     def user_chip(expanded: bool = True, extra_classes: str = ""):
-        """User profile chip. Colors via `.app-user-chip` in theme.css."""
-        justify = "items-center gap-3" if expanded else "justify-center"
-        css = f"app-user-chip w-full {justify} p-3 rounded-2xl cursor-pointer transition-all {extra_classes}".strip()
-        return ui.row().classes(css)
+        return ui.row().classes(f"app-user-chip items-center no-wrap {extra_classes}".strip())
 
     @staticmethod
     def header_bar(extra_classes: str = ""):
-        """Top header bar. Colors via `.app-header-bar` in theme.css."""
-        css = f"app-header-bar w-full h-16 px-6 flex items-center justify-between shrink-0 {extra_classes}".strip()
-        return ui.row().classes(css)
+        return ui.row().classes(f"{Styles.HEADER_BAR} {extra_classes}".strip())
 
     @staticmethod
-    def status_badge(online: bool = True):
-        """Live network status badge. Colors via `.app-status-online`/`.app-status-offline` in theme.css."""
-        status_cls = "app-status-online" if online else "app-status-offline"
-        dot = "🟢" if online else "🔴"
-        text = "متصل" if online else "غير متصل"
-        return ui.label(f"{dot} {text}").classes(f"px-3 py-1.5 rounded-xl text-xs font-bold transition-colors {status_cls}")
-
-    @staticmethod
-    def notify(message, **kwargs):
-        """Resilient notification wrapper delegating directly to ui.notify."""
-        msg_str = str(message) if isinstance(message, Exception) else str(message)
-        return ui.notify(msg_str, **kwargs)
-
-    # ── Section Headers ─────────────────────────────────────────────────────
-
-    @staticmethod
-    def card_header(title: str, icon_name: str = "info", icon_css: str = ""):
-        """Card section header. Colors via `.app-card-header` / `.app-text-*` in theme.css."""
-        with ui.row().classes("w-full justify-between items-center pb-3 app-card-header"):
-            ui.label(title).classes(f"app-text-primary {Typography.SECTION_HEAD}")
-            color = icon_css or "app-text-accent"
-            ui.icon(icon_name, size="sm").classes(color)
+    def card_header(title: str, icon_name: str = "", icon_css: str = ""):
+        """Card section title with an optional leading icon (always the accent colour)."""
+        with ui.row().classes("w-full items-center gap-2 no-wrap app-card-header"):
+            if icon_name:
+                ui.icon(icon_name, size="20px").classes("app-text-accent")
+            ui.label(title).classes("app-section-title")
 
     @staticmethod
     def section_header(title_ar: str, title_en: str = ""):
-        """Bilingual page/section header. Colors via `.app-text-*` in theme.css."""
-        with ui.row().classes("items-baseline gap-3"):
-            ui.label(title_ar).classes("app-text-primary text-xl font-bold tracking-wide")
-            if title_en:
-                ui.label(f"—  {title_en}").classes("app-text-muted text-sm font-medium")
+        """Section title (Arabic only; the second argument is ignored)."""
+        return ui.label(title_ar).classes("app-section-title")
+
+    @staticmethod
+    def section_label(text: str) -> ui.label:
+        return ui.label(text).classes("app-section-title")
+
+    @staticmethod
+    def standard_label(text: str) -> ui.label:
+        return ui.label(text).classes("app-text-primary font-semibold text-sm")
+
+    @staticmethod
+    def muted_label(text: str) -> ui.label:
+        return ui.label(text).classes("app-caption")
+
+    @staticmethod
+    def dl(items: list[tuple[str, object]]):
+        """Two-column definition list of (label, value) pairs; empty values show a dash."""
+        with ui.element("div").classes("app-dl") as grid:
+            for term, value in items:
+                text = str(value).strip() if value not in (None, "") else "—"
+                with ui.element("div").classes("app-dl-item"):
+                    ui.label(term).classes("app-dl-term")
+                    ui.label(text).classes("app-dl-value")
+        return grid
 
     # ── Buttons ─────────────────────────────────────────────────────────────
 
     @staticmethod
     def primary_button(text: str, icon: str | None = None, on_click=None) -> ui.button:
-        """Primary accent-colored button. Colors via `.app-btn-primary` in theme.css."""
-        return ui.button(text, icon=icon, on_click=on_click, color=None).classes(
-            "app-btn-primary font-medium px-5 py-3 rounded-xl normal-case transition-all"
-        )
+        """The one filled button of a screen."""
+        return ui.button(text, icon=icon, on_click=on_click, color=None).classes("app-btn-primary")
 
     @staticmethod
     def secondary_button(text: str, icon: str | None = None, on_click=None) -> ui.button:
-        """Secondary button. Colors via `.app-btn-secondary` in theme.css."""
-        return ui.button(text, icon=icon, on_click=on_click, color=None).classes(
-            "app-btn-secondary font-medium px-4 py-2 rounded-xl normal-case transition-all"
-        )
-
-    @staticmethod
-    def success_button(text: str, icon: str | None = None, on_click=None) -> ui.button:
-        """Success/emerald button. Colors via `.app-btn-success` in theme.css."""
-        return ui.button(text, icon=icon, on_click=on_click, color=None).classes(
-            "app-btn-success font-medium px-4 py-2 rounded-xl normal-case transition-all"
-        )
-
-    @staticmethod
-    def danger_button(text: str, icon: str | None = None, on_click=None) -> ui.button:
-        """Danger/red button. Colors via `.app-btn-danger` in theme.css."""
-        return ui.button(text, icon=icon, on_click=on_click, color=None).classes(
-            "app-btn-danger font-medium px-4 py-2 rounded-xl normal-case transition-all"
-        )
+        """Outlined button for secondary actions."""
+        return ui.button(text, icon=icon, on_click=on_click, color=None).classes("app-btn-secondary")
 
     @staticmethod
     def ghost_button(text: str, icon: str | None = None, on_click=None) -> ui.button:
-        """Transparent ghost button. Colors via `.app-btn-ghost` in theme.css."""
-        return ui.button(text, icon=icon, on_click=on_click, color=None).classes(
-            "app-btn-ghost font-medium px-3 py-1.5 rounded-lg normal-case shadow-none transition-all"
-        )
+        """Text button for back / cancel."""
+        return ui.button(text, icon=icon, on_click=on_click, color=None).props("flat").classes("app-btn-ghost")
 
-    # ── Input Fields ────────────────────────────────────────────────────────
+    @staticmethod
+    def back_button(on_click=None, text: str = "رجوع") -> ui.button:
+        """Back: a text button with the arrow pointing the RTL 'back' way."""
+        return UI.ghost_button(text, icon="arrow_forward", on_click=on_click)
+
+    @staticmethod
+    def icon_button(icon: str, tooltip: str = "", on_click=None, dense: bool = False) -> ui.button:
+        """Neutral icon-only button."""
+        btn = ui.button(icon=icon, on_click=on_click, color=None).props("flat round").classes("app-btn-icon")
+        if dense:
+            btn.props("dense")
+        if tooltip:
+            btn.tooltip(tooltip)
+            btn.props(f'aria-label="{tooltip}"')
+        return btn
+
+    @staticmethod
+    def danger_icon_button(icon: str = "delete", tooltip: str = "حذف", on_click=None, dense: bool = True) -> ui.button:
+        """Destructive action, quiet: grey icon that turns red on hover. Always confirm first."""
+        btn = ui.button(icon=icon, on_click=on_click, color=None).props("flat round").classes("app-btn-danger-icon")
+        if dense:
+            btn.props("dense")
+        btn.tooltip(tooltip)
+        btn.props(f'aria-label="{tooltip}"')
+        return btn
+
+    # Older names: success is the primary style; danger is the outlined red
+    # button kept for confirmations and rare in-form destructive actions.
+    @staticmethod
+    def success_button(text: str, icon: str | None = None, on_click=None) -> ui.button:
+        return UI.primary_button(text, icon=icon, on_click=on_click)
+
+    @staticmethod
+    def danger_button(text: str, icon: str | None = None, on_click=None) -> ui.button:
+        return ui.button(text, icon=icon, on_click=on_click, color=None).classes("app-btn-danger")
+
+    # ── Fields ──────────────────────────────────────────────────────────────
 
     @staticmethod
     def input(
@@ -132,19 +175,34 @@ class UI:
         placeholder: str = "",
         password: bool = False,
         password_toggle_button: bool = False,
-        on_change = None
+        on_change=None,
     ) -> ui.input:
-        """Theme-aware text/password input. Colors via `.app-input` in theme.css."""
-        inp = ui.input(
+        """Text / password field, 40 px."""
+        return ui.input(
             label=label,
             value=value,
-            placeholder=placeholder,
+            placeholder=placeholder or None,
             password=password,
             password_toggle_button=password_toggle_button if password else False,
-            on_change=on_change
-        ).classes(
-            "w-full app-input rounded-xl"
-        ).props('outlined input-class="font-medium text-center"')
+            on_change=on_change,
+        ).classes("w-full app-input")
+
+    @staticmethod
+    def text_input(label: str, value: str = "", placeholder: str = "", on_change=None) -> ui.input:
+        return UI.input(label=label, value=value, placeholder=placeholder, on_change=on_change)
+
+    @staticmethod
+    def textarea(label: str, value: str = "", on_change=None) -> ui.textarea:
+        return ui.textarea(label=label, value=value, on_change=on_change).classes("w-full app-input").props("autogrow")
+
+    @staticmethod
+    def search_input(placeholder: str = "بحث", on_change=None, debounce_ms: int = 300) -> ui.input:
+        """Search field with a leading search icon and a clear button."""
+        inp = ui.input(placeholder=placeholder, on_change=on_change).classes("w-full app-input").props(
+            f"clearable debounce={debounce_ms}"
+        )
+        with inp.add_slot("prepend"):
+            ui.icon("search").classes("app-text-faint")
         return inp
 
     @staticmethod
@@ -162,69 +220,143 @@ class UI:
 
     @staticmethod
     def date_input(label: str, value: str = "", placeholder: str = "YYYY-MM-DD") -> ui.input:
-        """Date text field in the uniform YYYY-MM-DD format, with a calendar picker."""
+        """DateField: YYYY-MM-DD with a calendar picker."""
         return UI.attach_date_picker(UI.input(label=label, value=value, placeholder=placeholder))
 
     @staticmethod
-    def text_input(label: str, value: str = "", placeholder: str = "", on_change = None) -> ui.input:
-        """Alias for UI.input for standard text fields."""
-        return UI.input(label=label, value=value, placeholder=placeholder, on_change=on_change)
-
-    @staticmethod
     def select(label: str, options: list | dict, value=None, with_input: bool = False, on_change=None) -> ui.select:
-        """Theme-aware select dropdown. Colors via `.app-input` in theme.css."""
         return ui.select(options=options, label=label, value=value, with_input=with_input, on_change=on_change).classes(
-            "w-full app-input rounded-xl"
-        ).props("outlined")
+            "w-full app-input"
+        )
 
     @staticmethod
     def number_input(label: str, value: float = 0, min=None, max=None, on_change=None) -> ui.number:
-        """Theme-aware number input. Colors via `.app-input` in theme.css."""
-        return ui.number(label=label, value=value, min=min, max=max, on_change=on_change).classes(
-            "w-full app-input rounded-xl"
-        ).props("outlined")
+        return ui.number(label=label, value=value, min=min, max=max, on_change=on_change).classes("w-full app-input")
 
     @staticmethod
     def switch(label: str, value: bool = False, on_change=None) -> ui.switch:
-        """Styled toggle switch."""
-        return ui.switch(label, value=value, on_change=on_change)
+        """Switch with a clear on (green track) / off (grey track) state."""
+        return ui.switch(label, value=value, on_change=on_change).props("color=primary keep-color")
 
-    # ── Labels & Text ───────────────────────────────────────────────────────
-
-    @staticmethod
-    def standard_label(text: str) -> ui.label:
-        """Standard body text label. Color via `.app-text-primary` in theme.css."""
-        return ui.label(text).classes("app-text-primary font-semibold text-sm")
+    # ── Lists ───────────────────────────────────────────────────────────────
 
     @staticmethod
-    def muted_label(text: str) -> ui.label:
-        """Muted secondary label. Color via `.app-text-muted` in theme.css."""
-        return ui.label(text).classes("app-text-muted text-xs font-medium")
+    def data_table(columns: list[dict], rows: list[dict], row_key: str = "id", clickable: bool = False) -> ui.table:
+        """Table: 48 px rows, centred cells, sticky header; pagination is the shared paginator."""
+        cols = []
+        for col in columns:
+            c = {"align": "center", "headerClasses": "", **col}
+            cols.append(c)
+        table = ui.table(columns=cols, rows=rows, row_key=row_key, pagination=0).classes(
+            "app-table w-full" + (" app-table--clickable" if clickable else "")
+        ).props("flat hide-bottom")
+        return table
 
     @staticmethod
-    def section_label(text: str) -> ui.label:
-        """Section header label. Color via `.app-text-primary` in theme.css."""
-        return ui.label(text).classes(f"app-text-primary {Typography.SECTION_HEAD}")
-
-    # ── Complex Widgets ─────────────────────────────────────────────────────
+    def paginator(total: int, page: int, page_size: int, on_change) -> ui.row:
+        """The one paginator: 'from–to of total' plus previous/next icon buttons."""
+        total = max(int(total or 0), 0)
+        pages = max((total + page_size - 1) // page_size, 1)
+        page = min(max(int(page or 1), 1), pages)
+        start = 0 if total == 0 else (page - 1) * page_size + 1
+        end = min(page * page_size, total)
+        with ui.row().classes("app-paginator w-full justify-between no-wrap pt-2") as row:
+            ui.label(f"{start}–{end} من {total}").classes("app-caption")
+            with ui.row().classes("items-center gap-1 no-wrap"):
+                prev_btn = UI.icon_button("chevron_right", "السابق", on_click=lambda: on_change(page - 1))
+                ui.label(f"{page} / {pages}").classes("app-caption px-2")
+                next_btn = UI.icon_button("chevron_left", "التالي", on_click=lambda: on_change(page + 1))
+                if page <= 1:
+                    prev_btn.disable()
+                if page >= pages:
+                    next_btn.disable()
+        return row
 
     @staticmethod
-    def stat_card(title_ar: str, value: int | str, icon_name: str, variant: str = "blue"):
-        """Dashboard metric stat card. Colors via `.app-stat-card` in theme.css."""
-        with ui.row().classes(
-            "app-stat-card p-5 rounded-2xl w-full items-center flex-nowrap transition-all"
-        ):
-            with ui.element("div").classes(
-                f"p-4 rounded-2xl border stat-icon-{variant} stat-text-{variant} shrink-0"
-            ):
-                ui.icon(icon_name, size="md")
+    def empty_state(title: str, hint: str = "", icon: str = "inbox", action_text: str = "", on_action=None):
+        """Empty list: icon, one line of what's missing, and what to do next."""
+        with ui.column().classes("app-empty") as col:
+            ui.icon(icon)
+            ui.label(title).classes("app-text-primary font-semibold")
+            if hint:
+                ui.label(hint).classes("app-caption")
+            if action_text and on_action:
+                UI.secondary_button(action_text, on_click=on_action).classes("mt-2")
+        return col
 
-            with ui.column().classes("flex-1 items-end justify-center gap-0 min-w-0"):
-                ui.label(str(value)).classes(
-                    "app-stat-value text-4xl font-extrabold leading-none tracking-tight"
-                )
-                ui.element("div").classes(f"h-1 w-12 rounded-full stat-icon-{variant} mt-2 mb-1")
-                ui.label(title_ar).classes("app-text-primary text-sm font-bold truncate")
+    @staticmethod
+    def skeleton(rows: int = 5, height: int = 40):
+        """Loading placeholder shown at once while a page builds."""
+        with ui.column().classes("w-full gap-3") as col:
+            for _ in range(rows):
+                ui.element("div").classes("app-skeleton w-full").style(f"height:{height}px")
+        return col
+
+    @staticmethod
+    def chip(text: str, variant: str = "") -> ui.label:
+        """Small status chip; variant: '' (neutral), 'accent', 'warning' or 'danger'."""
+        cls = "app-chip" + (f" app-chip--{variant}" if variant in ("accent", "warning", "danger") else "")
+        return ui.label(text).classes(cls)
+
+    @staticmethod
+    def status_badge(online: bool = True):
+        return UI.chip("متصل" if online else "غير متصل", "accent" if online else "danger")
+
+    # ── Overlays ────────────────────────────────────────────────────────────
+
+    @staticmethod
+    def confirm_dialog(title: str, message: str, confirm_text: str, on_confirm, danger: bool = True):
+        """Confirmation with the item named in the message. Esc / Cancel closes; Enter confirms."""
+        with ui.dialog() as dlg, ui.card().classes("app-dialog"):
+            ui.label(title).classes("app-section-title")
+            ui.label(message).classes("app-text-secondary text-sm")
+
+            def _confirm():
+                dlg.close()
+                on_confirm()
+
+            with ui.row().classes("app-dialog-actions"):
+                UI.ghost_button("إلغاء", on_click=dlg.close)
+                btn = ui.button(confirm_text, on_click=_confirm, color=None)
+                btn.classes("app-btn-danger-confirm" if danger else "app-btn-primary")
+                btn.props("autofocus")
+        dlg.open()
+        return dlg
+
+    @staticmethod
+    def side_panel():
+        """Dialog that slides in from the inline-start edge, for editing one record."""
+        dlg = ui.dialog().props("position=left maximized=false full-height")
+        return dlg
+
+    @staticmethod
+    def stepper(steps: list[str], current: int, on_step=None):
+        """Wizard header: numbered steps; finished steps are clickable to go back."""
+        with ui.element("div").classes("app-stepper") as bar:
+            for idx, name in enumerate(steps, start=1):
+                state = "app-step--active" if idx == current else ("app-step--done" if idx < current else "")
+                step = ui.element("div").classes(f"app-step {state}")
+                with step:
+                    ui.label("✓" if idx < current else str(idx)).classes("app-step-num")
+                    ui.label(name)
+                if idx < current and on_step:
+                    step.on("click", lambda _e, i=idx: on_step(i))
+                if idx < len(steps):
+                    ui.element("div").classes("app-step-line")
+        return bar
+
+    # ── Older composite widgets (dashboard / settings) ──────────────────────
+
+    @staticmethod
+    def stat_card(title_ar: str, value: int | str, icon_name: str, variant: str = ""):
+        """Metric tile: one accent colour for every icon."""
+        with ui.row().classes("app-stat-card w-full items-center no-wrap") as row:
+            with ui.element("div").classes("app-stat-icon"):
+                ui.icon(icon_name, size="22px")
+            with ui.column().classes("gap-0 min-w-0"):
+                ui.label(str(value)).classes("app-stat-value")
+                ui.label(title_ar).classes("app-stat-label")
+        return row
 
     @staticmethod
     def action_tile(
@@ -232,99 +364,67 @@ class UI:
         subtitle_ar: str,
         btn_label: str,
         btn_icon: str,
-        btn_variant: str = "primary",
-        on_click_fn=None
+        btn_variant: str = "secondary",
+        on_click_fn=None,
     ):
-        """Database maintenance / action tile. Colors via `.app-tile` in theme.css."""
-        variant_class = f"app-btn-{btn_variant}"
-        with ui.column().classes(
-            "app-tile p-4 rounded-xl gap-2 transition-all"
-        ):
-            ui.label(title_ar).classes("app-text-primary font-bold")
-            ui.label(subtitle_ar).classes("app-text-muted text-xs")
-            ui.button(btn_label, icon=btn_icon, on_click=on_click_fn, color=None).classes(
-                f"{variant_class} text-xs py-2 rounded-lg normal-case mt-2 font-medium"
-            )
+        """Maintenance tile: title, one line of help, one outlined action."""
+        with ui.column().classes("app-tile p-4 gap-2"):
+            ui.label(title_ar).classes("app-text-primary font-semibold")
+            ui.label(subtitle_ar).classes("app-caption")
+            UI.secondary_button(btn_label, icon=btn_icon, on_click=on_click_fn).classes("mt-2 self-start")
 
     @staticmethod
     def quick_action_item(label_ar: str, label_en: str, icon_name: str, on_click=None):
-        """Quick Action card item. Colors via `.app-action-item` in theme.css."""
-        row = ui.row().classes(
-            "app-action-item w-full items-center gap-3.5 px-4 py-3 rounded-xl cursor-pointer transition-all duration-200"
-        )
+        row = ui.row().classes("app-nav-item w-full items-center no-wrap")
         if on_click:
             row.on("click", on_click)
         with row:
-            ui.icon(icon_name, size="sm").classes("app-sidebar-icon")
-            with ui.column().classes("gap-0 min-w-0 flex-1"):
-                ui.label(label_ar).classes("nav-title-ar font-bold text-sm leading-tight")
-                ui.label(label_en).classes("nav-title-en font-normal text-xs leading-tight")
-            ui.icon("arrow_back_ios", size="xs").classes("app-text-faint ml-auto opacity-60")
+            ui.icon(icon_name, size="20px")
+            ui.label(label_ar).classes("nav-title-ar")
         return row
 
-    @staticmethod
-    def chip(text: str, color: str = "blue") -> ui.chip:
-        """Dense chip badge with light/dark contrast."""
-        return ui.chip(text, color=color).props("dense")
+    # ── Toast ───────────────────────────────────────────────────────────────
 
     @staticmethod
     def notify(message: str | Exception, type: str = "info", title: str = "", duration: float | None = None, position: str = "bottom"):
         """
-        Displays a beautiful, modern, human-readable notification popup.
-        Parses raw API & Database error strings into clean bilingual titles & descriptions.
+        Short Arabic toast. Errors and warnings go through utils.error_formatter,
+        which turns raw API / database errors into a title and what to do next.
         """
+        from html import escape
         from utils.error_formatter import format_error_message
 
-        icon_map = {
-            "positive": "check_circle",
-            "success": "check_circle",
-            "negative": "error_outline",
-            "error": "error_outline",
-            "warning": "warning_amber",
-            "info": "info"
-        }
-
+        icon_map = {"positive": "check_circle", "negative": "error_outline", "warning": "warning_amber", "info": "info"}
         norm_type = (type or "info").lower()
-        if norm_type == "error":
-            norm_type = "negative"
-        elif norm_type == "success":
-            norm_type = "positive"
+        norm_type = {"error": "negative", "success": "positive"}.get(norm_type, norm_type)
 
         if norm_type in {"negative", "warning"} or isinstance(message, Exception):
             parsed_title, parsed_desc = format_error_message(message)
             display_title = title or parsed_title
             display_msg = parsed_desc
-            default_duration = 6.0  # 6 seconds for error / warning notifications
+            default_duration = 6.0
         else:
             display_title = title
             display_msg = str(message or "")
-            default_duration = 3.5  # 3.5 seconds for info / success notifications
-
-        icon_name = icon_map.get(norm_type, "info")
+            default_duration = 3.5
 
         if display_title and display_msg and display_title != display_msg:
             html_content = (
-                f"<div style='display:flex; flex-direction:column; gap:4px; text-align:right; font-family:var(--font-primary);'>"
-                f"<div style='font-weight:700; font-size:14px; line-height:1.3;'>{display_title}</div>"
-                f"<div style='font-size:12px; opacity:0.92; line-height:1.5;'>{display_msg}</div>"
-                f"</div>"
+                "<div style='display:flex;flex-direction:column;gap:2px;text-align:right;'>"
+                f"<div style='font-weight:700;'>{escape(display_title)}</div>"
+                f"<div style='opacity:.9;'>{escape(display_msg)}</div></div>"
             )
         else:
-            html_content = (
-                f"<div style='font-size:13px; font-weight:600; text-align:right; font-family:var(--font-primary); line-height:1.5;'>{display_title or display_msg}</div>"
-            )
+            html_content = f"<div style='font-weight:600;text-align:right;'>{escape(display_title or display_msg)}</div>"
 
-        # Quasar timeout property expects duration in milliseconds (e.g., 9000ms = 9 seconds)
-        effective_duration = duration if duration is not None else default_duration
-        timeout_ms = int(effective_duration * 1000) if effective_duration > 0 else 0
-
+        effective = duration if duration is not None else default_duration
         ui.notify(
             html_content,
             type=norm_type,
-            icon=icon_name,
+            icon=icon_map.get(norm_type, "info"),
             position=position,
-            timeout=timeout_ms,
+            timeout=int(effective * 1000) if effective > 0 else 0,
             close_button="إغلاق",
             html=True,
-            multi_line=True
+            multi_line=True,
         )

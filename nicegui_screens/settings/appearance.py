@@ -15,7 +15,7 @@ class AppearanceMixin:
 
     def _section_appearance(self) -> None:
         with UI.card():
-            UI.card_header("المظهر والسمات", "palette", icon_css="stat-text-purple")
+            UI.card_header("المظهر", "palette")
 
             # Always read from session.preferences — it IS the source of truth after login.
             # The DB load in _load_data() already synced into session.preferences.
@@ -23,55 +23,33 @@ class AppearanceMixin:
             saved_theme = str(pref.get("theme", "Dark")).strip().capitalize()
             if saved_theme not in ("System", "Light", "Dark"):
                 saved_theme = "Dark"
-            saved_accent = str(pref.get("accent_color", "blue")).lower().replace("_", "-")
-            if saved_accent == "dark-blue":
-                saved_accent = "blue"
-            valid_accents = ["blue", "green", "orange", "purple", "red"]
-            if saved_accent not in valid_accents:
-                saved_accent = "blue"
-            saved_font  = str(pref.get("font_family", "Segoe UI"))
             saved_size  = int(pref.get("font_size_base") or 14)
             saved_rtl   = int(pref.get("is_arabic_rtl", 1))
 
+            # One accent colour and one font stack come from theme.css; only the mode and size are choices.
+            self.accent_select = None
+            self.font_select = None
             with ui.grid(columns=2).classes("w-full gap-4"):
                 self.theme_select = UI.select(
-                    "الوضع (فاتح/داكن)",
-                    options=["System", "Light", "Dark"],
+                    "الوضع",
+                    options={"System": "حسب النظام", "Light": "فاتح", "Dark": "داكن"},
                     value=saved_theme,
                     on_change=self._on_theme_select_change
                 )
 
-                self.accent_select = UI.select(
-                    "اللون الأساسي",
-                    options=valid_accents,
-                    value=saved_accent,
-                    on_change=self._on_accent_select_change
-                )
-
-                self.font_select = UI.select(
-                    "نوع الخط",
-                    options=["Arial", "Segoe UI", "Roboto", "Cairo", "Tahoma", "Noto Sans Arabic", "times new roman"],
-                    value=saved_font,
-                    on_change=self._on_font_select_change
-                )
-
                 self.font_size_input = UI.number_input(
-                    "حجم الخط الأساسي",
-                    value=saved_size, min=10, max=24,
+                    "حجم الخط",
+                    value=max(saved_size, 14), min=14, max=18,
                     on_change=self._on_font_size_change
                 )
 
             # Advanced: the app is Arabic-first; turning RTL off flips every page to LTR
-            with ui.expansion("إعدادات متقدمة").classes("w-full app-text-muted"):
-                with ui.row().classes("app-tile w-full items-center justify-between p-3 rounded-xl border"):
+            with ui.expansion("متقدم", icon="tune").classes("w-full"):
+                with ui.row().classes("w-full items-center justify-between py-2"):
                     UI.standard_label("اتجاه الواجهة من اليمين إلى اليسار")
-                    self.rtl_switch = UI.switch("اتجاه من اليمين لليسار", value=bool(saved_rtl), on_change=self._on_rtl_switch_change)
+                    self.rtl_switch = UI.switch("", value=bool(saved_rtl), on_change=self._on_rtl_switch_change)
 
-            UI.success_button(
-                "حفظ وتطبيق المظهر",
-                icon="brush",
-                on_click=self._save_appearance
-            ).classes("self-end")
+            UI.primary_button("حفظ", icon="save", on_click=self._save_appearance).classes("self-end")
 
     def _on_theme_select_change(self, e=None) -> None:
         """Live theme switch when Theme Mode dropdown option changes."""
@@ -166,8 +144,9 @@ class AppearanceMixin:
         from nicegui_ui.state import log_state
         try:
             theme_val = str((self.theme_select.value if self.theme_select else None) or "Dark")
-            accent_val = str((self.accent_select.value if self.accent_select else None) or "blue")
-            font_val = str((self.font_select.value if self.font_select else None) or "Arial")
+            # Accent and font are fixed by the theme now; keep whatever the account has stored
+            accent_val = str(self.session.preferences.get("accent_color") or "blue")
+            font_val = str(self.session.preferences.get("font_family") or "Segoe UI")
             size_val = int((self.font_size_input.value if self.font_size_input else None) or 14)
             rtl_val = 1 if (self.rtl_switch.value if self.rtl_switch else True) else 0
 
