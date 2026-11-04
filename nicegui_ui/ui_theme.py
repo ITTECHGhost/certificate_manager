@@ -45,7 +45,7 @@ class Styles:
     """
     Pre-composed class strings: CSS hook classes (visual) + Tailwind utilities (structural).
     """
-    BODY       = "m-0 p-0 overflow-hidden select-none"
+    BODY       = "m-0 p-0 overflow-hidden"
     LAYOUT_ROW = "w-full max-w-full h-screen flex-nowrap m-0 p-0 gap-0 overflow-hidden"
 
     SIDEBAR_COL_EXPANDED = "app-sidebar w-56 h-full p-0 gap-0 shrink-0"

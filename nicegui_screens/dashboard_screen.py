@@ -130,11 +130,9 @@ class MainAppShell:
     def build_ui(self) -> None:
         """
         [LAYOUT CONTAINER]
-        Root Application Layout:
-        - Outer Viewport Row (Full Screen Flex Row: Sidebar on Left, Content on Right)
-        - Main Area Column (Header Bar on Top, Scrollable Page Area below)
+        Root layout: sidebar on the right (RTL), then a column with the header
+        bar and the content area. Only the content area scrolls.
         """
-        # Global CSS resets
         ui.query('.nicegui-content').classes('p-0 m-0')
         ui.query('body').classes(Styles.BODY)
 
@@ -146,25 +144,19 @@ class MainAppShell:
         from nicegui_ui.ui_theme import inject_global_styles
         inject_global_styles()
 
-        # [LAYOUT: OUTER VIEWPORT ROW]
         with ui.row().classes(Styles.LAYOUT_ROW):
-            # 1. Render Left Sidebar Column
             self._build_sidebar()
 
-            # 2. Render Main Body Container (Header + Scroll Area)
-            with ui.column().classes("app-main-area flex-1 min-w-0 max-w-full h-full gap-0 overflow-hidden"):
-                # Top Navbar
+            with ui.column().classes("app-main-area flex-1 min-w-0 max-w-full h-full gap-0 no-wrap overflow-hidden"):
                 self._build_top_header()
 
-                # Scrollable Content Body Area
-                with ui.scroll_area().classes("app-main-scroll flex-1 min-w-0 max-w-full h-full p-4 overflow-x-hidden"):
-                    # Dynamic Screen View Container (Swapped when navigating)
-                    self.content_container = ui.column().classes("w-full max-w-full min-w-0 gap-4")
+                # The one scroll container: native scrollbar, on the RTL side of the content
+                with ui.element("div").classes("app-main-scroll w-full"):
+                    self.content_container = ui.column().classes("app-page")
                     self._render_active_screen()
 
         # Start periodic background network status polling loop (every 5 seconds)
         ui.timer(5.0, self._check_network_loop)
-
     # =========================================================================
     # BACKGROUND TASKS & NETWORK POLLING
     # =========================================================================
@@ -253,39 +245,28 @@ class MainAppShell:
         self.refresh_data()
         if self._refresh_cards:
             self._refresh_cards.refresh()
-        ui.notify("تم تحديث البيانات", type="info")
+        ui.notify("تم تحديث البيانات", type="positive")
 
     # =========================================================================
-    # 2. SIDEBAR CONTAINER DEFINITION
+    # 2. SIDEBAR
     # =========================================================================
     def _build_sidebar(self) -> None:
         """
-        [LAYOUT / CARD CONTAINER: SIDEBAR]
-        Left Sidebar Column (`app-sidebar`):
-        - Header Row: App Title Label ("Certificate Manager") & Logo Icon
-        - Navigation List Group: Iterates through NAV_ITEMS to build nav item rows
-        - Bottom User Profile Chip: User avatar, name, live status badge, and Logout button
+        [SIDEBAR]
+        Flat list of icon + Arabic label. The active item has a filled
+        background and an accent bar. The toggle collapses it to icons.
         """
         self._nav_labels = []
-        self._user_chip_labels = []
         self._sidebar_col = ui.column().classes(Styles.SIDEBAR_COL_EXPANDED)
 
         with self._sidebar_col:
-            # [SIDEBAR HEADER ROW]
             with ui.row().classes(Styles.SIDEBAR_HEADER):
-                # Toggle button in the corner. Expanded: menu icon; collapsed: the certificate logo.
-                self._sidebar_toggle_btn = ui.button(
-                    icon="menu", color=None, on_click=self.toggle_sidebar
-                ).props("flat dense").classes("app-btn-primary p-2 rounded-xl shadow-none shrink-0")
-                self._sidebar_toggle_btn.tooltip("طي / توسيع القائمة")
-
-                # Title (Arabic above English) — hidden when collapsed
-                self._sidebar_title_label = ui.column().classes("app-sidebar-titles gap-0 min-w-0 flex-1")
+                self._sidebar_toggle_btn = UI.icon_button("menu", "طي القائمة", on_click=self.toggle_sidebar)
+                self._sidebar_title_label = ui.column().classes("app-sidebar-titles gap-0 min-w-0")
                 with self._sidebar_title_label:
-                    ui.label("مدير الشهادات").classes(f"{Styles.SIDEBAR_APP_TITLE} leading-tight")
+                    ui.label("مدير الشهادات").classes(f"{Styles.SIDEBAR_APP_TITLE} truncate")
                 self._sidebar_title_icon = None
 
-            # [NAVIGATION ITEMS LIST COLUMN]
             with ui.column().classes(Styles.SIDEBAR_NAV_GROUP):
                 from nicegui_ui.state import app_session
                 # Screens come from the access profile cached at login (no network call here)
@@ -305,314 +286,139 @@ class MainAppShell:
                         self._build_nav_item(item)
 
     def _build_nav_item(self, item: dict) -> None:
-        """
-        [BUTTON / CARD: SIDEBAR NAVIGATION ITEM]
-        Creates a navigable row button for a specific screen (Dashboard, Students, Orders, etc.):
-        - Row Container (`app-nav-item` / `app-nav-item--active`)
-        - Icon with Tooltip (`ui.icon`)
-        - Arabic Title Label (`nav-title-ar`)
-        - English Title Label (`nav-title-en`)
-        - Click Handler: Switches active screen to `item["key"]`
-        """
+        """One sidebar row: icon + Arabic label; keyboard-focusable."""
         is_active = (item["key"] == self.current_screen)
         css = Styles.NAV_ITEM_ACTIVE if is_active else Styles.NAV_ITEM_INACTIVE
 
-        # Nav Item Clickable Row
-        row = ui.row().classes(css).on(
-            "click", lambda key=item["key"]: self._switch_screen(key)
-        )
+        row = ui.row().classes(f"{css} no-wrap").props('tabindex="0" role="link"')
+        row.on("click", lambda key=item["key"]: self._switch_screen(key))
+        row.on("keydown.enter", lambda key=item["key"]: self._switch_screen(key))
 
         with row:
-            # Nav Item Icon + Tooltip
-            icon_el = ui.icon(item["icon"], size="sm")
-            icon_el.tooltip(item["ar"])
+            icon_el = ui.icon(item["icon"], size="20px")
+            label_col = ui.label(item["ar"]).classes("nav-title-ar")
+            # Shows beside the icon; mainly useful when the rail is collapsed
+            icon_el.tooltip(item["ar"]).props("anchor='center left' self='center right'")
 
-            # Nav Item Labels Column
-            label_col = ui.column().classes("gap-0")
-            with label_col:
-                ui.label(item["ar"]).classes("nav-title-ar font-bold text-sm leading-tight")
-
-            self._nav_labels.append((row, label_col, item["key"]))
-
-    # =========================================================================
-    # 3. MODAL DIALOG DEFINITION (LOGOUT CONFIRMATION)
-    # =========================================================================
-    def _handle_logout(self) -> None:
-        """
-        [CARD / MODAL DIALOG: LOGOUT CONFIRMATION]
-        Pop-up Modal Dialog triggered by clicking the Logout button:
-        - Dialog Wrapper (`ui.dialog()`)
-        - Modal Card Container (`UI.card()`)
-        - Header Row: Logout Icon + Arabic & English Title Labels
-        - Message Labels: Confirmation text in Arabic & English
-        - Action Buttons Row:
-          a. Cancel Button (`UI.ghost_button`)
-          b. Logout Confirm Button (`UI.danger_button`)
-        """
-        with ui.dialog() as dialog:
-            with ui.card().classes("app-card p-6 gap-4 w-[460px] max-w-[90vw] rounded-2xl shadow-2xl overflow-hidden mx-auto"):
-                # Modal Header
-                with ui.row().classes("items-center gap-3 w-full border-b pb-3.5"):
-                    ui.icon("logout", size="md").classes("app-text-danger")
-                    with ui.column().classes("gap-0 min-w-0 flex-1"):
-                        ui.label("تأكيد تسجيل الخروج").classes("app-text-primary text-base font-bold leading-tight")
-
-                # Modal Body Message
-                with ui.column().classes("w-full gap-1 my-1"):
-                    ui.label("هل أنت تأكد من رغبتك في تسجيل الخروج؟").classes("app-text-primary text-sm font-semibold")
-
-                # Modal Actions Footer Row
-                with ui.row().classes("w-full items-center justify-end gap-3 pt-3 border-t mt-1"):
-                    # Cancel Button
-                    UI.ghost_button("إلغاء", on_click=dialog.close).classes("px-4 py-2 text-xs font-semibold")
-                    
-                    def _confirm():
-                        dialog.close()
-                        from nicegui_ui.state import app_session
-                        app_session.logout_user()
-                        ui.notify("تم تسجيل الخروج بنجاح", type="info")
-                        ui.navigate.to("/")
-
-                    # Confirm Logout Button (Red Danger Button)
-                    UI.danger_button("تسجيل الخروج", icon="logout", on_click=_confirm).classes("px-5 py-2 text-xs font-bold")
-
-        dialog.open()
-
-    # =========================================================================
-    # 4. USER PROFILE CHIP DEFINITION (SIDEBAR FOOTER)
-    # =========================================================================
-    def _build_user_chip(self) -> None:
-        """
-        [CARD / CONTAINER: USER PROFILE CHIP]
-        Bottom Sidebar User Status Card (`app-user-chip`):
-        - Avatar Circle: Displays user initials ("SA")
-        - Text Column: User Name Label + Live Network Status Badge Label (`status_indicator`)
-        - Logout Action Button: Icon Button (`ui.icon("logout")`) triggering `_handle_logout`
-        """
-        from nicegui_ui.state import app_session
-        user_name = app_session.name_en or app_session.username or "Admin User"
-        user_role = (app_session.role or "admin").capitalize()
-
-        self._chip_expanded = "app-user-chip w-full items-center gap-3 p-3 rounded-2xl cursor-pointer"
-        self._chip_mini = "app-user-chip w-full justify-center p-3 rounded-2xl cursor-pointer"
-
-        with ui.row().classes(self._chip_expanded) as self._user_chip_row:
-            # User Avatar Initials Badge Circle
-            with ui.element("div").classes("app-user-avatar w-10 h-10 shrink-0 rounded-full flex items-center justify-center font-bold text-sm"):
-                ui.label("SA")
-                
-            # User Info & Live Network Status Labels Column
-            user_text_col = ui.column().classes("gap-0 flex-1 min-w-0")
-            with user_text_col:
-                ui.label(user_name).classes("app-user-name truncate text-sm font-bold")
-                
-                # Live Network Indicator Label
-                @ui.refreshable
-                def status_indicator():
-                    from sync_engine import is_online
-                    online = is_online()
-                    color_cls = "app-user-status-online" if online else "app-user-status-offline"
-                    dot = "🟢" if online else "🔴"
-                    text = "متصل" if online else "غير متصل"
-                    ui.label(f"{dot} {text}").classes(f"text-[10px] {color_cls} font-semibold")
-                
-                status_indicator()
-                self._refresh_status = status_indicator
-
-            # Logout Icon Button
-            logout_btn = ui.icon("logout", size="xs").classes(
-                "app-user-logout cursor-pointer ml-auto"
-            )
-            logout_btn.on("click", self._handle_logout)
-            logout_btn.tooltip("تسجيل الخروج")
-
-            self._user_chip_row.on("click", self._handle_logout)
-
-            self._user_chip_labels.append(user_text_col)
-            self._user_chip_labels.append(logout_btn)
+        self._nav_labels.append((row, label_col, item["key"]))
 
     def toggle_sidebar(self) -> None:
-        """Toggles sidebar between expanded (256px) and collapsed (80px) states."""
+        """Collapse the sidebar to an icon rail, or expand it again."""
         if not self._sidebar_col:
             return
-
         self.is_sidebar_open = not self.is_sidebar_open
-
         if self.is_sidebar_open:
-            self._sidebar_col.classes(
-                remove=Styles.SIDEBAR_COL_COLLAPSED,
-                add=Styles.SIDEBAR_COL_EXPANDED
-            )
-            if self._sidebar_title_label:
-                self._sidebar_title_label.set_visibility(True)
-            self._sidebar_toggle_btn.props("icon=menu")
-
-            for row, label_col, _ in self._nav_labels:
-                label_col.set_visibility(True)
-                row.classes(remove="justify-center", add="")
-
-            for text_col in getattr(self, '_user_chip_labels', []):
-                text_col.set_visibility(True)
-            if getattr(self, '_user_chip_row', None) is not None:
-                self._user_chip_row.classes(remove=getattr(self, '_chip_mini', ''), add=getattr(self, '_chip_expanded', ''))
-
+            self._sidebar_col.classes(remove=Styles.SIDEBAR_COL_COLLAPSED, add=Styles.SIDEBAR_COL_EXPANDED)
         else:
-            self._sidebar_col.classes(
-                remove=Styles.SIDEBAR_COL_EXPANDED,
-                add=Styles.SIDEBAR_COL_COLLAPSED
-            )
-            if self._sidebar_title_label:
-                self._sidebar_title_label.set_visibility(False)
-            self._sidebar_toggle_btn.props("icon=workspace_premium")
-
-            for row, label_col, _ in self._nav_labels:
-                label_col.set_visibility(False)
+            self._sidebar_col.classes(remove=Styles.SIDEBAR_COL_EXPANDED, add=Styles.SIDEBAR_COL_COLLAPSED)
+        if self._sidebar_title_label:
+            self._sidebar_title_label.set_visibility(self.is_sidebar_open)
+        for row, label_col, _ in self._nav_labels:
+            label_col.set_visibility(self.is_sidebar_open)
+            if self.is_sidebar_open:
+                row.classes(remove="justify-center")
+            else:
                 row.classes(add="justify-center")
 
-            for text_col in getattr(self, '_user_chip_labels', []):
-                text_col.set_visibility(False)
-            if getattr(self, '_user_chip_row', None) is not None:
-                self._user_chip_row.classes(remove=getattr(self, '_chip_expanded', ''), add=getattr(self, '_chip_mini', ''))
+    # =========================================================================
+    # 3. LOGOUT CONFIRMATION
+    # =========================================================================
+    def _handle_logout(self) -> None:
+        from nicegui_ui.state import app_session
+
+        def _confirm():
+            app_session.logout_user()
+            ui.notify("تم تسجيل الخروج", type="info")
+            ui.navigate.to("/")
+
+        UI.confirm_dialog(
+            "تسجيل الخروج",
+            "هل تريد تسجيل الخروج من البرنامج؟",
+            "تسجيل الخروج",
+            _confirm,
+            danger=False,
+        )
 
     # =========================================================================
-    # 5. TOP HEADER BAR CONTAINER DEFINITION
+    # 4. HEADER BAR
     # =========================================================================
     def _build_top_header(self) -> None:
         """
-        [LAYOUT CONTAINER: TOP HEADER BAR]
-        Top Header Navbar (`app-header-bar`):
-        - Left Group:
-          a. Sidebar Menu Toggle Button (`ui.button(icon="menu")`)
-          b. Screen Title Labels (`_header_title_ar`, `_header_title_en`)
-        - Right Group:
-          a. Live Network Connection Badge (`header_status_badge`)
-          b. Refresh Data Button (`app-btn-refresh`, `ui.button("تحديث البيانات", icon="sync")`)
+        [HEADER BAR]
+        One row, one height: the page title on the start side; on the other
+        side the sync dot, a refresh icon and the user chip (Profile, Logout).
         """
         with ui.row().classes(Styles.HEADER_BAR):
-            # Left Header Section (Sidebar Toggle Button + Active Screen Title Labels)
-            with ui.row().classes("items-center gap-4 min-w-0"):
-                # Dynamic Screen Title Labels (Arabic above English)
-                title_ar, title_en = self._get_screen_header_titles()
-                with ui.column().classes("gap-0 min-w-0"):
-                    self._header_title_ar = ui.label(title_ar).classes(
-                        "app-text-primary text-xl font-bold leading-tight truncate"
-                    )
-                    self._header_title_en = ui.label(title_en).classes(
-                        "app-text-muted text-xs font-medium leading-tight truncate"
-                    )
+            self._header_title_ar = ui.label(self._get_screen_header_titles()[0]).classes("app-header-title min-w-0")
+            self._header_title_en = None
 
-            # Corner Header Section (Refresh Button in 2nd Column + User Card in the Corner)
-            with ui.row().classes("items-center gap-3"):
-                # [BUTTON: REFRESH DATA] (Second column from the corner)
-                ui.button(
-                    "تحديث البيانات",
-                    icon="sync",
-                    color=None,
-                    on_click=self._on_refresh_click
-                ).classes("app-btn-secondary font-bold normal-case shadow-none px-3.5 py-1.5 text-xs rounded-xl")
+            with ui.row().classes("items-center gap-2 no-wrap shrink-0"):
+                @ui.refreshable
+                def header_status_badge():
+                    from sync_engine import is_online
+                    online = is_online()
+                    label = "متصل بالسيرفر" if online else "غير متصل، يعمل على هذا الجهاز"
+                    dot = ui.element("span").classes("app-sync-dot" + ("" if online else " app-sync-dot--offline"))
+                    dot.props(f'role="status" aria-label="{label}"')
+                    dot.tooltip(label)
 
-                # [USER CARD] (Corner of topbar)
+                header_status_badge()
+                self._header_status = header_status_badge
+                self._refresh_status = None
+
+                UI.icon_button("refresh", "تحديث البيانات", on_click=self._on_refresh_click)
                 self._build_topbar_user_card()
 
     def _build_topbar_user_card(self) -> None:
-        """
-        [CARD / TOPBAR USER PROFILE CHIP]
-        Top Header Corner User Card:
-        - User Avatar Initials Badge Circle ("SA")
-        - Text Column: User Name Label + Beautiful Live Network Status Badge
-        - Logout Action Button
-        """
+        """User chip: avatar + name; its menu holds Profile and Logout."""
         from nicegui_ui.state import app_session
         user_name = app_session.name_ar or app_session.name_en or app_session.username or "مدير النظام"
-        name_for_initials = app_session.name_en or app_session.username or "Admin"
-        initials = "".join([part[0].upper() for part in name_for_initials.split() if part][:2]) or "SA"
+        initials = "".join(part[0] for part in user_name.split() if part)[:2] or "م"
 
-        with ui.row().classes(
-            "app-user-chip items-center gap-2 px-3 py-1.5 rounded-2xl border border-[var(--border-default)] "
-            "bg-[var(--surface-card)] hover:border-blue-500/40 transition-all shadow-sm shrink-0"
-        ):
-            # Clickable Account Card (Navigates to ProfileScreen for all users)
-            account_click_area = ui.row().classes(
-                "items-center gap-2.5 cursor-pointer hover:opacity-85 transition-opacity"
-            ).on("click", lambda: self._switch_screen("profile"))
-            account_click_area.tooltip("الملف الشخصي والحساب")
-
-            with account_click_area:
-                # User Avatar Initials Badge Circle
-                with ui.element("div").classes(
-                    "app-user-avatar w-8 h-8 shrink-0 rounded-full flex items-center justify-center "
-                    "font-bold text-xs bg-blue-500/15 border border-blue-500/30 text-blue-400"
-                ):
-                    ui.label(initials)
-
-                # User Info + Beautiful Online/Offline Tag
-                with ui.column().classes("gap-0.5 justify-center min-w-0"):
-                    ui.label(user_name).classes("app-user-name text-xs font-bold leading-tight truncate max-w-[130px]")
-
-                    @ui.refreshable
-                    def header_status_badge():
-                        from sync_engine import is_online
-                        online = is_online()
-                        bg = (
-                            "bg-emerald-50 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-200 dark:border-emerald-500/30"
-                            if online else
-                            "bg-red-50 dark:bg-red-500/10 text-red-700 dark:text-red-400 border-red-200 dark:border-red-500/30"
-                        )
-                        dot = "🟢" if online else "🔴"
-                        text = "متصل" if online else "غير متصل"
-                        ui.label(f"{dot} {text}").classes(f"px-2 py-0.5 rounded-md border text-[10px] font-bold leading-none {bg}")
-
-                    header_status_badge()
-                    self._header_status = header_status_badge
-
-            ui.element("div").classes("w-[1px] h-6 bg-[var(--border-default)] mx-0.5")
-
-            # Logout Icon Button
-            logout_btn = ui.icon("logout", size="xs").classes(
-                "app-user-logout cursor-pointer hover:text-red-400 transition-colors p-1 rounded-lg"
-            )
-            logout_btn.on("click", self._handle_logout)
-            logout_btn.tooltip("تسجيل الخروج")
+        with ui.row().classes("app-user-chip items-center no-wrap").props('tabindex="0" role="button" aria-haspopup="menu"') as chip:
+            with ui.element("div").classes("app-user-avatar"):
+                ui.label(initials.upper())
+            ui.label(user_name).classes("app-user-name truncate max-w-[140px]")
+            ui.icon("expand_more", size="18px").classes("app-text-muted")
+            with ui.menu().props("anchor='bottom left' self='top left'") as menu:
+                ui.menu_item("الملف الشخصي", on_click=lambda: self._switch_screen("profile"))
+                ui.separator()
+                ui.menu_item("تسجيل الخروج", on_click=self._handle_logout)
+        chip.on("keydown.enter", menu.open)
 
     def _get_screen_header_titles(self) -> tuple[str, str]:
-        """Returns Arabic and English title strings for the active screen."""
+        """Arabic page title for the active screen (the second value is always empty)."""
         header_map = {
-            "home":        ("لوحة التحكم", "Dashboard Overview"),
-            "students":    ("إدارة الطلاب", "Students Management"),
-            "orders":      ("أوامر التخرج", "Graduation Orders"),
-            "courses":     ("المواد الدراسية", "Courses"),
-            "personnel":   ("إدارة الكوادر", "Personnel"),
-            "certificate":  ("إصدار الوثائق", "Certificate Issuance"),
-            "issued_certs": ("سجل الوثائق الصادرة", "Issued Certificates Log"),
-            "history":      ("سجل التغييرات", "Activity Log"),
-            "settings":     ("إعدادات النظام", "System Settings"),
-            "profile":      ("الملف الشخصي والحساب", "Profile & Account"),
+            "home":         "الرئيسية",
+            "students":     "الطلاب",
+            "orders":       "أوامر التخرج",
+            "courses":      "المواد الدراسية",
+            "personnel":    "الكوادر",
+            "certificate":  "إصدار وثيقة",
+            "issued_certs": "سجل الوثائق الصادرة",
+            "history":      "سجل التغييرات",
+            "settings":     "الإعدادات",
+            "profile":      "الملف الشخصي",
         }
-        return header_map.get(self.current_screen, ("الرئيسية", "Dashboard"))
+        return header_map.get(self.current_screen, "الرئيسية"), ""
 
     def _switch_screen(self, screen_key: str) -> None:
         """Handles navigation between screens when a sidebar button is clicked."""
         if screen_key != "profile" and hasattr(self, "allowed_screens") and self.allowed_screens and screen_key not in self.allowed_screens:
-            ui.notify("عذراً، ليس لديك صلاحية للوصول إلى هذه الشاشة", type="warning")
+            ui.notify("ليس لديك صلاحية لفتح هذه الشاشة", type="warning")
             return
 
         self.current_screen = screen_key
 
-        # Update active nav item highlighted styles in sidebar
         for row, _label_col, key in self._nav_labels:
             if key == screen_key:
                 row.classes(remove=Styles.NAV_ITEM_INACTIVE, add=Styles.NAV_ITEM_ACTIVE)
             else:
                 row.classes(remove=Styles.NAV_ITEM_ACTIVE, add=Styles.NAV_ITEM_INACTIVE)
 
-        # Update top header title labels
-        title_ar, title_en = self._get_screen_header_titles()
         if self._header_title_ar:
-            self._header_title_ar.set_text(title_ar)
-        if self._header_title_en:
-            self._header_title_en.set_text(title_en)
+            self._header_title_ar.set_text(self._get_screen_header_titles()[0])
 
-        # Render the selected screen
         self._render_active_screen()
 
     def _render_active_screen(self) -> None:
@@ -904,7 +710,7 @@ class MainAppShell:
         - Construction Icon (`ui.icon("construction")`)
         - Title & Subtitle Labels (`ui.label`)
         """
-        header_ar, header_en = self._get_screen_header_titles()
+        header_ar, _ = self._get_screen_header_titles()
         with UI.card("items-center justify-center py-20"):
             ui.icon("construction", size="lg").classes("app-text-warning")
             ui.label(f"شاشة {header_ar} قيد التطوير").classes(
