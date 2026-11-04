@@ -842,6 +842,19 @@ input, textarea { caret-color: var(--accent); }
   background: var(--surface-card);
 }
 
+/* Issue wizard: one switch per document item, its fields beside it when on */
+.app-option-row {
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  min-height: 56px;
+}
+/* Print dialog: scrolls inside on short windows; long printer names wrap instead of clipping */
+.app-print-dialog { padding: var(--space-5) !important; overflow-y: auto; }
+.app-select-wrap .q-field__native > span,
+.app-select-wrap .q-field__native { white-space: normal !important; overflow: visible !important; text-overflow: clip !important; }
+.app-select-wrap .q-field__control { height: auto !important; min-height: 56px; }
+
 .q-tooltip {
   background: #1f2937 !important;
   color: #ffffff !important;

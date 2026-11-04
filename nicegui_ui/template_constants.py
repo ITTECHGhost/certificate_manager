@@ -302,6 +302,26 @@ def get_friendly_template_name(raw_name: Optional[str], include_file: bool = Fal
     return disp
 
 
+_LABEL_PARTS_AR = {
+    "ar": "عربية",
+    "en": "إنكليزية",
+    "annual": "سنوي",
+    "semester": "فصلي",
+    "sbs": "جدولان متجاوران",
+}
+
+
+def get_template_label_ar(raw_name: Optional[str]) -> str:
+    """Arabic label for the template picker, built from its standard name.
+
+    'Ar, Annual, SBS, cr' -> 'عربية • سنوي • جدولان متجاوران'. Parts with no Arabic
+    word are dropped; the file name is never shown.
+    """
+    parts = [p.strip() for p in get_friendly_template_name(raw_name).split(",")]
+    words = [_LABEL_PARTS_AR[p.lower()] for p in parts if p.lower() in _LABEL_PARTS_AR]
+    return " • ".join(words) or get_friendly_template_name(raw_name)
+
+
 def get_short_template_badge(raw_name: Optional[str]) -> str:
     """
     Returns the compact badge label (e.g. 'Ar, Semester, SBS, cr') for table cells.

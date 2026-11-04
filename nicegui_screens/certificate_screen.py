@@ -14,7 +14,8 @@ from nicegui import ui
 import app_paths
 
 from nicegui_ui.ui_components import UI
-from nicegui_ui.template_constants import get_friendly_template_name
+from nicegui_ui.template_constants import get_friendly_template_name, get_template_label_ar
+from utils.display_format import format_average
 from data.repositories import StudentRepository, CertificateRepository, PersonnelRepository, IssuedCertificateRepository
 from data.repositories.certificates import CertificateRejected
 from nicegui_screens.graduation_orders_screen import extract_event_value
@@ -66,16 +67,16 @@ class CertificateScreen:
         if not os.path.exists(self.templates_dir):
             os.makedirs(self.templates_dir, exist_ok=True)
 
-        self.container = ui.column().classes("w-full h-full p-6 gap-6 overflow-y-auto")
+        self.container = ui.column().classes("w-full gap-4")
         self.build_ui()
 
         if initial_student:
             self.select_student(initial_student)
 
     def _format_template_options(self, template_files: list[str]) -> dict:
-        """Maps raw template filenames to friendly Arabic/bilingual display labels."""
+        """Template picker options: an Arabic display name, never the file name."""
         return {
-            t: (get_friendly_template_name(t, include_file=True) if t and not t.startswith("لا توجد") else t)
+            t: (get_template_label_ar(t) if t and not t.startswith("لا توجد") else t)
             for t in template_files
         }
 
@@ -90,8 +91,6 @@ class CertificateScreen:
                 self.template_sel.value = filtered_templates[0] if filtered_templates else None
                 self.template_sel.update()
             self.show_info_view()
-            if hasattr(self, "render_preview_grid"):
-                self.render_preview_grid()
 
     def get_templates(self, data: dict = None) -> list[str]:
         """
@@ -126,164 +125,144 @@ class CertificateScreen:
         except Exception:
             return ["لا توجد قوالب"]
 
+    # ── Wizard: 1 Student → 2 Document → 3 Review and issue ─────────────────
+    STEPS = ["الطالب", "الوثيقة", "المراجعة والإصدار"]
+
     def build_ui(self):
         self.container.clear()
+        self.step = 1
         with self.container:
-            # ── Top Bar: Search Field Card with Live Inline Results Dropdown ────
-            with UI.card().classes("w-full p-5 gap-4 shrink-0 bg-[var(--bg-card)] border border-[var(--border-default)] rounded-2xl"):
-                with ui.row().classes("w-full justify-between items-center flex-wrap gap-4"):
-                    with ui.row().classes("items-center gap-3"):
-                        ui.icon("school", size="md").classes("app-text-accent")
-                        with ui.column().classes("gap-0"):
-                            ui.label("إصدار الوثيقة").classes("text-xl font-bold app-text-primary")
-                            ui.label("البحث عن الطالب، عرض السجل الأكاديمي، وتخصيص إعدادات الطباعة وتوليد قوالب Word").classes("text-xs app-text-muted")
+            with UI.card().classes("gap-5"):
+                @ui.refreshable
+                def stepper_view():
+                    UI.stepper(self.STEPS, self.step, on_step=self._go_step)
 
-                    # Search Box Container with Live Auto-Complete Results Below
-                    with ui.column().classes("flex-1 max-w-2xl min-w-[320px] gap-2"):
-                        with ui.row().classes("w-full items-center gap-3"):
-                            def on_search(e=None):
-                                val = extract_event_value(e, default="")
-                                if not val and hasattr(self, "search_input") and self.search_input:
-                                    val = self.search_input.value
-                                self.search_term = str(val or "").strip()
-                                self.perform_search()
+                stepper_view()
+                self._stepper_view = stepper_view
 
-                            self.search_input = UI.text_input(
-                                label="",
-                                placeholder="ابحث باسم الطالب (عربي أو إنكليزي)...",
-                                on_change=on_search
-                            ).classes("flex-1 text-sm")
-                            self.search_input.on("keydown.enter", lambda: self.perform_search())
+                # The chosen student, shown on steps 2 and 3
+                self.student_bar = ui.row().classes("w-full items-center gap-3 no-wrap")
+                self.student_bar.set_visibility(False)
 
-                            UI.primary_button("بحث", icon="search", on_click=lambda: self.perform_search()).classes("px-5 py-2.5 text-sm")
-
-                        # Live Search Results Card right below input
-                        self.search_results_card = ui.column().classes("w-full pt-2 gap-2 border-t border-[var(--border-default)] mt-2")
-                        self.search_results_card.set_visibility(False)
-                        with self.search_results_card:
-                            self.search_results_container = ui.column().classes("w-full max-h-[300px] overflow-y-auto gap-2")
-
-            # ── Main Content Container (Separated Sub-Views) ───────────────────
-            self.main_content_card = UI.card().classes("w-full flex-1 p-6 gap-6 border border-[var(--border-default)] bg-[var(--bg-card)] rounded-2xl min-h-0")
-            with self.main_content_card:
-                # ── SUB-VIEW 1: Student Info & Transcript ──────────────────────
-                self.view_student_info = ui.column().classes("w-full gap-6")
+                # ── STEP 1: pick the student ───────────────────────────────
+                self.view_student_info = ui.column().classes("w-full gap-3")
                 with self.view_student_info:
-                    self.student_info_container = ui.column().classes("w-full gap-6")
-                    self.render_empty_student_info()
+                    self.search_input = UI.search_input(
+                        placeholder="ابحث باسم الطالب بالعربية أو الإنكليزية",
+                        on_change=lambda e: self.perform_search(),
+                    ).props("autofocus")
+                    self.search_input.on("keydown.enter", lambda: self.perform_search())
+                    self.search_caption = ui.label("أحدث الطلاب").classes("app-caption")
+                    self.search_results_container = ui.column().classes("w-full gap-2")
+                    # kept for older callers; the results list is always visible now
+                    self.search_results_card = self.search_results_container
+                    self.student_info_container = self.search_results_container
 
-                # ── SUB-VIEW 2: Print Settings & Certificate Options ───────────
-                self.view_print_options = ui.column().classes("w-full gap-6")
+                # ── STEP 2: document and options ───────────────────────────
+                self.view_print_options = ui.column().classes("w-full gap-4")
                 self.view_print_options.set_visibility(False)
                 with self.view_print_options:
-                    # Options View Header
-                    with ui.row().classes("w-full justify-between items-center pb-3 border-b border-[var(--border-default)]"):
-                        with ui.column().classes("gap-0"):
-                            ui.label("إعدادات طباعة وثيقة الطالب وقوالب Word").classes("text-lg font-bold app-text-primary")
-                            ui.label("ضبط الخيارات المستثناة، الأمر الجامعي، الترتيب وتخصيص القالب").classes("text-xs app-text-muted")
-
-                        UI.primary_button("العودة لبيانات الطالب", icon="arrow_forward", on_click=self.show_info_view).classes("text-xs px-4 py-2 font-bold")
-
-                    # Edit Mode Banner (Visible when editing an existing certificate record)
-                    self.edit_mode_banner = ui.row().classes(
-                        "w-full p-3.5 rounded-xl bg-amber-500/15 border border-amber-500/40 items-center justify-between shadow-sm"
-                    )
+                    # Shown when an issued certificate is opened again: issuing updates that record
+                    self.edit_mode_banner = ui.row().classes("app-chip--warning w-full items-center gap-2 no-wrap rounded-lg p-3")
                     self.edit_mode_banner.set_visibility(False)
                     with self.edit_mode_banner:
-                        with ui.row().classes("items-center gap-2.5"):
-                            ui.icon("edit_document", size="sm").classes("text-amber-400 text-lg")
-                            with ui.column().classes("gap-0"):
-                                self.edit_mode_label = ui.label("تعديل قيد الوثيقة").classes(
-                                    "text-sm font-bold text-amber-300"
-                                )
-                                ui.label("سيتم تحديث سجل الوثيقة في قاعدة البيانات مباشرة عند التوليد والحفظ").classes(
-                                    "text-[11px] text-amber-200/70"
-                                )
-                        ui.badge("وضع التعديل", color="amber-700").classes("text-xs font-bold px-2.5 py-1")
+                        ui.icon("edit_document", size="20px").classes("shrink-0")
+                        self.edit_mode_label = ui.label("تعديل قيد الوثيقة").classes("text-sm font-semibold")
 
-                    # Row 1: Template Selector + Issued To + Edit Student (3 Components in 1 Row)
-                    with ui.row().classes("w-full gap-4 items-center"):
-                        initial_templates = self.get_templates()
-                        self.template_sel = UI.select(
-                            "قالب الوثيقة",
-                            options=self._format_template_options(initial_templates),
-                            value=initial_templates[0] if initial_templates else None
-                        ).classes("flex-1 text-sm")
+                    with ui.element("div").classes("app-two-col"):
+                        with ui.column().classes("gap-3 min-w-0"):
+                            initial_templates = self.get_templates()
+                            self.template_sel = UI.select(
+                                "نوع الوثيقة والقالب",
+                                options=self._format_template_options(initial_templates),
+                                value=initial_templates[0] if initial_templates else None
+                            ).classes("w-full")
 
-                        self.to_input = UI.text_input(
-                            "إلى (الجهة المعنية)",
-                            value="من يهمه الأمر",
-                            placeholder="اسم الجهة الموجه إليها..."
-                        ).classes("flex-1 text-sm")
-                        
-                        def on_grouping_change(e):
-                            if not hasattr(self, 'student_full_data') or not self.student_full_data: return
-                            student_id = self.student_full_data.get('student_id') or self.student_full_data.get('id')
-                            if not student_id: return
-                            new_mode = getattr(e, 'value', e) or "DEFAULT"
-                            self.current_grouping_mode = new_mode
-                            self.student_full_data = self.cert_repo.get_full_certificate_data(student_id, grouping_mode=new_mode)
-                            self.update_student_ui()
+                            self.to_input = UI.text_input(
+                                "إلى (الجهة المعنية)",
+                                value="من يهمه الأمر",
+                            ).classes("w-full")
 
-                        grouping_options = {
-                            "DEFAULT": "الافتراضي - سنوي",
-                            "BY_PERIOD_STAGE": "سنوي - حسب المرحلة الدراسية",
-                            "BY_CURRICULUM_STAGE": "سنوي - حسب مرحلة المادة",
-                            "BY_ByAcademicYear": "سنوي - حسب سنة الإنجاز",
-                            "BY_SEMESTER_stage": "مقررات - حسب المرحلة",
-                            "BY_SEMESTER_year": "مقررات - حسب السنة"
-                        }
-                        self.grouping_sel = UI.select(
-                            "نمط التجميع",
-                            options=grouping_options,
-                            value="DEFAULT",
-                            on_change=on_grouping_change
-                        ).classes("flex-1 text-sm")
+                        with ui.column().classes("gap-3 min-w-0"):
+                            with ui.row().classes("w-full items-center gap-1 no-wrap"):
+                                init_cert_num = self.issued_cert_repo.get_next_number()
+                                self.cert_number_input = UI.text_input(
+                                    "رقم الوثيقة",
+                                    value=init_cert_num,
+                                    placeholder="مثال: 420/44"
+                                ).classes("flex-1 min-w-0")
 
-                        UI.primary_button("تعديل الطالب", icon="edit", on_click=self.handle_edit_student).classes("text-sm px-4 py-3.5 mt-2")
+                                def _refresh_cert_number():
+                                    next_num = self.issued_cert_repo.get_next_number()
+                                    self.cert_number_input.value = next_num
+                                    UI.notify(f"الرقم المقترح: {next_num}", type="info")
 
-                    # Row 1.5: Certificate Registry Info (Certificate Number & Auto Issue Date in 1 Row)
-                    with ui.row().classes("w-full gap-4 items-center flex-nowrap"):
-                        with ui.row().classes("flex-1 min-w-0 gap-2 items-center flex-nowrap"):
-                            init_cert_num = self.issued_cert_repo.get_next_number()
-                            self.cert_number_input = UI.text_input(
-                                "رقم الوثيقة",
-                                value=init_cert_num,
-                                placeholder="مثال: 420/44 أو 105"
-                            ).classes("flex-1 min-w-0 text-sm")
+                                UI.icon_button("autorenew", "الرقم التالي المتاح", on_click=_refresh_cert_number)
 
-                            def _refresh_cert_number():
-                                next_num = self.issued_cert_repo.get_next_number()
-                                self.cert_number_input.value = next_num
-                                UI.notify(f"تم تحديث الرقم المقترح: {next_num}", type="info")
+                            from datetime import datetime
+                            today_str = datetime.now().strftime("%Y-%m-%d")
+                            self.issue_date_input = UI.text_input(
+                                "تاريخ الإصدار",
+                                value=today_str
+                            ).classes("w-full").props("readonly")
 
-                            ui.button(icon="autorenew", on_click=_refresh_cert_number).classes(
-                                "p-2.5 mt-2 rounded-xl bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 shadow-none hover:bg-slate-300 dark:hover:bg-slate-700 shrink-0"
-                            ).tooltip("توليد الرقم التالي تلقائياً")
+                    # What the document includes: one clear switch per item; its fields show when on
+                    ui.label("محتوى الوثيقة").classes("app-section-title")
+                    with ui.column().classes("w-full gap-2"):
+                        def option_row(label: str):
+                            row = ui.row().classes("app-option-row w-full items-center gap-3")
+                            with row:
+                                sw = UI.switch(label, value=False).classes("w-48 shrink-0")
+                                fields = ui.row().classes("flex-1 min-w-[220px] gap-3 items-center")
+                            fields.bind_visibility_from(sw, "value")
+                            return sw, fields
 
-                        from datetime import datetime
-                        today_str = datetime.now().strftime("%Y-%m-%d")
-                        self.issue_date_input = UI.text_input(
-                            "تاريخ الإصدار",
-                            value=today_str
-                        ).classes("flex-1 min-w-0 text-sm").props("readonly")
+                        self.sw_order, f = option_row("الأمر الجامعي")
+                        with f:
+                            self.inp_order_num = UI.text_input("رقم الأمر الجامعي", value="").classes("flex-1 min-w-[160px]")
+                            self.inp_order_date = UI.date_input("تاريخ الأمر", value="").classes("flex-1 min-w-[160px]")
 
-                    ui.separator().classes("my-1")
+                        self.sw_rank, f = option_row("تسلسل التخرج")
+                        with f:
+                            self.inp_rank_val = UI.text_input("تسلسل الطالب", value="").classes("flex-1 min-w-[160px]")
 
-                    # Row 2: University Order Section (3 Components in 1 Row)
-                    with UI.card().classes("w-full p-4 gap-3 bg-[var(--bg-main)] rounded-xl border border-[var(--border-default)]"):
-                        ui.label("بيانات الأمر الجامعي").classes("text-xs font-bold app-text-accent")
-                        with ui.row().classes("w-full gap-4 items-center"):
-                            self.sw_order = UI.switch("تفعيل الأمر الجامعي", value=False).classes("w-64")
-                            self.inp_order_num = UI.text_input("رقم الأمر الجامعي", value="").classes("flex-1 text-sm")
-                            self.inp_order_date = UI.date_input("تاريخ الأمر", value="").classes("flex-1 text-sm")
+                        self.sw_summer, f = option_row("التدريب الصيفي")
+                        with f:
+                            self.inp_summer_year = UI.text_input("سنة التدريب", value="").classes("flex-1 min-w-[160px]")
 
-                    # Row 3: Graduation Rank Section (5 Components in 1 Row)
-                    with UI.card().classes("w-full p-4 gap-3 bg-[var(--bg-main)] rounded-xl border border-[var(--border-default)]"):
-                        ui.label("بيانات تسلسل التخرج والترتيب").classes("text-xs font-bold app-text-accent")
-                        with ui.row().classes("w-full gap-4 items-center"):
-                            self.sw_rank = UI.switch("تفعيل تسلسل التخرج", value=False).classes("w-52")
-                            self.inp_rank_val = UI.text_input("تسلسل الطالب", value="").classes("flex-1 text-sm")
+                        self.sw_postpone, f = option_row("سنوات التأجيل")
+                        with f:
+                            self.inp_postpone_years = UI.text_input("سنوات التأجيل", value="").classes("w-full")
+
+                        self.sw_second, f = option_row("الدور الثاني")
+                        with f:
+                            self.inp_second_subjects = UI.text_input("مواد الدور الثاني", value="").classes("w-full")
+
+                    with ui.expansion("خيارات متقدمة", icon="tune").classes("w-full"):
+                        with ui.column().classes("w-full gap-3 pt-2"):
+                            def on_grouping_change(e):
+                                if not hasattr(self, 'student_full_data') or not self.student_full_data: return
+                                student_id = self.student_full_data.get('student_id') or self.student_full_data.get('id')
+                                if not student_id: return
+                                new_mode = getattr(e, 'value', e) or "DEFAULT"
+                                self.current_grouping_mode = new_mode
+                                self.student_full_data = self.cert_repo.get_full_certificate_data(student_id, grouping_mode=new_mode)
+                                self.update_student_ui()
+
+                            grouping_options = {
+                                "DEFAULT": "الافتراضي - سنوي",
+                                "BY_PERIOD_STAGE": "سنوي - حسب المرحلة الدراسية",
+                                "BY_CURRICULUM_STAGE": "سنوي - حسب مرحلة المادة",
+                                "BY_ByAcademicYear": "سنوي - حسب سنة الإنجاز",
+                                "BY_SEMESTER_stage": "مقررات - حسب المرحلة",
+                                "BY_SEMESTER_year": "مقررات - حسب السنة"
+                            }
+                            self.grouping_sel = UI.select(
+                                "ترتيب المواد في الجدول",
+                                options=grouping_options,
+                                value="DEFAULT",
+                                on_change=on_grouping_change
+                            ).classes("w-full")
 
                             def on_rank_source_change(e):
                                 if not hasattr(self, "student_full_data") or not self.student_full_data: return
@@ -303,66 +282,106 @@ class CertificateScreen:
 
                                 self.inp_rank_total.value = str(sel_val) if sel_val != "" else ""
                                 self.student_full_data["total_graduates"] = sel_val
-                                rank_v = self.inp_rank_val.value or self.student_full_data.get("rank")
-                                if hasattr(self, "rank_str_label") and self.rank_str_label:
-                                    self.rank_str_label.text = f"المرتبة {rank_v} من {sel_val} خريج" if rank_v and sel_val != "" else "—"
 
-                            self.rank_source_sel = UI.select(
-                                "مصدر العدد",
-                                options={
-                                    "order": "الأمر الجامعي",
-                                    "custom": "يدوي للطالب",
-                                    "db": "قاعدة البيانات"
-                                },
-                                value="order",
-                                on_change=on_rank_source_change
-                            ).classes("flex-1 text-sm")
+                            with ui.row().classes("w-full gap-3"):
+                                self.rank_source_sel = UI.select(
+                                    "مصدر عدد الخريجين",
+                                    options={
+                                        "order": "الأمر الجامعي",
+                                        "custom": "يدوي للطالب",
+                                        "db": "قاعدة البيانات"
+                                    },
+                                    value="order",
+                                    on_change=on_rank_source_change
+                                ).classes("flex-1 min-w-[200px]")
+                                self.inp_rank_total = UI.text_input("إجمالي الخريجين", value="").classes("flex-1 min-w-[160px]")
+                                self.inp_rank_avg = UI.text_input("معدل الطالب الأول", value="").classes("flex-1 min-w-[160px]")
 
-                            self.inp_rank_total = UI.text_input("إجمالي المتخرجين", value="").classes("flex-1 text-sm")
-                            self.inp_rank_avg = UI.text_input("معدل الطالب الأول", value="").classes("flex-1 text-sm")
+                            UI.ghost_button("تعديل بيانات الطالب", icon="edit", on_click=self.handle_edit_student)
 
-                    # Row 4: Academic Exceptions Grid (3 Cards Grid)
-                    with ui.grid(columns=3).classes("w-full gap-4"):
-                        # Card 1: Summer Training
-                        with UI.card().classes("p-4 gap-2 bg-[var(--bg-main)] rounded-xl border border-[var(--border-default)]"):
-                            self.sw_summer = UI.switch("التدريب الصيفي", value=False)
-                            self.inp_summer_year = UI.text_input("سنة التدريب", value="").classes("w-full text-sm mt-1")
+                    with ui.row().classes("app-dialog-actions"):
+                        UI.back_button(lambda: self._go_step(1))
+                        ui.space()
+                        UI.primary_button("التالي", icon="arrow_back", on_click=lambda: self._go_step(3))
 
-                        # Card 2: Postponed Years
-                        with UI.card().classes("p-4 gap-2 bg-[var(--bg-main)] rounded-xl border border-[var(--border-default)]"):
-                            self.sw_postpone = UI.switch("سنوات التأجيل", value=False)
-                            self.inp_postpone_years = UI.text_input("سنوات التأجيل", value="").classes("w-full text-sm mt-1")
+                # ── STEP 3: review and issue ──────────────────────────────
+                self.view_review = ui.column().classes("w-full gap-4")
+                self.view_review.set_visibility(False)
+                with self.view_review:
+                    self.review_container = ui.column().classes("w-full gap-4")
+                    with ui.row().classes("app-dialog-actions"):
+                        UI.back_button(lambda: self._go_step(2))
+                        ui.space()
+                        UI.secondary_button("حفظ وفتح في Word", icon="description", on_click=self.generate_and_open_word)
+                        self.btn_generate = UI.primary_button("إصدار وطباعة", icon="print", on_click=self.print_certificate)
 
-                        # Card 3: Second Trial Subjects
-                        with UI.card().classes("p-4 gap-2 bg-[var(--bg-main)] rounded-xl border border-[var(--border-default)]"):
-                            self.sw_second = UI.switch("الدور الثاني", value=False)
-                            self.inp_second_subjects = UI.text_input("مواد الدور الثاني", value="").classes("w-full text-sm mt-1")
+        self._show_recent_students()
 
-                    ui.separator().classes("my-2")
-
-                    # Row 5: Primary Action Buttons
-                    with ui.row().classes("w-full gap-4 items-center pt-2"):
-                        self.btn_generate = UI.success_button(
-                            "إصدار وتوليد الوثيقة (Word)",
-                            icon="description",
-                            on_click=self.generate_and_open_word
-                        ).classes("flex-1 py-3 text-base font-bold")
-
-                        self.btn_open = UI.primary_button(
-                            "إصدار ومعاينة PDF والطباعة",
-                            icon="print",
-                            on_click=self.print_certificate
-                        ).classes("flex-1 py-3 text-base")
-
-                        UI.primary_button("العودة لبيانات الطالب", icon="arrow_forward", on_click=self.show_info_view).classes("px-6 py-3 text-sm")
+    def _go_step(self, n: int) -> None:
+        """Show wizard step n (1-3). Steps 2 and 3 need a student."""
+        if n >= 2 and not self.student_full_data:
+            UI.notify("اختر الطالب أولاً", type="warning")
+            n = 1
+        self.step = n
+        self.view_student_info.set_visibility(n == 1)
+        self.view_print_options.set_visibility(n == 2)
+        self.view_review.set_visibility(n == 3)
+        self.student_bar.set_visibility(n >= 2 and bool(self.student_full_data))
+        if n == 3:
+            self._render_review()
+        self._stepper_view.refresh()
 
     def show_info_view(self):
-        self.view_print_options.set_visibility(False)
-        self.view_student_info.set_visibility(True)
+        """Older name: after a student is loaded the next thing to do is the document step."""
+        self._go_step(2 if self.student_full_data else 1)
 
     def show_options_view(self):
-        self.view_student_info.set_visibility(False)
-        self.view_print_options.set_visibility(True)
+        self._go_step(2)
+
+    def _student_table(self, rows: list[dict]):
+        """Clickable list of students for step 1."""
+        table_rows = [{
+            "id": r.get("student_id") or r.get("id"),
+            "name": r.get("full_name_ar") or r.get("name_ar") or "—",
+            "name_en": r.get("full_name_en") or r.get("name_en") or "",
+            "dept": r.get("dept_name_ar") or r.get("department_name_ar") or "—",
+            "year": str(r.get("graduation_year") or "").replace("N/A", "") or "—",
+            "raw": r,
+        } for r in rows]
+        table = UI.data_table([
+            {"name": "name", "label": "الاسم", "field": "name", "align": "right"},
+            {"name": "dept", "label": "القسم", "field": "dept"},
+            {"name": "year", "label": "سنة التخرج", "field": "year"},
+        ], table_rows, clickable=True)
+        table.add_slot("body-cell-name", """
+            <q-td :props="props">
+                <div class="flex flex-col text-right leading-tight">
+                    <span class="font-semibold app-text-primary">{{ props.row.name }}</span>
+                    <span class="app-caption" dir="ltr">{{ props.row.name_en }}</span>
+                </div>
+            </q-td>
+        """)
+        table.on("rowClick", lambda e: self.select_student(e.args[1].get("raw") or e.args[1]))
+        return table
+
+    def _show_recent_students(self) -> None:
+        """Step 1 opens on the most recently added students, so the usual case is one click."""
+        self.search_caption.set_text("أحدث الطلاب")
+        self.search_results_container.clear()
+        with self.search_results_container:
+            try:
+                from nicegui_ui.state import app_session
+                scope = app_session.get_access().get("dept_scope")
+                rows = self.student_repo.search_students_paginated(
+                    query="", limit=8, offset=0, dept_id=scope[0] if scope else None
+                ) or []
+            except Exception as e:
+                log.warning(f"Recent students failed: {e}")
+                rows = []
+            if rows:
+                self._student_table(rows)
+            else:
+                UI.empty_state("لا يوجد طلاب بعد", "أضف الطالب من شاشة الطلاب ثم عد إلى هنا.", icon="people")
 
     def perform_search(self):
         term = ""
@@ -372,63 +391,29 @@ class CertificateScreen:
             term = str(self.search_term).strip()
 
         if len(term) < 2:
-            if hasattr(self, "search_results_card"):
-                self.search_results_card.set_visibility(False)
+            self._show_recent_students()
             return
 
         try:
             results = self.student_repo.search(term, limit=12)
+            self.search_caption.set_text(f"نتائج البحث عن «{term}»")
             self.search_results_container.clear()
-
-            if not results:
-                with self.search_results_container:
-                    ui.label("لم يتم العثور على طالب بهذا الاسم").classes(
-                        "text-xs app-text-muted italic p-4 text-center w-full"
-                    )
-                self.search_results_card.set_visibility(True)
-                return
-
             with self.search_results_container:
-                for row in results:
-                    dept = row.get("dept_name_ar", "")
-                    year = str(row.get("graduation_year") or row.get("admission_year", ""))
-
-                    item = ui.row().classes(
-                        "w-full justify-between items-center p-3 rounded-xl hover:bg-[var(--bg-main)] "
-                        "cursor-pointer border border-[var(--border-default)] transition-all bg-[var(--bg-card)] shadow-sm"
-                    )
-                    item.on("click", lambda r=row: self.select_student(r))
-
-                    with item:
-                        with ui.row().classes("items-center gap-3"):
-                            ui.icon("account_circle", size="md").classes("app-text-accent")
-                            with ui.column().classes("gap-0"):
-                                ui.label(row.get("full_name_ar", "")).classes("font-bold text-sm app-text-primary")
-                                ui.label(row.get("full_name_en", "")).classes("text-xs app-text-muted font-mono")
-
-                        with ui.column().classes("items-end gap-0"):
-                            ui.label(dept).classes("text-xs font-bold app-text-accent")
-                            ui.label(f"دفعة {year}").classes("text-xs app-text-muted")
-
-            self.search_results_card.set_visibility(True)
+                if not results:
+                    UI.empty_state("لا يوجد طالب بهذا الاسم", "تحقق من الاسم أو جرّب جزءًا منه.", icon="search_off")
+                else:
+                    self._student_table(results)
         except Exception as e:
             log.error(f"Search failed: {e}")
-            UI.notify(f"خطأ في البحث: {e}", type="negative")
+            UI.notify(f"تعذر البحث: {e}. تحقق من الاتصال وأعد المحاولة.", type="negative")
 
     def render_preview_grid(self):
         pass
 
     def render_empty_student_info(self):
-        self.student_info_container.clear()
-        with self.student_info_container:
-            with ui.column().classes("w-full items-center justify-center p-16 gap-3 app-text-muted"):
-                ui.icon("manage_search", size="lg").classes("opacity-50 text-4xl")
-                ui.label("الرجاء البحث واختيار طالب لعرض معلوماته الأكاديمية وإصدار الوثيقة.").classes("text-base font-semibold text-center")
+        self._show_recent_students()
 
     def select_student(self, student_row):
-        if hasattr(self, "search_results_card"):
-            self.search_results_card.set_visibility(False)
-
         self.selected_student = student_row
         student_id = student_row.get("student_id") or student_row.get("id")
 
@@ -438,7 +423,7 @@ class CertificateScreen:
         if hasattr(self, "edit_mode_banner") and self.edit_mode_banner:
             self.edit_mode_banner.set_visibility(False)
         if hasattr(self, "btn_generate") and self.btn_generate:
-            self.btn_generate.text = "إصدار وتوليد الوثيقة (Word)"
+            self.btn_generate.text = "إصدار وطباعة"
         self.current_grouping_mode = getattr(self, "current_grouping_mode", "DEFAULT")
 
         try:
@@ -446,7 +431,7 @@ class CertificateScreen:
                 student_id, grouping_mode="DEFAULT"
             )
             if not self.student_full_data:
-                UI.notify("لا توجد بيانات دراسية للطالب المحدد", type="warning")
+                UI.notify("لا توجد بيانات دراسية لهذا الطالب. أضف مراحله ودرجاته من شاشة الطلاب.", type="warning")
                 return
 
             # Dynamic grouping options update based on student's study system (semester vs yearly)
@@ -498,19 +483,117 @@ class CertificateScreen:
                 self.template_sel.value = filtered_templates[0] if filtered_templates else None
                 self.template_sel.update()
 
-            # If arriving with an existing certificate record (e.g. from Issued Certificates registry Edit button)
+            # Arriving with an existing certificate record (Issued Certificates → edit)
             if self.initial_cert_record:
                 student_display_name = student_row.get("full_name_ar") or self.student_full_data.get("full_name_ar", "")
                 self._enter_edit_mode(self.initial_cert_record, student_display_name)
                 self.initial_cert_record = None  # used once; selecting another student must not re-enter it
 
-                # Directly show print options view as requested
-                self.show_options_view()
-            else:
-                self.show_info_view()
+            # Picking the student completes step 1; the defaults are ready on step 2
+            self._go_step(2)
         except Exception as e:
             log.error(f"Error loading student: {e}")
-            UI.notify(f"خطأ أثناء تحميل بيانات الطالب: {e}", type="negative")
+            UI.notify(f"تعذر تحميل بيانات الطالب: {e}", type="negative")
+
+    def _render_student_bar(self) -> None:
+        """Who the document is for, with a way back to step 1."""
+        data = self.student_full_data or {}
+        self.student_bar.clear()
+        with self.student_bar:
+            ui.icon("person", size="24px").classes("app-text-accent shrink-0")
+            with ui.column().classes("gap-0 min-w-0"):
+                ui.label(data.get("full_name_ar", "")).classes("app-text-primary font-semibold")
+                sub = " • ".join(x for x in (data.get("dept_name_ar") or "", f"المعدل {format_average(data.get('average'))}") if x)
+                ui.label(sub).classes("app-caption")
+            ui.space()
+            UI.ghost_button("تغيير الطالب", icon="swap_horiz", on_click=lambda: self._go_step(1))
+
+    def _render_review(self) -> None:
+        """Step 3: what will be issued, any number clash inline, and the transcript as flat rows."""
+        data = self.student_full_data or {}
+        self.review_container.clear()
+        tpl = self.template_sel.value if self.template_sel else ""
+        cert_num = (self.cert_number_input.value or "").strip()
+        student_id = data.get("id") or data.get("student_id")
+        included = [name for sw, name in (
+            (self.sw_order, "الأمر الجامعي"), (self.sw_rank, "تسلسل التخرج"), (self.sw_summer, "التدريب الصيفي"),
+            (self.sw_postpone, "سنوات التأجيل"), (self.sw_second, "الدور الثاني"),
+        ) if sw.value]
+
+        with self.review_container:
+            UI.dl([
+                ("الطالب", data.get("full_name_ar")),
+                ("القسم", data.get("dept_name_ar")),
+                ("الوثيقة", self._format_template_options([tpl]).get(tpl) if tpl else ""),
+                ("رقم الوثيقة", cert_num),
+                ("إلى", (self.to_input.value or "").strip() or "من يهمه الأمر"),
+                ("تاريخ الإصدار", self.issue_date_input.value),
+                ("يتضمن", "، ".join(included) or "لا شيء إضافي"),
+                ("المعدل", format_average(data.get("average"))),
+            ])
+
+            # Number clash, shown here instead of after pressing issue
+            self.btn_generate.enable()
+            dup = {}
+            if cert_num and student_id:
+                try:
+                    dup = self.issued_cert_repo.check_duplicate(cert_num, student_id) or {}
+                except Exception as exc:
+                    log.warning(f"Duplicate check failed: {exc}")
+            if dup.get("exists"):
+                reissue_id = getattr(self, "reissue_cert_id", None)
+                if reissue_id and dup.get("certificate_id") == reissue_id:
+                    msg, variant = f"سيُحدَّث قيد الوثيقة رقم ({cert_num}) نفسه.", "accent"
+                elif not dup.get("same_student"):
+                    owner = dup.get("owner_name") or "طالب آخر"
+                    msg, variant = f"الرقم ({cert_num}) مستخدم للطالب ({owner}). ارجع إلى الخطوة السابقة واختر رقمًا آخر.", "danger"
+                    self.btn_generate.disable()
+                else:
+                    msg, variant = (f"الرقم ({cert_num}) صدر سابقًا لهذا الطالب. الإصدار يحدّث القيد؛ "
+                                    "أتلف النسخة الورقية القديمة."), "warning"
+                with ui.row().classes(f"app-chip--{variant} w-full items-start gap-2 no-wrap rounded-lg p-3"):
+                    ui.icon("warning" if variant != "accent" else "info", size="20px").classes("shrink-0")
+                    ui.label(msg).classes("text-sm")
+
+            courses = data.get("courses_grouped") or []
+            with ui.expansion(f"السجل الأكاديمي ({len(courses)} مادة)", icon="list_alt").classes("w-full"):
+                self._transcript_table(courses, data)
+
+    def _transcript_table(self, courses: list[dict], data: dict) -> None:
+        """The transcript as flat rows: stage/year, course, mark, units, round."""
+        if not courses:
+            UI.empty_state("لا توجد درجات مسجلة", "أضف المراحل والدرجات من صفحة الطالب.", icon="list_alt")
+            return
+        st_info = data.get("student_info") or {}
+        if isinstance(st_info, list) and st_info:
+            st_info = st_info[0]
+        is_sem = "semester" in str(st_info.get("period_display") or data.get("period_display") or "").lower()
+        rows = []
+        for i, c in enumerate(courses):
+            stg = c.get("period_stage") or c.get("stage_number") or c.get("course_curriculum_stage") or ""
+            year = str(c.get("academic_year_formatted") or c.get("academic_year") or "")
+            parts = [f"المرحلة {stg}" if stg else "", year]
+            if is_sem and c.get("semester_num"):
+                parts.append(f"الفصل {c.get('semester_num')}")
+            pr = str(c.get("passed_round") or "1")
+            rows.append({
+                "id": i,
+                "group": " • ".join(p for p in parts if p) or "—",
+                "course": c.get("subject_name") or c.get("course_name_ar") or c.get("course_name_en") or "—",
+                "mark": c.get("mark", "—"),
+                "unit": c.get("unit", "—"),
+                "round": "الدور الثاني" if (pr in ("2", "3") or c.get("is_second_round")) else "",
+            })
+        table = UI.data_table([
+            {"name": "group", "label": "المرحلة والسنة", "field": "group", "align": "right"},
+            {"name": "course", "label": "المادة", "field": "course", "align": "right"},
+            {"name": "mark", "label": "الدرجة", "field": "mark"},
+            {"name": "unit", "label": "الوحدات", "field": "unit"},
+            {"name": "round", "label": "", "field": "round"},
+        ], rows)
+        table.add_slot("body-cell-round", """
+            <q-td :props="props"><span v-if="props.value" class="app-chip app-chip--warning">{{ props.value }}</span></q-td>
+        """)
 
     def handle_edit_student(self):
         """Triggers navigation to Students Management screen to edit selected student."""
@@ -634,251 +717,10 @@ class CertificateScreen:
                 except (ValueError, TypeError):
                     self.inp_rank_avg.value = str(top_avg_val_def)
 
-        # ── 2. Render Student Profile View (High Readability, No Duplication, Structured List) ──
-        self.student_info_container.clear()
-        with self.student_info_container:
-            # Student Profile Header Card
-            with UI.card().classes("w-full p-6 gap-4 bg-[var(--bg-main)] rounded-2xl border border-[var(--border-default)] shadow-sm"):
-                with ui.row().classes("w-full justify-between items-center flex-wrap gap-4"):
-                    with ui.row().classes("items-center gap-4"):
-                        ui.icon("badge", size="lg").classes("app-text-accent text-3xl")
-                        with ui.column().classes("gap-1"):
-                            ui.label(data.get("full_name_ar", "")).classes("text-2xl font-black app-text-primary tracking-wide")
-                            ui.label(data.get("full_name_en", "")).classes("text-sm app-text-muted font-mono font-medium")
-
-                    with ui.row().classes("items-center gap-3"):
-                        ui.label(data.get("dept_name_ar", "")).classes(
-                            "px-4 py-2 text-sm font-bold rounded-xl bg-[var(--bg-card)] border border-[var(--border-default)] app-text-accent shadow-sm"
-                        )
-                        UI.primary_button("خيارات وتوليد الوثيقة", icon="tune", on_click=self.show_options_view).classes("text-xs px-5 py-2.5 font-bold shadow-md")
-                        UI.primary_button("تعديل الطالب", icon="edit", on_click=self.handle_edit_student).classes("text-xs px-4 py-2.5")
-
-            # 4 Unified Non-Duplicated Key Metric Cards
-            avg = data.get("average")
-            avg_str = f"{float(avg):.2f}%" if avg is not None else "—"
-            rank_val = self.inp_rank_val.value or data.get("rank") or data.get("sequence_number")
-            if not rank_val and hasattr(self, "selected_student") and self.selected_student:
-                rank_val = self.selected_student.get("sequence_number") or self.selected_student.get("rank")
-
-            total_grad = self.inp_rank_total.value or data.get("total_graduates") or data.get("postgraduation_number") or data.get("order_num_students") or data.get("num_students")
-            if not total_grad and hasattr(self, "selected_student") and self.selected_student:
-                total_grad = self.selected_student.get("postgraduation_number") or self.selected_student.get("total_graduates")
-
-            if rank_val and total_grad:
-                rank_str = f"المرتبة {rank_val} من {total_grad} خريج"
-            elif rank_val:
-                rank_str = f"المرتبة {rank_val}"
-            else:
-                rank_str = "—"
-            top_avg = data.get("top_average")
-            top_avg_str = f"{float(top_avg):.2f}%" if top_avg else "—"
-            order_num_str = data.get('order_number')
-            order_date_str = data.get('order_date')
-            order_display = f"رقم {order_num_str}" if order_num_str else "غير محدد"
-            order_sub = f"بتاريخ {order_date_str}" if order_date_str else ""
-
-            with ui.grid(columns=4).classes("w-full gap-5"):
-                # Card 1: المعدل العام
-                with UI.card().classes("p-5 items-center justify-center text-center bg-[var(--bg-main)] rounded-2xl border border-[var(--border-default)] gap-1 shadow-sm"):
-                    ui.label("المعدل العام").classes("text-s font-bold app-text-muted tracking-wider uppercase")
-                    ui.label(avg_str).classes("text-2xl font-black text-emerald-400 tracking-tight")
-                    ui.label(data.get("grade") or "ناجح").classes("text-s font-bold text-slate-400")
-
-                # Card 2: الترتيب والتسلسل (Unified without duplicate!)
-                with UI.card().classes("p-5 items-center justify-center text-center bg-[var(--bg-main)] rounded-2xl border border-[var(--border-default)] gap-1 shadow-sm"):
-                    ui.label("تسلسل التخرج").classes("text-s font-bold app-text-muted tracking-wider uppercase")
-                    ui.label(rank_str).classes("text-xl font-black text-blue-400 tracking-tight")
-                    ui.label(f"الأول: {top_avg_str}").classes("text-s font-bold text-slate-400")
-
-                # Card 3: الأمر الجامعي
-                with UI.card().classes("p-5 items-center justify-center text-center bg-[var(--bg-main)] rounded-2xl border border-[var(--border-default)] gap-1 shadow-sm"):
-                    ui.label("الأمر الجامعي").classes("text-s font-bold app-text-muted tracking-wider uppercase")
-                    ui.label(order_display).classes("text-lg font-black text-purple-400 tracking-tight")
-                    if order_sub:
-                        ui.label(order_sub).classes("text-s font-bold text-slate-400")
-
-                # Card 4: التدريب الصيفي
-                with UI.card().classes("p-5 items-center justify-center text-center bg-[var(--bg-main)] rounded-2xl border border-[var(--border-default)] gap-1 shadow-sm"):
-                    ui.label("التدريب الصيفي").classes("text-s font-bold app-text-muted tracking-wider uppercase")
-                    ui.label(self.inp_summer_year.value or "—").classes("text-2xl font-black text-amber-400 tracking-tight")
-                    ui.label("سنة التدريب").classes("text-s font-bold text-slate-400")
-
-            # Dedicated Second Trial Subjects List Section ("Make a List" requested by user)
-            with UI.card().classes("w-full p-6 gap-3 bg-[var(--bg-main)] rounded-2xl border border-[var(--border-default)] shadow-sm"):
-                with ui.row().classes("w-full justify-between items-center pb-2 border-b border-[var(--border-default)]"):
-                    with ui.row().classes("items-center gap-2"):
-                        ui.icon("history_edu", size="sm").classes("text-amber-400")
-                        ui.label("مواد الدور الثاني").classes("text-sm font-extrabold app-text-accent tracking-wide")
-                    if second_courses:
-                        ui.label(f"إجمالي المواد: {len(second_courses)}").classes("text-s font-bold px-3 py-1 rounded-full bg-amber-500/20 text-amber-400 border border-amber-500/30")
-
-                if second_courses:
-                    with ui.row().classes("w-full flex-wrap gap-3 pt-2"):
-                        for cname in second_courses:
-                            with ui.row().classes("items-center gap-2 px-3.5 py-2 rounded-xl bg-[var(--bg-card)] border border-amber-500/30 text-amber-300 font-bold text-xs shadow-sm hover:border-amber-400 transition-all"):
-                                ui.icon("menu_book", size="xs").classes("text-amber-400")
-                                ui.label(cname).classes("text-sm font-semibold")
-                else:
-                    with ui.row().classes("items-center gap-2 text-xs text-emerald-400 font-bold p-2"):
-                        ui.icon("check_circle", size="xs").classes("text-emerald-400")
-                        ui.label("استحقاق الدور الأول — الطالب اجتاز جميع المواد الدراسية من الدور الأول.").classes("text-sm")
-
-            # Academic Transcript Table Section (Cards Grouped by Dynamic Grouping Mode)
-            semester_options = {
-                "BY_SEMESTER_stage": "مقررات - حسب المرحلة",
-                "BY_SEMESTER_year": "مقررات - حسب السنة"
-            }
-            yearly_options = {
-                "DEFAULT": "الافتراضي - سنوي",
-                "BY_PERIOD_STAGE": "سنوي - حسب المرحلة الدراسية",
-                "BY_CURRICULUM_STAGE": "سنوي - حسب مرحلة المادة",
-                "BY_ByAcademicYear": "سنوي - حسب سنة الإنجاز"
-            }
-
-            st_info_ui = data.get("student_info") or {}
-            if isinstance(st_info_ui, list) and len(st_info_ui) > 0:
-                st_info_ui = st_info_ui[0]
-            
-            period_disp = str(st_info_ui.get("period_display") or "").lower().strip()
-            if period_disp in ("year", "yearly"):
-                is_semester = False
-            elif period_disp == "semester":
-                is_semester = True
-            else:
-                sys_name = str(st_info_ui.get("study_system_name_ar") or "").lower()
-                is_semester = "semester" in sys_name or ("فصل" in sys_name and "سنو" not in sys_name)
-
-            group_opts = semester_options if is_semester else yearly_options
-
-            current_mode = getattr(self, "current_grouping_mode", "DEFAULT")
-            if current_mode not in group_opts:
-                current_mode = "BY_SEMESTER_stage" if is_semester else "DEFAULT"
-
-            async def on_grouping_change(e):
-                new_mode = str(getattr(e, 'value', e) or "DEFAULT")
-                self.current_grouping_mode = new_mode
-                if self.selected_student:
-                    try:
-                        self.student_full_data = self.cert_repo.get_full_certificate_data(
-                            self.selected_student["id"], grouping_mode=new_mode
-                        )
-                        self.update_student_ui()
-                    except Exception as exc:
-                        log.error(f"Error updating grouping: {exc}")
-                        UI.notify(f"خطأ في تحديث التجميع: {exc}", type="negative")
-
-            with ui.row().classes("w-full justify-between items-center mt-2 pb-1"):
-                ui.label("السجل الأكاديمي والدرجات").classes("text-lg font-extrabold app-text-primary tracking-wide")
-                
-                UI.select(
-                    "خيارات التجميع",
-                    options=group_opts,
-                    value=current_mode,
-                    on_change=lambda e: on_grouping_change(e)
-                ).classes("w-72 text-xs")
-
-            with ui.column().classes("w-full border border-[var(--border-default)] rounded-2xl p-5 bg-[var(--bg-main)] gap-5 h-auto"):
-                courses = data.get("courses_grouped", [])
-                if not courses:
-                    ui.label("لا توجد سجلات دراسية").classes("text-sm app-text-muted italic p-4")
-                else:
-                    grouped_data = {}
-                    for c in courses:
-                        pstg = (
-                            c.get("period_stage")
-                            or c.get("stage_number")
-                            or c.get("course_curriculum_stage")
-                            or c.get("default_stage")
-                            or c.get("stages")
-                            or ""
-                        )
-                        raw_yr = str(c.get("academic_year") or "")
-                        fmt_yr = str(c.get("academic_year_formatted") or raw_yr)
-                        sem_num = c.get("semester_num", 1)
-                        k = c.get("grouping_key") or f"{raw_yr}_{pstg}_{sem_num}"
-                        if k not in grouped_data:
-                            grouped_data[k] = {
-                                "key": str(k),
-                                "academic_year": fmt_yr,
-                                "raw_academic_year": raw_yr,
-                                "stage_number": pstg,
-                                "semester_num": sem_num,
-                                "enrollments": []
-                            }
-                        grouped_data[k]["enrollments"].append(c)
-
-                    for k, p in grouped_data.items():
-                        enrs = p.get("enrollments", [])
-                        p_stages = [c.get("period_stage") or c.get("stage_number") for c in enrs if c.get("period_stage") or c.get("stage_number")]
-                        if p_stages:
-                            p["stage_number"] = max(p_stages, key=p_stages.count)
-
-                    def _get_group_sort_key(p):
-                        gk = str(p.get("key") or "")
-                        if gk.isdigit() and len(gk) <= 2:
-                            return ("", int(gk), 0)
-                        if '_' in gk and gk.split('_')[0].isdigit() and len(gk.split('_')[0]) <= 2:
-                            s_p, sem_p = gk.split('_')
-                            return ("", int(s_p), int(sem_p) if sem_p.isdigit() else 0)
-                        yr = str(p.get("raw_academic_year") or p.get("academic_year") or "")
-                        try:
-                            s_num = int(p.get("stage_number", 0))
-                        except (ValueError, TypeError):
-                            s_num = 0
-                        try:
-                            m_num = int(p.get("semester_num", 1))
-                        except (ValueError, TypeError):
-                            m_num = 1
-                        return (yr, s_num, m_num)
-
-                    sorted_groups = sorted(grouped_data.values(), key=_get_group_sort_key)
-
-                    with ui.grid(columns=2).classes("w-full gap-5 items-start"):
-                        for p in sorted_groups:
-                            stg = p.get("stage_number", "")
-                            year = p.get("academic_year", "")
-                            sem = p.get("semester_num", 1)
-                            enrs = p.get("enrollments", [])
-                            gk_val = str(p.get("key") or "")
-
-                            parts = []
-                            if gk_val in ('1', '2', '3', '4', '5', '6'):
-                                parts.append(f"المرحلة {gk_val}")
-                            elif '_' in gk_val and gk_val.split('_')[0].isdigit() and len(gk_val.split('_')[0]) <= 2:
-                                s_part, sem_part = gk_val.split('_')
-                                parts.append(f"المرحلة {s_part}")
-                                parts.append(f"الفصل {sem_part}")
-                            else:
-                                if year:
-                                    parts.append(f"العام الدراسي ({year})")
-                                if stg:
-                                    parts.append(f"المرحلة {stg}")
-                                if "semester" in period_disp and sem:
-                                    parts.append(f"الفصل {sem}")
-                            header_label = " — ".join(parts) if parts else f"المجموعة ({gk_val})"
-
-                            with ui.column().classes("w-full gap-3 p-4 rounded-xl bg-[var(--bg-card)] border border-[var(--border-default)] shadow-sm"):
-                                with ui.row().classes("w-full justify-between items-center pb-2 border-b border-[var(--border-default)]"):
-                                    ui.label(header_label).classes("text-sm font-extrabold app-text-accent tracking-wide")
-                                    ui.label(f"عدد المواد: {len(enrs)}").classes("text-xs app-text-muted font-medium")
-
-                                with ui.column().classes("w-full gap-2"):
-                                    for enr in enrs:
-                                        cname = enr.get("subject_name") or enr.get("course_name_ar") or enr.get("course_name_en") or ""
-                                        score = enr.get("mark", "—")
-                                        units = enr.get("unit", 0)
-                                        pr = str(enr.get("passed_round", "1"))
-                                        is_2nd = (pr in ('2', '3') or enr.get("is_second_round"))
-
-                                        with ui.row().classes("w-full justify-between items-center text-sm py-2 px-3.5 rounded-xl bg-[var(--bg-main)] transition-all border border-[var(--border-default)] hover:border-amber-500/30"):
-                                            with ui.row().classes("items-center gap-2"):
-                                                ui.label(cname).classes("app-text-primary font-bold text-xs")
-                                                if is_2nd:
-                                                    ui.label("الدور الثاني").classes("px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-amber-500/20 text-amber-400 border border-amber-500/30")
-
-                                            with ui.row().classes("items-center gap-2"):
-                                                ui.label(f"الدرجة: {score}").classes("font-extrabold text-emerald-400 font-mono text-xs")
-                                                ui.label(f"{units} وحدات").classes("text-[10px] font-bold px-2 py-0.5 bg-[var(--bg-card)] rounded-lg text-slate-300 font-mono border border-[var(--border-default)]")
+        # Steps 2 and 3 show who the document is for; the review follows any change
+        self._render_student_bar()
+        if getattr(self, "step", 1) == 3:
+            self._render_review()
 
     def _enter_edit_mode(self, rec: dict, student_display_name: str = "") -> None:
         """Loads an issued certificate record into the form; generating then updates that record."""
@@ -912,11 +754,11 @@ class CertificateScreen:
         self.reissue_cert_id = rec.get("certificate_id") or rec.get("id")
         if hasattr(self, "edit_mode_banner") and self.edit_mode_banner:
             if hasattr(self, "edit_mode_label") and self.edit_mode_label:
-                self.edit_mode_label.text = f"وضع التعديل: تعديل قيد الوثيقة رقم ({cert_num or self.reissue_cert_id}) للطالب ({student_display_name})"
+                self.edit_mode_label.text = f"تعديل قيد الوثيقة رقم ({cert_num or self.reissue_cert_id}) للطالب ({student_display_name}). الإصدار يحدّث هذا القيد."
             self.edit_mode_banner.set_visibility(True)
 
         if hasattr(self, "btn_generate") and self.btn_generate:
-            self.btn_generate.text = "تحديث وتوليد الوثيقة (Word)"
+            self.btn_generate.text = "تحديث وطباعة"
 
     def _show_reissue_warning_modal(self, cert_num: str, tpl_name: str, options: dict, reissue_cert_id: Optional[int] = None) -> None:
         """Opens a confirmation modal warning the user to destroy the old physical paper copy before re-issuing."""
@@ -1275,10 +1117,7 @@ class CertificateScreen:
                 UI.notify(f"خطأ أثناء توليد الوثيقة: {err}", type="negative")
             return False
     def show_in_app_print_dialog(self, pdf_path: str | None, docx_path: str):
-        """
-        Opens a modern in-app modal dialog featuring live document preview,
-        system printer selection, copies count, and one-click direct printing.
-        """
+        """The issued document: its PDF preview beside the printer, copies and one print button."""
         rel_doc_name = os.path.basename(docx_path)
 
         pdf_url = ""
@@ -1288,36 +1127,30 @@ class CertificateScreen:
             pdf_url = f"/certificates_files/{quoted_pdf}?v={int(os.path.getmtime(pdf_path))}"
 
         with ui.dialog() as print_dialog, UI.card().classes(
-            "w-[94vw] max-w-6xl h-[90vh] p-6 gap-4 flex-col bg-[var(--bg-card)] border border-[var(--border-default)] rounded-2xl shadow-2xl"
+            "app-print-dialog w-[94vw] max-w-6xl h-[90vh] gap-4"
         ):
-            # Modal Top Bar
-            with ui.row().classes("w-full justify-between items-center pb-3 border-b border-[var(--border-default)]"):
-                with ui.row().classes("items-center gap-3"):
-                    ui.icon("print", size="md").classes("app-text-accent")
-                    ui.label("معاينة الوثيقة والطباعة المباشرة").classes("text-lg font-bold app-text-primary")
+            with ui.row().classes("w-full items-center gap-3 no-wrap"):
+                ui.icon("print", size="24px").classes("app-text-accent shrink-0")
+                ui.label("معاينة الوثيقة وطباعتها").classes("app-section-title")
+                ui.space()
+                UI.icon_button("close", "إغلاق", on_click=print_dialog.close)
 
-                UI.secondary_button("إغلاق", icon="close", on_click=print_dialog.close).classes("text-xs px-3 py-1.5")
-
-            # Main Body: Left Document Previewer + Right Printer Controls Panel
-            with ui.row().classes("w-full flex-1 gap-6 items-stretch overflow-hidden"):
-                # Left Column: In-App Document Previewer
-                with ui.column().classes("flex-1 h-full rounded-xl overflow-hidden p-0 border border-[var(--border-default)] bg-slate-900 shadow-inner"):
+            # Preview and printer panel side by side; the panel drops under the preview on narrow windows
+            with ui.row().classes("w-full flex-1 gap-4 items-stretch min-h-0"):
+                with ui.column().classes("flex-1 min-w-[300px] h-full rounded-lg overflow-hidden p-0 border border-[var(--border-default)]"):
                     if pdf_url:
                         # The PDF itself is the preview: what you see is exactly what prints.
                         # A real element: ui.html sanitizes its content and strips iframes.
                         ui.element("iframe").props(f'src="{pdf_url}#view=FitH"').classes(
-                            "w-full h-full min-h-[600px] border-0 bg-white"
+                            "w-full h-full min-h-[360px] border-0 bg-white"
                         )
                     else:
-                        with ui.column().classes("w-full h-full justify-center items-center gap-2 text-slate-400"):
+                        with ui.column().classes("w-full h-full justify-center items-center gap-2 app-text-muted"):
                             ui.icon("description", size="xl")
-                            ui.label("الوثيقة جاهزة للطباعة المباشرة").classes("font-bold text-sm")
+                            ui.label("لا توجد معاينة PDF؛ الوثيقة جاهزة للطباعة.").classes("text-sm")
 
-                # Right Column: Printer Controls Panel
-                with ui.column().classes("w-80 h-full p-5 rounded-xl border border-[var(--border-default)] bg-[var(--bg-main)] gap-4 justify-between"):
+                with ui.column().classes("w-[340px] max-w-full gap-4 justify-between"):
                     with ui.column().classes("w-full gap-4"):
-                        ui.label("إعدادات الطابعة").classes("text-sm font-extrabold app-text-accent pb-2 border-b border-[var(--border-default)]")
-
                         printers = get_installed_printers()
                         def_p = get_default_printer()
                         try:
@@ -1333,40 +1166,39 @@ class CertificateScreen:
                             pass
 
                         printer_select = UI.select(
-                            "اختيار الطابعة",
+                            "الطابعة",
                             options={p: p for p in printers},
                             value=def_p if def_p in printers else (printers[0] if printers else None)
-                        ).classes("w-full text-sm")
+                        ).classes("w-full app-select-wrap")
 
-                        copies_input = UI.text_input("عدد النسخ", value="1").classes("w-full text-sm")
+                        copies_input = UI.text_input("عدد النسخ", value="1").classes("w-full")
+                        copies_input.props('type=number min=1')
 
-                        # Document Details Summary Box
-                        with UI.card().classes("w-full p-3.5 gap-1.5 text-xs bg-[var(--bg-card)] rounded-xl border border-[var(--border-default)] app-text-muted shadow-sm"):
-                            ui.label("معلومات المستند:").classes("font-bold app-text-accent")
-                            ui.label(f"الملف: {rel_doc_name}").classes("font-mono text-[11px] truncate w-full")
-                            ui.label("الحالة: جاهز للطباعة المباشرة").classes("text-emerald-400 font-bold mt-1")
+                        with ui.column().classes("w-full gap-1"):
+                            ui.label("الملف").classes("app-caption")
+                            ui.label(rel_doc_name).classes("app-text-primary text-sm break-all").props('dir=ltr')
 
-                    # Primary Actions Group
-                    with ui.column().classes("w-full gap-3 pt-4 border-t border-[var(--border-default)]"):
+                    with ui.column().classes("w-full gap-2"):
                         async def do_print_now():
                             sel_printer = printer_select.value
                             if not sel_printer:
-                                UI.notify("الرجاء اختيار طابعة من القائمة أولاً", type="warning")
+                                UI.notify("اختر الطابعة من القائمة أولاً", type="warning")
                                 return
-                            cps = int(copies_input.value) if copies_input.value and copies_input.value.isdigit() else 1
-                            UI.notify(f"جاري إرسال الوثيقة للطباعة إلى ({sel_printer})...", type="info")
+                            cps = int(copies_input.value) if copies_input.value and str(copies_input.value).isdigit() else 1
+                            UI.notify(f"جارٍ إرسال الوثيقة إلى الطابعة ({sel_printer})", type="info")
 
                             ok = await asyncio.to_thread(print_file_to_printer, docx_path, sel_printer, cps)
                             if ok:
-                                UI.notify(f"تم إرسال الوثيقة بنجاح إلى الطابعة: {sel_printer}", type="positive")
+                                UI.notify(f"أُرسلت الوثيقة إلى الطابعة ({sel_printer})", type="positive")
                                 print_dialog.close()
                             else:
-                                UI.notify(f"تعذر إرسال الوثيقة للطباعة على {sel_printer}", type="negative")
+                                UI.notify(f"تعذرت الطباعة على ({sel_printer}). تأكد أن الطابعة متصلة أو اختر غيرها.", type="negative")
 
-                        UI.success_button("🖨️ طباعة الآن", icon="print", on_click=do_print_now).classes("w-full py-3 text-sm font-bold shadow-md")
+                        UI.primary_button("طباعة الآن", icon="print", on_click=do_print_now).classes("w-full")
                         if pdf_path:
-                            UI.secondary_button("📂 عرض ملف PDF في مجلد الوثائق", icon="folder_open", on_click=lambda: self._show_in_folder(pdf_path)).classes("w-full py-2.5 text-xs")
-                        UI.secondary_button("إغلاق", icon="cancel", on_click=print_dialog.close).classes("w-full py-2 text-xs")
+                            UI.secondary_button("عرض ملف PDF في المجلد", icon="folder_open",
+                                                on_click=lambda: self._show_in_folder(pdf_path)).classes("w-full")
+                        UI.ghost_button("إغلاق", on_click=print_dialog.close).classes("w-full")
 
         print_dialog.open()
 
