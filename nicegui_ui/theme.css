@@ -1177,3 +1177,8 @@ input, textarea { caret-color: var(--accent); }
 .app-template-select .q-field__native { min-height:44px; }
 .app-transcript-group { border:1px solid var(--accent-soft-strong); border-radius:10px; padding:8px 10px; background:var(--accent-soft); }
 .app-transcript-group-head { padding:2px 4px; color:var(--text-primary); }
+
+/* Settings → templates: name with tags beside it; tag selects in a row */
+.app-template-card { padding:10px 12px; border:1px solid var(--border-default); border-radius:12px; background:var(--surface-card); }
+.app-template-tags { display:grid; grid-template-columns:repeat(3, minmax(0,1fr)); gap:12px; }
+@media (max-width: 640px) { .app-template-tags { grid-template-columns:1fr; } }

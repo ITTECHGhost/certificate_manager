@@ -8,7 +8,9 @@
 
 from __future__ import annotations
 
-from nicegui_ui.template_constants import get_template_info
+import re
+
+from nicegui_ui.template_constants import get_template_info, template_tags
 
 TITLE_BY_SYSTEM = {
     "annual": "وثيقة تخرج — النظام السنوي",
@@ -17,14 +19,22 @@ TITLE_BY_SYSTEM = {
 }
 
 
+def _is_generated_name(name: str) -> bool:
+    """True for the old standard names ('Ar, Annual, SBS, cr'), which the user never chose."""
+    return bool(re.match(r"^\s*(ar|en)\s*,", name or "", re.I)) or not (name or "").strip()
+
+
 def template_lines(raw_name: str | None) -> tuple[str, str]:
-    """(name, variant) for a template: 'وثيقة تخرج — النظام السنوي', 'عربي • بالدرجات'."""
+    """(name, variant): the name the user gave the template in Settings, then 'عربي • بالدرجات'.
+
+    Templates still carrying a generated name get 'وثيقة تخرج — النظام السنوي' instead.
+    """
     info = get_template_info(raw_name)
-    system = str(info.get("system") or "Annual").lower()
-    title = TITLE_BY_SYSTEM.get(system, TITLE_BY_SYSTEM["annual"])
-    lang = "إنكليزي" if str(info.get("lang") or "").lower() == "en" else "عربي"
-    marks = "بالدرجات" if info.get("sbs") else "بدون درجات"
-    return title, f"{lang} • {marks}"
+    tags = template_tags(raw_name)
+    name = str(info.get("display_name") or "")
+    if _is_generated_name(name):
+        name = TITLE_BY_SYSTEM.get(tags["system"].lower(), tags["system_ar"])
+    return name, f"{tags['lang_ar']} • {tags['marks_ar']}"
 
 
 def template_option_label(raw_name: str | None) -> str:
@@ -48,8 +58,8 @@ def filter_templates_for_system(files: list[str], data: dict | None) -> list[str
     system = student_system(data)
     if not system:
         return list(files)
-    keys = ("semester", "sem") if system == "semester" else ("year", "annual")
-    matching = [f for f in files if any(k in f.lower() for k in keys)]
+    wanted = "Semester" if system == "semester" else "Annual"
+    matching = [f for f in files if template_tags(f)["system"] == wanted]
     return matching or list(files)
 
 

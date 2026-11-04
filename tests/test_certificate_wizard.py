@@ -71,7 +71,9 @@ def test_transcript_is_flat_table_rows():
     assert "ui.grid(" not in _src("update_student_ui")
 
 
-def test_template_picker_shows_arabic_names_not_files():
+def test_template_picker_shows_arabic_names_not_files(monkeypatch, tmp_path):
+    import nicegui_ui.template_constants as tc
+    monkeypatch.setattr(tc, "CONFIG_FILE", str(tmp_path / "none.json"))
     # The picker shows the template name and a second line for the variant (no old part labels)
     assert "template_option_label" in _src("_format_template_options")
     from nicegui_ui.issue_helpers import template_option_label

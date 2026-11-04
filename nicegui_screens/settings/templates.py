@@ -8,7 +8,9 @@ from datetime import datetime
 from nicegui import ui
 import app_paths
 from nicegui_ui.ui_components import UI
-from nicegui_ui.template_constants import get_template_info, register_template
+from nicegui_ui.template_constants import (
+    TAG_LANGS, TAG_MARKS, TAG_SYSTEMS, get_template_info, save_template_tags, template_tag_conflicts, template_tags,
+)
 from utils.file_delivery import deliver_file
 from nicegui_ui.upload_utils import read_upload
 
@@ -115,69 +117,28 @@ class TemplatesMixin:
                     for f in files:
                         filepath = os.path.join(templates_dir, f)
                         info = get_template_info(f)
+                        tags = template_tags(f)
                         display_name = info.get("display_name") or f
                         size_kb = round(os.path.getsize(filepath) / 1024, 1)
                         mtime = datetime.fromtimestamp(os.path.getmtime(filepath)).strftime("%Y-%m-%d %H:%M")
+                        conflicts = template_tag_conflicts(display_name, tags)
 
-                        with ui.row().classes("w-full justify-between items-center p-3 rounded-xl border border-[var(--border-default)] bg-[var(--bg-main)] hover:border-blue-500/50 transition-all gap-3 flex-wrap"):
-                            # Left info: Icon + Title + Filename
-                            with ui.row().classes("items-center gap-3 flex-1 min-w-[280px]"):
-                                ui.icon("description", size="sm").classes("text-blue-400 shrink-0")
-                                with ui.column().classes("gap-0"):
-                                    ui.label(display_name).classes("text-xs font-bold text-blue-400")
-                                    with ui.row().classes("items-center gap-2 text-[10px] text-slate-400"):
-                                        ui.label(f).classes("font-mono text-slate-300 font-semibold")
-                                        ui.label("•")
-                                        ui.label(f"{size_kb} KB")
-                                        ui.label("•")
-                                        ui.label(f"آخر تعديل: {mtime}")
+                        with ui.row().classes("app-template-card w-full items-center no-wrap gap-3"):
+                            ui.icon("description", size="sm").classes("app-text-accent shrink-0")
+                            with ui.column().classes("gap-1 flex-1 min-w-0"):
+                                # The user's name with its tags right beside it
+                                with ui.row().classes("items-center gap-2 flex-wrap"):
+                                    ui.label(display_name).classes("app-text-primary font-semibold")
+                                    for chip in (tags["system_ar"], tags["lang_ar"], tags["marks_ar"]):
+                                        ui.label(chip).classes("app-chip app-chip--accent")
+                                    for msg in conflicts:
+                                        with ui.label("تعارض").classes("app-chip app-chip--warning"):
+                                            ui.tooltip(msg)
+                                ui.label(f"{f} • {size_kb} KB • آخر تعديل: {mtime}").classes("app-caption")
 
-                            # Middle Badges: System + Language + Type
-                            with ui.row().classes("items-center gap-2 shrink-0"):
-                                sys_name = info.get("system_ar") or "النظام السنوي"
-                                sys_color = "bg-blue-500/20 text-blue-300 border-blue-500/30" if "سنوي" in sys_name else ("bg-purple-500/20 text-purple-300 border-purple-500/30" if "ماجستير" in sys_name else "bg-teal-500/20 text-teal-300 border-teal-500/30")
-                                ui.label(sys_name).classes(f"text-[10px] px-2 py-0.5 rounded-lg border font-semibold {sys_color}")
-
-                                lang_name = info.get("lang_ar") or "عربي"
-                                lang_color = "bg-emerald-500/20 text-emerald-300 border-emerald-500/30" if "عربي" in lang_name else "bg-cyan-500/20 text-cyan-300 border-cyan-500/30"
-                                ui.label(lang_name).classes(f"text-[10px] px-2 py-0.5 rounded-lg border font-semibold {lang_color}")
-
-                                type_name = info.get("type_ar") or "بدون درجات"
-                                type_color = "bg-amber-500/20 text-amber-300 border-amber-500/30" if "درجات" in type_name or "SBS" in type_name else "bg-slate-500/20 text-slate-300 border-slate-500/30"
-                                ui.label(type_name).classes(f"text-[10px] px-2 py-0.5 rounded-lg border font-semibold {type_color}")
-
-                            # Actions: Edit Name, Download, Open in Word
-                            with ui.row().classes("items-center gap-1.5 shrink-0"):
-                                def _open_rename_dialog(filename=f, current_title=display_name):
-                                    with ui.dialog() as rename_dlg, UI.card().classes(
-                                        "p-5 gap-4 w-[420px] max-w-full rounded-2xl border border-blue-500/30 shadow-2xl bg-[var(--surface-card)]"
-                                    ):
-                                        with ui.row().classes("w-full justify-between items-center pb-2 border-b border-[var(--border-default)]"):
-                                            ui.label("تعديل اسم القالب").classes("text-sm font-bold app-text-primary")
-                                            ui.button(icon="close", on_click=rename_dlg.close).classes("app-btn-secondary p-1 rounded-lg text-xs")
-
-                                        ui.label(f"الملف: {filename}").classes("text-xs font-mono app-text-muted")
-
-                                        new_name_input = ui.input(
-                                            label="الاسم المعتمد في القوائم والسجلات",
-                                            value=current_title
-                                        ).classes("w-full app-input text-xs").props("outlined dense")
-
-                                        with ui.row().classes("w-full justify-end gap-2 mt-2"):
-                                            UI.secondary_button("إلغاء", on_click=rename_dlg.close).classes("text-xs px-3 py-1.5")
-
-                                            def _do_rename():
-                                                val = (new_name_input.value or "").strip()
-                                                if val:
-                                                    register_template(filename, val)
-                                                    rename_dlg.close()
-                                                    ui.notify("تم تعديل اسم القالب بنجاح", type="positive")
-                                                    _render_templates_table.refresh()
-
-                                            UI.primary_button("حفظ", icon="save", on_click=_do_rename).classes("text-xs px-3 py-1.5")
-                                    rename_dlg.open()
-
-                                ui.button(icon="edit", on_click=_open_rename_dialog).classes("app-btn-secondary p-1.5 rounded-lg text-xs").tooltip("تعديل اسم القالب")
+                            with ui.row().classes("items-center gap-1 shrink-0"):
+                                UI.icon_button("edit", "تعديل الاسم والوسوم",
+                                               on_click=lambda _e, fn=f, nm=display_name: _open_edit_dialog(fn, nm))
 
                                 def _open_word(fp=filepath):
                                     try:
@@ -186,8 +147,39 @@ class TemplatesMixin:
                                     except Exception as exc:
                                         ui.notify(f"تعذر فتح الملف: {exc}", type="warning")
 
-                                ui.button(icon="launch", on_click=_open_word).classes("app-btn-secondary p-1.5 rounded-lg text-xs").tooltip("فتح القالب في Word")
-                                ui.button(icon="download", on_click=lambda fp=filepath: deliver_file(fp, filename=os.path.basename(fp), title=f"تم حفظ القالب ({os.path.basename(fp)}) بنجاح", auto_open=False)).classes("app-btn-secondary p-1.5 rounded-lg text-xs").tooltip("تنزيل القالب")
+                                UI.icon_button("launch", "فتح القالب في Word", on_click=lambda _e, fp=filepath: _open_word(fp))
+                                UI.icon_button("download", "تنزيل القالب", on_click=lambda _e, fp=filepath: deliver_file(
+                                    fp, filename=os.path.basename(fp),
+                                    title=f"تم حفظ القالب ({os.path.basename(fp)}) بنجاح", auto_open=False))
+
+            def _open_edit_dialog(filename: str, current_name: str):
+                """Name and the three tags of one template; the .docx file is not changed."""
+                t = template_tags(filename)
+                with ui.dialog() as dlg, UI.card().classes("w-[520px] max-w-full gap-4"):
+                    UI.card_header("تعديل القالب", "edit")
+                    UI.muted_label(f"الملف: {filename}")
+                    name_inp = UI.text_input("اسم القالب", value=current_name)
+                    with ui.element("div").classes("app-template-tags w-full"):
+                        lang_sel = UI.select("اللغة", dict(TAG_LANGS), value=t["lang"])
+                        sys_sel = UI.select("النظام الدراسي", dict(TAG_SYSTEMS), value=t["system"])
+                        marks_sel = UI.select("الدرجات", {True: TAG_MARKS[True], False: TAG_MARKS[False]}, value=t["sbs"])
+
+                    def _save():
+                        name = (name_inp.value or "").strip()
+                        if not name:
+                            ui.notify("اكتب اسم القالب", type="warning")
+                            return
+                        if save_template_tags(filename, name, lang_sel.value, sys_sel.value, bool(marks_sel.value)):
+                            ui.notify("تم حفظ القالب", type="positive")
+                            dlg.close()
+                            _render_templates_table.refresh()
+                        else:
+                            ui.notify("تعذر حفظ القالب", type="negative")
+
+                    with ui.row().classes("app-dialog-actions"):
+                        UI.ghost_button("إلغاء", on_click=dlg.close)
+                        UI.primary_button("حفظ", icon="save", on_click=_save)
+                dlg.open()
 
             _render_templates_table()
 
@@ -198,85 +190,16 @@ class TemplatesMixin:
                     ui.icon("add_circle", size="md").classes("stat-text-emerald")
                     with ui.column().classes("gap-0"):
                         ui.label("إضافة قالب وثيقة جديد وتحديد اسمه").classes("text-base font-bold app-text-primary")
-                        ui.label("رفع ملف Word (.docx) وتحديد الاسم المعتمد للقالب (مثال: Ar, Master, cr أو En, Master, cr)").classes("text-xs app-text-muted")
+                        ui.label("ارفع ملف Word (.docx)، واكتب اسمه، واختر لغته ونظامه الدراسي وهل هو بالدرجات.").classes("text-xs app-text-muted")
 
-            new_template_state = {
-                "file_name": "",
-                "file_content": None,
-                "display_name": "Ar, Master, cr",
-                "lang": "Ar",
-                "system": "Master",
-                "sbs": False,
-            }
+            new_template_state = {"file_name": "", "file_content": None}
 
             with ui.column().classes("w-full gap-4 pt-2"):
-                # Quick generator / helper row
-                with ui.row().classes("w-full items-center gap-3 flex-wrap"):
-                    def _update_suggested_name():
-                        l = new_template_state["lang"]
-                        s = new_template_state["system"]
-                        is_sbs = new_template_state["sbs"]
-                        parts = [l, s]
-                        if is_sbs:
-                            parts.append("SBS")
-                        parts.append("cr")
-                        sug = ", ".join(parts)
-                        new_template_state["display_name"] = sug
-                        name_input.value = sug
-
-                    def _on_lang_change(e):
-                        val = getattr(e, "value", None) or (e if isinstance(e, str) else "Ar")
-                        new_template_state["lang"] = str(val or "Ar")
-                        _update_suggested_name()
-
-                    def _on_system_change(e):
-                        val = getattr(e, "value", None) or (e if isinstance(e, str) else "Master")
-                        new_template_state["system"] = str(val or "Master")
-                        _update_suggested_name()
-
-                    def _on_sbs_toggle(e):
-                        val = getattr(e, "value", None) or (e if isinstance(e, bool) else False)
-                        new_template_state["sbs"] = bool(val)
-                        _update_suggested_name()
-
-                    ui.select(
-                        options={"Ar": "عربي (Ar)", "En": "إنكليزي (En)"},
-                        value="Ar",
-                        label="اللغة",
-                        on_change=_on_lang_change
-                    ).classes("app-input text-xs w-36").props("outlined dense options-dense")
-
-                    ui.select(
-                        options={
-                            "Master": "ماجستير (Master)",
-                            "Semester": "نظام المقررات (Semester)",
-                            "Annual": "النظام السنوي (Annual)",
-                            "PhD": "دكتوراه (PhD)",
-                            "Diploma": "دبلوم عالي (Diploma)",
-                        },
-                        value="Master",
-                        label="النظام / الدرجة",
-                        on_change=_on_system_change
-                    ).classes("app-input text-xs w-48").props("outlined dense options-dense")
-
-                    ui.checkbox(
-                        "مقترن جنباً إلى جنب (SBS)",
-                        value=False,
-                        on_change=_on_sbs_toggle
-                    ).classes("text-xs font-semibold app-text-primary")
-
-                # Name input row
-                with ui.row().classes("w-full items-center gap-3"):
-                    name_input = ui.input(
-                        label="الاسم المعتمد للقالب",
-                        value=new_template_state["display_name"],
-                        placeholder="مثال: Ar, Master, cr أو En, Master, cr"
-                    ).classes("flex-1 app-input text-xs").props("outlined dense")
-
-                    def _on_name_typed(e):
-                        new_template_state["display_name"] = (name_input.value or "").strip()
-
-                    name_input.on("change", _on_name_typed)
+                name_input = UI.text_input("اسم القالب", placeholder="مثال: تأييد عربي سنوي")
+                with ui.element("div").classes("app-template-tags w-full"):
+                    add_lang = UI.select("اللغة", dict(TAG_LANGS), value="Ar")
+                    add_sys = UI.select("النظام الدراسي", dict(TAG_SYSTEMS), value="Annual")
+                    add_marks = UI.select("الدرجات", {True: TAG_MARKS[True], False: TAG_MARKS[False]}, value=False)
 
                 # Selected file status indicator
                 file_status_label = ui.label("لم يتم اختيار ملف Word بعد").classes("text-xs app-text-muted italic")
@@ -312,7 +235,7 @@ class TemplatesMixin:
                     def _save_new_template():
                         fname = new_template_state.get("file_name")
                         content = new_template_state.get("file_content")
-                        chosen_name = (name_input.value or new_template_state.get("display_name") or "").strip()
+                        chosen_name = (name_input.value or "").strip()
 
                         if not fname or not content:
                             ui.notify("يرجى اختيار ملف Word (.docx) أولاً قبل الحفظ!", type="warning")
@@ -327,14 +250,7 @@ class TemplatesMixin:
                             with open(dest_path, "wb") as f_out:
                                 f_out.write(content)
 
-                            register_template(
-                                key_or_filename=fname,
-                                display_name=chosen_name,
-                                file=fname,
-                                lang=new_template_state["lang"],
-                                system=new_template_state["system"],
-                                sbs=new_template_state["sbs"]
-                            )
+                            save_template_tags(fname, chosen_name, add_lang.value, add_sys.value, bool(add_marks.value))
 
                             ui.notify(f"تم حفظ وتسجيل القالب بنجاح باسم: ({chosen_name})", type="positive")
                             new_template_state["file_name"] = ""

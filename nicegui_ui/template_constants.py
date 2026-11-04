@@ -364,3 +364,73 @@ def get_template_filter_options() -> Dict[str, str]:
             options[c] = c
 
     return options
+
+
+# ── Template tags (language, study system, marks) — editable in Settings ────
+
+TAG_LANGS: Dict[str, str] = {"Ar": "عربي", "En": "إنكليزي"}
+# Names only for now: no calculation depends on the system tag except the template filter.
+TAG_SYSTEMS: Dict[str, str] = {
+    "Annual": "النظام السنوي",
+    "Semester": "نظام المقررات (فصلي)",
+    "Bologna": "نظام بولونيا",
+    "Master": "ماجستير (دراسات عليا)",
+    "PhD": "دكتوراه",
+    "Diploma": "دبلوم عالي",
+}
+TAG_MARKS: Dict[bool, str] = {True: "بالدرجات", False: "بدون درجات"}
+
+
+def template_tags(raw_name: Optional[str]) -> Dict[str, Any]:
+    """{'lang','system','sbs'} plus their Arabic labels, normalised to the tag lists above."""
+    info = get_template_info(raw_name)
+    lang = "En" if str(info.get("lang") or "").lower() == "en" else "Ar"
+    system = next((k for k in TAG_SYSTEMS if k.lower() == str(info.get("system") or "").lower()), "Annual")
+    sbs = bool(info.get("sbs"))
+    return {
+        "lang": lang, "system": system, "sbs": sbs,
+        "lang_ar": TAG_LANGS[lang], "system_ar": TAG_SYSTEMS[system], "marks_ar": TAG_MARKS[sbs],
+    }
+
+
+def save_template_tags(key_or_filename: str, display_name: str, lang: str, system: str, sbs: bool) -> bool:
+    """Saves the user's name and the three tags for a template (the .docx is not touched)."""
+    key = normalize_template_key(key_or_filename)
+    if not key or not (display_name or "").strip():
+        return False
+    lang = lang if lang in TAG_LANGS else "Ar"
+    system = system if system in TAG_SYSTEMS else "Annual"
+    config = load_templates_config()
+    entry = dict(config.get(key, {}))
+    entry.update({
+        "display_name": display_name.strip(),
+        "file": entry.get("file") or (key_or_filename if str(key_or_filename).lower().endswith(".docx") else f"{key}.docx"),
+        "lang": lang, "lang_ar": TAG_LANGS[lang],
+        "system": system, "system_ar": TAG_SYSTEMS[system],
+        "sbs": bool(sbs), "type_ar": TAG_MARKS[bool(sbs)],
+    })
+    config[key] = entry
+    return save_templates_config(config)
+
+
+_CONFLICT_WORDS = (
+    # (words in the name, tag, values that contradict them, message)
+    (("انجليزي", "إنجليزي", "انكليزي", "إنكليزي"), "lang", ("Ar",), "الاسم يذكر الإنكليزية واللغة عربي"),
+    (("عربي",), "lang", ("En",), "الاسم يذكر العربية واللغة إنكليزي"),
+    (("فصلي", "مقررات"), "system", ("Annual", "Bologna"), "الاسم يذكر الفصلي/المقررات والنظام مختلف"),
+    (("سنوي",), "system", ("Semester", "Bologna"), "الاسم يذكر السنوي والنظام مختلف"),
+    (("بولونيا",), "system", ("Annual", "Semester"), "الاسم يذكر بولونيا والنظام مختلف"),
+    (("بدون درجات",), "sbs", (True,), "الاسم يذكر «بدون درجات» والقالب بالدرجات"),
+)
+
+
+def template_tag_conflicts(display_name: str, tags: Dict[str, Any]) -> List[str]:
+    """Warnings where words in the user's name contradict the template's tags."""
+    name = display_name or ""
+    out = []
+    for words, field, bad, msg in _CONFLICT_WORDS:
+        if any(w in name for w in words) and tags.get(field) in bad:
+            out.append(msg)
+    if "بالدرجات" in name and not tags.get("sbs"):
+        out.append("الاسم يذكر «بالدرجات» والقالب بدون درجات")
+    return out
