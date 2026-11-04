@@ -277,7 +277,7 @@ class GraduationOrdersScreen:
                         # Row 3: Student Count & Notes
                         with ui.row().classes("w-full gap-4"):
                             num_st_inp = UI.text_input(
-                                "عدد الطلاب (حسب الوثيقة)",
+                                "عدد الطلاب في أمر التخرج",
                                 value=str(existing_data.get("num_students", "")) if existing_data and existing_data.get("num_students") else "",
                                 placeholder="اختياري"
                             ).classes("flex-1 text-sm")

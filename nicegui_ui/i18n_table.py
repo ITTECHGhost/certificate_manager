@@ -1263,4 +1263,5 @@ EN: dict[str, str] = {
     '🖨️ طباعة الآن': 'Print Now',
     '🗑 تأكيد الحذف': 'Delete',
     '🛡️ صلاحيات هذا الدور: {} إجراء • {} شاشات • نطاق الأقسام: {}': "🛡️ This role's permissions: {} actions • {} screens • department scope: {}",
+    'عدد الطلاب في أمر التخرج': 'Students in the graduation order',
 }

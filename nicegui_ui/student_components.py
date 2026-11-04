@@ -28,7 +28,7 @@ def normalize_year(year_str: str) -> str:
     return year_str
 
 
-from utils.date_parsing import parse_date, format_academic_year, academic_year_start
+from utils.date_parsing import parse_date, format_academic_year, academic_year_start, academic_year_from_date
 
 def calculate_stage(db_year: str, admission_year: str | int | None) -> int:
     """Automatically calculate student stage number from academic year and admission year."""
@@ -1294,13 +1294,16 @@ class StudentFormView:
         try:
             orders = self.order_repo.get_all(limit=500, offset=0) or []
             order_opts = {0: "بدون أمر تخرج"}
+            self._order_dates = {}
             for o in orders:
                 onum = o.get("order_number") or "—"
                 odate = o.get("order_date") or ""
+                self._order_dates[o["id"]] = str(odate)[:10]
                 odept = o.get("dept_name_ar") or ""
                 order_opts[o["id"]] = f"أمر: {onum} ({odept} - {odate})"
         except Exception:
             order_opts = {0: "بدون أمر تخرج"}
+            self._order_dates = {}
 
         SEMESTER_OPTS = {
             "first": "الفصل الأول",
@@ -1365,6 +1368,17 @@ class StudentFormView:
                     with ui.row().classes('w-full gap-4'):
                         self.order_id = UI.select("الأمر الجامعي", order_opts, value=0).classes('flex-1 min-w-[200px]')
                         self.grad_date = UI.date_input("تاريخ التخرج").classes('flex-1 min-w-[200px]')
+                        # Not stored: shown from the graduation date (the year the date falls in, then the next)
+                        self.grad_year_display = UI.text_input("سنة التخرج").classes('flex-1 min-w-[140px]').props("readonly")
+                        self.grad_year_display.bind_value_from(self.grad_date, "value", backward=academic_year_from_date)
+
+                        def _on_order_picked(e):
+                            # Linking to an order: its date becomes the graduation date (still editable)
+                            oid = e.value if hasattr(e, "value") else e
+                            odate = parse_date(self._order_dates.get(oid, "")) if isinstance(oid, int) and oid > 0 else ""
+                            if odate and not getattr(self, "_loading_student", False):
+                                self.grad_date.value = odate
+                        self.order_id.on_value_change(_on_order_picked)
                         self.grad_semester = UI.select("فصل التخرج", SEMESTER_OPTS, value="first").classes('flex-1 min-w-[200px]')
 
                     with ui.row().classes('w-full gap-4'):
@@ -1408,12 +1422,14 @@ class StudentFormView:
                 self.admission_year.value = format_academic_year(_adm) or _adm
 
                 oid_val = data.get("order_id")
+                self._loading_student = True     # keep the saved graduation date when the form opens
                 if oid_val in order_opts:
                     self.order_id.value = oid_val
                 else:
                     self.order_id.value = 0
 
-                self.grad_date.value = str(data.get("graduation_date") or "")
+                self.grad_date.value = str(data.get("graduation_date") or "")[:10]
+                self._loading_student = False
                 gsem = str(data.get("graduation_semester") or "").lower()
                 if gsem in SEMESTER_OPTS:
                     self.grad_semester.value = gsem
