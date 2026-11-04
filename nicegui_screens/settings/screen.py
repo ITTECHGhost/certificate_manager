@@ -159,36 +159,35 @@ class SettingsScreen(
                     self.tab_logs = ui.tab(name="logs", label="السيرفر والصيانة والسجلات", icon="dns") if can_logs else None
 
                 initial_tab = getattr(self, f"tab_{default_tab_name}", self.tab_printers)
+
+                # Each panel is built the first time its tab opens, so the page shows at once
+                builders = {
+                    "institution": (self.tab_institution, (self._section_institution_info, self._section_study_systems)),
+                    "departments": (self.tab_departments, (self._section_departments,)),
+                    "appearance": (self.tab_app, (self._section_appearance,)),
+                    "printers": (self.tab_printers, (self._section_printer_settings,)),
+                    "roles": (self.tab_roles, (self._section_roles_and_permissions,)),
+                    "templates": (self.tab_templates, (self._section_templates_management,)),
+                    "logs": (self.tab_logs, (self._section_server_config, self._section_database_maintenance, self._section_system_logs)),
+                }
+                panels: dict[str, ui.tab_panel] = {}
+                built: set[str] = set()
+
+                def _build_panel(name: str) -> None:
+                    if name in built or name not in panels:
+                        return
+                    built.add(name)
+                    with panels[name]:
+                        for section in builders[name][1]:
+                            section()
+
                 with ui.tab_panels(self.tabs, value=initial_tab).classes("flex-1 min-w-0 bg-transparent p-0"):
-                    if self.tab_institution:
-                        with ui.tab_panel(self.tab_institution).classes("w-full gap-6 p-0 flex flex-col"):
-                            self._section_institution_info()
-                            self._section_study_systems()
+                    for name, (tab, _sections) in builders.items():
+                        if tab:
+                            panels[name] = ui.tab_panel(tab).classes("w-full gap-6 p-0 flex flex-col")
 
-                    if self.tab_departments:
-                        with ui.tab_panel(self.tab_departments).classes("w-full gap-6 p-0 flex flex-col"):
-                            self._section_departments()
-
-                    if self.tab_app:
-                        with ui.tab_panel(self.tab_app).classes("w-full gap-6 p-0 flex flex-col"):
-                            self._section_appearance()
-
-                    with ui.tab_panel(self.tab_printers).classes("w-full gap-6 p-0 flex flex-col"):
-                        self._section_printer_settings()
-
-                    if self.tab_roles:
-                        with ui.tab_panel(self.tab_roles).classes("w-full gap-6 p-0 flex flex-col"):
-                            self._section_roles_and_permissions()
-
-                    if self.tab_templates:
-                        with ui.tab_panel(self.tab_templates).classes("w-full gap-6 p-0 flex flex-col"):
-                            self._section_templates_management()
-
-                    if self.tab_logs:
-                        with ui.tab_panel(self.tab_logs).classes("w-full gap-6 p-0 flex flex-col"):
-                            self._section_server_config()
-                            self._section_database_maintenance()
-                            self._section_system_logs()
+                _build_panel(initial_tab._props.get("name") if initial_tab else "printers")
+                self.tabs.on_value_change(lambda e: _build_panel(e.value if isinstance(e.value, str) else getattr(e.value, "_props", {}).get("name")))
 
     def _section_about(self) -> None:
         with UI.card():

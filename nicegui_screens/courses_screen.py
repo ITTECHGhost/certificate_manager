@@ -88,10 +88,16 @@ class CoursesScreen:
                         content_view()
                         self._refresh_content = content_view
 
-                # Panel 2: Predefined Study Routines (Master-Detail View)
-                with ui.tab_panel("routines").classes("w-full p-0 pt-4"):
-                    ctrl = StudyRoutinesController(standalone=False)
-                    ctrl.render_master_detail_view()
+                # Panel 2: Predefined Study Routines (Master-Detail View), built the first time it is opened
+                with ui.tab_panel("routines").classes("w-full p-0 pt-4") as routines_panel:
+                    pass
+
+            def _open_routines(e):
+                if getattr(e, "value", None) == "routines" and not routines_panel.default_slot.children:
+                    with routines_panel:
+                        StudyRoutinesController(standalone=False).render_master_detail_view()
+
+            tabs.on_value_change(_open_routines)
 
     def _render_content(self):
         if hasattr(self, "_refresh_content"):

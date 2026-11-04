@@ -1,4 +1,5 @@
 import logging
+import time
 log = logging.getLogger(__name__)
 
 # =============================================================================
@@ -87,16 +88,15 @@ class MainAppShell:
 
     def refresh_data(self) -> None:
         """Fetches dashboard metrics & recent database records."""
+        t0 = time.perf_counter()
         try:
             self.counts = self.repo.get_counts()
         except Exception as exc:
             log.warning(f"[MainAppShell] Failed to fetch counts: {exc}")
 
-        # Issued certificates total (not in the counts API): count the existing report
-        try:
-            self.counts["total_issued"] = len(self.student_repo.get_issued_certificates_report() or [])
-        except Exception as exc:
-            log.warning(f"[MainAppShell] Failed to count issued certificates: {exc}")
+        # Issued total is not in the counts API and needs the whole report: _load_issued_count
+        # fetches it in the background once the page is on screen; until then the tile shows a dash.
+        self.counts.setdefault("total_issued", "—")
 
         # 1. Fetch recent students (from last added ID to the first)
         try:
@@ -123,6 +123,7 @@ class MainAppShell:
 
         if not self.recent_printed_certificates:
             self.recent_printed_certificates = list(self.recent_certificates)
+        log.info("[perf] dashboard data loaded in %.0f ms", (time.perf_counter() - t0) * 1000)
 
     # =========================================================================
     # 1. ROOT LAYOUT CONTAINER DEFINITION
@@ -221,6 +222,18 @@ class MainAppShell:
             except Exception as exc:
                 log.warning(f"[MainAppShell] Startup queue sync error: {exc}")
 
+    async def _load_issued_count(self) -> None:
+        """Counts issued certificates off the UI thread, then updates the stat tile."""
+        from nicegui import run
+        try:
+            report = await run.io_bound(self.student_repo.get_issued_certificates_report)
+            self.counts["total_issued"] = len(report or [])
+        except Exception as exc:
+            log.warning(f"[MainAppShell] Failed to count issued certificates: {exc}")
+            return
+        if self._refresh_cards and self.current_screen == "home":
+            self._refresh_cards.refresh()
+
     async def _on_refresh_click(self) -> None:
         """
         [BUTTON HANDLER]
@@ -245,6 +258,7 @@ class MainAppShell:
         self.refresh_data()
         if self._refresh_cards:
             self._refresh_cards.refresh()
+        await self._load_issued_count()
         ui.notify("تم تحديث البيانات", type="positive")
 
     # =========================================================================
@@ -402,7 +416,7 @@ class MainAppShell:
         }
         return header_map.get(self.current_screen, "الرئيسية"), ""
 
-    def _switch_screen(self, screen_key: str) -> None:
+    def _switch_screen(self, screen_key: str, defer: bool = True) -> None:
         """Handles navigation between screens when a sidebar button is clicked."""
         if screen_key != "profile" and hasattr(self, "allowed_screens") and self.allowed_screens and screen_key not in self.allowed_screens:
             ui.notify("ليس لديك صلاحية لفتح هذه الشاشة", type="warning")
@@ -419,10 +433,25 @@ class MainAppShell:
         if self._header_title_ar:
             self._header_title_ar.set_text(self._get_screen_header_titles()[0])
 
-        self._render_active_screen()
+        self._render_active_screen(defer=defer)
 
-    def _render_active_screen(self) -> None:
+    def _render_active_screen(self, defer: bool = True) -> None:
+        """Shows a skeleton at once, then builds the page on the next tick (a newer switch wins)."""
+        self._render_token = getattr(self, "_render_token", 0) + 1
+        if not defer:
+            self._build_active_screen(self._render_token)
+            return
+        token = self._render_token
+        self.content_container.clear()
+        with self.content_container:
+            UI.skeleton(rows=6, height=44)
+            ui.timer(0.01, lambda: self._build_active_screen(token), once=True)
+
+    def _build_active_screen(self, token: int) -> None:
         """Clears and re-populates the main content viewport with the active screen component."""
+        if token != self._render_token:
+            return
+        t0 = time.perf_counter()
         self.content_container.clear()
         with self.content_container:
             if self.current_screen == "home":
@@ -450,7 +479,7 @@ class MainAppShell:
             elif self.current_screen == "certificate":
                 def _on_edit_student_handler(student_dict):
                     self._last_cert_student = student_dict
-                    self._switch_screen("students")
+                    self._switch_screen("students", defer=False)
                     if hasattr(self, "_active_students_screen") and self._active_students_screen:
                         def _back_to_cert(target_student=None):
                             st = target_student or student_dict
@@ -488,6 +517,7 @@ class MainAppShell:
                 IssuedCertificatesScreen(on_edit_certificate=_on_edit_issued_cert)
             else:
                 self._build_placeholder_screen()
+        log.info("[perf] screen %s built in %.0f ms", self.current_screen, (time.perf_counter() - t0) * 1000)
 
     # =========================================================================
     # 6. DASHBOARD CONTENT VIEW DEFINITION (CARDS, STATS, ACTIONS & TABLES)
@@ -511,6 +541,7 @@ class MainAppShell:
 
         stat_cards_section()
         self._refresh_cards = stat_cards_section
+        ui.timer(0.01, self._load_issued_count, once=True)
 
         # The one obvious next action
         with ui.row().classes("w-full gap-4 no-wrap items-stretch"):

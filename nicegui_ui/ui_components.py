@@ -43,13 +43,14 @@ class UI:
     @staticmethod
     def page_header(title: str, subtitle: str = "", actions=None):
         """Section heading for a screen's main card. The page title itself lives in the top bar."""
-        with ui.row().classes("w-full items-center justify-between gap-3 no-wrap") as row:
-            with ui.column().classes("gap-0 min-w-0"):
+        # Wraps: on a narrow window the actions move under the title instead of off the edge
+        with ui.row().classes("w-full items-center justify-between gap-3") as row:
+            with ui.column().classes("gap-0 min-w-[220px] flex-1"):
                 ui.label(title).classes("app-section-title")
                 if subtitle:
                     ui.label(subtitle).classes("app-caption")
             if actions:
-                with ui.row().classes("items-center gap-2 no-wrap shrink-0"):
+                with ui.row().classes("items-center gap-2"):
                     actions()
         return row
 
