@@ -888,12 +888,12 @@ input, textarea { caret-color: var(--accent); }
   color: #f9fafb !important;
   box-shadow: var(--shadow-pop) !important;
   border: 0 !important;
-  border-inline-start: 4px solid #9ca3af !important;
   font-size: var(--text-sm) !important;
 }
-.q-notification--positive { border-inline-start-color: #34d399 !important; }
-.q-notification--negative { border-inline-start-color: #f87171 !important; }
-.q-notification--warning  { border-inline-start-color: #fbbf24 !important; }
+/* The kind of message shows in the icon colour, not in a side stripe */
+.q-notification--positive .q-notification__icon { color: #34d399 !important; }
+.q-notification--negative .q-notification__icon { color: #f87171 !important; }
+.q-notification--warning  .q-notification__icon { color: #fbbf24 !important; }
 .q-notification__icon { font-size: 22px !important; margin-inline-end: var(--space-2) !important; }
 .q-notification__actions .q-btn {
   min-height: var(--control-h-dense);
