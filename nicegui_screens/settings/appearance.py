@@ -26,8 +26,7 @@ class AppearanceMixin:
             saved_size  = int(pref.get("font_size_base") or 14)
             saved_rtl   = int(pref.get("is_arabic_rtl", 1))
 
-            # One accent colour and one font stack come from theme.css; only the mode and size are choices.
-            self.accent_select = None
+            # One font stack comes from theme.css; the accent is one of five token sets (theme.css 1b).
             self.font_select = None
             with ui.grid(columns=2).classes("w-full gap-4"):
                 self.theme_select = UI.select(
@@ -43,6 +42,8 @@ class AppearanceMixin:
                     on_change=self._on_font_size_change
                 )
 
+            self._build_accent_picker()
+
             # Advanced: the app is Arabic-first; turning RTL off flips every page to LTR
             with ui.expansion("متقدم", icon="tune").classes("w-full"):
                 with ui.row().classes("w-full items-center justify-between py-2"):
@@ -50,6 +51,27 @@ class AppearanceMixin:
                     self.rtl_switch = UI.switch("", value=bool(saved_rtl), on_change=self._on_rtl_switch_change)
 
             UI.primary_button("حفظ", icon="save", on_click=self._save_appearance).classes("self-end")
+
+    def _build_accent_picker(self) -> None:
+        """Colour swatches, one per accent; clicking one recolours the app at once."""
+        from nicegui_ui.ui_theme import ACCENT_OPTIONS, ACCENT_LABELS, ACCENT_SWATCHES, normalize_accent
+        current = normalize_accent(self.session.preferences.get("accent_color"))
+        self._accent_value = current
+        self._accent_swatches = {}
+        UI.section_label("لون السمة")
+        with ui.row().classes("app-accent-picker w-full gap-2 flex-wrap"):
+            for name in ACCENT_OPTIONS:
+                label = ACCENT_LABELS[name]["ar"]
+                btn = ui.button(on_click=lambda _e, n=name: self._on_accent_select_change(n)).props("flat no-caps").classes(
+                    "app-accent-option" + (" app-accent-option--active" if name == current else "")
+                )
+                btn.props(f'aria-label="{label}"')
+                with btn:
+                    ui.element("span").classes("app-accent-swatch").style(f"background:{ACCENT_SWATCHES[name]}")
+                    ui.label(label).classes("app-accent-name")
+                self._accent_swatches[name] = btn
+        # Kept for code that still reads the old select's value
+        self.accent_select = None
 
     def _on_theme_select_change(self, e=None) -> None:
         """Live theme switch when Theme Mode dropdown option changes."""
@@ -100,13 +122,19 @@ class AppearanceMixin:
         )
 
     def _on_accent_select_change(self, e=None) -> None:
-        """Live accent palette switch when Accent Color dropdown option changes."""
-        from nicegui_ui.ui_theme import set_accent
-        raw_val = self._get_event_value(e, self.accent_select, "blue")
-        val = str(raw_val or "blue")
+        """Live accent switch from a swatch click (a name) or an event carrying the value."""
+        from nicegui_ui.ui_theme import set_accent, normalize_accent, ACCENT_LABELS
+        raw_val = e if isinstance(e, str) else self._get_event_value(e, self.accent_select, "green")
+        val = normalize_accent(raw_val)
         set_accent(val)
+        self._accent_value = val
+        for name, btn in getattr(self, "_accent_swatches", {}).items():
+            if name == val:
+                btn.classes(add="app-accent-option--active")
+            else:
+                btn.classes(remove="app-accent-option--active")
         self.session.update_preferences(accent_color=val)
-        ui.notify(f"تم تغيير اللون الأساسي{val}!", type="info")
+        ui.notify(f"لون السمة: {ACCENT_LABELS[val]['ar']}", type="info")
 
     def _on_font_select_change(self, e=None) -> None:
         """Live font family switch when Font Family dropdown option changes."""
@@ -144,8 +172,9 @@ class AppearanceMixin:
         from nicegui_ui.state import log_state
         try:
             theme_val = str((self.theme_select.value if self.theme_select else None) or "Dark")
-            # Accent and font are fixed by the theme now; keep whatever the account has stored
-            accent_val = str(self.session.preferences.get("accent_color") or "blue")
+            # The font is fixed by the theme; the accent is the swatch picked above
+            from nicegui_ui.ui_theme import normalize_accent
+            accent_val = normalize_accent(getattr(self, "_accent_value", None) or self.session.preferences.get("accent_color"))
             font_val = str(self.session.preferences.get("font_family") or "Segoe UI")
             size_val = int((self.font_size_input.value if self.font_size_input else None) or 14)
             rtl_val = 1 if (self.rtl_switch.value if self.rtl_switch else True) else 0

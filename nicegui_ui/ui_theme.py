@@ -38,7 +38,28 @@ class Typography:
 
 
 # ── Valid accent palette names ──────────────────────────────────────────────
-ACCENT_OPTIONS: list[str] = ["green"]
+# The five accents of 571f6aa. Each is a token set in theme.css (section 1b).
+ACCENT_OPTIONS: list[str] = ["green", "blue", "red", "orange", "purple"]
+ACCENT_DEFAULT = "green"
+ACCENT_LABELS: dict[str, dict[str, str]] = {
+    "green":  {"ar": "أخضر",    "en": "Green"},
+    "blue":   {"ar": "أزرق",    "en": "Blue"},
+    "red":    {"ar": "أحمر",    "en": "Red"},
+    "orange": {"ar": "برتقالي", "en": "Orange"},
+    "purple": {"ar": "بنفسجي",  "en": "Purple"},
+}
+# Swatch colour shown in the picker (the light-mode --accent of each set)
+ACCENT_SWATCHES: dict[str, str] = {
+    "green": "#1f7a5a", "blue": "#2b5fb4", "red": "#b4373a", "orange": "#a85a12", "purple": "#7444ad",
+}
+
+
+def normalize_accent(name) -> str:
+    """Map a stored accent name ('Blue', 'dark_blue', 'dark-blue', None…) onto ACCENT_OPTIONS."""
+    n = str(name or "").strip().lower().replace("_", "-").replace(" ", "-")
+    if n == "dark-blue":
+        n = "blue"
+    return n if n in ACCENT_OPTIONS else ACCENT_DEFAULT
 
 
 class Styles:
@@ -176,10 +197,12 @@ def set_dark_mode(enable: bool, dark_inst=None) -> None:
 
 
 def set_accent(accent_name: str) -> None:
-    """The app has one green accent (theme.css); drop any accent class an older preference left on <body>."""
+    """Swap the accent-<name> class on <body>; theme.css recolours every token from it."""
     from nicegui import ui
+    css_class = f"accent-{normalize_accent(accent_name)}"
     ui.run_javascript(
         r"document.body.className = document.body.className.replace(/\baccent-[a-z-]+\b/g, '').trim();"
+        f" document.body.classList.add('{css_class}');"
     )
 
 

@@ -11,7 +11,8 @@
      type      12 / 14 / 16 / 20 / 24, body 14, line-height 1.5
      controls  40 px, 32 px in dense tables     --control-h / --control-h-dense
    Colour
-     one green accent, neutral greys, red only for danger, amber for warnings
+     one accent at a time (green, blue, red, orange or purple, chosen in
+     Settings), neutral greys, red for danger, amber for warnings
    ========================================================================== */
 
 
@@ -65,7 +66,7 @@
   /* One border colour */
   --border: #dfe3e8;
 
-  /* Accent: green */
+  /* Accent: green (the default; the other accents are in section 1b) */
   --accent: #1f7a5a;            /* filled buttons, white text 5.3:1 */
   --accent-hover: #186148;
   --accent-text: #19694d;       /* links, active nav, icons on light */
@@ -74,6 +75,7 @@
   --accent-ring: rgba(31, 122, 90, 0.45);
 
   /* Status */
+  --success: #19694d;
   --danger: #b42318;
   --danger-soft: rgba(180, 35, 24, 0.10);
   --warning: #9a5b00;
@@ -109,6 +111,7 @@ body.dark,
   --accent-soft-strong: rgba(95, 207, 159, 0.16);
   --accent-ring: rgba(95, 207, 159, 0.55);
 
+  --success: #5fcf9f;
   --danger: #f2837a;
   --danger-soft: rgba(242, 131, 122, 0.12);
   --warning: #f0b24a;
@@ -118,14 +121,113 @@ body.dark,
   --shadow-pop: 0 8px 24px rgba(0, 0, 0, 0.5);
 }
 
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   1b. ACCENT THEMES — one class on <body> (accent-<name>, set by
+   ui_theme.set_accent). Each block sets the full accent token set; every
+   screen reads only these tokens, so switching recolours the whole app.
+   Contrast (WCAG): white on --accent and --accent-text on the card and
+   page surfaces are all >= 5:1 in both modes (tests/test_accent_themes.py).
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+body.accent-green {
+  --accent: #1f7a5a;
+  --accent-hover: #186148;
+  --accent-text: #19694d;
+  --accent-soft: rgba(31, 122, 90, 0.10);
+  --accent-soft-strong: rgba(31, 122, 90, 0.16);
+  --accent-ring: rgba(31, 122, 90, 0.45);
+}
+body.accent-green.body--dark,
+body.accent-green.dark {
+  --accent: #1f7a5a;
+  --accent-hover: #24906a;
+  --accent-text: #5fcf9f;
+  --accent-soft: rgba(95, 207, 159, 0.10);
+  --accent-soft-strong: rgba(95, 207, 159, 0.16);
+  --accent-ring: rgba(95, 207, 159, 0.55);
+}
+
+body.accent-blue {
+  --accent: #2b5fb4;
+  --accent-hover: #234e94;
+  --accent-text: #24539f;
+  --accent-soft: rgba(43, 95, 180, 0.10);
+  --accent-soft-strong: rgba(43, 95, 180, 0.16);
+  --accent-ring: rgba(43, 95, 180, 0.45);
+}
+body.accent-blue.body--dark,
+body.accent-blue.dark {
+  --accent: #2b5fb4;
+  --accent-hover: #3570cf;
+  --accent-text: #86b4f5;
+  --accent-soft: rgba(134, 180, 245, 0.10);
+  --accent-soft-strong: rgba(134, 180, 245, 0.16);
+  --accent-ring: rgba(134, 180, 245, 0.55);
+}
+
+body.accent-red {
+  --accent: #b4373a;
+  --accent-hover: #962d30;
+  --accent-text: #a12f32;
+  --accent-soft: rgba(180, 55, 58, 0.10);
+  --accent-soft-strong: rgba(180, 55, 58, 0.16);
+  --accent-ring: rgba(180, 55, 58, 0.45);
+}
+body.accent-red.body--dark,
+body.accent-red.dark {
+  --accent: #b4373a;
+  --accent-hover: #c94a4d;
+  --accent-text: #f39a9a;
+  --accent-soft: rgba(243, 154, 154, 0.10);
+  --accent-soft-strong: rgba(243, 154, 154, 0.16);
+  --accent-ring: rgba(243, 154, 154, 0.55);
+}
+
+body.accent-orange {
+  --accent: #a85a12;
+  --accent-hover: #8a4a0f;
+  --accent-text: #97500e;
+  --accent-soft: rgba(168, 90, 18, 0.10);
+  --accent-soft-strong: rgba(168, 90, 18, 0.16);
+  --accent-ring: rgba(168, 90, 18, 0.45);
+}
+body.accent-orange.body--dark,
+body.accent-orange.dark {
+  --accent: #a85a12;
+  --accent-hover: #c06a18;
+  --accent-text: #f2b36a;
+  --accent-soft: rgba(242, 179, 106, 0.10);
+  --accent-soft-strong: rgba(242, 179, 106, 0.16);
+  --accent-ring: rgba(242, 179, 106, 0.55);
+}
+
+body.accent-purple {
+  --accent: #7444ad;
+  --accent-hover: #5f388f;
+  --accent-text: #68399e;
+  --accent-soft: rgba(116, 68, 173, 0.10);
+  --accent-soft-strong: rgba(116, 68, 173, 0.16);
+  --accent-ring: rgba(116, 68, 173, 0.45);
+}
+body.accent-purple.body--dark,
+body.accent-purple.dark {
+  --accent: #7444ad;
+  --accent-hover: #8655c2;
+  --accent-text: #c7a4f2;
+  --accent-soft: rgba(199, 164, 242, 0.10);
+  --accent-soft-strong: rgba(199, 164, 242, 0.16);
+  --accent-ring: rgba(199, 164, 242, 0.55);
+}
+
 /* Derived names: declared on both the root and the dark body, so var() resolves
    against the theme of the element that sets them (a :root-only alias stays light). */
 :root,
+body,
 body.body--dark,
 .body--dark,
 body.dark,
 .dark {
-  --success: var(--accent-text);
 
   /* Names kept for screens written before the token set */
   --surface-login-bg: var(--surface-main);
@@ -1042,3 +1144,15 @@ input, textarea { caret-color: var(--accent); }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; transition: none !important; }
 }
+
+/* Accent picker (Settings → المظهر): one swatch per accent theme */
+.app-accent-option {
+  display: inline-flex !important; align-items: center; gap: var(--space-2);
+  min-height: var(--control-h); padding: 0 var(--space-3) !important;
+  border: 1px solid var(--border) !important; border-radius: var(--radius) !important;
+  color: var(--text-primary) !important; background: var(--surface-card) !important;
+}
+.app-accent-option .q-btn__content { gap: var(--space-2); flex-wrap: nowrap; }
+.app-accent-option--active { border-color: var(--accent) !important; box-shadow: 0 0 0 2px var(--accent-ring); }
+.app-accent-swatch { width: 20px; height: 20px; border-radius: 50%; display: inline-block; flex: none; box-shadow: inset 0 0 0 1px rgba(0,0,0,.15); }
+.app-accent-name { font-size: var(--text-sm); }
