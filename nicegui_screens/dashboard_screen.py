@@ -438,6 +438,9 @@ class MainAppShell:
                     self._switch_screen("certificate")
 
                 self._active_students_screen = StudentsScreen(on_issue_certificate=_on_issue_cert_handler)
+                if getattr(self, "_pending_add_student", False):
+                    self._pending_add_student = False
+                    self._active_students_screen.form_view.render_add()
             elif self.current_screen == "orders":
                 GraduationOrdersScreen()
             elif self.current_screen == "courses":
@@ -491,193 +494,105 @@ class MainAppShell:
     # =========================================================================
     def _build_dashboard_content(self) -> None:
         """
-        [PAGE VIEW: DASHBOARD OVERVIEW]
-        Renders the main dashboard page content:
-        1. Top Metrics Section: Grid of 4 Stat Cards (`UI.stat_card`)
-        2. Bottom Split Section:
-           a. Left Panel: Quick Actions Card with navigation rows
-           b. Right Panel: Tabbed Data Table Card (Recent Students & Recent Certificates)
+        [PAGE VIEW: DASHBOARD]
+        1. Stats: Students, Issued certificates, Courses, Personnel (compact, one row when it fits)
+        2. One large primary tile "إصدار وثيقة" (+ a secondary "إضافة طالب")
+        3. Recent students and recent issued certificates, side by side when wide
         """
-
-        # ── METRIC STAT CARDS GRID ───────────────────────────────────────────
-        # [CARDS: TOP METRIC STAT CARDS SECTION]
         @ui.refreshable
         def stat_cards_section() -> None:
-            with ui.element("div").classes(Styles.STAT_GRID):
+            with ui.element("div").classes("app-stat-grid"):
                 for card_cfg in STAT_CARDS:
-                    value = self.counts.get(card_cfg["count_key"], 0)
-                    # Individual Metric Stat Card Component
                     UI.stat_card(
-                        title_ar   = card_cfg["label_ar"],
-                        value      = value,
-                        icon_name  = card_cfg["icon"],
-                        variant    = card_cfg["variant"],
+                        title_ar=card_cfg["label_ar"],
+                        value=self.counts.get(card_cfg["count_key"], 0),
+                        icon_name=card_cfg["icon"],
                     )
 
         stat_cards_section()
         self._refresh_cards = stat_cards_section
 
-        # ── BOTTOM SPLIT SECTION ─────────────────────────────────────────────
-        # [LAYOUT CONTAINER: BOTTOM FLEX ROW]
-        with ui.row().classes(Styles.BOTTOM_ROW):
-            
-            # ── 1. QUICK ACTIONS CARD PANEL (COMPACT 1/4 WIDTH) ─────────────
-            # [CARD: QUICK ACTIONS PANEL]
-            with ui.column().classes("app-card w-full xl:w-1/4 xl:max-w-[320px] p-5 rounded-2xl gap-3 h-auto justify-start self-start"):
-                # Card Header Label
-                UI.section_label("إجراءات سريعة")
-                
-                # Column of Action Items
-                with ui.column().classes("w-full gap-2.5 mt-1"):
-                    for action in QUICK_ACTIONS:
-                        # [BUTTON / TILE: INDIVIDUAL QUICK ACTION ROW]
-                        action_row = ui.row().classes(
-                            "app-action-item w-full items-center gap-3 px-3.5 py-2.5 rounded-xl cursor-pointer"
-                        ).on(
-                            "click",
-                            (lambda t=action["target"]: self._switch_screen(t))
-                            if action["target"] else None
-                        )
-                        with action_row:
-                            # Action Row Icon
-                            ui.icon(action["icon"], size="sm").classes("app-sidebar-icon")
-                            
-                            # Action Row Labels
-                            with ui.column().classes("gap-0 min-w-0 flex-1"):
-                                ui.label(action["label_ar"]).classes("nav-title-ar font-bold text-sm leading-tight")
-                            
-                            # Navigation Arrow Icon
-                            ui.icon("arrow_back_ios", size="xs").classes("app-text-faint ml-auto opacity-60")
+        # The one obvious next action
+        with ui.row().classes("w-full gap-4 no-wrap items-stretch"):
+            tile = ui.element("div").classes("app-cta-tile flex-1").props('tabindex="0" role="button"')
+            tile.on("click", lambda: self._switch_screen("certificate"))
+            tile.on("keydown.enter", lambda: self._switch_screen("certificate"))
+            with tile:
+                ui.icon("workspace_premium", size="32px")
+                with ui.column().classes("gap-0 min-w-0"):
+                    ui.label("إصدار وثيقة").classes("text-lg font-bold")
+                    ui.label("اختر الطالب ثم نوع الوثيقة ثم أصدرها").classes("text-sm opacity-90")
+                ui.icon("arrow_back", size="24px").classes("ms-auto")
+            UI.secondary_button("إضافة طالب", icon="person_add", on_click=self._open_add_student).classes("self-center")
 
-            # ── 2. RECENT DATA TABBED TABLE CARD PANEL (EXPANDED FLEX-1 WIDTH) ──────
-            # [CARD: TABBED TABLE PANEL]
-            with UI.card(Styles.TABLE_PANEL):
-                # [TAB BAR: NAVIGATION TABS FOR TABLES]
-                with ui.tabs().classes("w-full app-tabs").props("dense shrink inline-label mobile-arrows outside-arrows") as tabs:
-                    # Tab 1 Button (Recent Students)
-                    with ui.tab(name="tab_students", label="", icon="person_add") as tab_students:
-                        with ui.column().classes("gap-0 items-start justify-center text-right py-0.5"):
-                            ui.label("أحدث الطلاب المضافين").classes("font-bold text-sm leading-tight")
+        # Recent records
+        with ui.element("div").classes("app-two-col"):
+            with UI.card("gap-2"):
+                UI.page_header("أحدث الطلاب", actions=lambda: UI.ghost_button(
+                    "عرض الكل", on_click=lambda: self._switch_screen("students")))
+                rows_s = [
+                    {
+                        "id": s.get("id"),
+                        "name": s.get("full_name_ar") or s.get("student_name_ar") or s.get("full_name_en") or "—",
+                        "dept": s.get("dept_name_ar") or s.get("department_name_ar") or "—",
+                        "grad": _fmt_grad_date(s.get("graduation_date")),
+                        "raw_data": s,
+                    }
+                    for s in (self.recent_students or [])
+                ]
+                if rows_s:
+                    s_table = UI.data_table(
+                        [
+                            {"name": "name", "label": "الاسم", "field": "name", "align": "right"},
+                            {"name": "dept", "label": "القسم", "field": "dept"},
+                            {"name": "grad", "label": "تاريخ التخرج", "field": "grad"},
+                        ],
+                        rows_s, clickable=True,
+                    )
+                    s_table.on("rowClick", lambda e: self._go_to_cert_for_student(e.args[1].get("raw_data") or e.args[1]))
+                    with ui.row().classes("w-full"):
+                        ui.label("انقر على طالب لإصدار وثيقة له").classes("app-caption")
+                else:
+                    UI.empty_state("لا يوجد طلاب بعد", "أضف أول طالب من شاشة الطلاب.", icon="people")
 
-                    # Tab 2 Button (Issued & Printed Certificates - MERGED)
-                    with ui.tab(name="tab_certs", label="", icon="workspace_premium") as tab_certs:
-                        with ui.column().classes("gap-0 items-start justify-center text-right py-0.5"):
-                            ui.label("الشهادات الصادرة والمطبوعة").classes("font-bold text-sm leading-tight")
+            with UI.card("gap-2"):
+                UI.page_header("أحدث الوثائق الصادرة", actions=lambda: UI.ghost_button(
+                    "عرض الكل", on_click=lambda: self._switch_screen("issued_certs")))
+                combined, seen = [], set()
+                for c in (self.recent_certificates + getattr(self, "recent_printed_certificates", [])):
+                    cid = c.get("id") or c.get("certificate_id")
+                    if cid and cid not in seen:
+                        seen.add(cid)
+                        combined.append(c)
+                rows_c = [
+                    {
+                        "id": c.get("id") or c.get("certificate_id"),
+                        "name": c.get("full_name_ar") or c.get("student_name_ar") or c.get("student_name") or "—",
+                        "number": c.get("certificate_number") or "—",
+                        "date": str(c.get("issue_date") or c.get("created_at") or "—")[:10],
+                        "raw_data": c,
+                    }
+                    for c in combined[:5]
+                ]
+                if rows_c:
+                    c_table = UI.data_table(
+                        [
+                            {"name": "name", "label": "الطالب", "field": "name", "align": "right"},
+                            {"name": "number", "label": "رقم الوثيقة", "field": "number"},
+                            {"name": "date", "label": "تاريخ الإصدار", "field": "date"},
+                        ],
+                        rows_c, clickable=True,
+                    )
+                    c_table.on("rowClick", lambda e: self._go_to_cert_for_student(e.args[1].get("raw_data") or e.args[1]))
+                    with ui.row().classes("w-full"):
+                        ui.label("انقر على وثيقة لفتحها").classes("app-caption")
+                else:
+                    UI.empty_state("لم تصدر وثائق بعد", "ابدأ من «إصدار وثيقة».", icon="description")
 
-                # [TAB PANELS CONTAINER]
-                initial_tab = tab_certs if getattr(self, "_default_dashboard_tab_name", None) == "tab_certs" else tab_students
-                self._default_dashboard_tab_name = "tab_students"
-                with ui.tab_panels(tabs, value=initial_tab).classes("w-full p-0 bg-transparent"):
-                    
-                    # ── TAB 1 VIEW: RECENT STUDENTS TABLE ────────────────────
-                    with ui.tab_panel(tab_students).classes("w-full p-0 pt-2 bg-transparent"):
-                        cols_s = [
-                            {"name": "name",   "label": "اسم الطالب", "field": "name",   "align": "right",  "headerClasses": "text-slate-600 dark:text-slate-400 font-bold bg-transparent"},
-                            {"name": "dept",   "label": "القسم",        "field": "dept",   "align": "right",  "headerClasses": "text-slate-600 dark:text-slate-400 font-bold bg-transparent"},
-                            {"name": "year",   "label": "سنة القبول",        "field": "year",   "align": "center", "headerClasses": "text-slate-600 dark:text-slate-400 font-bold bg-transparent"},
-                            {"name": "grad",   "label": "تاريخ التخرج", "field": "grad",   "align": "center", "headerClasses": "text-slate-600 dark:text-slate-400 font-bold bg-transparent"},
-                            {"name": "action", "label": "إصدار",             "field": "action", "align": "center", "headerClasses": "text-slate-600 dark:text-slate-400 font-bold bg-transparent"},
-                        ]
-                        rows_s = [
-                            {
-                                "id":     s.get("id"),
-                                "name":   s.get("full_name_ar") or s.get("student_name_ar") or s.get("full_name_en") or "—",
-                                "dept":   s.get("dept_name_ar") or s.get("department_name_ar") or "—",
-                                "year":   s.get("admission_year") or s.get("graduation_year") or "—",
-                                "grad":   _fmt_grad_date(s.get("graduation_date")),
-                                "raw_data": s,
-                            }
-                            for s in (self.recent_students or [])
-                        ]
-                        # [TABLE: RECENT STUDENTS DATA TABLE]
-                        s_table = ui.table(
-                            columns=cols_s, rows=rows_s, row_key="id"
-                        ).classes(Styles.TABLE_CLASSES).props("flat separator='horizontal'")
-
-                        # Graduation date cell: date text, or a muted dash when not graduated yet
-                        s_table.add_slot("body-cell-grad", '''
-                            <q-td :props="props" class="text-center">
-                                <span v-if="props.row.grad !== '—'" class="font-mono text-xs font-semibold">{{ props.row.grad }}</span>
-                                <span v-else class="opacity-40">—</span>
-                            </q-td>
-                        ''')
-
-                        # Action Column Template Slot
-                        s_table.add_slot("body-cell-action", '''
-                            <q-td :props="props" class="text-center">
-                                <q-btn
-                                    dense flat round
-                                    icon="workspace_premium"
-                                    color="primary"
-                                    class="app-btn-secondary"
-                                    @click="$parent.$emit('issue_cert', props.row)"
-                                >
-                                    <q-tooltip class="bg-slate-800 text-white font-bold">إصدار وثيقة للطالب</q-tooltip>
-                                </q-btn>
-                            </q-td>
-                        ''')
-                        s_table.on('issue_cert', lambda e: self._go_to_cert_for_student(e.args.get('raw_data', e.args)))
-
-                    # ── TAB 2 VIEW: ISSUED & PRINTED CERTIFICATES TABLE (MERGED) ─
-                    with ui.tab_panel(tab_certs).classes("w-full p-0 pt-2 bg-transparent"):
-                        cols_c = [
-                            {"name": "name",     "label": "اسم الطالب", "field": "name",     "align": "right",  "headerClasses": "text-slate-600 dark:text-slate-400 font-bold bg-transparent"},
-                            {"name": "dept",     "label": "القسم",        "field": "dept",     "align": "right",  "headerClasses": "text-slate-600 dark:text-slate-400 font-bold bg-transparent"},
-                            {"name": "to_title", "label": "الجهة الصادرة إليها", "field": "to_title", "align": "center", "headerClasses": "text-slate-600 dark:text-slate-400 font-bold bg-transparent"},
-                            {"name": "date",     "label": "تاريخ الإصدار",     "field": "date",     "align": "left",   "headerClasses": "text-slate-600 dark:text-slate-400 font-bold bg-transparent"},
-                            {"name": "action",   "label": "إصدار",             "field": "action",   "align": "center", "headerClasses": "text-slate-600 dark:text-slate-400 font-bold bg-transparent"},
-                        ]
-                        
-                        combined_certs_data = []
-                        seen_ids = set()
-                        for c in (self.recent_certificates + getattr(self, "recent_printed_certificates", [])):
-                            cid = c.get("id") or c.get("certificate_id")
-                            if cid and cid not in seen_ids:
-                                seen_ids.add(cid)
-                                combined_certs_data.append(c)
-
-                        rows_c = [
-                            {
-                                "id":       c.get("id") or c.get("certificate_id"),
-                                "certificate_id": c.get("id") or c.get("certificate_id"),
-                                "student_id": c.get("student_id"),
-                                "name":     c.get("full_name_ar") or c.get("student_name_ar") or c.get("student_name") or "طالب متخرج",
-                                "dept":     c.get("dept_name_ar") or c.get("department_name_ar") or "قسم عام",
-                                "to_title": c.get("to_title") or c.get("order_number") or "من يهمه الأمر",
-                                "date":     c.get("issue_date") or c.get("created_at") or "—",
-                                "certificate_number": c.get("certificate_number"),
-                                "template_type": c.get("template_type"),
-                                "raw_data": c,
-                            }
-                            for c in (combined_certs_data or self.recent_certificates)
-                        ]
-                        # [TABLE: ISSUED & PRINTED CERTIFICATES DATA TABLE]
-                        c_table = ui.table(
-                            columns=cols_c, rows=rows_c, row_key="id"
-                        ).classes(Styles.TABLE_CLASSES).props("flat separator='horizontal'")
-
-                        # Name Column Template Slot (Clickable to jump to student's certificate)
-                        c_table.add_slot("body-cell-name", '''
-                            <q-td :props="props" class="text-right cursor-pointer font-bold text-blue-400 hover:underline" @click="$parent.$emit('issue_cert', props.row)">
-                                {{ props.row.name }}
-                            </q-td>
-                        ''')
-
-                        # Action Column Template Slot
-                        c_table.add_slot("body-cell-action", '''
-                            <q-td :props="props" class="text-center">
-                                <q-btn
-                                    dense flat round
-                                    icon="workspace_premium"
-                                    color="primary"
-                                    class="app-btn-secondary"
-                                    @click="$parent.$emit('issue_cert', props.row)"
-                                >
-                                    <q-tooltip class="bg-slate-800 text-white font-bold">إصدار وثيقة للطالب</q-tooltip>
-                                </q-btn>
-                            </q-td>
-                        ''')
-                        c_table.on('issue_cert', lambda e: self._go_to_cert_for_student(e.args.get('raw_data', e.args)))
+    def _open_add_student(self) -> None:
+        """Add Student from anywhere: go to Students and open the add form."""
+        self._pending_add_student = True
+        self._switch_screen("students")
 
     def _go_to_cert_for_student(self, raw_student: dict) -> None:
         """Directs user to the Certificate Screen pre-loaded with the clicked student."""

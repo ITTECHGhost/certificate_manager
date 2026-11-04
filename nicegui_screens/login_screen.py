@@ -27,143 +27,83 @@ class LoginScreen:
         self.username_input = None
         self.password_input = None
         self.error_label = None
+        self.error_box = None
         self.build_ui()
 
     def build_ui(self) -> None:
-        """Renders the two-column split login layout using UI component factory."""
-        from nicegui_ui.ui_theme import is_windows_dark_mode, set_dark_mode, inject_global_styles, set_accent
+        """Centred sign-in card on a plain background; theme toggle in the corner."""
+        from nicegui_ui.ui_theme import set_dark_mode, inject_global_styles
         from nicegui_ui.state import app_session
         self.dark_mode = ui.dark_mode()
         app_session.load()
         app_session.apply_theme_mode()
 
-        # 1. Reset container padding & inject global styles
         ui.query(".nicegui-content").classes("p-0 m-0")
         ui.query("body").classes("m-0 p-0 overflow-hidden")
 
         inject_global_styles()
-        
+
         # Explicitly allow unsafe-eval for Vue's runtime compiler in PyWebView
         ui.add_head_html('<meta http-equiv="Content-Security-Policy" content="default-src * \'unsafe-inline\' \'unsafe-eval\' data: blob:; script-src * \'unsafe-inline\' \'unsafe-eval\'; style-src * \'unsafe-inline\';">')
 
-        # 2. Main 2-Column Split Container (Login Card on Right, Logo on Left in RTL)
-        with ui.row().classes("w-full h-screen flex-nowrap m-0 p-0 gap-0"):
+        with ui.column().classes("app-login-right w-full h-screen items-center justify-center p-4 gap-5 relative overflow-auto no-wrap"):
+            # Theme toggle in the corner (inline-end = left in RTL)
+            with ui.element("div").classes("absolute top-4 left-4"):
+                def _toggle():
+                    set_dark_mode(not bool(self.dark_mode.value), self.dark_mode)
+                    theme_btn.props(f"icon={'light_mode' if self.dark_mode.value else 'dark_mode'}")
+                    theme_btn.tooltip("الوضع الفاتح" if self.dark_mode.value else "الوضع الداكن")
 
-            # --- RIGHT COLUMN (in RTL): Login Card Form Area ---
-            with ui.column().classes(
-                "app-login-right w-1/2 md:w-2/5 h-full items-center justify-center p-6 relative"
-            ):
-                # The Card Container loaded from global UI factory
-                with UI.login_card():
-                    # Top User Badge Icon (Offset)
-                    with ui.element("div").classes(
-                        "app-avatar-badge w-16 h-16 rounded-2xl border "
-                        "flex items-center justify-center shadow-md avatar-offset"
-                    ):
-                        with ui.element("div").classes(
-                            "app-avatar-inner w-12 h-12 rounded-xl flex items-center justify-center"
-                        ):
-                            ui.icon("person_outline", size="sm").classes("app-avatar-icon")
+                theme_btn = UI.icon_button(
+                    "light_mode" if self.dark_mode.value else "dark_mode",
+                    "تبديل الوضع الفاتح / الداكن",
+                    on_click=_toggle,
+                ).classes("app-theme-toggle")
 
-                    # Title & Subtitle
-                    with ui.column().classes("w-full items-center gap-1 text-center mt-2"):
-                        ui.label("تسجيل الدخول").classes(
-                            "app-login-title text-[1.2rem] font-bold tracking-wide"
-                        )
-                        ui.label("يرجى إدخال بيانات الاعتماد الخاصة بك للوصول").classes(
-                            "app-login-subtitle text-[11px] font-bold"
-                        )
+            logo_src = self._find_logo()
+            if logo_src:
+                ui.image(logo_src).classes("app-login-logo w-[112px] h-[112px] object-contain")
 
-                    # Username Input Group
-                    with ui.column().classes("w-full gap-1 mt-3"):
-                        with ui.row().classes("w-full justify-between items-end px-1"):
-                            ui.label("اسم المستخدم").classes("app-text-secondary text-xs font-bold")
+            with UI.login_card():
+                with ui.column().classes("w-full items-center gap-1 text-center"):
+                    ui.label("تسجيل الدخول").classes("app-login-title")
+                    ui.label("أدخل اسم المستخدم وكلمة المرور").classes("app-login-subtitle")
 
-                        self.username_input = ui.input(
-                            placeholder="أدخل اسم المستخدم"
-                        ).classes(
-                            "w-full app-input"
-                        ).props(
-                            'outlined dense input-class="font-semibold text-right"'
-                        )
-                        with self.username_input.add_slot('prepend'):
-                            ui.icon('person_outline', size='sm').classes("app-text-faint ml-1")
-                        self.username_input.on('keydown.enter', self.handle_login)
+                self.username_input = UI.input("اسم المستخدم").props('autofocus autocomplete="username"')
+                self.password_input = UI.input(
+                    "كلمة المرور", password=True, password_toggle_button=True
+                ).props('autocomplete="current-password"')
+                # Enter in either field submits
+                self.username_input.on("keydown.enter", self.handle_login)
+                self.password_input.on("keydown.enter", self.handle_login)
 
-                    # Password Input Group
-                    with ui.column().classes("w-full gap-1"):
-                        with ui.row().classes("w-full justify-between items-end px-1"):
-                            ui.label("كلمة المرور").classes("app-text-secondary text-xs font-bold")
+                # Error: what went wrong and what to do next
+                with ui.row().classes("w-full items-start gap-2 no-wrap app-chip--danger rounded-lg p-3") as self.error_box:
+                    ui.icon("error_outline", size="20px").classes("app-text-danger shrink-0")
+                    self.error_label = ui.label("").classes("app-text-danger text-sm")
+                self.error_box.set_visibility(False)
 
-                        self.password_input = ui.input(
-                            placeholder="أدخل كلمة المرور",
-                            password=True,
-                            password_toggle_button=True
-                        ).classes(
-                            "w-full app-input"
-                        ).props(
-                            'outlined dense input-class="font-semibold text-right"'
-                        )
-                        with self.password_input.add_slot('prepend'):
-                            ui.icon('key', size='sm').classes("app-text-faint ml-1")
-                        self.password_input.on('keydown.enter', self.handle_login)
+                UI.primary_button("تسجيل الدخول", on_click=self.handle_login).classes("w-full")
 
-                    # Error Feedback Label
-                    self.error_label = ui.label("").classes(
-                        "app-text-error text-xs text-center w-full font-medium"
-                    )
-                    self.error_label.set_visibility(False)
+    def _find_logo(self) -> str | None:
+        """College logo from the settings, else the bundled one."""
+        try:
+            s_data = SettingsRepository().get_settings() or {}
+            for key in ("college_logo_path", "univ_logo_path"):
+                path = s_data.get(key)
+                if path and os.path.exists(path):
+                    return path
+        except Exception:
+            pass
+        for path in ("assets/college_logo.png", "assets/csit.png"):
+            if os.path.exists(path):
+                return path
+        return None
 
-                    # Primary Sign-In Button
-                    with ui.button(color=None, on_click=self.handle_login).classes(
-                        "app-btn-primary w-full text-sm py-3 rounded-xl font-bold "
-                        "normal-case mt-2 cursor-pointer flex-row justify-between px-6"
-                    ):
-                        ui.label("تسجيل الدخول")
-                        ui.icon("arrow_back", size="sm")
-
-                # Bottom Actions (Theme Toggle)
-                with ui.row().classes("w-[440px] max-w-full justify-end items-center mt-6 px-2"):
-                    with ui.row().classes(
-                        "app-theme-toggle gap-2 items-center px-3 py-1.5 rounded-full border shadow-sm"
-                    ):
-                        ui.icon("light_mode", size="xs").classes("app-text-faint")
-                        ui.switch(
-                            on_change=lambda e: set_dark_mode(e.value, self.dark_mode)
-                        ).props("dense size=sm").bind_value(self.dark_mode, 'value')
-                        ui.icon("dark_mode", size="xs").classes("app-text-faint")
-
-            # --- LEFT COLUMN (in RTL): University Logo Area ---
-            with ui.column().classes(
-                "app-login-bg w-1/2 md:w-3/5 h-full items-center justify-center p-8"
-            ):
-                logo_src = None
-                try:
-                    from data.repositories import SettingsRepository
-                    s_data = SettingsRepository().get_settings() or {}
-                    col_logo = s_data.get("college_logo_path")
-                    univ_logo = s_data.get("univ_logo_path")
-                    if col_logo and os.path.exists(col_logo):
-                        logo_src = col_logo
-                    elif univ_logo and os.path.exists(univ_logo):
-                        logo_src = univ_logo
-                except Exception:
-                    pass
-
-                if not logo_src:
-                    if os.path.exists("assets/college_logo.png"):
-                        logo_src = "assets/college_logo.png"
-                    elif os.path.exists("assets/csit.png"):
-                        logo_src = "assets/csit.png"
-
-                if logo_src:
-                    ui.image(logo_src).classes(
-                        "app-login-logo w-[340px] max-w-full h-auto object-contain"
-                    )
-                else:
-                    ui.label("شعار الجامعة").classes(
-                        "app-text-faint text-4xl font-extrabold tracking-wider text-center"
-                    )
+    def _show_error(self, msg: str) -> None:
+        if self.error_label:
+            self.error_label.set_text(msg)
+            self.error_box.set_visibility(True)
 
     def _toggle_theme(self, is_dark: bool) -> None:
         """Explicitly enables/disables dark mode."""
@@ -190,10 +130,7 @@ class LoginScreen:
         """Forced password change after logging in with a temporary password."""
         with ui.dialog().props("persistent") as dialog, UI.login_card():
             ui.label("تغيير كلمة المرور مطلوب").classes("text-base font-bold app-text-primary")
-            ui.label(
-                "تم تعيين كلمة مرور مؤقتة لحسابك. اختر كلمة مرور جديدة للمتابعة. "
-                "تم تعيين كلمة المرور من قبل المسؤول. اختر كلمة مرور جديدة للمتابعة."
-            ).classes("text-xs app-text-muted")
+            ui.label("تم تعيين كلمة مرور مؤقتة لحسابك. اختر كلمة مرور جديدة للمتابعة.").classes("app-caption")
             new_inp = ui.input("كلمة المرور الجديدة", password=True, password_toggle_button=True).classes("w-full")
             conf_inp = ui.input("تأكيد كلمة المرور", password=True).classes("w-full")
 
@@ -220,9 +157,10 @@ class LoginScreen:
                 user_record["must_change_password"] = False
                 self._finish_login(user_record, username)
 
-            with ui.row().classes("w-full justify-end gap-2 pt-2"):
-                ui.button("إلغاء", on_click=dialog.close).props("flat")
-                ui.button("حفظ ومتابعة", icon="lock_reset", on_click=_save).props("color=primary")
+            conf_inp.on("keydown.enter", _save)
+            with ui.row().classes("app-dialog-actions"):
+                UI.ghost_button("إلغاء", on_click=dialog.close)
+                UI.primary_button("حفظ ومتابعة", on_click=_save)
         dialog.open()
 
     def handle_login(self, e=None) -> None:
@@ -234,11 +172,7 @@ class LoginScreen:
         password = self.password_input.value or ""
 
         if not username or not password:
-            msg = "يرجى إدخال اسم المستخدم وكلمة المرور"
-            if self.error_label:
-                self.error_label.set_text(msg)
-                self.error_label.set_visibility(True)
-            ui.notify(msg, type="warning")
+            self._show_error("أدخل اسم المستخدم وكلمة المرور.")
             return
 
         try:
@@ -246,25 +180,17 @@ class LoginScreen:
             user_record = personnel_repo.authenticate(username, password)
 
             if user_record:
-                if self.error_label:
-                    self.error_label.set_visibility(False)
-                
+                if self.error_box:
+                    self.error_box.set_visibility(False)
+
                 if user_record.get("must_change_password"):
                     # A temporary password given by an admin: choose your own before continuing
                     self._ask_new_password(user_record, username)
                     return
                 self._finish_login(user_record, username)
             else:
-                msg = "اسم المستخدم أو كلمة المرور غير صحيحة"
-                if self.error_label:
-                    self.error_label.set_text(msg)
-                    self.error_label.set_visibility(True)
-                ui.notify(msg, type="negative")
+                self._show_error("اسم المستخدم أو كلمة المرور غير صحيحة. تأكد منهما وأعد المحاولة.")
 
         except Exception as exc:
             log.warning(f"[LoginScreen] Authentication Error: {exc}")
-            msg = "خطأ في عملية المصادقة"
-            if self.error_label:
-                self.error_label.set_text(msg)
-                self.error_label.set_visibility(True)
-            ui.notify(msg, type="negative")
+            self._show_error("تعذر تسجيل الدخول. تحقق من الاتصال بالشبكة وأعد المحاولة.")

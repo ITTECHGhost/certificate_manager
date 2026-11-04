@@ -409,6 +409,22 @@ input, textarea { caret-color: var(--accent); }
   flex-shrink: 0;
 }
 
+/* Dashboard grids: stats in one row when they fit; two lists side by side when wide */
+.app-stat-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: var(--space-4);
+  width: 100%;
+}
+.app-two-col {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(420px, 1fr));
+  gap: var(--space-4);
+  width: 100%;
+  align-items: start;
+}
+@media (max-width: 900px) { .app-two-col { grid-template-columns: minmax(0, 1fr); } }
+
 /* Big call-to-action tile */
 .app-cta-tile {
   display: flex; align-items: center; gap: var(--space-4);
