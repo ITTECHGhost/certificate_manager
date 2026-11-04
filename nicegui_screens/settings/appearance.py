@@ -44,6 +44,13 @@ class AppearanceMixin:
 
             self._build_accent_picker()
 
+            # Interface language: a setting of this PC (config/ui_language.json)
+            from nicegui_ui.i18n import LANGUAGES, get_language
+            self.language_select = UI.select(
+                "لغة الواجهة", options=dict(LANGUAGES), value=get_language(),
+                on_change=self._on_language_change,
+            ).classes("max-w-xs")
+
             # Advanced: the app is Arabic-first; turning RTL off flips every page to LTR
             with ui.expansion("متقدم", icon="tune").classes("w-full"):
                 with ui.row().classes("w-full items-center justify-between py-2"):
@@ -72,6 +79,16 @@ class AppearanceMixin:
                 self._accent_swatches[name] = btn
         # Kept for code that still reads the old select's value
         self.accent_select = None
+
+    def _on_language_change(self, e=None) -> None:
+        """Switch the interface language; the page reloads so every label is rebuilt in it."""
+        from nicegui_ui.i18n import set_language, get_language
+        val = str(self._get_event_value(e, self.language_select, "ar") or "ar")
+        if val == get_language():
+            return
+        set_language(val)
+        ui.notify("Interface language: English" if val == "en" else "لغة الواجهة: العربية", type="info")
+        ui.timer(0.6, lambda: ui.navigate.reload(), once=True)
 
     def _on_theme_select_change(self, e=None) -> None:
         """Live theme switch when Theme Mode dropdown option changes."""

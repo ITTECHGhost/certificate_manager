@@ -459,14 +459,16 @@ class UI:
             display_msg = str(message or "")
             default_duration = 3.5
 
+        from nicegui_ui.i18n import t
+        display_title, display_msg = t(display_title or ""), t(display_msg or "")
         if display_title and display_msg and display_title != display_msg:
             html_content = (
-                "<div style='display:flex;flex-direction:column;gap:2px;text-align:right;'>"
+                "<div style='display:flex;flex-direction:column;gap:2px;text-align:start;'>"
                 f"<div style='font-weight:700;'>{escape(display_title)}</div>"
                 f"<div style='opacity:.9;'>{escape(display_msg)}</div></div>"
             )
         else:
-            html_content = f"<div style='font-weight:600;text-align:right;'>{escape(display_title or display_msg)}</div>"
+            html_content = f"<div style='font-weight:600;text-align:start;'>{escape(display_title or display_msg)}</div>"
 
         effective = duration if duration is not None else default_duration
         ui.notify(

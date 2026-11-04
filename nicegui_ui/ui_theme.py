@@ -222,6 +222,9 @@ def set_font_size(size_base: int) -> None:
 def set_rtl(enable: bool) -> None:
     """Live-update document layout direction (RTL / LTR) on document body and root element."""
     from nicegui import ui
+    from nicegui_ui.i18n import is_english
+    if is_english():
+        enable = False          # the English interface is always LTR
     direction = "rtl" if enable else "ltr"
     ui.run_javascript(f"""
         document.documentElement.setAttribute('dir', '{direction}');
@@ -240,11 +243,16 @@ def inject_global_styles(is_rtl: Optional[bool] = None):
     from nicegui_ui.state import app_session
     import os
 
-    if is_rtl is None:
+    from nicegui_ui import i18n
+    i18n.install()
+    if i18n.is_english():
+        is_rtl = False          # English is always left to right
+    elif is_rtl is None:
         try:
             is_rtl = bool(app_session.preferences.get("is_arabic_rtl", 1))
         except Exception:
             is_rtl = True
+    lang_attr = i18n.get_language()
 
     dir_val = 'rtl' if is_rtl else 'ltr'
     js_bool = 'true' if is_rtl else 'false'
@@ -257,6 +265,7 @@ def inject_global_styles(is_rtl: Optional[bool] = None):
         ui.add_head_html(f"""
         <script>
         document.documentElement.setAttribute('dir', '{dir_val}');
+        document.documentElement.setAttribute('lang', '{lang_attr}');
         if (document.body) {{
             document.body.setAttribute('dir', '{dir_val}');
             document.body.style.direction = '{dir_val}';
