@@ -82,12 +82,12 @@ class AppearanceMixin:
 
     def _on_language_change(self, e=None) -> None:
         """Switch the interface language; the page reloads so every label is rebuilt in it."""
-        from nicegui_ui.i18n import set_language, get_language
+        from nicegui_ui.i18n import set_language, get_language, LANGUAGES
         val = str(self._get_event_value(e, self.language_select, "ar") or "ar")
         if val == get_language():
             return
         set_language(val)
-        ui.notify("Interface language: English" if val == "en" else "لغة الواجهة: العربية", type="info")
+        ui.notify(f"لغة الواجهة: {LANGUAGES[val]}", type="info")   # sent through the table in the new language
         ui.timer(0.6, lambda: ui.navigate.reload(), once=True)
 
     def _on_theme_select_change(self, e=None) -> None:

@@ -139,10 +139,12 @@ class SettingsScreen(
         can_roles = is_admin or "settings:roles" in effective_perms
         can_templates = is_admin or "settings:templates" in effective_perms
         can_logs = is_admin or "settings:logs" in effective_perms
-        # Departments used to be a sidebar screen: same rule, now a Settings tab
+        # Departments and personnel used to be sidebar screens: same rule as the sidebar
         access = self.session.get_access() or {}
         access_screens = access.get("allowed_screens")
         can_depts = is_admin or not access or access_screens is None or "departments" in access_screens
+        can_personnel = is_admin or not access or access_screens is None or "personnel" in access_screens
+        self._can_edit_departments = can_depts
 
         # Default tab selection
         default_tab_name = "institution" if can_inst else ("appearance" if can_app else "printers")
@@ -151,9 +153,9 @@ class SettingsScreen(
             with ui.row().classes("w-full max-w-full min-w-0 gap-6 items-start no-wrap"):
                 with ui.tabs().classes("app-tabs w-60 shrink-0 max-w-full").props("vertical dense inline-label") as self.tabs:
                     self.tab_institution = ui.tab(name="institution", label="معلومات الجامعة", icon="domain") if can_inst else None
-                    self.tab_departments = ui.tab(name="departments", label="الأقسام", icon="business") if can_depts else None
                     self.tab_app = ui.tab(name="appearance", label="المظهر والسمات", icon="palette") if can_app else None
                     self.tab_printers = ui.tab(name="printers", label="إعداد الطابعات", icon="print")
+                    self.tab_personnel = ui.tab(name="personnel", label="الكوادر", icon="manage_accounts") if can_personnel else None
                     self.tab_roles = ui.tab(name="roles", label="الأدوار والصلاحيات", icon="admin_panel_settings") if can_roles else None
                     self.tab_templates = ui.tab(name="templates", label="قوالب الوثائق", icon="description") if can_templates else None
                     self.tab_logs = ui.tab(name="logs", label="السيرفر والصيانة والسجلات", icon="dns") if can_logs else None
@@ -162,10 +164,11 @@ class SettingsScreen(
 
                 # Each panel is built the first time its tab opens, so the page shows at once
                 builders = {
-                    "institution": (self.tab_institution, (self._section_institution_info, self._section_study_systems)),
-                    "departments": (self.tab_departments, (self._section_departments,)),
+                    # College first, its departments under it, then the study systems
+                    "institution": (self.tab_institution, (self._section_institution_info, self._section_departments, self._section_study_systems)),
                     "appearance": (self.tab_app, (self._section_appearance,)),
                     "printers": (self.tab_printers, (self._section_printer_settings,)),
+                    "personnel": (self.tab_personnel, (self._section_personnel,)),
                     "roles": (self.tab_roles, (self._section_roles_and_permissions,)),
                     "templates": (self.tab_templates, (self._section_templates_management,)),
                     "logs": (self.tab_logs, (self._section_server_config, self._section_database_maintenance, self._section_system_logs)),
@@ -245,6 +248,16 @@ class SettingsScreen(
                         ui.notify(f"خطأ أثناء التحقق: {e}", type="negative")
 
                 ui.button("التحقق من التحديثات", icon="system_update_alt", on_click=_check_updates_dialog).classes("app-btn-secondary px-4 py-2 text-xs rounded-xl mt-3")
+
+    def _section_personnel(self) -> None:
+        from nicegui_screens.personnel_screen import PersonnelScreen
+        PersonnelScreen()
+
+    def open_tab(self, name: str) -> None:
+        """Switch to a Settings tab by name (used by the roles page's personnel button)."""
+        tab = getattr(self, f"tab_{name}", None)
+        if tab is not None:
+            self.tabs.set_value(name)
 
     def _get_event_value(self, e, element, default_val):
         if e is not None:

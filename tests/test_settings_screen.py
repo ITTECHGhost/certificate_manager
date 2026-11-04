@@ -9,12 +9,9 @@ def _src(name: str) -> str:
     return (SETTINGS / name).read_text(encoding="utf-8")
 
 
-def test_departments_tab_right_after_university_info():
+def test_tabs_are_vertical_and_start_with_university_info():
     src = _src("screen.py")
-    inst = src.index('ui.tab(name="institution", label="معلومات الجامعة"')
-    dept = src.index('ui.tab(name="departments"')
-    between = src[inst:dept]
-    assert between.count("ui.tab(") == 1          # nothing in between
+    assert src.index('ui.tab(name="institution", label="معلومات الجامعة"') < src.index('ui.tab(name="appearance"')
     assert '"vertical' in src
 
 

@@ -103,12 +103,14 @@ class PersonnelScreen:
             r_def = self.role_repo.get_by_id(assigned_r_id)
             display_order = r.get("display_order", 0) or 0
             signs = bool(r.get("is_signature", 0)) and display_order > 0
-            sub = " • ".join(x for x in (r.get("username") or "", r.get("responsibility_ar") or "") if x)
+            role_name = str((r_def.get("name_ar") if r_def else assigned_r_id) or "")
+            # Second line under the name: the role (permission set) and the username
+            sub = " • ".join(x for x in (role_name, r.get("username") or "") if x)
             rows.append({
                 "id": r["id"],
                 "name": f"{title_ar} {name_ar}".strip(),
                 "sub": sub,
-                "role": (r_def.get("name_ar") if r_def else assigned_r_id) or "—",
+                "position": r.get("responsibility_ar") or "—",
                 # The signature chip appears only for people who actually sign documents
                 "signature": f"يوقّع ({display_order})" if signs else "",
                 "active": bool(r.get("is_active", 1)),
@@ -117,14 +119,14 @@ class PersonnelScreen:
 
         table = UI.data_table([
             {"name": "name", "label": "الاسم", "field": "name", "align": "right"},
-            {"name": "role", "label": "الصلاحية", "field": "role"},
+            {"name": "position", "label": "المنصب", "field": "position"},
             {"name": "signature", "label": "التوقيع", "field": "signature"},
             {"name": "active", "label": "الحالة", "field": "active"},
             {"name": "actions", "label": "", "field": "actions"},
         ], rows, clickable=True)
         table.add_slot("body-cell-name", """
             <q-td :props="props">
-                <div class="flex flex-col text-right leading-tight">
+                <div class="flex flex-col text-start leading-tight">
                     <span class="font-semibold app-text-primary">{{ props.row.name }}</span>
                     <span class="app-caption">{{ props.row.sub }}</span>
                 </div>

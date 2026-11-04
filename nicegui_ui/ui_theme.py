@@ -139,7 +139,6 @@ NAV_ITEMS: list[dict] = [
     {"key": "students",    "ar": "الطلاب",          "en": "Students",          "icon": "people"},
     {"key": "orders",      "ar": "أوامر التخرج",    "en": "Graduation Orders", "icon": "school"},
     {"key": "courses",     "ar": "المواد الدراسية", "en": "Courses",           "icon": "book"},
-    {"key": "personnel",   "ar": "الكوادر",         "en": "Personnel",         "icon": "manage_accounts"},
     {"key": "certificate",  "ar": "إصدار الوثيقة",       "en": "Issue Certificate",    "icon": "print"},
     {"key": "issued_certs", "ar": "سجل الوثائق الصادرة", "en": "Issued Certificates",  "icon": "fact_check"},
     {"key": "settings",     "ar": "الإعدادات",           "en": "Settings",             "icon": "settings"},

@@ -1160,3 +1160,14 @@ input, textarea { caret-color: var(--accent); }
 .app-accent-option--active { border-color: var(--accent) !important; box-shadow: 0 0 0 2px var(--accent-ring); }
 .app-accent-swatch { width: 20px; height: 20px; border-radius: 50%; display: inline-block; flex: none; box-shadow: inset 0 0 0 1px rgba(0,0,0,.15); }
 .app-accent-name { font-size: var(--text-sm); }
+
+/* Departments under the college (Settings → University information) */
+.app-dept-add { display: grid; grid-template-columns: 1fr 1fr auto; gap: var(--space-3); align-items: center; }
+@media (max-width: 900px) { .app-dept-add { grid-template-columns: 1fr; } }
+.app-dept-list { border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+.app-dept-row { padding: var(--space-2) var(--space-3); min-height: var(--row-h); border-top: 1px solid var(--border); }
+.app-dept-row:first-child { border-top: 0; }
+.app-dept-row:hover { background: var(--surface-hover); }
+
+/* Settings tab labels wrap instead of being cut off */
+.app-tabs.q-tabs--vertical .q-tab__label { white-space: normal; text-align: start; line-height: 1.3; }

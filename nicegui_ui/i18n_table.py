@@ -1252,4 +1252,9 @@ EN: dict[str, str] = {
     '🗑 تأكيد الحذف': 'Delete',
     '🛡️ صلاحيات هذا الدور: {} إجراء • {} شاشات • نطاق الأقسام: {}': "🛡️ This role's permissions: {} actions • {} screens • department scope: {}",
     'لغة الواجهة': 'Interface language',
+    'كل قسم يتبع الكلية أعلاه.': 'Each department belongs to the college above.',
+    'اكتب اسم القسم بالعربية والإنكليزية': 'Type the department name in Arabic and English',
+    'تمت إضافة القسم ({})': 'Department ({}) added',
+    'تعديل القسم': 'Edit department',
+    'المنصب': 'Position',
 }

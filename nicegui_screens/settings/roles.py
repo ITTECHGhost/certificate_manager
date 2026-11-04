@@ -62,8 +62,8 @@ class RolesMixin:
     def _render_roles_overview(self) -> None:
         with UI.card().classes("gap-4"):
             def _actions():
-                if self.on_navigate:
-                    UI.ghost_button("شاشة الكوادر", icon="group", on_click=lambda: self.on_navigate("personnel"))
+                if getattr(self, "tab_personnel", None) is not None:
+                    UI.ghost_button("الكوادر", icon="group", on_click=lambda: self.open_tab("personnel"))
                 UI.secondary_button("تخصيص مستخدم", icon="tune", on_click=lambda: self._open_user_matrix_view())
                 UI.primary_button("إضافة دور", icon="add_moderator", on_click=lambda: self._open_role_editor_view(None))
 
