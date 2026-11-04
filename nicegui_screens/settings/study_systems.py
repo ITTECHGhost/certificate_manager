@@ -31,10 +31,10 @@ class StudySystemsMixin:
 
             cols = [
                 {"name": "name",    "label": "النظام",         "field": "name",    "align": "left"},
-                {"name": "rule",    "label": "Calc Rule",                "field": "rule",    "align": "center"},
-                {"name": "display", "label": "Period",                   "field": "display", "align": "center"},
-                {"name": "weights", "label": "Weights",                  "field": "weights", "align": "center"},
-                {"name": "active",  "label": "Active",                   "field": "active",  "align": "center"},
+                {"name": "rule",    "label": "قاعدة الحساب",         "field": "rule",    "align": "center"},
+                {"name": "display", "label": "الفترة",         "field": "display", "align": "center"},
+                {"name": "weights", "label": "الأوزان",         "field": "weights", "align": "center"},
+                {"name": "active",  "label": "مفعّل",         "field": "active",  "align": "center"},
                 {"name": "actions", "label": "حذف",                     "field": "actions", "align": "right"},
             ]
             rows = [
