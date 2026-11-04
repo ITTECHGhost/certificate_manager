@@ -55,6 +55,12 @@ def student_system(data: dict | None) -> str:
 
 def filter_templates_for_system(files: list[str], data: dict | None) -> list[str]:
     """Only the templates of the student's study system; all of them when it is unknown."""
+    # A template tagged with a study-system name matches students of that system by name
+    name = str((data or {}).get("study_system_name_ar") or (data or {}).get("study_system_ar") or "").strip()
+    if name:
+        named = [f for f in files if template_tags(f)["system_name"] == name]
+        if named:
+            return named
     system = student_system(data)
     if not system:
         return list(files)

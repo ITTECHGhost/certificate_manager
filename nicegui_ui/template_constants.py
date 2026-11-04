@@ -387,13 +387,29 @@ def template_tags(raw_name: Optional[str]) -> Dict[str, Any]:
     lang = "En" if str(info.get("lang") or "").lower() == "en" else "Ar"
     system = next((k for k in TAG_SYSTEMS if k.lower() == str(info.get("system") or "").lower()), "Annual")
     sbs = bool(info.get("sbs"))
+    system_name = str(info.get("system_name") or "").strip()
     return {
-        "lang": lang, "system": system, "sbs": sbs,
-        "lang_ar": TAG_LANGS[lang], "system_ar": TAG_SYSTEMS[system], "marks_ar": TAG_MARKS[sbs],
+        "lang": lang, "system": system, "sbs": sbs, "system_name": system_name,
+        "lang_ar": TAG_LANGS[lang], "system_ar": system_name or TAG_SYSTEMS[system], "marks_ar": TAG_MARKS[sbs],
     }
 
 
-def save_template_tags(key_or_filename: str, display_name: str, lang: str, system: str, sbs: bool) -> bool:
+def system_tag_options(systems: list, current: str = "") -> Dict[str, str]:
+    """{system name: rule key} for the template's study-system select, from the study systems
+    added in Settings (one entry per system, whatever its shifts). A name no longer in the
+    list (the template's current one) is kept so editing never loses it."""
+    out: Dict[str, str] = {}
+    for s in systems or []:
+        name = str(s.get("name_ar") or "").strip()
+        if name and name not in out:
+            out[name] = "Semester" if str(s.get("calculation_rule") or "").lower() == "semester" else "Annual"
+    if current and current not in out:
+        out[current] = ""
+    return out
+
+
+def save_template_tags(key_or_filename: str, display_name: str, lang: str, system: str, sbs: bool,
+                       system_name: str = "") -> bool:
     """Saves the user's name and the three tags for a template (the .docx is not touched)."""
     key = normalize_template_key(key_or_filename)
     if not key or not (display_name or "").strip():
@@ -406,7 +422,8 @@ def save_template_tags(key_or_filename: str, display_name: str, lang: str, syste
         "display_name": display_name.strip(),
         "file": entry.get("file") or (key_or_filename if str(key_or_filename).lower().endswith(".docx") else f"{key}.docx"),
         "lang": lang, "lang_ar": TAG_LANGS[lang],
-        "system": system, "system_ar": TAG_SYSTEMS[system],
+        "system": system, "system_ar": (system_name or "").strip() or TAG_SYSTEMS[system],
+        "system_name": (system_name or "").strip(),
         "sbs": bool(sbs), "type_ar": TAG_MARKS[bool(sbs)],
     })
     config[key] = entry

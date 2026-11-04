@@ -9,7 +9,8 @@ from nicegui import ui
 import app_paths
 from nicegui_ui.ui_components import UI
 from nicegui_ui.template_constants import (
-    TAG_LANGS, TAG_MARKS, TAG_SYSTEMS, get_template_info, save_template_tags, template_tag_conflicts, template_tags,
+    TAG_LANGS, TAG_MARKS, get_template_info, save_template_tags, system_tag_options, template_tag_conflicts,
+    template_tags,
 )
 from utils.file_delivery import deliver_file
 from nicegui_ui.upload_utils import read_upload
@@ -152,6 +153,16 @@ class TemplatesMixin:
                                     fp, filename=os.path.basename(fp),
                                     title=f"تم حفظ القالب ({os.path.basename(fp)}) بنجاح", auto_open=False))
 
+            def _system_options(current: str = "") -> dict:
+                """The study systems added in Settings → معلومات الجامعة."""
+                return system_tag_options(getattr(self, "systems", None) or [], current)
+
+            def _default_system_name(rule_key: str) -> str:
+                for name, rule in _system_options().items():
+                    if rule == rule_key:
+                        return name
+                return ""
+
             def _share_config(notify: bool = True):
                 """Names and tags go to the server too; otherwise the next start restores the server's copy."""
                 from services.template_sync import push_templates_config
@@ -171,7 +182,9 @@ class TemplatesMixin:
                     name_inp = UI.text_input("اسم القالب", value=current_name)
                     with ui.element("div").classes("app-template-tags w-full"):
                         lang_sel = UI.select("اللغة", dict(TAG_LANGS), value=t["lang"])
-                        sys_sel = UI.select("النظام الدراسي", dict(TAG_SYSTEMS), value=t["system"])
+                        cur = t["system_name"] or _default_system_name(t["system"])
+                        sys_opts = _system_options(cur)
+                        sys_sel = UI.select("النظام الدراسي", {k: k for k in sys_opts}, value=cur)
                         marks_sel = UI.select("الدرجات", {True: TAG_MARKS[True], False: TAG_MARKS[False]}, value=t["sbs"])
 
                     def _save():
@@ -179,7 +192,9 @@ class TemplatesMixin:
                         if not name:
                             ui.notify("اكتب اسم القالب", type="warning")
                             return
-                        if save_template_tags(filename, name, lang_sel.value, sys_sel.value, bool(marks_sel.value)):
+                        rule = sys_opts.get(sys_sel.value) or t["system"]
+                        if save_template_tags(filename, name, lang_sel.value, rule, bool(marks_sel.value),
+                                              system_name=sys_sel.value or ""):
                             _share_config()
                             dlg.close()
                             _render_templates_table.refresh()
@@ -208,7 +223,9 @@ class TemplatesMixin:
                 name_input = UI.text_input("اسم القالب", placeholder="مثال: تأييد عربي سنوي")
                 with ui.element("div").classes("app-template-tags w-full"):
                     add_lang = UI.select("اللغة", dict(TAG_LANGS), value="Ar")
-                    add_sys = UI.select("النظام الدراسي", dict(TAG_SYSTEMS), value="Annual")
+                    add_sys_opts = _system_options()
+                    add_sys = UI.select("النظام الدراسي", {k: k for k in add_sys_opts},
+                                        value=next(iter(add_sys_opts), None))
                     add_marks = UI.select("الدرجات", {True: TAG_MARKS[True], False: TAG_MARKS[False]}, value=False)
 
                 # Selected file status indicator
@@ -260,7 +277,9 @@ class TemplatesMixin:
                             with open(dest_path, "wb") as f_out:
                                 f_out.write(content)
 
-                            save_template_tags(fname, chosen_name, add_lang.value, add_sys.value, bool(add_marks.value))
+                            save_template_tags(fname, chosen_name, add_lang.value,
+                                               add_sys_opts.get(add_sys.value) or "Annual", bool(add_marks.value),
+                                               system_name=add_sys.value or "")
                             _share_config(notify=False)
 
                             ui.notify(f"تم حفظ وتسجيل القالب بنجاح باسم: ({chosen_name})", type="positive")

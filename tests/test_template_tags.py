@@ -53,3 +53,25 @@ def test_filter_follows_system_tag_not_file_name(cfg):
     files = ["year - Temp - Ar.docx", "semester - Temp - Ar.docx"]
     assert filter_templates_for_system(files, {"period_display": "semester"}) == ["year - Temp - Ar.docx"]
     assert filter_templates_for_system(files, {"period_display": "year"}) == ["semester - Temp - Ar.docx"]
+
+
+SYSTEMS = [
+    {"id": 1, "name_ar": "النظام الفصلي", "calculation_rule": "annual", "study_day_type": "Morning"},
+    {"id": 3, "name_ar": "النظام الفصلي", "calculation_rule": "annual", "study_day_type": "Evening"},
+    {"id": 2, "name_ar": "نظام المقررات", "calculation_rule": "semester", "study_day_type": "Morning"},
+]
+
+
+def test_system_options_come_from_study_systems():
+    assert tc.system_tag_options(SYSTEMS) == {"النظام الفصلي": "Annual", "نظام المقررات": "Semester"}
+    # a name no longer in the list is kept for the template that has it
+    assert "ماجستير" in tc.system_tag_options(SYSTEMS, current="ماجستير")
+
+
+def test_named_system_tag_saved_and_used_for_filter(cfg):
+    tc.save_template_tags("year - Temp - Ar.docx", "تأييد", "Ar", "Annual", False, system_name="النظام الفصلي")
+    tc.save_template_tags("semester - Temp - Ar.docx", "تأييد", "Ar", "Semester", False, system_name="نظام المقررات")
+    t = tc.template_tags("year - Temp - Ar.docx")
+    assert (t["system_name"], t["system_ar"]) == ("النظام الفصلي", "النظام الفصلي")
+    files = ["year - Temp - Ar.docx", "semester - Temp - Ar.docx"]
+    assert filter_templates_for_system(files, {"study_system_name_ar": "نظام المقررات"}) == ["semester - Temp - Ar.docx"]
