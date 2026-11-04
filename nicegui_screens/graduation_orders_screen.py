@@ -1,5 +1,6 @@
 import logging
 from datetime import datetime
+from utils.date_parsing import format_academic_year
 from nicegui import ui
 from nicegui_ui.ui_components import UI
 from nicegui_ui.ui_theme import Styles
@@ -53,16 +54,12 @@ def validate_and_format_date(date_str: str | None, label_ar: str = "التاري
     if not clean:
         return True, None
 
-    normalized = clean.replace("/", "-").replace(".", "-")
-    parts = normalized.split("-")
-    if len(parts) == 3 and len(parts[0]) == 4:
-        try:
-            dt = datetime(int(parts[0]), int(parts[1]), int(parts[2]))
-            return True, dt.strftime("%Y-%m-%d")
-        except ValueError:
-            pass
+    from utils.date_parsing import parse_date
+    parsed = parse_date(clean)
+    if parsed:
+        return True, parsed
 
-    ui.notify(f"تاريخ غير صالح في ({label_ar}). يرجى كتابة التاريخ بصيغة YYYY-MM-DD", type="warning")
+    ui.notify(f"تاريخ غير صالح في ({label_ar}). اكتبه مثل 2025-10-13 أو 13/10/2025", type="warning")
     return False, None
 
 
@@ -160,7 +157,7 @@ class GraduationOrdersScreen:
                 "order_number": r.get("order_number") or "—",
                 "order_date": r.get("order_date") or "—",
                 "dept": r.get("dept_name_ar") or "جميع الأقسام",
-                "year": r.get("graduation_year") or "—",
+                "year": format_academic_year(r.get("graduation_year")) or r.get("graduation_year") or "—",
                 "term": " • ".join(x for x in (STUDY_TYPE_OPTIONS.get(st_raw, ""), SEMESTER_OPTIONS.get(sem_raw, "")) if x) or "—",
                 "linked": r.get("linked_count", 0) or 0,
                 "raw": r,
@@ -268,10 +265,10 @@ class GraduationOrdersScreen:
                             st_sel = UI.select("نوع الدراسة", STUDY_TYPE_OPTIONS, value=def_st).classes("flex-1 text-sm")
 
                         with ui.row().classes("w-full gap-4"):
-                            grad_yr_inp = UI.text_input(
+                            # Stored as the first year (int column); shown and typed as 2025/2026
+                            grad_yr_inp = UI.academic_year_input(
                                 "سنة التخرج (الدفعة)",
                                 value=str(existing_data.get("graduation_year", "")) if existing_data and existing_data.get("graduation_year") else "",
-                                placeholder="مثال: 2025"
                             ).classes("flex-1 text-sm")
 
                             def_sem = existing_data.get("graduation_semester", "first") if existing_data else "first"
@@ -304,10 +301,13 @@ class GraduationOrdersScreen:
                                 if not ok:
                                     return
 
-                                gyr_str = grad_yr_inp.value.strip() if grad_yr_inp.value else ""
-                                if not gyr_str or not gyr_str.isdigit():
-                                    ui.notify("سنة التخرج مطلوبة بصيغة رقمية (مثال: 2025)", type="warning")
+                                from utils.date_parsing import academic_year_start, format_academic_year
+                                gyr_start = academic_year_start(grad_yr_inp.value)
+                                if not gyr_start:
+                                    ui.notify("سنة التخرج مطلوبة — اكتبها مثل 2025 أو 2025/2026", type="warning")
                                     return
+                                grad_yr_inp.value = format_academic_year(gyr_start)
+                                gyr_str = str(gyr_start)
 
                                 num_st_val = int(num_st_inp.value.strip()) if num_st_inp.value and num_st_inp.value.strip().isdigit() else None
 

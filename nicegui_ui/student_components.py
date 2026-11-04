@@ -28,19 +28,18 @@ def normalize_year(year_str: str) -> str:
     return year_str
 
 
+from utils.date_parsing import parse_date, format_academic_year, academic_year_start
+
 def calculate_stage(db_year: str, admission_year: str | int | None) -> int:
     """Automatically calculate student stage number from academic year and admission year."""
     try:
-        if "-" in db_year:
-            year_start = int(db_year.split("-")[0])
-        else:
-            year_start = int(db_year)
+        year_start = academic_year_start(db_year)
+        if year_start is None:
+            year_start = int(str(db_year).replace("/", "-").split("-")[0])
         if admission_year:
-            adm_str = str(admission_year).strip()
-            if "-" in adm_str:
-                adm_year = int(adm_str.split("-")[0])
-            else:
-                adm_year = int(adm_str)
+            adm_year = academic_year_start(admission_year)
+            if adm_year is None:
+                adm_year = int(str(admission_year).strip().replace("/", "-").split("-")[0])
             diff = year_start - adm_year
             return max(1, diff + 1)
     except Exception:
@@ -1365,7 +1364,7 @@ class StudentFormView:
                         self.degree = UI.select("الدرجة العلمية", {1: "بكالوريوس", 2: "دبلوم عالي", 3: "ماجستير", 4: "دكتوراه"}, value=1).classes('flex-1 min-w-[200px]')
                         default_sys = list(sys_opts.keys())[0] if sys_opts else 1
                         self.study_system = UI.select("نظام الدراسة", sys_opts, value=default_sys).classes('flex-1 min-w-[280px]')
-                        self.admission_year = UI.text_input("سنة القبول (مثال: 2021)").classes('flex-1 min-w-[200px]')
+                        self.admission_year = UI.academic_year_input("سنة القبول").classes('flex-1 min-w-[200px]')
 
                     routine_opts = {0: "بدون روتين دراسي"}
                     try:
@@ -1392,7 +1391,7 @@ class StudentFormView:
                         self.postgrad_num = UI.text_input("إجمالي الخريجين (الدفعة)").classes('flex-1 min-w-[200px]')
 
                     with ui.row().classes('w-full gap-4'):
-                        self.summer_training = UI.text_input("التدريب الصيفي").classes('w-full')
+                        self.summer_training = UI.academic_year_input("التدريب الصيفي").classes('w-full')
                     
                 # Footer Action Buttons
                 with ui.row().classes('app-dialog-actions w-full pt-4 shrink-0'):
@@ -1423,7 +1422,8 @@ class StudentFormView:
                     self.degree.value = data.get("degree_level")
                 if data.get("study_system_id") in sys_opts:
                     self.study_system.value = data.get("study_system_id")
-                self.admission_year.value = str(data.get("admission_year") or "")
+                _adm = str(data.get("admission_year") or "")
+                self.admission_year.value = format_academic_year(_adm) or _adm
 
                 oid_val = data.get("order_id")
                 if oid_val in order_opts:
@@ -1439,7 +1439,8 @@ class StudentFormView:
                 self.average.value = str(data.get("average") or "")
                 self.sequence.value = str(data.get("sequence_number") or "")
                 self.postgrad_num.value = str(data.get("postgraduation_number") or "")
-                self.summer_training.value = str(data.get("summer_training_data") or data.get("summer_training") or "")
+                _sum = str(data.get("summer_training_data") or data.get("summer_training") or "")
+                self.summer_training.value = format_academic_year(_sum) or _sum
 
     def save(self):
         """Extract inputs and persist student changes to database."""
@@ -1448,41 +1449,29 @@ class StudentFormView:
             ui.notify("يرجى إدخال اسم الطالب بالعربية", type="warning")
             return
 
-        # Validate Date of Birth
-        dob_raw = self.dob.value.strip() if self.dob.value else None
-        if dob_raw:
-            from datetime import datetime
-            normalized_dob = dob_raw.replace("/", "-").replace(".", "-")
-            parts = normalized_dob.split("-")
-            valid_dob = False
-            if len(parts) == 3 and len(parts[0]) == 4:
-                try:
-                    dt = datetime(int(parts[0]), int(parts[1]), int(parts[2]))
-                    dob_raw = dt.strftime("%Y-%m-%d")
-                    valid_dob = True
-                except ValueError:
-                    pass
-            if not valid_dob:
-                ui.notify("تاريخ غير صالح في (تاريخ الميلاد). يرجى كتابة التاريخ بصيغة YYYY-MM-DD", type="warning")
-                return
-
-        # Validate Graduation Date
-        grad_date_raw = self.grad_date.value.strip() if self.grad_date.value else None
-        if grad_date_raw:
-            from datetime import datetime
-            normalized_gdate = grad_date_raw.replace("/", "-").replace(".", "-")
-            parts = normalized_gdate.split("-")
-            valid_gdate = False
-            if len(parts) == 3 and len(parts[0]) == 4:
-                try:
-                    dt = datetime(int(parts[0]), int(parts[1]), int(parts[2]))
-                    grad_date_raw = dt.strftime("%Y-%m-%d")
-                    valid_gdate = True
-                except ValueError:
-                    pass
-            if not valid_gdate:
-                ui.notify("تاريخ غير صالح في (تاريخ التخرج). يرجى كتابة التاريخ بصيغة YYYY-MM-DD", type="warning")
-                return
+        # Dates and academic years: one parser each (utils/date_parsing.py)
+        dob_raw = parse_date(self.dob.value)
+        if dob_raw is None:
+            ui.notify("تاريخ غير صالح في (تاريخ الميلاد) — اكتبه مثل 2025-10-13 أو 13/10/2025", type="warning")
+            return
+        grad_date_raw = parse_date(self.grad_date.value)
+        if grad_date_raw is None:
+            ui.notify("تاريخ غير صالح في (تاريخ التخرج) — اكتبه مثل 2025-10-13 أو 13/10/2025", type="warning")
+            return
+        adm_year_val = format_academic_year(self.admission_year.value)
+        if adm_year_val is None:
+            ui.notify("سنة القبول غير صالحة — اكتبها مثل 2025 أو 2025/2026", type="warning")
+            return
+        summer_val = format_academic_year(self.summer_training.value)
+        if summer_val is None:
+            ui.notify("سنة التدريب الصيفي غير صالحة — اكتبها مثل 2025 أو 2025/2026", type="warning")
+            return
+        dob_raw = dob_raw or None
+        grad_date_raw = grad_date_raw or None
+        self.dob.value = dob_raw or ""
+        self.grad_date.value = grad_date_raw or ""
+        self.admission_year.value = adm_year_val
+        self.summer_training.value = summer_val
 
         oid_val = self.order_id.value if isinstance(self.order_id.value, int) and self.order_id.value > 0 else None
 
@@ -1497,14 +1486,14 @@ class StudentFormView:
             "department_id": self.department.value if isinstance(self.department.value, int) else None,
             "study_system_id": self.study_system.value if isinstance(self.study_system.value, int) else 1,
             "degree_level": self.degree.value if isinstance(self.degree.value, int) else 1,
-            "admission_year": self.admission_year.value.strip() if self.admission_year.value else None,
+            "admission_year": adm_year_val or None,
             "order_id": oid_val,
             "graduation_date": grad_date_raw,
             "graduation_semester": str(self.grad_semester.value or "first"),
             "average": float(self.average.value) if self.average.value and str(self.average.value).replace('.', '', 1).isdigit() else None,
             "sequence_number": self.sequence.value.strip() if self.sequence.value else None,
             "postgraduation_number": self.postgrad_num.value.strip() if self.postgrad_num.value else None,
-            "summer_training_data": self.summer_training.value.strip() if self.summer_training.value else None,
+            "summer_training_data": summer_val or None,
         }
 
         try:
@@ -1521,7 +1510,7 @@ class StudentFormView:
                 try:
                     from data.repositories import StudyRoutineRepository
                     r_repo = StudyRoutineRepository()
-                    adm_yr = self.admission_year.value.strip() if self.admission_year.value else ""
+                    adm_yr = adm_year_val or ""
                     r_repo.apply_routine_to_student(self.student_id, sel_routine_id, academic_year=adm_yr)
                     ui.notify("تم تطبيق الروتين الدراسي وإدراج المواد تلقائياً!", type="positive")
                     self.routine_select.value = 0

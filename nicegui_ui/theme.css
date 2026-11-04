@@ -733,6 +733,10 @@ input, textarea { caret-color: var(--accent); }
 
 .q-toggle { font-size: var(--text-sm); color: var(--text-primary); }
 .q-toggle__track { opacity: 1 !important; background: var(--border) !important; height: 20px !important; border-radius: 10px !important; }
+/* Thumb and track share one centre line in both states and directions (Quasar puts the thumb 3 px high) */
+.q-toggle__track { position: absolute !important; top: calc(50% - 10px) !important; left: .3em !important; right: .3em !important; width: auto !important; margin: 0 !important; }
+.q-toggle__thumb { top: calc(50% - 10px) !important; width: 20px !important; height: 20px !important; }
+.q-toggle__thumb:after { top: 2px !important; left: 2px !important; right: auto !important; width: 16px !important; height: 16px !important; }
 .q-toggle__thumb:after { background: #ffffff !important; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.35) !important; }
 .q-toggle__inner--truthy .q-toggle__track { background: var(--accent) !important; }
 .q-toggle__inner--truthy .q-toggle__thumb:after { background: #ffffff !important; }

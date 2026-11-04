@@ -207,17 +207,67 @@ class UI:
         return inp
 
     @staticmethod
+    def _normalize_on_leave(inp: ui.input, parse, error_text: str) -> ui.input:
+        """On blur or Enter, rewrite the value with `parse`; show `error_text` under the field if it is invalid."""
+        def _apply(_e=None):
+            raw = inp.value or ""
+            val = parse(raw)
+            if val is None:
+                inp.props(f'error error-message="{error_text}"')
+                return
+            inp.props(remove="error error-message")
+            if val != raw:
+                inp.set_value(val)
+                inp.update()
+        inp.on("blur", _apply)
+        inp.on("keydown.enter", _apply)
+        inp.on("update:model-value", lambda _e: inp.props(remove="error error-message"))
+        return inp
+
+    @staticmethod
     def attach_date_picker(inp: ui.input) -> ui.input:
-        """Make an input take YYYY-MM-DD only: digits are auto-formatted and a calendar opens from the icon."""
-        inp.props('mask="####-##-##" hint="YYYY-MM-DD"')
+        """DateField: type the date in any common form (13.10.2025, 2025/10/13, 20251013…) or pick it.
+
+        The value becomes YYYY-MM-DD when the field loses focus or on Enter; picking a
+        day in the calendar fills it and closes the calendar.
+        """
+        from utils.date_parsing import parse_date
+        inp.props('hint="YYYY-MM-DD"')
         with inp:
             with ui.menu().props("no-parent-event") as menu:
-                with ui.date().bind_value(inp):
-                    with ui.row().classes("justify-end"):
-                        ui.button("إغلاق", on_click=menu.close).props("flat")
+                picker = ui.date(mask="YYYY-MM-DD")
+
+                state = {"loading": False}
+
+                def _picked(e):
+                    # A day clicked in the calendar fills the field and closes the calendar
+                    if e.value and not state["loading"]:
+                        inp.value = e.value
+                        inp.props(remove="error error-message")
+                        menu.close()
+                picker.on_value_change(_picked)
+
+        def _open_calendar():
+            state["loading"] = True
+            picker.set_value(parse_date(inp.value) or None)
+            state["loading"] = False
+            menu.open()
         with inp.add_slot("append"):
-            ui.icon("edit_calendar").on("click", menu.open).classes("cursor-pointer app-text-accent")
-        return inp
+            ui.icon("edit_calendar").on("click", _open_calendar).classes("cursor-pointer app-text-accent")
+        return UI._normalize_on_leave(inp, parse_date, "تاريخ غير صالح — اكتبه مثل 2025-10-13 أو 13/10/2025")
+
+    @staticmethod
+    def attach_academic_year(inp: ui.input) -> ui.input:
+        """Academic-year field: 2025, 2025-2026, 25/26… all become 2025/2026 on blur or Enter."""
+        from utils.date_parsing import format_academic_year
+        inp.props('hint="2025/2026"')
+        return UI._normalize_on_leave(inp, format_academic_year, "سنة دراسية غير صالحة — اكتبها مثل 2025 أو 2025/2026")
+
+    @staticmethod
+    def academic_year_input(label: str, value: str = "") -> ui.input:
+        from utils.date_parsing import format_academic_year
+        shown = format_academic_year(value) or (value or "")
+        return UI.attach_academic_year(UI.input(label=label, value=shown, placeholder="2025/2026"))
 
     @staticmethod
     def date_input(label: str, value: str = "", placeholder: str = "YYYY-MM-DD") -> ui.input:
