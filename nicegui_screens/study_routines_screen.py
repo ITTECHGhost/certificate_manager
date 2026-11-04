@@ -329,38 +329,14 @@ class StudyRoutinesController:
         except Exception:
             systems = []
 
-        sys_options = {}
-        for s in systems:
-            sys_id = s.get("id")
-            if not sys_id:
-                continue
-            name_ar = s.get("name_ar") or "نظام دراسي"
-            name_en = s.get("name_en") or ""
-            day_raw = str(s.get("study_day_type") or s.get("study_type") or "").strip().lower()
-            if day_raw in ["morning", "day", "صباحي", "الصباحية"]:
-                type_label = "الدراسة الصباحية]"
-            elif day_raw in ["evening", "night", "مسائي", "المسائية"]:
-                type_label = "الدراسة المسائية]"
-            else:
-                type_label = s.get("study_day_type") or s.get("study_type") or ""
-
-            type_suffix = f" [{type_label}]" if type_label else ""
-            label = f"{name_ar}{type_suffix} — {name_en}" if name_en else f"{name_ar}{type_suffix}"
-            sys_options[sys_id] = label
-
-        if not sys_options:
-            sys_options = {
-                1: "نظام فصلي [الدراسة الصباحية]",
-                2: "نظام فصلي [الدراسة المسائية]",
-                3: "نظام سنوي [الدراسة الصباحية]",
-                4: "نظام سنوي [الدراسة المسائية]",
-            }
-        
-        target_sys = routine.get("study_system_id") if is_edit else None
-        if target_sys and target_sys in sys_options:
-            init_sys = target_sys
-        else:
-            init_sys = list(sys_options.keys())[0]
+        if not systems:
+            systems = [
+                {"id": 1, "name_ar": "نظام فصلي", "period_display": "year", "study_day_type": "Morning"},
+                {"id": 2, "name_ar": "نظام مقررات", "period_display": "semester", "study_day_type": "Morning"},
+                {"id": 3, "name_ar": "نظام فصلي", "period_display": "year", "study_day_type": "Evening"},
+                {"id": 4, "name_ar": "نظام مقررات", "period_display": "semester", "study_day_type": "Evening"},
+            ]
+        init_sys = routine.get("study_system_id") if is_edit else None
 
         dialog = ui.dialog()
         with dialog, ui.card().classes("w-full max-w-lg p-6 shadow-xl rounded-2xl gap-4 bg-[var(--bg-card)] border border-[var(--border-default)]"):
@@ -374,7 +350,9 @@ class StudyRoutinesController:
             name_ar_input = ui.input("اسم الروتين بالعربية", value=name_ar_val).classes("w-full text-sm").props("outlined dense")
             name_en_input = ui.input("اسم الروتين بالإنجليزية", value=name_en_val).classes("w-full text-sm").props("outlined dense")
             dept_select = ui.select(options=dept_options, value=init_dept, label="القسم التابع له").classes("w-full text-sm").props("outlined dense")
-            sys_select = ui.select(options=sys_options, value=init_sys, label="النظام الدراسي").classes("w-full text-sm").props("outlined dense")
+            from nicegui_ui.study_system_choice import StudySystemPicker
+            with ui.row().classes("w-full gap-3 no-wrap"):
+                sys_select = StudySystemPicker(systems, value=init_sys, classes="flex-1 text-sm")
 
             with ui.row().classes("w-full justify-end gap-2 pt-3 border-t border-slate-200 dark:border-slate-700"):
                 ui.button("إلغاء", on_click=dialog.close).props("flat").classes("text-slate-500 text-sm")
@@ -387,6 +365,9 @@ class StudyRoutinesController:
 
                     if not name_ar:
                         ui.notify("يرجى إدخال اسم الروتين بالعربية", type="warning")
+                        return
+                    if not isinstance(sys_id, int):
+                        ui.notify("اختر نظام الدراسة ونوع الدراسة (هذا الزوج غير موجود)", type="warning")
                         return
 
                     payload = {

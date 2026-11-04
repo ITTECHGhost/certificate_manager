@@ -1264,36 +1264,17 @@ class StudentFormView:
             dept_opts = {1: "قسم علوم الحاسوب"}
 
         try:
-            systems = self.sys_repo.get_all() or []
-            sys_opts = {}
-            for s in systems:
-                sys_id = s.get("id")
-                if not sys_id:
-                    continue
-                name_ar = s.get("name_ar") or "نظام دراسي"
-                name_en = s.get("name_en") or ""
-                day_raw = str(s.get("study_day_type") or s.get("study_type") or "").strip().lower()
-                if day_raw in ["morning", "day", "صباحي", "الصباحية"]:
-                    type_label = "الدراسة الصباحية"
-                elif day_raw in ["evening", "night", "مسائي", "المسائية"]:
-                    type_label = "الدراسة المسائية"
-                else:
-                    type_label = s.get("study_day_type") or s.get("study_type") or ""
-
-                type_suffix = f" [{type_label}]" if type_label else ""
-                label = f"{name_ar}{type_suffix}"
-                sys_opts[sys_id] = label
+            self._systems = self.sys_repo.get_all() or []
         except Exception as err:
             log.warning(f"Failed to load study systems for student form: {err}")
-            sys_opts = {}
-
-        if not sys_opts:
-            sys_opts = {
-                1: "نظام فصلي [الدراسة الصباحية]",
-                2: "نظام فصلي [الدراسة المسائية]",
-                3: "نظام سنوي [الدراسة الصباحية]",
-                4: "نظام سنوي [الدراسة المسائية]",
-            }
+            self._systems = []
+        if not self._systems:
+            self._systems = [
+                {"id": 1, "name_ar": "نظام فصلي", "period_display": "year", "study_day_type": "Morning"},
+                {"id": 2, "name_ar": "نظام مقررات", "period_display": "semester", "study_day_type": "Morning"},
+                {"id": 3, "name_ar": "نظام فصلي", "period_display": "year", "study_day_type": "Evening"},
+                {"id": 4, "name_ar": "نظام مقررات", "period_display": "semester", "study_day_type": "Evening"},
+            ]
 
         # Governorates dropdown
         try:
@@ -1362,8 +1343,9 @@ class StudentFormView:
                         if self.user_dept_scope and len(self.user_dept_scope) == 1:
                             self.department.disable()
                         self.degree = UI.select("الدرجة العلمية", {1: "بكالوريوس", 2: "دبلوم عالي", 3: "ماجستير", 4: "دكتوراه"}, value=1).classes('flex-1 min-w-[200px]')
-                        default_sys = list(sys_opts.keys())[0] if sys_opts else 1
-                        self.study_system = UI.select("نظام الدراسة", sys_opts, value=default_sys).classes('flex-1 min-w-[280px]')
+                        # Two choices, as before the redesign: the system, then morning or evening study
+                        from nicegui_ui.study_system_choice import StudySystemPicker
+                        self.study_system = StudySystemPicker(self._systems, classes='flex-1 min-w-[160px]')
                         self.admission_year = UI.academic_year_input("سنة القبول").classes('flex-1 min-w-[200px]')
 
                     routine_opts = {0: "بدون روتين دراسي"}
@@ -1420,7 +1402,7 @@ class StudentFormView:
                     self.department.value = data.get("department_id")
                 if data.get("degree_level") in [1, 2, 3, 4]:
                     self.degree.value = data.get("degree_level")
-                if data.get("study_system_id") in sys_opts:
+                if data.get("study_system_id") in self.study_system.by_id:
                     self.study_system.value = data.get("study_system_id")
                 _adm = str(data.get("admission_year") or "")
                 self.admission_year.value = format_academic_year(_adm) or _adm
@@ -1474,6 +1456,10 @@ class StudentFormView:
         self.summer_training.value = summer_val
 
         oid_val = self.order_id.value if isinstance(self.order_id.value, int) and self.order_id.value > 0 else None
+        sys_id_val = self.study_system.value
+        if not isinstance(sys_id_val, int):
+            ui.notify("اختر نظام الدراسة ونوع الدراسة (هذا الزوج غير موجود)", type="warning")
+            return
 
         payload = {
             "full_name_ar": name_ar_val,
@@ -1484,7 +1470,7 @@ class StudentFormView:
             "nationality_id": self.nationality.value if isinstance(self.nationality.value, int) else 1,
             "national_id": self.national_id.value.strip() if self.national_id.value else None,
             "department_id": self.department.value if isinstance(self.department.value, int) else None,
-            "study_system_id": self.study_system.value if isinstance(self.study_system.value, int) else 1,
+            "study_system_id": sys_id_val,
             "degree_level": self.degree.value if isinstance(self.degree.value, int) else 1,
             "admission_year": adm_year_val or None,
             "order_id": oid_val,

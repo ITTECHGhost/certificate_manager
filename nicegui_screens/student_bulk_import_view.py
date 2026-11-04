@@ -165,21 +165,12 @@ class StudentBulkImportView:
                         if self.is_dept_locked:
                             self.dept_select.disable()
 
-                        # Study System with clear Annual / Semester & Morning / Evening labels
-                        sys_opts = {}
-                        for s in self.study_systems:
-                            s_name = s.get("name_ar") or ""
-                            day_type = (s.get("study_day_type") or "Morning").capitalize()
-                            day_ar = "صباحي" if day_type == "Morning" else "مسائي"
-                            sys_type_name = "سنوي / مقررات" if ("سنوي" in s_name or "مقررات" in s_name) else "فصلي"
-                            sys_opts[s["id"]] = f"نظام {sys_type_name} ({day_ar}) — {s_name}"
-
-                        self.system_select = ui.select(
-                            options=sys_opts,
-                            value=self.selected_system_id,
-                            label="النظام الدراسي",
-                            on_change=self._on_system_changed
-                        ).props("outlined dense options-dense").classes("flex-1 min-w-[150px]")
+                        # Study system and study type: two choices mapped to one study_system_id
+                        from nicegui_ui.study_system_choice import StudySystemPicker
+                        self.system_select = StudySystemPicker(
+                            self.study_systems, value=self.selected_system_id,
+                            on_change=self._on_system_changed, classes="flex-1 min-w-[130px]",
+                        )
 
                         # Academic Year
                         self.year_input = UI.text_input(
@@ -391,8 +382,9 @@ class StudentBulkImportView:
             self._refresh_courses_display()
 
     def _on_system_changed(self, e):
-        if e and hasattr(e, "value") and e.value:
-            self.selected_system_id = int(e.value)
+        val = e.value if hasattr(e, "value") else e
+        if isinstance(val, int):
+            self.selected_system_id = val
 
     def _on_year_changed(self, e):
         val = e.value if hasattr(e, "value") else str(e or "")
