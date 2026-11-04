@@ -18,6 +18,67 @@ Branch: `claude/certificate-design-fixes-dce558` (40 commits on top of
    → `CertificateManagerServer-2.2.0.zip`.
 7. Copy both to a USB stick with `docs/installation_guide.md`.
 
+## Moving this database to the new server laptop
+
+Rule: finish all data work **on this laptop**, check it in the app, then move
+**one complete dump**. Never run the legacy import files on the new laptop.
+
+### A. On this laptop (tonight)
+1. **Legacy import — only if not done yet.** Check in phpMyAdmin: if the
+   databases `legacy_a`, `legacy_b`, `legacy_merge` don't exist and the old
+   students are in the app, it's done → skip to step 2. Otherwise, in order:
+   - back up: `mysqldump -u root -p --routines --triggers certificate_manager > "old/sql_dumps/backup_before_legacy_import_2026_11_04.sql"`
+   - load the two old dumps into `legacy_a` / `legacy_b` (commands at the top of
+     `sql/fixes/2026-11-04_legacy_import_01_stage.sql`)
+   - run `..._01_stage.sql`, **read its result lists** (matches, conflicts)
+   - run `..._02_import.sql`, then `..._03_fix_and_cleanup.sql`
+     (03 lists anyone left with gender 0 — fix those by hand; it also drops the
+     three legacy databases)
+   - open the app and check a few imported students and their marks.
+2. **Close every copy of the program** (and stop issuing) so nothing changes
+   during the export. Check the program has no unsent offline items
+   (Settings → السيرفر والصيانة والسجلات → the failed/queued list).
+3. **Export the whole database** (data + stored procedures + triggers), in a
+   Command Prompt:
+   ```
+   cd C:\AppServ\MySQL\bin
+   mysqldump -u root -p --routines --triggers --events --single-transaction --default-character-set=utf8 --databases certificate_manager > D:\certificate_manager_2026-11-05.sql
+   ```
+   `--databases` puts `CREATE DATABASE`/`USE` in the file, so it restores under
+   the same name.
+4. Check the file: it should be several MB, start with `-- MySQL dump`, and
+   contain `CREATE PROCEDURE` (open it in Notepad++ and search). Copy it to the
+   USB stick with the release folder.
+5. Also copy `C:\AppServ\www\certificate_manager_api\templets\templates_config.json`
+   (the bundle has the same file, this is a spare).
+
+### B. On the new server laptop (tomorrow)
+Follow `docs/installation_guide.md` §2 "First installation", with this change
+at **step 2** (database):
+1. Install AppServ (MySQL 8), keep `bind-address = 127.0.0.1`.
+2. Restore the dump instead of creating an empty database:
+   ```
+   cd C:\AppServ\MySQL\bin
+   mysql -u root -p --default-character-set=utf8 < D:\certificate_manager_2026-11-05.sql
+   ```
+   (Large file: use this command line, not phpMyAdmin's upload, which has a size limit.)
+3. Check in phpMyAdmin: database `certificate_manager` exists; tables have rows
+   (students, enrollments, issued_certificates); **Routines** tab lists the
+   stored procedures (e.g. `GetFullCertificateData`).
+4. Step 3 of the guide (`sql\fixes\*.sql`): run **only**
+   `2026-10-27_04_api_db_account.sql` (it creates the `certman_api` account —
+   accounts are not inside the dump). The other fixes are already in this
+   database. **Do not run the `legacy_import` files.**
+5. Continue with steps 4–6 of the guide (Python, `setup_server.bat` with the
+   `certman_api` login, HTTPS/program key).
+6. Clients: point them to the new server's IP (installer asks; installed
+   laptops: Settings → السيرفر). On first start each client downloads a fresh
+   copy into its local cache.
+
+### If something goes wrong
+The old laptop still has the original database untouched — nothing above
+deletes it. Fix and export again.
+
 ## Tomorrow — server laptop
 - Database: **no schema change in this release**. The study-system names, the
   موازي shifts and the template names were already written through the API on
