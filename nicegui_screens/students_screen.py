@@ -10,7 +10,7 @@ log = logging.getLogger(__name__)
 
 from nicegui import ui, run, background_tasks
 from nicegui_ui.ui_components import UI
-from nicegui_ui.ui_theme import Styles
+from utils.display_format import format_average
 from nicegui_ui.student_components import StudentProfileView, StudentFormView, CourseEnrollmentView
 from nicegui_screens.student_bulk_import_view import StudentBulkImportView
 
@@ -26,10 +26,6 @@ class StudentsScreen:
         self.on_issue_certificate = on_issue_certificate
         self.search_input = None
         self.table = None
-        self.limit_select = None
-        self.prev_btn = None
-        self.next_btn = None
-        self.page_info_label = None
 
         # Resolve logged-in user department restriction
         # Department scope cached at login (no network call here)
@@ -80,115 +76,71 @@ class StudentsScreen:
         self.bulk_import_view.render()
 
     def show_list_view(self) -> None:
-        """Constructs the primary Students List view layout."""
+        """Students list: one toolbar row (search, import, add), the table, one paginator."""
         self.main_container.clear()
         with self.main_container:
             with UI.card().classes('flex-1'):
-                UI.card_header("إدارة الطلاب", "people", icon_css="stat-text-blue")
+                with ui.row().classes("w-full items-center gap-2"):
+                    self.search_input = UI.search_input(
+                        placeholder="ابحث باسم الطالب",
+                        on_change=self._on_input_change,
+                    ).classes("flex-1 min-w-[220px] max-w-md")
+                    self.search_input.on("keydown.enter", lambda: self.perform_search(reset_offset=True))
 
-                # Top Search & Action Bar
-                with ui.row().classes("w-full items-center justify-between gap-4 mt-2"):
-                    with ui.row().classes("items-center gap-2 flex-1 max-w-xl"):
-                        self.search_input = UI.text_input(
-                            label="ابحث بالاسم",
-                            placeholder="أدخل اسم الطالب...",
-                            on_change=self._on_input_change
-                        ).classes("flex-1").props('debounce="300"')
-                        self.search_input.on("keydown.enter", lambda: self.perform_search(reset_offset=True))
+                    if self.user_dept_id:
+                        dept_name = next((d.get("name_ar") for d in self.dept_repo.get_all() if d["id"] == self.user_dept_id), f"قسم {self.user_dept_id}")
+                        UI.chip(dept_name, "warning").tooltip("تظهر طلاب هذا القسم فقط")
 
-                        UI.primary_button(
-                            "بحث",
-                            icon="search",
-                            on_click=lambda: self.perform_search(reset_offset=True)
-                        ).classes("h-12 px-4 shadow-sm")
-
-                        if self.user_dept_id:
-                            dept_name = next((d.get("name_ar") for d in self.dept_repo.get_all() if d["id"] == self.user_dept_id), f"قسم {self.user_dept_id}")
-                            with ui.row().classes("items-center gap-1.5 px-3 py-2 rounded-xl bg-amber-500/10 text-amber-500 text-xs font-bold border border-amber-500/30"):
-                                ui.icon("lock", size="xs")
-                                ui.label(f"{dept_name}")
-
-                    with ui.row().classes("items-center gap-2"):
-                        UI.primary_button(
-                            "إضافة مجموعة طلاب", 
-                            icon="group_add", 
-                            on_click=self.show_bulk_import_view
-                        ).classes("h-12 px-4 shadow-sm bg-indigo-600 hover:bg-indigo-700 text-white font-bold")
-
-                        UI.success_button(
-                            "إضافة طالب", 
-                            icon="person_add", 
-                            on_click=self.form_view.render_add
-                        ).classes("h-12 px-4 shadow-sm")
+                    ui.space()
+                    UI.secondary_button("استيراد من Excel", icon="upload_file", on_click=self.show_bulk_import_view)
+                    UI.primary_button("إضافة طالب", icon="person_add", on_click=self.form_view.render_add)
 
                 columns = [
-                    {"name": "name_ar", "label": "الاسم", "field": "name_ar", "align": "right", "sortable": True},
-                    {"name": "department_name_ar", "label": "القسم", "field": "department_name_ar", "align": "left", "sortable": True},
-                    {"name": "graduation_year", "label": "سنة التخرج", "field": "graduation_year", "align": "center", "sortable": True},
-                    {"name": "average", "label": "المعدل", "field": "average", "align": "center", "sortable": True},
-                    {"name": "actions", "label": "الإجراءات", "field": "actions", "align": "center"},
+                    {"name": "name_ar", "label": "الاسم", "field": "name_ar", "align": "right"},
+                    {"name": "department_name_ar", "label": "القسم", "field": "department_name_ar"},
+                    {"name": "graduation_year", "label": "سنة التخرج", "field": "graduation_year"},
+                    {"name": "average", "label": "المعدل", "field": "average"},
+                    {"name": "actions", "label": "", "field": "actions"},
                 ]
 
-                # The screen appears at once; rows are loaded in the background (see perform_search)
-                self.table = ui.table(
-                    columns=columns,
-                    rows=[],
-                    row_key="student_id"
-                ).classes(Styles.TABLE_CLASSES).props("flat bordered hide-bottom")
+                # The screen appears at once with a skeleton; rows load in the background (see perform_search)
+                self.skeleton = UI.skeleton(rows=6, height=36)
+                self.table = UI.data_table(columns, [], row_key="student_id", clickable=True)
+                self.table.set_visibility(False)
 
-                # Body slot for Stacked Name Display (Arabic top, English bottom)
+                # Arabic name with the English one under it
                 self.table.add_slot("body-cell-name_ar", """
                     <q-td :props="props">
                         <div class="flex flex-col text-right leading-tight">
-                            <span class="font-bold app-text-primary text-sm">{{ props.row.name_ar }}</span>
-                            <span class="text-xs app-text-muted font-mono" dir="ltr">{{ props.row.name_en }}</span>
+                            <span class="font-semibold app-text-primary">{{ props.row.name_ar }}</span>
+                            <span class="app-caption" dir="ltr">{{ props.row.name_en }}</span>
                         </div>
                     </q-td>
                 """)
-
-                # Body slot for Actions
                 self.table.add_slot("body-cell-actions", """
-                    <q-td :props="props">
-                        <div class="row items-center justify-center gap-2">
-                            <q-btn size="sm" round dense color="primary" icon="visibility" @click="$parent.$emit('view_profile', props.row)">
-                                <q-tooltip>عرض الملف</q-tooltip>
-                            </q-btn>
-                            <q-btn size="sm" round dense color="negative" icon="delete" @click="$parent.$emit('delete_student', props.row)">
-                                <q-tooltip>حذف</q-tooltip>
-                            </q-btn>
-                        </div>
+                    <q-td :props="props" auto-width>
+                        <q-btn flat round dense icon="delete" class="app-btn-danger-icon" aria-label="حذف الطالب"
+                               @click.stop="$parent.$emit('delete_student', props.row)">
+                            <q-tooltip>حذف الطالب</q-tooltip>
+                        </q-btn>
                     </q-td>
                 """)
-
-                self.table.on("view_profile", self._on_view_profile)
+                self.table.on("rowClick", lambda e: self._on_view_profile(type("M", (), {"args": e.args[1]})()))
                 self.table.on("delete_student", self._on_delete_student)
 
-                # Pagination & Rows-Per-Page Controls Footer
-                with ui.row().classes("w-full items-center justify-between mt-4 px-2 py-2 border-t border-[var(--border-default)]"):
-                    with ui.row().classes("items-center gap-3"):
-                        ui.label("عدد الصفوف:").classes("text-sm app-text-muted font-medium")
-                        self.limit_select = ui.select(
-                            options=[25, 50, 100],
-                            value=self.current_limit,
-                            on_change=self._on_limit_change
-                        ).props("dense options-dense outlined").classes("w-24")
+                self.empty_box = ui.column().classes("w-full")
+                self.empty_box.set_visibility(False)
 
-                    self.page_info_label = ui.label("").classes("text-sm font-semibold app-text-primary")
+                @ui.refreshable
+                def paginator() -> None:
+                    if not self.total_count:
+                        return
+                    UI.paginator(self.total_count, self.current_offset // self.current_limit + 1,
+                                 self.current_limit, self._go_to_page)
 
-                    with ui.row().classes("items-center gap-2"):
-                        self.prev_btn = UI.primary_button(
-                            "السابق",
-                            icon="chevron_right",
-                            on_click=self._prev_page
-                        ).props("dense outlined")
-
-                        self.next_btn = UI.primary_button(
-                            "التالي",
-                            icon="chevron_left",
-                            on_click=self._next_page
-                        ).props("dense outlined")
-
-                self._update_pagination_controls(0)
+                self.total_count = 0
+                paginator()
+                self._paginator = paginator
                 self.perform_search(reset_offset=False)
 
     def _map_rows(self, raw_rows) -> list[dict]:
@@ -207,8 +159,8 @@ class StudentsScreen:
                 "name_ar": r.get("name_ar") or r.get("full_name_ar") or "—",
                 "name_en": name_en,
                 "department_name_ar": r.get("department_name_ar") or r.get("dept_name_ar") or "—",
-                "graduation_year": str(r.get("graduation_year") or "—"),
-                "average": round(float(r.get("average")), 3) if r.get("average") is not None and str(r.get("average")).replace('.', '', 1).isdigit() else r.get("average", "—")
+                "graduation_year": "—" if str(r.get("graduation_year") or "N/A") == "N/A" else str(r.get("graduation_year")),
+                "average": format_average(r.get("average")),
             }
             results.append(mapped)
         return results
@@ -269,55 +221,48 @@ class StudentsScreen:
         except Exception as exc:
             log.warning(f"[StudentsScreen] Search error: {exc}")
             mapped = []
+        try:
+            total = await run.io_bound(self.repo.count, name_query=search_term, dept_id=self.user_dept_id)
+        except Exception as exc:
+            log.warning(f"[StudentsScreen] Count error: {exc}")
+            total = 0
         if seq != self._search_seq:
             return  # a newer search was started while this one was running
-        if hasattr(self, 'table') and self.table and not getattr(self.table, 'is_deleted', False):
-            self.table.rows = mapped
-            self.table.update()
-            self._update_pagination_controls(len(mapped))
+        if not hasattr(self, 'table') or self.table is None or getattr(self.table, 'is_deleted', False):
+            return
+        # The count may lag the rows (offline replica, paging past the end): never show fewer than we have
+        self.total_count = max(int(total or 0), offset + len(mapped))
+        self.table.rows = mapped
+        self.table.update()
+        self.skeleton.set_visibility(False)
+        self.table.set_visibility(bool(mapped))
+        self._render_empty(search_term, bool(mapped))
+        self._paginator.refresh()
 
-    def _on_limit_change(self, e) -> None:
-        """Handle rows-per-page dropdown selection change."""
-        if e and hasattr(e, "value") and e.value:
-            self.current_limit = int(e.value)
-            self.current_offset = 0
-            self.perform_search(reset_offset=True)
-
-    def _prev_page(self) -> None:
-        """Go to previous page."""
-        self.current_offset = max(0, self.current_offset - self.current_limit)
-        self.perform_search(reset_offset=False)
-
-    def _next_page(self) -> None:
-        """Go to next page."""
-        self.current_offset += self.current_limit
-        self.perform_search(reset_offset=False)
-
-    def _update_pagination_controls(self, returned_count: int) -> None:
-        """Update pagination buttons and label state."""
-        current_page = (self.current_offset // self.current_limit) + 1
-        if self.page_info_label:
-            self.page_info_label.text = f"الصفحة {current_page}"
-
-        if self.prev_btn:
-            if self.current_offset == 0:
-                self.prev_btn.disable()
+    def _render_empty(self, search_term: str, has_rows: bool) -> None:
+        self.empty_box.clear()
+        self.empty_box.set_visibility(not has_rows)
+        if has_rows:
+            return
+        with self.empty_box:
+            if search_term:
+                UI.empty_state("لا يوجد طالب بهذا الاسم", "تحقق من الاسم أو امسح البحث.", icon="search_off")
             else:
-                self.prev_btn.enable()
+                UI.empty_state("لا يوجد طلاب بعد", "أضف طالبًا أو استورد قائمة من Excel.", icon="people",
+                               action_text="إضافة طالب", on_action=self.form_view.render_add)
 
-        if self.next_btn:
-            if returned_count < self.current_limit:
-                self.next_btn.disable()
-            else:
-                self.next_btn.enable()
+    def _go_to_page(self, page: int) -> None:
+        """The paginator asks for a page number (1-based)."""
+        self.current_offset = max(0, (int(page) - 1) * self.current_limit)
+        self.perform_search(reset_offset=False)
 
     def _on_view_profile(self, msg) -> None:
-        """Triggered when the View Profile button is clicked in the table slot."""
+        """Row click opens the student's own page."""
         row_data = getattr(msg, "args", {}) or {}
         self.profile_view.render(row_data)
 
     def _on_delete_student(self, msg) -> None:
-        """Triggered when the Delete Student button is clicked in the table slot."""
+        """Quiet delete icon in the row; always confirmed with the student's name."""
         row_data = getattr(msg, "args", {}) or {}
         if not isinstance(row_data, dict):
             return
@@ -328,26 +273,21 @@ class StudentsScreen:
         if not student_id:
             return
 
-        with ui.dialog() as confirm_dlg, UI.card().classes("p-6 gap-4 w-96 bg-[var(--surface-card)] text-[var(--text-primary)] rounded-2xl border border-[var(--border-default)] shadow-2xl"):
-            ui.label("تأكيد حذف الطالب").classes("text-lg font-bold text-rose-500")
-            ui.label(f"هل أنت تأكد من رغبتك في حذف الطالب ({name_ar})؟ سيتم حذف كافة المراحل والدرجات المرتبطة به ولا يمكن التراجع عن هذا الإجراء.").classes("text-xs text-[var(--text-secondary)] leading-relaxed")
+        def do_delete():
+            try:
+                self.repo.delete(student_id)
+                UI.notify(f"تم حذف الطالب ({name_ar})", type="positive")
+                self.perform_search(reset_offset=False)
+            except Exception as err:
+                log.error(f"Failed to delete student {student_id}: {err}")
+                UI.notify(f"تعذر حذف الطالب: {err}", type="negative")
 
-            with ui.row().classes("w-full justify-end gap-3 mt-2"):
-                UI.secondary_button("إلغاء", on_click=confirm_dlg.close).classes("text-xs px-4 py-2")
-
-                def do_delete():
-                    confirm_dlg.close()
-                    try:
-                        self.repo.delete(student_id)
-                        ui.notify(f"تم حذف الطالب ({name_ar}) بنجاح", type="positive")
-                        self.perform_search(reset_offset=False)
-                    except Exception as err:
-                        log.error(f"Failed to delete student {student_id}: {err}")
-                        ui.notify(f"خطأ في حذف الطالب: {err}", type="negative")
-
-                UI.danger_button("🗑 تأكيد الحذف", on_click=do_delete).classes("text-xs px-4 py-2 font-bold")
-
-        confirm_dlg.open()
+        UI.confirm_dialog(
+            "حذف الطالب",
+            f"سيُحذف الطالب ({name_ar}) مع كل مراحله ودرجاته. لا يمكن التراجع عن ذلك.",
+            "حذف الطالب",
+            do_delete,
+        )
 
     def _refresh_table(self):
         """Callback to reload table data after form save."""

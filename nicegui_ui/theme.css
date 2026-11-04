@@ -643,6 +643,9 @@ input, textarea { caret-color: var(--accent); }
 }
 .app-table .q-table { width: 100%; }
 .app-table .q-table__middle { max-height: none; }
+
+/* One scroll area: tab panels inside a page grow with their content */
+.app-main-scroll .q-tab-panels .q-panel.scroll { overflow: visible; }
 .app-table thead tr th {
   position: sticky;
   top: 0;
