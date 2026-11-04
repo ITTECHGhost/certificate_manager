@@ -13,9 +13,8 @@ class StudySystemsMixin:
         with UI.card():
             with ui.row().classes("w-full justify-between items-center pb-3 app-card-header"):
                 UI.section_label("أنظمة الدراسة")
-                ui.button("+ إضافة نظام", color=None, on_click=self._add_study_system).classes(
-                    "app-btn-primary text-sm px-4 py-2 rounded-lg normal-case font-medium"
-                )
+                # Secondary: the tab's one primary is the university info "حفظ" above
+                UI.secondary_button("إضافة نظام", icon="add", on_click=self._add_study_system)
 
             self._systems_container = ui.column().classes("w-full")
             self._render_systems_list()

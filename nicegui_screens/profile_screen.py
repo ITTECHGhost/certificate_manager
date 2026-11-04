@@ -49,26 +49,14 @@ class ProfileScreen:
         access = self.session.get_access()
         role_id = access.get("role_id") or self.session.role
         role_label_ar = access.get("role_name_ar") or role_id
-        role_label_en = access.get("role_name_en") or role_id
 
         with ui.column().classes("w-full max-w-5xl mx-auto gap-6 pb-12"):
-            # Header Navigation Row (Visible when not embedded in settings tab)
+            # The page title is in the top bar; here only the way back and what the page is for
             if not self.embedded:
-                with ui.row().classes("w-full items-center justify-between pb-3 border-b border-[var(--border-default)] shrink-0 gap-4 flex-wrap"):
-                    with ui.row().classes("items-center gap-3"):
-                        with ui.element("div").classes("w-10 h-10 rounded-xl bg-blue-500/10 border border-blue-500/30 flex items-center justify-center"):
-                            ui.icon("account_circle", size="sm").classes("text-blue-400")
-
-                        with ui.column().classes("gap-0"):
-                            ui.label("الملف الشخصي والحساب").classes("text-lg font-bold app-text-primary")
-                            ui.label("إدارة بياناتك الشخصية والوظيفية وكلمة المرور الخاصة بك.").classes("text-xs app-text-muted")
-
+                with ui.row().classes("w-full items-center gap-3"):
                     if self.on_navigate:
-                        UI.secondary_button(
-                            "← العودة إلى لوحة التحكم",
-                            icon="arrow_forward",
-                            on_click=lambda: self.on_navigate("home")
-                        ).classes("text-xs px-4 py-2 font-bold shadow-sm")
+                        UI.back_button(lambda: self.on_navigate("home"))
+                    ui.label("بياناتك الشخصية والوظيفية وكلمة المرور.").classes("app-caption")
 
             with UI.card().classes("w-full p-6 gap-6 shadow-md"):
                 if self.embedded:
@@ -84,7 +72,7 @@ class ProfileScreen:
                             with ui.row().classes("items-center gap-2 flex-wrap"):
                                 ui.label(f"@{cur_username}").classes("text-xs font-mono app-text-muted")
                                 ui.label("•").classes("text-xs app-text-muted")
-                                ui.label(f"الصلاحية: {role_label_ar} ({role_label_en})").classes(
+                                ui.label(f"الصلاحية: {role_label_ar}").classes(
                                     "text-xs font-semibold px-2.5 py-0.5 rounded-lg bg-blue-500/10 text-blue-400 border border-blue-500/20"
                                 )
                     UI.status_badge(online=is_online())
