@@ -174,3 +174,24 @@ def sync_templates_if_online() -> Dict[str, Any]:
         result["success"] = False
 
     return result
+
+
+def push_templates_config() -> bool:
+    """Sends the local templates_config.json to the server, so names and tags saved in
+    Settings survive the startup sync (which otherwise restores the server's copy).
+    Returns False when offline or the upload fails; the local file is kept either way."""
+    if not is_online():
+        return False
+    path = os.path.join(get_local_templates_dir(), "templates_config.json")
+    if not os.path.exists(path):
+        return False
+    try:
+        with open(path, "rb") as f:
+            files = {"file": ("templates_config.json", f.read(), "application/json")}
+        resp = api_client.post(f"{get_api_url()}/api/templates/upload", files=files, timeout=10.0)
+        if resp.status_code == 200:
+            return True
+        logger.warning(f"Template config upload failed: HTTP {resp.status_code} {resp.text[:200]}")
+    except Exception as e:
+        logger.warning(f"Template config upload failed: {e}")
+    return False

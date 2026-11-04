@@ -24,7 +24,7 @@ def test_save_round_trip(cfg):
     assert tc.save_template_tags("year - Temp - Ar.docx", "وثيقة بولونيا", "En", "Bologna", True)
     saved = json.loads(cfg.read_text(encoding="utf-8"))["year - Temp - Ar"]
     assert saved["file"] == "year - Temp - Ar.docx"
-    assert (saved["lang"], saved["system"], saved["sbs"], saved["system_ar"]) == ("En", "Bologna", True, "نظام بولونيا")
+    assert (saved["lang"], saved["system"], saved["sbs"], saved["system_ar"]) == ("En", "Bologna", True, "مسار بولونيا")
 
 
 def test_save_refuses_empty_name_and_normalises_tags(cfg):

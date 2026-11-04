@@ -372,8 +372,8 @@ TAG_LANGS: Dict[str, str] = {"Ar": "عربي", "En": "إنكليزي"}
 # Names only for now: no calculation depends on the system tag except the template filter.
 TAG_SYSTEMS: Dict[str, str] = {
     "Annual": "النظام السنوي",
-    "Semester": "نظام المقررات (فصلي)",
-    "Bologna": "نظام بولونيا",
+    "Semester": "نظام المقررات / الفصلي",
+    "Bologna": "مسار بولونيا",
     "Master": "ماجستير (دراسات عليا)",
     "PhD": "دكتوراه",
     "Diploma": "دبلوم عالي",

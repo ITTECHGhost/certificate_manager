@@ -152,6 +152,16 @@ class TemplatesMixin:
                                     fp, filename=os.path.basename(fp),
                                     title=f"تم حفظ القالب ({os.path.basename(fp)}) بنجاح", auto_open=False))
 
+            def _share_config(notify: bool = True):
+                """Names and tags go to the server too; otherwise the next start restores the server's copy."""
+                from services.template_sync import push_templates_config
+                if push_templates_config():
+                    if notify:
+                        ui.notify("تم حفظ القالب ومشاركته مع الخادم", type="positive")
+                else:
+                    ui.notify("حُفظ القالب على هذا الجهاز فقط: تعذر إرساله إلى الخادم، وقد يُستبدل عند التشغيل القادم.",
+                              type="warning", timeout=8000)
+
             def _open_edit_dialog(filename: str, current_name: str):
                 """Name and the three tags of one template; the .docx file is not changed."""
                 t = template_tags(filename)
@@ -170,7 +180,7 @@ class TemplatesMixin:
                             ui.notify("اكتب اسم القالب", type="warning")
                             return
                         if save_template_tags(filename, name, lang_sel.value, sys_sel.value, bool(marks_sel.value)):
-                            ui.notify("تم حفظ القالب", type="positive")
+                            _share_config()
                             dlg.close()
                             _render_templates_table.refresh()
                         else:
@@ -251,6 +261,7 @@ class TemplatesMixin:
                                 f_out.write(content)
 
                             save_template_tags(fname, chosen_name, add_lang.value, add_sys.value, bool(add_marks.value))
+                            _share_config(notify=False)
 
                             ui.notify(f"تم حفظ وتسجيل القالب بنجاح باسم: ({chosen_name})", type="positive")
                             new_template_state["file_name"] = ""
