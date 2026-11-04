@@ -48,7 +48,7 @@ class StudyRoutinesController:
                 with ui.row().classes("items-center gap-3"):
                     ui.icon("playlist_add_check", size="md").classes("text-teal-600 dark:text-teal-400 shrink-0")
                     with ui.column().classes("gap-0.5"):
-                        ui.label("الروتينات والخطط الدراسية").classes(
+                        ui.label("السير والخطط الدراسية").classes(
                             "text-xl font-bold text-[var(--text-primary)]"
                         )
                         ui.label(
@@ -57,7 +57,7 @@ class StudyRoutinesController:
 
                 # Left Side: Green Add Routine Button
                 ui.button(
-                    "+ إضافة روتين جديد",
+                    "+ إضافة سيرة دراسية",
                     icon="add",
                     on_click=self.open_routine_dialog
                 ).classes("bg-teal-600 hover:bg-teal-700 text-white font-bold rounded-xl px-5 py-2.5 text-sm shadow-sm")
@@ -84,8 +84,8 @@ class StudyRoutinesController:
             if not routines:
                 with ui.card().classes("w-full p-6 text-center rounded-xl border border-dashed border-[var(--border-default)] bg-[var(--bg-card)]"):
                     ui.icon("playlist_add_check", size="md").classes("text-[var(--text-muted)] mx-auto mb-1")
-                    ui.label("لا توجد روتينات دراسية").classes("text-sm font-bold text-[var(--text-primary)]")
-                    ui.label("اضغط زر الإضافة في الأعلى لإنشاء روتين جديد.").classes("text-xs text-[var(--text-muted)] mt-0.5")
+                    ui.label("لا توجد سير دراسية").classes("text-sm font-bold text-[var(--text-primary)]")
+                    ui.label("اضغط زر الإضافة في الأعلى لإنشاء سيرة دراسية جديدة.").classes("text-xs text-[var(--text-muted)] mt-0.5")
                 return
 
             # Auto-select first routine if none selected
@@ -96,7 +96,7 @@ class StudyRoutinesController:
             with ui.column().classes("w-full gap-2.5 pr-1"):
                 for routine in routines:
                     r_id = routine.get("id")
-                    name_ar = routine.get("name_ar") or "روتين بدون اسم"
+                    name_ar = routine.get("name_ar") or "سيرة دراسية بدون اسم"
                     name_en = routine.get("name_en") or ""
                     dept_name = routine.get("dept_name_ar") or routine.get("department_name_ar") or "قسم غير محدد"
                     is_active = (self.active_routine_id == r_id)
@@ -150,8 +150,8 @@ class StudyRoutinesController:
             if self.active_routine_id is None:
                 with ui.column().classes("w-full h-full min-h-[400px] items-center justify-center text-center gap-3 py-16"):
                     ui.icon("touch_app", size="xl").classes("text-[var(--text-muted)] mb-1")
-                    ui.label("الرجاء تحديد روتين من القائمة").classes("text-base font-bold text-[var(--text-primary)]")
-                    ui.label("انقر على أي روتين من القائمة لعرض وتعديل مراحله ومواده الدراسية.").classes("text-xs text-[var(--text-muted)] max-w-sm")
+                    ui.label("الرجاء تحديد سيرة دراسية من القائمة").classes("text-base font-bold text-[var(--text-primary)]")
+                    ui.label("انقر على أي سيرة دراسية من القائمة لعرض وتعديل مراحلها وموادها الدراسية.").classes("text-xs text-[var(--text-muted)] max-w-sm")
                 return
 
             # Active State: Fetch routine details
@@ -168,11 +168,11 @@ class StudyRoutinesController:
             if not routine:
                 self.active_routine_id = None
                 with ui.column().classes("w-full py-12 items-center text-center"):
-                    ui.label("لم يتم العثور على بيانات الروتين المحدد").classes("text-sm text-rose-500 font-bold")
+                    ui.label("لم يتم العثور على بيانات السيرة الدراسية المحددة").classes("text-sm text-rose-500 font-bold")
                 return
 
             routine_id = int(routine.get("id") or 0)
-            name_ar = routine.get("name_ar") or "روتين دراسي"
+            name_ar = routine.get("name_ar") or "سيرة دراسية"
             name_en = routine.get("name_en") or ""
             dept_name = routine.get("dept_name_ar") or routine.get("department_name_ar") or "قسم غير محدد"
             dept_id = routine.get("department_id")
@@ -193,12 +193,12 @@ class StudyRoutinesController:
                         ui.button(
                             icon="edit",
                             on_click=lambda _, r=routine: self.open_routine_dialog(r)
-                        ).props("flat round dense color=primary").tooltip("تعديل الروتين")
+                        ).props("flat round dense color=primary").tooltip("تعديل السيرة الدراسية")
 
                         ui.button(
                             icon="delete",
                             on_click=lambda _, r_id=routine_id: self._delete_routine(r_id)
-                        ).props("flat round dense color=negative").tooltip("حذف الروتين")
+                        ).props("flat round dense color=negative").tooltip("حذف السيرة الدراسية")
 
             # Fetch periods for the routine
             periods = []
@@ -224,7 +224,7 @@ class StudyRoutinesController:
                 if not periods:
                     with ui.column().classes("w-full p-8 text-center rounded-xl bg-[var(--bg-card)] border border-dashed border-[var(--border-default)]"):
                         ui.icon("event_busy", size="md").classes("text-[var(--text-muted)] mx-auto mb-1")
-                        ui.label("لا توجد مراحل أو فصول مضافة لهذا الروتين بعد.").classes("text-sm font-semibold text-[var(--text-primary)]")
+                        ui.label("لا توجد مراحل أو فصول مضافة لهذه السيرة الدراسية بعد.").classes("text-sm font-semibold text-[var(--text-primary)]")
                         ui.label("اضغط على زر (+ إضافة مرحلة/فصل جديد) بالأسفل للبدء.").classes("text-xs text-[var(--text-muted)] mt-0.5")
                 else:
                     for period in periods:
@@ -342,13 +342,13 @@ class StudyRoutinesController:
         with dialog, ui.card().classes("w-full max-w-lg p-6 shadow-xl rounded-2xl gap-4 bg-[var(--bg-card)] border border-[var(--border-default)]"):
             with ui.row().classes("w-full items-center gap-2 pb-2 border-b border-[var(--border-default)]"):
                 ui.icon("edit_note" if is_edit else "post_add", size="sm").classes("text-teal-600 dark:text-teal-400")
-                ui.label("تعديل الروتين الدراسي" if is_edit else "إضافة روتين دراسي جديد").classes("text-lg font-bold text-[var(--text-primary)]")
+                ui.label("تعديل السيرة الدراسية" if is_edit else "إضافة سيرة دراسية جديدة").classes("text-lg font-bold text-[var(--text-primary)]")
 
             name_ar_val = routine.get("name_ar", "") if is_edit else ""
             name_en_val = routine.get("name_en", "") if is_edit else ""
 
-            name_ar_input = ui.input("اسم الروتين بالعربية", value=name_ar_val).classes("w-full text-sm").props("outlined dense")
-            name_en_input = ui.input("اسم الروتين بالإنجليزية", value=name_en_val).classes("w-full text-sm").props("outlined dense")
+            name_ar_input = ui.input("اسم السيرة الدراسية بالعربية", value=name_ar_val).classes("w-full text-sm").props("outlined dense")
+            name_en_input = ui.input("اسم السيرة الدراسية بالإنجليزية", value=name_en_val).classes("w-full text-sm").props("outlined dense")
             dept_select = ui.select(options=dept_options, value=init_dept, label="القسم التابع له").classes("w-full text-sm").props("outlined dense")
             from nicegui_ui.study_system_choice import StudySystemPicker
             with ui.row().classes("w-full gap-3 no-wrap"):
@@ -364,7 +364,7 @@ class StudyRoutinesController:
                     sys_id = sys_select.value
 
                     if not name_ar:
-                        ui.notify("يرجى إدخال اسم الروتين بالعربية", type="warning")
+                        ui.notify("يرجى إدخال اسم السيرة الدراسية بالعربية", type="warning")
                         return
                     if not isinstance(sys_id, int):
                         ui.notify("اختر نظام الدراسة ونوع الدراسة (هذا الزوج غير موجود)", type="warning")
@@ -380,12 +380,12 @@ class StudyRoutinesController:
                     try:
                         if is_edit and routine_id:
                             self.repo.update(routine_id, payload)
-                            ui.notify("تم تعديل الروتين الدراسي بنجاح!", type="positive")
+                            ui.notify("تم تعديل السيرة الدراسية بنجاح!", type="positive")
                         else:
                             new_id = self.repo.insert(payload)
                             if new_id:
                                 self.active_routine_id = new_id
-                            ui.notify("تمت إضافة الروتين الدراسي بنجاح!", type="positive")
+                            ui.notify("تمت إضافة السيرة الدراسية بنجاح!", type="positive")
 
                         dialog.close()
                         self._render_left_column.refresh()
@@ -394,14 +394,14 @@ class StudyRoutinesController:
                         log.error(f"Failed to save routine: {err}")
                         ui.notify(f"خطأ أثناء الحفظ: {err}", type="negative")
 
-                ui.button("حفظ الروتين", icon="save", on_click=save_routine).classes("bg-teal-600 hover:bg-teal-700 text-white text-sm px-4 py-2 rounded-lg")
+                ui.button("حفظ السيرة الدراسية", icon="save", on_click=save_routine).classes("bg-teal-600 hover:bg-teal-700 text-white text-sm px-4 py-2 rounded-lg")
 
         dialog.open()
 
     def open_period_dialog(self, routine_id: int | None) -> None:
         """Modal for adding an academic Period to a Study Routine."""
         if not routine_id:
-            ui.notify("الرجاء اختيار روتين دراسي أولاً", type="warning")
+            ui.notify("الرجاء اختيار سيرة دراسية أولاً", type="warning")
             return
 
         dialog = ui.dialog()
@@ -554,12 +554,12 @@ class StudyRoutinesController:
             self.repo.delete(routine_id)
             if self.active_routine_id == routine_id:
                 self.active_routine_id = None
-            ui.notify("تم حذف الروتين الدراسي بنجاح", type="positive")
+            ui.notify("تم حذف السيرة الدراسية بنجاح", type="positive")
             self._render_left_column.refresh()
             self._render_right_column.refresh()
         except Exception as err:
             log.error(f"Error deleting routine {routine_id}: {err}")
-            ui.notify(f"خطأ أثناء حذف الروتين: {err}", type="negative")
+            ui.notify(f"خطأ أثناء حذف السيرة الدراسية: {err}", type="negative")
 
     def _delete_period(self, period_id: int) -> None:
         """Deletes an academic period and refreshes the detail workspace."""

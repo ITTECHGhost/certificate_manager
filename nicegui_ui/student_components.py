@@ -578,7 +578,7 @@ class StudentProfileView:
                 ).classes("text-xs font-bold")
 
                 ui.button(
-                    "تطبيق روتين دراسي",
+                    "تطبيق سيرة دراسية",
                     icon="auto_mode",
                     on_click=lambda: show_apply_routine_dialog(
                         student=student_data,
@@ -1351,7 +1351,7 @@ class StudentFormView:
                         self.study_system = StudySystemPicker(self._systems, classes='flex-1 min-w-[160px]')
                         self.admission_year = UI.academic_year_input("سنة القبول").classes('flex-1 min-w-[200px]')
 
-                    routine_opts = {0: "بدون روتين دراسي"}
+                    routine_opts = {0: "بدون سيرة دراسية"}
                     try:
                         from data.repositories import StudyRoutineRepository
                         all_r = StudyRoutineRepository().get_all() or []
@@ -1361,7 +1361,7 @@ class StudentFormView:
                         pass
 
                     with ui.row().classes('w-full gap-4'):
-                        self.routine_select = UI.select("تطبيق روتين دراسي تلقائي (اختياري)", routine_opts, value=0).classes('w-full')
+                        self.routine_select = UI.select("تطبيق سيرة دراسية تلقائياً (اختياري)", routine_opts, value=0).classes('w-full')
                     
                     # Section 4: Graduation & Ministerial Order
                     ui.label("التخرج والأمر الجامعي").classes('app-section-title w-full')
@@ -1514,7 +1514,7 @@ class StudentFormView:
                     r_repo = StudyRoutineRepository()
                     adm_yr = adm_year_val or ""
                     r_repo.apply_routine_to_student(self.student_id, sel_routine_id, academic_year=adm_yr)
-                    ui.notify("تم تطبيق الروتين الدراسي وإدراج المواد تلقائياً!", type="positive")
+                    ui.notify("تم تطبيق السيرة الدراسية وإدراج المواد تلقائياً!", type="positive")
                     self.routine_select.value = 0
                 except Exception as r_err:
                     log.warning(f"Failed to apply routine to student {self.student_id}: {r_err}")

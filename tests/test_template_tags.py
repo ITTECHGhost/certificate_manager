@@ -15,10 +15,10 @@ def cfg(tmp_path, monkeypatch):
 
 
 def test_save_round_trip(cfg):
-    assert tc.save_template_tags("year - Temp - Ar.docx", "تأييد عربي سنوي", "Ar", "Annual", False)
+    assert tc.save_template_tags("year - Temp - Ar.docx", "تأييد عربي فصلي", "Ar", "Annual", False)
     t = tc.template_tags("year - Temp - Ar.docx")
     assert (t["lang"], t["system"], t["sbs"]) == ("Ar", "Annual", False)
-    assert tc.get_template_info("year - Temp - Ar")["display_name"] == "تأييد عربي سنوي"
+    assert tc.get_template_info("year - Temp - Ar")["display_name"] == "تأييد عربي فصلي"
 
     # Editing changes name and tags; the file name stays
     assert tc.save_template_tags("year - Temp - Ar.docx", "وثيقة بولونيا", "En", "Bologna", True)
@@ -36,14 +36,14 @@ def test_save_refuses_empty_name_and_normalises_tags(cfg):
 
 def test_conflicts():
     tags = {"lang": "Ar", "system": "Annual", "sbs": False}
-    assert tc.template_tag_conflicts("تأييد عربي سنوي", tags) == []
-    msgs = tc.template_tag_conflicts("وثيقة انجليزي بالدرجات فصلي", tags)
+    assert tc.template_tag_conflicts("تأييد عربي فصلي", tags) == []
+    msgs = tc.template_tag_conflicts("وثيقة انجليزي بالدرجات مقررات", tags)
     assert len(msgs) == 3
 
 
 def test_issue_label_uses_user_name(cfg):
-    tc.save_template_tags("year - Temp - En.docx", "تأييد انجليزي سنوي", "En", "Annual", False)
-    assert template_lines("year - Temp - En.docx") == ("تأييد انجليزي سنوي", "إنكليزي • بدون درجات")
+    tc.save_template_tags("year - Temp - En.docx", "تأييد انجليزي فصلي", "En", "Annual", False)
+    assert template_lines("year - Temp - En.docx") == ("تأييد انجليزي فصلي", "إنكليزي • بدون درجات")
 
 
 def test_filter_follows_system_tag_not_file_name(cfg):

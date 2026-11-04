@@ -32,7 +32,8 @@ def test_group_systems_one_block_per_system():
 
 
 def test_name_warning():
-    assert system_name_warning("نظام فصلي", "annual", "year")
-    assert system_name_warning("نظام سنوي", "semester", "semester")
+    assert system_name_warning("النظام الفصلي", "annual", "year") == ""
+    assert system_name_warning("نظام المقررات", "annual", "year")
+    assert system_name_warning("النظام الفصلي", "semester", "semester")
     assert system_name_warning("نظام سنوي", "annual", "year") == ""
     assert system_name_warning("نظام بولونيا", "semester", "semester") == ""

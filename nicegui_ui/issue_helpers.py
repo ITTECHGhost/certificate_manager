@@ -13,8 +13,8 @@ import re
 from nicegui_ui.template_constants import get_template_info, template_tags
 
 TITLE_BY_SYSTEM = {
-    "annual": "وثيقة تخرج — النظام السنوي",
-    "semester": "وثيقة تخرج — النظام الفصلي",
+    "annual": "وثيقة تخرج — النظام الفصلي",
+    "semester": "وثيقة تخرج — نظام المقررات",
     "master": "وثيقة ماجستير",
 }
 

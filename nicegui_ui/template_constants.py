@@ -371,8 +371,8 @@ def get_template_filter_options() -> Dict[str, str]:
 TAG_LANGS: Dict[str, str] = {"Ar": "عربي", "En": "إنكليزي"}
 # Names only for now: no calculation depends on the system tag except the template filter.
 TAG_SYSTEMS: Dict[str, str] = {
-    "Annual": "النظام السنوي",
-    "Semester": "نظام المقررات / الفصلي",
+    "Annual": "النظام الفصلي",
+    "Semester": "نظام المقررات",
     "Bologna": "مسار بولونيا",
     "Master": "ماجستير (دراسات عليا)",
     "PhD": "دكتوراه",
@@ -417,8 +417,8 @@ _CONFLICT_WORDS = (
     # (words in the name, tag, values that contradict them, message)
     (("انجليزي", "إنجليزي", "انكليزي", "إنكليزي"), "lang", ("Ar",), "الاسم يذكر الإنكليزية واللغة عربي"),
     (("عربي",), "lang", ("En",), "الاسم يذكر العربية واللغة إنكليزي"),
-    (("فصلي", "مقررات"), "system", ("Annual", "Bologna"), "الاسم يذكر الفصلي/المقررات والنظام مختلف"),
-    (("سنوي",), "system", ("Semester", "Bologna"), "الاسم يذكر السنوي والنظام مختلف"),
+    (("مقررات",), "system", ("Annual", "Bologna"), "الاسم يذكر المقررات والنظام مختلف"),
+    (("فصلي", "سنوي"), "system", ("Semester", "Bologna"), "الاسم يذكر الفصلي والنظام مختلف"),
     (("بولونيا",), "system", ("Annual", "Semester"), "الاسم يذكر بولونيا والنظام مختلف"),
     (("بدون درجات",), "sbs", (True,), "الاسم يذكر «بدون درجات» والقالب بالدرجات"),
 )

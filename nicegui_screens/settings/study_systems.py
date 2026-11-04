@@ -57,7 +57,6 @@ class StudySystemsMixin:
                             ui.label(" • ".join(x for x in (
                                 f"الحساب: {RULE_LABELS.get(g['rule'], g['rule'])}",
                                 f"الفترة: {PERIOD_LABELS.get(g['period'], g['period'])}",
-                                f"الأوزان: {g['weights']}" if g["weights"] else "",
                             ) if x)).classes("app-caption")
                         UI.icon_button("edit", "تعديل النظام", on_click=lambda _e, grp=g: self._system_dialog(grp), dense=True)
                         if missing_days(g):
@@ -90,8 +89,17 @@ class StudySystemsMixin:
                 name_en = UI.text_input("اسم النظام بالإنكليزية", value=g["name_en"])
                 rule = UI.select("قاعدة الحساب", dict(RULE_LABELS), value=g["rule"])
                 period = UI.select("الفترة", dict(PERIOD_LABELS), value=g["period"])
+            # A new system can start with several shifts at once
+            day_boxes = {}
+            if is_new:
+                ui.label("أنواع الدراسة").classes("app-caption")
+                with ui.row().classes("gap-4"):
+                    for d, lbl in DAY_LABELS.items():
+                        day_boxes[d] = ui.checkbox(lbl, value=(d == "morning"))
+            # Weights are not used yet (averages are entered by hand)
+            with ui.expansion("خيارات متقدمة", icon="tune").classes("w-full"):
                 weights = UI.text_input("الأوزان", value=g["weights"], placeholder="10:20:30:40")
-                day = UI.select("نوع الدراسة", dict(DAY_LABELS), value="morning") if is_new else None
+                UI.muted_label("غير مستخدمة حاليًا: المعدل يُدخل يدويًا.")
             warn_lbl = ui.label("").classes("app-chip app-chip--warning")
             warn_lbl.set_visibility(False)
 
@@ -112,9 +120,14 @@ class StudySystemsMixin:
                 w = (weights.value or "").strip() or None
                 try:
                     if is_new:
-                        self.sys_repo.insert(name_ar=n_ar, name_en=n_en, calc_rule=rule.value,
-                                             period_display=period.value, calculation_weights=w,
-                                             study_day_type=DAY_TO_DB[day.value])
+                        days = [d for d, box in day_boxes.items() if box.value]
+                        if not days:
+                            ui.notify("اختر نوع دراسة واحدًا على الأقل", type="warning")
+                            return
+                        for d in days:
+                            self.sys_repo.insert(name_ar=n_ar, name_en=n_en, calc_rule=rule.value,
+                                                 period_display=period.value, calculation_weights=w,
+                                                 study_day_type=DAY_TO_DB[d])
                     else:
                         for r in g["shifts"]:
                             self.sys_repo.update(sys_id=int(r["id"]), name_ar=n_ar, name_en=n_en,

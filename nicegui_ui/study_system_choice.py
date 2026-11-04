@@ -100,7 +100,7 @@ class StudySystemPicker:
 
 # ── Settings: one block per system, its shifts inside ───────────────────────
 
-RULE_LABELS = {"annual": "سنوي", "semester": "فصلي / مقررات"}
+RULE_LABELS = {"annual": "حسب السنة (المرحلة)", "semester": "حسب المستوى (المقررات)"}
 PERIOD_LABELS = {"year": "سنة", "semester": "فصل"}
 
 
@@ -136,12 +136,14 @@ def missing_days(group: dict) -> dict[str, str]:
 def system_name_warning(name_ar: str, rule: str, period: str) -> str:
     """A warning when the Arabic name says one system and the rule says another ('' if fine)."""
     name = name_ar or ""
-    says_semester = any(w in name for w in ("فصلي", "مقررات", "فصل"))
-    says_annual = "سنوي" in name
-    if says_semester and rule == "annual":
-        return "الاسم يدل على نظام فصلي لكن قاعدة الحساب سنوية"
-    if says_annual and rule == "semester":
-        return "الاسم يدل على نظام سنوي لكن قاعدة الحساب فصلية"
+    # النظام الفصلي (two semesters, average by year/stage) and السنوي use the year rule;
+    # المقررات (credit hours) uses the level rule.
+    says_credits = any(w in name for w in ("مقررات", "المعتمدة"))
+    says_yearly = any(w in name for w in ("فصلي", "سنوي"))
+    if says_credits and rule == "annual":
+        return "الاسم يدل على نظام المقررات لكن الحساب حسب السنة"
+    if says_yearly and rule == "semester":
+        return "الاسم يدل على النظام الفصلي/السنوي لكن الحساب حسب المستوى"
     if rule == "annual" and period == "semester":
         return "قاعدة الحساب سنوية لكن الفترة فصل"
     return ""

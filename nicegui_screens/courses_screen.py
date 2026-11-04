@@ -43,7 +43,7 @@ class CoursesScreen:
         with self.container:
             with ui.tabs().classes("w-full shrink-0").props("align=left") as tabs:
                 ui.tab("courses", label="دليل المواد الدراسية", icon="book")
-                ui.tab("routines", label="الروتينات الدراسية الجاهزة", icon="playlist_add_check")
+                ui.tab("routines", label="السير الدراسية الجاهزة", icon="playlist_add_check")
 
             with ui.tab_panels(tabs, value="courses").classes("w-full bg-transparent"):
                 # Panel 1: Course Catalog
@@ -204,15 +204,15 @@ class CoursesScreen:
             if not routines:
                 with ui.column().classes("w-full items-center py-12 text-center bg-[var(--bg-card)] rounded-xl border border-[var(--border-default)]"):
                     ui.icon("playlist_add_check", size="lg").classes("app-text-muted mb-2")
-                    ui.label("لا توجد روتينات دراسية مضافة حتى الآن").classes("text-lg font-bold app-text-muted")
-                    ui.label("اضغط زر '+ إضافة روتين جديد' لتحديد حزمة مواد مرحلة وفصل دراسي.").classes("text-xs app-text-muted mt-1")
+                    ui.label("لا توجد سير دراسية مضافة حتى الآن").classes("text-lg font-bold app-text-muted")
+                    ui.label("اضغط زر '+ إضافة سيرة دراسية' لتحديد حزمة مواد مرحلة وفصل دراسي.").classes("text-xs app-text-muted mt-1")
             else:
                 for r in routines:
                     self._render_routine_card(r)
 
     def _render_routine_card(self, routine: dict):
         rid = routine["id"]
-        name_ar = routine.get("name_ar") or "روتين"
+        name_ar = routine.get("name_ar") or "سيرة دراسية"
         name_en = routine.get("name_en") or ""
         dept_name = routine.get("dept_name_ar") or "قسم غير مخصص"
         courses = routine.get("courses") or []
@@ -244,7 +244,7 @@ class CoursesScreen:
 
             with ui.column().classes("w-full gap-3 pt-1"):
                 if not courses:
-                    ui.label("لا توجد مواد مضافة في هذا الروتين").classes("text-xs italic text-amber-500 p-2")
+                    ui.label("لا توجد مواد مضافة في هذه السيرة الدراسية").classes("text-xs italic text-amber-500 p-2")
                 else:
                     with ui.row().classes("w-full gap-4 flex-wrap grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4"):
                         stage_labels = {1: "المرحلة الأولى", 2: "المرحلة الثانية", 3: "المرحلة الثالثة", 4: "المرحلة الرابعة"}
@@ -304,8 +304,8 @@ class CoursesScreen:
 
             with ui.column().classes("w-full gap-4 overflow-y-auto max-h-[75vh] pr-1"):
                 with ui.row().classes("w-full gap-3 items-center flex-nowrap py-1"):
-                    name_ar_inp = UI.text_input("اسم الروتين (عربي)", value=existing.get("name_ar", "")).classes("flex-1 min-w-0 text-sm")
-                    name_en_inp = UI.text_input("اسم الروتين (إنكليزي)", value=existing.get("name_en", "")).classes("flex-1 min-w-0 text-sm")
+                    name_ar_inp = UI.text_input("اسم السيرة الدراسية (عربي)", value=existing.get("name_ar", "")).classes("flex-1 min-w-0 text-sm")
+                    name_en_inp = UI.text_input("اسم السيرة الدراسية (إنكليزي)", value=existing.get("name_en", "")).classes("flex-1 min-w-0 text-sm")
                     dept_sel = UI.select("القسم", options=dept_opts, value=init_dept).classes("w-56 shrink-0 text-sm")
                     sys_sel = UI.select("النظام الدراسي", options={1: "سنوي", 2: "فصلي", 3: "مقررات"}, value=init_sys).classes("w-36 shrink-0 text-sm")
 
@@ -370,7 +370,7 @@ class CoursesScreen:
                                                     cid = sel_widget.value
                                                     if cid:
                                                         selected_course_ids.add(cid)
-                                                        ui.notify("تم إضافة المادة إلى الروتين", type="positive")
+                                                        ui.notify("تم إضافة المادة إلى السيرة الدراسية", type="positive")
                                                         render_stages_view.refresh()
 
                                                 UI.success_button("+ إضافة مادة", icon="add", on_click=do_add_sem1).classes("text-xs px-4 py-2 shrink-0")
@@ -415,7 +415,7 @@ class CoursesScreen:
                                                     cid = sel_widget.value
                                                     if cid:
                                                         selected_course_ids.add(cid)
-                                                        ui.notify("تم إضافة المادة إلى الروتين", type="positive")
+                                                        ui.notify("تم إضافة المادة إلى السيرة الدراسية", type="positive")
                                                         render_stages_view.refresh()
 
                                                 UI.success_button("+ إضافة مادة", icon="add", on_click=do_add_sem2).classes("text-xs px-4 py-2 shrink-0")
@@ -448,14 +448,14 @@ class CoursesScreen:
                 dept_sel.on('update:model-value', render_stages_view.refresh)
 
             with ui.row().classes("w-full justify-between items-center pt-4 border-t border-[var(--border-default)] shrink-0"):
-                ui.label(f"إجمالي المواد المشمولة في الروتين الكامل: {len(selected_course_ids)} مادة").classes("text-xs font-bold app-text-muted")
+                ui.label(f"إجمالي المواد المشمولة في السيرة الدراسية الكاملة: {len(selected_course_ids)} مادة").classes("text-xs font-bold app-text-muted")
                 
                 with ui.row().classes("items-center gap-3"):
                     def save_routine_action():
                         n_ar = name_ar_inp.value.strip() if name_ar_inp.value else ""
                         n_en = name_en_inp.value.strip() if name_en_inp.value else ""
                         if not n_ar:
-                            ui.notify("يرجى كتابة اسم الروتين بالعربية", type="warning")
+                            ui.notify("يرجى كتابة اسم السيرة الدراسية بالعربية", type="warning")
                             return
 
                         payload = {
@@ -471,10 +471,10 @@ class CoursesScreen:
                         try:
                             if rid:
                                 self.routine_repo.update(rid, payload)
-                                ui.notify("تم تعديل الروتين بنجاح", type="positive")
+                                ui.notify("تم تعديل السيرة الدراسية بنجاح", type="positive")
                             else:
                                 self.routine_repo.insert(payload)
-                                ui.notify("تم إضافة الروتين بنجاح", type="positive")
+                                ui.notify("تمت إضافة السيرة الدراسية بنجاح", type="positive")
                             dialog.close()
                             if hasattr(self, "_refresh_routines") and self._refresh_routines:
                                 self._refresh_routines.refresh()
@@ -494,13 +494,13 @@ class CoursesScreen:
         dialog = ui.dialog()
         with dialog, UI.card().classes("p-6 gap-6 w-full max-w-md bg-[var(--bg-card)] rounded-2xl border border-[var(--border-default)]"):
             ui.label("تأكيد الحذف").classes("text-lg font-bold app-text-primary")
-            ui.label(f"هل أنت متأكد من رغبتك في حذف الروتين: ({routine.get('name_ar')})؟\nلن يؤثر ذلك على الطلاب المسجلين سابقاً.").classes("text-sm app-text-muted whitespace-pre-line")
+            ui.label(f"هل أنت متأكد من رغبتك في حذف السيرة الدراسية: ({routine.get('name_ar')})؟\nلن يؤثر ذلك على الطلاب المسجلين سابقاً.").classes("text-sm app-text-muted whitespace-pre-line")
 
             with ui.row().classes("w-full justify-end gap-3 pt-2"):
                 def do_del():
                     try:
                         self.routine_repo.delete(rid)
-                        ui.notify("تم حذف الروتين", type="positive")
+                        ui.notify("تم حذف السيرة الدراسية", type="positive")
                         dialog.close()
                         if hasattr(self, "_refresh_routines"):
                             self._refresh_routines.refresh()

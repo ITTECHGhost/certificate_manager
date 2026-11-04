@@ -12,10 +12,10 @@ _SYNC_KIND_LABELS = {
     "academic_periods": "فصل دراسي",
     "enrollments": "درجة مادة",
     "issued_certificates": "وثيقة",
-    "study_routines": "روتين",
-    "study_routine_courses": "مادة روتين",
-    "study_routine_period": "فصل روتين",
-    "study_routine_period_courses": "مادة فصل روتين",
+    "study_routines": "سيرة دراسية",
+    "study_routine_courses": "مادة سيرة دراسية",
+    "study_routine_period": "فصل سيرة دراسية",
+    "study_routine_period_courses": "مادة فصل سيرة دراسية",
 }
 
 

@@ -48,7 +48,7 @@ def show_apply_routine_dialog(student: dict, on_success_callback: Callable[[], A
     routine_options = {}
     for r in matching_routines:
         r_id = r.get("id")
-        r_name = r.get("name_ar") or "روتين دراسي"
+        r_name = r.get("name_ar") or "سيرة دراسية"
         c_count = len(r.get("courses") or [])
         d_name = r.get("dept_name_ar") or r.get("department_name_ar") or ""
         badge = f" [{d_name}]" if d_name else ""
@@ -64,7 +64,7 @@ def show_apply_routine_dialog(student: dict, on_success_callback: Callable[[], A
         with ui.row().classes("w-full items-center gap-2 pb-3 border-b border-[var(--border-default)]"):
             ui.icon("auto_mode", size="sm").classes("text-teal-600 dark:text-teal-400 shrink-0")
             with ui.column().classes("gap-0"):
-                ui.label("تطبيق روتين دراسي").classes("text-base font-bold text-[var(--text-primary)]")
+                ui.label("تطبيق سيرة دراسية").classes("text-base font-bold text-[var(--text-primary)]")
                 ui.label("إسناد خطة دراسية كاملة وتوليد الفصول والمواد تلقائياً").classes("text-xs text-[var(--text-muted)]")
 
         # Student Information Confirmation Box
@@ -80,13 +80,13 @@ def show_apply_routine_dialog(student: dict, on_success_callback: Callable[[], A
         if not matching_routines:
             with ui.row().classes("w-full p-3 items-center gap-2 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-600 dark:text-amber-300"):
                 ui.icon("warning", size="xs").classes("shrink-0 text-amber-500")
-                ui.label("لا توجد روتينات دراسية مطابقة لقسم ونظام هذا الطالب.").classes("text-xs font-medium")
+                ui.label("لا توجد سير دراسية مطابقة لقسم ونظام هذا الطالب.").classes("text-xs font-medium")
             routine_select = None
         else:
             routine_select = ui.select(
                 options=routine_options,
                 value=init_selection,
-                label="الروتين الدراسي المتاح",
+                label="السيرة الدراسية المتاحة",
                 with_input=True
             ).classes("w-full text-sm").props("outlined dense use-input fill-input")
 
@@ -96,7 +96,7 @@ def show_apply_routine_dialog(student: dict, on_success_callback: Callable[[], A
 
             def handle_apply_click():
                 if not routine_select or not routine_select.value:
-                    ui.notify("يرجى تحديد روتين دراسي من القائمة", type="warning")
+                    ui.notify("يرجى تحديد سيرة دراسية من القائمة", type="warning")
                     return
 
                 selected_routine_id = int(routine_select.value)
@@ -109,7 +109,7 @@ def show_apply_routine_dialog(student: dict, on_success_callback: Callable[[], A
                         ui.label("تأكيد تطبيق الخطة الدراسية").classes("text-sm font-bold text-[var(--text-primary)]")
 
                     ui.label(
-                        "هل أنت متأكد من تطبيق هذا الروتين؟ سيتم إضافة المراحل والمواد تلقائياً."
+                        "هل أنت متأكد من تطبيق هذه السيرة الدراسية؟ سيتم إضافة المراحل والمواد تلقائياً."
                     ).classes("text-xs text-[var(--text-secondary)] leading-relaxed")
 
                     with ui.row().classes("w-full justify-end gap-2 pt-2 border-t border-[var(--border-default)]"):
@@ -137,7 +137,7 @@ def show_apply_routine_dialog(student: dict, on_success_callback: Callable[[], A
 
                             except Exception as err:
                                 log.error(f"Error applying study routine {selected_routine_id} to student {student_id}: {err}")
-                                ui.notify(f"خطأ أثناء تطبيق الروتين: {err}", type="negative")
+                                ui.notify(f"خطأ أثناء تطبيق السيرة الدراسية: {err}", type="negative")
 
                         ui.button("تأكيد التطبيق", icon="check", on_click=execute_apply).classes(
                             "bg-teal-600 hover:bg-teal-700 text-white text-xs px-3 py-1.5 rounded-lg"

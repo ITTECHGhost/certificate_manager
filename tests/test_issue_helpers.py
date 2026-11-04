@@ -10,8 +10,8 @@ FILES = ["semester - Temp - Ar.docx", "semester - Temp - En - D - SBS.docx",
 def test_template_lines(monkeypatch, tmp_path):
     import nicegui_ui.template_constants as tc
     monkeypatch.setattr(tc, "CONFIG_FILE", str(tmp_path / "none.json"))
-    assert template_lines("year - Temp - Ar - D - SBS") == ("وثيقة تخرج — النظام السنوي", "عربي • بالدرجات")
-    assert template_lines("semester - Temp - En.docx") == ("وثيقة تخرج — النظام الفصلي", "إنكليزي • بدون درجات")
+    assert template_lines("year - Temp - Ar - D - SBS") == ("وثيقة تخرج — النظام الفصلي", "عربي • بالدرجات")
+    assert template_lines("semester - Temp - En.docx") == ("وثيقة تخرج — نظام المقررات", "إنكليزي • بدون درجات")
     assert "\n" in template_option_label("year - Temp - Ar")
     assert "جدولان" not in template_option_label("year - Temp - Ar - D - SBS")
 
