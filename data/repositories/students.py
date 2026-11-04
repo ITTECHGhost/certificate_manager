@@ -477,7 +477,7 @@ class StudentRepository(BaseRepository):
     def bulk_import(self, students_payload: list[dict]) -> dict:
         """Atomically imports a cohort of students, periods, and enrollments."""
         if not is_online():
-            raise OfflineModeError("Bulk import requires active online connection to central server.")
+            raise OfflineModeError("الاستيراد الجماعي يحتاج اتصالاً بالسيرفر. اتصل بالشبكة ثم أعد المحاولة.")
         try:
             resp = api_client.post(
                 f"{self.api_url}/api/students/bulk-import",

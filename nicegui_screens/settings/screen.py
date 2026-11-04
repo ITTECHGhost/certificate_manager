@@ -195,8 +195,7 @@ class SettingsScreen(
             UI.card_header("حول البرنامج", "info", icon_css="app-text-faint")
 
             with ui.column().classes("w-full items-center text-center gap-2 p-4"):
-                UI.section_label("نظام إدارة الشهادات - الإصدار 2.0 (NiceGUI Native UI)")
-                UI.muted_label("Certificate Manager - v2.0")
+                UI.section_label("نظام إدارة الشهادات")
                 UI.muted_label("تم التطوير لأتمتة عمليات إصدار الوثائق والشهادات الجامعية.").classes("mt-2")
                 ui.label("تم التطوير بواسطة م. حسين").classes(
                     "app-text-success text-xs font-semibold mt-1"
@@ -223,8 +222,6 @@ class SettingsScreen(
                             ui.label(f"الإصدار الحالي: v{res['current_version']} ➔ الجديد: v{res['latest_version']}").classes("text-sm font-bold text-sky-500")
                             if res.get("changelog_ar"):
                                 ui.label(f"سجل التغييرات: {res['changelog_ar']}").classes("text-xs text-slate-400")
-                            if res.get("changelog_en"):
-                                ui.label(f"Changelog: {res['changelog_en']}").classes("text-xs text-slate-400")
 
                             async def _start_ota():
                                 dlg.close()

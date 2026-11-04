@@ -107,7 +107,7 @@ class TemplatesMixin:
                 if not files:
                     with ui.column().classes("w-full py-8 items-center justify-center gap-2 text-center"):
                         ui.icon("folder_off", size="xl").classes("app-text-muted")
-                        ui.label("لم يتم العثور على أية قوالب Word في مجلد templets/").classes("text-sm font-semibold app-text-primary")
+                        ui.label("لم يتم العثور على أية قوالب Word في مجلد القوالب").classes("text-sm font-semibold app-text-primary")
                         ui.label("يمكنك إضافة ورفع القوالب أدناه مع تحديد مسمياتها الرسمية").classes("text-xs app-text-muted")
                     return
 

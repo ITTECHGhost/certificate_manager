@@ -149,7 +149,7 @@ class DepartmentsScreen:
                 with ui.column().classes("w-full items-center py-12 text-center bg-[var(--bg-card)] rounded-xl border border-[var(--border-default)]"):
                     ui.icon("domain_disabled", size="lg").classes("app-text-muted mb-2")
                     ui.label("لا توجد أقسام مطابقة").classes("text-lg font-bold app-text-muted")
-                    ui.label("No matching departments found.").classes("text-xs app-text-muted")
+                    ui.label("لا توجد أقسام مطابقة لبحثك.").classes("text-xs app-text-muted")
             else:
                 for row in page_rows:
                     self._render_card(row)
@@ -292,7 +292,7 @@ class DepartmentsScreen:
                         ui.notify(str(err), type="warning")
                     except Exception as err:
                         log.error(f"Error saving department: {err}")
-                        ui.notify(f"Error: {err}", type="negative")
+                        ui.notify(f"تعذر الحفظ: {err}", type="negative")
 
                 UI.secondary_button("إلغاء", on_click=self.close_panel).classes("text-sm px-4 py-2")
                 UI.success_button("حفظ", icon="save", on_click=save_action).classes("text-sm px-4 py-2")

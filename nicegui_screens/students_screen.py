@@ -90,7 +90,7 @@ class StudentsScreen:
                 with ui.row().classes("w-full items-center justify-between gap-4 mt-2"):
                     with ui.row().classes("items-center gap-2 flex-1 max-w-xl"):
                         self.search_input = UI.text_input(
-                            label="ابحث بالاسم (Search student by name)",
+                            label="ابحث بالاسم",
                             placeholder="أدخل اسم الطالب...",
                             on_change=self._on_input_change
                         ).classes("flex-1").props('debounce="300"')
@@ -297,7 +297,7 @@ class StudentsScreen:
         """Update pagination buttons and label state."""
         current_page = (self.current_offset // self.current_limit) + 1
         if self.page_info_label:
-            self.page_info_label.text = f"Page / الصفحة {current_page} | Offset / الإزاحة: {self.current_offset}"
+            self.page_info_label.text = f"الصفحة {current_page}"
 
         if self.prev_btn:
             if self.current_offset == 0:

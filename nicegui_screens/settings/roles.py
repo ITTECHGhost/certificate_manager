@@ -69,7 +69,7 @@ class RolesMixin:
                     with ui.element("div").classes("w-12 h-12 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center shrink-0"):
                         ui.icon("shield", size="md").classes("text-emerald-400")
                     with ui.column().classes("gap-0"):
-                        ui.label("لوحة التحكم بالمسؤوليات والصلاحيات (RBAC Profiles)").classes("font-bold text-sm app-text-primary")
+                        ui.label("الأدوار والصلاحيات").classes("font-bold text-sm app-text-primary")
                         ui.label("تحديد المسؤوليات والأدوار في الكلية وضبط إمكانية الوصول إلى الشاشات والإجراءات والأقسام لكل دور.").classes("text-xs app-text-muted")
 
                 with ui.row().classes("items-center gap-2 flex-wrap"):
@@ -207,7 +207,7 @@ class RolesMixin:
                             with ui.row().classes("w-full items-center gap-1.5 flex-wrap"):
                                 ui.label("الشاشات:").classes("text-[11px] font-bold app-text-muted shrink-0")
                                 if len(allowed_pages) >= 9:
-                                    ui.label("كافة الشاشات (Full Page Access)").classes("text-[10px] px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 font-semibold")
+                                    ui.label("كل الشاشات").classes("text-[10px] px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 font-semibold")
                                 elif not allowed_pages:
                                     ui.label("لا توجد شاشات").classes("text-[10px] px-2 py-0.5 rounded bg-red-500/10 text-red-400")
                                 else:

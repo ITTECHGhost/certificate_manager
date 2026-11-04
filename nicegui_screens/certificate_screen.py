@@ -925,7 +925,6 @@ class CertificateScreen:
                 ui.icon("warning", size="lg").classes("text-amber-500")
                 with ui.column().classes("gap-0"):
                     ui.label("تنبيه: إعادة إصدار وثيقة برقم مسجل مسبقاً").classes("text-base font-bold app-text-primary")
-                    ui.label("Document Re-issuance & Invalidation Notice").classes("text-xs app-text-muted")
 
             ui.separator().classes("my-1")
 
@@ -963,7 +962,6 @@ class CertificateScreen:
                 ui.icon("edit_document", size="lg").classes("text-amber-500")
                 with ui.column().classes("gap-0"):
                     ui.label("الوثيقة صادرة مسبقاً لهذا الطالب").classes("text-base font-bold app-text-primary")
-                    ui.label("Certificate Already Issued").classes("text-xs app-text-muted")
             ui.label(
                 f"صدرت هذه الوثيقة بالرقم ({rec.get('certificate_number') or '-'}) بتاريخ {str(rec.get('issue_date') or '')[:10]} "
                 "لنفس الجهة ونفس القالب. افتحها في وضع التعديل لإعادة إصدارها (Word أو PDF) وتحديث قيدها."

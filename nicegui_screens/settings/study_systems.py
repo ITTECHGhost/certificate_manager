@@ -91,14 +91,14 @@ class StudySystemsMixin:
             self._load_data()
             self._render_systems_list()
         except Exception as exc:
-            ui.notify(f"Error adding study system: {exc}", type="negative")
+            ui.notify(f"تعذر إضافة النظام الدراسي: {exc}", type="negative")
 
     def _toggle_system_active(self, sys_id: int, active: bool) -> None:
         try:
             self.sys_repo.toggle(sys_id, 1 if active else 0)
-            ui.notify("System status updated!", type="positive")
+            ui.notify("تم تحديث حالة النظام", type="positive")
         except Exception as exc:
-            ui.notify(f"Error updating status: {exc}", type="negative")
+            ui.notify(f"تعذر تحديث الحالة: {exc}", type="negative")
 
     def _delete_study_system(self, sys_id: int) -> None:
         try:
@@ -107,4 +107,4 @@ class StudySystemsMixin:
             self._load_data()
             self._render_systems_list()
         except Exception as exc:
-            ui.notify(f"Error deleting system: {exc}", type="negative")
+            ui.notify(f"تعذر حذف النظام: {exc}", type="negative")

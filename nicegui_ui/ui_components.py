@@ -155,7 +155,7 @@ class UI:
             with ui.menu().props("no-parent-event") as menu:
                 with ui.date().bind_value(inp):
                     with ui.row().classes("justify-end"):
-                        ui.button("Close", on_click=menu.close).props("flat")
+                        ui.button("إغلاق", on_click=menu.close).props("flat")
         with inp.add_slot("append"):
             ui.icon("edit_calendar").on("click", menu.open).classes("cursor-pointer app-text-accent")
         return inp

@@ -127,7 +127,7 @@ class PersonnelScreen:
                 with ui.column().classes("w-full items-center py-12 text-center bg-[var(--bg-card)] rounded-xl border border-[var(--border-default)]"):
                     ui.icon("group_off", size="lg").classes("app-text-muted mb-2")
                     ui.label("لا توجد كوادر مطابقة").classes("text-lg font-bold app-text-muted")
-                    ui.label("No matching personnel found.").classes("text-xs app-text-muted")
+                    ui.label("لا توجد كوادر مطابقة لبحثك.").classes("text-xs app-text-muted")
             else:
                 for row in page_rows:
                     self._render_card(row)

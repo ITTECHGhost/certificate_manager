@@ -265,7 +265,7 @@ def parse_students_file(file_bytes: bytes) -> Tuple[List[Dict[str, Any]], List[s
             "full_name_ar": name_ar_val,
             "full_name_en": name_en_val,
             "gender": gender,
-            "gender_label": "أنثى / Female" if gender == 2 else "ذكر / Male",
+            "gender_label": "أنثى" if gender == 2 else "ذكر",
             "date_of_birth": dob_str,
             "birthplace": birthplace_val,
             "nationality": nationality_val,

@@ -88,7 +88,7 @@ class ServerMixin:
                 self.api_secret_input = UI.text_input(
                     "مفتاح التطبيق السرّي",
                     value=api_secret,
-                    placeholder="Secret Key..."
+                    placeholder="المفتاح السري"
                 )
                 self.api_timeout_input = UI.number_input(
                     "مهلة الاتصال (بالثواني)",
@@ -126,7 +126,7 @@ class ServerMixin:
             if online:
                 ui.notify(f"الاتصال بالسيرفر {full_url} يعمل بنجاح!", type="positive")
             else:
-                ui.notify(f"السيرفر {full_url} غير متصل حالياً. يعمل التطبيق في الوضع المحتجز (Offline Mode).", type="warning")
+                ui.notify(f"السيرفر {full_url} غير متصل حالياً. يعمل التطبيق دون اتصال.", type="warning")
         except Exception as exc:
             ui.notify(f"فحص الاتصال فشل: {exc}", type="negative")
 
@@ -152,7 +152,7 @@ class ServerMixin:
             # Re-evaluate network status for the new URL immediately
             set_online(check_network_status(target_url=cfg["api_url"]))
 
-            ui.notify(f"تم حفظ إعدادات السيرفر والمنفذ ({cfg['api_url']}) محلياً في server_config.json بنجاح!", type="positive")
+            ui.notify(f"تم حفظ إعدادات السيرفر والمنفذ ({cfg['api_url']}) محلياً بنجاح", type="positive")
             self._test_server_connection()
         except Exception as exc:
             ui.notify(f"خطأ أثناء حفظ إعدادات السيرفر: {exc}", type="negative")
@@ -255,8 +255,6 @@ class ServerMixin:
                     ui.label(
                         "إعادة الإرسال مع تجاوز فحص التعارض والتكرار؟ سيتم حفظ نسخة هذا الجهاز فوق تعديلات السيرفر، "
                         "وحفظ الطلاب المكررين المحتملين كطلاب جدد."
-                        "checks? This laptop's version overwrites changes made on the server, and possible duplicate "
-                        "students are saved as new students."
                     ).classes("text-sm font-bold")
 
                     def _do_override():
@@ -274,7 +272,7 @@ class ServerMixin:
             def _discard_all():
                 with ui.dialog() as confirm, UI.card():
                     ui.label(
-                        f"حذف {len(failed_rows)} سجل نهائياً من هذا الجهاز؟{len(failed_rows)} record(s) from this PC?"
+                        f"حذف {len(failed_rows)} سجل نهائياً من هذا الجهاز؟"
                     ).classes("text-sm font-bold")
 
                     def _do_discard():
@@ -282,7 +280,7 @@ class ServerMixin:
                         confirm.close()
                         dialog.close()
                         self._refresh_sync_status()
-                        ui.notify(f"تم حذف {count} سجل{count} record(s).", type="positive")
+                        ui.notify(f"تم حذف {count} سجل.", type="positive")
 
                     with ui.row().classes("w-full justify-end gap-2 pt-2"):
                         ui.button("إلغاء", on_click=confirm.close).props("flat")

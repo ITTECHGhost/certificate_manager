@@ -162,4 +162,4 @@ class InstitutionMixin:
             )
             ui.notify("تم حفظ معلومات المؤسسة والشعارات بنجاح", type="positive")
         except Exception as exc:
-            ui.notify(f"Error saving settings: {exc}", type="negative")
+            ui.notify(f"تعذر حفظ الإعدادات: {exc}", type="negative")

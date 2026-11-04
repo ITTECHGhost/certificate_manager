@@ -65,7 +65,7 @@ class AppearanceMixin:
             with ui.expansion("إعدادات متقدمة").classes("w-full app-text-muted"):
                 with ui.row().classes("app-tile w-full items-center justify-between p-3 rounded-xl border"):
                     UI.standard_label("اتجاه الواجهة من اليمين إلى اليسار")
-                    self.rtl_switch = UI.switch("تفعيل RTL", value=bool(saved_rtl), on_change=self._on_rtl_switch_change)
+                    self.rtl_switch = UI.switch("اتجاه من اليمين لليسار", value=bool(saved_rtl), on_change=self._on_rtl_switch_change)
 
             UI.success_button(
                 "حفظ وتطبيق المظهر",
@@ -158,7 +158,7 @@ class AppearanceMixin:
             val = bool(raw_val)
             set_rtl(val)
             self.session.update_preferences(is_arabic_rtl=1 if val else 0)
-            ui.notify(f"تم تغيير اتجاه الواجهة إلى {'اليمين (RTL)' if val else 'اليسار (LTR)'}", type="info")
+            ui.notify(f"تم تغيير اتجاه الواجهة إلى {"اليمين" if val else "اليسار"}", type="info")
         except Exception:
             pass
 
@@ -206,4 +206,4 @@ class AppearanceMixin:
 
             ui.notify("تم حفظ وتطبيق تفضيلات المظهر بنجاح", type="positive")
         except Exception as exc:
-            ui.notify(f"Error saving appearance: {exc}", type="negative")
+            ui.notify(f"تعذر حفظ إعدادات المظهر: {exc}", type="negative")

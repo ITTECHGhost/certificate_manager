@@ -34,11 +34,11 @@ class LogsAnalyticsMixin:
                 UI.stat_card("إجمالي السجلات", "1,250+", "storage", variant="blue")
                 UI.stat_card("الوثائق المصدرة", "340+", "description", variant="emerald")
                 UI.stat_card("المستخدمين النشطين", "12", "people", variant="amber")
-                UI.stat_card("حالة مزامنة SQLite", "100%", "cloud_done", variant="purple")
+                UI.stat_card("حالة المزامنة المحلية", "100%", "cloud_done", variant="purple")
 
     def _do_clear_logs(self) -> None:
         try:
             self.s_repo.clear_audit_logs()
             ui.notify("تم مسح سجل التغييرات", type="info")
         except Exception as exc:
-            ui.notify(f"Clear logs failed: {exc}", type="negative")
+            ui.notify(f"تعذر مسح السجلات: {exc}", type="negative")

@@ -99,7 +99,7 @@ class MaintenanceMixin:
             filename = f"certificate_manager_backup_{datetime.now():%Y%m%d_%H%M%S}.sql"
             deliver_file(resp.content, filename, title="تم إنشاء النسخة الاحتياطية بنجاح", auto_open=False)
         except Exception as exc:
-            ui.notify(f"Backup failed: {exc}", type="negative")
+            ui.notify(f"فشل النسخ الاحتياطي: {exc}", type="negative")
 
     def _do_restore(self) -> None:
         """Pick a .sql backup, confirm, then upload it to the server, which restores it (admin only)."""
@@ -147,7 +147,7 @@ class MaintenanceMixin:
                         raise RuntimeError(f"HTTP {resp.status_code}: {resp.text[:300]}")
                     ui.notify("تمت استعادة قاعدة البيانات", type="positive")
                 except Exception as exc:
-                    ui.notify(f"Restore failed: {exc}", type="negative")
+                    ui.notify(f"فشلت الاستعادة: {exc}", type="negative")
 
             with ui.row().classes("w-full justify-end gap-2 pt-2"):
                 ui.button("إلغاء", on_click=dialog.close).props("flat")

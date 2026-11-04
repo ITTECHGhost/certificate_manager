@@ -73,15 +73,11 @@ class LoginScreen:
                         ui.label("يرجى إدخال بيانات الاعتماد الخاصة بك للوصول").classes(
                             "app-login-subtitle text-[11px] font-bold"
                         )
-                        ui.label("Enter credentials to access the system").classes(
-                            "app-login-subtitle text-[11px] font-medium -mb-0.5"
-                        )
 
                     # Username Input Group
                     with ui.column().classes("w-full gap-1 mt-3"):
                         with ui.row().classes("w-full justify-between items-end px-1"):
                             ui.label("اسم المستخدم").classes("app-text-secondary text-xs font-bold")
-                            ui.label("Username").classes("app-text-muted text-xs font-medium")
 
                         self.username_input = ui.input(
                             placeholder="أدخل اسم المستخدم"
@@ -98,7 +94,6 @@ class LoginScreen:
                     with ui.column().classes("w-full gap-1"):
                         with ui.row().classes("w-full justify-between items-end px-1"):
                             ui.label("كلمة المرور").classes("app-text-secondary text-xs font-bold")
-                            ui.label("Password").classes("app-text-muted text-xs font-medium")
 
                         self.password_input = ui.input(
                             placeholder="أدخل كلمة المرور",
@@ -166,7 +161,7 @@ class LoginScreen:
                         "app-login-logo w-[340px] max-w-full h-auto object-contain"
                     )
                 else:
-                    ui.label("UNIVERSITY LOGO").classes(
+                    ui.label("شعار الجامعة").classes(
                         "app-text-faint text-4xl font-extrabold tracking-wider text-center"
                     )
 

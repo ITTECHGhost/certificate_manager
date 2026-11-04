@@ -199,8 +199,7 @@ class MainAppShell:
                 sync_result = await run.io_bound(sync_offline_queue_to_mysql)
                 if sync_result and sync_result.get("failed"):
                     ui.notify(
-                        f"فشلت مزامنة {sync_result['failed']} سجل — راجع الإعدادات > قاعدة البيانات. "
-                        f"/ {sync_result['failed']} offline record(s) failed to sync — see Settings > Database.",
+                        f"فشلت مزامنة {sync_result['failed']} سجل — راجع الإعدادات > قاعدة البيانات.",
                         type="warning", timeout=10000
                     )
                 pull_mysql_to_sqlite_background()
@@ -224,8 +223,7 @@ class MainAppShell:
                     sync_result = await run.io_bound(sync_offline_queue_to_mysql)
                     if sync_result and sync_result.get("failed"):
                         ui.notify(
-                            f"فشلت مزامنة {sync_result['failed']} سجل — راجع الإعدادات > قاعدة البيانات. "
-                            f"/ {sync_result['failed']} offline record(s) failed to sync — see Settings > Database.",
+                            f"فشلت مزامنة {sync_result['failed']} سجل — راجع الإعدادات > قاعدة البيانات.",
                             type="warning", timeout=10000
                         )
             except Exception as exc:
@@ -358,12 +356,10 @@ class MainAppShell:
                     ui.icon("logout", size="md").classes("app-text-danger")
                     with ui.column().classes("gap-0 min-w-0 flex-1"):
                         ui.label("تأكيد تسجيل الخروج").classes("app-text-primary text-base font-bold leading-tight")
-                        ui.label("Logout Confirmation").classes("app-text-muted text-xs leading-tight")
 
                 # Modal Body Message
                 with ui.column().classes("w-full gap-1 my-1"):
                     ui.label("هل أنت تأكد من رغبتك في تسجيل الخروج؟").classes("app-text-primary text-sm font-semibold")
-                    ui.label("Are you sure you want to log out?").classes("app-text-muted text-xs")
 
                 # Modal Actions Footer Row
                 with ui.row().classes("w-full items-center justify-end gap-3 pt-3 border-t mt-1"):
@@ -723,7 +719,7 @@ class MainAppShell:
             # [CARD: QUICK ACTIONS PANEL]
             with ui.column().classes("app-card w-full xl:w-1/4 xl:max-w-[320px] p-5 rounded-2xl gap-3 h-auto justify-start self-start"):
                 # Card Header Label
-                UI.section_label("Quick Actions  —  إجراءات سريعة")
+                UI.section_label("إجراءات سريعة")
                 
                 # Column of Action Items
                 with ui.column().classes("w-full gap-2.5 mt-1"):
@@ -756,13 +752,11 @@ class MainAppShell:
                     with ui.tab(name="tab_students", label="", icon="person_add") as tab_students:
                         with ui.column().classes("gap-0 items-start justify-center text-right py-0.5"):
                             ui.label("أحدث الطلاب المضافين").classes("font-bold text-sm leading-tight")
-                            ui.label("Recent Students").classes("font-normal text-xs opacity-75 leading-tight")
 
                     # Tab 2 Button (Issued & Printed Certificates - MERGED)
                     with ui.tab(name="tab_certs", label="", icon="workspace_premium") as tab_certs:
                         with ui.column().classes("gap-0 items-start justify-center text-right py-0.5"):
                             ui.label("الشهادات الصادرة والمطبوعة").classes("font-bold text-sm leading-tight")
-                            ui.label("Issued & Printed Certificates").classes("font-normal text-xs opacity-75 leading-tight")
 
                 # [TAB PANELS CONTAINER]
                 initial_tab = tab_certs if getattr(self, "_default_dashboard_tab_name", None) == "tab_certs" else tab_students
@@ -915,9 +909,6 @@ class MainAppShell:
             ui.icon("construction", size="lg").classes("app-text-warning")
             ui.label(f"شاشة {header_ar} قيد التطوير").classes(
                 "app-text-primary text-2xl font-bold"
-            )
-            ui.label(f"{header_en} Screen — Under Migration to NiceGUI").classes(
-                "app-text-muted text-sm"
             )
 
 # Export MainAppShell as DashboardScreen for application entry point routing

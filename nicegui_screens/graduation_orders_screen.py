@@ -185,7 +185,7 @@ class GraduationOrdersScreen:
                 with ui.column().classes("w-full items-center py-12 text-center bg-[var(--bg-card)] rounded-xl border border-[var(--border-default)]"):
                     ui.icon("school", size="lg").classes("app-text-muted mb-2")
                     ui.label("لا توجد أوامر تخرج مطابقة").classes("text-lg font-bold app-text-muted")
-                    ui.label("No matching graduation orders found.").classes("text-xs app-text-muted")
+                    ui.label("لا توجد أوامر مطابقة لبحثك.").classes("text-xs app-text-muted")
             else:
                 for row in orders:
                     self._render_order_card(row)
@@ -419,7 +419,7 @@ class GraduationOrdersScreen:
                                     ui.notify(str(err), type="warning")
                                 except Exception as err:
                                     log.error(f"Error saving order: {err}")
-                                    ui.notify(f"Error saving order: {err}", type="negative")
+                                    ui.notify(f"تعذر حفظ الأمر: {err}", type="negative")
 
                             UI.success_button("حفظ بيانات الأمر", icon="save", on_click=save_order_action).classes("text-sm px-5 py-2")
 
@@ -434,10 +434,10 @@ class GraduationOrdersScreen:
                                 def auto_link_action():
                                     try:
                                         count = self.student_repo.auto_link_matching(oid, existing_data)
-                                        ui.notify(f"تم ربط {count} طالب تلقائياً بهذا الأمر{count} students", type="positive")
+                                        ui.notify(f"تم ربط {count} طالب تلقائياً بهذا الأمر", type="positive")
                                         refresh_both_student_panels()
                                     except Exception as err:
-                                        ui.notify(f"Error auto-linking: {err}", type="negative")
+                                        ui.notify(f"تعذر الربط التلقائي: {err}", type="negative")
 
                                 UI.primary_button("🔗 ربط تلقائي المطابقين", on_click=auto_link_action).classes("text-xs px-4 py-2")
 
@@ -456,7 +456,7 @@ class GraduationOrdersScreen:
 
                                         with ui.row().classes("w-full justify-between items-center pb-2 border-b border-[var(--border-default)] shrink-0"):
                                             ui.label(f"الطلاب المرتبطون بالأمر ({len(linked_st)} طالب)").classes("text-sm font-bold app-text-accent")
-                                            ui.label(f"Total Linked: {len(linked_st)}").classes("text-xs font-mono app-text-muted")
+                                            ui.label(f"عدد المرتبطين: {len(linked_st)}").classes("text-xs font-mono app-text-muted")
 
                                         with ui.column().classes("w-full flex-1 gap-2 overflow-y-auto max-h-[320px] pr-1"):
                                             if not linked_st:
@@ -481,7 +481,7 @@ class GraduationOrdersScreen:
                                                                 ui.notify("تم إلغاء ربط الطالب", type="positive")
                                                                 refresh_both_student_panels()
                                                             except Exception as err:
-                                                                ui.notify(f"Error unlinking: {err}", type="negative")
+                                                                ui.notify(f"تعذر فك الربط: {err}", type="negative")
 
                                                         UI.danger_button("إلغاء الربط", on_click=unlink_act).classes("text-[10px] px-2.5 py-1 shrink-0")
 
@@ -550,7 +550,7 @@ class GraduationOrdersScreen:
                                                                     ui.notify("تم ربط الطالب بالأمر", type="positive")
                                                                     refresh_both_student_panels()
                                                                 except Exception as err:
-                                                                    ui.notify(f"Error linking: {err}", type="negative")
+                                                                    ui.notify(f"تعذر الربط: {err}", type="negative")
 
                                                             UI.success_button("ربط ➕", on_click=link_act).classes("text-[10px] px-2.5 py-1 shrink-0")
 
@@ -584,7 +584,7 @@ class GraduationOrdersScreen:
                     except OfflineModeError as err:
                         ui.notify(str(err), type="warning")
                     except Exception as err:
-                        ui.notify(f"Error deleting order: {err}", type="negative")
+                        ui.notify(f"تعذر حذف الأمر: {err}", type="negative")
 
                 UI.danger_button("حذف", icon="delete", on_click=do_delete).classes("text-sm px-4 py-2")
                 UI.secondary_button("إلغاء", on_click=dialog.close).classes("text-sm px-4 py-2")

@@ -183,8 +183,7 @@ class ProfileScreen:
                 # Works offline too: saved on this laptop and sent to the server at the next sync
                 pwd_result = self.p_repo.set_password(self.emp_id, new_pwd, must_change=False)
                 if pwd_result == "queued":
-                    ui.notify("تم حفظ كلمة المرور على هذا الجهاز وستُرسل للسيرفر عند الاتصال / "
-                              "Password saved on this PC; sent to the server when online", type="info", timeout=8000)
+                    ui.notify("تم حفظ كلمة المرور على هذا الجهاز وستُرسل للسيرفر عند الاتصال", type="info", timeout=8000)
 
             self.session.name_ar = name_ar
             self.session.name_en = name_en

@@ -161,7 +161,7 @@ class CoursesScreen:
                 with ui.column().classes("w-full items-center py-12 text-center bg-[var(--bg-card)] rounded-xl border border-[var(--border-default)]"):
                     ui.icon("menu_book", size="lg").classes("app-text-muted mb-2")
                     ui.label("لا توجد مواد دراسية مطابقة").classes("text-lg font-bold app-text-muted")
-                    ui.label("No matching courses found.").classes("text-xs app-text-muted")
+                    ui.label("لا توجد مواد مطابقة لبحثك.").classes("text-xs app-text-muted")
             else:
                 for row in page_rows:
                     self._render_card(row)
@@ -554,7 +554,7 @@ class CoursesScreen:
                                 self.show_list_view()
                         except Exception as err:
                             log.error(f"Error saving routine: {err}")
-                            ui.notify(f"Error saving routine: {err}", type="negative")
+                            ui.notify(f"تعذر حفظ الخطة الدراسية: {err}", type="negative")
 
                     UI.secondary_button("إلغاء", on_click=dialog.close).classes("text-sm px-5 py-2")
                     UI.success_button("حفظ الخطة الدراسية", icon="save", on_click=save_routine_action).classes("text-sm px-5 py-2")
@@ -722,7 +722,7 @@ class CoursesScreen:
                                 ui.notify(str(err), type="warning")
                             except Exception as err:
                                 log.error(f"Error saving course: {err}")
-                                ui.notify(f"Error: {err}", type="negative")
+                                ui.notify(f"تعذر الحفظ: {err}", type="negative")
 
                         UI.secondary_button("إلغاء", on_click=self.show_list_view).classes("text-sm px-5 py-2")
                         UI.success_button("حفظ", icon="save", on_click=save_action).classes("text-sm px-5 py-2")

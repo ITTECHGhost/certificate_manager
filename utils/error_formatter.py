@@ -8,14 +8,14 @@ import json
 def format_error_message(err: Exception | str) -> tuple[str, str]:
     """
     Parses raw exceptions, API JSON detail responses, MySQL trigger error codes,
-    and HTTP errors into clean, human-readable bilingual notification messages.
+    and HTTP errors into clean, human-readable Arabic notification messages.
 
     Returns:
         tuple[str, str]: (Title, Detail Description)
     """
     raw_str = str(err or "").strip()
     if not raw_str:
-        return ("خطأ / Error", "حدث خطأ غير متوقع / An unexpected error occurred.")
+        return ("خطأ", "حدث خطأ غير متوقع. حاول مرة أخرى.")
 
     # Extract JSON detail payload if present
     json_detail = None
@@ -41,7 +41,7 @@ def format_error_message(err: Exception | str) -> tuple[str, str]:
     # 1. MySQL Trigger Error 1644: Signatory Slot Conflict
     if "1644" in msg or "This signatory slot is already assigned" in msg:
         return (
-            "تعارض في موقع التوقيع — Signatory Slot Conflict",
+            "تعارض في موقع التوقيع",
             "عذراً، موقع التوقيع هذا مخصص لشخص آخر بالفعل. يرجى اختيار ترتيب آخر أو إزالة التوقيع السابق أولاً."
         )
 
@@ -51,18 +51,18 @@ def format_error_message(err: Exception | str) -> tuple[str, str]:
         if dup_match:
             val, key = dup_match.groups()
             return (
-                "سجل مكرر — Duplicate Entry",
+                "سجل مكرر",
                 f"القيمة '{val}' مستخدمة بالفعل في النظام ({key}). يرجى اختيار قيمة مختلفة."
             )
         return (
-            "سجل مكرر — Duplicate Entry",
+            "سجل مكرر",
             "عذراً، هذا السجل أو اسم المستخدم موجود بالفعل في النظام."
         )
 
     # 3. Foreign Key Constraint Violation (Error 1451 / 1452)
     if "1451" in msg or "1452" in msg or "foreign key constraint" in msg.lower():
         return (
-            "تعارض في البيانات المرتبطة — Linked Data Constraint",
+            "تعارض في البيانات المرتبطة",
             "لا يمكن إتمام العملية لوجود سجلات أو بيانات أخرى مرتبطة بهذا العنصر في النظام."
         )
 
@@ -70,14 +70,14 @@ def format_error_message(err: Exception | str) -> tuple[str, str]:
     if "Operation Denied:" in msg:
         denied_msg = msg.split("Operation Denied:")[-1].strip().strip('"}')
         return (
-            "تم رفض العملية — Operation Denied",
+            "تم رفض العملية",
             denied_msg
         )
 
     # 5. Missing / Required Field Validation
     if "Field required" in msg or "missing" in msg.lower():
         return (
-            "بيانات غير مكتملة — Missing Information",
+            "بيانات غير مكتملة",
             "يرجى التأكد من ملء جميع الحقول المطلوبة بشكل صحيح قبل الحفظ."
         )
 
@@ -93,4 +93,4 @@ def format_error_message(err: Exception | str) -> tuple[str, str]:
     if len(clean_msg) > 160:
         clean_msg = clean_msg[:160] + "..."
 
-    return ("تنبيه — Notice", clean_msg or "تعذر إتمام العملية. يرجى المحاولة مرة أخرى.")
+    return ("تنبيه", clean_msg or "تعذر إتمام العملية. يرجى المحاولة مرة أخرى.")

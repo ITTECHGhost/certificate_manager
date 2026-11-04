@@ -938,7 +938,7 @@ class RoleRepository(BaseRepository):
         if not existing:
             return False
         if existing.get("is_system"):
-            raise ValueError("لا يمكن حذف الأدوار الافتراضية للنظام / Cannot delete built-in system roles")
+            raise ValueError("لا يمكن حذف الأدوار الافتراضية للنظام")
 
         self._server_write("DELETE", f"/roles/{role_id}")
 
