@@ -83,62 +83,29 @@ class GraduationOrdersScreen:
         self.search_term = ""
 
         # Main Viewport Container
-        self.container = ui.column().classes("w-full h-full p-6 gap-6")
+        self.container = ui.column().classes("w-full gap-4")
         self.show_list_view()
 
-    # ── VIEW 1: Primary Orders Table List View ──────────────────────────────
+    # ── VIEW 1: Orders list ──────────────────────────────────────────────────
     def show_list_view(self):
-        """Build main orders list table with pagination & live search."""
+        """Orders list: search and add in one row, read-only rows (click to open), one paginator."""
         self.container.clear()
         with self.container:
-            with UI.card().classes("flex-1 gap-6 p-6 overflow-hidden"):
-                # Header Bar
-                with ui.row().classes("w-full justify-between items-center gap-3 flex-wrap pb-4 border-b border-[var(--border-default)] app-card-header"):
-                    with ui.row().classes("items-center gap-3"):
-                        ui.icon("school", size="md").classes("app-text-accent")
-                        with ui.column().classes("gap-0"):
-                            ui.label("إدارة أوامر التخرج").classes("text-xl font-bold app-text-primary")
-                            ui.label("إدارة وحفظ الأوامر الجامعية وربطها بالدفعة والطلاب").classes("text-xs app-text-muted")
-
-                    UI.success_button(
-                        "+ إضافة أمر تخرج",
-                        icon="add",
-                        on_click=lambda: self.show_edit_view(mode="add")
-                    ).classes("text-sm px-5 py-2.5 shrink-0")
-
-                # Controls Row: rows-per-page first, search fills the remaining width (wraps below if tight)
-                with ui.row().classes("w-full items-center gap-3 flex-wrap"):
-                    def on_limit_change(e):
-                        val = extract_event_value(e, default=25)
-                        try:
-                            self.current_limit = int(val or 25)
-                        except Exception:
-                            self.current_limit = 25
-                        self.current_offset = 0
-                        self._render_content()
-
-                    limit_select = UI.select(
-                        label="عرض",
-                        options={25: "25", 50: "50", 75: "75", 100: "100"},
-                        value=self.current_limit,
-                        on_change=on_limit_change
-                    ).props("dense").classes("w-28 text-sm shrink-0", remove="w-full")
-
+            with UI.card().classes("flex-1"):
+                with ui.row().classes("w-full items-center gap-2"):
                     def on_search_change(e):
                         val = extract_event_value(e, default="")
                         self.search_term = str(val or "").strip().lower()
                         self.current_offset = 0
                         self._render_content()
 
-                    search_inp = UI.text_input(
-                        label="بحث",
-                        placeholder="رقم الأمر، القسم، أو سنة التخرج",
-                        on_change=on_search_change
-                    ).props("dense clearable").classes("flex-1 min-w-[220px] text-sm")
-                    with search_inp.add_slot("prepend"):
-                        ui.icon("search").classes("app-text-muted")
+                    UI.search_input(
+                        placeholder="ابحث برقم الأمر أو القسم أو سنة التخرج",
+                        on_change=on_search_change,
+                    ).classes("flex-1 min-w-[220px] max-w-md")
+                    ui.space()
+                    UI.primary_button("إضافة أمر تخرج", icon="add", on_click=lambda: self.show_edit_view(mode="add"))
 
-                # Refreshable Content Container
                 @ui.refreshable
                 def orders_content_view():
                     self._build_orders_table()
@@ -152,12 +119,9 @@ class GraduationOrdersScreen:
             self._refresh_content.refresh()
 
     def _get_filtered_orders(self) -> list[dict]:
-        """Fetch and filter orders based on limit, offset, and search term."""
+        """All orders (newest first, from the local copy), filtered by the search text."""
         try:
-            fetch_limit = 500 if self.search_term else self.current_limit
-            fetch_offset = 0 if self.search_term else self.current_offset
-
-            orders = self.repo.get_all(limit=fetch_limit, offset=fetch_offset) or []
+            orders = self.repo.get_all(limit=1000, offset=0) or []
         except Exception as err:
             log.warning(f"Failed to fetch graduation orders: {err}")
             orders = []
@@ -166,117 +130,73 @@ class GraduationOrdersScreen:
             return orders
 
         t = self.search_term
-        filtered = [
+        return [
             r for r in orders
             if t in str(r.get("order_number") or "").lower()
             or t in str(r.get("dept_name_ar") or "").lower()
-            or t in str(r.get("dept_name_en") or "").lower()
             or t in str(r.get("graduation_year") or "").lower()
             or t in str(r.get("order_date") or "").lower()
         ]
-        return filtered
 
     def _build_orders_table(self):
         orders = self._get_filtered_orders()
-
-        # Orders List Scroll Container
-        with ui.column().classes("w-full flex-1 gap-3"):
-            if not orders:
-                with ui.column().classes("w-full items-center py-12 text-center bg-[var(--bg-card)] rounded-xl border border-[var(--border-default)]"):
-                    ui.icon("school", size="lg").classes("app-text-muted mb-2")
-                    ui.label("لا توجد أوامر تخرج مطابقة").classes("text-lg font-bold app-text-muted")
-                    ui.label("لا توجد أوامر مطابقة لبحثك.").classes("text-xs app-text-muted")
+        total = len(orders)
+        if not orders:
+            if self.search_term:
+                UI.empty_state("لا يوجد أمر مطابق", "تحقق من رقم الأمر أو امسح البحث.", icon="search_off")
             else:
-                for row in orders:
-                    self._render_order_card(row)
+                UI.empty_state("لا توجد أوامر تخرج بعد", "أضف أول أمر ثم اربط به الطلاب.", icon="school",
+                               action_text="إضافة أمر تخرج", on_action=lambda: self.show_edit_view(mode="add"))
+            return
 
-        # Pagination Footer Bar
-        start_idx = self.current_offset + 1 if orders else 0
-        end_idx = self.current_offset + len(orders)
+        self.current_offset = min(self.current_offset, (total - 1) // self.current_limit * self.current_limit)
+        page_rows = orders[self.current_offset:self.current_offset + self.current_limit]
+        rows = []
+        for r in page_rows:
+            st_raw = str(r.get("study_type") or "").lower()
+            sem_raw = str(r.get("graduation_semester") or "").lower()
+            rows.append({
+                "id": r["id"],
+                "order_number": r.get("order_number") or "—",
+                "order_date": r.get("order_date") or "—",
+                "dept": r.get("dept_name_ar") or "جميع الأقسام",
+                "year": r.get("graduation_year") or "—",
+                "term": " • ".join(x for x in (STUDY_TYPE_OPTIONS.get(st_raw, ""), SEMESTER_OPTIONS.get(sem_raw, "")) if x) or "—",
+                "linked": r.get("linked_count", 0) or 0,
+                "raw": r,
+            })
 
-        with ui.row().classes("w-full items-center justify-between pt-4 border-t border-[var(--border-default)] shrink-0"):
-            prev_btn = UI.secondary_button("◄ السابق", on_click=self.go_prev).classes("text-xs px-4 py-2")
-            if self.current_offset == 0 or self.search_term:
-                prev_btn.disable()
+        table = UI.data_table([
+            {"name": "order_number", "label": "رقم الأمر", "field": "order_number", "align": "right"},
+            {"name": "order_date", "label": "تاريخ الأمر", "field": "order_date"},
+            {"name": "dept", "label": "القسم", "field": "dept"},
+            {"name": "year", "label": "الدفعة", "field": "year"},
+            {"name": "term", "label": "الدراسة والفصل", "field": "term"},
+            {"name": "linked", "label": "الطلاب المرتبطون", "field": "linked"},
+            {"name": "actions", "label": "", "field": "actions"},
+        ], rows, clickable=True)
+        # Order number and date are what people look for: make them stand out
+        table.add_slot("body-cell-order_number", """
+            <q-td :props="props"><span class="font-bold app-text-primary text-base" dir="ltr">{{ props.value }}</span></q-td>
+        """)
+        table.add_slot("body-cell-order_date", """
+            <q-td :props="props"><span class="font-semibold app-text-primary" dir="ltr">{{ props.value }}</span></q-td>
+        """)
+        table.add_slot("body-cell-actions", """
+            <q-td :props="props" auto-width>
+                <q-btn flat round dense icon="delete" class="app-btn-danger-icon" aria-label="حذف الأمر"
+                       @click.stop="$parent.$emit('delete_order', props.row)">
+                    <q-tooltip>حذف الأمر</q-tooltip>
+                </q-btn>
+            </q-td>
+        """)
+        table.on("rowClick", lambda e: self.show_edit_view(row=e.args[1].get("raw"), mode="edit"))
+        table.on("delete_order", lambda e: self.confirm_delete(e.args.get("raw") or e.args))
 
-            ui.label(f"السجلات {start_idx} - {end_idx}").classes("text-sm font-bold app-text-primary")
+        UI.paginator(total, self.current_offset // self.current_limit + 1, self.current_limit, self._go_to_page)
 
-            next_btn = UI.secondary_button("التالي", on_click=self.go_next).classes("text-xs px-4 py-2")
-            if len(orders) < self.current_limit or self.search_term:
-                next_btn.disable()
-
-    def _render_order_card(self, row: dict):
-        oid = row["id"]
-        order_num = row.get("order_number") or "—"
-        order_date = row.get("order_date") or "—"
-        dept_name = row.get("dept_name_ar") or row.get("dept_name_en") or "جميع الأقسام"
-        grad_year = row.get("graduation_year") or "—"
-
-        st_type_raw = str(row.get("study_type") or "").lower()
-        st_type_disp = STUDY_TYPE_OPTIONS.get(st_type_raw, st_type_raw or "—")
-
-        sem_raw = str(row.get("graduation_semester") or "").lower()
-        sem_disp = SEMESTER_OPTIONS.get(sem_raw, sem_raw or "—")
-
-        linked_cnt = row.get("linked_count", 0)
-
-        with ui.column().classes("w-full p-4 rounded-xl bg-[var(--bg-card)] border border-[var(--border-default)] gap-3 hover:border-[var(--color-accent)] transition-all shadow-sm"):
-            # Top Row: Order Number & Date + Action Buttons
-            with ui.row().classes("w-full items-center justify-between gap-4 flex-wrap"):
-                with ui.row().classes("items-center gap-3 min-w-0 flex-1"):
-                    ui.icon("description", size="md").classes("app-text-accent shrink-0")
-                    with ui.column().classes("gap-0.5 min-w-0 flex-1"):
-                        ui.label(f"أمر تخرج رقم: {order_num}").classes("font-bold text-base app-text-primary")
-                        ui.label(f"تاريخ الأمر: {order_date}").classes("text-xs text-slate-400 font-mono")
-
-                # Right Action Buttons
-                with ui.row().classes("items-center gap-2 shrink-0"):
-                    UI.primary_button(
-                        "",
-                        icon="edit",
-                        on_click=lambda r=row: self.show_edit_view(row=r, mode="edit")
-                    ).props("round dense").classes("text-xs p-1.5").tooltip("تعديل وربط الطلاب")
-
-                    UI.danger_button(
-                        "",
-                        icon="delete",
-                        on_click=lambda r=row: self.confirm_delete(r)
-                    ).props("round dense").classes("text-xs p-1.5").tooltip("حذف")
-
-            # Bottom Row: Badges Details (Department, Batch, Study Mode, Semester, Linked Count)
-            with ui.row().classes("w-full items-center justify-between pt-2.5 border-t border-[var(--border-default)] gap-3 flex-wrap"):
-                with ui.row().classes("items-center gap-2 min-w-0 flex-1 flex-wrap"):
-                    # Department Chip
-                    with ui.row().classes("items-center gap-1.5 px-3 py-1 rounded-lg bg-[var(--bg-main)] border border-[var(--border-default)]"):
-                        ui.icon("domain", size="xs").classes("app-text-accent")
-                        ui.label(f"القسم: {dept_name}").classes("text-xs font-semibold app-text-primary")
-
-                    # Batch Chip
-                    with ui.row().classes("items-center gap-1.5 px-3 py-1 rounded-lg bg-[var(--bg-main)] border border-[var(--border-default)]"):
-                        ui.icon("calendar_today", size="xs").classes("app-text-accent")
-                        ui.label(f"الدفعة: {grad_year}").classes("text-xs font-bold app-text-accent")
-
-                    # Study Mode Chip
-                    with ui.row().classes("items-center gap-1.5 px-3 py-1 rounded-lg bg-[var(--bg-main)] border border-[var(--border-default)]"):
-                        ui.icon("schedule", size="xs").classes("app-text-primary")
-                        ui.label(f"الدراسة: {st_type_disp}").classes("text-xs font-semibold app-text-primary")
-
-                    # Semester Chip
-                    with ui.row().classes("items-center gap-1.5 px-3 py-1 rounded-lg bg-[var(--bg-main)] border border-[var(--border-default)]"):
-                        ui.icon("event", size="xs").classes("app-text-primary")
-                        ui.label(f"الفصل: {sem_disp}").classes("text-xs font-semibold app-text-primary")
-
-                # Linked Students Badge
-                with ui.row().classes("items-center gap-1.5 px-3 py-1 rounded-lg bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 shrink-0"):
-                    ui.icon("people", size="xs").classes("text-emerald-400")
-                    ui.label(f"الطلاب المرتبطون: {linked_cnt} طالب").classes("text-xs font-bold")
-
-    def go_prev(self):
-        self.current_offset = max(0, self.current_offset - self.current_limit)
-        self._render_content()
-
-    def go_next(self):
-        self.current_offset += self.current_limit
+    def _go_to_page(self, page: int):
+        self.current_offset = max(0, (int(page) - 1) * self.current_limit)
         self._render_content()
 
     # ── VIEW 2: Combined Full Page View (Edit Order + Link/Unlink Students) ─────
@@ -292,7 +212,7 @@ class GraduationOrdersScreen:
 
         try:
             depts = self.dept_repo.get_all() or []
-            dept_opts = {d["id"]: f"{d.get('name_ar', '')} / {d.get('name_en', '')}" for d in depts} if depts else {1: "قسم علوم الحاسوب"}
+            dept_opts = {d["id"]: d.get('name_ar', '') for d in depts} if depts else {1: "قسم علوم الحاسوب"}
         except Exception:
             dept_opts = {1: "قسم علوم الحاسوب"}
 
@@ -311,23 +231,20 @@ class GraduationOrdersScreen:
             filter_dept_opts = {0: "كل الأقسام"}
 
         with self.container:
-            with UI.card().classes("flex-1 gap-6 p-6 overflow-hidden flex-col"):
-                
-                # ── Top Header Navigation Bar ────────────────────────────────
-                with ui.row().classes("w-full justify-between items-center pb-4 border-b border-[var(--border-default)] shrink-0"):
-                    with ui.row().classes("items-center gap-3"):
-                        ui.button(icon="arrow_back", on_click=self.show_list_view).props("flat round dense").classes("app-text-primary")
-                        title_text = "إضافة أمر تخرج جديد" if mode == "add" else f"تعديل أمر التخرج ورابط الطلاب {existing_data.get('order_number', '')}"
-                        ui.label(title_text).classes("text-xl font-bold app-text-primary")
+            with UI.card().classes("flex-1 gap-6"):
 
-                    UI.secondary_button("◄ العودة للأوامر", on_click=self.show_list_view).classes("text-xs px-4 py-2")
+                # ── Header: back, then which order this is ──────────────────
+                with ui.row().classes("w-full items-center gap-2 no-wrap"):
+                    UI.back_button(self.show_list_view)
+                    title_text = "إضافة أمر تخرج جديد" if mode == "add" else f"أمر التخرج {existing_data.get('order_number', '')}"
+                    ui.label(title_text).classes("app-page-title")
 
-                # Scrollable Content Area containing Order Details Form + Student Linker
-                with ui.column().classes("w-full flex-1 gap-6 overflow-y-auto pr-1"):
+                # Order details, then the student linker (the page scrolls as one)
+                with ui.column().classes("w-full gap-6"):
                     
                     # ── SECTION 1: Order Details Form ─────────────────────────
                     with UI.card().classes("w-full p-5 gap-4 rounded-xl border border-[var(--border-default)] bg-[var(--bg-card)] shrink-0"):
-                        ui.label("بيانات أمر التخرج").classes("text-base font-bold app-text-accent")
+                        ui.label("بيانات أمر التخرج").classes("app-section-title")
 
                         # Row 1: Order Number & Date
                         with ui.row().classes("w-full gap-4"):
@@ -421,7 +338,7 @@ class GraduationOrdersScreen:
                                     log.error(f"Error saving order: {err}")
                                     ui.notify(f"تعذر حفظ الأمر: {err}", type="negative")
 
-                            UI.success_button("حفظ بيانات الأمر", icon="save", on_click=save_order_action).classes("text-sm px-5 py-2")
+                            UI.primary_button("حفظ بيانات الأمر", icon="save", on_click=save_order_action)
 
                     # ── SECTION 2: Integrated Student Linking Panel (For Edit Mode) ──
                     if mode == "edit" and oid:
@@ -439,7 +356,7 @@ class GraduationOrdersScreen:
                                     except Exception as err:
                                         ui.notify(f"تعذر الربط التلقائي: {err}", type="negative")
 
-                                UI.primary_button("🔗 ربط تلقائي المطابقين", on_click=auto_link_action).classes("text-xs px-4 py-2")
+                                UI.secondary_button("ربط المطابقين تلقائيًا", icon="link", on_click=auto_link_action)
 
                             # 2-Column Panel Layout
                             with ui.row().classes("w-full gap-6 min-h-[380px] items-start"):
@@ -483,7 +400,7 @@ class GraduationOrdersScreen:
                                                             except Exception as err:
                                                                 ui.notify(f"تعذر فك الربط: {err}", type="negative")
 
-                                                        UI.danger_button("إلغاء الربط", on_click=unlink_act).classes("text-[10px] px-2.5 py-1 shrink-0")
+                                                        UI.danger_icon_button("link_off", "إلغاء الربط", on_click=unlink_act)
 
                                     linked_panel()
 
@@ -552,7 +469,7 @@ class GraduationOrdersScreen:
                                                                 except Exception as err:
                                                                     ui.notify(f"تعذر الربط: {err}", type="negative")
 
-                                                            UI.success_button("ربط ➕", on_click=link_act).classes("text-[10px] px-2.5 py-1 shrink-0")
+                                                            UI.icon_button("add_link", "ربط بهذا الأمر", on_click=link_act, dense=True)
 
                                     unlinked_panel()
 
@@ -564,29 +481,21 @@ class GraduationOrdersScreen:
     def confirm_delete(self, row: dict):
         oid = row["id"]
         order_num = row.get("order_number") or "—"
-        linked_cnt = row.get("linked_count", 0)
+        linked_cnt = row.get("linked_count", 0) or 0
 
-        dialog = ui.dialog()
-        with dialog, UI.card().classes("p-6 gap-6 w-full max-w-md bg-[var(--bg-card)] rounded-2xl border border-[var(--border-default)]"):
-            ui.label("تأكيد حذف أمر التخرج").classes("text-lg font-bold app-text-primary")
-            ui.label(
-                f"هل أنت تأكد من رغبتك في حذف الأمر: ({order_num})؟\n"
-                f"سيتم إلغاء ربط جميع الطلاب ({linked_cnt} طالب) المرتبطين بهذا الأمر."
-            ).classes("text-sm app-text-muted whitespace-pre-line")
+        def do_delete():
+            try:
+                self.repo.delete(oid)
+                UI.notify(f"تم حذف الأمر ({order_num})", type="positive")
+                self.show_list_view()
+            except OfflineModeError as err:
+                UI.notify(str(err), type="warning")
+            except Exception as err:
+                UI.notify(f"تعذر حذف الأمر: {err}", type="negative")
 
-            with ui.row().classes("w-full justify-end gap-3 pt-2"):
-                def do_delete():
-                    try:
-                        self.repo.delete(oid)
-                        ui.notify("تم حذف أمر التخرج بنجاح", type="positive")
-                        dialog.close()
-                        self.show_list_view()
-                    except OfflineModeError as err:
-                        ui.notify(str(err), type="warning")
-                    except Exception as err:
-                        ui.notify(f"تعذر حذف الأمر: {err}", type="negative")
-
-                UI.danger_button("حذف", icon="delete", on_click=do_delete).classes("text-sm px-4 py-2")
-                UI.secondary_button("إلغاء", on_click=dialog.close).classes("text-sm px-4 py-2")
-
-        dialog.open()
+        UI.confirm_dialog(
+            "حذف أمر التخرج",
+            f"سيُحذف الأمر ({order_num}) ويُلغى ربط {linked_cnt} طالب به. لا يمكن التراجع عن ذلك.",
+            "حذف الأمر",
+            do_delete,
+        )

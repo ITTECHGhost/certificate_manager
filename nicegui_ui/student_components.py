@@ -485,7 +485,7 @@ class StudentProfileView:
                             UI.primary_button('إصدار وثيقة لهذا الطالب', icon='workspace_premium', on_click=_go_cert)
 
                 # Tabs: details, then stages and grades
-                with ui.tabs().classes('w-full shrink-0').props('align=right') as tabs:
+                with ui.tabs().classes('w-full shrink-0').props('align=left') as tabs:
                     info_tab = ui.tab('البيانات')
                     periods_tab = ui.tab('المراحل والدرجات')
 
