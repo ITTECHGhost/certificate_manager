@@ -479,9 +479,9 @@ class StudentProfileView:
                                 if self.on_issue_certificate:
                                     self.on_issue_certificate(data)
                                 else:
-                                    UI.notify("افتح «إصدار الوثيقة» من القائمة واختر الطالب.", type="info")
+                                    UI.notify("افتح «إصدار كتاب» من القائمة واختر الطالب.", type="info")
 
-                            UI.primary_button('إصدار وثيقة لهذا الطالب', icon='workspace_premium', on_click=_go_cert)
+                            UI.primary_button('إصدار كتاب لهذا الطالب', icon='workspace_premium', on_click=_go_cert)
 
                 # Tabs: details, then stages and grades
                 with ui.tabs().classes('w-full shrink-0').props('align=left') as tabs:

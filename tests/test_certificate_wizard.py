@@ -72,7 +72,12 @@ def test_transcript_is_flat_table_rows():
 
 
 def test_template_picker_shows_arabic_names_not_files():
-    assert "get_template_label_ar" in _src("_format_template_options")
+    # The picker shows the template name and a second line for the variant (no old part labels)
+    assert "template_option_label" in _src("_format_template_options")
+    from nicegui_ui.issue_helpers import template_option_label
+    two = template_option_label("year - Temp - Ar - D - SBS.docx")
+    assert two == "وثيقة تخرج — النظام السنوي\nعربي • بالدرجات"
+    assert ".docx" not in two and "جدولان" not in two
     assert get_template_label_ar("year - Temp - Ar - D - SBS.docx") == "عربية • سنوي • جدولان متجاوران"
     label = get_template_label_ar("semester - Temp - En.docx")
     assert label == "إنكليزية • فصلي"

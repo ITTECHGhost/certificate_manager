@@ -31,4 +31,4 @@ def test_students_list_and_profile_use_two_decimal_average():
 def test_student_page_has_back_and_issue_buttons():
     profile = (ROOT / "nicegui_ui" / "student_components.py").read_text(encoding="utf-8")
     assert "UI.back_button(self.on_back)" in profile
-    assert "إصدار وثيقة لهذا الطالب" in profile
+    assert "إصدار كتاب لهذا الطالب" in profile

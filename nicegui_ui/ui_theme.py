@@ -139,7 +139,7 @@ NAV_ITEMS: list[dict] = [
     {"key": "students",    "ar": "الطلاب",          "en": "Students",          "icon": "people"},
     {"key": "orders",      "ar": "أوامر التخرج",    "en": "Graduation Orders", "icon": "school"},
     {"key": "courses",     "ar": "المواد الدراسية", "en": "Courses",           "icon": "book"},
-    {"key": "certificate",  "ar": "إصدار الوثيقة",       "en": "Issue Certificate",    "icon": "print"},
+    {"key": "certificate",  "ar": "إصدار كتاب",       "en": "Issue Certificate",    "icon": "print"},
     {"key": "issued_certs", "ar": "سجل الوثائق الصادرة", "en": "Issued Certificates",  "icon": "fact_check"},
     {"key": "settings",     "ar": "الإعدادات",           "en": "Settings",             "icon": "settings"},
 ]
@@ -161,7 +161,7 @@ QUICK_ACTIONS: list[dict] = [
         "target": "students",
     },
     {
-        "label_ar": "إصدار وثيقة",
+        "label_ar": "إصدار كتاب",
         "label_en": "Issue Certificate",
         "icon":   "workspace_premium",
         "target": "certificate",

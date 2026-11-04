@@ -269,7 +269,7 @@ class IssuedCertificatesScreen:
                 UI.empty_state("لا توجد وثيقة مطابقة", "غيّر عوامل التصفية أو امسحها.", icon="search_off",
                                action_text="مسح عوامل التصفية", on_action=self._reset_filters)
             else:
-                UI.empty_state("لم تصدر أي وثيقة بعد", "الوثائق التي تصدرها من شاشة إصدار الوثيقة تظهر هنا.",
+                UI.empty_state("لم تصدر أي وثيقة بعد", "الوثائق التي تصدرها من شاشة إصدار كتاب تظهر هنا.",
                                icon="fact_check")
             return
 

@@ -408,7 +408,7 @@ class MainAppShell:
             "orders":       "أوامر التخرج",
             "courses":      "المواد الدراسية",
             "personnel":    "الكوادر",
-            "certificate":  "إصدار وثيقة",
+            "certificate":  "إصدار كتاب",
             "issued_certs": "سجل الوثائق الصادرة",
             "history":      "سجل التغييرات",
             "settings":     "الإعدادات",
@@ -526,7 +526,7 @@ class MainAppShell:
         """
         [PAGE VIEW: DASHBOARD]
         1. Stats: Students, Issued certificates, Courses, Personnel (compact, one row when it fits)
-        2. One large primary tile "إصدار وثيقة" (+ a secondary "إضافة طالب")
+        2. One large primary tile "إصدار كتاب" (+ a secondary "إضافة طالب")
         3. Recent students and recent issued certificates, side by side when wide
         """
         @ui.refreshable
@@ -551,7 +551,7 @@ class MainAppShell:
             with tile:
                 ui.icon("workspace_premium", size="32px")
                 with ui.column().classes("gap-0 min-w-0"):
-                    ui.label("إصدار وثيقة").classes("text-lg font-bold")
+                    ui.label("إصدار كتاب").classes("text-lg font-bold")
                     ui.label("اختر الطالب ثم نوع الوثيقة ثم أصدرها").classes("text-sm opacity-90")
                 ui.icon("arrow_back", size="24px").classes("ms-auto")
             UI.secondary_button("إضافة طالب", icon="person_add", on_click=self._open_add_student).classes("self-center")
@@ -582,7 +582,7 @@ class MainAppShell:
                     )
                     s_table.on("rowClick", lambda e: self._go_to_cert_for_student(e.args[1].get("raw_data") or e.args[1]))
                     with ui.row().classes("w-full"):
-                        ui.label("انقر على طالب لإصدار وثيقة له").classes("app-caption")
+                        ui.label("انقر على طالب لإصدار كتاب له").classes("app-caption")
                 else:
                     UI.empty_state("لا يوجد طلاب بعد", "أضف أول طالب من شاشة الطلاب.", icon="people")
 
@@ -618,7 +618,7 @@ class MainAppShell:
                     with ui.row().classes("w-full"):
                         ui.label("انقر على وثيقة لفتحها").classes("app-caption")
                 else:
-                    UI.empty_state("لم تصدر وثائق بعد", "ابدأ من «إصدار وثيقة».", icon="description")
+                    UI.empty_state("لم تصدر وثائق بعد", "ابدأ من «إصدار كتاب».", icon="description")
 
     def _open_add_student(self) -> None:
         """Add Student from anywhere: go to Students and open the add form."""

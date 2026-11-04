@@ -15,6 +15,9 @@ import app_paths
 
 from nicegui_ui.ui_components import UI
 from nicegui_ui.template_constants import get_friendly_template_name, get_template_label_ar
+from nicegui_ui.issue_helpers import (
+    GRADUATES_SOURCES, filter_templates_for_system, graduates_count, group_transcript, template_option_label,
+)
 from utils.display_format import format_average
 from data.repositories import StudentRepository, CertificateRepository, PersonnelRepository, IssuedCertificateRepository
 from data.repositories.certificates import CertificateRejected
@@ -76,7 +79,7 @@ class CertificateScreen:
     def _format_template_options(self, template_files: list[str]) -> dict:
         """Template picker options: an Arabic display name, never the file name."""
         return {
-            t: (get_template_label_ar(t) if t and not t.startswith("لا توجد") else t)
+            t: (template_option_label(t) if t and not t.startswith("لا توجد") else t)
             for t in template_files
         }
 
@@ -103,25 +106,7 @@ class CertificateScreen:
             if not files:
                 return ["لا توجد قوالب"]
 
-            if not data:
-                data = self.student_full_data or {}
-
-            period_disp = str(data.get("period_display") or "").lower().strip()
-            calc_rule = str(data.get("calculation_rule") or "").lower().strip()
-
-            if "semester" in period_disp or "semester" in calc_rule:
-                system_keys = ["semester", "sem"]
-            elif "year" in period_disp or "annual" in calc_rule or "year" in calc_rule:
-                system_keys = ["year", "annual"]
-            else:
-                system_keys = []
-
-            if system_keys:
-                matching = [f for f in files if any(k in f.lower() for k in system_keys)]
-                if matching:
-                    return matching
-
-            return files
+            return filter_templates_for_system(files, data or self.student_full_data or {})
         except Exception:
             return ["لا توجد قوالب"]
 
@@ -173,10 +158,23 @@ class CertificateScreen:
                         with ui.column().classes("gap-3 min-w-0"):
                             initial_templates = self.get_templates()
                             self.template_sel = UI.select(
-                                "نوع الوثيقة والقالب",
+                                "القالب",
                                 options=self._format_template_options(initial_templates),
                                 value=initial_templates[0] if initial_templates else None
-                            ).classes("w-full")
+                            ).classes("w-full app-template-select")
+                            # Two lines: the template name, then its variant (language • marks)
+                            self.template_sel.add_slot("option", r"""
+                                <q-item v-bind="props.itemProps">
+                                  <q-item-section>
+                                    <q-item-label>{{ String(props.opt.label).split('\n')[0] }}</q-item-label>
+                                    <q-item-label caption>{{ String(props.opt.label).split('\n')[1] || '' }}</q-item-label>
+                                  </q-item-section>
+                                </q-item>""")
+                            self.template_sel.add_slot("selected-item", r"""
+                                <div class="app-template-value">
+                                  <div>{{ String(props.opt.label).split('\n')[0] }}</div>
+                                  <div class="app-caption">{{ String(props.opt.label).split('\n')[1] || '' }}</div>
+                                </div>""")
 
                             self.to_input = UI.text_input(
                                 "إلى (الجهة المعنية)",
@@ -265,36 +263,31 @@ class CertificateScreen:
                             ).classes("w-full")
 
                             def on_rank_source_change(e):
-                                if not hasattr(self, "student_full_data") or not self.student_full_data: return
+                                if not getattr(self, "student_full_data", None):
+                                    return
                                 src = e.value
-                                order_cnt = self.student_full_data.get("order_num_students")
-                                custom_cnt = self.student_full_data.get("postgraduation_number")
-                                db_cnt = self.student_full_data.get("db_total_graduates")
-
-                                if src == "custom":
-                                    sel_val = custom_cnt if custom_cnt is not None and str(custom_cnt).strip() != "" else ""
-                                elif src == "order":
-                                    sel_val = order_cnt if order_cnt is not None and str(order_cnt).strip() != "" else ""
-                                elif src == "db":
-                                    sel_val = db_cnt if db_cnt is not None and str(db_cnt).strip() != "" else ""
+                                if src == "manual":
+                                    self.inp_rank_total.props(remove="readonly")
+                                    val = graduates_count("manual", self.student_full_data, self.inp_rank_total.value or "")
                                 else:
-                                    sel_val = ""
-
-                                self.inp_rank_total.value = str(sel_val) if sel_val != "" else ""
-                                self.student_full_data["total_graduates"] = sel_val
+                                    self.inp_rank_total.props("readonly")
+                                    val = graduates_count(src, self.student_full_data)
+                                self.inp_rank_total.value = val
+                                self.student_full_data["total_graduates"] = val
 
                             with ui.row().classes("w-full gap-3"):
                                 self.rank_source_sel = UI.select(
                                     "مصدر عدد الخريجين",
-                                    options={
-                                        "order": "الأمر الجامعي",
-                                        "custom": "يدوي للطالب",
-                                        "db": "قاعدة البيانات"
-                                    },
+                                    options=dict(GRADUATES_SOURCES),
                                     value="order",
                                     on_change=on_rank_source_change
                                 ).classes("flex-1 min-w-[200px]")
-                                self.inp_rank_total = UI.text_input("إجمالي الخريجين", value="").classes("flex-1 min-w-[160px]")
+                                self.inp_rank_total = UI.text_input("إجمالي الخريجين", value="").classes("flex-1 min-w-[160px]").props("readonly")
+
+                                def _manual_total(e):
+                                    if self.rank_source_sel.value == "manual" and getattr(self, "student_full_data", None):
+                                        self.student_full_data["total_graduates"] = (e.value or "").strip()
+                                self.inp_rank_total.on_value_change(_manual_total)
                                 self.inp_rank_avg = UI.text_input("معدل الطالب الأول", value="").classes("flex-1 min-w-[160px]")
 
                             UI.ghost_button("تعديل بيانات الطالب", icon="edit", on_click=self.handle_edit_student)
@@ -568,32 +561,31 @@ class CertificateScreen:
         if isinstance(st_info, list) and st_info:
             st_info = st_info[0]
         is_sem = "semester" in str(st_info.get("period_display") or data.get("period_display") or "").lower()
-        rows = []
-        for i, c in enumerate(courses):
-            stg = c.get("period_stage") or c.get("stage_number") or c.get("course_curriculum_stage") or ""
-            year = str(c.get("academic_year_formatted") or c.get("academic_year") or "")
-            parts = [f"المرحلة {stg}" if stg else "", year]
-            if is_sem and c.get("semester_num"):
-                parts.append(f"الفصل {c.get('semester_num')}")
-            pr = str(c.get("passed_round") or "1")
-            rows.append({
-                "id": i,
-                "group": " • ".join(p for p in parts if p) or "—",
-                "course": c.get("subject_name") or c.get("course_name_ar") or c.get("course_name_en") or "—",
-                "mark": c.get("mark", "—"),
-                "unit": c.get("unit", "—"),
-                "round": "الدور الثاني" if (pr in ("2", "3") or c.get("is_second_round")) else "",
-            })
-        table = UI.data_table([
-            {"name": "group", "label": "المرحلة والسنة", "field": "group", "align": "right"},
-            {"name": "course", "label": "المادة", "field": "course", "align": "right"},
-            {"name": "mark", "label": "الدرجة", "field": "mark"},
-            {"name": "unit", "label": "الوحدات", "field": "unit"},
-            {"name": "round", "label": "", "field": "round"},
-        ], rows)
-        table.add_slot("body-cell-round", """
-            <q-td :props="props"><span v-if="props.value" class="app-chip app-chip--warning">{{ props.value }}</span></q-td>
-        """)
+        for gi, group in enumerate(group_transcript(courses, is_sem)):
+            with ui.column().classes("app-transcript-group w-full gap-2"):
+                with ui.row().classes("app-transcript-group-head w-full items-center no-wrap"):
+                    ui.label(group["header"]).classes("font-semibold")
+                    ui.space()
+                    ui.label(f"{len(group['courses'])} مادة").classes("app-caption")
+                rows = []
+                for i, c in enumerate(group["courses"]):
+                    pr = str(c.get("passed_round") or "1")
+                    rows.append({
+                        "id": f"{gi}-{i}",
+                        "course": c.get("subject_name") or c.get("course_name_ar") or c.get("course_name_en") or "—",
+                        "mark": c.get("mark", "—"),
+                        "unit": c.get("unit", "—"),
+                        "round": "الدور الثاني" if (pr in ("2", "3") or c.get("is_second_round")) else "",
+                    })
+                table = UI.data_table([
+                    {"name": "course", "label": "المادة", "field": "course", "align": "right"},
+                    {"name": "mark", "label": "الدرجة", "field": "mark"},
+                    {"name": "unit", "label": "الوحدات", "field": "unit"},
+                    {"name": "round", "label": "", "field": "round"},
+                ], rows)
+                table.add_slot("body-cell-round", """
+                    <q-td :props="props"><span v-if="props.value" class="app-chip app-chip--warning">{{ props.value }}</span></q-td>
+                """)
 
     def handle_edit_student(self):
         """Triggers navigation to Students Management screen to edit selected student."""
@@ -701,9 +693,13 @@ class CertificateScreen:
         if not rank_val_def and hasattr(self, "selected_student") and self.selected_student:
             rank_val_def = self.selected_student.get("sequence_number") or self.selected_student.get("rank")
 
-        total_grad_def = data.get("total_graduates") or data.get("postgraduation_number") or data.get("order_num_students") or data.get("num_students")
-        if not total_grad_def and hasattr(self, "selected_student") and self.selected_student:
-            total_grad_def = self.selected_student.get("postgraduation_number") or self.selected_student.get("total_graduates")
+        # Graduates count: the graduation order first, else the student's own information
+        src = "order" if graduates_count("order", data) else "student"
+        total_grad_def = graduates_count(src, data)
+        if hasattr(self, "rank_source_sel") and self.rank_source_sel:
+            self.rank_source_sel.set_value(src)
+            self.inp_rank_total.props("readonly")
+        data["total_graduates"] = total_grad_def
 
         top_avg_val_def = data.get("top_average")
 
