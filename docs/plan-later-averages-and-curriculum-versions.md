@@ -73,3 +73,22 @@ One SP per rule, both reading only the student's own enrollments:
 ## Order
 1 → 2 → 3 → 4. Phase 1 can start right after the pilot; phase 3 waits for the
 user's hand-worked examples.
+
+---
+
+## Also later — two-stage certificate numbers (reported 2026-11-05)
+
+Letters signed by the university president are printed first with a **secret
+(temporary) number**, sent for signature, and get the **public issued number**
+only when they come back. Letters issued by the college itself get the public
+number at once.
+
+- `sql/fixes`: on `issued_certificates` add `number_stage` (`secret`/`public`),
+  `secret_number`, `public_number_date`; a separate numbering sequence for
+  secret numbers; extend the unique key (see the later list, item 1).
+- «إصدار كتاب»: a switch «يُرسل لرئاسة الجامعة للتوقيع» → takes a secret number.
+- «سجل الوثائق الصادرة»: filter «بانتظار الرقم العام» and an action
+  «تثبيت الرقم العام» that assigns the next public number and re-prints/updates
+  the Word file.
+- Goes together with the offline-issuing fixes (numbers must not be computed
+  from the stale local cache).
