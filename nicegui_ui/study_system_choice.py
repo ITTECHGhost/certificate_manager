@@ -9,13 +9,19 @@
 
 from __future__ import annotations
 
-DAY_LABELS = {"morning": "صباحي", "evening": "مسائي"}
+DAY_LABELS = {"morning": "صباحي", "evening": "مسائي", "parallel": "موازي"}
+
+# The database column study_day_type allows Morning / Evening / Other. Until a
+# shifts table exists, "Other" is shown and saved as «موازي» (parallel).
+DAY_TO_DB = {"morning": "Morning", "evening": "Evening", "parallel": "Other"}
 
 
 def normalize_day(raw) -> str:
     d = str(raw or "").strip().lower()
     if d in ("evening", "night", "مسائي", "المسائية", "مسائية", "مساء"):
         return "evening"
+    if d in ("other", "parallel", "موازي", "الموازي", "موازية"):
+        return "parallel"
     return "morning"
 
 
@@ -47,7 +53,7 @@ def split_systems(systems: list[dict]):
         lookup.setdefault((key, day), sid)
         by_id[sid] = (key, day)
     # Morning first
-    days = {d: days[d] for d in ("morning", "evening") if d in days}
+    days = {d: days[d] for d in ("morning", "evening", "parallel") if d in days}
     return kinds, days, lookup, by_id
 
 
@@ -90,3 +96,52 @@ class StudySystemPicker:
             ui.notify("هذا النظام غير متاح بهذا النوع من الدراسة", type="warning")
         if self._on_change:
             self._on_change(self.value)
+
+
+# ── Settings: one block per system, its shifts inside ───────────────────────
+
+RULE_LABELS = {"annual": "سنوي", "semester": "فصلي / مقررات"}
+PERIOD_LABELS = {"year": "سنة", "semester": "فصل"}
+
+
+def group_systems(systems: list[dict]) -> list[dict]:
+    """Rows grouped into systems: {key, name_ar, name_en, rule, period, weights, shifts: [row…]}."""
+    groups: dict[str, dict] = {}
+    for s in systems or []:
+        key = system_key(s)
+        g = groups.get(key)
+        if g is None:
+            g = groups[key] = {
+                "key": key,
+                "name_ar": s.get("name_ar") or "",
+                "name_en": s.get("name_en") or "",
+                "rule": s.get("calculation_rule") or "annual",
+                "period": s.get("period_display") or "year",
+                "weights": s.get("calculation_weights") or "",
+                "shifts": [],
+            }
+        g["shifts"].append({**s, "day": normalize_day(s.get("study_day_type") or s.get("study_type"))})
+    order = list(DAY_LABELS)
+    for g in groups.values():
+        g["shifts"].sort(key=lambda r: order.index(r["day"]))
+    return list(groups.values())
+
+
+def missing_days(group: dict) -> dict[str, str]:
+    """The shifts this system does not have yet."""
+    have = {r["day"] for r in group.get("shifts", [])}
+    return {d: lbl for d, lbl in DAY_LABELS.items() if d not in have}
+
+
+def system_name_warning(name_ar: str, rule: str, period: str) -> str:
+    """A warning when the Arabic name says one system and the rule says another ('' if fine)."""
+    name = name_ar or ""
+    says_semester = any(w in name for w in ("فصلي", "مقررات", "فصل"))
+    says_annual = "سنوي" in name
+    if says_semester and rule == "annual":
+        return "الاسم يدل على نظام فصلي لكن قاعدة الحساب سنوية"
+    if says_annual and rule == "semester":
+        return "الاسم يدل على نظام سنوي لكن قاعدة الحساب فصلية"
+    if rule == "annual" and period == "semester":
+        return "قاعدة الحساب سنوية لكن الفترة فصل"
+    return ""
