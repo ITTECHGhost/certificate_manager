@@ -842,6 +842,9 @@ input, textarea { caret-color: var(--accent); }
   background: var(--surface-card);
 }
 
+/* Long text cells wrap instead of pushing columns off narrow windows */
+.q-table td.app-cell-wrap { white-space: normal; min-width: 110px; }
+
 /* Issue wizard: one switch per document item, its fields beside it when on */
 .app-option-row {
   padding: var(--space-2) var(--space-3);

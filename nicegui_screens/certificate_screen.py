@@ -1116,7 +1116,8 @@ class CertificateScreen:
                 log.error(f"Error generating certificate: {err}")
                 UI.notify(f"خطأ أثناء توليد الوثيقة: {err}", type="negative")
             return False
-    def show_in_app_print_dialog(self, pdf_path: str | None, docx_path: str):
+    @classmethod
+    def show_in_app_print_dialog(cls, pdf_path: str | None, docx_path: str):
         """The issued document: its PDF preview beside the printer, copies and one print button."""
         rel_doc_name = os.path.basename(docx_path)
 
@@ -1197,7 +1198,7 @@ class CertificateScreen:
                         UI.primary_button("طباعة الآن", icon="print", on_click=do_print_now).classes("w-full")
                         if pdf_path:
                             UI.secondary_button("عرض ملف PDF في المجلد", icon="folder_open",
-                                                on_click=lambda: self._show_in_folder(pdf_path)).classes("w-full")
+                                                on_click=lambda: cls._show_in_folder(pdf_path)).classes("w-full")
                         UI.ghost_button("إغلاق", on_click=print_dialog.close).classes("w-full")
 
         print_dialog.open()

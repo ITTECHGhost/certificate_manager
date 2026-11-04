@@ -3,12 +3,15 @@
 # =============================================================================
 
 import io
+import os
+import re
 import csv
+import urllib.parse
 import logging
 from datetime import datetime
 from typing import Optional, List, Dict, Any
 
-from nicegui import ui
+from nicegui import run, ui
 from nicegui_ui.ui_components import UI
 from nicegui_ui.ui_theme import Styles
 from data.repositories import (
@@ -21,8 +24,10 @@ from nicegui_ui.template_constants import (
     get_friendly_template_name,
     get_template_filter_options,
     load_templates_config,
+    get_template_label_ar,
 )
 from utils.file_delivery import deliver_file
+import app_paths
 
 log = logging.getLogger(__name__)
 
@@ -53,11 +58,47 @@ def extract_event_val(e, default=None):
     return default
 
 
+def template_filter_options_ar() -> dict:
+    """Filter keys stay the standard names the matcher uses; the labels are Arabic."""
+    return {k: (v if k == "all" else get_template_label_ar(k)) for k, v in get_template_filter_options().items()}
+
+
+def sort_newest_first(records: list[dict]) -> list[dict]:
+    """Latest issue date first; the higher record id breaks ties (same order online and offline)."""
+    def key(r):
+        cid = r.get("certificate_id") or r.get("id") or 0
+        try:
+            cid = int(cid)
+        except (TypeError, ValueError):
+            cid = 0
+        return (str(r.get("issue_date") or ""), cid)
+    return sorted(records, key=key, reverse=True)
+
+
+def find_issued_files(certificate_number) -> tuple[str | None, str | None]:
+    """The saved Word file of an issued certificate (and its PDF, if made), found by the
+    number that leads its file name; (None, None) when this computer does not have it."""
+    num = str(certificate_number or "").strip()
+    if not num or num == "—":
+        return None, None
+    safe_num = re.sub(r'[\\/*?:"<>|]', "-", num).strip()
+    folder = str(app_paths.data_path("certificates"))
+    try:
+        names = [n for n in os.listdir(folder) if n.lower().endswith(".docx") and n.startswith(safe_num + " - ")]
+    except OSError:
+        return None, None
+    if not names:
+        return None, None
+    docx = max((os.path.join(folder, n) for n in names), key=os.path.getmtime)
+    pdf = os.path.splitext(docx)[0] + ".pdf"
+    return docx, (pdf if os.path.exists(pdf) else None)
+
+
 def format_template_display(raw_tmpl: str) -> str:
     """Formats raw template filename or key into a clean, compact label."""
     if not raw_tmpl:
         return "وثيقة"
-    return get_short_template_badge(raw_tmpl)
+    return get_template_label_ar(raw_tmpl)
 
 
 class IssuedCertificatesScreen:
@@ -100,49 +141,30 @@ class IssuedCertificatesScreen:
         self.page_info_label = None
         self.prev_btn = None
         self.next_btn = None
+        self.loading = True
 
-        self.container = ui.column().classes("w-full max-w-full gap-3 p-0")
+        self.container = ui.column().classes("w-full gap-4")
         self.show_view()
 
     def show_view(self) -> None:
         self.container.clear()
         with self.container:
-            with UI.card().classes("w-full max-w-full p-3.5 gap-2.5"):
-                # ── 1. Top Header Row ─────────────────────────────────────────
-                with ui.row().classes(
-                    "w-full justify-between items-center pb-2 border-b border-[var(--border-default)] app-card-header shrink-0 flex-wrap gap-2"
-                ):
-                    with ui.row().classes("items-center gap-2.5"):
-                        ui.icon("fact_check", size="sm").classes("app-text-accent")
-                        ui.label("سجل الوثائق الصادرة").classes(
-                            "text-base font-bold app-text-primary"
-                        )
-                        self.count_badge = ui.label("0 وثيقة").classes(
-                            "px-2.5 py-0.5 rounded-lg bg-blue-100 dark:bg-blue-900/40 text-blue-800 dark:text-blue-300 font-bold text-xs border border-blue-300 dark:border-blue-700"
-                        )
+            with UI.card().classes("gap-4"):
+                # ── Header: count, export, refresh ───────────────────────────
+                with ui.row().classes("w-full items-center gap-2"):
+                    ui.label("سجل الوثائق الصادرة").classes("app-section-title")
+                    self.count_badge = UI.chip("0 وثيقة")
+                    ui.space()
+                    UI.icon_button("refresh", "تحديث القائمة", on_click=self.load_data)
+                    UI.secondary_button("تصدير CSV", icon="file_download", on_click=self._export_csv)
 
-                    with ui.row().classes("items-center gap-2 shrink-0"):
-                        # Export CSV button
-                        UI.success_button(
-                            "تصدير CSV",
-                            icon="file_download",
-                            on_click=self._export_csv
-                        ).classes("text-xs px-3 py-1.5")
-
-                        # Refresh button
-                        UI.secondary_button(
-                            "تحديث",
-                            icon="refresh",
-                            on_click=self.load_data
-                        ).classes("text-xs px-3 py-1.5")
-
-                # ── 2. Filters Toolbar (ALL CONTROLS IN ONE COMPACT ROW) ──────
+                # ── Filters: one row on wide windows, wrapping on narrow ones ─
                 dept_options = {0: "كل الأقسام"}
                 try:
                     depts = self.dept_repo.get_all() or []
                     for d in depts:
                         d_id = d.get("id") or d.get("department_id")
-                        d_name = d.get("name_ar") or d.get("dept_name_ar") or f"Dept {d_id}"
+                        d_name = d.get("name_ar") or d.get("dept_name_ar") or f"قسم {d_id}"
                         if d_id:
                             dept_options[int(d_id)] = d_name
                 except Exception as e:
@@ -170,276 +192,120 @@ class IssuedCertificatesScreen:
                 for y in sorted(year_set, reverse=True):
                     year_options[y] = str(y)
 
-                with ui.row().classes(
-                    "w-full items-center gap-2 flex-nowrap p-1.5 rounded-xl border border-[var(--border-default)] bg-slate-50 dark:bg-slate-900/50 shrink-0"
-                ):
-                    # 1. Search Input (Flexible)
-                    def _on_search_change(e):
+                with ui.row().classes("app-filter-row w-full items-center gap-2"):
+                    async def _on_search_change(e):
                         val = extract_event_val(e, default="")
                         self.search_text = str(val or "").strip()
                         self.current_offset = 0
-                        self.load_data()
+                        await self.load_data()
 
-                    self.search_input = ui.input(
-                        placeholder="بحث بالرقم أو اسم الطالب...",
-                        on_change=_on_search_change
-                    ).classes(
-                        "app-input rounded-xl text-xs flex-1 min-w-[140px]"
-                    ).props('outlined dense clearable')
+                    self.search_input = UI.search_input(
+                        placeholder="ابحث برقم الوثيقة أو اسم الطالب",
+                        on_change=_on_search_change,
+                    ).classes("flex-1 min-w-[220px]")
 
-                    # 2. Department Select
-                    def _on_dept_change(e):
+                    async def _on_dept_change(e):
                         val = extract_event_val(e, default=0)
                         try:
                             self.selected_dept_id = int(val) if int(val) != 0 else None
                         except Exception:
                             self.selected_dept_id = None
                         self.current_offset = 0
-                        self.load_data()
+                        await self.load_data()
 
-                    self.dept_select = ui.select(
-                        options=dept_options,
-                        label="القسم",
-                        value=0,
-                        on_change=_on_dept_change
-                    ).classes(
-                        "app-input rounded-xl text-xs w-36 shrink-0"
-                    ).props("outlined dense options-dense")
+                    self.dept_select = UI.select("القسم", options=dept_options, value=0,
+                                                 on_change=_on_dept_change).classes("w-52", remove="w-full")
 
-                    # 3. Graduation Year Select
-                    def _on_year_change(e):
+                    async def _on_year_change(e):
                         val = extract_event_val(e, default=0)
                         try:
                             self.selected_year = int(val) if int(val) != 0 else None
                         except Exception:
                             self.selected_year = None
                         self.current_offset = 0
-                        self.load_data()
+                        await self.load_data()
 
-                    self.year_select = ui.select(
-                        options=year_options,
-                        label="السنة",
-                        value=0,
-                        on_change=_on_year_change
-                    ).classes(
-                        "app-input rounded-xl text-xs w-28 shrink-0"
-                    ).props("outlined dense options-dense")
+                    self.year_select = UI.select("سنة التخرج", options=year_options, value=0,
+                                                 on_change=_on_year_change).classes("w-36", remove="w-full")
 
-                    # 4. Study Type Select
-                    def _on_study_change(e):
+                    async def _on_study_change(e):
                         val = extract_event_val(e, default="all")
                         self.selected_study_type = str(val or "all")
                         self.current_offset = 0
-                        self.load_data()
+                        await self.load_data()
 
-                    self.study_select = ui.select(
-                        options=STUDY_TYPE_OPTIONS,
-                        label="الدراسة",
-                        value="all",
-                        on_change=_on_study_change
-                    ).classes(
-                        "app-input rounded-xl text-xs w-28 shrink-0"
-                    ).props("outlined dense options-dense")
+                    self.study_select = UI.select("الدراسة", options=STUDY_TYPE_OPTIONS, value="all",
+                                                  on_change=_on_study_change).classes("w-40", remove="w-full")
 
-                    # 5. Template Type Select
-                    def _on_template_change(e):
+                    async def _on_template_change(e):
                         val = extract_event_val(e, default="all")
                         self.selected_template = str(val or "all")
                         self.current_offset = 0
-                        self.load_data()
+                        await self.load_data()
 
-                    self.tmpl_select = ui.select(
-                        options=get_template_filter_options(),
-                        label="النموذج",
-                        value="all",
-                        on_change=_on_template_change
-                    ).classes(
-                        "app-input rounded-xl text-xs w-48 shrink-0"
-                    ).props("outlined dense options-dense")
+                    self.tmpl_select = UI.select("نوع الوثيقة", options=template_filter_options_ar(), value="all",
+                                                 on_change=_on_template_change).classes("w-56", remove="w-full")
 
-                    # 6. Reset Filters Button (Compact icon button)
-                    ui.button(
-                        icon="filter_alt_off",
-                        color=None,
-                        on_click=self._reset_filters
-                    ).classes(
-                        "app-btn-secondary p-2 rounded-xl text-xs shrink-0 shadow-none"
-                    ).tooltip("مسح الفلاتر")
+                    UI.icon_button("filter_alt_off", "مسح عوامل التصفية", on_click=self._reset_filters)
 
-                # ── 3. Main Data Table (100% Window Width, NO Horizontal Scroll) ─
-                columns = [
-                    {
-                        "name": "certificate_number",
-                        "label": "الرقم",
-                        "field": "certificate_number",
-                        "align": "center",
-                        "headerClasses": "text-center w-20",
-                        "sortable": True,
-                    },
-                    {
-                        "name": "student_name",
-                        "label": "الطالب",
-                        "field": "student_name_ar",
-                        "align": "right",
-                        "sortable": True,
-                    },
-                    {
-                        "name": "template_type",
-                        "label": "نوع الوثيقة",
-                        "field": "template_type_display",
-                        "align": "center",
-                        "headerClasses": "text-center w-24",
-                        "sortable": True,
-                    },
-                    {
-                        "name": "to_title",
-                        "label": "الجهة المرسل إليها",
-                        "field": "to_title",
-                        "align": "right",
-                        "headerClasses": "text-right w-32",
-                        "sortable": True,
-                    },
-                    {
-                        "name": "issue_date",
-                        "label": "تاريخ الإصدار",
-                        "field": "issue_date",
-                        "align": "center",
-                        "headerClasses": "text-center w-20",
-                        "sortable": True,
-                    },
-                    {
-                        "name": "actions",
-                        "label": "",
-                        "field": "actions",
-                        "align": "center",
-                        "headerClasses": "text-center w-16",
-                    },
-                ]
+                # ── List: a skeleton first, then the table and one paginator ─
+                @ui.refreshable
+                def body_view():
+                    if self.loading:
+                        UI.skeleton(rows=6, height=44)
+                        return
+                    self._build_table()
 
-                with ui.column().classes("w-full max-w-full min-h-0"):
-                    self.table = ui.table(
-                        columns=columns,
-                        rows=[],
-                        row_key="certificate_id"
-                    ).classes(Styles.TABLE_CLASSES).classes("w-full").props("flat bordered dense hide-bottom")
+                body_view()
+                self._body_view = body_view
 
-                    # Slot: Certificate Number badge
-                    self.table.add_slot(
-                        "body-cell-certificate_number",
-                        """
-                        <q-td :props="props">
-                            <div class="row items-center justify-center">
-                                <span class="px-2 py-0.5 rounded-md bg-blue-500/15 text-blue-400 font-mono text-xs font-bold">
-                                    {{ props.row.certificate_number || '—' }}
-                                </span>
-                            </div>
-                        </q-td>
-                        """
-                    )
+        # Fetch after the page is on screen, so the skeleton shows at once
+        ui.timer(0.01, self.load_data, once=True)
 
-                    # Slot: Stacked Student Name (Arabic + English)
-                    self.table.add_slot(
-                        "body-cell-student_name",
-                        """
-                        <q-td :props="props">
-                            <div class="flex flex-col text-right leading-tight py-0.5">
-                                <span class="font-bold app-text-primary text-xs">{{ props.row.student_name_ar }}</span>
-                                <span v-if="props.row.student_name_en" class="text-[10px] app-text-muted font-mono" dir="ltr">{{ props.row.student_name_en }}</span>
-                            </div>
-                        </q-td>
-                        """
-                    )
+    def _build_table(self) -> None:
+        total_count = len(self.all_records)
+        if not total_count:
+            if self._has_filters():
+                UI.empty_state("لا توجد وثيقة مطابقة", "غيّر عوامل التصفية أو امسحها.", icon="search_off",
+                               action_text="مسح عوامل التصفية", on_action=self._reset_filters)
+            else:
+                UI.empty_state("لم تصدر أي وثيقة بعد", "الوثائق التي تصدرها من شاشة إصدار الوثيقة تظهر هنا.",
+                               icon="fact_check")
+            return
 
-                    # Slot: Template Type badge (Compact label with tooltip)
-                    self.table.add_slot(
-                        "body-cell-template_type",
-                        """
-                        <q-td :props="props">
-                            <div class="row items-center justify-center">
-                                <span class="px-1.5 py-0.5 rounded text-[11px] font-medium bg-slate-200 dark:bg-slate-800 text-slate-800 dark:text-slate-300 border border-slate-300 dark:border-slate-700 truncate inline-block max-w-[110px]" :title="props.row.raw_template_type">
-                                    {{ props.row.template_type_display }}
-                                </span>
-                            </div>
-                        </q-td>
-                        """
-                    )
+        self.current_offset = min(self.current_offset, (total_count - 1) // self.current_limit * self.current_limit)
+        page_slice = self.all_records[self.current_offset:self.current_offset + self.current_limit]
+        self.records = [self._map_row(r) for r in page_slice]
 
-                    # Slot: To Title (Truncated if long)
-                    self.table.add_slot(
-                        "body-cell-to_title",
-                        """
-                        <q-td :props="props">
-                            <span class="text-xs truncate inline-block max-w-[100px]" :title="props.row.to_title">
-                                {{ props.row.to_title }}
-                            </span>
-                        </q-td>
-                        """
-                    )
+        self.table = UI.data_table([
+            {"name": "certificate_number", "label": "الرقم", "field": "certificate_number"},
+            {"name": "student_name", "label": "الطالب", "field": "student_name_ar", "align": "right"},
+            {"name": "template_type", "label": "الوثيقة", "field": "template_type_display", "align": "right", "classes": "app-cell-wrap"},
+            {"name": "to_title", "label": "إلى", "field": "to_title", "align": "right", "classes": "app-cell-wrap"},
+            {"name": "issue_date", "label": "تاريخ الإصدار", "field": "issue_date"},
+        ], self.records, row_key="certificate_id", clickable=True)
+        self.table.add_slot("body-cell-certificate_number", """
+            <q-td :props="props"><span class="font-semibold app-text-primary" dir="ltr">{{ props.value }}</span></q-td>
+        """)
+        self.table.add_slot("body-cell-student_name", """
+            <q-td :props="props">
+                <div class="flex flex-col text-right leading-tight">
+                    <span class="font-semibold app-text-primary">{{ props.row.student_name_ar }}</span>
+                    <span v-if="props.row.student_name_en" class="app-caption" dir="ltr">{{ props.row.student_name_en }}</span>
+                </div>
+            </q-td>
+        """)
+        self.table.on("rowClick", lambda e: self._show_cert_detail(e.args[1]))
 
-                    # Slot: Actions (Edit + Delete buttons)
-                    self.table.add_slot(
-                        "body-cell-actions",
-                        """
-                        <q-td :props="props">
-                            <div class="row items-center justify-center gap-1 no-wrap">
-                                <q-btn size="sm" flat round dense color="primary" icon="edit" title="تعديل القيد" @click.stop="$parent.$emit('edit_cert', props.row)">
-                                    <q-tooltip class="bg-indigo-700 text-white font-bold">تعديل قيد الوثيقة</q-tooltip>
-                                </q-btn>
-                                <q-btn size="sm" flat round dense color="grey-7" class="hover:text-red-500" icon="delete" title="حذف القيد" @click.stop="$parent.$emit('delete_cert', props.row)">
-                                    <q-tooltip class="bg-rose-700 text-white font-bold">حذف قيد الوثيقة</q-tooltip>
-                                </q-btn>
-                            </div>
-                        </q-td>
-                        """
-                    )
+        UI.paginator(total_count, self.current_offset // self.current_limit + 1, self.current_limit, self._go_to_page)
 
-                    # Row click opens the detail dialog: the table keeps only the main fields
-                    self.table.on("rowClick", lambda e: self._show_cert_detail(e.args[1]))
-                    self.table.on("delete_cert", self._on_delete_clicked)
-                    self.table.on("edit_cert", self._on_edit_clicked)
+    def _go_to_page(self, page: int) -> None:
+        self.current_offset = max(0, (int(page) - 1) * self.current_limit)
+        self._update_table_view()
 
-                # ── 4. Pagination Footer ──────────────────────────────────────
-                with ui.row().classes(
-                    "w-full items-center justify-between mt-1 px-2 py-1 border-t border-[var(--border-default)] shrink-0"
-                ):
-                    with ui.row().classes("items-center gap-3"):
-                        self.page_info_label = ui.label("الصفحة 1").classes(
-                            "text-xs font-semibold app-text-primary"
-                        )
-
-                        # Rows per page selector
-                        def _on_limit_change(e):
-                            val = extract_event_val(e, default=25)
-                            try:
-                                self.current_limit = int(val or 25)
-                            except Exception:
-                                self.current_limit = 25
-                            self.current_offset = 0
-                            self._update_table_view()
-
-                        ui.select(
-                            options={25: "25 صف", 50: "50 صف", 100: "100 صف"},
-                            value=self.current_limit,
-                            on_change=_on_limit_change
-                        ).classes(
-                            "app-input rounded-xl text-xs w-22"
-                        ).props("outlined dense options-dense")
-
-                    with ui.row().classes("items-center gap-1.5"):
-                        self.prev_btn = UI.primary_button(
-                            "السابق",
-                            icon="chevron_right",
-                            on_click=self._prev_page
-                        ).props("dense outlined").classes("text-xs px-2.5 py-1")
-
-                        self.next_btn = UI.primary_button(
-                            "التالي",
-                            icon="chevron_left",
-                            on_click=self._next_page
-                        ).props("dense outlined").classes("text-xs px-2.5 py-1")
-
-        # Initial data fetch
-        self.load_data()
+    def _has_filters(self) -> bool:
+        return bool(self.search_text or self.selected_dept_id or self.selected_year
+                    or self.selected_study_type != "all" or self.selected_template != "all")
 
     @staticmethod
     def _matches_template(raw_tmpl: str, filter_key: str) -> bool:
@@ -457,14 +323,15 @@ class IssuedCertificatesScreen:
             return True
         return False
 
-    def load_data(self) -> None:
-        """Fetches certificate report from repository applying active search and filter parameters."""
+    async def load_data(self) -> None:
+        """Fetches the report with the active filters (newest first) and redraws the list."""
         try:
-            records = self.cert_repo.get_report(
+            records = await run.io_bound(
+                self.cert_repo.get_report,
                 dept_id=self.selected_dept_id,
                 graduation_year=self.selected_year,
                 study_system_id=None,
-                search_text=self.search_text
+                search_text=self.search_text,
             ) or []
 
             # 1. Filter by template type
@@ -484,104 +351,50 @@ class IssuedCertificatesScreen:
                     or (target_type == "evening" and "مساء" in str(r.get("study_day_type") or ""))
                 ]
 
-            self.all_records = records
-            self._update_table_view()
+            self.all_records = sort_newest_first(records)
         except Exception as ex:
             log.error(f"Failed to load issued certificates: {ex}")
-            ui.notify(f"خطأ في تحميل سجل الوثائق: {ex}", type="negative")
-
-    def _update_table_view(self) -> None:
-        """Formats records for ui.table and updates pagination slice."""
-        total_count = len(self.all_records)
-        if self.count_badge:
-            self.count_badge.set_text(f"{total_count} وثيقة صادرة")
-
-        # Slice current page
-        start_idx = self.current_offset
-        end_idx = start_idx + self.current_limit
-        page_slice = self.all_records[start_idx:end_idx]
-
-        mapped_rows = []
-        for r in page_slice:
-            cert_id = r.get("certificate_id") or r.get("id") or 0
-            cert_num = r.get("certificate_number") or "—"
-            name_ar = r.get("student_name_ar") or r.get("full_name_ar") or "—"
-            name_en = r.get("student_name_en") or r.get("full_name_en") or ""
-            student_id = r.get("student_id") or "—"
-            dept_name = (
-                r.get("department_name_ar")
-                or r.get("department_name")
-                or r.get("dept_name_ar")
-                or "—"
-            )
-            grad_year = r.get("graduation_year")
-            grad_year_display = str(grad_year) if grad_year and int(grad_year) > 0 else "—"
-
-            raw_study = str(r.get("study_day_type") or "").strip().lower()
-            if raw_study == "morning":
-                study_display = "صباحي"
-            elif raw_study == "evening":
-                study_display = "مسائي"
-            else:
-                study_display = raw_study or "—"
-
-            raw_tmpl = str(r.get("template_type") or "graduation")
-            tmpl_display = format_template_display(raw_tmpl)
-
-            to_title = r.get("to_title") or "من يهمه الأمر"
-            issue_date = r.get("issue_date") or "—"
-
-            mapped_rows.append({
-                "certificate_id": cert_id,
-                "id": cert_id,
-                "certificate_number": cert_num,
-                "student_name_ar": name_ar,
-                "student_name_en": name_en,
-                "student_id": student_id,
-                "department_name_ar": dept_name,
-                "graduation_year": grad_year_display,
-                "study_day_type": study_display,
-                "template_type_display": tmpl_display,
-                "raw_template_type": raw_tmpl,
-                "to_title": to_title,
-                "issue_date": issue_date,
-            })
-
-        self.records = mapped_rows
-        if self.table:
-            self.table.rows = mapped_rows
-            self.table.update()
-
-        # Update pagination controls
-        current_page = (self.current_offset // self.current_limit) + 1
-        total_pages = max(1, (total_count + self.current_limit - 1) // self.current_limit)
-        if self.page_info_label:
-            self.page_info_label.set_text(
-                f"الصفحة {current_page} من {total_pages} | الإجمالي: {total_count} وثيقة"
-            )
-
-        if self.prev_btn:
-            if self.current_offset == 0:
-                self.prev_btn.disable()
-            else:
-                self.prev_btn.enable()
-
-        if self.next_btn:
-            if end_idx >= total_count:
-                self.next_btn.disable()
-            else:
-                self.next_btn.enable()
-
-    def _prev_page(self) -> None:
-        self.current_offset = max(0, self.current_offset - self.current_limit)
+            self.all_records = []
+            UI.notify(f"تعذر تحميل سجل الوثائق: {ex}. تحقق من الاتصال ثم اضغط تحديث.", type="negative")
+        self.loading = False
         self._update_table_view()
 
-    def _next_page(self) -> None:
-        if self.current_offset + self.current_limit < len(self.all_records):
-            self.current_offset += self.current_limit
-            self._update_table_view()
+    def _update_table_view(self) -> None:
+        if self.count_badge:
+            self.count_badge.set_text(f"{len(self.all_records)} وثيقة")
+        if hasattr(self, "_body_view"):
+            self._body_view.refresh()
 
-    def _reset_filters(self) -> None:
+    @staticmethod
+    def _map_row(r: dict) -> dict:
+        cert_id = r.get("certificate_id") or r.get("id") or 0
+        grad_year = r.get("graduation_year")
+        try:
+            grad_year_display = str(grad_year) if grad_year and int(grad_year) > 0 else "—"
+        except (TypeError, ValueError):
+            grad_year_display = "—"
+
+        raw_study = str(r.get("study_day_type") or "").strip().lower()
+        study_display = {"morning": "صباحي", "evening": "مسائي"}.get(raw_study, raw_study or "—")
+        raw_tmpl = str(r.get("template_type") or "graduation")
+
+        return {
+            "certificate_id": cert_id,
+            "id": cert_id,
+            "certificate_number": r.get("certificate_number") or "—",
+            "student_name_ar": r.get("student_name_ar") or r.get("full_name_ar") or "—",
+            "student_name_en": r.get("student_name_en") or r.get("full_name_en") or "",
+            "student_id": r.get("student_id") or "—",
+            "department_name_ar": r.get("department_name_ar") or r.get("department_name") or r.get("dept_name_ar") or "—",
+            "graduation_year": grad_year_display,
+            "study_day_type": study_display,
+            "template_type_display": format_template_display(raw_tmpl),
+            "raw_template_type": raw_tmpl,
+            "to_title": r.get("to_title") or "من يهمه الأمر",
+            "issue_date": r.get("issue_date") or "—",
+        }
+
+    async def _reset_filters(self) -> None:
         """Resets all filters to initial states."""
         self.search_text = ""
         self.selected_dept_id = None
@@ -599,35 +412,95 @@ class IssuedCertificatesScreen:
         if self.study_select:
             self.study_select.value = "all"
         if self.tmpl_select:
-            self.tmpl_select.options = get_template_filter_options()
+            self.tmpl_select.options = template_filter_options_ar()
             self.tmpl_select.value = "all"
 
-        self.load_data()
+        await self.load_data()
 
     def _show_cert_detail(self, row: dict) -> None:
-        """Detail dialog for a clicked row: the fields the table no longer shows."""
+        """A clicked record: all its fields, reprint and PDF of the saved document, edit and delete."""
         if not row:
             return
-        details = (
-            ("الطالب", row.get("student_name_ar")),
-            ("الرقم الجامعي", row.get("student_id")),
-            ("القسم", row.get("department_name_ar")),
-            ("سنة التخرج", row.get("graduation_year")),
-            ("نظام الدراسة", row.get("study_day_type")),
-        )
-        with ui.dialog() as dialog, UI.card().classes("w-[420px] max-w-full gap-3"):
-            ui.label(f"الوثيقة رقم {row.get('certificate_number') or '—'}").classes("text-lg font-bold app-text-primary")
-            for label, value in details:
-                with ui.row().classes("w-full justify-between items-center no-wrap"):
-                    ui.label(label).classes("app-text-muted text-sm")
-                    ui.label(str(value or "—")).classes("app-text-primary text-sm font-bold text-right")
-            with ui.row().classes("w-full justify-end"):
-                UI.ghost_button("إغلاق", on_click=dialog.close)
+        docx_path, pdf_path = find_issued_files(row.get("certificate_number"))
+
+        with ui.dialog() as dialog, UI.card().classes("app-dialog gap-4").style("width: 600px"):
+            with ui.row().classes("w-full items-center no-wrap gap-2"):
+                ui.label(f"الوثيقة رقم {row.get('certificate_number') or '—'}").classes("app-section-title")
+                ui.space()
+                UI.icon_button("close", "إغلاق", on_click=dialog.close, dense=True)
+
+            UI.dl([
+                ("الطالب", row.get("student_name_ar")),
+                ("القسم", row.get("department_name_ar")),
+                ("الوثيقة", row.get("template_type_display")),
+                ("إلى", row.get("to_title")),
+                ("تاريخ الإصدار", row.get("issue_date")),
+                ("سنة التخرج", row.get("graduation_year")),
+                ("الدراسة", row.get("study_day_type")),
+            ])
+
+            if not docx_path:
+                with ui.row().classes("app-chip--warning w-full items-start gap-2 no-wrap rounded-lg p-3"):
+                    ui.icon("info", size="20px").classes("shrink-0")
+                    ui.label("ملف هذه الوثيقة غير موجود على هذا الجهاز. لطباعتها افتح القيد في شاشة الإصدار وأصدرها مجددًا.").classes("text-sm")
+
+            async def _reprint():
+                dialog.close()
+                await self._reprint(docx_path, pdf_path)
+
+            async def _open_pdf():
+                await self._open_pdf(docx_path, pdf_path)
+
+            # Dialogs opened from here belong to the page: one built inside this closed dialog never shows
+            def _edit():
+                dialog.close()
+                with self.container:
+                    self._on_edit_clicked(row)
+
+            def _delete():
+                dialog.close()
+                with self.container:
+                    self._on_delete_clicked(row)
+
+            with ui.row().classes("app-dialog-actions items-center"):
+                UI.danger_icon_button("delete", "حذف القيد", on_click=_delete)
+                ui.space()
+                UI.ghost_button("تعديل القيد", icon="edit", on_click=_edit)
+                pdf_btn = UI.secondary_button("ملف PDF", icon="picture_as_pdf", on_click=_open_pdf)
+                print_btn = UI.primary_button("إعادة الطباعة", icon="print", on_click=_reprint)
+                if not docx_path:
+                    pdf_btn.disable()
+                    print_btn.disable()
         dialog.open()
 
-    def _on_edit_clicked(self, msg) -> None:
-        """Triggered when the edit button is clicked on a table row."""
-        row_data = getattr(msg, "args", {}) or {}
+    @staticmethod
+    async def _ensure_pdf(docx_path: str, pdf_path: str | None) -> str | None:
+        if pdf_path and os.path.exists(pdf_path):
+            return pdf_path
+        from services.office_automation import generate_pdf_from_docx
+        UI.notify("جارٍ تحويل الوثيقة إلى PDF", type="info")
+        res = await run.io_bound(generate_pdf_from_docx, docx_path)
+        return res if res and os.path.exists(res) else None
+
+    async def _reprint(self, docx_path: str, pdf_path: str | None) -> None:
+        """Prints the saved document again; the record itself is not touched."""
+        from nicegui_screens.certificate_screen import CertificateScreen
+        pdf = await self._ensure_pdf(docx_path, pdf_path)
+        if pdf is None:
+            UI.notify("تعذر إنشاء معاينة PDF (يتطلب Microsoft Word)؛ يمكنك الطباعة مباشرة.", type="warning")
+        with self.container:
+            CertificateScreen.show_in_app_print_dialog(pdf, docx_path)
+
+    async def _open_pdf(self, docx_path: str, pdf_path: str | None) -> None:
+        pdf = await self._ensure_pdf(docx_path, pdf_path)
+        if pdf is None:
+            UI.notify("تعذر تحويل الوثيقة إلى PDF: يتطلب Microsoft Word.", type="negative")
+            return
+        ui.navigate.to(f"/certificates_files/{urllib.parse.quote(os.path.basename(pdf))}?v={int(os.path.getmtime(pdf))}",
+                       new_tab=True)
+
+    def _on_edit_clicked(self, row_data: dict) -> None:
+        """Opens the record in the issue screen (or, standalone, a small edit dialog)."""
         if not isinstance(row_data, dict):
             return
 
@@ -658,7 +531,7 @@ class IssuedCertificatesScreen:
         for k, v in config.items():
             d = v.get("display_name")
             if d:
-                tmpl_options[k] = d
+                tmpl_options[k] = get_template_label_ar(d)
 
         # Resolve selected option key
         selected_key = current_tmpl
@@ -720,9 +593,9 @@ class IssuedCertificatesScreen:
                 ).classes("w-full app-input text-xs").props("outlined dense"))
 
             with ui.row().classes("w-full justify-end gap-2.5 mt-2 pt-2 border-t border-[var(--border-default)]"):
-                UI.secondary_button("إلغاء", on_click=dlg.close).classes("text-xs px-3 py-1.5")
+                UI.ghost_button("إلغاء", on_click=dlg.close)
 
-                def _confirm_save():
+                async def _confirm_save():
                     new_number = (num_input.value or "").strip()
                     new_to = (to_input.value or "").strip() or "من يهمه الأمر"
                     new_date = (date_input.value or "").strip()
@@ -748,7 +621,7 @@ class IssuedCertificatesScreen:
                         )
                         dlg.close()
                         ui.notify("تم تعديل بيانات قيد الوثيقة بنجاح", type="positive")
-                        self.load_data()
+                        await self.load_data()
                     except Exception as err:
                         log.error(f"Failed to update issued cert {cert_id}: {err}")
                         ui.notify(f"خطأ أثناء تعديل بيانات الوثيقة: {err}", type="negative")
@@ -761,65 +634,31 @@ class IssuedCertificatesScreen:
 
         dlg.open()
 
-    def _on_delete_clicked(self, msg) -> None:
-        """Triggered when the delete button is clicked on a table row."""
-        row_data = getattr(msg, "args", {}) or {}
-        if not isinstance(row_data, dict):
-            return
-
+    def _on_delete_clicked(self, row_data: dict) -> None:
+        """Asks before deleting a record, naming its number and student."""
         cert_id = row_data.get("certificate_id") or row_data.get("id")
         cert_num = row_data.get("certificate_number") or "بدون رقم"
         student_name = row_data.get("student_name_ar") or ""
 
         if not cert_id:
-            ui.notify("معرف الوثيقة غير صالح للحذف", type="negative")
+            UI.notify("تعذر حذف القيد: معرّفه غير معروف. حدّث القائمة وأعد المحاولة.", type="negative")
             return
 
-        with ui.dialog() as dlg, UI.card().classes(
-            "p-5 gap-4 w-[420px] max-w-full rounded-2xl border border-rose-500/30 shadow-2xl bg-[var(--surface-card)]"
-        ):
-            with ui.row().classes("items-center gap-2.5"):
-                ui.icon("warning", size="md").classes("text-rose-500")
-                ui.label("تأكيد حذف قيد الوثيقة").classes(
-                    "text-base font-bold text-rose-500"
-                )
+        async def _confirm_delete():
+            try:
+                await run.io_bound(self.cert_repo.delete, cert_id)
+                UI.notify(f"حُذف قيد الوثيقة رقم ({cert_num})", type="positive")
+                await self.load_data()
+            except Exception as err:
+                log.error(f"Failed to delete issued cert {cert_id}: {err}")
+                UI.notify(f"تعذر حذف قيد الوثيقة: {err}", type="negative")
 
-            with ui.column().classes("gap-2 w-full"):
-                ui.label(
-                    f"هل أنت متأكد من حذف قيد الوثيقة رقم ({cert_num}) الصادرة للطالب ({student_name})؟"
-                ).classes("text-sm font-semibold app-text-primary leading-relaxed")
-
-                ui.label(
-                    "⚠️ تنبيه هام: سيتم حذف هذا السجل نهائياً من سجل الوثائق الصادرة، ولا يمكن التراجع عن هذه العملية."
-                ).classes(
-                    "text-xs text-rose-400 bg-rose-50 dark:bg-rose-950/40 p-2.5 rounded-xl border border-rose-200 dark:border-rose-900 leading-relaxed font-medium"
-                )
-
-            with ui.row().classes("w-full justify-end gap-2.5 mt-1"):
-                UI.secondary_button("إلغاء", on_click=dlg.close).classes(
-                    "text-xs px-3 py-1.5"
-                )
-
-                def _confirm_delete():
-                    dlg.close()
-                    try:
-                        self.cert_repo.delete(cert_id)
-                        ui.notify(
-                            f"تم حذف قيد الوثيقة رقم ({cert_num}) بنجاح",
-                            type="positive"
-                        )
-                        self.load_data()
-                    except Exception as err:
-                        log.error(f"Failed to delete issued cert {cert_id}: {err}")
-                        ui.notify(f"خطأ أثناء حذف قيد الوثيقة: {err}", type="negative")
-
-                UI.danger_button(
-                    "تأكيد الحذف",
-                    icon="delete",
-                    on_click=_confirm_delete
-                ).classes("text-xs px-3 py-1.5")
-
-        dlg.open()
+        UI.confirm_dialog(
+            "حذف قيد الوثيقة",
+            f"سيُحذف قيد الوثيقة رقم ({cert_num}) الصادرة للطالب ({student_name}) من السجل. لا يمكن التراجع عن ذلك.",
+            "حذف القيد",
+            _confirm_delete,
+        )
 
     def _export_csv(self) -> None:
         """Exports the active filtered records list as an Excel-compatible CSV file."""
