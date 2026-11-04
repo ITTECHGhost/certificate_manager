@@ -60,39 +60,19 @@ class RolesMixin:
     # ─────────────────────────────────────────────────────────────────────────
 
     def _render_roles_overview(self) -> None:
-        with UI.card().classes("w-full p-6 gap-6"):
-            UI.card_header("إدارة الأدوار والمسؤوليات والصلاحيات", "admin_panel_settings", icon_css="stat-text-emerald")
+        with UI.card().classes("gap-4"):
+            def _actions():
+                if self.on_navigate:
+                    UI.ghost_button("شاشة الكوادر", icon="group", on_click=lambda: self.on_navigate("personnel"))
+                UI.secondary_button("تخصيص مستخدم", icon="tune", on_click=lambda: self._open_user_matrix_view())
+                UI.primary_button("إضافة دور", icon="add_moderator", on_click=lambda: self._open_role_editor_view(None))
 
-            # Header Banner & Action Buttons
-            with ui.row().classes("w-full items-center justify-between p-4 bg-[var(--bg-main)] rounded-2xl border border-[var(--border-default)] flex-wrap gap-4"):
-                with ui.row().classes("items-center gap-3"):
-                    with ui.element("div").classes("w-12 h-12 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center shrink-0"):
-                        ui.icon("shield", size="md").classes("text-emerald-400")
-                    with ui.column().classes("gap-0"):
-                        ui.label("الأدوار والصلاحيات").classes("font-bold text-sm app-text-primary")
-                        ui.label("تحديد المسؤوليات والأدوار في الكلية وضبط إمكانية الوصول إلى الشاشات والإجراءات والأقسام لكل دور.").classes("text-xs app-text-muted")
+            UI.page_header(
+                "الأدوار والصلاحيات",
+                "لكل دور: الشاشات التي يراها، والإجراءات المسموحة، والأقسام.",
+                actions=_actions,
+            )
 
-                with ui.row().classes("items-center gap-2 flex-wrap"):
-                    if self.on_navigate:
-                        UI.secondary_button(
-                            "شاشة الكوادر",
-                            icon="group",
-                            on_click=lambda: self.on_navigate("personnel")
-                        ).classes("text-xs")
-
-                    UI.secondary_button(
-                        "تخصيص مستخدم",
-                        icon="tune",
-                        on_click=lambda: self._open_user_matrix_view()
-                    ).classes("text-xs px-3 py-1.5")
-
-                    UI.success_button(
-                        "+ إضافة دور / مسؤولية جديدة",
-                        icon="add_moderator",
-                        on_click=lambda: self._open_role_editor_view(None)
-                    ).classes("text-xs px-4 py-2 font-bold")
-
-            # Roles Grid Display
             roles_list = []
             try:
                 roles_list = self.role_repo.get_all() or []
@@ -105,25 +85,11 @@ class RolesMixin:
             except Exception:
                 pass
 
-            page_names = {
-                "home": "الرئيسية",
-                "students": "الطلاب",
-                "orders": "أوامر التخرج",
-                "departments": "الأقسام",
-                "courses": "المقررات",
-                "personnel": "الكوادر",
-                "certificate": "الوثائق",
-                "issued_certs": "السجل",
-                "settings": "الإعدادات",
-                "history": "التغييرات"
-            }
-
             all_perms_count = 29
 
             if not roles_list:
-                with ui.column().classes("w-full items-center py-8 text-center bg-[var(--bg-main)] rounded-2xl border border-[var(--border-default)]"):
-                    ui.icon("shield_off", size="lg").classes("app-text-muted mb-2")
-                    ui.label("لا توجد أدوار مسجلة حالياً").classes("text-sm font-bold app-text-muted")
+                UI.empty_state("لا توجد أدوار بعد", "أضف دورًا وحدد صلاحياته.", icon="shield",
+                               action_text="إضافة دور", on_action=lambda: self._open_role_editor_view(None))
                 return
 
             # Pre-compute personnel role mappings once to eliminate loop queries and HTTP hits
@@ -133,103 +99,56 @@ class RolesMixin:
                 if p_id:
                     personnel_role_map[p_id] = self.role_repo.get_user_role_id(p_id, user_dict=p)
 
-            with ui.grid(columns=2).classes("w-full gap-4 mt-2"):
+            # Simple cards: name, one built-in chip when it applies, description, one summary line
+            with ui.element("div").classes("app-two-col"):
                 for role in roles_list:
                     role_id = role.get("id")
                     r_name_ar = role.get("name_ar") or role_id
-                    r_name_en = role.get("name_en") or role_id
                     desc_ar = role.get("description_ar") or ""
                     allowed_pages = role.get("allowed_pages") or []
                     allowed_actions = role.get("allowed_actions") or []
                     dept_scope = role.get("department_scope") or "all"
                     is_sys = bool(role.get("is_system"))
 
-                    matched_users = [
+                    user_count = len([
                         p for p in personnel_list
                         if (personnel_role_map.get(p.get("id")) == role_id or p.get("responsibility_ar") == r_name_ar or p.get("personnel_role") == role_id)
-                    ]
-                    user_count = len(matched_users)
+                    ])
+                    pages_txt = "كل الشاشات" if len(allowed_pages) >= 9 else f"{len(allowed_pages)} شاشة"
+                    dept_txt = "كل الأقسام" if (dept_scope == "all" or not dept_scope) else "أقسام محددة"
+                    summary = f"{pages_txt} • {len(allowed_actions)} من {all_perms_count} صلاحية • {dept_txt} • {user_count} كادر"
 
-                    with ui.column().classes(
-                        "w-full p-4 rounded-2xl border border-[var(--border-default)] bg-[var(--bg-main)] "
-                        "hover:border-emerald-500/40 transition-all gap-3 shadow-sm"
-                    ):
-                        # Card Top Row: Name + Badges + Edit/Delete
-                        with ui.row().classes("w-full items-start justify-between gap-2"):
-                            with ui.row().classes("items-center gap-2.5 min-w-0 flex-1"):
-                                with ui.element("div").classes("w-10 h-10 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center shrink-0"):
-                                    ui.icon("verified_user" if is_sys else "shield", size="sm").classes("text-blue-400")
-                                with ui.column().classes("gap-0 min-w-0 flex-1"):
-                                    with ui.row().classes("items-center gap-2 flex-wrap"):
-                                        ui.label(r_name_ar).classes("text-sm font-bold app-text-primary")
-                                        if is_sys:
-                                            ui.label("افتراضي").classes("text-[10px] px-1.5 py-0.5 rounded bg-blue-500/15 text-blue-400 font-semibold border border-blue-500/30")
-                                        else:
-                                            ui.label("مخصص").classes("text-[10px] px-1.5 py-0.5 rounded bg-emerald-500/15 text-emerald-400 font-semibold border border-emerald-500/30")
-                                    ui.label(r_name_en).classes("text-xs app-text-muted font-mono")
+                    with ui.column().classes("app-card w-full gap-2"):
+                        with ui.row().classes("w-full items-center justify-between gap-2 no-wrap"):
+                            with ui.row().classes("items-center gap-2 min-w-0"):
+                                ui.label(r_name_ar).classes("app-text-primary font-semibold")
+                                if is_sys:
+                                    UI.chip("افتراضي")
 
-                            with ui.row().classes("items-center gap-1 shrink-0"):
-                                ui.button(
-                                    icon="edit",
-                                    on_click=lambda r=role: self._open_role_editor_view(r)
-                                ).props("flat round dense size=sm color=primary").tooltip("تعديل هذا الدور والصلاحيات")
-
+                            with ui.row().classes("items-center gap-1 no-wrap shrink-0"):
+                                UI.icon_button("edit", "تعديل الدور", on_click=lambda r=role: self._open_role_editor_view(r), dense=True)
                                 if not is_sys:
                                     def _confirm_delete_role(rid=role_id, rname=r_name_ar):
-                                        del_dlg = ui.dialog()
-                                        with del_dlg, UI.card().classes("p-6 gap-4 w-96 rounded-2xl bg-[var(--surface-card)] border border-[var(--border-default)] shadow-2xl"):
-                                            ui.label("تأكيد حذف الدور").classes("text-base font-bold text-red-400")
-                                            ui.label(f"هل أنت متأكد من حذف الدور المخصص ({rname}) نهائياً؟").classes("text-xs app-text-muted leading-relaxed")
-                                            with ui.row().classes("w-full justify-end gap-2 pt-2"):
-                                                UI.ghost_button("إلغاء", on_click=del_dlg.close).classes("text-xs")
-                                                def _do_del():
-                                                    try:
-                                                        self.role_repo.delete_role(rid)
-                                                        ui.notify(f"تم حذف الدور ({rname}) بنجاح", type="positive")
-                                                        del_dlg.close()
-                                                        self._refresh_roles_section()
-                                                    except Exception as exc:
-                                                        ui.notify(f"خطأ أثناء حذف الدور: {exc}", type="negative")
-                                                UI.danger_button("تأكيد الحذف", icon="delete", on_click=_do_del).classes("text-xs")
-                                        del_dlg.open()
+                                        def _do_del():
+                                            try:
+                                                self.role_repo.delete_role(rid)
+                                                UI.notify(f"تم حذف الدور ({rname})", type="positive")
+                                                self._refresh_roles_section()
+                                            except Exception as exc:
+                                                UI.notify(f"تعذر حذف الدور: {exc}", type="negative")
 
-                                    ui.button(
-                                        icon="delete",
-                                        on_click=_confirm_delete_role
-                                    ).props("flat round dense size=sm color=negative").tooltip("حذف هذا الدور المخصص")
+                                        UI.confirm_dialog(
+                                            "حذف الدور",
+                                            f"سيُحذف الدور ({rname}) نهائيًا. الكوادر المرتبطون به يحتاجون دورًا آخر.",
+                                            "حذف الدور",
+                                            _do_del,
+                                        )
+
+                                    UI.danger_icon_button(tooltip="حذف الدور", on_click=_confirm_delete_role)
 
                         if desc_ar:
-                            ui.label(desc_ar).classes("text-xs app-text-muted leading-relaxed")
-
-                        # Details Stats & Badges Grid
-                        with ui.column().classes("w-full gap-2 pt-2 border-t border-[var(--border-default)]"):
-                            # 1. Allowed Pages Badges
-                            with ui.row().classes("w-full items-center gap-1.5 flex-wrap"):
-                                ui.label("الشاشات:").classes("text-[11px] font-bold app-text-muted shrink-0")
-                                if len(allowed_pages) >= 9:
-                                    ui.label("كل الشاشات").classes("text-[10px] px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 font-semibold")
-                                elif not allowed_pages:
-                                    ui.label("لا توجد شاشات").classes("text-[10px] px-2 py-0.5 rounded bg-red-500/10 text-red-400")
-                                else:
-                                    for pkey in allowed_pages[:5]:
-                                        ui.label(page_names.get(pkey, pkey)).classes("text-[10px] px-2 py-0.5 rounded bg-[var(--surface-card)] border border-[var(--border-default)] app-text-primary")
-                                    if len(allowed_pages) > 5:
-                                        ui.label(f"+{len(allowed_pages)-5} أخرى").classes("text-[10px] px-1.5 py-0.5 rounded bg-slate-500/10 text-slate-400")
-
-                            # 2. Allowed Permissions & Departments Row
-                            with ui.row().classes("w-full items-center justify-between text-xs pt-1"):
-                                with ui.row().classes("items-center gap-1"):
-                                    ui.icon("check_circle", size="xs").classes("text-emerald-400")
-                                    ui.label(f"الصلاحيات: {len(allowed_actions)} من {all_perms_count}").classes("font-semibold app-text-primary text-[11px]")
-
-                                with ui.row().classes("items-center gap-1"):
-                                    ui.icon("domain", size="xs").classes("text-purple-400")
-                                    dept_label = "كافة الأقسام" if (dept_scope == "all" or not dept_scope) else "أقسام مخصصة"
-                                    ui.label(f"الأقسام: {dept_label}").classes("font-semibold app-text-muted text-[11px]")
-
-                                with ui.row().classes("items-center gap-1"):
-                                    ui.icon("people", size="xs").classes("text-blue-400")
-                                    ui.label(f"الكوادر: {user_count}").classes("font-semibold app-text-muted text-[11px]")
+                            ui.label(desc_ar).classes("app-caption")
+                        ui.label(summary).classes("app-text-secondary text-sm")
 
     # ─────────────────────────────────────────────────────────────────────────
     # Sub-View 2: Dedicated Full-Page Role Editor (NO POPUP MODAL)

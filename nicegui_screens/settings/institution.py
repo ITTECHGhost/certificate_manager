@@ -14,9 +14,10 @@ class InstitutionMixin:
 
     def _section_institution_info(self) -> None:
         with UI.card():
-            UI.card_header("معلومات المؤسسة", "domain", icon_css="stat-text-blue")
+            UI.card_header("معلومات الجامعة", "domain")
 
-            with ui.grid(columns=2).classes("w-full gap-4"):
+            # Names can be long: each gets the full width so nothing is clipped
+            with ui.column().classes("w-full gap-4"):
                 self.univ_ar_input = UI.text_input(
                     "اسم الجامعة بالعربية",
                     value=self.settings_data.get("univ_name_ar") or ""
@@ -36,10 +37,9 @@ class InstitutionMixin:
 
             # ── LOGO UPLOAD & PREVIEW SECTION ─────────────────────────────────
             with ui.column().classes("w-full gap-3 pt-3 border-t border-[var(--border-default)] mt-2"):
-                with ui.row().classes("items-center gap-2"):
-                    ui.icon("image", size="sm").classes("text-blue-400")
-                    ui.label("شعارات المؤسسة والكلية").classes("font-bold text-sm app-text-primary")
-                    ui.label("(يدعم ملفات الصور بصيغ PNG, JPG, WebP, SVG)").classes("text-xs app-text-muted")
+                with ui.column().classes("gap-0"):
+                    ui.label("الشعارات").classes("app-section-title")
+                    ui.label("صور بصيغة PNG أو JPG أو WebP أو SVG").classes("app-caption")
 
                 with ui.grid(columns=2).classes("w-full gap-4"):
                     # 1. University Logo Tile
@@ -48,7 +48,7 @@ class InstitutionMixin:
                             with ui.row().classes("items-center gap-2"):
                                 ui.icon("account_balance", size="xs").classes("text-blue-400")
                                 ui.label("شعار الجامعة").classes("font-semibold text-xs app-text-primary")
-                            self.univ_logo_status = ui.label(os.path.basename(self.univ_logo_path) if self.univ_logo_path else "").classes("text-[10px] app-text-muted font-mono truncate max-w-[150px]")
+                            self.univ_logo_status = ui.label(os.path.basename(self.univ_logo_path) if self.univ_logo_path else "").classes("app-caption")
 
                         with ui.row().classes("w-full items-center justify-center p-3 rounded-xl border border-dashed border-[var(--border-default)] min-h-[110px] bg-[var(--surface-card)]"):
                             univ_src = self.univ_logo_path if (self.univ_logo_path and os.path.exists(self.univ_logo_path)) else None
@@ -80,15 +80,21 @@ class InstitutionMixin:
                                 self.univ_logo_img.classes(remove="hidden")
                                 self.univ_placeholder_col.classes(add="hidden")
                                 self.univ_logo_status.set_text(os.path.basename(saved_path))
-                                ui.notify("تم استلام شعار الجامعة! اضغط على زر الحفظ بالأسفل لاعتماده.", type="positive")
+                                ui.notify("تم اختيار شعار الجامعة. اضغط «حفظ» لاعتماده.", type="positive")
+                                if getattr(e, "sender", None) is not None:
+                                    e.sender.reset()
                             except Exception as err:
                                 ui.notify(f"خطأ في رفع الشعار: {err}", type="negative")
 
-                        ui.upload(
-                            label="اختر أو اسحب شعار الجامعة هنا",
+                        # The uploader stays hidden: no empty box or "0.0B" until a file is actually chosen
+                        univ_uploader = ui.upload(
                             auto_upload=True,
                             on_upload=_handle_univ_logo_upload
-                        ).props("accept='image/png,image/jpeg,image/webp,image/svg+xml' max-files=1 flat dense").classes("w-full text-xs")
+                        ).props("accept='image/png,image/jpeg,image/webp,image/svg+xml' max-files=1").classes("hidden")
+                        UI.secondary_button(
+                            "تغيير شعار الجامعة", icon="upload",
+                            on_click=lambda u=univ_uploader: u.run_method("pickFiles"),
+                        ).classes("w-full")
 
                     # 2. College Logo Tile
                     with ui.column().classes("p-4 rounded-xl border border-[var(--border-default)] bg-[var(--bg-main)] gap-3"):
@@ -96,7 +102,7 @@ class InstitutionMixin:
                             with ui.row().classes("items-center gap-2"):
                                 ui.icon("school", size="xs").classes("text-emerald-400")
                                 ui.label("شعار الكلية").classes("font-semibold text-xs app-text-primary")
-                            self.college_logo_status = ui.label(os.path.basename(self.college_logo_path) if self.college_logo_path else "").classes("text-[10px] app-text-muted font-mono truncate max-w-[150px]")
+                            self.college_logo_status = ui.label(os.path.basename(self.college_logo_path) if self.college_logo_path else "").classes("app-caption")
 
                         with ui.row().classes("w-full items-center justify-center p-3 rounded-xl border border-dashed border-[var(--border-default)] min-h-[110px] bg-[var(--surface-card)]"):
                             col_src = None
@@ -133,22 +139,24 @@ class InstitutionMixin:
                                 self.college_logo_img.classes(remove="hidden")
                                 self.college_placeholder_col.classes(add="hidden")
                                 self.college_logo_status.set_text(os.path.basename(saved_path))
-                                ui.notify("تم استلام شعار الكلية! اضغط على زر الحفظ بالأسفل لاعتماده.", type="positive")
+                                ui.notify("تم اختيار شعار الكلية. اضغط «حفظ» لاعتماده.", type="positive")
+                                if getattr(e, "sender", None) is not None:
+                                    e.sender.reset()
                             except Exception as err:
                                 ui.notify(f"خطأ في رفع الشعار: {err}", type="negative")
 
-                        ui.upload(
-                            label="اختر أو اسحب شعار الكلية هنا",
+                        # The uploader stays hidden: no empty box or "0.0B" until a file is actually chosen
+                        college_uploader = ui.upload(
                             auto_upload=True,
                             on_upload=_handle_college_logo_upload
-                        ).props("accept='image/png,image/jpeg,image/webp,image/svg+xml' max-files=1 flat dense").classes("w-full text-xs")
+                        ).props("accept='image/png,image/jpeg,image/webp,image/svg+xml' max-files=1").classes("hidden")
+                        UI.secondary_button(
+                            "تغيير شعار الكلية", icon="upload",
+                            on_click=lambda u=college_uploader: u.run_method("pickFiles"),
+                        ).classes("w-full")
 
             with ui.row().classes("w-full justify-end items-center pt-3 border-t border-[var(--border-default)] mt-2"):
-                UI.success_button(
-                    "حفظ معلومات المؤسسة والشعارات",
-                    icon="save",
-                    on_click=self._save_institution_info
-                ).classes("px-5 py-2 text-xs font-bold")
+                UI.primary_button("حفظ", icon="save", on_click=self._save_institution_info)
 
     def _save_institution_info(self) -> None:
         try:
@@ -160,6 +168,6 @@ class InstitutionMixin:
                 univ_logo=self.univ_logo_path,
                 college_logo=self.college_logo_path
             )
-            ui.notify("تم حفظ معلومات المؤسسة والشعارات بنجاح", type="positive")
+            ui.notify("تم حفظ معلومات الجامعة والشعارات", type="positive")
         except Exception as exc:
             ui.notify(f"تعذر حفظ الإعدادات: {exc}", type="negative")

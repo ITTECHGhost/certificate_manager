@@ -139,8 +139,8 @@ class PrintersMixin:
                 with ui.row().classes("items-center gap-2"):
                     ui.label(f"عدد الطابعات المكتشفة: {len(installed_printers)}").classes("text-xs font-semibold px-2.5 py-1 rounded-lg bg-blue-500/10 text-blue-400 border border-blue-500/20")
 
-            # Form Fields Grid
-            with ui.grid(columns=2).classes("w-full gap-5"):
+            # Printer names are long: each printer picker gets the full width
+            with ui.column().classes("w-full gap-4"):
                 # 1. Certificate Printer
                 cert_printer_select = UI.select(
                     "طابعة الوثائق والشهادات",
@@ -155,6 +155,7 @@ class PrintersMixin:
                     value=cur_report_printer
                 ).classes("w-full")
 
+            with ui.element("div").classes("app-stat-grid w-full"):
                 # 3. Paper Size
                 paper_size_select = UI.select(
                     "حجم الورق الافتراضي",
@@ -165,7 +166,7 @@ class PrintersMixin:
                 # 4. Orientation
                 orientation_select = UI.select(
                     "اتجاه الطباعة",
-                    options=["Portrait", "Landscape"],
+                    options={"Portrait": "عمودي", "Landscape": "أفقي"},
                     value=cur_orientation
                 ).classes("w-full")
 
@@ -237,8 +238,4 @@ class PrintersMixin:
                     else:
                         UI.notify("فشل حفظ إعدادات الطابعات!", type="negative")
 
-                UI.success_button(
-                    "حفظ إعدادات الطابعات",
-                    icon="save",
-                    on_click=do_save_printer_cfg
-                ).classes("text-sm px-6 py-2.5 font-bold shadow-md")
+                UI.primary_button("حفظ", icon="save", on_click=do_save_printer_cfg)

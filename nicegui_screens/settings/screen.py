@@ -149,8 +149,8 @@ class SettingsScreen(
 
         with ui.column().classes("w-full max-w-full min-w-0 gap-6 pb-12 overflow-hidden"):
             with ui.row().classes("w-full max-w-full min-w-0 gap-6 items-start no-wrap"):
-                with ui.tabs().classes("app-tabs w-60 shrink-0 max-w-full").props("vertical dense") as self.tabs:
-                    self.tab_institution = ui.tab(name="institution", label="المؤسسة", icon="domain") if can_inst else None
+                with ui.tabs().classes("app-tabs w-60 shrink-0 max-w-full").props("vertical dense inline-label") as self.tabs:
+                    self.tab_institution = ui.tab(name="institution", label="معلومات الجامعة", icon="domain") if can_inst else None
                     self.tab_departments = ui.tab(name="departments", label="الأقسام", icon="business") if can_depts else None
                     self.tab_app = ui.tab(name="appearance", label="المظهر والسمات", icon="palette") if can_app else None
                     self.tab_printers = ui.tab(name="printers", label="إعداد الطابعات", icon="print")

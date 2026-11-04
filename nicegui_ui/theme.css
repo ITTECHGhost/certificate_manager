@@ -834,6 +834,14 @@ input, textarea { caret-color: var(--accent); }
   overflow-y: auto;
 }
 
+/* Editor shown beside a list (not a dialog): a bordered panel at the inline end */
+.app-side-panel-card {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: var(--space-4);
+  background: var(--surface-card);
+}
+
 .q-tooltip {
   background: #1f2937 !important;
   color: #ffffff !important;

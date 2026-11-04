@@ -11,6 +11,7 @@ LIST_SCREENS = [
     "graduation_orders_screen.py",
     "courses_screen.py",
     "personnel_screen.py",
+    "departments_screen.py",
 ]
 
 
