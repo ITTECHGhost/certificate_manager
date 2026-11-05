@@ -42,8 +42,11 @@ Rule: finish all data work **on this laptop**, check it in the app, then move
    Command Prompt:
    ```
    cd C:\AppServ\MySQL\bin
-   mysqldump -u root -p --routines --triggers --events --single-transaction --default-character-set=utf8 --databases certificate_manager > D:\certificate_manager_2026-11-05.sql
+   mysqldump --no-defaults -u root -p --routines --triggers --events --single-transaction --default-character-set=utf8 --result-file=D:\certificate_manager_2026-11-05.sql --databases certificate_manager
    ```
+   `--no-defaults` must come first: AppServ's my.ini has `no-beep` under
+   `[client]`, which mysqldump rejects. Use `--result-file`, not `>`: in
+   PowerShell `>` saves the file as UTF-16 and it will not restore.
    `--databases` puts `CREATE DATABASE`/`USE` in the file, so it restores under
    the same name.
 4. Check the file: it should be several MB, start with `-- MySQL dump`, and
@@ -59,9 +62,10 @@ at **step 2** (database):
 2. Restore the dump instead of creating an empty database:
    ```
    cd C:\AppServ\MySQL\bin
-   mysql -u root -p --default-character-set=utf8 < D:\certificate_manager_2026-11-05.sql
+   mysql --no-defaults -u root -p --default-character-set=utf8 -e "source D:/certificate_manager_2026-11-05.sql"
    ```
-   (Large file: use this command line, not phpMyAdmin's upload, which has a size limit.)
+   (Works in PowerShell, which has no `<`. Large file: use this, not phpMyAdmin's
+   upload, which has a size limit.)
 3. Check in phpMyAdmin: database `certificate_manager` exists; tables have rows
    (students, enrollments, issued_certificates); **Routines** tab lists the
    stored procedures (e.g. `GetFullCertificateData`).
