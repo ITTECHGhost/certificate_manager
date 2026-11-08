@@ -72,7 +72,8 @@ class ServerMixin:
             from api_config import load_server_config
             cfg = load_server_config()
 
-            api_host = f"http://{cfg.get('host', '127.0.0.1')}"
+            # Show the scheme really in use: requests go over https when it was saved with https
+            api_host = f"{cfg.get('scheme', 'http')}://{cfg.get('host', '127.0.0.1')}"
             api_port = str(cfg.get('port', 2030))
             api_secret = cfg.get('secret', 'certificate_manager_secret_key')
             api_timeout = int(cfg.get('timeout', 5))
@@ -122,8 +123,13 @@ class ServerMixin:
         from sync_engine import check_network_status
         host = (self.server_host_input.value if hasattr(self, 'server_host_input') and self.server_host_input else "127.0.0.1")
         port = (self.server_port_input.value if hasattr(self, 'server_port_input') and self.server_port_input else "2030")
-        clean_host = str(host).replace("http://", "").replace("https://", "").strip().rstrip("/")
-        full_url = f"http://{clean_host}:{port}"
+        from api_config import preview_api_url
+        # Test the same URL Save would store (http or https), not always http
+        try:
+            full_url = preview_api_url(str(host), port)
+        except (TypeError, ValueError):
+            ui.notify("منفذ السيرفر غير صحيح / Invalid server port", type="warning")
+            return
 
         try:
             online = check_network_status(target_url=full_url)
