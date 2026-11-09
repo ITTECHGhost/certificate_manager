@@ -44,15 +44,14 @@
     "system_name": "نظام المقررات (الساعات المعتمدة)"
   },
   "year - Temp - En": {
-    "display_name": "تأييد انجليزي فصلي",
+    "display_name": "En, Annual, cr",
     "file": "year - Temp - En.docx",
     "lang": "En",
     "lang_ar": "إنكليزي",
     "system": "Annual",
-    "system_ar": "النظام الفصلي",
+    "system_ar": "النظام السنوي",
     "sbs": false,
-    "type_ar": "بدون درجات",
-    "system_name": "النظام الفصلي"
+    "type_ar": "بدون درجات"
   },
   "year - Temp - En - D - SBS": {
     "display_name": "وثيقة بالدرجات انجليزي فصلي",
@@ -63,17 +62,6 @@
     "system_ar": "النظام الفصلي",
     "sbs": true,
     "type_ar": "بالدرجات",
-    "system_name": "النظام الفصلي"
-  },
-  "year - Temp - Ar": {
-    "display_name": "تأييد عربي فصلي",
-    "file": "year - Temp - Ar.docx",
-    "lang": "Ar",
-    "lang_ar": "عربي",
-    "system": "Annual",
-    "system_ar": "النظام الفصلي",
-    "sbs": false,
-    "type_ar": "بدون درجات",
     "system_name": "النظام الفصلي"
   },
   "year - Temp - Ar - D - SBS": {
@@ -106,5 +94,57 @@
     "system_ar": "ماجستير (دراسات عليا)",
     "sbs": false,
     "type_ar": "وثيقة ماجستير"
+  },
+  "year - Temp - Ar - female": {
+    "display_name": "تأييد تخرج عربي فصلي",
+    "file": "year - Temp - Ar - female.docx",
+    "lang": "Ar",
+    "lang_ar": "عربي",
+    "system": "Annual",
+    "system_ar": "النظام الفصلي",
+    "system_name": "النظام الفصلي",
+    "sbs": false,
+    "type_ar": "بدون درجات",
+    "gender": "Female",
+    "gender_ar": "إناث"
+  },
+  "year - Temp - Ar - male": {
+    "display_name": "تأييد تخرج عربي فصلي",
+    "file": "year - Temp - Ar - male.docx",
+    "lang": "Ar",
+    "lang_ar": "عربي",
+    "system": "Annual",
+    "system_ar": "النظام الفصلي",
+    "system_name": "النظام الفصلي",
+    "sbs": false,
+    "type_ar": "بدون درجات",
+    "gender": "Male",
+    "gender_ar": "ذكور"
+  },
+  "year - Temp - En - female": {
+    "display_name": "تأييد تخرج انجليزي فصلي",
+    "file": "year - Temp - En - female.docx",
+    "lang": "En",
+    "lang_ar": "إنكليزي",
+    "system": "Annual",
+    "system_ar": "النظام الفصلي",
+    "system_name": "النظام الفصلي",
+    "sbs": false,
+    "type_ar": "بدون درجات",
+    "gender": "Female",
+    "gender_ar": "إناث"
+  },
+  "year - Temp - En - male": {
+    "display_name": "تأييد تخرج انجليزي فصلي",
+    "file": "year - Temp - En - male.docx",
+    "lang": "En",
+    "lang_ar": "إنكليزي",
+    "system": "Annual",
+    "system_ar": "النظام الفصلي",
+    "system_name": "النظام الفصلي",
+    "sbs": false,
+    "type_ar": "بدون درجات",
+    "gender": "Male",
+    "gender_ar": "ذكور"
   }
 }
