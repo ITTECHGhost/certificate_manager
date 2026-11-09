@@ -95,6 +95,26 @@ class CertificateScreen:
                 self.template_sel.update()
             self.show_info_view()
 
+    def _ensure_gender(self, student_id, student_row: dict | None = None):
+        """The certificate data may lack the gender (older server procedure): take it from the student record."""
+        data = self.student_full_data
+        if not isinstance(data, dict):
+            return
+        info = data.get("student_info")
+        if not isinstance(info, dict):
+            info = {}
+            data["student_info"] = info
+        if info.get("gender") not in (None, ""):
+            return
+        gender = (student_row or {}).get("gender")
+        if gender in (None, ""):
+            try:
+                gender = (self.student_repo.get_by_id(student_id) or {}).get("gender")
+            except Exception:
+                gender = None
+        if gender not in (None, ""):
+            info["gender"] = gender
+
     def get_templates(self, data: dict = None) -> list[str]:
         """
         Returns docx templates filtered by the student's study system (semester vs year/annual).
@@ -245,6 +265,7 @@ class CertificateScreen:
                                 new_mode = getattr(e, 'value', e) or "DEFAULT"
                                 self.current_grouping_mode = new_mode
                                 self.student_full_data = self.cert_repo.get_full_certificate_data(student_id, grouping_mode=new_mode)
+                                self._ensure_gender(student_id, getattr(self, "selected_student", None))
                                 self.update_student_ui()
 
                             grouping_options = {
@@ -426,6 +447,7 @@ class CertificateScreen:
             if not self.student_full_data:
                 UI.notify("لا توجد بيانات دراسية لهذا الطالب. أضف مراحله ودرجاته من شاشة الطلاب.", type="warning")
                 return
+            self._ensure_gender(student_id, student_row)
 
             # Dynamic grouping options update based on student's study system (semester vs yearly)
             semester_options = {

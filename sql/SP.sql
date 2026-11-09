@@ -3346,6 +3346,7 @@ BEGIN
         s.id AS student_id,
         COALESCE(s.full_name_ar, '') AS full_name_ar,
         COALESCE(s.full_name_en, '') AS full_name_en,
+        COALESCE(s.gender, '') AS gender,
         CAST(COALESCE(s.average, 0.0) AS DECIMAL(5, 3)) AS average,
         COALESCE(YEAR(s.graduation_date), 0) AS graduation_year,
         COALESCE(s.graduation_date, '1970-01-01') AS graduation_date,

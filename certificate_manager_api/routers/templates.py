@@ -143,3 +143,19 @@ async def upload_template(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Template upload failed: {str(exc)}"
         )
+
+
+@router.delete("/{template_name}")
+def delete_template(template_name: str):
+    """Removes a .docx template. The file is moved to templets/.deleted/ (kept, never erased)."""
+    if not re.match(r"^[a-zA-Z0-9_\-\.\s\(\)]+\.docx$", template_name, re.IGNORECASE):
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid template filename.")
+    target_path = SERVER_TEMPLATES_DIR / template_name
+    if not target_path.is_file():
+        return {"status": "success", "filename": template_name, "already_absent": True}
+    trash = SERVER_TEMPLATES_DIR / ".deleted"
+    trash.mkdir(exist_ok=True)
+    stamp = datetime.now().strftime("%Y%m%d-%H%M%S")
+    target_path.replace(trash / f"{stamp} {template_name}")
+    logger.info(f"Template '{template_name}' moved to .deleted/")
+    return {"status": "success", "filename": template_name}

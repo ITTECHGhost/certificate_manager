@@ -32,6 +32,10 @@
   "/api/templates/upload"
  ],
  [
+  "DELETE",
+  "/api/templates/{template_name}"
+ ],
+ [
   "GET",
   "/ping"
  ],

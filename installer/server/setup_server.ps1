@@ -150,6 +150,62 @@ if ($SkipDbCheck) { Skip "Database login check" } else {
     if ($dbOk) { Ok "Database login works" } else { Warn "MySQL refused the login in db_config.json. Fix that file, then run setup_server.bat again." }
 }
 
+# 7b. Database update: backup, then new migrations + all stored procedures (migrate.py).
+#     On failure: the old code and the old procedures go back, the old service starts again.
+function Restore-OldVersion([string]$Reason) {
+    Write-Host "[ERROR] $Reason" -ForegroundColor Red
+    $backupDir = Join-Path $TargetDir "_backup_before_update"
+    if (Test-Path (Join-Path $backupDir "main.py")) {
+        robocopy $backupDir $TargetDir /E /NFL /NDL /NJH /NJS /NP | Out-Null
+        Write-Host "Old code restored."
+        $oldSql = Join-Path $TargetDir "sql"
+        if (Test-Path (Join-Path $oldSql "SP.sql")) {
+            Push-Location $TargetDir
+            & $python migrate.py --sql-dir $oldSql --procedures-only
+            Pop-Location
+            Write-Host "Old stored procedures re-applied."
+        }
+        if (Get-Service $serviceName -ErrorAction SilentlyContinue) { Start-Service $serviceName -ErrorAction SilentlyContinue }
+    }
+    if ($script:dumpFile) { Write-Host "Database backup taken before this update: $script:dumpFile" }
+    Write-Host "Nothing else was changed. Send the messages above to the developer." -ForegroundColor Yellow
+    exit 1
+}
+$script:dumpFile = $null
+if ($SkipDbCheck -or -not $dbOk) { Skip "Database update (no working database login)" } else {
+    # Backup with the API's own login, passed through a temporary options file (never on the command line)
+    $mysqldump = @("C:\AppServ\MySQL\bin\mysqldump.exe") + @(Get-ChildItem "C:\AppServ" -Recurse -Filter mysqldump.exe -ErrorAction SilentlyContinue | ForEach-Object FullName) |
+        Where-Object { $_ -and (Test-Path $_) } | Select-Object -First 1
+    if (-not $mysqldump) { Restore-OldVersion "mysqldump.exe not found under C:\AppServ - the database was not backed up, so it was not changed." }
+    $db = Get-Content (Join-Path $TargetDir "db_config.json") -Raw | ConvertFrom-Json
+    $dbName = if ($db.database) { $db.database } else { "certificate_manager" }
+    $backups = Join-Path $TargetDir "backups"
+    New-Item -ItemType Directory -Force -Path $backups | Out-Null
+    $script:dumpFile = Join-Path $backups ("before-update-{0}-{1:yyyyMMdd-HHmmss}.sql" -f $version, (Get-Date))
+    $opt = Join-Path $env:TEMP ("certman-{0}.cnf" -f [guid]::NewGuid())
+    [IO.File]::WriteAllText($opt, "[client]`nhost=$($db.host)`nuser=$($db.user)`npassword=`"$($db.password)`"`n", (New-Object Text.UTF8Encoding $false))
+    try {
+        & $mysqldump "--defaults-extra-file=$opt" --single-transaction --routines --triggers --no-tablespaces "--result-file=$script:dumpFile" $dbName
+        $dumpOk = ($LASTEXITCODE -eq 0) -and (Test-Path $script:dumpFile) -and ((Get-Item $script:dumpFile).Length -gt 1024)
+    } finally { Remove-Item -Force $opt -ErrorAction SilentlyContinue }
+    if (-not $dumpOk) { Restore-OldVersion "The database backup failed, so the database was not changed." }
+    Ok "Database backed up: $script:dumpFile"
+
+    Push-Location $TargetDir
+    & $python migrate.py --sql-dir (Join-Path $bundle "sql")
+    $migrated = ($LASTEXITCODE -eq 0)
+    Pop-Location
+    if (-not $migrated) { Restore-OldVersion "Database update failed (see the lines above)." }
+    Ok "Database up to date"
+
+    # Keep this version's SQL next to the code: the next update rolls back to it
+    robocopy (Join-Path $bundle "sql") (Join-Path $TargetDir "sql") SP.sql /NFL /NDL /NJH /NJS /NP | Out-Null
+    if (Test-Path (Join-Path $bundle "sql\migrations")) {
+        robocopy (Join-Path $bundle "sql\migrations") (Join-Path $TargetDir "sql\migrations") /E /NFL /NDL /NJH /NJS /NP | Out-Null
+    }
+    if ($version) { [IO.File]::WriteAllText((Join-Path $TargetDir "server_version.txt"), $version, (New-Object Text.UTF8Encoding $false)) }
+}
+
 # 8. HTTPS, first installation only: certificates, app key, client package, https = true
 $settingsFile = Join-Path $TargetDir "server_settings.json"
 if ($SkipService) { Skip "HTTPS" } elseif (-not (Test-Path (Join-Path $TargetDir "certs\server.crt"))) {
@@ -200,8 +256,11 @@ if (-not $SkipService) {
 }
 
 Write-Host ""
-Write-Host "Still to do by hand (only once each):"
-Write-Host "  - Database: run the files in sql\fixes\ that were not run yet, in number order (phpMyAdmin, SQL tab)"
-Write-Host "  - After 2026-10-27_04: put the certman_api login into $dbConfig, then run setup_server.bat again"
-Write-Host "  - Passwords: run hash_existing_passwords.bat in $TargetDir if that was not done yet"
+if (-not (Test-Path (Join-Path $TargetDir "server_version.txt"))) {
+    Write-Host "Still to do by hand (first installation only):"
+    Write-Host "  - Database: run the files in sql\fixes\ in number order (phpMyAdmin, SQL tab); later updates do the database themselves"
+    Write-Host "  - After 2026-10-27_04: put the certman_api login into $dbConfig, then run setup_server.bat again"
+    Write-Host "  - Passwords: run hash_existing_passwords.bat in $TargetDir if that was not done yet"
+}
 Write-Host "[DONE] Server setup finished"
+exit 0

@@ -75,6 +75,9 @@ copy /y "%OUT%\CertificateManager-Setup-%VER%.exe" "%PKG%\client\" >nul
 copy /y "%OUT%\patch_v%VER%.zip" "%PKG%\server\" >nul
 robocopy "%OUT%\CertificateManagerServer-%VER%" "%PKG%\server\CertificateManagerServer-%VER%" /E /NFL /NDL /NJH /NJS /NP >nul
 if errorlevel 8 exit /b 1
+echo [7/7] Update folder for the server laptop...
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File scripts\build_update.ps1 -ReleaseDir "%OUT%"
+if %errorlevel% neq 0 exit /b 1
 echo RELEASE READY: %OUT%
 echo INSTALL PACKAGE: %PKG%
 exit /b 0

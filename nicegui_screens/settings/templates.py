@@ -9,7 +9,7 @@ from nicegui import ui
 import app_paths
 from nicegui_ui.ui_components import UI
 from nicegui_ui.template_constants import (
-    TAG_LANGS, TAG_MARKS, get_template_info, save_template_tags, system_tag_options, template_tag_conflicts,
+    TAG_GENDERS, TAG_LANGS, TAG_MARKS, get_template_info, save_template_tags, system_tag_options, template_tag_conflicts,
     template_tags,
 )
 from utils.file_delivery import deliver_file
@@ -130,7 +130,7 @@ class TemplatesMixin:
                                 # The user's name with its tags right beside it
                                 with ui.row().classes("items-center gap-2 flex-wrap"):
                                     ui.label(display_name).classes("app-text-primary font-semibold")
-                                    for chip in (tags["system_ar"], tags["lang_ar"], tags["marks_ar"]):
+                                    for chip in (tags["system_ar"], tags["lang_ar"], tags["marks_ar"], tags["gender_ar"]):
                                         ui.label(chip).classes("app-chip app-chip--accent")
                                     for msg in conflicts:
                                         with ui.label("تعارض").classes("app-chip app-chip--warning"):
@@ -149,6 +149,8 @@ class TemplatesMixin:
                                         ui.notify(f"تعذر فتح الملف: {exc}", type="warning")
 
                                 UI.icon_button("launch", "فتح القالب في Word", on_click=lambda _e, fp=filepath: _open_word(fp))
+                                UI.icon_button("delete", "حذف القالب",
+                                               on_click=lambda _e, fn=f, nm=display_name: _confirm_delete(fn, nm))
                                 UI.icon_button("download", "تنزيل القالب", on_click=lambda _e, fp=filepath: deliver_file(
                                     fp, filename=os.path.basename(fp),
                                     title=f"تم حفظ القالب ({os.path.basename(fp)}) بنجاح", auto_open=False))
@@ -173,6 +175,22 @@ class TemplatesMixin:
                     ui.notify("حُفظ القالب على هذا الجهاز فقط: تعذر إرساله إلى الخادم، وقد يُستبدل عند التشغيل القادم.",
                               type="warning", timeout=8000)
 
+            def _confirm_delete(filename: str, name: str):
+                def _do():
+                    from services.template_sync import delete_template_everywhere
+                    ok, msg = delete_template_everywhere(filename)
+                    if ok:
+                        ui.notify(f"تم حذف القالب ({name})", type="positive")
+                    else:
+                        ui.notify(msg or "تعذر حذف القالب", type="warning", timeout=8000)
+                    _render_templates_table.refresh()
+
+                UI.confirm_dialog(
+                    "حذف القالب",
+                    f"سيُحذف القالب «{name}» ({filename}) من هذا الجهاز ومن الخادم وجميع الأجهزة. "
+                    "يُحفظ الملف في مجلد .deleted داخل مجلد القوالب ويمكن استرجاعه يدوياً.",
+                    "حذف", _do)
+
             def _open_edit_dialog(filename: str, current_name: str):
                 """Name and the three tags of one template; the .docx file is not changed."""
                 t = template_tags(filename)
@@ -186,6 +204,7 @@ class TemplatesMixin:
                         sys_opts = _system_options(cur)
                         sys_sel = UI.select("النظام الدراسي", {k: k for k in sys_opts}, value=cur)
                         marks_sel = UI.select("الدرجات", {True: TAG_MARKS[True], False: TAG_MARKS[False]}, value=t["sbs"])
+                        gender_sel = UI.select("الجنس", dict(TAG_GENDERS), value=t["gender"])
 
                     def _save():
                         name = (name_inp.value or "").strip()
@@ -194,7 +213,7 @@ class TemplatesMixin:
                             return
                         rule = sys_opts.get(sys_sel.value) or t["system"]
                         if save_template_tags(filename, name, lang_sel.value, rule, bool(marks_sel.value),
-                                              system_name=sys_sel.value or ""):
+                                              system_name=sys_sel.value or "", gender=gender_sel.value or "Any"):
                             _share_config()
                             dlg.close()
                             _render_templates_table.refresh()
@@ -215,7 +234,7 @@ class TemplatesMixin:
                     ui.icon("add_circle", size="md").classes("stat-text-emerald")
                     with ui.column().classes("gap-0"):
                         ui.label("إضافة قالب وثيقة جديد وتحديد اسمه").classes("text-base font-bold app-text-primary")
-                        ui.label("ارفع ملف Word (.docx)، واكتب اسمه، واختر لغته ونظامه الدراسي وهل هو بالدرجات.").classes("text-xs app-text-muted")
+                        ui.label("ارفع ملف Word (.docx)، واكتب اسمه، واختر لغته ونظامه الدراسي وهل هو بالدرجات ولأي جنس.").classes("text-xs app-text-muted")
 
             new_template_state = {"file_name": "", "file_content": None}
 
@@ -227,6 +246,7 @@ class TemplatesMixin:
                     add_sys = UI.select("النظام الدراسي", {k: k for k in add_sys_opts},
                                         value=next(iter(add_sys_opts), None))
                     add_marks = UI.select("الدرجات", {True: TAG_MARKS[True], False: TAG_MARKS[False]}, value=False)
+                    add_gender = UI.select("الجنس", dict(TAG_GENDERS), value="Any")
 
                 # Selected file status indicator
                 file_status_label = ui.label("لم يتم اختيار ملف Word بعد").classes("text-xs app-text-muted italic")
@@ -279,7 +299,11 @@ class TemplatesMixin:
 
                             save_template_tags(fname, chosen_name, add_lang.value,
                                                add_sys_opts.get(add_sys.value) or "Annual", bool(add_marks.value),
-                                               system_name=add_sys.value or "")
+                                               system_name=add_sys.value or "", gender=add_gender.value or "Any")
+                            from services.template_sync import push_template_file
+                            if not push_template_file(fname):
+                                ui.notify("حُفظ ملف القالب على هذا الجهاز فقط: تعذر إرساله إلى الخادم.",
+                                          type="warning", timeout=8000)
                             _share_config(notify=False)
 
                             ui.notify(f"تم حفظ وتسجيل القالب بنجاح باسم: ({chosen_name})", type="positive")

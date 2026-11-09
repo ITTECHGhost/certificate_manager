@@ -75,3 +75,33 @@ def test_named_system_tag_saved_and_used_for_filter(cfg):
     assert (t["system_name"], t["system_ar"]) == ("النظام الفصلي", "النظام الفصلي")
     files = ["year - Temp - Ar.docx", "semester - Temp - Ar.docx"]
     assert filter_templates_for_system(files, {"study_system_name_ar": "نظام المقررات"}) == ["semester - Temp - Ar.docx"]
+
+
+def test_gender_tag_default_save_and_conflicts(cfg):
+    tc.save_template_tags("a.docx", "تأييد", "Ar", "Annual", False)
+    assert (tc.template_tags("a.docx")["gender"], tc.template_tags("a.docx")["gender_ar"]) == ("Any", "للجنسين")
+    tc.save_template_tags("a.docx", "تأييد", "Ar", "Annual", False, gender="Female")
+    assert json.loads(cfg.read_text(encoding="utf-8"))["a"]["gender"] == "Female"
+    tc.save_template_tags("a.docx", "تأييد", "Ar", "Annual", False, gender="zz")
+    assert tc.template_tags("a.docx")["gender"] == "Any"
+    assert tc.template_tag_conflicts("تأييد طالبة", {"gender": "Male"})
+    assert not tc.template_tag_conflicts("تأييد طالبة", {"gender": "Female"})
+
+
+def test_filter_by_student_gender(cfg):
+    for f, g in (("m.docx", "Male"), ("f.docx", "Female"), ("any.docx", "Any")):
+        tc.save_template_tags(f, "تأييد", "Ar", "Annual", False, gender=g)
+    files = ["m.docx", "f.docx", "any.docx"]
+    assert filter_templates_for_system(files, {"gender": 1}) == ["m.docx", "any.docx"]
+    assert filter_templates_for_system(files, {"gender": "Female"}) == ["f.docx", "any.docx"]
+    assert filter_templates_for_system(files, {"gender": None}) == files
+    # nothing for this gender -> no gender filtering
+    assert filter_templates_for_system(["m.docx"], {"gender": 2}) == ["m.docx"]
+
+
+def test_gender_read_from_student_info_and_shown_in_label(cfg):
+    tc.save_template_tags("m.docx", "تأييد", "Ar", "Annual", False, gender="Male")
+    tc.save_template_tags("f.docx", "تأييد", "Ar", "Annual", False, gender="Female")
+    data = {"student_info": {"gender": 2}, "period_display": "year"}
+    assert filter_templates_for_system(["m.docx", "f.docx"], data) == ["f.docx"]
+    assert template_lines("f.docx") == ("تأييد", "عربي • بدون درجات • إناث")

@@ -43,11 +43,31 @@ Needs: Python 3.14 (64-bit), `py -3 -m pip install -r requirements-dev.txt`, Inn
    (use `certman_api`), installs and starts the service, opens port 2030 in the firewall and checks `/ping`.
 6. HTTPS, program key and client package: follow `SERVER_SETUP_GUIDE.md`, steps 4–6 (`setup_server_https.bat`).
 
-### Updating the server
-Unzip the new bundle (not into the live folder) and double-click `setup_server.bat` again. Never overwritten:
+### Updating the server (and the clients) — one folder, one double-click
+1. On the developer laptop, run `scripts\build_release.bat`. It ends with
+   `dist\release\<version>\CertificateManagerUpdate-<version>\`.
+2. Copy that whole folder to the server laptop, by USB or over the network (a shared folder, or Remote Desktop file copy).
+3. On the server laptop, double-click **`Update.bat`** in that folder and accept the Administrator prompt. It:
+   1. checks every file against `checksums.txt`, and refuses a damaged copy;
+   2. refuses a version that isn't newer than `server_version.txt`;
+   3. asks once, then updates the API code and the database, as described below;
+   4. publishes the client update. Every client shows «تحديث جديد متاح» at its next start.
+
+   A log, `update-log-<time>.txt`, is written into the folder.
+4. A client that can't reach the server: run `client\CertificateManager-Setup-<version>.exe` on it.
+
+What the server update step does (this is `setup_server.bat`, which can still be run by itself). Never overwritten:
 `db_config.json`, `app_keys.json`, `server_settings.json`, `certs\`, `client_package\`, `logs\`.
 `templets\` only gets the templates it is missing. The first update from a version before 2.1 creates
 `db_config.json` from the old `config.py` automatically.
+
+From 2.3.0 it also updates the **database**, so no phpMyAdmin steps are needed:
+1. It backs up the database to `C:\AppServ\www\certificate_manager_api\backups\before-update-<version>-<time>.sql`.
+2. It runs the new `sql\migrations\NNNN_*.sql` files. Each runs once, and the table `schema_migrations` records them.
+3. It re-applies every stored procedure from `sql\SP.sql`.
+
+If any database step fails, the old code and the old stored procedures are put back, and the old service
+starts again. The backup file is named on screen. `server_version.txt` in the API folder shows the installed version.
 
 ---
 

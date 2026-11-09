@@ -379,6 +379,18 @@ TAG_SYSTEMS: Dict[str, str] = {
     "Diploma": "دبلوم عالي",
 }
 TAG_MARKS: Dict[bool, str] = {True: "بالدرجات", False: "بدون درجات"}
+# Who the template is for; "Any" (the default for older entries) suits every student.
+TAG_GENDERS: Dict[str, str] = {"Any": "للجنسين", "Male": "ذكور", "Female": "إناث"}
+
+
+def normalize_gender(value: Any) -> str:
+    """'Male' / 'Female' from a gender tag or a student's gender (1/2, English or Arabic); '' when unknown."""
+    v = str(value if value is not None else "").strip().lower()
+    if v in ("1", "male", "m", "ذكر", "ذكور"):
+        return "Male"
+    if v in ("2", "female", "f", "أنثى", "انثى", "إناث", "اناث"):
+        return "Female"
+    return ""
 
 
 def template_tags(raw_name: Optional[str]) -> Dict[str, Any]:
@@ -388,9 +400,11 @@ def template_tags(raw_name: Optional[str]) -> Dict[str, Any]:
     system = next((k for k in TAG_SYSTEMS if k.lower() == str(info.get("system") or "").lower()), "Annual")
     sbs = bool(info.get("sbs"))
     system_name = str(info.get("system_name") or "").strip()
+    gender = normalize_gender(info.get("gender")) or "Any"
     return {
-        "lang": lang, "system": system, "sbs": sbs, "system_name": system_name,
+        "lang": lang, "system": system, "sbs": sbs, "system_name": system_name, "gender": gender,
         "lang_ar": TAG_LANGS[lang], "system_ar": system_name or TAG_SYSTEMS[system], "marks_ar": TAG_MARKS[sbs],
+        "gender_ar": TAG_GENDERS[gender],
     }
 
 
@@ -409,13 +423,14 @@ def system_tag_options(systems: list, current: str = "") -> Dict[str, str]:
 
 
 def save_template_tags(key_or_filename: str, display_name: str, lang: str, system: str, sbs: bool,
-                       system_name: str = "") -> bool:
-    """Saves the user's name and the three tags for a template (the .docx is not touched)."""
+                       system_name: str = "", gender: str = "Any") -> bool:
+    """Saves the user's name and the four tags for a template (the .docx is not touched)."""
     key = normalize_template_key(key_or_filename)
     if not key or not (display_name or "").strip():
         return False
     lang = lang if lang in TAG_LANGS else "Ar"
     system = system if system in TAG_SYSTEMS else "Annual"
+    gender = gender if gender in TAG_GENDERS else "Any"
     config = load_templates_config()
     entry = dict(config.get(key, {}))
     entry.update({
@@ -425,6 +440,7 @@ def save_template_tags(key_or_filename: str, display_name: str, lang: str, syste
         "system": system, "system_ar": (system_name or "").strip() or TAG_SYSTEMS[system],
         "system_name": (system_name or "").strip(),
         "sbs": bool(sbs), "type_ar": TAG_MARKS[bool(sbs)],
+        "gender": gender, "gender_ar": TAG_GENDERS[gender],
     })
     config[key] = entry
     return save_templates_config(config)
@@ -438,6 +454,8 @@ _CONFLICT_WORDS = (
     (("فصلي", "سنوي"), "system", ("Semester", "Bologna"), "الاسم يذكر الفصلي والنظام مختلف"),
     (("بولونيا",), "system", ("Annual", "Semester"), "الاسم يذكر بولونيا والنظام مختلف"),
     (("بدون درجات",), "sbs", (True,), "الاسم يذكر «بدون درجات» والقالب بالدرجات"),
+    (("طالبة", "إناث", "اناث"), "gender", ("Male",), "الاسم يذكر الإناث والقالب للذكور"),
+    (("ذكور",), "gender", ("Female",), "الاسم يذكر الذكور والقالب للإناث"),
 )
 
 

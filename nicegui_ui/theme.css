@@ -1180,7 +1180,7 @@ input, textarea { caret-color: var(--accent); }
 
 /* Settings → templates: name with tags beside it; tag selects in a row */
 .app-template-card { padding:10px 12px; border:1px solid var(--border-default); border-radius:12px; background:var(--surface-card); }
-.app-template-tags { display:grid; grid-template-columns:repeat(3, minmax(0,1fr)); gap:12px; }
+.app-template-tags { display:grid; grid-template-columns:repeat(2, minmax(0,1fr)); gap:12px; }
 @media (max-width: 640px) { .app-template-tags { grid-template-columns:1fr; } }
 
 /* Settings → study systems: one block per system, shifts as chips */

@@ -170,6 +170,17 @@ def sync_templates_if_online() -> Dict[str, Any]:
             else:
                 result["errors"].append(filename)
 
+    # 3. Templates deleted on another computer: gone from the server and from the config
+    if not result["errors"]:
+        try:
+            removed = remove_templates_deleted_on_server(
+                [t.get("filename") or "" for t in remote_templates], templates_dir)
+            if removed:
+                result["removed_files"] = removed
+                result["up_to_date"] = False
+        except Exception as e:
+            logger.warning(f"Could not remove templates deleted on the server: {e}")
+
     if result["errors"]:
         result["success"] = False
 
@@ -195,3 +206,82 @@ def push_templates_config() -> bool:
     except Exception as e:
         logger.warning(f"Template config upload failed: {e}")
     return False
+
+
+def push_template_file(filename: str) -> bool:
+    """Sends one local .docx to the server, so other computers receive it at their next sync."""
+    if not is_online():
+        return False
+    path = os.path.join(get_local_templates_dir(), filename)
+    if not os.path.isfile(path):
+        return False
+    try:
+        with open(path, "rb") as f:
+            files = {"file": (filename, f.read(),
+                              "application/vnd.openxmlformats-officedocument.wordprocessingml.document")}
+        resp = api_client.post(f"{get_api_url()}/api/templates/upload", files=files, timeout=20.0)
+        if resp.status_code == 200:
+            return True
+        logger.warning(f"Template upload failed: HTTP {resp.status_code} {resp.text[:200]}")
+    except Exception as e:
+        logger.warning(f"Template upload failed: {e}")
+    return False
+
+
+def delete_template_everywhere(filename: str) -> tuple[bool, str]:
+    """Deletes a template on the server, then here. Needs the server: deleting only here would
+    come back at the next sync. Local files go to templets/.deleted/, never erased."""
+    from urllib.parse import quote
+    from nicegui_ui.template_constants import delete_template_config
+
+    if not is_online():
+        return False, "حذف القالب يحتاج الاتصال بالخادم"
+    try:
+        resp = api_client.delete(f"{get_api_url()}/api/templates/{quote(filename)}", timeout=10.0)
+        if resp.status_code != 200:
+            return False, f"رفض الخادم الحذف (HTTP {resp.status_code})"
+    except Exception as e:
+        return False, f"تعذر الاتصال بالخادم: {e}"
+    _move_to_local_trash(filename)
+    delete_template_config(filename)
+    if not push_templates_config():
+        return False, "حُذف الملف، لكن تعذر تحديث قائمة القوالب على الخادم"
+    return True, ""
+
+
+def _move_to_local_trash(filename: str, templates_dir: str = "") -> None:
+    from datetime import datetime
+    templates_dir = templates_dir or get_local_templates_dir()
+    src = os.path.join(templates_dir, filename)
+    if not os.path.isfile(src):
+        return
+    trash = os.path.join(templates_dir, ".deleted")
+    os.makedirs(trash, exist_ok=True)
+    os.replace(src, os.path.join(trash, f"{datetime.now():%Y%m%d-%H%M%S} {filename}"))
+
+
+def remove_templates_deleted_on_server(server_files: List[str], templates_dir: str) -> List[str]:
+    """Local .docx files that the server no longer has AND that have no entry in the (already
+    synced) templates_config.json were deleted on another computer: move them to .deleted/.
+    A local template that is still registered (e.g. not uploaded yet) is kept."""
+    import json
+    from nicegui_ui.template_constants import normalize_template_key
+    on_server = {f.lower() for f in server_files}
+    try:  # the file itself, not load_templates_config(): that one re-adds the built-in defaults
+        with open(os.path.join(templates_dir, "templates_config.json"), encoding="utf-8") as fh:
+            config = json.load(fh)
+    except Exception:
+        return []  # unreadable config: never remove anything
+    if not isinstance(config, dict) or not config:
+        return []
+    registered = {normalize_template_key(v.get("file") or k).lower() for k, v in config.items()} | \
+                 {normalize_template_key(k).lower() for k in config}
+    removed = []
+    for f in os.listdir(templates_dir):
+        if not f.lower().endswith(".docx") or f.startswith("~") or f.lower() in on_server:
+            continue
+        if normalize_template_key(f).lower() in registered:
+            continue
+        _move_to_local_trash(f, templates_dir)
+        removed.append(f)
+    return removed

@@ -10,7 +10,7 @@ from __future__ import annotations
 
 import re
 
-from nicegui_ui.template_constants import get_template_info, template_tags
+from nicegui_ui.template_constants import get_template_info, normalize_gender, template_tags
 
 TITLE_BY_SYSTEM = {
     "annual": "وثيقة تخرج — النظام الفصلي",
@@ -34,7 +34,10 @@ def template_lines(raw_name: str | None) -> tuple[str, str]:
     name = str(info.get("display_name") or "")
     if _is_generated_name(name):
         name = TITLE_BY_SYSTEM.get(tags["system"].lower(), tags["system_ar"])
-    return name, f"{tags['lang_ar']} • {tags['marks_ar']}"
+    variant = f"{tags['lang_ar']} • {tags['marks_ar']}"
+    if tags["gender"] != "Any":
+        variant += f" • {tags['gender_ar']}"
+    return name, variant
 
 
 def template_option_label(raw_name: str | None) -> str:
@@ -54,6 +57,23 @@ def student_system(data: dict | None) -> str:
 
 
 def filter_templates_for_system(files: list[str], data: dict | None) -> list[str]:
+    """The student's study system, then their gender; a step that would leave nothing is skipped."""
+    by_system = _filter_by_system(files, data)
+    gender = student_gender(data)
+    if not gender:
+        return by_system
+    matching = [f for f in by_system if template_tags(f)["gender"] in (gender, "Any")]
+    return matching or by_system
+
+
+def student_gender(data: dict | None) -> str:
+    """'Male' / 'Female' / '' — the certificate data keeps it under student_info."""
+    data = data or {}
+    info = data.get("student_info") if isinstance(data.get("student_info"), dict) else {}
+    return normalize_gender(info.get("gender") if info.get("gender") is not None else data.get("gender"))
+
+
+def _filter_by_system(files: list[str], data: dict | None) -> list[str]:
     """Only the templates of the student's study system; all of them when it is unknown."""
     # A template tagged with a study-system name matches students of that system by name
     name = str((data or {}).get("study_system_name_ar") or (data or {}).get("study_system_ar") or "").strip()

@@ -27,6 +27,9 @@ if ($LASTEXITCODE -ge 8) { throw "robocopy of the templates failed (code $LASTEX
 New-Item -ItemType Directory -Force -Path (Join-Path $bundle "sql\fixes") | Out-Null
 Copy-Item -LiteralPath (Join-Path $root "sql\schema.sql"), (Join-Path $root "sql\SP.sql") -Destination (Join-Path $bundle "sql")
 Copy-Item -Path (Join-Path $root "sql\fixes\*.sql") -Destination (Join-Path $bundle "sql\fixes")
+# Migrations run once each on the server (setup_server.ps1 -> migrate.py); SP.sql is re-applied every time
+robocopy (Join-Path $root "sql\migrations") (Join-Path $bundle "sql\migrations") *.sql README.md /NFL /NDL /NJH /NJS /NP | Out-Null
+if ($LASTEXITCODE -ge 8) { throw "robocopy of the migrations failed (code $LASTEXITCODE)" }
 Copy-Item -LiteralPath (Join-Path $root "requirements-server.txt") -Destination $bundle
 Copy-Item -LiteralPath (Join-Path $root "installer\server\setup_server.bat"), (Join-Path $root "installer\server\setup_server.ps1") -Destination $bundle
 Copy-Item -LiteralPath (Join-Path $root "certificate_manager_api\SERVER_SETUP_GUIDE.md") -Destination $bundle
