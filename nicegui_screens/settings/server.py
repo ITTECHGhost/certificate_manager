@@ -3,6 +3,7 @@
 # =============================================================================
 
 import json
+import os
 from nicegui import ui
 from nicegui_ui.ui_components import UI
 
@@ -293,3 +294,113 @@ class ServerMixin:
                 ui.button("إعادة مع التجاوز", icon="published_with_changes", on_click=_override_all).props("color=warning")
                 ui.button("حذف الكل", icon="delete_forever", on_click=_discard_all).props("color=negative")
         dialog.open()
+
+    def _section_server_update(self) -> None:
+        """Admins: upload CertificateManagerUpdate-x.y.z.zip and choose when the server installs it."""
+        import tempfile
+        from datetime import datetime, timedelta
+        from nicegui import run
+        import services.server_update as su
+        from nicegui_ui.upload_utils import read_upload
+
+        state = {"zip": None, "name": ""}
+
+        with UI.card():
+            UI.card_header("تحديث الخادم", "system_update", icon_css="stat-text-blue")
+            UI.muted_label("ارفع ملف التحديث المضغوط الذي جهّزه المطوّر واختر وقت التثبيت. "
+                           "يأخذ الخادم نسخة احتياطية من قاعدة البيانات أولاً، ويعود إلى الإصدار السابق إن فشل التحديث.")
+
+            @ui.refreshable
+            def _status_view():
+                lines = su.describe(state.get("status"))
+                with ui.column().classes("gap-1"):
+                    ui.label(f"إصدار الخادم: {lines['version']}").classes("app-text-primary font-semibold")
+                    for key in ("pending", "last"):
+                        if lines[key]:
+                            ui.label(lines[key]).classes("app-caption")
+                    if lines["warning"]:
+                        ui.label(lines["warning"]).classes("app-chip app-chip--warning")
+                    last = (state.get("status") or {}).get("last") or {}
+                    if last.get("state") == "failed" and last.get("log_tail"):
+                        with ui.expansion("سجل آخر محاولة").classes("w-full"):
+                            ui.label("\n".join(last["log_tail"])).classes("app-caption whitespace-pre-wrap").style("direction:ltr")
+
+            async def _refresh():
+                state["status"] = await run.io_bound(su.get_status)
+                _status_view.refresh()
+
+            _status_view()
+
+            file_label = ui.label("لم يتم اختيار ملف التحديث").classes("text-xs app-text-muted italic")
+
+            async def _on_upload(e):
+                name, content = await read_upload(e)
+                if not name.lower().endswith(".zip"):
+                    ui.notify("اختر ملف التحديث المضغوط", type="warning")
+                    return
+                path = os.path.join(tempfile.gettempdir(), name)
+                with open(path, "wb") as f:
+                    f.write(content)
+                state["zip"], state["name"] = path, name
+                file_label.set_text(f"الملف: {name} ({round(len(content) / 1048576, 1)} MB)")
+
+            ui.upload(label="اختر ملف التحديث المضغوط", auto_upload=True, on_upload=_on_upload) \
+                .props("accept=.zip max-files=1").classes("w-full")
+
+            default_time = (datetime.now() + timedelta(days=1)).replace(hour=22, minute=0) \
+                if datetime.now().hour >= 22 else datetime.now().replace(hour=22, minute=0)
+            with ui.row().classes("w-full items-end gap-3 flex-wrap"):
+                when = ui.radio({"now": "الآن", "later": "في وقت محدد"}, value="later").props("inline")
+                when_at = ui.input("وقت التثبيت", value=default_time.strftime("%Y-%m-%d %H:%M")) \
+                    .props("outlined dense").classes("w-48")
+                when_at.bind_visibility_from(when, "value", value="later")
+            UI.muted_label("في وقت التثبيت يتوقف الخادم دقيقة تقريباً: اختر وقتاً لا يُصدر فيه أحد وثائق.")
+
+            def _ask_password(title: str, on_ok):
+                with ui.dialog() as dlg, UI.card().classes("w-[420px] max-w-full gap-3"):
+                    UI.card_header(title, "lock")
+                    pw = ui.input("كلمة المرور", password=True, password_toggle_button=True).props("outlined dense autofocus")
+
+                    async def _go():
+                        dlg.close()
+                        await on_ok(pw.value or "")
+                    pw.on("keydown.enter", _go)
+                    with ui.row().classes("app-dialog-actions"):
+                        UI.ghost_button("إلغاء", on_click=dlg.close)
+                        UI.primary_button("متابعة", icon="check", on_click=_go)
+                dlg.open()
+
+            async def _send(password: str):
+                run_at = "now"
+                if when.value == "later":
+                    try:
+                        run_at = datetime.strptime((when_at.value or "").strip(), "%Y-%m-%d %H:%M").strftime("%Y-%m-%dT%H:%M")
+                    except ValueError:
+                        ui.notify("اكتب الوقت بالشكل 2026-11-10 22:00", type="warning")
+                        return
+                n = ui.notification("جاري رفع التحديث إلى الخادم...", timeout=None, spinner=True)
+                ok, msg, pending = await run.io_bound(su.upload, state["zip"], self.session.username, password, run_at)
+                n.dismiss()
+                if ok:
+                    ui.notify(f"سيُثبت الإصدار {pending['version']} في {pending['run_at'].replace('T', ' ')}", type="positive")
+                else:
+                    ui.notify(msg or "تعذر رفع التحديث", type="negative", timeout=8000)
+                await _refresh()
+
+            async def _cancel(password: str):
+                ok, msg = await run.io_bound(su.cancel, self.session.username, password)
+                ui.notify("أُلغي التحديث المنتظر" if ok else (msg or "تعذر الإلغاء"), type="positive" if ok else "negative")
+                await _refresh()
+
+            def _start_upload():
+                if not state["zip"]:
+                    ui.notify("اختر ملف التحديث أولاً", type="warning")
+                    return
+                _ask_password("تأكيد رفع التحديث", _send)
+
+            with ui.row().classes("w-full justify-end gap-2"):
+                UI.ghost_button("تحديث الحالة", on_click=_refresh)
+                UI.ghost_button("إلغاء التحديث المنتظر", on_click=lambda: _ask_password("تأكيد الإلغاء", _cancel))
+                UI.primary_button("رفع وجدولة التحديث", icon="cloud_upload", on_click=_start_upload)
+
+            ui.timer(0.1, _refresh, once=True)

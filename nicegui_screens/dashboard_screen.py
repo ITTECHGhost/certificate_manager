@@ -86,6 +86,10 @@ class MainAppShell:
         self.refresh_data()
         self.build_ui()
 
+        # Once per run: offer a newer client version (now / at the next start / later)
+        from nicegui_ui.update_prompt import check_at_start
+        ui.timer(4.0, check_at_start, once=True)
+
     def refresh_data(self) -> None:
         """Fetches dashboard metrics & recent database records."""
         t0 = time.perf_counter()

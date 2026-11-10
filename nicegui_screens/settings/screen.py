@@ -171,7 +171,9 @@ class SettingsScreen(
                     "personnel": (self.tab_personnel, (self._section_personnel,)),
                     "roles": (self.tab_roles, (self._section_roles_and_permissions,)),
                     "templates": (self.tab_templates, (self._section_templates_management,)),
-                    "logs": (self.tab_logs, (self._section_server_config, self._section_database_maintenance, self._section_system_logs)),
+                    "logs": (self.tab_logs, ((self._section_server_config,)
+                                             + ((self._section_server_update,) if is_admin else ())
+                                             + (self._section_database_maintenance, self._section_system_logs))),
                 }
                 panels: dict[str, ui.tab_panel] = {}
                 built: set[str] = set()
@@ -219,30 +221,8 @@ class SettingsScreen(
                             ui.notify("البرنامج محدث إلى آخر إصدار متاح", type="positive")
                             return
 
-                        with ui.dialog() as dlg, ui.card().classes("w-[500px] p-6 gap-4"):
-                            UI.card_header(f"تحديث جديد متاح{res['latest_version']}", "system_update")
-                            ui.label(f"الإصدار الحالي: v{res['current_version']} ➔ الجديد: v{res['latest_version']}").classes("text-sm font-bold text-sky-500")
-                            if res.get("changelog_ar"):
-                                ui.label(f"سجل التغييرات: {res['changelog_ar']}").classes("text-xs text-slate-400")
-
-                            async def _start_ota():
-                                dlg.close()
-                                prog_notif = ui.notification("جاري تنزيل التحديث...", timeout=None, spinner=True)
-                                zip_p = await run.io_bound(upd.download_patch, res)
-                                prog_notif.dismiss()
-                                if not zip_p:
-                                    ui.notify("فشل تنزيل ملف التحديث", type="negative")
-                                    return
-                                ui.notify("تم تنزيل التحديث. جاري إعادة تشغيل التطبيق...", type="positive")
-                                await asyncio.sleep(1.0)
-                                upd.apply_patch_and_restart(zip_p)
-                                import os
-                                os._exit(0)
-
-                            with ui.row().classes("w-full justify-end gap-2 mt-4"):
-                                ui.button("إلغاء", on_click=dlg.close).classes("app-btn-secondary px-4 py-1.5 text-xs rounded-xl")
-                                ui.button("تحديث الآن", icon="system_update", on_click=_start_ota).classes("app-btn-primary px-4 py-1.5 text-xs rounded-xl")
-                        dlg.open()
+                        from nicegui_ui.update_prompt import show_update_dialog
+                        show_update_dialog(res)
                     except Exception as e:
                         n.dismiss()
                         ui.notify(f"خطأ أثناء التحقق: {e}", type="negative")

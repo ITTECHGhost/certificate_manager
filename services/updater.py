@@ -218,3 +218,61 @@ def apply_patch_and_restart(zip_path: str) -> bool:
     except Exception as e:
         logger.error(f"Failed to launch patch application script: {e}")
         return False
+
+
+# ── "Update at the next start": a downloaded patch waits here until the program starts again ──
+
+def _staged_file() -> str:
+    return str(app_paths.data_path("temp", "staged_update.json"))
+
+
+def stage_update(update_info: Dict[str, Any], zip_path: str) -> bool:
+    """Remember a downloaded patch; apply_staged_update_if_any() installs it at the next start."""
+    import json
+    try:
+        os.makedirs(os.path.dirname(_staged_file()), exist_ok=True)
+        with open(_staged_file(), "w", encoding="utf-8") as f:
+            json.dump({"version": update_info.get("latest_version"), "zip": zip_path,
+                       "sha256": calculate_file_sha256(zip_path)}, f)
+        return True
+    except Exception as e:
+        logger.error(f"Could not stage the update: {e}")
+        return False
+
+
+def staged_update(current: str = CURRENT_APP_VERSION) -> Optional[Dict[str, Any]]:
+    """The staged patch if it is still newer than this program and intact; a stale or broken
+    one is forgotten (the file is removed)."""
+    import json
+    path = _staged_file()
+    if not os.path.exists(path):
+        return None
+    try:
+        with open(path, encoding="utf-8") as f:
+            info = json.load(f)
+        ok = (is_version_newer(str(info.get("version") or ""), current)
+              and os.path.isfile(info.get("zip") or "")
+              and calculate_file_sha256(info["zip"]) == info.get("sha256"))
+    except Exception:
+        ok, info = False, {}
+    if ok:
+        return info
+    clear_staged_update()
+    return None
+
+
+def clear_staged_update() -> None:
+    try:
+        os.remove(_staged_file())
+    except OSError:
+        pass
+
+
+def apply_staged_update_if_any() -> bool:
+    """Called first thing at program start. True = the patcher was started and the caller must exit."""
+    info = staged_update()
+    if not info:
+        return False
+    logger.info(f"Installing the staged update v{info['version']} at start-up")
+    clear_staged_update()
+    return apply_patch_and_restart(info["zip"])

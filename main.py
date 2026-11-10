@@ -134,6 +134,13 @@ def dashboard_page():
 
 if __name__ in {"__main__", "__mp_main__"}:
     if __name__ == "__main__":
+        # An update chosen "at the next start": install it before anything else opens
+        try:
+            import services.updater as _upd
+            if _upd.apply_staged_update_if_any():
+                sys.exit(0)
+        except Exception as _exc:
+            print(f"Staged update check failed: {_exc}")
         ensure_port_available(2323)
         from utils.health_check import run_system_health_checks
         # Run system diagnostic health check once on startup and log to activity_log.txt

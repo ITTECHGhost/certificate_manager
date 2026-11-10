@@ -56,6 +56,15 @@ Needs: Python 3.14 (64-bit), `py -3 -m pip install -r requirements-dev.txt`, Inn
    A log, `update-log-<time>.txt`, is written into the folder.
 4. A client that can't reach the server: run `client\CertificateManager-Setup-<version>.exe` on it.
 
+**After the first USB update, use Settings instead:** sign in as an admin, go to Settings → السيرفر والصيانة والسجلات → «تحديث الخادم».
+1. Choose `CertificateManagerUpdate-<version>.zip`, which `build_release.bat` puts next to the folder.
+2. Choose **الآن**, or **في وقت محدد** (for example tonight at 22:00).
+3. Confirm with your password.
+
+The server's task `CertificateManagerServerUpdater` (created by the USB update) runs `Update.bat`'s steps at that time, without an Administrator prompt. The card then shows the new version, or «فشل» with the log. A waiting update can be cancelled there. Files are kept in `C:\AppServ\server_updates\`.
+
+**Clients:** about 4 seconds after sign-in, a client that is behind the server asks: «تحديث الآن» / «عند إعادة التشغيل» / «لاحقاً». "At restart" downloads the update now and installs it the next time the program opens. Settings → «التحقق من التحديثات» offers the same choice.
+
 What the server update step does (this is `setup_server.bat`, which can still be run by itself). Never overwritten:
 `db_config.json`, `app_keys.json`, `server_settings.json`, `certs\`, `client_package\`, `logs\`.
 `templets\` only gets the templates it is missing. The first update from a version before 2.1 creates

@@ -646,5 +646,17 @@
  [
   "POST",
   "/sync"
+ ],
+ [
+  "GET",
+  "/api/admin/server-update/status"
+ ],
+ [
+  "POST",
+  "/api/admin/server-update/upload"
+ ],
+ [
+  "POST",
+  "/api/admin/server-update/cancel"
  ]
 ]

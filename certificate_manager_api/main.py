@@ -152,6 +152,7 @@ from routers.thesis import router as thesis_router  # noqa: E402
 from routers.dashboard import router as dashboard_router  # noqa: E402
 from routers.study_routines import router as study_routines_router  # noqa: E402
 from routers.issued_certificates import router as issued_certificates_router  # noqa: E402
+from routers.server_update import router as server_update_router  # noqa: E402
 
 app.include_router(system_router)               # /ping /health/db /sp/* /replica/* /table-count/* /admin/*
 app.include_router(sync_router)                 # POST /sync
@@ -169,6 +170,7 @@ app.include_router(dashboard_router)            # /api/dashboard/*
 app.include_router(study_routines_router)       # /study-routines/* /api/study-routine*
 app.include_router(issued_certificates_router)  # /issued-certificates/* /certificate-numbers/*
 app.include_router(sync_batch_router)           # POST /sync (shadowed) and POST /api/sync
+app.include_router(server_update_router)        # /api/admin/server-update/* (upload, status, cancel)
 
 
 if __name__ == "__main__":

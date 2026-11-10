@@ -240,6 +240,20 @@ if ($SkipFirewall) { Skip "Firewall rule" } else {
     }
 }
 
+# 10b. Server updates from Settings: a task runs server_updater.ps1 every minute as SYSTEM.
+#      Created once; never rewritten while it may be the one running this update.
+$updaterTask = "CertificateManagerServerUpdater"
+if ($SkipService) { Skip "Server update task" } else {
+    & schtasks.exe /Query /TN $updaterTask *> $null
+    if ($LASTEXITCODE -eq 0) { Ok "Server update task exists" } else {
+        $updater = Join-Path $TargetDir "server_updater.ps1"
+        $action = "powershell.exe -NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -File `"$updater`""
+        & schtasks.exe /Create /TN $updaterTask /SC MINUTE /MO 1 /RU SYSTEM /RL HIGHEST /F /TR $action | Out-Null
+        if ($LASTEXITCODE -eq 0) { Ok "Server update task created (updates can now be uploaded from Settings)" }
+        else { Warn "Could not create the server update task; updates from Settings will wait until it exists." }
+    }
+}
+
 # 11. Health check
 if (-not $SkipService) {
     Start-Sleep -Seconds 3
