@@ -61,7 +61,7 @@ if ($installed) {
 }
 if (-not $Yes) {
     $answer = Read-Host "Update the server to $version now? The API stops for about a minute. (y/n)"
-    if ($answer -notmatch '^(y|yes|n?aam|نعم)$') { Fail "Cancelled. Nothing was changed." }
+    if ($answer -notmatch '^(y|yes)$') { Fail "Cancelled. Nothing was changed." }
 }
 
 # 3. Server code + database

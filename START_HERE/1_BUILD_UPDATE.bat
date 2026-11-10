@@ -17,7 +17,18 @@ if "%NEW%"=="" (
     exit /b 1
 )
 
-powershell -NoProfile -Command "$f='app_version.py'; $t=[IO.File]::ReadAllText($f); $t=[regex]::Replace($t,'APP_VERSION = \"[^\"]+\"','APP_VERSION = \"%NEW%\"'); [IO.File]::WriteAllText($f,$t,(New-Object Text.UTF8Encoding $false))"
+py -3 scripts\set_version.py %NEW%
+if errorlevel 1 (
+    pause
+    exit /b 1
+)
+set "GOT="
+for /f "usebackq delims=" %%v in (`py -3 -c "import app_version; print(app_version.APP_VERSION)"`) do set "GOT=%%v"
+if not "%GOT%"=="%NEW%" (
+    echo [ERROR] app_version.py still says %GOT%, not %NEW%. Nothing was built.
+    pause
+    exit /b 1
+)
 git add app_version.py
 git commit -q -m "release: %NEW%"
 

@@ -45,11 +45,11 @@ $lines = Get-ChildItem -LiteralPath $out -Recurse -File | Where-Object { $_.Name
 }
 Set-Content -Encoding utf8 -LiteralPath (Join-Path $out "checksums.txt") -Value $lines
 
-# The same folder as one zip: upload it in Settings -> تحديث الخادم (after the first USB install)
+# The same folder as one zip: upload it in Settings -> Server update (after the first USB install)
 $zip = "$out.zip"
 if (Test-Path $zip) { Remove-Item -Force $zip }
 Compress-Archive -Path $out -DestinationPath $zip
 
 Write-Output "UPDATE FOLDER READY: $out  ($($lines.Count) files, client files: $found of 2)"
 Write-Output "  USB: copy the folder to the server laptop and double-click Update.bat there."
-Write-Output "  Settings: upload $zip in Settings -> تحديث الخادم."
+Write-Output "  Settings: upload $zip in Settings -> Server update."
