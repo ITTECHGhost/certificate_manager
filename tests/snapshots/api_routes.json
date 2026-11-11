@@ -177,6 +177,14 @@
  ],
  [
   "GET",
+  "/departments/{dept_id}/branch"
+ ],
+ [
+  "PUT",
+  "/departments/{dept_id}/branch"
+ ],
+ [
+  "GET",
   "/study-systems"
  ],
  [

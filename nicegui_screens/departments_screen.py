@@ -169,6 +169,12 @@ class DepartmentsScreen:
                     value=existing_data.get("name_en", "")
                 ).classes("w-full text-sm")
 
+                from data.repositories.departments import get_department_branch, set_department_branch
+                branch_inp = None
+                if existing_data.get("id"):  # a new department gets its branch after the first save
+                    branch_inp = UI.text_input("الفرع (يظهر في التأييد، اختياري)",
+                                               value=get_department_branch(existing_data["id"])).classes("w-full text-sm")
+
                 ui.label("معلومات الكلية").classes("app-caption mt-2")
 
                 col_ar_val = existing_data.get("college_name_ar") or existing_data.get("college_ar") or ""
@@ -219,6 +225,8 @@ class DepartmentsScreen:
                         else:
                             if did is not None:
                                 self.repo.update(dept_id=int(did), **payload)
+                                if branch_inp is not None and not set_department_branch(int(did), (branch_inp.value or "").strip()):
+                                    ui.notify("لم يُحفظ الفرع", type="warning")
                             ui.notify("تم تعديل القسم بنجاح", type="positive")
                         self.close_panel()
                     except OfflineModeError as err:

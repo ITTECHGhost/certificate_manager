@@ -111,3 +111,32 @@ def delete_department(dept_id: int, conn=Depends(get_db)):
         raise HTTPException(status_code=500, detail=str(exc))
     finally:
         cur.close()
+
+
+class BranchPayload(BaseModel):
+    branch_ar: str = ""
+
+
+@router.get("/departments/{dept_id}/branch")
+def get_department_branch(dept_id: int, conn=Depends(get_db)):
+    cur = conn.cursor(dictionary=True)
+    try:
+        cur.execute("SELECT COALESCE(branch_ar, '') AS branch_ar FROM departments WHERE id = %s", (dept_id,))
+        row = cur.fetchone()
+        if not row:
+            raise HTTPException(status_code=404, detail="Department not found")
+        return row
+    finally:
+        cur.close()
+
+
+@router.put("/departments/{dept_id}/branch")
+def set_department_branch(dept_id: int, payload: BranchPayload, conn=Depends(get_db)):
+    cur = conn.cursor()
+    try:
+        cur.execute("UPDATE departments SET branch_ar = NULLIF(%s, '') WHERE id = %s",
+                    (payload.branch_ar.strip()[:150], dept_id))
+        conn.commit()
+        return {"status": "success"}
+    finally:
+        cur.close()

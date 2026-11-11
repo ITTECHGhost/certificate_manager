@@ -3385,6 +3385,7 @@ BEGIN
 
         COALESCE(d.name_ar, '') AS dept_name_ar, 
         COALESCE(d.name_en, '') AS dept_name_en, 
+        COALESCE(d.branch_ar, '') AS branch_ar,
         COALESCE(ss.name_ar, '') AS study_system_name_ar, 
         COALESCE(ss.name_en, '') AS study_system_name_en, 
         COALESCE(ss.calculation_rule, '') AS calculation_rule, 

@@ -10,6 +10,8 @@ from itertools import zip_longest
 
 IRAQ_NATIONALITY_ID = 274
 
+from utils.arabic_words import number_words, ordinal_words, study_duration_words  # noqa: E402
+
 
 def id_label(data: dict, is_english: bool = False) -> str:
     """'الرقم الوطني' for Iraqi students, 'رقم الجواز' for everyone else."""
@@ -745,6 +747,12 @@ def build_certificate_context(data: dict, options: dict) -> dict:
         "Sequence_of_Graduation": to_arabic_num(seq_val, is_english),
         "num_students": to_arabic_num(num_stds, is_english),
         "Average_of_First_Student": to_arabic_num(top_avg, is_english),
+        "Average_of_First_Student_words": number_words(top_avg),
+        "Sequence_of_Graduation_words": ordinal_words(seq_val),
+        "average_words": number_words(avg_str),
+        "study_duration": options.get("study_duration") or study_duration_words(
+            data.get("calculation_weights") or "", data.get("degree_level")),
+        "branch": data.get("branch_ar") or options.get("branch") or "",
         "Summer_Training_year": to_arabic_num(options.get("summer_year") or "", is_english),
         "Postponement_and_Failure_Years": to_arabic_num(options.get("postpone_years") or "", is_english),
         "Subjects_Passed_with_Second_Trial": second_subjects,
