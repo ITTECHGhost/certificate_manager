@@ -185,7 +185,7 @@ if ($SkipDbCheck -or -not $dbOk) { Skip "Database update (no working database lo
     $opt = Join-Path $env:TEMP ("certman-{0}.cnf" -f [guid]::NewGuid())
     [IO.File]::WriteAllText($opt, "[client]`nhost=$($db.host)`nuser=$($db.user)`npassword=`"$($db.password)`"`n", (New-Object Text.UTF8Encoding $false))
     try {
-        & $mysqldump "--defaults-extra-file=$opt" --single-transaction --routines --triggers --no-tablespaces "--result-file=$script:dumpFile" $dbName
+        & $mysqldump "--defaults-file=$opt" --single-transaction --routines --triggers --no-tablespaces "--result-file=$script:dumpFile" $dbName
         $dumpOk = ($LASTEXITCODE -eq 0) -and (Test-Path $script:dumpFile) -and ((Get-Item $script:dumpFile).Length -gt 1024)
     } finally { Remove-Item -Force $opt -ErrorAction SilentlyContinue }
     if (-not $dumpOk) { Restore-OldVersion "The database backup failed, so the database was not changed." }

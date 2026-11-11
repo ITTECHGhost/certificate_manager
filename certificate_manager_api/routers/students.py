@@ -368,10 +368,39 @@ def link_students_to_order(order_id: int, conn=Depends(get_db)):
             pass
         conn.commit()
         affected = row.get("affected_rows", 0) if row else 0
-        return {"affected_rows": affected}
+        ids = [int(x) for x in str((row or {}).get("student_ids") or "").split(",") if x.strip().isdigit()]
+        return {"affected_rows": affected, "student_ids": ids}
+
     except Exception as exc:
         conn.rollback()
         logger.error(f"Error linking students to order: {exc}")
+        raise HTTPException(status_code=500, detail=str(exc))
+    finally:
+        cur.close()
+
+
+class UnlinkManyPayload(BaseModel):
+    student_ids: List[int]
+
+
+@router.post("/students/unlink-order/{order_id}")
+def unlink_many_from_order(order_id: int, payload: UnlinkManyPayload, conn=Depends(get_db)):
+    """Undo of an auto-link: unlinks these students, but only those still in this order."""
+    if not payload.student_ids:
+        return {"affected_rows": 0}
+    cur = conn.cursor()
+    try:
+        marks = ",".join(["%s"] * len(payload.student_ids))
+        cur.execute(
+            f"UPDATE students SET order_id = NULL, graduation_date = NULL, graduation_semester = NULL "
+            f"WHERE order_id = %s AND id IN ({marks})",
+            (order_id, *payload.student_ids),
+        )
+        affected = cur.rowcount
+        conn.commit()
+        return {"affected_rows": affected}
+    except Exception as exc:
+        conn.rollback()
         raise HTTPException(status_code=500, detail=str(exc))
     finally:
         cur.close()

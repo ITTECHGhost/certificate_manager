@@ -136,6 +136,10 @@
   "/students/link-order/{order_id}"
  ],
  [
+  "POST",
+  "/students/unlink-order/{order_id}"
+ ],
+ [
   "PUT",
   "/students/{student_id}/link-order/{order_id}"
  ],
@@ -658,5 +662,29 @@
  [
   "POST",
   "/api/admin/server-update/cancel"
+ ],
+ [
+  "GET",
+  "/orders/{order_id}/images"
+ ],
+ [
+  "GET",
+  "/orders/{order_id}/images/{image_id}"
+ ],
+ [
+  "POST",
+  "/orders/{order_id}/images"
+ ],
+ [
+  "PUT",
+  "/orders/{order_id}/images/{image_id}/rotation"
+ ],
+ [
+  "PUT",
+  "/orders/{order_id}/images-order"
+ ],
+ [
+  "DELETE",
+  "/orders/{order_id}/images/{image_id}"
  ]
 ]

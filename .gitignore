@@ -64,3 +64,4 @@ config/ui_language.json
 
 # START_HERE build results (made by 1_BUILD_UPDATE.bat)
 START_HERE/output/
+backups/
