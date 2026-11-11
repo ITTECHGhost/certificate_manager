@@ -900,6 +900,9 @@ class StudentBulkImportView:
                         "degree_level": 1,
                         "admission_year": st.get("admission_year") or self.academic_year,
                         "average": rec.get("average") if rec.get("has_grades") else None,
+                        "expected_graduation_year": st.get("expected_graduation_year"),
+                        "expected_graduation_semester": st.get("expected_graduation_semester") or "",
+                        "order_number": st.get("order_number") or "",
                         "academic_year": str(self.academic_year).strip(),
                         "stage_number": 1,
                         "semester_num": 1,
@@ -913,6 +916,10 @@ class StudentBulkImportView:
                 created_periods = res.get("created_periods", 0)
                 reused_periods = res.get("reused_periods", 0)
                 created_enrollments = res.get("saved_enrollments", 0)
+                if res.get("linked_to_orders"):
+                    ui.notify(f"رُبط {res['linked_to_orders']} طالب بأوامر التخرج المكتوبة في الملف", type="positive")
+                for warn in (res.get("order_warnings") or [])[:5]:
+                    ui.notify(warn, type="warning", timeout=10000)
                 progress_bar.value = 1.0
             else:
                 for idx, rec in enumerate(self.merged_records, start=1):

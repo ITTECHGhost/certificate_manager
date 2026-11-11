@@ -9,6 +9,7 @@ CONFIG_FILE = app_paths.data_path("server_config.json")
 DEFAULT_HOST = "127.0.0.1"
 DEFAULT_PORT = 2030
 DEFAULT_CA_CERT = "certs/college_ca.crt"
+DEFAULT_SCHEME = "https"
 
 
 def _build_url(scheme: str, host: str, port: int) -> str:
@@ -41,8 +42,10 @@ def _read_config_file() -> dict:
 def load_server_config() -> dict:
     """Loads local server API configuration from server_config.json."""
     data = _read_config_file()
-    scheme = str(data.get("scheme") or "http").lower()
-    scheme, host = _split_host(data.get("host", DEFAULT_HOST), scheme if scheme in ("http", "https") else "http")
+    # New installs default to HTTPS; the connection check falls back to HTTP (and saves it)
+    # while the server still runs HTTP, and moves to HTTPS by itself once the server does.
+    scheme = str(data.get("scheme") or DEFAULT_SCHEME).lower()
+    scheme, host = _split_host(data.get("host", DEFAULT_HOST), scheme if scheme in ("http", "https") else DEFAULT_SCHEME)
     try:
         port = int(data.get("port", DEFAULT_PORT))
     except (TypeError, ValueError):
@@ -69,7 +72,7 @@ def load_server_config() -> dict:
 def save_server_config(host: str, port: int | str, secret: str = "certificate_manager_secret_key", timeout: float = 5.0, auto_sync: bool = True) -> dict:
     """Saves server API configuration locally to server_config.json (keeps scheme, CA and app key settings)."""
     existing = _read_config_file()
-    scheme, clean_host = _split_host(host, str(existing.get("scheme") or "http").lower())
+    scheme, clean_host = _split_host(host, str(existing.get("scheme") or DEFAULT_SCHEME).lower())
     clean_port = int(port)
     cfg = dict(existing)
     cfg.update({
@@ -103,6 +106,29 @@ def _apply(cfg: dict) -> None:
 # Load initial configuration from local server_config.json
 _client_cfg: dict = {}
 _apply(load_server_config())
+
+
+def other_scheme_url() -> str:
+    """The same server with the other scheme (http <-> https)."""
+    other = "http" if _client_cfg.get("scheme") == "https" else "https"
+    return _build_url(other, API_HOST, API_PORT)
+
+
+def set_scheme(scheme: str) -> None:
+    """Saves the scheme the server answered on and switches to it."""
+    if scheme not in ("http", "https"):
+        return
+    cfg = _read_config_file()
+    cfg["scheme"] = scheme
+    cfg["host"] = API_HOST
+    cfg["port"] = API_PORT
+    cfg["api_url"] = _build_url(scheme, API_HOST, API_PORT)
+    try:
+        with open(CONFIG_FILE, "w", encoding="utf-8") as f:
+            json.dump(cfg, f, indent=4, ensure_ascii=False)
+    except Exception as exc:
+        print(f"[api_config] Failed to save server_config.json: {exc}")
+    _apply(load_server_config())
 
 
 def get_api_url() -> str:

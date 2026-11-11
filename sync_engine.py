@@ -77,9 +77,36 @@ def check_network_status(target_url: str | None = None) -> bool:
     url = target_url or get_api_url()
     try:
         response = api_client.get(f"{url}/ping", timeout=2.0)
-        return response.status_code == 200
+        if response.status_code == 200:
+            return True
     except requests.RequestException:
+        pass
+    if target_url is None:
+        return _try_other_scheme()
+    return False
+
+
+_last_scheme_probe = 0.0
+
+
+def _try_other_scheme() -> bool:
+    """The server may have moved between HTTP and HTTPS: try the other one (at most once a
+    minute) and keep it when it answers."""
+    import time
+    from api_config import other_scheme_url, set_scheme
+    global _last_scheme_probe
+    if time.monotonic() - _last_scheme_probe < 60:
         return False
+    _last_scheme_probe = time.monotonic()
+    url = other_scheme_url()
+    try:
+        if api_client.get(f"{url}/ping", timeout=2.0).status_code == 200:
+            set_scheme(url.split("://", 1)[0])
+            log.info(f"Server answers on {url}: switched")
+            return True
+    except requests.RequestException:
+        pass
+    return False
 
 # ---------------------------------------------------------------------------
 # Constants
