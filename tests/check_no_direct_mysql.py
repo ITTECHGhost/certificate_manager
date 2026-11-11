@@ -16,7 +16,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 
 # Server code, archived code and developer-only DB tools are allowed to reach MySQL.
-EXCLUDED_DIRS = {"old", "certificate_manager_api", "tests", "tools", "installer", "build", "dist", ".venv",
+EXCLUDED_DIRS = {"old", "certificate_manager_api", "tests", "tools", "installer", "build", "dist", "START_HERE", ".venv",
                  ".git", ".claude", ".agent", ".gemini", ".nicegui", "__pycache__"}
 EXCLUDED_FILES: set[str] = set()
 HTTP_CALLS = {"get", "post", "put", "patch", "delete", "request", "Session"}

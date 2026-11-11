@@ -86,6 +86,11 @@ class TemplatesMixin:
                             import services.template_sync as t_sync
                             res = await run.io_bound(t_sync.sync_templates_if_online)
                             n.dismiss()
+                            kept = (res.get("local_edits") or []) + (res.get("conflicts") or [])
+                            if kept:
+                                ui.notify(f"لم تُستبدل {len(kept)} قوالب معدّلة على هذا الجهاز؛ ارفعها أو استرجع نسخة الخادم",
+                                          type="warning", timeout=8000)
+                                _render_templates_table.refresh()
                             if res.get("synced_files"):
                                 ui.notify(f"تم تحديث {len(res['synced_files'])} ملف بنجاح", type="positive")
                                 _render_templates_table.refresh()
@@ -123,6 +128,8 @@ class TemplatesMixin:
                         size_kb = round(os.path.getsize(filepath) / 1024, 1)
                         mtime = datetime.fromtimestamp(os.path.getmtime(filepath)).strftime("%Y-%m-%d %H:%M")
                         conflicts = template_tag_conflicts(display_name, tags)
+                        from services.template_sync import is_locally_modified
+                        modified = is_locally_modified(f, templates_dir)
 
                         with ui.row().classes("app-template-card w-full items-center no-wrap gap-3"):
                             ui.icon("description", size="sm").classes("app-text-accent shrink-0")
@@ -132,6 +139,9 @@ class TemplatesMixin:
                                     ui.label(display_name).classes("app-text-primary font-semibold")
                                     for chip in (tags["system_ar"], tags["lang_ar"], tags["marks_ar"], tags["gender_ar"]):
                                         ui.label(chip).classes("app-chip app-chip--accent")
+                                    if modified:
+                                        with ui.label("معدّل على هذا الجهاز").classes("app-chip app-chip--warning"):
+                                            ui.tooltip("عُدّل الملف هنا ولم يُرفع للخادم بعد؛ لن تصله الأجهزة الأخرى حتى ترفعه.")
                                     for msg in conflicts:
                                         with ui.label("تعارض").classes("app-chip app-chip--warning"):
                                             ui.tooltip(msg)
@@ -149,6 +159,13 @@ class TemplatesMixin:
                                         ui.notify(f"تعذر فتح الملف: {exc}", type="warning")
 
                                 UI.icon_button("launch", "فتح القالب في Word", on_click=lambda _e, fp=filepath: _open_word(fp))
+                                if modified:
+                                    UI.icon_button("cloud_upload", "رفع التعديلات للخادم",
+                                                   on_click=lambda _e, fn=f: _push_edit(fn))
+                                    UI.icon_button("cloud_download", "استرجاع نسخة الخادم",
+                                                   on_click=lambda _e, fn=f, nm=display_name: _confirm_restore(fn, nm))
+                                UI.icon_button("swap_horiz", "استبدال الملف",
+                                               on_click=lambda _e, fn=f, nm=display_name: _open_replace_dialog(fn, nm))
                                 UI.icon_button("delete", "حذف القالب",
                                                on_click=lambda _e, fn=f, nm=display_name: _confirm_delete(fn, nm))
                                 UI.icon_button("download", "تنزيل القالب", on_click=lambda _e, fp=filepath: deliver_file(
@@ -174,6 +191,56 @@ class TemplatesMixin:
                 else:
                     ui.notify("حُفظ القالب على هذا الجهاز فقط: تعذر إرساله إلى الخادم، وقد يُستبدل عند التشغيل القادم.",
                               type="warning", timeout=8000)
+
+            def _push_edit(filename: str):
+                from services.template_sync import push_template_file
+                if push_template_file(filename):
+                    ui.notify("تم رفع التعديلات؛ ستصل لبقية الأجهزة عند تشغيلها", type="positive")
+                else:
+                    ui.notify("تعذر رفع الملف إلى الخادم", type="warning")
+                _render_templates_table.refresh()
+
+            def _confirm_restore(filename: str, name: str):
+                def _do():
+                    from services.template_sync import restore_server_copy
+                    ok, msg = restore_server_copy(filename)
+                    ui.notify("تم استرجاع نسخة الخادم" if ok else (msg or "تعذر الاسترجاع"),
+                              type="positive" if ok else "warning")
+                    _render_templates_table.refresh()
+
+                UI.confirm_dialog(
+                    "استرجاع نسخة الخادم",
+                    f"ستُلغى تعديلات هذا الجهاز على «{name}». تُحفظ نسخة منها في مجلد .deleted.",
+                    "استرجاع", _do)
+
+            def _open_replace_dialog(filename: str, name: str):
+                """Puts a new Word file in place of this template: same name and tags, then uploads it."""
+                with ui.dialog() as dlg, UI.card().classes("w-[520px] max-w-full gap-4"):
+                    UI.card_header("استبدال ملف القالب", "swap_horiz")
+                    UI.muted_label(f"«{name}» — يبقى الاسم والوسوم كما هي")
+
+                    async def _on_file(e):
+                        fname, content = await read_upload(e)
+                        if not fname.lower().endswith(".docx") or not content:
+                            ui.notify("اختر ملف Word بتنسيق docx", type="warning")
+                            return
+                        path = os.path.join(templates_dir, filename)
+                        tmp = path + ".new"
+                        with open(tmp, "wb") as out:
+                            out.write(content)
+                        os.replace(tmp, path)
+                        from services.template_sync import push_template_file
+                        if push_template_file(filename):
+                            ui.notify("تم استبدال القالب ورفعه للخادم", type="positive")
+                        else:
+                            ui.notify("استُبدل على هذا الجهاز فقط: تعذر رفعه للخادم", type="warning", timeout=8000)
+                        dlg.close()
+                        _render_templates_table.refresh()
+
+                    ui.upload(label="اختر أو اسحب ملف Word الجديد", auto_upload=True, on_upload=_on_file)                         .props("accept=.docx max-files=1").classes("w-full")
+                    with ui.row().classes("app-dialog-actions"):
+                        UI.ghost_button("إلغاء", on_click=dlg.close)
+                dlg.open()
 
             def _confirm_delete(filename: str, name: str):
                 def _do():

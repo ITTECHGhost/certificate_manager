@@ -97,6 +97,8 @@ def _download_and_atomic_swap(
 
         # Atomic replacement
         os.replace(tmp_path, target_path)
+        if filename.lower().endswith(".docx"):
+            record_server_hash(filename, calculate_file_sha256(target_path), templates_dir)
         logger.info(f"Successfully synced template: {filename}")
         return True
 
@@ -162,6 +164,16 @@ def sync_templates_if_online() -> Dict[str, Any]:
         local_file_path = os.path.join(templates_dir, filename)
         local_file_sha = calculate_file_sha256(local_file_path)
 
+        if local_file_sha and local_file_sha == expected_sha:
+            record_server_hash(filename, local_file_sha, templates_dir)
+            continue
+        base = load_server_hashes(templates_dir).get(filename, "")
+        if local_file_sha and base and local_file_sha != base:
+            # Edited on this computer and not uploaded yet: never overwrite it
+            key = "local_edits" if base == expected_sha else "conflicts"
+            result.setdefault(key, []).append(filename)
+            continue
+
         if not os.path.exists(local_file_path) or (expected_sha and local_file_sha != expected_sha):
             logger.info(f"Syncing template {filename} from server (Checksum mismatch or missing)...")
             if _download_and_atomic_swap(filename, expected_sha, templates_dir, api_url):
@@ -221,6 +233,7 @@ def push_template_file(filename: str) -> bool:
                               "application/vnd.openxmlformats-officedocument.wordprocessingml.document")}
         resp = api_client.post(f"{get_api_url()}/api/templates/upload", files=files, timeout=20.0)
         if resp.status_code == 200:
+            record_server_hash(filename, calculate_file_sha256(path))
             return True
         logger.warning(f"Template upload failed: HTTP {resp.status_code} {resp.text[:200]}")
     except Exception as e:
@@ -285,3 +298,67 @@ def remove_templates_deleted_on_server(server_files: List[str], templates_dir: s
         _move_to_local_trash(f, templates_dir)
         removed.append(f)
     return removed
+
+
+# ── Local edits ──────────────────────────────────────────────────────────────
+# .server_hashes.json remembers, per template, the checksum of the server's copy this computer
+# last had. A local file whose checksum differs from it was edited here (e.g. opened in Word and
+# saved): the startup sync keeps it until the user uploads it or restores the server's copy.
+HASHES_FILE = ".server_hashes.json"
+
+
+def load_server_hashes(templates_dir: str = "") -> Dict[str, str]:
+    import json
+    path = os.path.join(templates_dir or get_local_templates_dir(), HASHES_FILE)
+    try:
+        with open(path, encoding="utf-8") as fh:
+            data = json.load(fh)
+        return data if isinstance(data, dict) else {}
+    except Exception:
+        return {}
+
+
+def record_server_hash(filename: str, sha: str, templates_dir: str = "") -> None:
+    import json
+    templates_dir = templates_dir or get_local_templates_dir()
+    data = load_server_hashes(templates_dir)
+    if sha:
+        data[filename] = sha
+    else:
+        data.pop(filename, None)
+    tmp = os.path.join(templates_dir, HASHES_FILE + ".tmp")
+    try:
+        with open(tmp, "w", encoding="utf-8") as fh:
+            json.dump(data, fh, indent=1, ensure_ascii=False)
+        os.replace(tmp, os.path.join(templates_dir, HASHES_FILE))
+    except Exception as e:
+        logger.warning(f"Could not save {HASHES_FILE}: {e}")
+
+
+def is_locally_modified(filename: str, templates_dir: str = "") -> bool:
+    """True when this computer's copy differs from the server copy it last received/sent."""
+    templates_dir = templates_dir or get_local_templates_dir()
+    base = load_server_hashes(templates_dir).get(filename, "")
+    local = calculate_file_sha256(os.path.join(templates_dir, filename))
+    return bool(base and local and local != base)
+
+
+def restore_server_copy(filename: str) -> tuple[bool, str]:
+    """Throws away this computer's edits: downloads the server's copy again."""
+    if not is_online():
+        return False, "يحتاج الاتصال بالخادم"
+    manifest = fetch_server_manifest() or {}
+    item = next((t for t in manifest.get("templates", []) if t.get("filename") == filename), None)
+    if not item:
+        return False, "القالب غير موجود على الخادم"
+    templates_dir = get_local_templates_dir()
+    path = os.path.join(templates_dir, filename)
+    if os.path.isfile(path):  # keep the local edit, just in case
+        trash = os.path.join(templates_dir, ".deleted")
+        os.makedirs(trash, exist_ok=True)
+        from datetime import datetime
+        import shutil
+        shutil.copy2(path, os.path.join(trash, f"{datetime.now():%Y%m%d-%H%M%S} local-edit {filename}"))
+    if _download_and_atomic_swap(filename, (item.get("sha256") or "").lower(), templates_dir, get_api_url()):
+        return True, ""
+    return False, "تعذر تنزيل نسخة الخادم"
