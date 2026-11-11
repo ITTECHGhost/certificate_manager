@@ -136,6 +136,10 @@
   "/students/link-order/{order_id}"
  ],
  [
+  "GET",
+  "/students/candidates-for-order/{order_id}"
+ ],
+ [
   "POST",
   "/students/unlink-order/{order_id}"
  ],

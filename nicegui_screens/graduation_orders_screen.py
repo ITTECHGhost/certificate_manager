@@ -12,6 +12,8 @@ from data.repositories import (
     OfflineModeError,
 )
 
+from nicegui_screens.order_workspace import OrderWorkspaceMixin
+
 log = logging.getLogger(__name__)
 
 STUDY_TYPE_OPTIONS = {
@@ -63,7 +65,7 @@ def validate_and_format_date(date_str: str | None, label_ar: str = "التاري
     return False, None
 
 
-class GraduationOrdersScreen:
+class GraduationOrdersScreen(OrderWorkspaceMixin):
     """
     Graduation Orders Management Screen (NiceGUI version).
     Uses FULL PAGE VIEWS (No modal dialogs) for adding, editing, and interactive student linking.
@@ -213,20 +215,6 @@ class GraduationOrdersScreen:
         except Exception:
             dept_opts = {1: "قسم علوم الحاسوب"}
 
-        # State for right search panel in student linking section
-        search_state = {
-            "name": "",
-            "dept_id": None,
-            "year": None
-        }
-
-        # Department options for student linking panel search
-        try:
-            filter_dept_opts = {0: "كل الأقسام"}
-            filter_dept_opts.update({d["id"]: d.get("name_ar", "") for d in depts})
-        except Exception:
-            filter_dept_opts = {0: "كل الأقسام"}
-
         with self.container:
             with UI.card().classes("flex-1 gap-6"):
 
@@ -340,142 +328,9 @@ class GraduationOrdersScreen:
 
                             UI.primary_button("حفظ بيانات الأمر", icon="save", on_click=save_order_action)
 
-                    # ── SECTION 2: Integrated Student Linking Panel (For Edit Mode) ──
+                    # ── SECTION 2: students + scanned order (edit mode) ─────────
                     if mode == "edit" and oid:
-                        with UI.card().classes("w-full p-5 gap-4 rounded-xl border border-[var(--border-default)] bg-[var(--bg-card)] shrink-0"):
-                            with ui.row().classes("w-full justify-between items-center pb-2 border-b border-[var(--border-default)]"):
-                                with ui.row().classes("items-center gap-2"):
-                                    ui.icon("groups", size="sm").classes("app-text-accent")
-                                    ui.label("ربط وإلغاء ربط الطلاب بهذا الأمر").classes("text-base font-bold app-text-primary")
-
-                                def auto_link_action():
-                                    try:
-                                        count = self.student_repo.auto_link_matching(oid, existing_data)
-                                        ui.notify(f"تم ربط {count} طالب تلقائياً بهذا الأمر", type="positive")
-                                        refresh_both_student_panels()
-                                    except Exception as err:
-                                        ui.notify(f"تعذر الربط التلقائي: {err}", type="negative")
-
-                                UI.secondary_button("ربط المطابقين تلقائيًا", icon="link", on_click=auto_link_action)
-
-                            # 2-Column Panel Layout
-                            with ui.row().classes("w-full gap-6 min-h-[380px] items-start"):
-                                
-                                # Left Column: Currently Linked Students Panel (50%)
-                                with ui.column().classes("flex-1 min-h-[360px] gap-3 p-4 rounded-xl border border-[var(--border-default)] bg-[var(--bg-card)]"):
-                                    @ui.refreshable
-                                    def linked_panel():
-                                        try:
-                                            linked_st = self.student_repo.get_by_order(oid) or []
-                                        except Exception as err:
-                                            log.warning(f"Error getting linked students: {err}")
-                                            linked_st = []
-
-                                        with ui.row().classes("w-full justify-between items-center pb-2 border-b border-[var(--border-default)] shrink-0"):
-                                            ui.label(f"الطلاب المرتبطون بالأمر ({len(linked_st)} طالب)").classes("text-sm font-bold app-text-accent")
-                                            ui.label(f"عدد المرتبطين: {len(linked_st)}").classes("text-xs font-mono app-text-muted")
-
-                                        with ui.column().classes("w-full flex-1 gap-2 overflow-y-auto max-h-[320px] pr-1"):
-                                            if not linked_st:
-                                                with ui.column().classes("w-full items-center py-10 text-center"):
-                                                    ui.icon("group_off", size="md").classes("app-text-muted mb-1")
-                                                    ui.label("لا يوجد طلاب مرتبطون بهذا الأمر").classes("text-xs font-bold app-text-muted")
-                                            else:
-                                                for st in linked_st:
-                                                    sid = st["id"]
-                                                    st_ar = st.get("full_name_ar") or "طالب"
-                                                    st_avg = st.get("average")
-                                                    disp_avg = f"{float(st_avg):.2f}" if st_avg is not None else "—"
-
-                                                    with ui.row().classes("w-full items-center justify-between p-3 rounded-lg bg-[var(--bg-card)] border border-[var(--border-default)] gap-2 hover:border-[var(--color-accent)] transition-all"):
-                                                        with ui.column().classes("flex-1 min-w-0 gap-0 text-right"):
-                                                            ui.label(st_ar).classes("font-bold text-xs app-text-primary truncate")
-                                                            ui.label(f"المعدل: {disp_avg}").classes("text-[10px] app-text-accent font-semibold")
-
-                                                        def unlink_act(s_id=sid):
-                                                            try:
-                                                                self.student_repo.unlink_from_order(s_id)
-                                                                ui.notify("تم إلغاء ربط الطالب", type="positive")
-                                                                refresh_both_student_panels()
-                                                            except Exception as err:
-                                                                ui.notify(f"تعذر فك الربط: {err}", type="negative")
-
-                                                        UI.danger_icon_button("link_off", "إلغاء الربط", on_click=unlink_act)
-
-                                    linked_panel()
-
-                                # Right Column: Unlinked Students Search & Link Panel (50%)
-                                with ui.column().classes("flex-1 min-h-[360px] gap-3 p-4 rounded-xl border border-[var(--border-default)] bg-[var(--bg-card)]"):
-                                    ui.label("إضافة وربط الطلاب").classes("text-sm font-bold app-text-primary shrink-0")
-
-                                    # Filters Row
-                                    with ui.row().classes("w-full items-center gap-2 shrink-0 flex-wrap"):
-                                        def on_dept_filter_change(e):
-                                            val = extract_event_value(e, default=0)
-                                            try:
-                                                d_val = int(val or 0)
-                                            except Exception:
-                                                d_val = 0
-                                            search_state["dept_id"] = d_val if d_val > 0 else None
-                                            unlinked_panel.refresh()
-
-                                        dept_filter = UI.select("", filter_dept_opts, value=0, on_change=on_dept_filter_change).classes("flex-1 text-xs")
-
-                                        def on_name_filter_change(e):
-                                            val = extract_event_value(e, default="")
-                                            search_state["name"] = str(val or "").strip()
-                                            unlinked_panel.refresh()
-
-                                        name_filter = UI.text_input("", placeholder="بحث بالاسم...", on_change=on_name_filter_change).classes("flex-1 text-xs")
-
-                                    @ui.refreshable
-                                    def unlinked_panel():
-                                        try:
-                                            unlinked_st = self.student_repo.search_unlinked(
-                                                name_query=search_state["name"],
-                                                dept_id=search_state["dept_id"],
-                                                year=search_state["year"],
-                                                limit=50
-                                            ) or []
-                                        except Exception as err:
-                                            log.warning(f"Error searching unlinked students: {err}")
-                                            unlinked_st = []
-
-                                        with ui.column().classes("w-full flex-1 gap-2 overflow-y-auto max-h-[320px] pr-1"):
-                                            if not unlinked_st:
-                                                with ui.column().classes("w-full items-center py-10 text-center"):
-                                                    ui.icon("search_off", size="md").classes("app-text-muted mb-1")
-                                                    ui.label("لا توجد نتائج مطابقة للبحث").classes("text-xs font-bold app-text-muted")
-                                            else:
-                                                for st in unlinked_st:
-                                                    sid = st["id"]
-                                                    st_ar = st.get("full_name_ar") or "طالب"
-                                                    st_dept = st.get("dept_name_ar") or "—"
-                                                    is_already_linked = (st.get("order_id") == oid)
-
-                                                    with ui.row().classes("w-full items-center justify-between p-3 rounded-lg bg-[var(--bg-card)] border border-[var(--border-default)] gap-2 hover:border-[var(--color-accent)] transition-all"):
-                                                        with ui.column().classes("flex-1 min-w-0 gap-0 text-right"):
-                                                            ui.label(st_ar).classes("font-bold text-xs app-text-primary truncate")
-                                                            ui.label(st_dept).classes("text-[10px] app-text-muted font-semibold truncate")
-
-                                                        if is_already_linked:
-                                                            ui.label("مرتبط ✅").classes("text-[10px] font-bold text-emerald-400 px-2 py-1 bg-emerald-500/10 rounded-md")
-                                                        else:
-                                                            def link_act(s_id=sid):
-                                                                try:
-                                                                    self.student_repo.link_to_order(s_id, oid)
-                                                                    ui.notify("تم ربط الطالب بالأمر", type="positive")
-                                                                    refresh_both_student_panels()
-                                                                except Exception as err:
-                                                                    ui.notify(f"تعذر الربط: {err}", type="negative")
-
-                                                            UI.icon_button("add_link", "ربط بهذا الأمر", on_click=link_act, dense=True)
-
-                                    unlinked_panel()
-
-                            def refresh_both_student_panels():
-                                linked_panel.refresh()
-                                unlinked_panel.refresh()
+                        self._build_order_workspace(oid, existing_data)
 
     # ── Confirm Delete ────────────────────────────────────────────────────────
     def confirm_delete(self, row: dict):

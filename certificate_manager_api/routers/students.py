@@ -379,6 +379,46 @@ def link_students_to_order(order_id: int, conn=Depends(get_db)):
         cur.close()
 
 
+@router.get("/students/candidates-for-order/{order_id}")
+def candidates_for_order(order_id: int, name_query: str = "", matching_only: bool = True,
+                         limit: int = 200, conn=Depends(get_db)):
+    """Students in no order. matching_only: the order's department, study system and expected
+    graduation year/semester (the same rule as LinkStudentsToOrder)."""
+    cur = conn.cursor(dictionary=True)
+    try:
+        cur.execute("SELECT department_id, study_system_id, graduation_year, graduation_semester, order_date "
+                    "FROM graduation_orders WHERE id = %s", (order_id,))
+        o = cur.fetchone()
+        if not o:
+            raise HTTPException(status_code=404, detail="Order not found")
+        year = o["graduation_year"] or (o["order_date"].year if o["order_date"] else None)
+        where = ["(s.order_id IS NULL OR s.order_id = 0)"]
+        params: list = []
+        if matching_only:
+            where += ["s.department_id = %s", "s.study_system_id = %s",
+                      "(s.expected_graduation_year = %s OR (s.expected_graduation_year IS NULL AND YEAR(s.graduation_date) = %s))",
+                      "(s.expected_graduation_semester IS NULL OR s.expected_graduation_semester = '' "
+                      "OR s.expected_graduation_semester = %s)"]
+            params += [o["department_id"], o["study_system_id"], year, year, o["graduation_semester"]]
+        if name_query.strip():
+            where.append("(s.full_name_ar LIKE %s OR s.full_name_en LIKE %s)")
+            params += [f"%{name_query.strip()}%"] * 2
+        cur.execute(
+            "SELECT s.id, s.full_name_ar, s.full_name_en, s.average, s.department_id, d.name_ar AS dept_name_ar, "
+            "s.expected_graduation_year, s.expected_graduation_semester, s.admission_year "
+            "FROM students s LEFT JOIN departments d ON d.id = s.department_id "
+            f"WHERE {' AND '.join(where)} ORDER BY s.full_name_ar LIMIT %s",
+            (*params, max(1, min(int(limit), 1000))),
+        )
+        return cur.fetchall()
+    except HTTPException:
+        raise
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=str(exc))
+    finally:
+        cur.close()
+
+
 class UnlinkManyPayload(BaseModel):
     student_ids: List[int]
 
