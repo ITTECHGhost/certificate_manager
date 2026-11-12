@@ -311,13 +311,27 @@ if (-not $SkipService) {
     Start-Sleep -Seconds 3
     $scheme = "http"
     if ($https) { $scheme = "https" }
-    [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
-    [Net.ServicePointManager]::ServerCertificateValidationCallback = { $true }
-    try {
-        $answer = Invoke-RestMethod -Uri "${scheme}://127.0.0.1:$port/ping" -TimeoutSec 10
-        Ok "API answers on ${scheme}://127.0.0.1:$port/ping ($($answer.status))"
-    } catch {
-        Warn "The API does not answer yet. See $TargetDir\logs\api_service.log"
+    # Windows PowerShell 5.1 cannot run a script-block certificate callback on the TLS thread
+    # ("There is no Runspace available"), so this check never passed over HTTPS. Use curl.exe -k
+    # (self-signed certificate), or a compiled callback where curl.exe is missing.
+    $pingUrl = "${scheme}://127.0.0.1:$port/ping"
+    $status = ""
+    if (Get-Command curl.exe -ErrorAction SilentlyContinue) {
+        $status = [string](& curl.exe -s -k -m 10 -o NUL -w "%{http_code}" $pingUrl)
+    } else {
+        try {
+            if (-not ("SetupServerTrustAll" -as [type])) {
+                Add-Type -TypeDefinition "public static class SetupServerTrustAll { public static void Install() { System.Net.ServicePointManager.ServerCertificateValidationCallback = (s, c, ch, e) => true; } }"
+            }
+            [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+            [SetupServerTrustAll]::Install()
+            $status = [string](Invoke-WebRequest -Uri $pingUrl -TimeoutSec 10 -UseBasicParsing).StatusCode
+        } catch { $status = "" }
+    }
+    if ($status -eq "200") {
+        Ok "API answers on $pingUrl"
+    } else {
+        Warn "The API does not answer yet on $pingUrl (status: $status). See $TargetDir\logs\api_service.log"
     }
 }
 

@@ -16,8 +16,7 @@ powershell -NoProfile -ExecutionPolicy Bypass -Command ^
   "$tcp = Test-NetConnection $ip -Port $port -WarningAction SilentlyContinue;" ^
   "if ($tcp.TcpTestSucceeded) { Write-Host '   OK - the port is open' -F Green } else { Write-Host '   CLOSED - on the server: is the FastAPICertificateManager service running? is the firewall rule there?' -F Red; exit 1 };" ^
   "Write-Host '3. API answer (/ping)...';" ^
-  "[Net.ServicePointManager]::SecurityProtocol=[Net.SecurityProtocolType]::Tls12; [Net.ServicePointManager]::ServerCertificateValidationCallback={$true};" ^
-  "$ok=$false; foreach ($s in 'https','http') { try { $r = Invoke-RestMethod ($s + '://' + $ip + ':' + $port + '/ping') -TimeoutSec 8; Write-Host ('   OK - ' + $s + ' answers: ' + ($r | ConvertTo-Json -Compress)) -F Green; $ok=$true; break } catch {} };" ^
+  "$ok=$false; foreach ($s in 'https','http') { $b = & curl.exe -s -k -m 8 ($s + '://' + $ip + ':' + $port + '/ping'); if ($LASTEXITCODE -eq 0 -and $b -match 'online') { Write-Host ('   OK - ' + $s + ' answers: ' + $b) -F Green; $ok=$true; break } };" ^
   "if (-not $ok) { Write-Host '   NO ANSWER - port open but the API does not reply: see logs\api_service.log on the server' -F Red; exit 1 };" ^
   "Write-Host ''; Write-Host 'ALL GOOD - this laptop can use the server.' -F Green"
 echo.
