@@ -320,6 +320,15 @@ class ServerMixin:
                             ui.label(lines[key]).classes("app-caption")
                     if lines["warning"]:
                         ui.label(lines["warning"]).classes("app-chip app-chip--warning")
+                    st = state.get("status") or {}
+                    if st:
+                        mode_txt = "مشفّر" if st.get("https") else "غير مشفّر"
+                        ui.label(f"وضع الاتصال: {mode_txt}").classes("app-caption font-semibold")
+                        req, res = st.get("mode_request"), st.get("mode_result")
+                        if req:
+                            ui.label("بانتظار تحويل وضع الاتصال خلال دقيقة").classes("app-caption")
+                        elif res and res.get("state") == "failed":
+                            ui.label(f"فشل التحويل: {res.get('message', '')}").classes("app-chip app-chip--warning")
                     last = (state.get("status") or {}).get("last") or {}
                     if last.get("state") == "failed" and last.get("log_tail"):
                         with ui.expansion("سجل آخر محاولة").classes("w-full"):
@@ -398,7 +407,21 @@ class ServerMixin:
                     return
                 _ask_password("تأكيد رفع التحديث", _send)
 
+            async def _switch(mode: str, password: str):
+                ok, msg = await run.io_bound(su.request_mode, mode, self.session.username, password)
+                ui.notify(("سيتحول الخادم خلال دقيقة؛ تتبعه الأجهزة المحدّثة تلقائياً" if ok else (msg or "تعذر الطلب")),
+                          type="positive" if ok else "negative", timeout=8000)
+                await _refresh()
+
+            def _confirm_https():
+                UI.confirm_dialog(
+                    "تحويل الخادم إلى الاتصال المشفّر",
+                    "حدّث كل الأجهزة إلى الإصدار 2.4.0 أولاً وشغّلها مرة وهي متصلة: فهي تحفظ شهادة الخادم وتتحول تلقائياً. "
+                    "الأجهزة الأقدم ستنقطع حتى تُحدَّث.",
+                    "متابعة", lambda: _ask_password("تأكيد التحويل إلى الاتصال المشفّر", lambda pw: _switch("https", pw)))
+
             with ui.row().classes("w-full justify-end gap-2"):
+                UI.secondary_button("تفعيل الاتصال المشفّر", icon="lock", on_click=_confirm_https)
                 UI.ghost_button("تحديث الحالة", on_click=_refresh)
                 UI.ghost_button("إلغاء التحديث المنتظر", on_click=lambda: _ask_password("تأكيد الإلغاء", _cancel))
                 UI.primary_button("رفع وجدولة التحديث", icon="cloud_upload", on_click=_start_upload)

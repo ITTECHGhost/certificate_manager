@@ -211,8 +211,14 @@ $settingsFile = Join-Path $TargetDir "server_settings.json"
 if ($SkipService) { Skip "HTTPS" } elseif (-not (Test-Path (Join-Path $TargetDir "certs\server.crt"))) {
     & powershell.exe -NoProfile -ExecutionPolicy Bypass -File (Join-Path $TargetDir "setup_server_https.ps1")
     if ($LASTEXITCODE -ne 0) { Fail "HTTPS setup failed. Run setup_server.bat again." }
+    # New server: HTTPS from the start. Existing server: keep its mode, so clients that are not
+    # updated yet keep working; switch to HTTPS later in Settings - Server update.
     $current = [ordered]@{ port = 2030; https = $true }
-    if (Test-Path $settingsFile) { $old = Get-Content $settingsFile -Raw | ConvertFrom-Json; if ($old.port) { $current.port = [int]$old.port } }
+    if (Test-Path $settingsFile) {
+        $old = Get-Content $settingsFile -Raw | ConvertFrom-Json
+        if ($old.port) { $current.port = [int]$old.port }
+        $current.https = ($old.https -eq $true) -or ("$($old.https)" -eq "true")
+    }
     [IO.File]::WriteAllText($settingsFile, ($current | ConvertTo-Json), (New-Object Text.UTF8Encoding $false))
     Ok "HTTPS set up. Copy $TargetDir\client_package\ to the clients (README.txt inside)."
 } else { Ok "HTTPS certificates kept" }

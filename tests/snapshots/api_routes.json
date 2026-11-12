@@ -37,6 +37,10 @@
  ],
  [
   "GET",
+  "/api/ca-cert"
+ ],
+ [
+  "GET",
   "/ping"
  ],
  [
@@ -674,6 +678,10 @@
  [
   "POST",
   "/api/admin/server-update/upload"
+ ],
+ [
+  "POST",
+  "/api/admin/server-update/mode"
  ],
  [
   "POST",

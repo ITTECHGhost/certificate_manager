@@ -11,6 +11,19 @@ from deps import logger, get_db, decode_db_value, table_has_updated_at, _require
 router = APIRouter()
 
 
+@router.get("/api/ca-cert")
+def ca_cert():
+    """The college CA certificate (public): clients save it so they can trust HTTPS."""
+    import os
+    from fastapi import HTTPException
+    from fastapi.responses import FileResponse
+    path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "certs", "college_ca.crt")
+    if not os.path.isfile(path):
+        raise HTTPException(status_code=404, detail="No CA certificate on this server")
+    return FileResponse(path, media_type="application/x-x509-ca-cert", filename="college_ca.crt")
+
+
+
 @router.get("/ping")
 def ping():
     """Health check endpoint to verify database server connectivity/status."""

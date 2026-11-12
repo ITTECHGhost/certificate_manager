@@ -20,6 +20,29 @@ function Write-Status([hashtable]$s) {
     [IO.File]::WriteAllText($statusFile, ($s | ConvertTo-Json -Depth 4), $utf8)
 }
 
+# HTTP <-> HTTPS switch asked from Settings (POST /api/admin/server-update/mode)
+$modeFile = Join-Path $Base "mode.json"
+if (Test-Path $modeFile) {
+    $req = Get-Content $modeFile -Raw -Encoding UTF8 | ConvertFrom-Json
+    Remove-Item -Force $modeFile
+    $result = @{ mode = $req.mode; requested_by = $req.requested_by; at = (Get-Date -Format "yyyy-MM-ddTHH:mm:ss") }
+    try {
+        $wantHttps = ($req.mode -eq "https")
+        if ($wantHttps -and -not (Test-Path (Join-Path $TargetDir "certs\server.crt"))) { throw "certs\server.crt is missing" }
+        $settingsFile = Join-Path $TargetDir "server_settings.json"
+        $s = [ordered]@{ port = 2030; https = $false }
+        if (Test-Path $settingsFile) { $old = Get-Content $settingsFile -Raw | ConvertFrom-Json; if ($old.port) { $s.port = [int]$old.port } }
+        $s.https = $wantHttps
+        [IO.File]::WriteAllText($settingsFile, ($s | ConvertTo-Json), $utf8)
+        Restart-Service -Name "FastAPICertificateManager" -Force
+        $result.state = "done"
+    } catch {
+        $result.state = "failed"
+        $result.message = "$_"
+    }
+    [IO.File]::WriteAllText((Join-Path $Base "mode_status.json"), ($result | ConvertTo-Json), $utf8)
+}
+
 if (-not (Test-Path $pendingFile)) { exit 0 }
 if (Test-Path $lockFile) {
     # A run older than 2 hours is a crashed run, not a running one

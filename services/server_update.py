@@ -69,6 +69,20 @@ def cancel(username: str, password: str) -> Tuple[bool, str]:
         return False, str(e)
 
 
+def request_mode(mode: str, username: str, password: str) -> Tuple[bool, str]:
+    """Asks the server to switch to 'https' or 'http' (applied by the updater task within a minute)."""
+    if not is_online():
+        return False, "يحتاج الاتصال بالخادم"
+    try:
+        resp = api_client.post(f"{get_api_url()}{BASE}/mode",
+                               data={"mode": mode, "username": username, "password": password}, timeout=10.0)
+        if resp.status_code == 200:
+            return True, ""
+        return False, _detail(resp)
+    except Exception as e:
+        return False, str(e)
+
+
 STATE_AR = {"running": "قيد التنفيذ", "done": "تم بنجاح", "failed": "فشل — بقي الإصدار السابق"}
 
 

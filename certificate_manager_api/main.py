@@ -51,7 +51,7 @@ from fastapi.responses import JSONResponse
 
 APP_KEYS_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "app_keys.json")
 # Reachable without a key: the connectivity check only
-APP_KEY_EXEMPT_PATHS = {"/ping"}
+APP_KEY_EXEMPT_PATHS = {"/ping", "/api/ca-cert"}
 
 
 def _load_app_keys() -> dict:

@@ -111,7 +111,16 @@ def build_status(base: Path = UPDATES_DIR, api_dir: Path = API_DIR) -> dict:
         "pending": read_json(p["pending"]),
         "last": read_json(p["status"]),
         "updater_running": beat_ok,
+        "https": server_https(api_dir),
+        "https_ready": (api_dir / "certs" / "server.crt").exists(),
+        "mode_request": read_json(base / "mode.json"),
+        "mode_result": read_json(base / "mode_status.json"),
     }
+
+
+def server_https(api_dir: Path = API_DIR) -> bool:
+    s = read_json(api_dir / "server_settings.json") or {}
+    return str(s.get("https")).lower() == "true"
 
 
 @router.get("/status")
@@ -167,6 +176,23 @@ async def upload_update(
     }
     p["pending"].write_text(json.dumps(pending, ensure_ascii=False, indent=2), encoding="utf-8")
     return {"status": "success", "pending": pending, "updater_running": build_status()["updater_running"]}
+
+
+@router.post("/mode")
+def request_mode(mode: str = Form(...), username: str = Form(...), password: str = Form(...),
+                 conn=Depends(get_db)):
+    """Asks the updater task to switch the server between HTTP and HTTPS within a minute."""
+    _require_admin(conn, username, password)
+    mode = (mode or "").lower()
+    if mode not in ("http", "https"):
+        raise HTTPException(status_code=400, detail="mode: http أو https")
+    if mode == "https" and not (API_DIR / "certs" / "server.crt").exists():
+        raise HTTPException(status_code=409, detail="شهادات HTTPS غير موجودة على الخادم: ثبّت الإصدار 2.4.0 بملف Update.bat أولاً")
+    UPDATES_DIR.mkdir(parents=True, exist_ok=True)
+    (UPDATES_DIR / "mode.json").write_text(
+        json.dumps({"mode": mode, "requested_by": username, "requested_at": datetime.now().strftime("%Y-%m-%dT%H:%M")}),
+        encoding="utf-8")
+    return {"status": "success", "mode": mode}
 
 
 @router.post("/cancel")
