@@ -5,4 +5,4 @@
 # (via scripts\build_release.bat) and the in-app updater all read it from here.
 # =============================================================================
 
-APP_VERSION = "2.3.0"
+APP_VERSION = "2.4.0"
