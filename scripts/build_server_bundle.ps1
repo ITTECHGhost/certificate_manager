@@ -22,7 +22,7 @@ robocopy (Join-Path $root "certificate_manager_api") (Join-Path $bundle "api") /
 if ($LASTEXITCODE -ge 8) { throw "robocopy of the API failed (code $LASTEXITCODE)" }
 
 # 2. Templates, database scripts, requirements, setup scripts, guide, version
-robocopy (Join-Path $root "templets") (Join-Path $bundle "templets") /E /NFL /NDL /NJH /NJS /NP | Out-Null
+robocopy (Join-Path $root "templets") (Join-Path $bundle "templets") /E /XF .server_hashes.json /NFL /NDL /NJH /NJS /NP | Out-Null
 if ($LASTEXITCODE -ge 8) { throw "robocopy of the templates failed (code $LASTEXITCODE)" }
 New-Item -ItemType Directory -Force -Path (Join-Path $bundle "sql\fixes") | Out-Null
 Copy-Item -LiteralPath (Join-Path $root "sql\schema.sql"), (Join-Path $root "sql\SP.sql") -Destination (Join-Path $bundle "sql")
