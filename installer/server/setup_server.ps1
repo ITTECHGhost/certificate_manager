@@ -152,7 +152,7 @@ if ($SkipDbCheck) { Skip "Database login check" } else {
 
 # 7b. Database update: backup, then new migrations + all stored procedures (migrate.py).
 #     On failure: the old code and the old procedures go back, the old service starts again.
-function Restore-OldVersion([string]$Reason) {
+function Restore-OldVersion([string]$Reason, [string]$Fix = "") {
     Write-Host "[ERROR] $Reason" -ForegroundColor Red
     $backupDir = Join-Path $TargetDir "_backup_before_update"
     if (Test-Path (Join-Path $backupDir "main.py")) {
@@ -168,7 +168,8 @@ function Restore-OldVersion([string]$Reason) {
         if (Get-Service $serviceName -ErrorAction SilentlyContinue) { Start-Service $serviceName -ErrorAction SilentlyContinue }
     }
     if ($script:dumpFile) { Write-Host "Database backup taken before this update: $script:dumpFile" }
-    Write-Host "Nothing else was changed. Send the messages above to the developer." -ForegroundColor Yellow
+    if ($Fix) { Write-Host $Fix -ForegroundColor Yellow }
+    else { Write-Host "Nothing else was changed. Send the messages above to the developer." -ForegroundColor Yellow }
     exit 1
 }
 $script:dumpFile = $null
@@ -181,14 +182,39 @@ if ($SkipDbCheck -or -not $dbOk) { Skip "Database update (no working database lo
     $dbName = if ($db.database) { $db.database } else { "certificate_manager" }
     $backups = Join-Path $TargetDir "backups"
     New-Item -ItemType Directory -Force -Path $backups | Out-Null
-    $script:dumpFile = Join-Path $backups ("before-update-{0}-{1:yyyyMMdd-HHmmss}.sql" -f $version, (Get-Date))
+    $dumpPath = Join-Path $backups ("before-update-{0}-{1:yyyyMMdd-HHmmss}.sql" -f $version, (Get-Date))
     $opt = Join-Path $env:TEMP ("certman-{0}.cnf" -f [guid]::NewGuid())
     [IO.File]::WriteAllText($opt, "[client]`nhost=$($db.host)`nuser=$($db.user)`npassword=`"$($db.password)`"`n", (New-Object Text.UTF8Encoding $false))
+    # mysqldump's messages are kept to recognise a known cause ("Continue": its stderr lines must not stop the script)
+    $eap = $ErrorActionPreference
     try {
-        & $mysqldump "--defaults-file=$opt" --single-transaction --routines --triggers --no-tablespaces "--result-file=$script:dumpFile" $dbName
-        $dumpOk = ($LASTEXITCODE -eq 0) -and (Test-Path $script:dumpFile) -and ((Get-Item $script:dumpFile).Length -gt 1024)
-    } finally { Remove-Item -Force $opt -ErrorAction SilentlyContinue }
-    if (-not $dumpOk) { Restore-OldVersion "The database backup failed, so the database was not changed." }
+        $ErrorActionPreference = "Continue"
+        $dumpOutput = @(& $mysqldump "--defaults-file=$opt" --single-transaction --routines --triggers --no-tablespaces "--result-file=$dumpPath" $dbName 2>&1 | ForEach-Object { "$_" })
+        $dumpExit = $LASTEXITCODE
+    } finally {
+        $ErrorActionPreference = $eap
+        Remove-Item -Force $opt -ErrorAction SilentlyContinue
+    }
+    $dumpOutput | ForEach-Object { Write-Host $_ }
+    $dumpOk = ($dumpExit -eq 0) -and (Test-Path $dumpPath) -and ((Get-Item $dumpPath).Length -gt 1024)
+    if (-not $dumpOk) {
+        # A partial file is not a backup: delete it, so no message points to it as one
+        Remove-Item -Force $dumpPath -ErrorAction SilentlyContinue
+        if ($dumpOutput -match "insufficient privileges to SHOW CREATE (PROCEDURE|FUNCTION)") {
+            # Servers installed before 2.3.0 have stored procedures created by root. MySQL 5.7 shows their
+            # code only to their creator or to an account that can read mysql.proc. migrate.py recreates
+            # them under the API's account, so this is needed once, on the first update only.
+            $mysqlExe = Join-Path (Split-Path $mysqldump) "mysql.exe"
+            $grant = "GRANT SELECT ON mysql.proc TO '$($db.user)'@'localhost';"
+            Restore-OldVersion "The database backup failed: the MySQL account '$($db.user)' cannot read the stored procedures created by root. The database was not changed." (
+                "One-time fix: open Command Prompt as Administrator, run this line, type the MySQL root password, then run the update again:`n" +
+                "  `"$mysqlExe`" -u root -p -e `"$grant`"`n" +
+                "(MySQL 8: GRANT SHOW_ROUTINE ON *.* TO '$($db.user)'@'localhost'; ) " +
+                "After this update the procedures belong to '$($db.user)', so later updates do not need it.")
+        }
+        Restore-OldVersion "The database backup failed, so the database was not changed."
+    }
+    $script:dumpFile = $dumpPath
     Ok "Database backed up: $script:dumpFile"
     # Order images live as files since 2.5.0: keep a copy beside the database backups (adds only new files)
     $imagesDir = "C:\AppServ\order_images"
