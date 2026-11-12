@@ -710,5 +710,9 @@
  [
   "DELETE",
   "/orders/{order_id}/images/{image_id}"
+ ],
+ [
+  "GET",
+  "/api/reports/students"
  ]
 ]

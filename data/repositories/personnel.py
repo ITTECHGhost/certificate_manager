@@ -570,7 +570,7 @@ DEFAULT_SYSTEM_ROLES = [
         "name_en": "System Administrator",
         "description_ar": "صلاحيات وتحكم كامل بكافة وظائف وشاشات وإعدادات النظام",
         "base_role": "admin",
-        "allowed_pages": ["home", "students", "orders", "departments", "courses", "personnel", "certificate", "issued_certs", "settings", "history"],
+        "allowed_pages": ["home", "students", "orders", "departments", "courses", "personnel", "certificate", "issued_certs", "settings", "history", "reports"],
         "allowed_actions": ALL_PERMISSION_KEYS,
         "department_scope": "all",
         "is_system": 1,
@@ -581,7 +581,7 @@ DEFAULT_SYSTEM_ROLES = [
         "name_en": "Registrar Director",
         "description_ar": "إدارة كاملة لشؤون الطلاب، الدرجات، أوامر التخرج، وإصدار الوثائق لكافة الأقسام",
         "base_role": "user",
-        "allowed_pages": ["home", "students", "orders", "departments", "courses", "certificate", "issued_certs"],
+        "allowed_pages": ["home", "students", "orders", "departments", "courses", "certificate", "issued_certs", "reports"],
         "allowed_actions": [
             "students:view", "students:create", "students:edit", "students:grades",
             "orders:view", "orders:create", "orders:edit",

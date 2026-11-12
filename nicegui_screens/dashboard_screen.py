@@ -414,6 +414,7 @@ class MainAppShell:
             "personnel":    "الكوادر",
             "certificate":  "إصدار كتاب",
             "issued_certs": "سجل الوثائق الصادرة",
+            "reports":      "تقارير الطلاب",
             "history":      "سجل التغييرات",
             "settings":     "الإعدادات",
             "profile":      "الملف الشخصي",
@@ -476,6 +477,9 @@ class MainAppShell:
                     self._active_students_screen.form_view.render_add()
             elif self.current_screen == "orders":
                 GraduationOrdersScreen()
+            elif self.current_screen == "reports":
+                from nicegui_screens.reports_screen import ReportsScreen
+                ReportsScreen()
             elif self.current_screen == "courses":
                 CoursesScreen()
             elif self.current_screen == "personnel":

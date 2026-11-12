@@ -295,6 +295,7 @@ class RolesMixin:
                         "personnel": ("إدارة الكوادر", "group"),
                         "certificate": ("إصدار كتاب", "print"),
                         "issued_certs": ("سجل الوثائق الصادرة", "list_alt"),
+                        "reports": ("تقارير الطلاب", "query_stats"),
                         "settings": ("إعدادات النظام", "settings"),
                         "history": ("سجل النشاط والتغييرات", "history"),
                     }
@@ -562,6 +563,7 @@ class RolesMixin:
                 "personnel": ("إدارة الكوادر", "group"),
                 "certificate": ("إصدار كتاب", "print"),
                 "issued_certs": ("سجل الوثائق الصادرة", "list_alt"),
+                "reports": ("تقارير الطلاب", "query_stats"),
                 "settings": ("إعدادات النظام", "settings"),
                 "history": ("سجل النشاط والتغييرات", "history"),
             }
@@ -652,7 +654,7 @@ class RolesMixin:
                         }
                         for k, sw in state["switches"].items():
                             sw.value = (k in reg_keys)
-                        reg_pages = {"home", "students", "orders", "departments", "courses", "certificate", "issued_certs"}
+                        reg_pages = {"home", "students", "orders", "departments", "courses", "certificate", "issued_certs", "reports"}
                         for pkey, cb in state["page_checkboxes"].items():
                             cb.value = (pkey in reg_pages)
                         ui.notify("تم تطبيق نمط شؤون الطلاب والتسجيل", type="info")
