@@ -69,6 +69,13 @@ def load_server_config() -> dict:
     }
 
 
+def preview_api_url(host: str, port: int | str) -> str:
+    """The URL save_server_config would store for this host and port, without saving.
+    A host typed without http:// or https:// keeps the scheme already saved."""
+    scheme, clean_host = _split_host(host, str(_read_config_file().get("scheme") or "http").lower())
+    return _build_url(scheme, clean_host, int(port))
+
+
 def save_server_config(host: str, port: int | str, secret: str = "certificate_manager_secret_key", timeout: float = 5.0, auto_sync: bool = True) -> dict:
     """Saves server API configuration locally to server_config.json (keeps scheme, CA and app key settings)."""
     existing = _read_config_file()

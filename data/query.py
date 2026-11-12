@@ -768,6 +768,19 @@ def get_offline_personnel_by_username(username: str) -> dict | None:
     # NOCASE: same as the MySQL login, which ignores upper/lower case in usernames
     return sqlite_read_one("SELECT * FROM personnel WHERE username = ? COLLATE NOCASE", (username,))
 
+def has_offline_login_accounts() -> bool:
+    """True when this laptop has at least one synced account it can log in with offline.
+    False on a fresh install, before the first sync has created the personnel table."""
+    try:
+        row = sqlite_read_one(
+            "SELECT 1 AS found FROM personnel "
+            "WHERE is_active = 1 AND COALESCE(TRIM(username), '') <> '' "
+            "AND COALESCE(TRIM(password_hash), '') <> '' LIMIT 1"
+        )
+    except Exception:
+        return False
+    return bool(row)
+
 def get_offline_courses() -> list[dict]:
     return sqlite_read_all(
         "SELECT c.*, d.name_ar AS dept_name_ar, d.name_en AS dept_name_en "

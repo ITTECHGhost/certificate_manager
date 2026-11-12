@@ -22,6 +22,13 @@ function Ok([string]$Message) { Write-Host "[OK] $Message" -ForegroundColor Gree
 function Skip([string]$Message) { Write-Host "[SKIP] $Message" -ForegroundColor DarkGray }
 function Warn([string]$Message) { Write-Host "[WARNING] $Message" -ForegroundColor Yellow }
 function Fail([string]$Message) { Write-Host "[ERROR] $Message" -ForegroundColor Red; exit 1 }
+# Run a program whose error output is not wanted. Under "Stop", Windows PowerShell 5.1 turns a
+# redirected stderr line into an error that ends this script; the exit code stays in $LASTEXITCODE.
+function Invoke-NativeQuiet([scriptblock]$Command) {
+    $eap = $ErrorActionPreference
+    $ErrorActionPreference = "Continue"
+    try { & $Command 2>$null } finally { $ErrorActionPreference = $eap }
+}
 
 $version = ""
 if (Test-Path (Join-Path $bundle "VERSION.txt")) { $version = (Get-Content (Join-Path $bundle "VERSION.txt") -Raw).Trim() }
@@ -59,7 +66,7 @@ if ($SkipService) { Skip "Apache and MySQL" } else {
 # 1c. Python (the same python.exe install_service.bat will use): install from prereqs when missing
 function Find-Python {
     $found = Get-Command python.exe -All -ErrorAction SilentlyContinue | Where-Object { $_.Source -notmatch "WindowsApps" } | Select-Object -First 1 -ExpandProperty Source
-    if (-not $found) { $found = (& py -3 -c "import sys; print(sys.executable)" 2>$null) }
+    if (-not $found) { $found = (Invoke-NativeQuiet { py -3 -c "import sys; print(sys.executable)" }) }
     if (-not $found) { $found = Get-ChildItem "$env:ProgramFiles\Python3*\python.exe" -ErrorAction SilentlyContinue | Select-Object -Last 1 -ExpandProperty FullName }
     $found
 }
@@ -85,7 +92,7 @@ if ($SkipPip) { Skip "Python packages" } else {
         & $python -m pip install --disable-pip-version-check -q -r (Join-Path $bundle "requirements-server.txt")
         if ($LASTEXITCODE -ne 0) { Fail "Installing the Python packages failed." }
     }
-    & $python -c "import win32serviceutil" 2>$null
+    Invoke-NativeQuiet { & $python -c "import win32serviceutil" }
     if ($LASTEXITCODE -ne 0) {
         $postInstall = (& $python -c "import os, sys; print(os.path.join(sys.prefix, 'Scripts', 'pywin32_postinstall.py'))").Trim()
         & $python $postInstall -install | Out-Null
@@ -152,7 +159,7 @@ if ($SkipDbCheck) { Skip "Database login check" } else {
 
 # 7b. Database update: backup, then new migrations + all stored procedures (migrate.py).
 #     On failure: the old code and the old procedures go back, the old service starts again.
-function Restore-OldVersion([string]$Reason) {
+function Restore-OldVersion([string]$Reason, [string]$Fix = "") {
     Write-Host "[ERROR] $Reason" -ForegroundColor Red
     $backupDir = Join-Path $TargetDir "_backup_before_update"
     if (Test-Path (Join-Path $backupDir "main.py")) {
@@ -168,7 +175,8 @@ function Restore-OldVersion([string]$Reason) {
         if (Get-Service $serviceName -ErrorAction SilentlyContinue) { Start-Service $serviceName -ErrorAction SilentlyContinue }
     }
     if ($script:dumpFile) { Write-Host "Database backup taken before this update: $script:dumpFile" }
-    Write-Host "Nothing else was changed. Send the messages above to the developer." -ForegroundColor Yellow
+    if ($Fix) { Write-Host $Fix -ForegroundColor Yellow }
+    else { Write-Host "Nothing else was changed. Send the messages above to the developer." -ForegroundColor Yellow }
     exit 1
 }
 $script:dumpFile = $null
@@ -288,8 +296,8 @@ if ($SkipFirewall) { Skip "Firewall rule" } else {
 #      Created once; never rewritten while it may be the one running this update.
 $updaterTask = "CertificateManagerServerUpdater"
 if ($SkipService) { Skip "Server update task" } else {
-    & schtasks.exe /Query /TN $updaterTask *> $null
-    if ($LASTEXITCODE -eq 0) { Ok "Server update task exists" } else {
+    # Get-ScheduledTask, not "schtasks /Query": a missing task is an error line, which ended the script
+    if (Get-ScheduledTask -TaskName $updaterTask -ErrorAction SilentlyContinue) { Ok "Server update task exists" } else {
         $updater = Join-Path $TargetDir "server_updater.ps1"
         $action = "powershell.exe -NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -File `"$updater`""
         & schtasks.exe /Create /TN $updaterTask /SC MINUTE /MO 1 /RU SYSTEM /RL HIGHEST /F /TR $action | Out-Null
