@@ -1507,7 +1507,9 @@ BEGIN
 
     FROM settings s
 
-    WHERE s.id = p_emp_id
+    WHERE s.EMP_ID = p_emp_id
+
+    ORDER BY s.id
 
     LIMIT 1;
 
@@ -2745,21 +2747,31 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `UpdateUserPreferences`(
 )
 BEGIN
 
-    INSERT INTO settings (id, theme, accent_color, font_family, font_size_base, is_arabic_rtl)
+    -- p_id is the employee id (personnel.id); settings rows are keyed by EMP_ID
 
-    VALUES (p_id, p_theme, p_accent_color, p_font_family, p_font_size_base, p_is_arabic_rtl)
+    IF EXISTS (SELECT 1 FROM settings WHERE EMP_ID = p_id) THEN
 
-    ON DUPLICATE KEY UPDATE
+        UPDATE settings
 
-        theme = VALUES(theme),
+        SET theme = p_theme,
 
-        accent_color = VALUES(accent_color),
+            accent_color = p_accent_color,
 
-        font_family = VALUES(font_family),
+            font_family = p_font_family,
 
-        font_size_base = VALUES(font_size_base),
+            font_size_base = p_font_size_base,
 
-        is_arabic_rtl = VALUES(is_arabic_rtl);
+            is_arabic_rtl = p_is_arabic_rtl
+
+        WHERE EMP_ID = p_id;
+
+    ELSE
+
+        INSERT INTO settings (EMP_ID, theme, accent_color, font_family, font_size_base, is_arabic_rtl)
+
+        VALUES (p_id, p_theme, p_accent_color, p_font_family, p_font_size_base, p_is_arabic_rtl);
+
+    END IF;
 
 END //
 DELIMITER ;
