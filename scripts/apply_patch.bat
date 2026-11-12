@@ -30,9 +30,24 @@ echo Waiting for Certificate Manager process (PID: %TARGET_PID%) to exit...
 :WAIT_LOOP
 tasklist /FI "PID eq %TARGET_PID%" 2>NUL | find /I "%TARGET_PID%" >NUL
 if not errorlevel 1 (
-    timeout /t 1 /nobreak >NUL
+    ping -n 2 127.0.0.1 >NUL
     goto WAIT_LOOP
 )
+
+:: 1b. Its window process (pywebview) keeps the .exe open: wait up to 30 s until no copy runs
+if /I not "%EXE_NAME:~-4%"==".exe" goto WAIT_DONE
+set /a "WAITED=0"
+:WAIT_IMAGE
+tasklist /FI "IMAGENAME eq %EXE_NAME%" 2>NUL | find /I "%EXE_NAME%" >NUL
+if errorlevel 1 goto WAIT_DONE
+if %WAITED% GEQ 30 (
+    echo [%date% %time%] [OTA_PATCH] [WARNING] %EXE_NAME% still running after 30 s - trying anyway >> "%LOG_FILE%"
+    goto WAIT_DONE
+)
+set /a "WAITED+=1"
+ping -n 2 127.0.0.1 >NUL
+goto WAIT_IMAGE
+:WAIT_DONE
 
 echo Certificate Manager closed. Extracting update package...
 echo [%date% %time%] [OTA_PATCH] Certificate Manager process stopped. Unpacking patch from %ZIP_PATH% >> "%LOG_FILE%"
@@ -45,12 +60,15 @@ if exist "%APP_DIR%\server_config.json" copy /y "%APP_DIR%\server_config.json" "
 if exist "%APP_DIR%\certs" xcopy /e /i /y /q "%APP_DIR%\certs" "%KEEP_DIR%\certs" >NUL
 
 :: 3. Extract ZIP archive overwriting existing application files
-powershell -NoProfile -ExecutionPolicy Bypass -Command "Expand-Archive -Path '%ZIP_PATH%' -DestinationPath '%APP_DIR%' -Force"
+:: -ErrorAction Stop: a file still in use is an error, not a warning that ends in "successful"
+powershell -NoProfile -ExecutionPolicy Bypass -Command "try { Expand-Archive -LiteralPath '%ZIP_PATH%' -DestinationPath '%APP_DIR%' -Force -ErrorAction Stop } catch { Write-Host $_; exit 1 }"
+:: No pause on an error: the script runs in a hidden window (CREATE_NO_WINDOW) and nobody could
+:: press a key. Log it, keep the patch for another try, and start the program again.
+set "PATCH_FAILED="
 if errorlevel 1 (
+    set "PATCH_FAILED=1"
     echo [ERROR] Failed to extract update package!
-    echo [%date% %time%] [OTA_PATCH] [ERROR] Extraction failed for %ZIP_PATH% >> "%LOG_FILE%"
-    pause
-    exit /b 1
+    echo [%date% %time%] [OTA_PATCH] [ERROR] Extraction failed for %ZIP_PATH% - restarting the installed version >> "%LOG_FILE%"
 )
 
 :: 4. Put the laptop's own settings back
@@ -59,6 +77,7 @@ if exist "%KEEP_DIR%\certs" xcopy /e /i /y /q "%KEEP_DIR%\certs" "%APP_DIR%\cert
 rmdir /s /q "%KEEP_DIR%" >NUL 2>&1
 echo [%date% %time%] [OTA_PATCH] Kept local server_config.json and certs. >> "%LOG_FILE%"
 
+if defined PATCH_FAILED goto AFTER_CLEANUP
 echo Update files successfully extracted.
 echo [%date% %time%] [OTA_PATCH] Extraction successful. Cleaning up temporary files. >> "%LOG_FILE%"
 
@@ -66,9 +85,13 @@ echo [%date% %time%] [OTA_PATCH] Extraction successful. Cleaning up temporary fi
 if exist "%ZIP_PATH%" (
     del /f /q "%ZIP_PATH%" >NUL 2>&1
 )
+:AFTER_CLEANUP
 
 :: Test hook: tests/test_updater.py sets CM_PATCH_NO_RELAUNCH=1 to stop here.
-if "%CM_PATCH_NO_RELAUNCH%"=="1" exit /b 0
+if "%CM_PATCH_NO_RELAUNCH%"=="1" (
+    if defined PATCH_FAILED exit /b 1
+    exit /b 0
+)
 
 :: 6. Relaunch the updated application
 echo Relaunching application...

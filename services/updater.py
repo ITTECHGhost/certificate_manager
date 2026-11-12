@@ -203,21 +203,46 @@ def apply_patch_and_restart(zip_path: str) -> bool:
 
     logger.info(f"Spawning patch application script: {script_path} (PID: {current_pid})")
 
+    # The program's own child processes (the native window and its WebView2), listed before the
+    # script starts so the script itself is never among them
+    children = _own_child_processes()
     try:
-        # DETACHED_PROCESS flag ensures the batch script outlives the parent Python process
-        DETACHED_PROCESS = 0x00000008
-        CREATE_NEW_PROCESS_GROUP = 0x00000200
-        flags = DETACHED_PROCESS | CREATE_NEW_PROCESS_GROUP
-
         subprocess.Popen(
             build_patch_command(script_path, current_pid, zip_path, app_dir, exe_name, log_dir),
-            creationflags=flags,
+            creationflags=PATCH_SCRIPT_FLAGS,
             close_fds=True
         )
-        return True
     except Exception as e:
         logger.error(f"Failed to launch patch application script: {e}")
         return False
+    # The window process keeps CertificateManager.exe open: left running after the caller's
+    # os._exit it shows "Connection lost" and the patch cannot replace the program files
+    _stop_processes(children)
+    return True
+
+
+# CREATE_NO_WINDOW: the script gets a hidden console of its own. Not DETACHED_PROCESS: without
+# any console the script ended right after its first line (2.5.0 -> 2.5.1: nothing was updated).
+CREATE_NO_WINDOW = 0x08000000
+CREATE_NEW_PROCESS_GROUP = 0x00000200
+PATCH_SCRIPT_FLAGS = CREATE_NO_WINDOW | CREATE_NEW_PROCESS_GROUP
+
+
+def _own_child_processes() -> list:
+    try:
+        import psutil
+        return psutil.Process(os.getpid()).children(recursive=True)
+    except Exception as e:
+        logger.warning(f"Could not list the program's child processes: {e}")
+        return []
+
+
+def _stop_processes(processes: list) -> None:
+    for proc in processes:
+        try:
+            proc.kill()
+        except Exception:
+            pass  # already gone, or not ours to stop
 
 
 # ── "Update at the next start": a downloaded patch waits here until the program starts again ──

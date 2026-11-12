@@ -17,17 +17,44 @@ def test_version_single_source():
     assert "app_version.py" in (PROJECT_ROOT / "scripts" / "make_client_patch.ps1").read_text(encoding="utf-8")
 
 
+class _FakeChild:
+    def __init__(self):
+        self.killed = False
+
+    def kill(self):
+        self.killed = True
+
+
 def test_patch_targets_install_dir_and_runs_temp_copy(monkeypatch):
     calls = []
-    monkeypatch.setattr(updater.subprocess, "Popen", lambda command, **kwargs: calls.append(command))
+    window = _FakeChild()
+    monkeypatch.setattr(updater, "_own_child_processes", lambda: [window])
+    monkeypatch.setattr(updater.subprocess, "Popen", lambda command, **kwargs: calls.append((command, kwargs)))
     assert updater.apply_patch_and_restart(r"C:\patches\patch_v9.zip") is True
     temp_script = updater.build_temp_patch_script_path(str(os.getpid()))
     assert os.path.isfile(temp_script)
-    command = calls[0]
+    command, kwargs = calls[0]
     assert command.startswith(f'cmd.exe /s /c ""{temp_script}" ')
     assert f'"{app_paths.INSTALL_DIR}"' in command
     assert f'"{app_paths.data_path("logs")}"' in command
+    # A hidden console, never DETACHED_PROCESS (0x8): without a console the script died at once
+    assert kwargs["creationflags"] & updater.CREATE_NO_WINDOW
+    assert not kwargs["creationflags"] & 0x00000008
+    # The window process is stopped, or it keeps the .exe open and shows "Connection lost"
+    assert window.killed
     os.remove(temp_script)
+
+
+def test_window_left_running_when_patcher_cannot_start(monkeypatch):
+    window = _FakeChild()
+    monkeypatch.setattr(updater, "_own_child_processes", lambda: [window])
+
+    def fail(*_args, **_kwargs):
+        raise OSError("no cmd.exe")
+    monkeypatch.setattr(updater.subprocess, "Popen", fail)
+    assert updater.apply_patch_and_restart(r"C:\patches\patch_v9.zip") is False
+    assert not window.killed
+    os.remove(updater.build_temp_patch_script_path(str(os.getpid())))
 
 
 def test_apply_patch_handles_space_and_arabic_paths(tmp_path):
