@@ -66,3 +66,4 @@ config/ui_language.json
 START_HERE/output/
 backups/
 templets/.server_hashes.json
+cache/
