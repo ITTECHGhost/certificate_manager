@@ -166,18 +166,16 @@ class ServerMixin:
 
     def _do_sync_offline_queue(self) -> None:
         """Triggers manual sync of queued offline INSERTs to MySQL."""
-        from sync_engine import is_online, sync_offline_queue_to_mysql
+        from sync_engine import is_online, sync_offline_queue_to_mysql, sync_result_message
         if not is_online():
             ui.notify("لا يوجد اتصال بالسيرفر حالياً للمزامنة. يرجى الاتصال أولاً.", type="warning")
             return
         try:
             result = sync_offline_queue_to_mysql()
             self._refresh_sync_status()
-            if result.get("failed"):
-                ui.notify(
-                    f"تمت مزامنة {result.get('synced', 0)} سجل، وفشل {result['failed']} — راجع السجلات الفاشلة.",
-                    type="warning"
-                )
+            message = sync_result_message(result)
+            if message:
+                ui.notify(message[0], type=message[1], timeout=10000)
             else:
                 ui.notify("تمت مزامنة البيانات المعلقة مع قاعدة البيانات بنجاح!", type="positive")
         except Exception as exc:
