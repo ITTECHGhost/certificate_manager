@@ -190,6 +190,13 @@ if ($SkipDbCheck -or -not $dbOk) { Skip "Database update (no working database lo
     } finally { Remove-Item -Force $opt -ErrorAction SilentlyContinue }
     if (-not $dumpOk) { Restore-OldVersion "The database backup failed, so the database was not changed." }
     Ok "Database backed up: $script:dumpFile"
+    # Order images live as files since 2.5.0: keep a copy beside the database backups (adds only new files)
+    $imagesDir = "C:\AppServ\order_images"
+    if (Test-Path $imagesDir) {
+        robocopy $imagesDir (Join-Path $backups "order_images") /E /NFL /NDL /NJH /NJS /NP | Out-Null
+        if ($LASTEXITCODE -ge 8) { Warn "Copying the order images to backups failed (robocopy code $LASTEXITCODE)" }
+        else { Ok "Order images backed up: $(Join-Path $backups 'order_images')" }
+    }
 
     Push-Location $TargetDir
     & $python migrate.py --sql-dir (Join-Path $bundle "sql")

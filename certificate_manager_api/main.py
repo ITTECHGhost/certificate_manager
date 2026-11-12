@@ -28,6 +28,17 @@ async def lifespan(app: FastAPI):
         logger.info("Database initialization successful.")
     except Exception as e:
         logger.error(f"Failed to initialize database on startup: {e}")
+    try:  # order pages saved inside the database by 2.4.0 become files (2.5.0)
+        from deps import get_db as _get_db
+        from routers.order_images import move_blobs_to_files
+        _gen = _get_db()
+        _conn = next(_gen)
+        try:
+            move_blobs_to_files(_conn)
+        finally:
+            _gen.close()
+    except Exception as e:
+        logger.warning(f"Order images were not moved to files yet: {e}")
     yield
 
 
