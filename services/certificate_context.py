@@ -8,6 +8,26 @@ from itertools import zip_longest
 
 
 
+
+RANK_KEYS = ("dept_term_system", "dept_term", "dept_system", "dept_year",
+             "college_term_system", "college_term", "college_system", "college_year",
+             "first_student_college_seq")
+
+
+def rank_fields(ranks: dict, is_english: bool = False) -> dict:
+    """{{seq_<key>}}, {{seq_<key>_words}}, {{seq_<key>_of}} for each calculated (and possibly
+    edited) sequence; the first student's college place is {{first_student_college_seq}}."""
+    out = {}
+    for key in RANK_KEYS:
+        r = ranks.get(key) or {}
+        seq, of = str(r.get("seq") or "").strip(), str(r.get("of") or "").strip()
+        name = key if key == "first_student_college_seq" else f"seq_{key}"
+        out[name] = to_arabic_num(seq, is_english)
+        out[f"{name}_words"] = ordinal_words(seq) if seq else ""
+        out[f"{name}_of"] = to_arabic_num(of, is_english)
+        out[f"{name}_of_words"] = number_words(of) if of else ""
+    return out
+
 IRAQ_NATIONALITY_ID = 274
 
 from utils.arabic_words import number_words, ordinal_words, study_duration_words  # noqa: E402
@@ -753,6 +773,7 @@ def build_certificate_context(data: dict, options: dict) -> dict:
         "study_duration": options.get("study_duration") or study_duration_words(
             data.get("calculation_weights") or "", data.get("degree_level")),
         "branch": data.get("branch_ar") or options.get("branch") or "",
+        **rank_fields(options.get("ranks") or {}, is_english),
         "Summer_Training_year": to_arabic_num(options.get("summer_year") or "", is_english),
         "Postponement_and_Failure_Years": to_arabic_num(options.get("postpone_years") or "", is_english),
         "Subjects_Passed_with_Second_Trial": second_subjects,

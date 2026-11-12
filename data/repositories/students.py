@@ -780,3 +780,16 @@ class EnrollmentRepository(BaseRepository):
         except Exception as e:
             log_system(f"API request failed: {e}", "WARNING")
             raise
+
+
+def get_graduation_ranks(student_id: int) -> dict:
+    """The 8 calculated graduation sequences ({} when offline or not linked to an order)."""
+    if not is_online():
+        return {}
+    try:
+        resp = api_client.get(f"{get_api_url()}/students/{int(student_id)}/graduation-ranks", timeout=10.0)
+        if resp.status_code == 200 and resp.json().get("linked"):
+            return resp.json()
+    except Exception as e:
+        log_system(f"graduation ranks failed: {e}", "WARNING")
+    return {}

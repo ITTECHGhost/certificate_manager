@@ -157,6 +157,10 @@
  ],
  [
   "GET",
+  "/students/{student_id}/graduation-ranks"
+ ],
+ [
+  "GET",
   "/departments"
  ],
  [

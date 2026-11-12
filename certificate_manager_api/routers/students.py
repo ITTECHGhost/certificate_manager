@@ -483,3 +483,27 @@ def get_student_periods_api(student_id: int, conn=Depends(get_db)):
         return periods
     except Exception as exc:
         raise HTTPException(status_code=500, detail=str(exc))
+
+
+@router.get("/students/{student_id}/graduation-ranks")
+def graduation_ranks(student_id: int, conn=Depends(get_db)):
+    """The student's 8 graduation sequences (department / college x 4 groups), calculated from the
+    averages of the year's graduates who are linked to a graduation order."""
+    from ranking import compute_ranks
+    cur = conn.cursor(dictionary=True)
+    try:
+        sql = ("SELECT s.id, s.department_id, s.average, o.graduation_semester AS semester, "
+               "o.study_system_id AS system_id, COALESCE(o.graduation_year, YEAR(o.order_date)) AS year "
+               "FROM students s JOIN graduation_orders o ON o.id = s.order_id ")
+        cur.execute(sql + "WHERE s.id = %s", (student_id,))
+        me = cur.fetchone()
+        if not me:
+            return {"linked": False}
+        cur.execute(sql + "WHERE COALESCE(o.graduation_year, YEAR(o.order_date)) = %s", (me["year"],))
+        result = compute_ranks(me, cur.fetchall())
+        result.update({"linked": True, "year": me["year"]})
+        return result
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=str(exc))
+    finally:
+        cur.close()

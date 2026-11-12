@@ -243,6 +243,7 @@ class CertificateScreen:
                         self.sw_rank, f = option_row("تسلسل التخرج")
                         with f:
                             self.inp_rank_val = UI.text_input("تسلسل الطالب", value="").classes("flex-1 min-w-[160px]")
+                        self._build_ranks_panel()
 
                         self.sw_summer, f = option_row("التدريب الصيفي")
                         with f:
@@ -735,10 +736,64 @@ class CertificateScreen:
                 except (ValueError, TypeError):
                     self.inp_rank_avg.value = str(top_avg_val_def)
 
+        self._fill_ranks(data)
+
         # Steps 2 and 3 show who the document is for; the review follows any change
         self._render_student_bar()
         if getattr(self, "step", 1) == 3:
             self._render_review()
+
+    # ── Graduation sequences: calculated from the averages, editable before printing ──
+    RANK_ROWS = [
+        ("dept_term_system", "القسم: نفس الفصل ونفس نظام الدراسة"),
+        ("dept_term", "القسم: نفس الفصل، كل الأنظمة"),
+        ("dept_system", "القسم: نفس النظام، كل الفصول"),
+        ("dept_year", "القسم: السنة كاملة"),
+        ("college_term_system", "الكلية: نفس الفصل ونفس نظام الدراسة"),
+        ("college_term", "الكلية: نفس الفصل، كل الأنظمة"),
+        ("college_system", "الكلية: نفس النظام، كل الفصول"),
+        ("college_year", "الكلية: السنة كاملة"),
+        ("first_student_college_seq", "تسلسل الخريج الأول للقسم في قائمة الكلية"),
+    ]
+
+    def _build_ranks_panel(self) -> None:
+        self.rank_inputs = {}
+        with ui.expansion("التسلسلات المحسوبة (قابلة للتعديل)", icon="format_list_numbered").classes("w-full") \
+                .bind_visibility_from(self.sw_rank, "value"):
+            self.ranks_note = ui.label("").classes("app-caption")
+            with ui.grid(columns=3).classes("w-full gap-2 items-center"):
+                for key, label in self.RANK_ROWS:
+                    ui.label(label).classes("text-sm app-text-primary")
+                    seq = UI.text_input("التسلسل", value="").classes("w-full")
+                    of = UI.text_input("من أصل", value="").classes("w-full")
+                    self.rank_inputs[key] = (seq, of)
+            UI.ghost_button("إعادة الحساب", icon="refresh", on_click=lambda: self._fill_ranks(
+                getattr(self, "student_full_data", None) or {}, force=True))
+
+    def _fill_ranks(self, data: dict, force: bool = False) -> None:
+        if not getattr(self, "rank_inputs", None):
+            return
+        student_id = data.get("student_id") or data.get("id")
+        from data.repositories.students import get_graduation_ranks
+        ranks = get_graduation_ranks(student_id) if student_id else {}
+        for key, (seq, of) in self.rank_inputs.items():
+            r = ranks.get(key) or {}
+            seq.value = str(r.get("seq") or "")
+            of.value = str(r.get("of") or "")
+        if not ranks:
+            self.ranks_note.set_text("لا توجد تسلسلات محسوبة: الطالب غير مرتبط بأمر تخرج، أو البرنامج غير متصل بالخادم. "
+                                     "اكتبها يدوياً.")
+            return
+        self.ranks_note.set_text(f"محسوبة من معدلات خريجي سنة {ranks.get('year')} المرتبطين بأوامر التخرج. "
+                                 "إذا لم يكن كل الخريجين مدخلين، صحّح الأرقام يدوياً.")
+        mine = (ranks.get("dept_system") or {}).get("seq")
+        if mine and (force or not (self.inp_rank_val.value or "").strip()):
+            self.inp_rank_val.value = str(mine)
+            self.sw_rank.value = True
+
+    def _ranks_from_inputs(self) -> dict:
+        return {key: {"seq": (seq.value or "").strip(), "of": (of.value or "").strip()}
+                for key, (seq, of) in (getattr(self, "rank_inputs", None) or {}).items()}
 
     def _enter_edit_mode(self, rec: dict, student_display_name: str = "") -> None:
         """Loads an issued certificate record into the form; generating then updates that record."""
@@ -868,6 +923,7 @@ class CertificateScreen:
             "rank_val": (self.inp_rank_val.value or "").strip(),
             "rank_total": (self.inp_rank_total.value or "").strip(),
             "rank_avg": (self.inp_rank_avg.value or "").strip(),
+            "ranks": self._ranks_from_inputs(),
             "opt_summer": self.sw_summer.value,
             "summer_year": (self.inp_summer_year.value or "").strip(),
             "opt_postpone": self.sw_postpone.value,
