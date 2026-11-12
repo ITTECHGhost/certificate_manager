@@ -184,12 +184,43 @@ if ($SkipDbCheck -or -not $dbOk) { Skip "Database update (no working database lo
     $script:dumpFile = Join-Path $backups ("before-update-{0}-{1:yyyyMMdd-HHmmss}.sql" -f $version, (Get-Date))
     $opt = Join-Path $env:TEMP ("certman-{0}.cnf" -f [guid]::NewGuid())
     [IO.File]::WriteAllText($opt, "[client]`nhost=$($db.host)`nuser=$($db.user)`npassword=`"$($db.password)`"`n", (New-Object Text.UTF8Encoding $false))
+    # mysqldump writes its errors to a file (--log-error): native stderr would stop this script
+    $dumpLog = Join-Path $env:TEMP ("certman-dump-{0}.log" -f [guid]::NewGuid())
+    function Invoke-Dump([string]$RoutinesFlag) {
+        Remove-Item -Force $script:dumpFile, $dumpLog -ErrorAction SilentlyContinue
+        & $mysqldump "--defaults-file=$opt" --single-transaction $RoutinesFlag --triggers --no-tablespaces "--log-error=$dumpLog" "--result-file=$script:dumpFile" $dbName
+        return ($LASTEXITCODE -eq 0) -and (Test-Path $script:dumpFile) -and ((Get-Item $script:dumpFile).Length -gt 1024)
+    }
+    $grantCmd = "`"C:\AppServ\MySQL\bin\mysql.exe`" -u root -p -e `"GRANT SELECT ON mysql.proc TO '$($db.user)'@'localhost';`""
+    $withoutRoutines = $false
     try {
-        & $mysqldump "--defaults-file=$opt" --single-transaction --routines --triggers --no-tablespaces "--result-file=$script:dumpFile" $dbName
-        $dumpOk = ($LASTEXITCODE -eq 0) -and (Test-Path $script:dumpFile) -and ((Get-Item $script:dumpFile).Length -gt 1024)
+        $dumpOk = Invoke-Dump "--routines"
+        $dumpErr = if (Test-Path $dumpLog) { (Get-Content $dumpLog -Raw) } else { "" }
+        # Servers installed before 2.3.0: the procedures belong to root, and on MySQL 5.7 the API's
+        # login may not read their code. The data still backs up; the procedures are rebuilt from
+        # SP.sql by this same update, so the backup is taken without them.
+        if (-not $dumpOk -and $dumpErr -match "mysql\.proc|SHOW CREATE (PROCEDURE|FUNCTION)|insufficient privileges|1044|1227") {
+            Warn "The database login cannot read the stored procedures' code (created by root on an older install)."
+            Warn "Taking the backup without the procedures; this update rebuilds them from SP.sql."
+            $dumpOk = Invoke-Dump "--skip-routines"
+            $withoutRoutines = $dumpOk
+            $dumpErr = if (Test-Path $dumpLog) { (Get-Content $dumpLog -Raw) } else { "" }
+        }
     } finally { Remove-Item -Force $opt -ErrorAction SilentlyContinue }
-    if (-not $dumpOk) { Restore-OldVersion "The database backup failed, so the database was not changed." }
+    if (-not $dumpOk) {
+        if ($dumpErr) { Write-Host $dumpErr.Trim() -ForegroundColor Red }
+        # A dump that stopped half-way is not a backup: never leave it looking like one
+        Remove-Item -Force $script:dumpFile -ErrorAction SilentlyContinue
+        $script:dumpFile = $null
+        Remove-Item -Force $dumpLog -ErrorAction SilentlyContinue
+        Restore-OldVersion "The database backup failed, so the database was not changed."
+    }
+    Remove-Item -Force $dumpLog -ErrorAction SilentlyContinue
     Ok "Database backed up: $script:dumpFile"
+    if ($withoutRoutines) {
+        Warn "The backup has all tables and data but not the stored procedures. For full backups next time, run once as Administrator:"
+        Write-Host "  $grantCmd"
+    }
     # Order images live as files since 2.5.0: keep a copy beside the database backups (adds only new files)
     $imagesDir = "C:\AppServ\order_images"
     if (Test-Path $imagesDir) {
