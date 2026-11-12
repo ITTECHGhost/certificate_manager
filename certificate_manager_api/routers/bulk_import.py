@@ -5,7 +5,7 @@
 import logging
 from typing import List, Optional
 from fastapi import APIRouter, Depends, HTTPException, status
-from pydantic import BaseModel
+from pydantic import BaseModel, field_validator
 
 logger = logging.getLogger("api.bulk_import")
 
@@ -41,6 +41,13 @@ class BulkImportScoreItem(BaseModel):
 
 
 class BulkImportStudentItem(BaseModel):
+    @field_validator("average", check_fields=False)
+    @classmethod
+    def _average_out_of_100(cls, v):
+        if v is not None and not (0 <= v <= 100):
+            raise ValueError("المعدل يجب أن يكون بين 0 و 100")
+        return v
+
     full_name_ar: str
     full_name_en: Optional[str] = ""
     gender: Optional[int] = 1

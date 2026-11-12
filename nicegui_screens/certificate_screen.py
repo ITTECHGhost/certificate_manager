@@ -774,6 +774,10 @@ class CertificateScreen:
         if not getattr(self, "rank_inputs", None):
             return
         student_id = data.get("student_id") or data.get("id")
+        from utils.display_format import average_is_valid
+        if not average_is_valid(data.get("average")):
+            ui.notify(f"معدل الطالب ({data.get('average')}) أكبر من 100: صحّحه من تعديل بيانات الطالب قبل الإصدار",
+                      type="warning", timeout=10000)
         from data.repositories.students import get_graduation_ranks
         ranks = get_graduation_ranks(student_id) if student_id else {}
         for key, (seq, of) in self.rank_inputs.items():

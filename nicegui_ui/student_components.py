@@ -1477,6 +1477,11 @@ class StudentFormView:
             ui.notify("اختر نظام الدراسة ونوع الدراسة (هذا الزوج غير موجود)", type="warning")
             return
 
+        from utils.display_format import average_is_valid
+        if self.average.value and not average_is_valid(self.average.value):
+            ui.notify("المعدل يجب أن يكون بين 0 و 100", type="warning")
+            return
+
         payload = {
             "full_name_ar": name_ar_val,
             "full_name_en": self.name_en.value.strip() if self.name_en.value else "",

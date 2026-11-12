@@ -10,7 +10,7 @@ log = logging.getLogger(__name__)
 
 from nicegui import ui, run, background_tasks
 from nicegui_ui.ui_components import UI
-from utils.display_format import format_average
+from utils.display_format import average_is_valid, format_average
 from nicegui_ui.student_components import StudentProfileView, StudentFormView, CourseEnrollmentView
 from nicegui_screens.student_bulk_import_view import StudentBulkImportView
 
@@ -160,7 +160,8 @@ class StudentsScreen:
                 "name_en": name_en,
                 "department_name_ar": r.get("department_name_ar") or r.get("dept_name_ar") or "—",
                 "graduation_year": "—" if str(r.get("graduation_year") or "N/A") == "N/A" else str(r.get("graduation_year")),
-                "average": format_average(r.get("average")),
+                "average": format_average(r.get("average"))
+                + ("" if average_is_valid(r.get("average")) else " ⚠ خطأ: أكبر من 100"),
             }
             results.append(mapped)
         return results

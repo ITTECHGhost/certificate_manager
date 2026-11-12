@@ -53,3 +53,14 @@ def test_rank_fields_for_templates():
     assert r["seq_dept_year_of_words"] == "مئة وواحد وثلاثون"
     assert r["first_student_college_seq_words"] == "الأول"
     assert r["seq_college_term"] == "" and r["seq_college_term_words"] == ""
+
+
+def test_impossible_average_is_ignored():
+    rows = CLASS + [g(99, 1, "first", 1, 770.298)]
+    assert compute_ranks(CLASS[0], rows)["dept_term_system"]["seq"] == 1
+
+
+def test_average_rule():
+    from utils.display_format import average_is_valid
+    assert average_is_valid(85.5) and average_is_valid(None) and average_is_valid(100)
+    assert not average_is_valid(770.298) and not average_is_valid(-1)

@@ -6,7 +6,7 @@ search_router holds GET /students/search only. Before the split it was registere
 from typing import List, Optional
 
 from fastapi import APIRouter, HTTPException, Depends, status, Query
-from pydantic import BaseModel
+from pydantic import BaseModel, field_validator
 
 from deps import logger, get_db, execute_sp_fetchall, execute_sp_fetchone
 
@@ -19,6 +19,13 @@ search_router = APIRouter()
 # ===========================================================================
 
 class StudentPayload(BaseModel):
+    @field_validator("average", check_fields=False)
+    @classmethod
+    def _average_out_of_100(cls, v):
+        if v is not None and not (0 <= v <= 100):
+            raise ValueError("المعدل يجب أن يكون بين 0 و 100")
+        return v
+
     full_name_ar: str
     full_name_en: str
     gender: Optional[int] = 1
@@ -396,7 +403,7 @@ def candidates_for_order(order_id: int, name_query: str = "", matching_only: boo
         params: list = []
         if matching_only:
             where += ["s.department_id = %s", "s.study_system_id = %s",
-                      "(s.expected_graduation_year = %s OR (s.expected_graduation_year IS NULL AND YEAR(s.graduation_date) = %s))",
+                      "(s.expected_graduation_year = %s OR (s.expected_graduation_year IS NULL AND YEAR(s.graduation_date) - (MONTH(s.graduation_date) < 9) = %s))",
                       "(s.expected_graduation_semester IS NULL OR s.expected_graduation_semester = '' "
                       "OR s.expected_graduation_semester = %s)"]
             params += [o["department_id"], o["study_system_id"], year, year, o["graduation_semester"]]

@@ -29,9 +29,10 @@ LABELS_AR = {
 
 def _avg(row):
     try:
-        return round(float(row.get("average")), 4)
+        value = round(float(row.get("average")), 4)
     except (TypeError, ValueError):
         return None
+    return value if 0 <= value <= 100 else None   # e.g. 770.298 typed by mistake
 
 
 def compute_ranks(me: dict, graduates: list) -> dict:

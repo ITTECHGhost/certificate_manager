@@ -2016,7 +2016,7 @@ BEGIN
       AND s.study_system_id = v_study_system_id
       AND (s.order_id IS NULL OR s.order_id = 0)
       AND (s.expected_graduation_year = v_year
-           OR (s.expected_graduation_year IS NULL AND YEAR(s.graduation_date) = v_year))
+           OR (s.expected_graduation_year IS NULL AND YEAR(s.graduation_date) - (MONTH(s.graduation_date) < 9) = v_year))
       AND (s.expected_graduation_semester IS NULL OR s.expected_graduation_semester = ''
            OR s.expected_graduation_semester = v_sem);
 
