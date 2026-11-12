@@ -125,7 +125,7 @@ class ServerMixin:
         try:
             full_url = preview_api_url(str(host), port)
         except (TypeError, ValueError):
-            ui.notify("منفذ السيرفر غير صحيح / Invalid server port", type="warning")
+            ui.notify("منفذ السيرفر غير صحيح", type="warning")
             return
 
         try:
