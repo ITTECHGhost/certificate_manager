@@ -77,9 +77,62 @@ def check_network_status(target_url: str | None = None) -> bool:
     url = target_url or get_api_url()
     try:
         response = api_client.get(f"{url}/ping", timeout=2.0)
-        return response.status_code == 200
+        if response.status_code == 200:
+            if target_url is None:
+                _ensure_ca_cert()
+            return True
     except requests.RequestException:
+        pass
+    if target_url is None:
+        return _try_other_scheme()
+    return False
+
+
+_last_scheme_probe = 0.0
+_ca_checked = False
+
+
+def _ensure_ca_cert() -> None:
+    """Once per run: save the server's CA certificate on this laptop if it has none, so the
+    switch to HTTPS needs nothing copied by hand (the laptop's copy wins over the built-in one)."""
+    global _ca_checked
+    if _ca_checked:
+        return
+    _ca_checked = True
+    try:
+        from api_config import DEFAULT_CA_CERT
+        target = app_paths.DATA_DIR / DEFAULT_CA_CERT
+        if target.exists():
+            return
+        resp = api_client.get(f"{get_api_url()}/api/ca-cert", timeout=5.0)
+        if resp.status_code == 200 and b"BEGIN CERTIFICATE" in resp.content:
+            target.parent.mkdir(parents=True, exist_ok=True)
+            tmp = target.with_suffix(".tmp")
+            tmp.write_bytes(resp.content)
+            tmp.replace(target)
+            log.info(f"Saved the server's CA certificate to {target}")
+    except Exception as e:
+        log.debug(f"CA certificate fetch skipped: {e}")
+
+
+def _try_other_scheme() -> bool:
+    """The server may have moved between HTTP and HTTPS: try the other one (at most once a
+    minute) and keep it when it answers."""
+    import time
+    from api_config import other_scheme_url, set_scheme
+    global _last_scheme_probe
+    if time.monotonic() - _last_scheme_probe < 60:
         return False
+    _last_scheme_probe = time.monotonic()
+    url = other_scheme_url()
+    try:
+        if api_client.get(f"{url}/ping", timeout=2.0).status_code == 200:
+            set_scheme(url.split("://", 1)[0])
+            log.info(f"Server answers on {url}: switched")
+            return True
+    except requests.RequestException:
+        pass
+    return False
 
 # ---------------------------------------------------------------------------
 # Constants

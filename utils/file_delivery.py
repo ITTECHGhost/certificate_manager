@@ -165,7 +165,7 @@ def show_delivery_modal(target_path: Path, title: str, auto_opened: bool = True)
 
         # Action Buttons
         with ui.row().classes("w-full items-center justify-end gap-2.5 pt-2"):
-            UI.secondary_button("إغلاق / Close", icon="close", on_click=dlg.close).classes("text-xs px-3 py-1.5")
+            UI.secondary_button("إغلاق", icon="close", on_click=dlg.close).classes("text-xs px-3 py-1.5")
 
             def on_show_folder():
                 show_in_file_manager(target_path)

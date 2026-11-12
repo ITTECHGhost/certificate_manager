@@ -58,3 +58,13 @@ certificate_manager_api/db_config.json
 # Third-party installers for the server bundle (AppServ, Python); too large for git
 installer/server/prereqs/*
 !installer/server/prereqs/README.txt
+
+# Interface language chosen on this PC (nicegui_ui/i18n.py)
+config/ui_language.json
+
+# START_HERE build results (made by 1_BUILD_UPDATE.bat)
+START_HERE/output/
+backups/
+templets/.server_hashes.json
+cache/
+certificate_manager_api/order_images/

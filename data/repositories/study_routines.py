@@ -333,7 +333,8 @@ class StudyRoutineRepository(BaseRepository):
                         })
 
         adm_yr_raw = str(st.get("admission_year") or "2024").strip()
-        adm_yr = int(adm_yr_raw) if adm_yr_raw.isdigit() else 2024
+        from utils.date_parsing import academic_year_start
+        adm_yr = academic_year_start(adm_yr_raw) or (int(adm_yr_raw) if adm_yr_raw.isdigit() else 2024)
 
         period_repo = AcademicPeriodRepository()
         enroll_repo = EnrollmentRepository()

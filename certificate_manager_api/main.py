@@ -28,6 +28,17 @@ async def lifespan(app: FastAPI):
         logger.info("Database initialization successful.")
     except Exception as e:
         logger.error(f"Failed to initialize database on startup: {e}")
+    try:  # order pages saved inside the database by 2.4.0 become files (2.5.0)
+        from deps import get_db as _get_db
+        from routers.order_images import move_blobs_to_files
+        _gen = _get_db()
+        _conn = next(_gen)
+        try:
+            move_blobs_to_files(_conn)
+        finally:
+            _gen.close()
+    except Exception as e:
+        logger.warning(f"Order images were not moved to files yet: {e}")
     yield
 
 
@@ -51,7 +62,7 @@ from fastapi.responses import JSONResponse
 
 APP_KEYS_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "app_keys.json")
 # Reachable without a key: the connectivity check only
-APP_KEY_EXEMPT_PATHS = {"/ping"}
+APP_KEY_EXEMPT_PATHS = {"/ping", "/api/ca-cert"}
 
 
 def _load_app_keys() -> dict:
@@ -152,6 +163,9 @@ from routers.thesis import router as thesis_router  # noqa: E402
 from routers.dashboard import router as dashboard_router  # noqa: E402
 from routers.study_routines import router as study_routines_router  # noqa: E402
 from routers.issued_certificates import router as issued_certificates_router  # noqa: E402
+from routers.server_update import router as server_update_router  # noqa: E402
+from routers.order_images import router as order_images_router  # noqa: E402
+from routers.reports import router as reports_router  # noqa: E402
 
 app.include_router(system_router)               # /ping /health/db /sp/* /replica/* /table-count/* /admin/*
 app.include_router(sync_router)                 # POST /sync
@@ -169,6 +183,9 @@ app.include_router(dashboard_router)            # /api/dashboard/*
 app.include_router(study_routines_router)       # /study-routines/* /api/study-routine*
 app.include_router(issued_certificates_router)  # /issued-certificates/* /certificate-numbers/*
 app.include_router(sync_batch_router)           # POST /sync (shadowed) and POST /api/sync
+app.include_router(server_update_router)        # /api/admin/server-update/* (upload, status, cancel)
+app.include_router(order_images_router)         # /orders/{id}/images*
+app.include_router(reports_router)              # /api/reports/*
 
 
 if __name__ == "__main__":

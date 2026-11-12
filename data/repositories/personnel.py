@@ -570,7 +570,7 @@ DEFAULT_SYSTEM_ROLES = [
         "name_en": "System Administrator",
         "description_ar": "صلاحيات وتحكم كامل بكافة وظائف وشاشات وإعدادات النظام",
         "base_role": "admin",
-        "allowed_pages": ["home", "students", "orders", "departments", "courses", "personnel", "certificate", "issued_certs", "settings", "history"],
+        "allowed_pages": ["home", "students", "orders", "departments", "courses", "personnel", "certificate", "issued_certs", "settings", "history", "reports"],
         "allowed_actions": ALL_PERMISSION_KEYS,
         "department_scope": "all",
         "is_system": 1,
@@ -581,7 +581,7 @@ DEFAULT_SYSTEM_ROLES = [
         "name_en": "Registrar Director",
         "description_ar": "إدارة كاملة لشؤون الطلاب، الدرجات، أوامر التخرج، وإصدار الوثائق لكافة الأقسام",
         "base_role": "user",
-        "allowed_pages": ["home", "students", "orders", "departments", "courses", "certificate", "issued_certs"],
+        "allowed_pages": ["home", "students", "orders", "departments", "courses", "certificate", "issued_certs", "reports"],
         "allowed_actions": [
             "students:view", "students:create", "students:edit", "students:grades",
             "orders:view", "orders:create", "orders:edit",
@@ -770,7 +770,7 @@ class RoleRepository(BaseRepository):
         """Reads and deserializes roles from SQLite."""
         try:
             from sync_engine import sqlite_read_all
-            rows = sqlite_read_all("SELECT * FROM roles ORDER BY is_system DESC, id ASC")
+            rows = sqlite_read_all("SELECT * FROM roles ORDER BY is_system DESC, created_at DESC, id DESC")
             results = []
             for r in rows:
                 item = dict(r)
@@ -816,8 +816,7 @@ class RoleRepository(BaseRepository):
         sql/fixes/2026-10-24_02_accounts_roles_passwords.sql): the change then stays on
         this laptop only, as before.
         """
-        offline_msg = ("لا يمكن تعديل الأدوار والصلاحيات في وضع عدم الاتصال / "
-                       "Roles can only be changed while connected to the server.")
+        offline_msg = "لا يمكن تعديل الأدوار والصلاحيات دون اتصال. اتصل بالسيرفر ثم أعد المحاولة."
         if not is_online():
             raise OfflineModeError(offline_msg)
         try:
@@ -938,7 +937,7 @@ class RoleRepository(BaseRepository):
         if not existing:
             return False
         if existing.get("is_system"):
-            raise ValueError("لا يمكن حذف الأدوار الافتراضية للنظام / Cannot delete built-in system roles")
+            raise ValueError("لا يمكن حذف الأدوار الافتراضية للنظام")
 
         self._server_write("DELETE", f"/roles/{role_id}")
 

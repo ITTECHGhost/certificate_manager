@@ -53,7 +53,29 @@ STUDENT_ROSTER_HEADERS = [
     ("الجنسية", 18),
     ("سنة القبول (مثال: 2023-2024)", 25),
     ("نوع الدراسة (صباحي / مسائي)", 22),
+    ("سنة التخرج المتوقعة (مثال: 2025/2026، اختياري)", 26),
+    ("فصل التخرج المتوقع (الأول / الثاني / الصيفي)", 26),
+    ("رقم أمر التخرج (فارغ = لم يتخرج)", 26),
 ]
+
+SEMESTER_KEYS = {"الأول": "first", "الاول": "first", "first": "first",
+                 "الثاني": "second", "second": "second",
+                 "الصيفي": "summer", "صيفي": "summer", "summer": "summer"}
+
+
+def parse_semester(raw) -> str:
+    text = str(raw or "").strip().lower()
+    if text in ("1", "2"):
+        return "first" if text == "1" else "second"
+    for word, key in SEMESTER_KEYS.items():
+        if word in text:
+            return key
+    return ""
+
+
+def parse_year(raw):
+    m = re.search(r"(19|20)\d{2}", normalize_digits(raw) if raw is not None else "")
+    return int(m.group(0)) if m else None
 
 SAMPLE_STUDENTS = [
     ["199912345678", "علي حسن محمد جاسم", "Ali Hassan Mohammed Jasim", "ذكر", "2001-05-14", "بغداد", "عراقي", "2023-2024", "صباحي"],
@@ -193,7 +215,13 @@ def parse_students_file(file_bytes: bytes) -> Tuple[List[Dict[str, Any]], List[s
         raw_val = str(ws.cell(row=header_row_idx, column=c).value or "").strip()
         if not raw_val:
             continue
-        if "الرقم الوطني" in raw_val or "الهوية" in raw_val or "الجواز" in raw_val:
+        if "رقم" in raw_val and "الأمر" in raw_val or "رقم أمر" in raw_val:
+            col_mapping["order_number"] = c
+        elif "التخرج" in raw_val and "سنة" in raw_val:
+            col_mapping["expected_year"] = c
+        elif "التخرج" in raw_val and "فصل" in raw_val:
+            col_mapping["expected_semester"] = c
+        elif "الرقم الوطني" in raw_val or "الهوية" in raw_val or "الجواز" in raw_val:
             col_mapping["national_id"] = c
         elif "الاسم" in raw_val and ("عربي" in raw_val or "الرباعي" in raw_val or "العربية" in raw_val):
             col_mapping["full_name_ar"] = c
@@ -265,13 +293,19 @@ def parse_students_file(file_bytes: bytes) -> Tuple[List[Dict[str, Any]], List[s
             "full_name_ar": name_ar_val,
             "full_name_en": name_en_val,
             "gender": gender,
-            "gender_label": "أنثى / Female" if gender == 2 else "ذكر / Male",
+            "gender_label": "أنثى" if gender == 2 else "ذكر",
             "date_of_birth": dob_str,
             "birthplace": birthplace_val,
             "nationality": nationality_val,
             "admission_year": adm_year,
             "study_type": study_type,
             "study_type_ar": "مسائي" if study_type == "Evening" else "صباحي",
+            "expected_graduation_year": parse_year(ws.cell(row=row_idx, column=col_mapping["expected_year"]).value)
+            if "expected_year" in col_mapping else None,
+            "expected_graduation_semester": parse_semester(ws.cell(row=row_idx, column=col_mapping["expected_semester"]).value)
+            if "expected_semester" in col_mapping else "",
+            "order_number": str(normalize_digits(ws.cell(row=row_idx, column=col_mapping["order_number"]).value) or "").strip()
+            if "order_number" in col_mapping else "",
         })
 
     return students, errors

@@ -1,0 +1,33 @@
+CERTIFICATE MANAGER - WHAT TO DO (everything you need is in this folder)
+=========================================================================
+
+A) MAKE AN UPDATE  (your laptop)
+   1. Double-click 1_BUILD_UPDATE.bat
+   2. Type the new version (one higher than the last, e.g. 2.3.0, then 2.3.1 ...)
+   3. Wait. The result opens in START_HERE\output\
+
+B) FIRST TIME ONLY: INSTALL IT ON THE SERVER BY USB
+   1. Server laptop: phpMyAdmin -> Export the database once (extra safety copy)
+   2. Copy START_HERE\output\CertificateManagerUpdate-<version>\ to the server laptop
+   3. Double-click Update.bat in it -> Yes (Administrator) -> type y
+   4. Must end with [SUCCESS]. If not: send me update-log-*.txt from that folder.
+      (the old version is restored automatically; the database backup is in
+       C:\AppServ\www\certificate_manager_api\backups\)
+
+C) EVERY LATER UPDATE: FROM THE PROGRAM, NO USB
+   1. A) again
+   2. Program -> Settings -> server and maintenance tab -> "Server update" card
+   3. Choose START_HERE\output\CertificateManagerUpdate-<version>.zip
+   4. Now, or at a time (e.g. tonight 22:00) -> confirm with your password
+   5. The card shows the new version, or "failed" with the log
+
+D) CLIENT LAPTOPS
+   They ask by themselves after sign-in: update now / at next start / later.
+   A laptop with no server connection: run
+   output\CertificateManagerUpdate-<version>\client\CertificateManager-Setup-<version>.exe
+
+E) A LAPTOP CANNOT REACH THE SERVER?
+   Run 2_CHECK_SERVER_CONNECTION.bat on that laptop. It says which part fails:
+   network / port (firewall or stopped service) / API.
+
+More detail: docs\installation_guide.md

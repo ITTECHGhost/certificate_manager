@@ -1990,6 +1990,9 @@ DELIMITER //
 DROP PROCEDURE IF EXISTS `LinkStudentsToOrder` //
 CREATE DEFINER=`root`@`localhost` PROCEDURE `LinkStudentsToOrder`(IN p_order_id INT)
 BEGIN
+    -- Links the students this order is about: same department and study system, not in any
+    -- order yet, expected to graduate in the order's year (and semester, when known).
+    -- Returns the linked ids so the program can undo the link.
     DECLARE v_dept_id INT;
     DECLARE v_year INT;
     DECLARE v_study_system_id INT;
@@ -2000,16 +2003,32 @@ BEGIN
     INTO v_dept_id, v_year, v_study_system_id, v_date, v_sem
     FROM graduation_orders WHERE id = p_order_id;
 
-    UPDATE students 
-    SET order_id = p_order_id, 
-        graduation_date = v_date, 
-        graduation_semester = v_sem
-    WHERE department_id = v_dept_id 
-      AND study_system_id = v_study_system_id
-      AND YEAR(graduation_date) = v_year
-      AND order_id IS NULL;
-      
-    SELECT ROW_COUNT() AS affected_rows;
+    IF v_year IS NULL OR v_year = 0 THEN
+        SET v_year = YEAR(v_date);
+    END IF;
+
+    DROP TEMPORARY TABLE IF EXISTS tmp_link_ids;
+    CREATE TEMPORARY TABLE tmp_link_ids (id INT PRIMARY KEY) ENGINE=MEMORY;
+
+    INSERT INTO tmp_link_ids (id)
+    SELECT s.id FROM students s
+    WHERE s.department_id = v_dept_id
+      AND s.study_system_id = v_study_system_id
+      AND (s.order_id IS NULL OR s.order_id = 0)
+      AND (s.expected_graduation_year = v_year
+           OR (s.expected_graduation_year IS NULL AND YEAR(s.graduation_date) - (MONTH(s.graduation_date) < 9) = v_year))
+      AND (s.expected_graduation_semester IS NULL OR s.expected_graduation_semester = ''
+           OR s.expected_graduation_semester = v_sem);
+
+    UPDATE students s JOIN tmp_link_ids t ON t.id = s.id
+    SET s.order_id = p_order_id,
+        s.graduation_date = v_date,
+        s.graduation_semester = v_sem;
+
+    SET SESSION group_concat_max_len = 100000;
+    SELECT COUNT(*) AS affected_rows, COALESCE(GROUP_CONCAT(id ORDER BY id), '') AS student_ids
+    FROM tmp_link_ids;
+    DROP TEMPORARY TABLE IF EXISTS tmp_link_ids;
 END //
 DELIMITER ;
 
@@ -3346,6 +3365,7 @@ BEGIN
         s.id AS student_id,
         COALESCE(s.full_name_ar, '') AS full_name_ar,
         COALESCE(s.full_name_en, '') AS full_name_en,
+        COALESCE(s.gender, '') AS gender,
         CAST(COALESCE(s.average, 0.0) AS DECIMAL(5, 3)) AS average,
         COALESCE(YEAR(s.graduation_date), 0) AS graduation_year,
         COALESCE(s.graduation_date, '1970-01-01') AS graduation_date,
@@ -3365,6 +3385,7 @@ BEGIN
 
         COALESCE(d.name_ar, '') AS dept_name_ar, 
         COALESCE(d.name_en, '') AS dept_name_en, 
+        COALESCE(d.branch_ar, '') AS branch_ar,
         COALESCE(ss.name_ar, '') AS study_system_name_ar, 
         COALESCE(ss.name_en, '') AS study_system_name_en, 
         COALESCE(ss.calculation_rule, '') AS calculation_rule, 

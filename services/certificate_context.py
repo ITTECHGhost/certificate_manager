@@ -7,6 +7,44 @@ import re
 from itertools import zip_longest
 
 
+
+
+RANK_KEYS = ("dept_term_system", "dept_term", "dept_system", "dept_year",
+             "college_term_system", "college_term", "college_system", "college_year",
+             "first_student_college_seq")
+
+
+def rank_fields(ranks: dict, is_english: bool = False) -> dict:
+    """{{seq_<key>}}, {{seq_<key>_words}}, {{seq_<key>_of}} for each calculated (and possibly
+    edited) sequence; the first student's college place is {{first_student_college_seq}}."""
+    out = {}
+    for key in RANK_KEYS:
+        r = ranks.get(key) or {}
+        seq, of = str(r.get("seq") or "").strip(), str(r.get("of") or "").strip()
+        name = key if key == "first_student_college_seq" else f"seq_{key}"
+        out[name] = to_arabic_num(seq, is_english)
+        out[f"{name}_words"] = ordinal_words(seq) if seq else ""
+        out[f"{name}_of"] = to_arabic_num(of, is_english)
+        out[f"{name}_of_words"] = number_words(of) if of else ""
+    return out
+
+IRAQ_NATIONALITY_ID = 274
+
+from utils.arabic_words import number_words, ordinal_words, study_duration_words  # noqa: E402
+
+
+def id_label(data: dict, is_english: bool = False) -> str:
+    """'الرقم الوطني' for Iraqi students, 'رقم الجواز' for everyone else."""
+    nat_id = str(data.get("nationality_id") or "").strip()
+    if nat_id:
+        iraqi = nat_id == str(IRAQ_NATIONALITY_ID)
+    else:
+        name = f"{data.get('nationality_ar') or ''} {data.get('nationality_en') or ''}".lower()
+        iraqi = (not name.strip()) or "العراق" in name or "عراقي" in name or "iraq" in name
+    if is_english:
+        return "National ID No." if iraqi else "Passport No."
+    return "الرقم الوطني" if iraqi else "رقم الجواز"
+
 def parse_stage_num(val, default: int = 1) -> int:
     """Safely extracts integer stage number from int, float, or string (e.g. '2', 'Stage 2', 'المرحلة 2')."""
     if val is None:
@@ -703,6 +741,7 @@ def build_certificate_context(data: dict, options: dict) -> dict:
         "Birthday": format_date_rtl(data.get("date_of_birth") or "", is_english),
         "Birthplace": data.get("birthplace_en" if is_english else "birthplace_ar") or data.get("birthplace_other", ""),
         "Nationality": data.get("nationality_en" if is_english else "nationality_ar", ""),
+        "id_label": id_label(data, is_english),
         "national_id": to_arabic_num(data.get("national_id") or options.get("national_id") or "", is_english),
         "National_ID": to_arabic_num(data.get("national_id") or options.get("national_id") or "", is_english),
         "National_id": to_arabic_num(data.get("national_id") or options.get("national_id") or "", is_english),
@@ -728,6 +767,13 @@ def build_certificate_context(data: dict, options: dict) -> dict:
         "Sequence_of_Graduation": to_arabic_num(seq_val, is_english),
         "num_students": to_arabic_num(num_stds, is_english),
         "Average_of_First_Student": to_arabic_num(top_avg, is_english),
+        "Average_of_First_Student_words": number_words(top_avg),
+        "Sequence_of_Graduation_words": ordinal_words(seq_val),
+        "average_words": number_words(avg_str),
+        "study_duration": options.get("study_duration") or study_duration_words(
+            data.get("calculation_weights") or "", data.get("degree_level")),
+        "branch": data.get("branch_ar") or options.get("branch") or "",
+        **rank_fields(options.get("ranks") or {}, is_english),
         "Summer_Training_year": to_arabic_num(options.get("summer_year") or "", is_english),
         "Postponement_and_Failure_Years": to_arabic_num(options.get("postpone_years") or "", is_english),
         "Subjects_Passed_with_Second_Trial": second_subjects,

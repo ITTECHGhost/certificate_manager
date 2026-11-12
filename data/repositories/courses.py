@@ -20,6 +20,12 @@ class CourseRepository(BaseRepository):
             log_system(f"API request failed: {e}. Falling back to SQLite cache.", "WARNING")
             return get_offline_courses()
 
+    def get_all_newest_first(self) -> list[dict]:
+        """Courses management list, newest first (courses are a local-first table)."""
+        if not is_online() or _local_ready("courses"):
+            return get_offline_courses_newest_first()
+        return self.get_all()
+
     def get_by_department(self, dept_id: int) -> list[dict]:
         if not is_online():
             return get_offline_courses_by_department(dept_id)

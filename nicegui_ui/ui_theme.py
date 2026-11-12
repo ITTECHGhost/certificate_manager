@@ -38,27 +38,48 @@ class Typography:
 
 
 # ── Valid accent palette names ──────────────────────────────────────────────
-ACCENT_OPTIONS: list[str] = ["blue", "green", "red", "orange", "purple"]
+# The five accents of 571f6aa. Each is a token set in theme.css (section 1b).
+ACCENT_OPTIONS: list[str] = ["green", "blue", "red", "orange", "purple"]
+ACCENT_DEFAULT = "green"
+ACCENT_LABELS: dict[str, dict[str, str]] = {
+    "green":  {"ar": "أخضر",    "en": "Green"},
+    "blue":   {"ar": "أزرق",    "en": "Blue"},
+    "red":    {"ar": "أحمر",    "en": "Red"},
+    "orange": {"ar": "برتقالي", "en": "Orange"},
+    "purple": {"ar": "بنفسجي",  "en": "Purple"},
+}
+# Swatch colour shown in the picker (the light-mode --accent of each set)
+ACCENT_SWATCHES: dict[str, str] = {
+    "green": "#1f7a5a", "blue": "#2b5fb4", "red": "#b4373a", "orange": "#a85a12", "purple": "#7444ad",
+}
+
+
+def normalize_accent(name) -> str:
+    """Map a stored accent name ('Blue', 'dark_blue', 'dark-blue', None…) onto ACCENT_OPTIONS."""
+    n = str(name or "").strip().lower().replace("_", "-").replace(" ", "-")
+    if n == "dark-blue":
+        n = "blue"
+    return n if n in ACCENT_OPTIONS else ACCENT_DEFAULT
 
 
 class Styles:
     """
     Pre-composed class strings: CSS hook classes (visual) + Tailwind utilities (structural).
     """
-    BODY       = "m-0 p-0 overflow-hidden select-none"
+    BODY       = "m-0 p-0 overflow-hidden"
     LAYOUT_ROW = "w-full max-w-full h-screen flex-nowrap m-0 p-0 gap-0 overflow-hidden"
 
-    SIDEBAR_COL_EXPANDED = "app-sidebar w-64 h-full p-0 justify-between shrink-0"
-    SIDEBAR_COL_COLLAPSED = "app-sidebar w-20 h-full p-0 justify-between shrink-0 items-center"
-    SIDEBAR_HEADER    = "app-sidebar-header w-full h-16 px-4 flex items-center justify-between shrink-0"
-    SIDEBAR_NAV_GROUP = "w-full flex-1 overflow-y-auto p-3 gap-1"
-    SIDEBAR_APP_TITLE = "app-sidebar-title text-lg font-bold tracking-wide"
+    SIDEBAR_COL_EXPANDED = "app-sidebar w-56 h-full p-0 gap-0 shrink-0"
+    SIDEBAR_COL_COLLAPSED = "app-sidebar w-16 h-full p-0 gap-0 shrink-0 items-center"
+    SIDEBAR_HEADER    = "app-sidebar-header w-full px-3 flex items-center gap-2 no-wrap shrink-0"
+    SIDEBAR_NAV_GROUP = "w-full flex-1 overflow-y-auto p-2 gap-1"
+    SIDEBAR_APP_TITLE = "app-sidebar-title"
 
-    _NAV      = "w-full items-center gap-3 px-3.5 py-2.5 rounded-xl border cursor-pointer"
+    _NAV      = "w-full items-center cursor-pointer"
     NAV_ITEM_ACTIVE   = f"{_NAV} app-nav-item--active"
     NAV_ITEM_INACTIVE = f"{_NAV} app-nav-item"
 
-    _NAV_MINI = "w-full justify-center items-center py-2.5 rounded-xl border cursor-pointer"
+    _NAV_MINI = "w-full justify-center items-center cursor-pointer"
     NAV_ITEM_MINI_ACTIVE   = f"{_NAV_MINI} app-nav-item--active"
     NAV_ITEM_MINI_INACTIVE = f"{_NAV_MINI} app-nav-item"
 
@@ -68,7 +89,7 @@ class Styles:
     USER_NAME          = "app-sidebar-text text-sm font-semibold leading-tight truncate"
     USER_STATUS_ONLINE = "app-user-status text-xs font-medium leading-tight"
 
-    HEADER_BAR = "app-header-bar w-full h-16 px-6 flex items-center justify-between shrink-0"
+    HEADER_BAR = "app-header-bar w-full flex items-center justify-between shrink-0"
 
     MAIN_SCROLL = "app-main-area flex-1 min-w-0 max-w-full h-full p-5 overflow-x-hidden"
     MAIN_COL    = "w-full max-w-full min-w-0 gap-5 overflow-hidden"
@@ -78,13 +99,13 @@ class Styles:
     PAGE_TITLE_LABEL = "app-text-primary text-3xl font-semibold tracking-tight"
     PAGE_SUB_LABEL   = "app-text-muted text-sm"
 
-    CARD = "app-card w-full p-6 rounded-2xl gap-4"
+    CARD = "app-card w-full"
     LOGIN_CARD = (
         "app-login-card login-card-glow w-[440px] max-w-full "
         "rounded-[24px] p-8 pt-10 gap-5 relative mt-8"
     )
 
-    STAT_GRID     = "w-full grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4"
+    STAT_GRID     = "w-full grid grid-cols-2 lg:grid-cols-4 gap-4"
     STAT_CARD     = "app-stat-card p-5 rounded-2xl border gap-4"
     STAT_ICON_ROW = "w-full justify-between items-start"
 
@@ -117,20 +138,19 @@ NAV_ITEMS: list[dict] = [
     {"key": "home",        "ar": "الرئيسية",       "en": "Dashboard",         "icon": "space_dashboard"},
     {"key": "students",    "ar": "الطلاب",          "en": "Students",          "icon": "people"},
     {"key": "orders",      "ar": "أوامر التخرج",    "en": "Graduation Orders", "icon": "school"},
-    {"key": "departments", "ar": "الأقسام",         "en": "Departments",       "icon": "business"},
     {"key": "courses",     "ar": "المواد الدراسية", "en": "Courses",           "icon": "book"},
-    {"key": "personnel",   "ar": "الكوادر",         "en": "Personnel",         "icon": "manage_accounts"},
-    {"key": "certificate",  "ar": "إصدار الوثيقة",       "en": "Issue Certificate",    "icon": "print"},
+    {"key": "certificate",  "ar": "إصدار كتاب",       "en": "Issue Certificate",    "icon": "print"},
     {"key": "issued_certs", "ar": "سجل الوثائق الصادرة", "en": "Issued Certificates",  "icon": "fact_check"},
+    {"key": "reports",      "ar": "تقارير الطلاب",       "en": "Students Reports",     "icon": "query_stats"},
     {"key": "settings",     "ar": "الإعدادات",           "en": "Settings",             "icon": "settings"},
 ]
 
 
 STAT_CARDS: list[dict] = [
-    {"label_ar": "إجمالي الطلاب", "label_en": "Total Students", "count_key": "total_students", "icon": "people",    "variant": "blue"},
-    {"label_ar": "الأقسام",       "label_en": "Departments",    "count_key": "total_departments", "icon": "domain",  "variant": "emerald"},
-    {"label_ar": "المواد الدراسية", "label_en": "Courses",        "count_key": "total_courses",  "icon": "menu_book",  "variant": "amber"},
-    {"label_ar": "الكوادر",       "label_en": "Personnel",      "count_key": "total_personnel", "icon": "badge",     "variant": "purple"},
+    {"label_ar": "إجمالي الطلاب",     "count_key": "total_students",  "icon": "people",     "variant": "blue"},
+    {"label_ar": "الوثائق الصادرة",   "count_key": "total_issued",    "icon": "description", "variant": "emerald"},
+    {"label_ar": "المواد الدراسية",   "count_key": "total_courses",   "icon": "menu_book",  "variant": "amber"},
+    {"label_ar": "الكوادر",           "count_key": "total_personnel", "icon": "badge",      "variant": "purple"},
 ]
 
 
@@ -142,7 +162,7 @@ QUICK_ACTIONS: list[dict] = [
         "target": "students",
     },
     {
-        "label_ar": "إصدار وثيقة",
+        "label_ar": "إصدار كتاب",
         "label_en": "Issue Certificate",
         "icon":   "workspace_premium",
         "target": "certificate",
@@ -177,35 +197,34 @@ def set_dark_mode(enable: bool, dark_inst=None) -> None:
 
 
 def set_accent(accent_name: str) -> None:
-    """Live-swap accent palette CSS class on body element for instant accent color change."""
+    """Swap the accent-<name> class on <body>; theme.css recolours every token from it."""
     from nicegui import ui
-    normalized = (accent_name or "blue").lower().replace(" ", "-").replace("_", "-")
-    if normalized not in ACCENT_OPTIONS:
-        normalized = "blue"
-    css_class = f"accent-{normalized}"
-    ui.run_javascript(f"""
-        document.body.className = document.body.className.replace(/\\baccent-[a-z-]+\\b/g, '').trim();
-        document.body.classList.add('{css_class}');
-    """)
+    css_class = f"accent-{normalize_accent(accent_name)}"
+    ui.run_javascript(
+        r"document.body.className = document.body.className.replace(/\baccent-[a-z-]+\b/g, '').trim();"
+        f" document.body.classList.add('{css_class}');"
+    )
 
 
 def set_font_family(family: str) -> None:
-    """Live-update font family CSS custom property on document root."""
+    """The font stack lives in theme.css only (Cairo, then the Windows UI fonts); clear any inline override."""
     from nicegui import ui
-    font = (family or "Cairo").strip()
-    ui.run_javascript(f"document.documentElement.style.setProperty('--font-primary', \"'{font}', 'Cairo', 'Roboto', 'Segoe UI', 'Tahoma', sans-serif\");")
+    ui.run_javascript("document.documentElement.style.removeProperty('--font-primary');")
 
 
 def set_font_size(size_base: int) -> None:
     """Live-update base font size on document root element."""
     from nicegui import ui
-    size = int(size_base or 14)
+    size = min(max(int(size_base or 14), 14), 18)   # body text is never below 14 px
     ui.run_javascript(f"document.documentElement.style.setProperty('--font-size-base', '{size}px'); document.documentElement.style.fontSize = '{size}px';")
 
 
 def set_rtl(enable: bool) -> None:
     """Live-update document layout direction (RTL / LTR) on document body and root element."""
     from nicegui import ui
+    from nicegui_ui.i18n import is_english
+    if is_english():
+        enable = False          # the English interface is always LTR
     direction = "rtl" if enable else "ltr"
     ui.run_javascript(f"""
         document.documentElement.setAttribute('dir', '{direction}');
@@ -224,11 +243,16 @@ def inject_global_styles(is_rtl: Optional[bool] = None):
     from nicegui_ui.state import app_session
     import os
 
-    if is_rtl is None:
+    from nicegui_ui import i18n
+    i18n.install()
+    if i18n.is_english():
+        is_rtl = False          # English is always left to right
+    elif is_rtl is None:
         try:
             is_rtl = bool(app_session.preferences.get("is_arabic_rtl", 1))
         except Exception:
             is_rtl = True
+    lang_attr = i18n.get_language()
 
     dir_val = 'rtl' if is_rtl else 'ltr'
     js_bool = 'true' if is_rtl else 'false'
@@ -241,6 +265,7 @@ def inject_global_styles(is_rtl: Optional[bool] = None):
         ui.add_head_html(f"""
         <script>
         document.documentElement.setAttribute('dir', '{dir_val}');
+        document.documentElement.setAttribute('lang', '{lang_attr}');
         if (document.body) {{
             document.body.setAttribute('dir', '{dir_val}');
             document.body.style.direction = '{dir_val}';
@@ -257,56 +282,5 @@ def inject_global_styles(is_rtl: Optional[bool] = None):
         {css}
         </style>
         """)
-        ui.add_head_html(_BILINGUAL_SPLIT_JS)
     except Exception as exc:
         log.warning(f"[inject_global_styles] Error loading theme.css: {exc}")
-
-
-# Stacks "عربي / English" strings as two lines (Arabic on top) wherever the app writes them as
-# one label: buttons, tabs, field labels, toggles and plain labels.
-_BILINGUAL_SPLIT_JS = """
-<script>
-(function () {
-  var AR = /[\\u0600-\\u06FF]/, LAT = /[A-Za-z]/;
-  var SEL = 'div, span, th, label, p, h1, h2, h3, h4, h5, h6';
-  function split(el) {
-    if (el.childNodes.length !== 1 || el.firstChild.nodeType !== 3) return;
-    if (el.closest('.q-field__label')) return;
-    var txt = el.firstChild.nodeValue;
-    if (txt.length > 100) return;
-    var parts = txt.split(/ [/—–] /);
-    if (parts.length !== 2) return;
-    var a = parts[0].trim(), b = parts[1].trim(), ar, en;
-    if (AR.test(a) && !AR.test(b) && LAT.test(b)) { ar = a; en = b; }
-    else if (AR.test(b) && !AR.test(a) && LAT.test(a)) { ar = b; en = a; }
-    else return;
-    el.textContent = '';
-    var s1 = document.createElement('span'), s2 = document.createElement('span');
-    s1.className = 'bi-ar'; s1.textContent = ar;
-    s2.className = 'bi-en'; s2.textContent = en;
-    var wrap = document.createElement('span');
-    wrap.className = 'bi-stack';
-    wrap.style.setProperty('display', 'inline-flex', 'important');
-    wrap.style.setProperty('flex-direction', 'column', 'important');
-    wrap.appendChild(s1); wrap.appendChild(s2);
-    el.appendChild(wrap);
-  }
-  function scan(root) {
-    if (!root || root.nodeType !== 1) return;
-    if (root.matches && root.matches(SEL)) split(root);
-    var list = root.querySelectorAll ? root.querySelectorAll(SEL) : [];
-    for (var i = 0; i < list.length; i++) split(list[i]);
-  }
-  function start() {
-    scan(document.body);
-    new MutationObserver(function (muts) {
-      muts.forEach(function (m) {
-        if (m.type === 'characterData') { if (m.target.parentElement) scan(m.target.parentElement); }
-        else m.addedNodes.forEach(function (n) { scan(n.nodeType === 3 ? n.parentElement : n); });
-      });
-    }).observe(document.body, { childList: true, subtree: true, characterData: true });
-  }
-  if (document.body) start(); else document.addEventListener('DOMContentLoaded', start);
-})();
-</script>
-"""

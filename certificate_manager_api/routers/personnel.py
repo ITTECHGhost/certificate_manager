@@ -64,6 +64,8 @@ class LoginRequest(BaseModel):
 def get_personnel(conn=Depends(get_db)):
     try:
         rows = execute_sp_fetchall(conn, "GetAllPersonnel")
+        # Management list: newest first (the SP orders by display_order for signature use)
+        rows.sort(key=lambda r: int(r.get("id") or 0), reverse=True)
         for r in rows:
             r["is_signature"] = bool(r.get("is_signature"))
             r["page_location"] = int(r.get("page_location") or 0)
@@ -437,7 +439,7 @@ def _role_row_out(row: dict) -> dict:
 def get_all_roles(conn=Depends(get_db)):
     cur = conn.cursor(dictionary=True)
     try:
-        cur.execute("SELECT * FROM roles ORDER BY is_system DESC, id ASC")
+        cur.execute("SELECT * FROM roles ORDER BY is_system DESC, created_at DESC, id DESC")
         return [_role_row_out(r) for r in cur.fetchall()]
     except Exception as exc:
         raise HTTPException(status_code=500, detail=str(exc))

@@ -6,7 +6,7 @@ search_router holds GET /students/search only. Before the split it was registere
 from typing import List, Optional
 
 from fastapi import APIRouter, HTTPException, Depends, status, Query
-from pydantic import BaseModel
+from pydantic import BaseModel, field_validator
 
 from deps import logger, get_db, execute_sp_fetchall, execute_sp_fetchone
 
@@ -19,6 +19,13 @@ search_router = APIRouter()
 # ===========================================================================
 
 class StudentPayload(BaseModel):
+    @field_validator("average", check_fields=False)
+    @classmethod
+    def _average_out_of_100(cls, v):
+        if v is not None and not (0 <= v <= 100):
+            raise ValueError("المعدل يجب أن يكون بين 0 و 100")
+        return v
+
     full_name_ar: str
     full_name_en: str
     gender: Optional[int] = 1
@@ -368,10 +375,79 @@ def link_students_to_order(order_id: int, conn=Depends(get_db)):
             pass
         conn.commit()
         affected = row.get("affected_rows", 0) if row else 0
-        return {"affected_rows": affected}
+        ids = [int(x) for x in str((row or {}).get("student_ids") or "").split(",") if x.strip().isdigit()]
+        return {"affected_rows": affected, "student_ids": ids}
+
     except Exception as exc:
         conn.rollback()
         logger.error(f"Error linking students to order: {exc}")
+        raise HTTPException(status_code=500, detail=str(exc))
+    finally:
+        cur.close()
+
+
+@router.get("/students/candidates-for-order/{order_id}")
+def candidates_for_order(order_id: int, name_query: str = "", matching_only: bool = True,
+                         limit: int = 200, conn=Depends(get_db)):
+    """Students in no order. matching_only: the order's department, study system and expected
+    graduation year/semester (the same rule as LinkStudentsToOrder)."""
+    cur = conn.cursor(dictionary=True)
+    try:
+        cur.execute("SELECT department_id, study_system_id, graduation_year, graduation_semester, order_date "
+                    "FROM graduation_orders WHERE id = %s", (order_id,))
+        o = cur.fetchone()
+        if not o:
+            raise HTTPException(status_code=404, detail="Order not found")
+        year = o["graduation_year"] or (o["order_date"].year if o["order_date"] else None)
+        where = ["(s.order_id IS NULL OR s.order_id = 0)"]
+        params: list = []
+        if matching_only:
+            where += ["s.department_id = %s", "s.study_system_id = %s",
+                      "(s.expected_graduation_year = %s OR (s.expected_graduation_year IS NULL AND YEAR(s.graduation_date) - (MONTH(s.graduation_date) < 9) = %s))",
+                      "(s.expected_graduation_semester IS NULL OR s.expected_graduation_semester = '' "
+                      "OR s.expected_graduation_semester = %s)"]
+            params += [o["department_id"], o["study_system_id"], year, year, o["graduation_semester"]]
+        if name_query.strip():
+            where.append("(s.full_name_ar LIKE %s OR s.full_name_en LIKE %s)")
+            params += [f"%{name_query.strip()}%"] * 2
+        cur.execute(
+            "SELECT s.id, s.full_name_ar, s.full_name_en, s.average, s.department_id, d.name_ar AS dept_name_ar, "
+            "s.expected_graduation_year, s.expected_graduation_semester, s.admission_year "
+            "FROM students s LEFT JOIN departments d ON d.id = s.department_id "
+            f"WHERE {' AND '.join(where)} ORDER BY s.full_name_ar LIMIT %s",
+            (*params, max(1, min(int(limit), 1000))),
+        )
+        return cur.fetchall()
+    except HTTPException:
+        raise
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=str(exc))
+    finally:
+        cur.close()
+
+
+class UnlinkManyPayload(BaseModel):
+    student_ids: List[int]
+
+
+@router.post("/students/unlink-order/{order_id}")
+def unlink_many_from_order(order_id: int, payload: UnlinkManyPayload, conn=Depends(get_db)):
+    """Undo of an auto-link: unlinks these students, but only those still in this order."""
+    if not payload.student_ids:
+        return {"affected_rows": 0}
+    cur = conn.cursor()
+    try:
+        marks = ",".join(["%s"] * len(payload.student_ids))
+        cur.execute(
+            f"UPDATE students SET order_id = NULL, graduation_date = NULL, graduation_semester = NULL "
+            f"WHERE order_id = %s AND id IN ({marks})",
+            (order_id, *payload.student_ids),
+        )
+        affected = cur.rowcount
+        conn.commit()
+        return {"affected_rows": affected}
+    except Exception as exc:
+        conn.rollback()
         raise HTTPException(status_code=500, detail=str(exc))
     finally:
         cur.close()
@@ -382,14 +458,21 @@ def link_students_to_order(order_id: int, conn=Depends(get_db)):
 def link_student_to_order(student_id: int, order_id: int, conn=Depends(get_db)):
     cur = conn.cursor(dictionary=True)
     try:
-        cur.callproc("LinkStudentsToOrder", (order_id,))
-        try:
-            while cur.nextset():
-                pass
-        except Exception:
-            pass
+        # Link only this student; LinkStudentsToOrder would link every matching student.
+        cur.execute(
+            """
+            UPDATE students s
+            JOIN graduation_orders o ON o.id = %s
+            SET s.order_id = o.id,
+                s.graduation_date = o.order_date,
+                s.graduation_semester = o.graduation_semester
+            WHERE s.id = %s AND s.order_id IS NULL
+            """,
+            (order_id, student_id),
+        )
+        affected = cur.rowcount
         conn.commit()
-        return {"status": "success"}
+        return {"status": "success", "affected_rows": affected}
     except Exception as exc:
         conn.rollback()
         logger.error(f"Error linking student to order: {exc}")
@@ -407,3 +490,27 @@ def get_student_periods_api(student_id: int, conn=Depends(get_db)):
         return periods
     except Exception as exc:
         raise HTTPException(status_code=500, detail=str(exc))
+
+
+@router.get("/students/{student_id}/graduation-ranks")
+def graduation_ranks(student_id: int, conn=Depends(get_db)):
+    """The student's 8 graduation sequences (department / college x 4 groups), calculated from the
+    averages of the year's graduates who are linked to a graduation order."""
+    from ranking import compute_ranks
+    cur = conn.cursor(dictionary=True)
+    try:
+        sql = ("SELECT s.id, s.department_id, s.average, o.graduation_semester AS semester, "
+               "o.study_system_id AS system_id, COALESCE(o.graduation_year, YEAR(o.order_date)) AS year "
+               "FROM students s JOIN graduation_orders o ON o.id = s.order_id ")
+        cur.execute(sql + "WHERE s.id = %s", (student_id,))
+        me = cur.fetchone()
+        if not me:
+            return {"linked": False}
+        cur.execute(sql + "WHERE COALESCE(o.graduation_year, YEAR(o.order_date)) = %s", (me["year"],))
+        result = compute_ranks(me, cur.fetchall())
+        result.update({"linked": True, "year": me["year"]})
+        return result
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=str(exc))
+    finally:
+        cur.close()

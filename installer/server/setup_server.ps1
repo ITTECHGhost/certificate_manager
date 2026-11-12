@@ -22,6 +22,13 @@ function Ok([string]$Message) { Write-Host "[OK] $Message" -ForegroundColor Gree
 function Skip([string]$Message) { Write-Host "[SKIP] $Message" -ForegroundColor DarkGray }
 function Warn([string]$Message) { Write-Host "[WARNING] $Message" -ForegroundColor Yellow }
 function Fail([string]$Message) { Write-Host "[ERROR] $Message" -ForegroundColor Red; exit 1 }
+# Run a program whose error output is not wanted. Under "Stop", Windows PowerShell 5.1 turns a
+# redirected stderr line into an error that ends this script; the exit code stays in $LASTEXITCODE.
+function Invoke-NativeQuiet([scriptblock]$Command) {
+    $eap = $ErrorActionPreference
+    $ErrorActionPreference = "Continue"
+    try { & $Command 2>$null } finally { $ErrorActionPreference = $eap }
+}
 
 $version = ""
 if (Test-Path (Join-Path $bundle "VERSION.txt")) { $version = (Get-Content (Join-Path $bundle "VERSION.txt") -Raw).Trim() }
@@ -59,7 +66,7 @@ if ($SkipService) { Skip "Apache and MySQL" } else {
 # 1c. Python (the same python.exe install_service.bat will use): install from prereqs when missing
 function Find-Python {
     $found = Get-Command python.exe -All -ErrorAction SilentlyContinue | Where-Object { $_.Source -notmatch "WindowsApps" } | Select-Object -First 1 -ExpandProperty Source
-    if (-not $found) { $found = (& py -3 -c "import sys; print(sys.executable)" 2>$null) }
+    if (-not $found) { $found = (Invoke-NativeQuiet { py -3 -c "import sys; print(sys.executable)" }) }
     if (-not $found) { $found = Get-ChildItem "$env:ProgramFiles\Python3*\python.exe" -ErrorAction SilentlyContinue | Select-Object -Last 1 -ExpandProperty FullName }
     $found
 }
@@ -85,7 +92,7 @@ if ($SkipPip) { Skip "Python packages" } else {
         & $python -m pip install --disable-pip-version-check -q -r (Join-Path $bundle "requirements-server.txt")
         if ($LASTEXITCODE -ne 0) { Fail "Installing the Python packages failed." }
     }
-    & $python -c "import win32serviceutil" 2>$null
+    Invoke-NativeQuiet { & $python -c "import win32serviceutil" }
     if ($LASTEXITCODE -ne 0) {
         $postInstall = (& $python -c "import os, sys; print(os.path.join(sys.prefix, 'Scripts', 'pywin32_postinstall.py'))").Trim()
         & $python $postInstall -install | Out-Null
@@ -150,13 +157,108 @@ if ($SkipDbCheck) { Skip "Database login check" } else {
     if ($dbOk) { Ok "Database login works" } else { Warn "MySQL refused the login in db_config.json. Fix that file, then run setup_server.bat again." }
 }
 
+# 7b. Database update: backup, then new migrations + all stored procedures (migrate.py).
+#     On failure: the old code and the old procedures go back, the old service starts again.
+function Restore-OldVersion([string]$Reason, [string]$Fix = "") {
+    Write-Host "[ERROR] $Reason" -ForegroundColor Red
+    $backupDir = Join-Path $TargetDir "_backup_before_update"
+    if (Test-Path (Join-Path $backupDir "main.py")) {
+        robocopy $backupDir $TargetDir /E /NFL /NDL /NJH /NJS /NP | Out-Null
+        Write-Host "Old code restored."
+        $oldSql = Join-Path $TargetDir "sql"
+        if (Test-Path (Join-Path $oldSql "SP.sql")) {
+            Push-Location $TargetDir
+            & $python migrate.py --sql-dir $oldSql --procedures-only
+            Pop-Location
+            Write-Host "Old stored procedures re-applied."
+        }
+        if (Get-Service $serviceName -ErrorAction SilentlyContinue) { Start-Service $serviceName -ErrorAction SilentlyContinue }
+    }
+    if ($script:dumpFile) { Write-Host "Database backup taken before this update: $script:dumpFile" }
+    if ($Fix) { Write-Host $Fix -ForegroundColor Yellow }
+    else { Write-Host "Nothing else was changed. Send the messages above to the developer." -ForegroundColor Yellow }
+    exit 1
+}
+$script:dumpFile = $null
+if ($SkipDbCheck -or -not $dbOk) { Skip "Database update (no working database login)" } else {
+    # Backup with the API's own login, passed through a temporary options file (never on the command line)
+    $mysqldump = @("C:\AppServ\MySQL\bin\mysqldump.exe") + @(Get-ChildItem "C:\AppServ" -Recurse -Filter mysqldump.exe -ErrorAction SilentlyContinue | ForEach-Object FullName) |
+        Where-Object { $_ -and (Test-Path $_) } | Select-Object -First 1
+    if (-not $mysqldump) { Restore-OldVersion "mysqldump.exe not found under C:\AppServ - the database was not backed up, so it was not changed." }
+    $db = Get-Content (Join-Path $TargetDir "db_config.json") -Raw | ConvertFrom-Json
+    $dbName = if ($db.database) { $db.database } else { "certificate_manager" }
+    $backups = Join-Path $TargetDir "backups"
+    New-Item -ItemType Directory -Force -Path $backups | Out-Null
+    $dumpPath = Join-Path $backups ("before-update-{0}-{1:yyyyMMdd-HHmmss}.sql" -f $version, (Get-Date))
+    $opt = Join-Path $env:TEMP ("certman-{0}.cnf" -f [guid]::NewGuid())
+    [IO.File]::WriteAllText($opt, "[client]`nhost=$($db.host)`nuser=$($db.user)`npassword=`"$($db.password)`"`n", (New-Object Text.UTF8Encoding $false))
+    # mysqldump's messages are kept to recognise a known cause ("Continue": its stderr lines must not stop the script)
+    $eap = $ErrorActionPreference
+    try {
+        $ErrorActionPreference = "Continue"
+        $dumpOutput = @(& $mysqldump "--defaults-file=$opt" --single-transaction --routines --triggers --no-tablespaces "--result-file=$dumpPath" $dbName 2>&1 | ForEach-Object { "$_" })
+        $dumpExit = $LASTEXITCODE
+    } finally {
+        $ErrorActionPreference = $eap
+        Remove-Item -Force $opt -ErrorAction SilentlyContinue
+    }
+    $dumpOutput | ForEach-Object { Write-Host $_ }
+    $dumpOk = ($dumpExit -eq 0) -and (Test-Path $dumpPath) -and ((Get-Item $dumpPath).Length -gt 1024)
+    if (-not $dumpOk) {
+        # A partial file is not a backup: delete it, so no message points to it as one
+        Remove-Item -Force $dumpPath -ErrorAction SilentlyContinue
+        if ($dumpOutput -match "insufficient privileges to SHOW CREATE (PROCEDURE|FUNCTION)") {
+            # Servers installed before 2.3.0 have stored procedures created by root. MySQL 5.7 shows their
+            # code only to their creator or to an account that can read mysql.proc. migrate.py recreates
+            # them under the API's account, so this is needed once, on the first update only.
+            $mysqlExe = Join-Path (Split-Path $mysqldump) "mysql.exe"
+            $grant = "GRANT SELECT ON mysql.proc TO '$($db.user)'@'localhost';"
+            Restore-OldVersion "The database backup failed: the MySQL account '$($db.user)' cannot read the stored procedures created by root. The database was not changed." (
+                "One-time fix: open Command Prompt as Administrator, run this line, type the MySQL root password, then run the update again:`n" +
+                "  `"$mysqlExe`" -u root -p -e `"$grant`"`n" +
+                "(MySQL 8: GRANT SHOW_ROUTINE ON *.* TO '$($db.user)'@'localhost'; ) " +
+                "After this update the procedures belong to '$($db.user)', so later updates do not need it.")
+        }
+        Restore-OldVersion "The database backup failed, so the database was not changed."
+    }
+    $script:dumpFile = $dumpPath
+    Ok "Database backed up: $script:dumpFile"
+    # Order images live as files since 2.5.0: keep a copy beside the database backups (adds only new files)
+    $imagesDir = "C:\AppServ\order_images"
+    if (Test-Path $imagesDir) {
+        robocopy $imagesDir (Join-Path $backups "order_images") /E /NFL /NDL /NJH /NJS /NP | Out-Null
+        if ($LASTEXITCODE -ge 8) { Warn "Copying the order images to backups failed (robocopy code $LASTEXITCODE)" }
+        else { Ok "Order images backed up: $(Join-Path $backups 'order_images')" }
+    }
+
+    Push-Location $TargetDir
+    & $python migrate.py --sql-dir (Join-Path $bundle "sql")
+    $migrated = ($LASTEXITCODE -eq 0)
+    Pop-Location
+    if (-not $migrated) { Restore-OldVersion "Database update failed (see the lines above)." }
+    Ok "Database up to date"
+
+    # Keep this version's SQL next to the code: the next update rolls back to it
+    robocopy (Join-Path $bundle "sql") (Join-Path $TargetDir "sql") SP.sql /NFL /NDL /NJH /NJS /NP | Out-Null
+    if (Test-Path (Join-Path $bundle "sql\migrations")) {
+        robocopy (Join-Path $bundle "sql\migrations") (Join-Path $TargetDir "sql\migrations") /E /NFL /NDL /NJH /NJS /NP | Out-Null
+    }
+    if ($version) { [IO.File]::WriteAllText((Join-Path $TargetDir "server_version.txt"), $version, (New-Object Text.UTF8Encoding $false)) }
+}
+
 # 8. HTTPS, first installation only: certificates, app key, client package, https = true
 $settingsFile = Join-Path $TargetDir "server_settings.json"
 if ($SkipService) { Skip "HTTPS" } elseif (-not (Test-Path (Join-Path $TargetDir "certs\server.crt"))) {
     & powershell.exe -NoProfile -ExecutionPolicy Bypass -File (Join-Path $TargetDir "setup_server_https.ps1")
     if ($LASTEXITCODE -ne 0) { Fail "HTTPS setup failed. Run setup_server.bat again." }
+    # New server: HTTPS from the start. Existing server: keep its mode, so clients that are not
+    # updated yet keep working; switch to HTTPS later in Settings - Server update.
     $current = [ordered]@{ port = 2030; https = $true }
-    if (Test-Path $settingsFile) { $old = Get-Content $settingsFile -Raw | ConvertFrom-Json; if ($old.port) { $current.port = [int]$old.port } }
+    if (Test-Path $settingsFile) {
+        $old = Get-Content $settingsFile -Raw | ConvertFrom-Json
+        if ($old.port) { $current.port = [int]$old.port }
+        $current.https = ($old.https -eq $true) -or ("$($old.https)" -eq "true")
+    }
     [IO.File]::WriteAllText($settingsFile, ($current | ConvertTo-Json), (New-Object Text.UTF8Encoding $false))
     Ok "HTTPS set up. Copy $TargetDir\client_package\ to the clients (README.txt inside)."
 } else { Ok "HTTPS certificates kept" }
@@ -184,6 +286,20 @@ if ($SkipFirewall) { Skip "Firewall rule" } else {
     }
 }
 
+# 10b. Server updates from Settings: a task runs server_updater.ps1 every minute as SYSTEM.
+#      Created once; never rewritten while it may be the one running this update.
+$updaterTask = "CertificateManagerServerUpdater"
+if ($SkipService) { Skip "Server update task" } else {
+    # Get-ScheduledTask, not "schtasks /Query": a missing task is an error line, which ended the script
+    if (Get-ScheduledTask -TaskName $updaterTask -ErrorAction SilentlyContinue) { Ok "Server update task exists" } else {
+        $updater = Join-Path $TargetDir "server_updater.ps1"
+        $action = "powershell.exe -NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -File `"$updater`""
+        & schtasks.exe /Create /TN $updaterTask /SC MINUTE /MO 1 /RU SYSTEM /RL HIGHEST /F /TR $action | Out-Null
+        if ($LASTEXITCODE -eq 0) { Ok "Server update task created (updates can now be uploaded from Settings)" }
+        else { Warn "Could not create the server update task; updates from Settings will wait until it exists." }
+    }
+}
+
 # 11. Health check
 if (-not $SkipService) {
     Start-Sleep -Seconds 3
@@ -200,8 +316,11 @@ if (-not $SkipService) {
 }
 
 Write-Host ""
-Write-Host "Still to do by hand (only once each):"
-Write-Host "  - Database: run the files in sql\fixes\ that were not run yet, in number order (phpMyAdmin, SQL tab)"
-Write-Host "  - After 2026-10-27_04: put the certman_api login into $dbConfig, then run setup_server.bat again"
-Write-Host "  - Passwords: run hash_existing_passwords.bat in $TargetDir if that was not done yet"
+if (-not (Test-Path (Join-Path $TargetDir "server_version.txt"))) {
+    Write-Host "Still to do by hand (first installation only):"
+    Write-Host "  - Database: run the files in sql\fixes\ in number order (phpMyAdmin, SQL tab); later updates do the database themselves"
+    Write-Host "  - After 2026-10-27_04: put the certman_api login into $dbConfig, then run setup_server.bat again"
+    Write-Host "  - Passwords: run hash_existing_passwords.bat in $TargetDir if that was not done yet"
+}
 Write-Host "[DONE] Server setup finished"
+exit 0

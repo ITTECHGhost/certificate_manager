@@ -1,4 +1,5 @@
 import logging
+import time
 log = logging.getLogger(__name__)
 
 # =============================================================================
@@ -29,7 +30,6 @@ from nicegui_ui.ui_components import UI
 from nicegui_screens.settings_screen import SettingsScreen
 from nicegui_screens.students_screen import StudentsScreen
 from nicegui_screens.graduation_orders_screen import GraduationOrdersScreen
-from nicegui_screens.departments_screen import DepartmentsScreen
 from nicegui_screens.courses_screen import CoursesScreen
 from nicegui_screens.personnel_screen import PersonnelScreen
 from nicegui_screens.certificate_screen import CertificateScreen
@@ -64,6 +64,7 @@ class MainAppShell:
         self.counts = {
             "total_students": 0,
             "total_departments": 0,
+            "total_issued": 0,
             "total_courses": 0,
             "total_personnel": 0,
         }
@@ -85,12 +86,21 @@ class MainAppShell:
         self.refresh_data()
         self.build_ui()
 
+        # Once per run: offer a newer client version (now / at the next start / later)
+        from nicegui_ui.update_prompt import check_at_start
+        ui.timer(4.0, check_at_start, once=True)
+
     def refresh_data(self) -> None:
         """Fetches dashboard metrics & recent database records."""
+        t0 = time.perf_counter()
         try:
             self.counts = self.repo.get_counts()
         except Exception as exc:
             log.warning(f"[MainAppShell] Failed to fetch counts: {exc}")
+
+        # Issued total is not in the counts API and needs the whole report: _load_issued_count
+        # fetches it in the background once the page is on screen; until then the tile shows a dash.
+        self.counts.setdefault("total_issued", "—")
 
         # 1. Fetch recent students (from last added ID to the first)
         try:
@@ -117,6 +127,7 @@ class MainAppShell:
 
         if not self.recent_printed_certificates:
             self.recent_printed_certificates = list(self.recent_certificates)
+        log.info("[perf] dashboard data loaded in %.0f ms", (time.perf_counter() - t0) * 1000)
 
     # =========================================================================
     # 1. ROOT LAYOUT CONTAINER DEFINITION
@@ -124,11 +135,9 @@ class MainAppShell:
     def build_ui(self) -> None:
         """
         [LAYOUT CONTAINER]
-        Root Application Layout:
-        - Outer Viewport Row (Full Screen Flex Row: Sidebar on Left, Content on Right)
-        - Main Area Column (Header Bar on Top, Scrollable Page Area below)
+        Root layout: sidebar on the right (RTL), then a column with the header
+        bar and the content area. Only the content area scrolls.
         """
-        # Global CSS resets
         ui.query('.nicegui-content').classes('p-0 m-0')
         ui.query('body').classes(Styles.BODY)
 
@@ -140,25 +149,19 @@ class MainAppShell:
         from nicegui_ui.ui_theme import inject_global_styles
         inject_global_styles()
 
-        # [LAYOUT: OUTER VIEWPORT ROW]
         with ui.row().classes(Styles.LAYOUT_ROW):
-            # 1. Render Left Sidebar Column
             self._build_sidebar()
 
-            # 2. Render Main Body Container (Header + Scroll Area)
-            with ui.column().classes("app-main-area flex-1 min-w-0 max-w-full h-full gap-0 overflow-hidden"):
-                # Top Navbar
+            with ui.column().classes("app-main-area flex-1 min-w-0 max-w-full h-full gap-0 no-wrap overflow-hidden"):
                 self._build_top_header()
 
-                # Scrollable Content Body Area
-                with ui.scroll_area().classes("app-main-scroll flex-1 min-w-0 max-w-full h-full p-4 overflow-x-hidden"):
-                    # Dynamic Screen View Container (Swapped when navigating)
-                    self.content_container = ui.column().classes("w-full max-w-full min-w-0 gap-4")
+                # The one scroll container: native scrollbar, on the RTL side of the content
+                with ui.element("div").classes("app-main-scroll w-full"):
+                    self.content_container = ui.column().classes("app-page")
                     self._render_active_screen()
 
         # Start periodic background network status polling loop (every 5 seconds)
         ui.timer(5.0, self._check_network_loop)
-
     # =========================================================================
     # BACKGROUND TASKS & NETWORK POLLING
     # =========================================================================
@@ -193,8 +196,7 @@ class MainAppShell:
                 sync_result = await run.io_bound(sync_offline_queue_to_mysql)
                 if sync_result and sync_result.get("failed"):
                     ui.notify(
-                        f"فشلت مزامنة {sync_result['failed']} سجل — راجع الإعدادات > قاعدة البيانات. "
-                        f"/ {sync_result['failed']} offline record(s) failed to sync — see Settings > Database.",
+                        f"فشلت مزامنة {sync_result['failed']} سجل — راجع الإعدادات > قاعدة البيانات.",
                         type="warning", timeout=10000
                     )
                 pull_mysql_to_sqlite_background()
@@ -218,12 +220,23 @@ class MainAppShell:
                     sync_result = await run.io_bound(sync_offline_queue_to_mysql)
                     if sync_result and sync_result.get("failed"):
                         ui.notify(
-                            f"فشلت مزامنة {sync_result['failed']} سجل — راجع الإعدادات > قاعدة البيانات. "
-                            f"/ {sync_result['failed']} offline record(s) failed to sync — see Settings > Database.",
+                            f"فشلت مزامنة {sync_result['failed']} سجل — راجع الإعدادات > قاعدة البيانات.",
                             type="warning", timeout=10000
                         )
             except Exception as exc:
                 log.warning(f"[MainAppShell] Startup queue sync error: {exc}")
+
+    async def _load_issued_count(self) -> None:
+        """Counts issued certificates off the UI thread, then updates the stat tile."""
+        from nicegui import run
+        try:
+            report = await run.io_bound(self.student_repo.get_issued_certificates_report)
+            self.counts["total_issued"] = len(report or [])
+        except Exception as exc:
+            log.warning(f"[MainAppShell] Failed to count issued certificates: {exc}")
+            return
+        if self._refresh_cards and self.current_screen == "home":
+            self._refresh_cards.refresh()
 
     async def _on_refresh_click(self) -> None:
         """
@@ -249,40 +262,29 @@ class MainAppShell:
         self.refresh_data()
         if self._refresh_cards:
             self._refresh_cards.refresh()
-        ui.notify("تم تحديث البيانات / Data refreshed!", type="info")
+        await self._load_issued_count()
+        ui.notify("تم تحديث البيانات", type="positive")
 
     # =========================================================================
-    # 2. SIDEBAR CONTAINER DEFINITION
+    # 2. SIDEBAR
     # =========================================================================
     def _build_sidebar(self) -> None:
         """
-        [LAYOUT / CARD CONTAINER: SIDEBAR]
-        Left Sidebar Column (`app-sidebar`):
-        - Header Row: App Title Label ("Certificate Manager") & Logo Icon
-        - Navigation List Group: Iterates through NAV_ITEMS to build nav item rows
-        - Bottom User Profile Chip: User avatar, name, live status badge, and Logout button
+        [SIDEBAR]
+        Flat list of icon + Arabic label. The active item has a filled
+        background and an accent bar. The toggle collapses it to icons.
         """
         self._nav_labels = []
-        self._user_chip_labels = []
         self._sidebar_col = ui.column().classes(Styles.SIDEBAR_COL_EXPANDED)
 
         with self._sidebar_col:
-            # [SIDEBAR HEADER ROW]
             with ui.row().classes(Styles.SIDEBAR_HEADER):
-                # Toggle button in the corner. Expanded: menu icon; collapsed: the certificate logo.
-                self._sidebar_toggle_btn = ui.button(
-                    icon="menu", color=None, on_click=self.toggle_sidebar
-                ).props("flat dense").classes("app-btn-primary p-2 rounded-xl shadow-none shrink-0")
-                self._sidebar_toggle_btn.tooltip("طي / توسيع القائمة — Collapse / expand menu")
-
-                # Title (Arabic above English) — hidden when collapsed
-                self._sidebar_title_label = ui.column().classes("app-sidebar-titles gap-0 min-w-0 flex-1")
+                self._sidebar_toggle_btn = UI.icon_button("menu", "طي القائمة", on_click=self.toggle_sidebar)
+                self._sidebar_title_label = ui.column().classes("app-sidebar-titles gap-0 min-w-0")
                 with self._sidebar_title_label:
-                    ui.label("مدير الشهادات").classes(f"{Styles.SIDEBAR_APP_TITLE} leading-tight")
-                    ui.label("Certificate Manager").classes("app-sidebar-title text-xs font-semibold leading-tight opacity-80")
+                    ui.label("مدير الشهادات").classes(f"{Styles.SIDEBAR_APP_TITLE} truncate")
                 self._sidebar_title_icon = None
 
-            # [NAVIGATION ITEMS LIST COLUMN]
             with ui.column().classes(Styles.SIDEBAR_NAV_GROUP):
                 from nicegui_ui.state import app_session
                 # Screens come from the access profile cached at login (no network call here)
@@ -302,322 +304,159 @@ class MainAppShell:
                         self._build_nav_item(item)
 
     def _build_nav_item(self, item: dict) -> None:
-        """
-        [BUTTON / CARD: SIDEBAR NAVIGATION ITEM]
-        Creates a navigable row button for a specific screen (Dashboard, Students, Orders, etc.):
-        - Row Container (`app-nav-item` / `app-nav-item--active`)
-        - Icon with Tooltip (`ui.icon`)
-        - Arabic Title Label (`nav-title-ar`)
-        - English Title Label (`nav-title-en`)
-        - Click Handler: Switches active screen to `item["key"]`
-        """
+        """One sidebar row: icon + Arabic label; keyboard-focusable."""
         is_active = (item["key"] == self.current_screen)
         css = Styles.NAV_ITEM_ACTIVE if is_active else Styles.NAV_ITEM_INACTIVE
 
-        # Nav Item Clickable Row
-        row = ui.row().classes(css).on(
-            "click", lambda key=item["key"]: self._switch_screen(key)
-        )
+        row = ui.row().classes(f"{css} no-wrap").props('tabindex="0" role="link"')
+        row.on("click", lambda key=item["key"]: self._switch_screen(key))
+        row.on("keydown.enter", lambda key=item["key"]: self._switch_screen(key))
 
         with row:
-            # Nav Item Icon + Tooltip
-            icon_el = ui.icon(item["icon"], size="sm")
-            icon_el.tooltip(f"{item['ar']}  —  {item['en']}")
+            icon_el = ui.icon(item["icon"], size="20px")
+            label_col = ui.label(item["ar"]).classes("nav-title-ar")
+            # Shows beside the icon; mainly useful when the rail is collapsed
+            icon_el.tooltip(item["ar"]).props("anchor='center left' self='center right'")
 
-            # Nav Item Labels Column
-            label_col = ui.column().classes("gap-0")
-            with label_col:
-                ui.label(item["ar"]).classes("nav-title-ar font-bold text-sm leading-tight")
-                ui.label(item["en"]).classes("nav-title-en font-normal text-xs leading-tight")
-
-            self._nav_labels.append((row, label_col, item["key"]))
-
-    # =========================================================================
-    # 3. MODAL DIALOG DEFINITION (LOGOUT CONFIRMATION)
-    # =========================================================================
-    def _handle_logout(self) -> None:
-        """
-        [CARD / MODAL DIALOG: LOGOUT CONFIRMATION]
-        Pop-up Modal Dialog triggered by clicking the Logout button:
-        - Dialog Wrapper (`ui.dialog()`)
-        - Modal Card Container (`UI.card()`)
-        - Header Row: Logout Icon + Arabic & English Title Labels
-        - Message Labels: Confirmation text in Arabic & English
-        - Action Buttons Row:
-          a. Cancel Button (`UI.ghost_button`)
-          b. Logout Confirm Button (`UI.danger_button`)
-        """
-        with ui.dialog() as dialog:
-            with ui.card().classes("app-card p-6 gap-4 w-[460px] max-w-[90vw] rounded-2xl shadow-2xl overflow-hidden mx-auto"):
-                # Modal Header
-                with ui.row().classes("items-center gap-3 w-full border-b pb-3.5"):
-                    ui.icon("logout", size="md").classes("app-text-danger")
-                    with ui.column().classes("gap-0 min-w-0 flex-1"):
-                        ui.label("تأكيد تسجيل الخروج").classes("app-text-primary text-base font-bold leading-tight")
-                        ui.label("Logout Confirmation").classes("app-text-muted text-xs leading-tight")
-
-                # Modal Body Message
-                with ui.column().classes("w-full gap-1 my-1"):
-                    ui.label("هل أنت تأكد من رغبتك في تسجيل الخروج؟").classes("app-text-primary text-sm font-semibold")
-                    ui.label("Are you sure you want to log out?").classes("app-text-muted text-xs")
-
-                # Modal Actions Footer Row
-                with ui.row().classes("w-full items-center justify-end gap-3 pt-3 border-t mt-1"):
-                    # Cancel Button
-                    UI.ghost_button("إلغاء / Cancel", on_click=dialog.close).classes("px-4 py-2 text-xs font-semibold")
-                    
-                    def _confirm():
-                        dialog.close()
-                        from nicegui_ui.state import app_session
-                        app_session.logout_user()
-                        ui.notify("تم تسجيل الخروج بنجاح / Logged out successfully!", type="info")
-                        ui.navigate.to("/")
-
-                    # Confirm Logout Button (Red Danger Button)
-                    UI.danger_button("تسجيل الخروج / Logout", icon="logout", on_click=_confirm).classes("px-5 py-2 text-xs font-bold")
-
-        dialog.open()
-
-    # =========================================================================
-    # 4. USER PROFILE CHIP DEFINITION (SIDEBAR FOOTER)
-    # =========================================================================
-    def _build_user_chip(self) -> None:
-        """
-        [CARD / CONTAINER: USER PROFILE CHIP]
-        Bottom Sidebar User Status Card (`app-user-chip`):
-        - Avatar Circle: Displays user initials ("SA")
-        - Text Column: User Name Label + Live Network Status Badge Label (`status_indicator`)
-        - Logout Action Button: Icon Button (`ui.icon("logout")`) triggering `_handle_logout`
-        """
-        from nicegui_ui.state import app_session
-        user_name = app_session.name_en or app_session.username or "Admin User"
-        user_role = (app_session.role or "admin").capitalize()
-
-        self._chip_expanded = "app-user-chip w-full items-center gap-3 p-3 rounded-2xl cursor-pointer"
-        self._chip_mini = "app-user-chip w-full justify-center p-3 rounded-2xl cursor-pointer"
-
-        with ui.row().classes(self._chip_expanded) as self._user_chip_row:
-            # User Avatar Initials Badge Circle
-            with ui.element("div").classes("app-user-avatar w-10 h-10 shrink-0 rounded-full flex items-center justify-center font-bold text-sm"):
-                ui.label("SA")
-                
-            # User Info & Live Network Status Labels Column
-            user_text_col = ui.column().classes("gap-0 flex-1 min-w-0")
-            with user_text_col:
-                ui.label(user_name).classes("app-user-name truncate text-sm font-bold")
-                
-                # Live Network Indicator Label
-                @ui.refreshable
-                def status_indicator():
-                    from sync_engine import is_online
-                    online = is_online()
-                    color_cls = "app-user-status-online" if online else "app-user-status-offline"
-                    dot = "🟢" if online else "🔴"
-                    text = "متصل / Online" if online else "غير متصل / Offline"
-                    ui.label(f"{dot} {text}").classes(f"text-[10px] {color_cls} font-semibold")
-                
-                status_indicator()
-                self._refresh_status = status_indicator
-
-            # Logout Icon Button
-            logout_btn = ui.icon("logout", size="xs").classes(
-                "app-user-logout cursor-pointer ml-auto"
-            )
-            logout_btn.on("click", self._handle_logout)
-            logout_btn.tooltip("تسجيل الخروج / Logout")
-
-            self._user_chip_row.on("click", self._handle_logout)
-
-            self._user_chip_labels.append(user_text_col)
-            self._user_chip_labels.append(logout_btn)
+        self._nav_labels.append((row, label_col, item["key"]))
 
     def toggle_sidebar(self) -> None:
-        """Toggles sidebar between expanded (256px) and collapsed (80px) states."""
+        """Collapse the sidebar to an icon rail, or expand it again."""
         if not self._sidebar_col:
             return
-
         self.is_sidebar_open = not self.is_sidebar_open
-
         if self.is_sidebar_open:
-            self._sidebar_col.classes(
-                remove=Styles.SIDEBAR_COL_COLLAPSED,
-                add=Styles.SIDEBAR_COL_EXPANDED
-            )
-            if self._sidebar_title_label:
-                self._sidebar_title_label.set_visibility(True)
-            self._sidebar_toggle_btn.props("icon=menu")
-
-            for row, label_col, _ in self._nav_labels:
-                label_col.set_visibility(True)
-                row.classes(remove="justify-center", add="")
-
-            for text_col in getattr(self, '_user_chip_labels', []):
-                text_col.set_visibility(True)
-            if getattr(self, '_user_chip_row', None) is not None:
-                self._user_chip_row.classes(remove=getattr(self, '_chip_mini', ''), add=getattr(self, '_chip_expanded', ''))
-
+            self._sidebar_col.classes(remove=Styles.SIDEBAR_COL_COLLAPSED, add=Styles.SIDEBAR_COL_EXPANDED)
         else:
-            self._sidebar_col.classes(
-                remove=Styles.SIDEBAR_COL_EXPANDED,
-                add=Styles.SIDEBAR_COL_COLLAPSED
-            )
-            if self._sidebar_title_label:
-                self._sidebar_title_label.set_visibility(False)
-            self._sidebar_toggle_btn.props("icon=workspace_premium")
-
-            for row, label_col, _ in self._nav_labels:
-                label_col.set_visibility(False)
+            self._sidebar_col.classes(remove=Styles.SIDEBAR_COL_EXPANDED, add=Styles.SIDEBAR_COL_COLLAPSED)
+        if self._sidebar_title_label:
+            self._sidebar_title_label.set_visibility(self.is_sidebar_open)
+        for row, label_col, _ in self._nav_labels:
+            label_col.set_visibility(self.is_sidebar_open)
+            if self.is_sidebar_open:
+                row.classes(remove="justify-center")
+            else:
                 row.classes(add="justify-center")
 
-            for text_col in getattr(self, '_user_chip_labels', []):
-                text_col.set_visibility(False)
-            if getattr(self, '_user_chip_row', None) is not None:
-                self._user_chip_row.classes(remove=getattr(self, '_chip_expanded', ''), add=getattr(self, '_chip_mini', ''))
+    # =========================================================================
+    # 3. LOGOUT CONFIRMATION
+    # =========================================================================
+    def _handle_logout(self) -> None:
+        from nicegui_ui.state import app_session
+
+        def _confirm():
+            app_session.logout_user()
+            ui.notify("تم تسجيل الخروج", type="info")
+            ui.navigate.to("/")
+
+        UI.confirm_dialog(
+            "تسجيل الخروج",
+            "هل تريد تسجيل الخروج من البرنامج؟",
+            "تسجيل الخروج",
+            _confirm,
+            danger=False,
+        )
 
     # =========================================================================
-    # 5. TOP HEADER BAR CONTAINER DEFINITION
+    # 4. HEADER BAR
     # =========================================================================
     def _build_top_header(self) -> None:
         """
-        [LAYOUT CONTAINER: TOP HEADER BAR]
-        Top Header Navbar (`app-header-bar`):
-        - Left Group:
-          a. Sidebar Menu Toggle Button (`ui.button(icon="menu")`)
-          b. Screen Title Labels (`_header_title_ar`, `_header_title_en`)
-        - Right Group:
-          a. Live Network Connection Badge (`header_status_badge`)
-          b. Refresh Data Button (`app-btn-refresh`, `ui.button("تحديث البيانات...", icon="sync")`)
+        [HEADER BAR]
+        One row, one height: the page title on the start side; on the other
+        side the sync dot, a refresh icon and the user chip (Profile, Logout).
         """
         with ui.row().classes(Styles.HEADER_BAR):
-            # Left Header Section (Sidebar Toggle Button + Active Screen Title Labels)
-            with ui.row().classes("items-center gap-4 min-w-0"):
-                # Dynamic Screen Title Labels (Arabic above English)
-                title_ar, title_en = self._get_screen_header_titles()
-                with ui.column().classes("gap-0 min-w-0"):
-                    self._header_title_ar = ui.label(title_ar).classes(
-                        "app-text-primary text-xl font-bold leading-tight truncate"
-                    )
-                    self._header_title_en = ui.label(title_en).classes(
-                        "app-text-muted text-xs font-medium leading-tight truncate"
-                    )
+            self._header_title_ar = ui.label(self._get_screen_header_titles()[0]).classes("app-header-title min-w-0")
+            self._header_title_en = None
 
-            # Corner Header Section (Refresh Button in 2nd Column + User Card in the Corner)
-            with ui.row().classes("items-center gap-3"):
-                # [BUTTON: REFRESH DATA] (Second column from the corner)
-                ui.button(
-                    "تحديث البيانات / Refresh Data",
-                    icon="sync",
-                    color=None,
-                    on_click=self._on_refresh_click
-                ).classes("app-btn-secondary font-bold normal-case shadow-none px-3.5 py-1.5 text-xs rounded-xl")
+            with ui.row().classes("items-center gap-2 no-wrap shrink-0"):
+                @ui.refreshable
+                def header_status_badge():
+                    from sync_engine import is_online
+                    online = is_online()
+                    label = "متصل بالسيرفر" if online else "غير متصل، يعمل على هذا الجهاز"
+                    dot = ui.element("span").classes("app-sync-dot" + ("" if online else " app-sync-dot--offline"))
+                    dot.props(f'role="status" aria-label="{label}"')
+                    dot.tooltip(label)
 
-                # [USER CARD] (Corner of topbar)
+                header_status_badge()
+                self._header_status = header_status_badge
+                self._refresh_status = None
+
+                UI.icon_button("refresh", "تحديث البيانات", on_click=self._on_refresh_click)
                 self._build_topbar_user_card()
 
     def _build_topbar_user_card(self) -> None:
-        """
-        [CARD / TOPBAR USER PROFILE CHIP]
-        Top Header Corner User Card:
-        - User Avatar Initials Badge Circle ("SA")
-        - Text Column: User Name Label + Beautiful Live Network Status Badge
-        - Logout Action Button
-        """
+        """User chip: avatar + name; its menu holds Profile and Logout."""
         from nicegui_ui.state import app_session
         user_name = app_session.name_ar or app_session.name_en or app_session.username or "مدير النظام"
-        name_for_initials = app_session.name_en or app_session.username or "Admin"
-        initials = "".join([part[0].upper() for part in name_for_initials.split() if part][:2]) or "SA"
+        initials = "".join(part[0] for part in user_name.split() if part)[:2] or "م"
 
-        with ui.row().classes(
-            "app-user-chip items-center gap-2 px-3 py-1.5 rounded-2xl border border-[var(--border-default)] "
-            "bg-[var(--surface-card)] hover:border-blue-500/40 transition-all shadow-sm shrink-0"
-        ):
-            # Clickable Account Card (Navigates to ProfileScreen for all users)
-            account_click_area = ui.row().classes(
-                "items-center gap-2.5 cursor-pointer hover:opacity-85 transition-opacity"
-            ).on("click", lambda: self._switch_screen("profile"))
-            account_click_area.tooltip("الملف الشخصي والحساب / Profile & Account")
-
-            with account_click_area:
-                # User Avatar Initials Badge Circle
-                with ui.element("div").classes(
-                    "app-user-avatar w-8 h-8 shrink-0 rounded-full flex items-center justify-center "
-                    "font-bold text-xs bg-blue-500/15 border border-blue-500/30 text-blue-400"
-                ):
-                    ui.label(initials)
-
-                # User Info + Beautiful Online/Offline Tag
-                with ui.column().classes("gap-0.5 justify-center min-w-0"):
-                    ui.label(user_name).classes("app-user-name text-xs font-bold leading-tight truncate max-w-[130px]")
-
-                    @ui.refreshable
-                    def header_status_badge():
-                        from sync_engine import is_online
-                        online = is_online()
-                        bg = (
-                            "bg-emerald-50 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-200 dark:border-emerald-500/30"
-                            if online else
-                            "bg-red-50 dark:bg-red-500/10 text-red-700 dark:text-red-400 border-red-200 dark:border-red-500/30"
-                        )
-                        dot = "🟢" if online else "🔴"
-                        text = "متصل / Online" if online else "غير متصل / Offline"
-                        ui.label(f"{dot} {text}").classes(f"px-2 py-0.5 rounded-md border text-[10px] font-bold leading-none {bg}")
-
-                    header_status_badge()
-                    self._header_status = header_status_badge
-
-            ui.element("div").classes("w-[1px] h-6 bg-[var(--border-default)] mx-0.5")
-
-            # Logout Icon Button
-            logout_btn = ui.icon("logout", size="xs").classes(
-                "app-user-logout cursor-pointer hover:text-red-400 transition-colors p-1 rounded-lg"
-            )
-            logout_btn.on("click", self._handle_logout)
-            logout_btn.tooltip("تسجيل الخروج / Logout")
+        with ui.row().classes("app-user-chip items-center no-wrap").props('tabindex="0" role="button" aria-haspopup="menu"') as chip:
+            with ui.element("div").classes("app-user-avatar"):
+                ui.label(initials.upper())
+            ui.label(user_name).classes("app-user-name truncate max-w-[140px]")
+            ui.icon("expand_more", size="18px").classes("app-text-muted")
+            with ui.menu().props("anchor='bottom left' self='top left'") as menu:
+                ui.menu_item("الملف الشخصي", on_click=lambda: self._switch_screen("profile"))
+                ui.separator()
+                ui.menu_item("تسجيل الخروج", on_click=self._handle_logout)
+        chip.on("keydown.enter", menu.open)
 
     def _get_screen_header_titles(self) -> tuple[str, str]:
-        """Returns Arabic and English title strings for the active screen."""
+        """Arabic page title for the active screen (the second value is always empty)."""
         header_map = {
-            "home":        ("لوحة التحكم", "Dashboard Overview"),
-            "students":    ("إدارة الطلاب", "Students Management"),
-            "orders":      ("أوامر التخرج", "Graduation Orders"),
-            "departments": ("إدارة الأقسام", "Departments"),
-            "courses":     ("المواد الدراسية", "Courses"),
-            "personnel":   ("إدارة الكوادر", "Personnel"),
-            "certificate":  ("إصدار الوثائق", "Certificate Issuance"),
-            "issued_certs": ("سجل الوثائق الصادرة", "Issued Certificates Log"),
-            "history":      ("سجل التغييرات", "Activity Log"),
-            "settings":     ("إعدادات النظام", "System Settings"),
-            "profile":      ("الملف الشخصي والحساب", "Profile & Account"),
+            "home":         "الرئيسية",
+            "students":     "الطلاب",
+            "orders":       "أوامر التخرج",
+            "courses":      "المواد الدراسية",
+            "personnel":    "الكوادر",
+            "certificate":  "إصدار كتاب",
+            "issued_certs": "سجل الوثائق الصادرة",
+            "reports":      "تقارير الطلاب",
+            "history":      "سجل التغييرات",
+            "settings":     "الإعدادات",
+            "profile":      "الملف الشخصي",
         }
-        return header_map.get(self.current_screen, ("الرئيسية", "Dashboard"))
+        return header_map.get(self.current_screen, "الرئيسية"), ""
 
-    def _switch_screen(self, screen_key: str) -> None:
+    def _switch_screen(self, screen_key: str, defer: bool = True) -> None:
         """Handles navigation between screens when a sidebar button is clicked."""
         if screen_key != "profile" and hasattr(self, "allowed_screens") and self.allowed_screens and screen_key not in self.allowed_screens:
-            ui.notify("عذراً، ليس لديك صلاحية للوصول إلى هذه الشاشة / Access Denied", type="warning")
+            ui.notify("ليس لديك صلاحية لفتح هذه الشاشة", type="warning")
             return
 
         self.current_screen = screen_key
 
-        # Update active nav item highlighted styles in sidebar
         for row, _label_col, key in self._nav_labels:
             if key == screen_key:
                 row.classes(remove=Styles.NAV_ITEM_INACTIVE, add=Styles.NAV_ITEM_ACTIVE)
             else:
                 row.classes(remove=Styles.NAV_ITEM_ACTIVE, add=Styles.NAV_ITEM_INACTIVE)
 
-        # Update top header title labels
-        title_ar, title_en = self._get_screen_header_titles()
         if self._header_title_ar:
-            self._header_title_ar.set_text(title_ar)
-        if self._header_title_en:
-            self._header_title_en.set_text(title_en)
+            self._header_title_ar.set_text(self._get_screen_header_titles()[0])
 
-        # Render the selected screen
-        self._render_active_screen()
+        self._render_active_screen(defer=defer)
 
-    def _render_active_screen(self) -> None:
+    def _render_active_screen(self, defer: bool = True) -> None:
+        """Shows a skeleton at once, then builds the page on the next tick (a newer switch wins)."""
+        self._render_token = getattr(self, "_render_token", 0) + 1
+        if not defer:
+            self._build_active_screen(self._render_token)
+            return
+        token = self._render_token
+        self.content_container.clear()
+        with self.content_container:
+            UI.skeleton(rows=6, height=44)
+            ui.timer(0.01, lambda: self._build_active_screen(token), once=True)
+
+    def _build_active_screen(self, token: int) -> None:
         """Clears and re-populates the main content viewport with the active screen component."""
+        if token != self._render_token:
+            return
+        t0 = time.perf_counter()
         self.content_container.clear()
         with self.content_container:
             if self.current_screen == "home":
@@ -633,10 +472,14 @@ class MainAppShell:
                     self._switch_screen("certificate")
 
                 self._active_students_screen = StudentsScreen(on_issue_certificate=_on_issue_cert_handler)
+                if getattr(self, "_pending_add_student", False):
+                    self._pending_add_student = False
+                    self._active_students_screen.form_view.render_add()
             elif self.current_screen == "orders":
                 GraduationOrdersScreen()
-            elif self.current_screen == "departments":
-                DepartmentsScreen()
+            elif self.current_screen == "reports":
+                from nicegui_screens.reports_screen import ReportsScreen
+                ReportsScreen()
             elif self.current_screen == "courses":
                 CoursesScreen()
             elif self.current_screen == "personnel":
@@ -644,7 +487,7 @@ class MainAppShell:
             elif self.current_screen == "certificate":
                 def _on_edit_student_handler(student_dict):
                     self._last_cert_student = student_dict
-                    self._switch_screen("students")
+                    self._switch_screen("students", defer=False)
                     if hasattr(self, "_active_students_screen") and self._active_students_screen:
                         def _back_to_cert(target_student=None):
                             st = target_student or student_dict
@@ -682,203 +525,113 @@ class MainAppShell:
                 IssuedCertificatesScreen(on_edit_certificate=_on_edit_issued_cert)
             else:
                 self._build_placeholder_screen()
+        log.info("[perf] screen %s built in %.0f ms", self.current_screen, (time.perf_counter() - t0) * 1000)
 
     # =========================================================================
     # 6. DASHBOARD CONTENT VIEW DEFINITION (CARDS, STATS, ACTIONS & TABLES)
     # =========================================================================
     def _build_dashboard_content(self) -> None:
         """
-        [PAGE VIEW: DASHBOARD OVERVIEW]
-        Renders the main dashboard page content:
-        1. Top Metrics Section: Grid of 4 Stat Cards (`UI.stat_card`)
-        2. Bottom Split Section:
-           a. Left Panel: Quick Actions Card with navigation rows
-           b. Right Panel: Tabbed Data Table Card (Recent Students & Recent Certificates)
+        [PAGE VIEW: DASHBOARD]
+        1. Stats: Students, Issued certificates, Courses, Personnel (compact, one row when it fits)
+        2. One large primary tile "إصدار كتاب" (+ a secondary "إضافة طالب")
+        3. Recent students and recent issued certificates, side by side when wide
         """
-
-        # ── METRIC STAT CARDS GRID ───────────────────────────────────────────
-        # [CARDS: TOP METRIC STAT CARDS SECTION]
         @ui.refreshable
         def stat_cards_section() -> None:
-            with ui.element("div").classes(Styles.STAT_GRID):
+            with ui.element("div").classes("app-stat-grid"):
                 for card_cfg in STAT_CARDS:
-                    value = self.counts.get(card_cfg["count_key"], 0)
-                    # Individual Metric Stat Card Component
                     UI.stat_card(
-                        title_ar   = card_cfg["label_ar"],
-                        title_en   = card_cfg["label_en"],
-                        value      = value,
-                        icon_name  = card_cfg["icon"],
-                        variant    = card_cfg["variant"],
+                        title_ar=card_cfg["label_ar"],
+                        value=self.counts.get(card_cfg["count_key"], 0),
+                        icon_name=card_cfg["icon"],
                     )
 
         stat_cards_section()
         self._refresh_cards = stat_cards_section
+        ui.timer(0.01, self._load_issued_count, once=True)
 
-        # ── BOTTOM SPLIT SECTION ─────────────────────────────────────────────
-        # [LAYOUT CONTAINER: BOTTOM FLEX ROW]
-        with ui.row().classes(Styles.BOTTOM_ROW):
-            
-            # ── 1. QUICK ACTIONS CARD PANEL (COMPACT 1/4 WIDTH) ─────────────
-            # [CARD: QUICK ACTIONS PANEL]
-            with ui.column().classes("app-card w-full xl:w-1/4 xl:max-w-[320px] p-5 rounded-2xl gap-3 h-auto justify-start self-start"):
-                # Card Header Label
-                UI.section_label("Quick Actions  —  إجراءات سريعة")
-                
-                # Column of Action Items
-                with ui.column().classes("w-full gap-2.5 mt-1"):
-                    for action in QUICK_ACTIONS:
-                        # [BUTTON / TILE: INDIVIDUAL QUICK ACTION ROW]
-                        action_row = ui.row().classes(
-                            "app-action-item w-full items-center gap-3 px-3.5 py-2.5 rounded-xl cursor-pointer"
-                        ).on(
-                            "click",
-                            (lambda t=action["target"]: self._switch_screen(t))
-                            if action["target"] else None
-                        )
-                        with action_row:
-                            # Action Row Icon
-                            ui.icon(action["icon"], size="sm").classes("app-sidebar-icon")
-                            
-                            # Action Row Labels
-                            with ui.column().classes("gap-0 min-w-0 flex-1"):
-                                ui.label(action["label_ar"]).classes("nav-title-ar font-bold text-sm leading-tight")
-                                ui.label(action["label_en"]).classes("nav-title-en font-normal text-xs leading-tight")
-                            
-                            # Navigation Arrow Icon
-                            ui.icon("arrow_back_ios", size="xs").classes("app-text-faint ml-auto opacity-60")
+        # The one obvious next action
+        with ui.row().classes("w-full gap-4 no-wrap items-stretch"):
+            tile = ui.element("div").classes("app-cta-tile flex-1").props('tabindex="0" role="button"')
+            tile.on("click", lambda: self._switch_screen("certificate"))
+            tile.on("keydown.enter", lambda: self._switch_screen("certificate"))
+            with tile:
+                ui.icon("workspace_premium", size="32px")
+                with ui.column().classes("gap-0 min-w-0"):
+                    ui.label("إصدار كتاب").classes("text-lg font-bold")
+                    ui.label("اختر الطالب ثم نوع الوثيقة ثم أصدرها").classes("text-sm opacity-90")
+                ui.icon("arrow_back", size="24px").classes("ms-auto")
+            UI.secondary_button("إضافة طالب", icon="person_add", on_click=self._open_add_student).classes("self-center")
 
-            # ── 2. RECENT DATA TABBED TABLE CARD PANEL (EXPANDED FLEX-1 WIDTH) ──────
-            # [CARD: TABBED TABLE PANEL]
-            with UI.card(Styles.TABLE_PANEL):
-                # [TAB BAR: NAVIGATION TABS FOR TABLES]
-                with ui.tabs().classes("w-full app-tabs").props("dense shrink inline-label mobile-arrows outside-arrows") as tabs:
-                    # Tab 1 Button (Recent Students)
-                    with ui.tab(name="tab_students", label="", icon="person_add") as tab_students:
-                        with ui.column().classes("gap-0 items-start justify-center text-right py-0.5"):
-                            ui.label("أحدث الطلاب المضافين").classes("font-bold text-sm leading-tight")
-                            ui.label("Recent Students").classes("font-normal text-xs opacity-75 leading-tight")
+        # Recent records
+        with ui.element("div").classes("app-two-col"):
+            with UI.card("gap-2"):
+                UI.page_header("أحدث الطلاب", actions=lambda: UI.ghost_button(
+                    "عرض الكل", on_click=lambda: self._switch_screen("students")))
+                rows_s = [
+                    {
+                        "id": s.get("id"),
+                        "name": s.get("full_name_ar") or s.get("student_name_ar") or s.get("full_name_en") or "—",
+                        "dept": s.get("dept_name_ar") or s.get("department_name_ar") or "—",
+                        "grad": _fmt_grad_date(s.get("graduation_date")),
+                        "raw_data": s,
+                    }
+                    for s in (self.recent_students or [])
+                ]
+                if rows_s:
+                    s_table = UI.data_table(
+                        [
+                            {"name": "name", "label": "الاسم", "field": "name", "align": "right"},
+                            {"name": "dept", "label": "القسم", "field": "dept"},
+                            {"name": "grad", "label": "تاريخ التخرج", "field": "grad"},
+                        ],
+                        rows_s, clickable=True,
+                    )
+                    s_table.on("rowClick", lambda e: self._go_to_cert_for_student(e.args[1].get("raw_data") or e.args[1]))
+                    with ui.row().classes("w-full"):
+                        ui.label("انقر على طالب لإصدار كتاب له").classes("app-caption")
+                else:
+                    UI.empty_state("لا يوجد طلاب بعد", "أضف أول طالب من شاشة الطلاب.", icon="people")
 
-                    # Tab 2 Button (Issued & Printed Certificates - MERGED)
-                    with ui.tab(name="tab_certs", label="", icon="workspace_premium") as tab_certs:
-                        with ui.column().classes("gap-0 items-start justify-center text-right py-0.5"):
-                            ui.label("الشهادات الصادرة والمطبوعة").classes("font-bold text-sm leading-tight")
-                            ui.label("Issued & Printed Certificates").classes("font-normal text-xs opacity-75 leading-tight")
+            with UI.card("gap-2"):
+                UI.page_header("أحدث الوثائق الصادرة", actions=lambda: UI.ghost_button(
+                    "عرض الكل", on_click=lambda: self._switch_screen("issued_certs")))
+                combined, seen = [], set()
+                for c in (self.recent_certificates + getattr(self, "recent_printed_certificates", [])):
+                    cid = c.get("id") or c.get("certificate_id")
+                    if cid and cid not in seen:
+                        seen.add(cid)
+                        combined.append(c)
+                rows_c = [
+                    {
+                        "id": c.get("id") or c.get("certificate_id"),
+                        "name": c.get("full_name_ar") or c.get("student_name_ar") or c.get("student_name") or "—",
+                        "number": c.get("certificate_number") or "—",
+                        "date": str(c.get("issue_date") or c.get("created_at") or "—")[:10],
+                        "raw_data": c,
+                    }
+                    for c in combined[:5]
+                ]
+                if rows_c:
+                    c_table = UI.data_table(
+                        [
+                            {"name": "name", "label": "الطالب", "field": "name", "align": "right"},
+                            {"name": "number", "label": "رقم الوثيقة", "field": "number"},
+                            {"name": "date", "label": "تاريخ الإصدار", "field": "date"},
+                        ],
+                        rows_c, clickable=True,
+                    )
+                    c_table.on("rowClick", lambda e: self._go_to_cert_for_student(e.args[1].get("raw_data") or e.args[1]))
+                    with ui.row().classes("w-full"):
+                        ui.label("انقر على وثيقة لفتحها").classes("app-caption")
+                else:
+                    UI.empty_state("لم تصدر وثائق بعد", "ابدأ من «إصدار كتاب».", icon="description")
 
-                # [TAB PANELS CONTAINER]
-                initial_tab = tab_certs if getattr(self, "_default_dashboard_tab_name", None) == "tab_certs" else tab_students
-                self._default_dashboard_tab_name = "tab_students"
-                with ui.tab_panels(tabs, value=initial_tab).classes("w-full p-0 bg-transparent"):
-                    
-                    # ── TAB 1 VIEW: RECENT STUDENTS TABLE ────────────────────
-                    with ui.tab_panel(tab_students).classes("w-full p-0 pt-2 bg-transparent"):
-                        cols_s = [
-                            {"name": "name",   "label": "اسم الطالب / Student Name", "field": "name",   "align": "right",  "headerClasses": "text-slate-600 dark:text-slate-400 font-bold bg-transparent"},
-                            {"name": "dept",   "label": "القسم / Department",        "field": "dept",   "align": "right",  "headerClasses": "text-slate-600 dark:text-slate-400 font-bold bg-transparent"},
-                            {"name": "year",   "label": "سنة القبول / Batch",        "field": "year",   "align": "center", "headerClasses": "text-slate-600 dark:text-slate-400 font-bold bg-transparent"},
-                            {"name": "grad",   "label": "تاريخ التخرج / Graduation", "field": "grad",   "align": "center", "headerClasses": "text-slate-600 dark:text-slate-400 font-bold bg-transparent"},
-                            {"name": "action", "label": "إصدار / Issue",             "field": "action", "align": "center", "headerClasses": "text-slate-600 dark:text-slate-400 font-bold bg-transparent"},
-                        ]
-                        rows_s = [
-                            {
-                                "id":     s.get("id"),
-                                "name":   s.get("full_name_ar") or s.get("student_name_ar") or s.get("full_name_en") or "—",
-                                "dept":   s.get("dept_name_ar") or s.get("department_name_ar") or "—",
-                                "year":   s.get("admission_year") or s.get("graduation_year") or "—",
-                                "grad":   _fmt_grad_date(s.get("graduation_date")),
-                                "raw_data": s,
-                            }
-                            for s in (self.recent_students or [])
-                        ]
-                        # [TABLE: RECENT STUDENTS DATA TABLE]
-                        s_table = ui.table(
-                            columns=cols_s, rows=rows_s, row_key="id"
-                        ).classes(Styles.TABLE_CLASSES).props("flat separator='horizontal'")
-
-                        # Graduation date cell: date text, or a muted dash when not graduated yet
-                        s_table.add_slot("body-cell-grad", '''
-                            <q-td :props="props" class="text-center">
-                                <span v-if="props.row.grad !== '—'" class="font-mono text-xs font-semibold">{{ props.row.grad }}</span>
-                                <span v-else class="opacity-40">—</span>
-                            </q-td>
-                        ''')
-
-                        # Action Column Template Slot
-                        s_table.add_slot("body-cell-action", '''
-                            <q-td :props="props" class="text-center">
-                                <q-btn
-                                    dense flat round
-                                    icon="workspace_premium"
-                                    color="primary"
-                                    class="app-btn-secondary"
-                                    @click="$parent.$emit('issue_cert', props.row)"
-                                >
-                                    <q-tooltip class="bg-slate-800 text-white font-bold">إصدار وثيقة للطالب / Issue Certificate</q-tooltip>
-                                </q-btn>
-                            </q-td>
-                        ''')
-                        s_table.on('issue_cert', lambda e: self._go_to_cert_for_student(e.args.get('raw_data', e.args)))
-
-                    # ── TAB 2 VIEW: ISSUED & PRINTED CERTIFICATES TABLE (MERGED) ─
-                    with ui.tab_panel(tab_certs).classes("w-full p-0 pt-2 bg-transparent"):
-                        cols_c = [
-                            {"name": "name",     "label": "اسم الطالب / Student Name", "field": "name",     "align": "right",  "headerClasses": "text-slate-600 dark:text-slate-400 font-bold bg-transparent"},
-                            {"name": "dept",     "label": "القسم / Department",        "field": "dept",     "align": "right",  "headerClasses": "text-slate-600 dark:text-slate-400 font-bold bg-transparent"},
-                            {"name": "to_title", "label": "الجهة الصادرة إليها / Issued To", "field": "to_title", "align": "center", "headerClasses": "text-slate-600 dark:text-slate-400 font-bold bg-transparent"},
-                            {"name": "date",     "label": "تاريخ الإصدار / Date",     "field": "date",     "align": "left",   "headerClasses": "text-slate-600 dark:text-slate-400 font-bold bg-transparent"},
-                            {"name": "action",   "label": "إصدار / Issue",             "field": "action",   "align": "center", "headerClasses": "text-slate-600 dark:text-slate-400 font-bold bg-transparent"},
-                        ]
-                        
-                        combined_certs_data = []
-                        seen_ids = set()
-                        for c in (self.recent_certificates + getattr(self, "recent_printed_certificates", [])):
-                            cid = c.get("id") or c.get("certificate_id")
-                            if cid and cid not in seen_ids:
-                                seen_ids.add(cid)
-                                combined_certs_data.append(c)
-
-                        rows_c = [
-                            {
-                                "id":       c.get("id") or c.get("certificate_id"),
-                                "certificate_id": c.get("id") or c.get("certificate_id"),
-                                "student_id": c.get("student_id"),
-                                "name":     c.get("full_name_ar") or c.get("student_name_ar") or c.get("student_name") or "طالب متخرج",
-                                "dept":     c.get("dept_name_ar") or c.get("department_name_ar") or "قسم عام",
-                                "to_title": c.get("to_title") or c.get("order_number") or "من يهمه الأمر",
-                                "date":     c.get("issue_date") or c.get("created_at") or "—",
-                                "certificate_number": c.get("certificate_number"),
-                                "template_type": c.get("template_type"),
-                                "raw_data": c,
-                            }
-                            for c in (combined_certs_data or self.recent_certificates)
-                        ]
-                        # [TABLE: ISSUED & PRINTED CERTIFICATES DATA TABLE]
-                        c_table = ui.table(
-                            columns=cols_c, rows=rows_c, row_key="id"
-                        ).classes(Styles.TABLE_CLASSES).props("flat separator='horizontal'")
-
-                        # Name Column Template Slot (Clickable to jump to student's certificate)
-                        c_table.add_slot("body-cell-name", '''
-                            <q-td :props="props" class="text-right cursor-pointer font-bold text-blue-400 hover:underline" @click="$parent.$emit('issue_cert', props.row)">
-                                {{ props.row.name }}
-                            </q-td>
-                        ''')
-
-                        # Action Column Template Slot
-                        c_table.add_slot("body-cell-action", '''
-                            <q-td :props="props" class="text-center">
-                                <q-btn
-                                    dense flat round
-                                    icon="workspace_premium"
-                                    color="primary"
-                                    class="app-btn-secondary"
-                                    @click="$parent.$emit('issue_cert', props.row)"
-                                >
-                                    <q-tooltip class="bg-slate-800 text-white font-bold">إصدار وثيقة للطالب / Issue Certificate</q-tooltip>
-                                </q-btn>
-                            </q-td>
-                        ''')
-                        c_table.on('issue_cert', lambda e: self._go_to_cert_for_student(e.args.get('raw_data', e.args)))
+    def _open_add_student(self) -> None:
+        """Add Student from anywhere: go to Students and open the add form."""
+        self._pending_add_student = True
+        self._switch_screen("students")
 
     def _go_to_cert_for_student(self, raw_student: dict) -> None:
         """Directs user to the Certificate Screen pre-loaded with the clicked student."""
@@ -911,14 +664,11 @@ class MainAppShell:
         - Construction Icon (`ui.icon("construction")`)
         - Title & Subtitle Labels (`ui.label`)
         """
-        header_ar, header_en = self._get_screen_header_titles()
+        header_ar, _ = self._get_screen_header_titles()
         with UI.card("items-center justify-center py-20"):
             ui.icon("construction", size="lg").classes("app-text-warning")
             ui.label(f"شاشة {header_ar} قيد التطوير").classes(
                 "app-text-primary text-2xl font-bold"
-            )
-            ui.label(f"{header_en} Screen — Under Migration to NiceGUI").classes(
-                "app-text-muted text-sm"
             )
 
 # Export MainAppShell as DashboardScreen for application entry point routing

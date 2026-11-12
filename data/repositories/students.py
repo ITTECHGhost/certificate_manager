@@ -328,17 +328,45 @@ class StudentRepository(BaseRepository):
 
         return search_offline_unlinked_students(name_query=name_query, dept_id=dept_id, year=year, limit=limit)
 
-    def auto_link_matching(self, order_id: int, order_data: dict) -> int:
-        dept_id = order_data.get("department_id")
-        grad_year = order_data.get("graduation_year")
-        matching = get_offline_unlinked_students_matching(dept_id, grad_year)
+    def auto_link_matching(self, order_id: int, order_data: dict | None = None) -> tuple[int, list[int]]:
+        """Server-side auto-link (LinkStudentsToOrder): same department and study system, not in
+        another order, expected to graduate in the order's year/semester. Returns (count, ids)
+        so the screen can undo it."""
+        if not is_online():
+            raise OfflineModeError()
+        resp = api_client.post(f"{self.api_url}/students/link-order/{order_id}", timeout=15.0)
+        if resp.status_code != 200:
+            raise RuntimeError(f"API link failed: {resp.text[:200]}")
+        row = resp.json()
+        ids = [int(x) for x in (row.get("student_ids") or [])]
+        count = int(row.get("affected_rows") or len(ids))
+        if count:
+            log_activity(f"تم ربط {count} طالب تلقائياً بالأمر الجامعي ID: {order_id}")
+        return count, ids
 
-        count = 0
-        for m in matching:
-            sid = m["id"]
-            self.link_to_order(sid, order_id)
-            count += 1
-        return count
+    def undo_link(self, order_id: int, student_ids: list[int]) -> int:
+        """Unlinks these students, only where they are still in this order."""
+        if not is_online():
+            raise OfflineModeError()
+        resp = api_client.post(f"{self.api_url}/students/unlink-order/{order_id}",
+                               json={"student_ids": list(student_ids)}, timeout=15.0)
+        if resp.status_code != 200:
+            raise RuntimeError(f"API unlink failed: {resp.text[:200]}")
+        n = int(resp.json().get("affected_rows") or 0)
+        log_activity(f"تم التراجع عن ربط {n} طالب بالأمر الجامعي ID: {order_id}")
+        return n
+
+    def candidates_for_order(self, order_id: int, name_query: str = "", matching_only: bool = True,
+                             limit: int = 200) -> list[dict]:
+        """Students not in any order; with matching_only, only those this order is likely about."""
+        if not is_online():
+            return search_offline_unlinked_students(name_query=name_query, limit=limit)
+        resp = api_client.get(f"{self.api_url}/students/candidates-for-order/{order_id}",
+                              params={"name_query": name_query, "matching_only": matching_only, "limit": limit},
+                              timeout=8.0)
+        if resp.status_code != 200:
+            raise RuntimeError(f"API candidates failed: {resp.text[:200]}")
+        return resp.json()
 
     def unlink_from_order(self, student_id: int) -> None:
         if not is_online():
@@ -477,7 +505,7 @@ class StudentRepository(BaseRepository):
     def bulk_import(self, students_payload: list[dict]) -> dict:
         """Atomically imports a cohort of students, periods, and enrollments."""
         if not is_online():
-            raise OfflineModeError("Bulk import requires active online connection to central server.")
+            raise OfflineModeError("الاستيراد الجماعي يحتاج اتصالاً بالسيرفر. اتصل بالشبكة ثم أعد المحاولة.")
         try:
             resp = api_client.post(
                 f"{self.api_url}/api/students/bulk-import",
@@ -752,3 +780,16 @@ class EnrollmentRepository(BaseRepository):
         except Exception as e:
             log_system(f"API request failed: {e}", "WARNING")
             raise
+
+
+def get_graduation_ranks(student_id: int) -> dict:
+    """The 8 calculated graduation sequences ({} when offline or not linked to an order)."""
+    if not is_online():
+        return {}
+    try:
+        resp = api_client.get(f"{get_api_url()}/students/{int(student_id)}/graduation-ranks", timeout=10.0)
+        if resp.status_code == 200 and resp.json().get("linked"):
+            return resp.json()
+    except Exception as e:
+        log_system(f"graduation ranks failed: {e}", "WARNING")
+    return {}

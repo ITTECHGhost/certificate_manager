@@ -46,10 +46,12 @@ from nicegui_screens.settings.logs_analytics import LogsAnalyticsMixin
 from nicegui_screens.settings.server import ServerMixin
 from nicegui_screens.settings.maintenance import MaintenanceMixin
 from nicegui_screens.settings.templates import TemplatesMixin
+from nicegui_screens.settings.departments import DepartmentsMixin
 
 
 class SettingsScreen(
     InstitutionMixin,
+    DepartmentsMixin,
     StudySystemsMixin,
     AppearanceMixin,
     PrintersMixin,
@@ -137,109 +139,78 @@ class SettingsScreen(
         can_roles = is_admin or "settings:roles" in effective_perms
         can_templates = is_admin or "settings:templates" in effective_perms
         can_logs = is_admin or "settings:logs" in effective_perms
+        # Departments and personnel used to be sidebar screens: same rule as the sidebar
+        access = self.session.get_access() or {}
+        access_screens = access.get("allowed_screens")
+        can_depts = is_admin or not access or access_screens is None or "departments" in access_screens
+        can_personnel = is_admin or not access or access_screens is None or "personnel" in access_screens
+        self._can_edit_departments = can_depts
 
         # Default tab selection
         default_tab_name = "institution" if can_inst else ("appearance" if can_app else "printers")
 
         with ui.column().classes("w-full max-w-full min-w-0 gap-6 pb-12 overflow-hidden"):
-            with ui.tabs().classes("w-full max-w-full min-w-0 app-tabs border-b border-[var(--border-default)]").props("dense shrink inline-label mobile-arrows outside-arrows") as self.tabs:
-                # Tab 1: Institution
-                if can_inst:
-                    with ui.tab(name="institution", label="", icon="domain") as self.tab_institution:
-                        with ui.column().classes("gap-0 items-start justify-center text-right py-0.5"):
-                            ui.label("المؤسسة").classes("font-bold text-sm leading-tight")
-                            ui.label("Institution").classes("font-normal text-xs opacity-75 leading-tight")
-                else:
-                    self.tab_institution = None
+            with ui.row().classes("w-full max-w-full min-w-0 gap-6 items-start no-wrap"):
+                with ui.tabs().classes("app-tabs w-60 shrink-0 max-w-full").props("vertical dense inline-label") as self.tabs:
+                    self.tab_institution = ui.tab(name="institution", label="معلومات الجامعة", icon="domain") if can_inst else None
+                    self.tab_app = ui.tab(name="appearance", label="المظهر والسمات", icon="palette") if can_app else None
+                    self.tab_printers = ui.tab(name="printers", label="إعداد الطابعات", icon="print")
+                    self.tab_personnel = ui.tab(name="personnel", label="الكوادر", icon="manage_accounts") if can_personnel else None
+                    self.tab_roles = ui.tab(name="roles", label="الأدوار والصلاحيات", icon="admin_panel_settings") if can_roles else None
+                    self.tab_templates = ui.tab(name="templates", label="قوالب الوثائق", icon="description") if can_templates else None
+                    self.tab_logs = ui.tab(name="logs", label="السيرفر والصيانة والسجلات", icon="dns") if can_logs else None
 
-                # Tab 2: Appearance
-                if can_app:
-                    with ui.tab(name="appearance", label="", icon="palette") as self.tab_app:
-                        with ui.column().classes("gap-0 items-start justify-center text-right py-0.5"):
-                            ui.label("المظهر والسمات").classes("font-bold text-sm leading-tight")
-                            ui.label("Appearance").classes("font-normal text-xs opacity-75 leading-tight")
-                else:
-                    self.tab_app = None
+                initial_tab = getattr(self, f"tab_{default_tab_name}", self.tab_printers)
 
-                # Tab 3: Hardware & Printer Setup (Replaces account view)
-                with ui.tab(name="printers", label="", icon="print") as self.tab_printers:
-                    with ui.column().classes("gap-0 items-start justify-center text-right py-0.5"):
-                        ui.label("إعداد الطابعات").classes("font-bold text-sm leading-tight")
-                        ui.label("Printers Setup").classes("font-normal text-xs opacity-75 leading-tight")
+                # Each panel is built the first time its tab opens, so the page shows at once
+                builders = {
+                    # College first, its departments under it, then the study systems
+                    "institution": (self.tab_institution, (self._section_institution_info, self._section_departments, self._section_study_systems)),
+                    "appearance": (self.tab_app, (self._section_appearance,)),
+                    "printers": (self.tab_printers, (self._section_printer_settings,)),
+                    "personnel": (self.tab_personnel, (self._section_personnel,)),
+                    "roles": (self.tab_roles, (self._section_roles_and_permissions,)),
+                    "templates": (self.tab_templates, (self._section_templates_management,)),
+                    "logs": (self.tab_logs, ((self._section_server_config,)
+                                             + ((self._section_server_update,) if is_admin else ())
+                                             + (self._section_database_maintenance, self._section_system_logs))),
+                }
+                panels: dict[str, ui.tab_panel] = {}
+                built: set[str] = set()
 
-                # Tab 4: Roles & Permissions (Access Control)
-                if can_roles:
-                    with ui.tab(name="roles", label="", icon="admin_panel_settings") as self.tab_roles:
-                        with ui.column().classes("gap-0 items-start justify-center text-right py-0.5"):
-                            ui.label("الأدوار والصلاحيات").classes("font-bold text-sm leading-tight")
-                            ui.label("Roles & Permissions").classes("font-normal text-xs opacity-75 leading-tight")
-                else:
-                    self.tab_roles = None
+                def _build_panel(name: str) -> None:
+                    if name in built or name not in panels:
+                        return
+                    built.add(name)
+                    with panels[name]:
+                        for section in builders[name][1]:
+                            section()
 
-                # Tab 5: Templates Management
-                if can_templates:
-                    with ui.tab(name="templates", label="", icon="description") as self.tab_templates:
-                        with ui.column().classes("gap-0 items-start justify-center text-right py-0.5"):
-                            ui.label("قوالب الوثائق").classes("font-bold text-sm leading-tight")
-                            ui.label("Templates").classes("font-normal text-xs opacity-75 leading-tight")
-                else:
-                    self.tab_templates = None
+                with ui.tab_panels(self.tabs, value=initial_tab).classes("flex-1 min-w-0 bg-transparent p-0"):
+                    for name, (tab, _sections) in builders.items():
+                        if tab:
+                            panels[name] = ui.tab_panel(tab).classes("w-full gap-6 p-0 flex flex-col")
 
-                # Tab 6: Server, Maintenance & Logs
-                if can_logs:
-                    with ui.tab(name="logs", label="", icon="dns") as self.tab_logs:
-                        with ui.column().classes("gap-0 items-start justify-center text-right py-0.5"):
-                            ui.label("السيرفر والصيانة والسجلات").classes("font-bold text-sm leading-tight")
-                            ui.label("Server, Maintenance & Logs").classes("font-normal text-xs opacity-75 leading-tight")
-                else:
-                    self.tab_logs = None
-
-            initial_tab = getattr(self, f"tab_{default_tab_name}", self.tab_printers)
-            with ui.tab_panels(self.tabs, value=initial_tab).classes("w-full bg-transparent p-0 gap-6"):
-                if can_inst and self.tab_institution:
-                    with ui.tab_panel(self.tab_institution).classes("w-full gap-6 p-0 flex flex-col"):
-                        self._section_institution_info()
-                        self._section_study_systems()
-
-                if can_app and self.tab_app:
-                    with ui.tab_panel(self.tab_app).classes("w-full gap-6 p-0 flex flex-col"):
-                        self._section_appearance()
-
-                with ui.tab_panel(self.tab_printers).classes("w-full gap-6 p-0 flex flex-col"):
-                    self._section_printer_settings()
-
-                if can_roles and self.tab_roles:
-                    with ui.tab_panel(self.tab_roles).classes("w-full gap-6 p-0 flex flex-col"):
-                        self._section_roles_and_permissions()
-
-                if can_templates and self.tab_templates:
-                    with ui.tab_panel(self.tab_templates).classes("w-full gap-6 p-0 flex flex-col"):
-                        self._section_templates_management()
-
-                if can_logs and self.tab_logs:
-                    with ui.tab_panel(self.tab_logs).classes("w-full gap-6 p-0 flex flex-col"):
-                        self._section_server_config()
-                        self._section_database_maintenance()
-                        self._section_system_logs()
+                _build_panel(initial_tab._props.get("name") if initial_tab else "printers")
+                self.tabs.on_value_change(lambda e: _build_panel(e.value if isinstance(e.value, str) else getattr(e.value, "_props", {}).get("name")))
 
     def _section_about(self) -> None:
         with UI.card():
-            UI.card_header("حول البرنامج — About", "info", icon_css="app-text-faint")
+            UI.card_header("حول البرنامج", "info", icon_css="app-text-faint")
 
             with ui.column().classes("w-full items-center text-center gap-2 p-4"):
-                UI.section_label("نظام إدارة الشهادات - الإصدار 2.0 (NiceGUI Native UI)")
-                UI.muted_label("Certificate Manager - v2.0")
+                UI.section_label("نظام إدارة الشهادات")
                 UI.muted_label("تم التطوير لأتمتة عمليات إصدار الوثائق والشهادات الجامعية.").classes("mt-2")
-                ui.label("Developed by M. Hussein / تم التطوير بواسطة م. حسين").classes(
+                ui.label("تم التطوير بواسطة م. حسين").classes(
                     "app-text-success text-xs font-semibold mt-1"
                 )
 
                 async def _check_updates_dialog():
                     from sync_engine import is_online
                     if not is_online():
-                        ui.notify("لا يمكن التحقق من التحديثات في الوضع غير المتصل / Offline mode", type="warning")
+                        ui.notify("لا يمكن التحقق من التحديثات في الوضع غير المتصل", type="warning")
                         return
-                    n = ui.notification("جاري التحقق من وجود تحديثات جديدة... / Checking for updates...", timeout=None, spinner=True)
+                    n = ui.notification("جاري التحقق من وجود تحديثات جديدة...", timeout=None, spinner=True)
                     try:
                         import asyncio
                         from nicegui import run
@@ -247,40 +218,26 @@ class SettingsScreen(
                         res = await run.io_bound(upd.check_for_updates)
                         n.dismiss()
                         if not res or not res.get("has_update"):
-                            ui.notify("البرنامج محدث إلى آخر إصدار متاح / Application is up to date", type="positive")
+                            ui.notify("البرنامج محدث إلى آخر إصدار متاح", type="positive")
                             return
 
-                        with ui.dialog() as dlg, ui.card().classes("w-[500px] p-6 gap-4"):
-                            UI.card_header(f"تحديث جديد متاح / Update Available: v{res['latest_version']}", "system_update")
-                            ui.label(f"الإصدار الحالي: v{res['current_version']} ➔ الجديد: v{res['latest_version']}").classes("text-sm font-bold text-sky-500")
-                            if res.get("changelog_ar"):
-                                ui.label(f"سجل التغييرات: {res['changelog_ar']}").classes("text-xs text-slate-400")
-                            if res.get("changelog_en"):
-                                ui.label(f"Changelog: {res['changelog_en']}").classes("text-xs text-slate-400")
-
-                            async def _start_ota():
-                                dlg.close()
-                                prog_notif = ui.notification("جاري تنزيل التحديث... / Downloading patch...", timeout=None, spinner=True)
-                                zip_p = await run.io_bound(upd.download_patch, res)
-                                prog_notif.dismiss()
-                                if not zip_p:
-                                    ui.notify("فشل تنزيل ملف التحديث / Failed to download patch", type="negative")
-                                    return
-                                ui.notify("تم تنزيل التحديث. جاري إعادة تشغيل التطبيق... / Restarting...", type="positive")
-                                await asyncio.sleep(1.0)
-                                upd.apply_patch_and_restart(zip_p)
-                                import os
-                                os._exit(0)
-
-                            with ui.row().classes("w-full justify-end gap-2 mt-4"):
-                                ui.button("إلغاء / Cancel", on_click=dlg.close).classes("app-btn-secondary px-4 py-1.5 text-xs rounded-xl")
-                                ui.button("تحديث الآن / Update Now", icon="system_update", on_click=_start_ota).classes("app-btn-primary px-4 py-1.5 text-xs rounded-xl")
-                        dlg.open()
+                        from nicegui_ui.update_prompt import show_update_dialog
+                        show_update_dialog(res)
                     except Exception as e:
                         n.dismiss()
                         ui.notify(f"خطأ أثناء التحقق: {e}", type="negative")
 
-                ui.button("التحقق من التحديثات / Check for Updates", icon="system_update_alt", on_click=_check_updates_dialog).classes("app-btn-secondary px-4 py-2 text-xs rounded-xl mt-3")
+                ui.button("التحقق من التحديثات", icon="system_update_alt", on_click=_check_updates_dialog).classes("app-btn-secondary px-4 py-2 text-xs rounded-xl mt-3")
+
+    def _section_personnel(self) -> None:
+        from nicegui_screens.personnel_screen import PersonnelScreen
+        PersonnelScreen()
+
+    def open_tab(self, name: str) -> None:
+        """Switch to a Settings tab by name (used by the roles page's personnel button)."""
+        tab = getattr(self, f"tab_{name}", None)
+        if tab is not None:
+            self.tabs.set_value(name)
 
     def _get_event_value(self, e, element, default_val):
         if e is not None:

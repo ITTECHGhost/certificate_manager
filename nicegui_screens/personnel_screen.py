@@ -11,7 +11,7 @@ log = logging.getLogger(__name__)
 ORDER_OPTIONS = {
     "1": 1, "2": 2, "3": 3, "4": 4, "5": 5,
     "6": 6, "7": 7, "8": 8, "9": 9, "10": 10,
-    "بدون / None": 0,
+    "بدون": 0,
 }
 
 class PersonnelScreen:
@@ -27,60 +27,27 @@ class PersonnelScreen:
         self.current_offset = 0
         self.search_term = ""
 
-        self.container = ui.column().classes("w-full h-full p-6 gap-6")
+        self.container = ui.column().classes("w-full gap-4")
         self.show_list_view()
 
     def show_list_view(self):
+        """Personnel list: search and add in one row, read-only rows (click to edit), one paginator."""
         self.container.clear()
         with self.container:
-            with UI.card().classes("flex-1 gap-6 p-6 overflow-hidden flex-col w-full h-full"):
-                # Header Bar
-                with ui.row().classes("w-full justify-between items-center pb-4 border-b border-[var(--border-default)] app-card-header shrink-0"):
-                    with ui.row().classes("items-center gap-3"):
-                        ui.icon("manage_accounts", size="md").classes("app-text-accent")
-                        with ui.column().classes("gap-0"):
-                            ui.label("إدارة الكوادر والمستخدمين — Personnel").classes("text-xl font-bold app-text-primary")
-                            ui.label("إدارة مستخدمي النظام والموقعين على الوثائق").classes("text-xs app-text-muted")
+            with UI.card().classes("flex-1"):
+                with ui.row().classes("w-full items-center gap-2"):
+                    def on_search_change(e):
+                        val = extract_event_value(e, default="")
+                        self.search_term = str(val or "").strip().lower()
+                        self.current_offset = 0
+                        self._render_content()
 
-                    UI.success_button(
-                        "+ إضافة كادر / Add Personnel",
-                        icon="person_add",
-                        on_click=lambda: self.show_edit_view(mode="add")
-                    ).classes("text-sm px-5 py-2.5 shrink-0")
-
-                # Controls Row
-                with ui.row().classes("w-full items-center justify-between gap-4 flex-wrap shrink-0"):
-                    with ui.row().classes("items-center gap-3 flex-1 min-w-[300px]"):
-                        def on_search_change(e):
-                            val = extract_event_value(e, default="")
-                            self.search_term = str(val or "").strip().lower()
-                            self.current_offset = 0
-                            self._render_content()
-
-                        UI.text_input(
-                            label="",
-                            placeholder="بحث بالاسم أو اسم المستخدم... / Search by name or username...",
-                            on_change=on_search_change
-                        ).classes("flex-1 text-sm")
-
-                    with ui.row().classes("items-center gap-2 shrink-0"):
-                        ui.label("عرض / Show:").classes("text-xs font-bold app-text-muted")
-
-                        def on_limit_change(e):
-                            val = extract_event_value(e, default=25)
-                            try:
-                                self.current_limit = int(val or 25)
-                            except Exception:
-                                self.current_limit = 25
-                            self.current_offset = 0
-                            self._render_content()
-
-                        UI.select(
-                            label="",
-                            options={25: "25", 50: "50", 75: "75", 100: "100"},
-                            value=self.current_limit,
-                            on_change=on_limit_change
-                        ).classes("w-24 text-sm")
+                    UI.search_input(
+                        placeholder="ابحث بالاسم أو اسم المستخدم",
+                        on_change=on_search_change,
+                    ).classes("flex-1 min-w-[220px] max-w-md")
+                    ui.space()
+                    UI.primary_button("إضافة كادر", icon="person_add", on_click=lambda: self.show_edit_view(mode="add"))
 
                 @ui.refreshable
                 def content_view():
@@ -117,106 +84,97 @@ class PersonnelScreen:
     def _build_table(self):
         all_rows = self._get_filtered_data()
         total_count = len(all_rows)
-        
-        start_idx = self.current_offset
-        end_idx = start_idx + self.current_limit
-        page_rows = all_rows[start_idx:end_idx]
-
-        with ui.column().classes("w-full flex-1 gap-3"):
-            if not page_rows:
-                with ui.column().classes("w-full items-center py-12 text-center bg-[var(--bg-card)] rounded-xl border border-[var(--border-default)]"):
-                    ui.icon("group_off", size="lg").classes("app-text-muted mb-2")
-                    ui.label("لا توجد كوادر مطابقة").classes("text-lg font-bold app-text-muted")
-                    ui.label("No matching personnel found.").classes("text-xs app-text-muted")
+        if not all_rows:
+            if self.search_term:
+                UI.empty_state("لا يوجد كادر مطابق", "تحقق من الاسم أو امسح البحث.", icon="search_off")
             else:
-                for row in page_rows:
-                    self._render_card(row)
+                UI.empty_state("لا توجد كوادر بعد", "أضف أول كادر أو مستخدم.", icon="group_off",
+                               action_text="إضافة كادر", on_action=lambda: self.show_edit_view(mode="add"))
+            return
 
-        disp_start = start_idx + 1 if total_count > 0 else 0
-        disp_end = min(end_idx, total_count)
+        self.current_offset = min(self.current_offset, (total_count - 1) // self.current_limit * self.current_limit)
+        page_rows = all_rows[self.current_offset:self.current_offset + self.current_limit]
 
-        with ui.row().classes("w-full items-center justify-between pt-4 border-t border-[var(--border-default)] shrink-0"):
-            prev_btn = UI.secondary_button("◄ السابق / Previous", on_click=self.go_prev).classes("text-xs px-4 py-2")
-            if self.current_offset == 0 or self.search_term:
-                prev_btn.disable()
+        rows = []
+        for r in page_rows:
+            title_ar = r.get("academic_title_ar") or ""
+            name_ar = r.get("name_ar") or "—"
+            assigned_r_id = self.role_repo.get_user_role_id(r["id"], user_dict=r)
+            r_def = self.role_repo.get_by_id(assigned_r_id)
+            display_order = r.get("display_order", 0) or 0
+            signs = bool(r.get("is_signature", 0)) and display_order > 0
+            role_name = str((r_def.get("name_ar") if r_def else assigned_r_id) or "")
+            # Second line under the name: the role (permission set) and the username
+            sub = " • ".join(x for x in (role_name, r.get("username") or "") if x)
+            rows.append({
+                "id": r["id"],
+                "name": f"{title_ar} {name_ar}".strip(),
+                "sub": sub,
+                "position": r.get("responsibility_ar") or "—",
+                # The signature chip appears only for people who actually sign documents
+                "signature": f"يوقّع ({display_order})" if signs else "",
+                "active": bool(r.get("is_active", 1)),
+                "raw": r,
+            })
 
-            ui.label(f"السجلات {disp_start} - {disp_end} من {total_count}  |  Records {disp_start} - {disp_end} of {total_count}").classes("text-xs font-bold app-text-primary")
+        table = UI.data_table([
+            {"name": "name", "label": "الاسم", "field": "name", "align": "right"},
+            {"name": "position", "label": "المنصب", "field": "position"},
+            {"name": "signature", "label": "التوقيع", "field": "signature"},
+            {"name": "active", "label": "الحالة", "field": "active"},
+            {"name": "actions", "label": "", "field": "actions"},
+        ], rows, clickable=True)
+        table.add_slot("body-cell-name", """
+            <q-td :props="props">
+                <div class="flex flex-col text-start leading-tight">
+                    <span class="font-semibold app-text-primary">{{ props.row.name }}</span>
+                    <span class="app-caption">{{ props.row.sub }}</span>
+                </div>
+            </q-td>
+        """)
+        table.add_slot("body-cell-signature", """
+            <q-td :props="props">
+                <span v-if="props.value" class="app-chip app-chip--accent">{{ props.value }}</span>
+            </q-td>
+        """)
+        table.add_slot("body-cell-active", """
+            <q-td :props="props">
+                <span v-if="props.value" class="app-chip">نشط</span>
+                <span v-else class="app-chip app-chip--warning">معطّل</span>
+            </q-td>
+        """)
+        table.add_slot("body-cell-actions", """
+            <q-td :props="props" auto-width>
+                <q-btn flat round dense :icon="props.row.active ? 'person_off' : 'person'" class="app-btn-icon"
+                       :aria-label="props.row.active ? 'تعطيل' : 'تفعيل'"
+                       @click.stop="$parent.$emit('toggle_active', props.row)">
+                    <q-tooltip>{{ props.row.active ? 'تعطيل' : 'تفعيل' }}</q-tooltip>
+                </q-btn>
+                <q-btn flat round dense icon="delete" class="app-btn-danger-icon" aria-label="حذف الكادر"
+                       @click.stop="$parent.$emit('delete_person', props.row)">
+                    <q-tooltip>حذف الكادر</q-tooltip>
+                </q-btn>
+            </q-td>
+        """)
+        table.on("rowClick", lambda e: self.show_edit_view(row=e.args[1].get("raw"), mode="edit"))
+        table.on("toggle_active", lambda e: self._toggle_active(e.args))
+        table.on("delete_person", lambda e: self.confirm_delete(e.args.get("raw") or e.args))
 
-            next_btn = UI.secondary_button("التالي / Next ►", on_click=self.go_next).classes("text-xs px-4 py-2")
-            if end_idx >= total_count or self.search_term:
-                next_btn.disable()
+        UI.paginator(total_count, self.current_offset // self.current_limit + 1, self.current_limit, self._go_to_page)
 
-    def _render_card(self, row: dict):
-        pid = row["id"]
-        is_active = row.get("is_active", 1)
-        is_signature = bool(row.get("is_signature", 0))
-        role = str(row.get("personnel_role") or "user")
-        display_order = row.get("display_order", 0)
-        
-        title_ar = row.get("academic_title_ar") or ""
-        name_ar = row.get("name_ar") or "—"
-        full_display_name = f"{title_ar} {name_ar}".strip() if title_ar else name_ar
-        resp_ar = row.get("responsibility_ar") or "—"
+    def _toggle_active(self, row: dict):
+        name = row.get("name") or ""
+        try:
+            self.repo.toggle_active(row["id"], 0 if row.get("active") else 1)
+            UI.notify(f"تم {'تعطيل' if row.get('active') else 'تفعيل'} ({name})", type="positive")
+            self._render_content()
+        except OfflineModeError as err:
+            UI.notify(err, type="warning")
+        except Exception as err:
+            UI.notify(err, type="negative")
 
-        with ui.row().classes(f"w-full items-center justify-between p-4 rounded-xl {'bg-[var(--bg-card)]' if is_active else 'bg-red-500/5'} border border-[var(--border-default)] gap-4 flex-nowrap overflow-hidden hover:border-[var(--color-accent)] transition-all shadow-sm"):
-            with ui.row().classes("items-center gap-4 flex-1 min-w-0"):
-                ui.icon("account_circle", size="md").classes("app-text-accent shrink-0")
-                with ui.column().classes("gap-0 min-w-0 flex-1"):
-                    ui.label(full_display_name).classes("font-bold text-base app-text-primary truncate")
-                    ui.label(f"@{row.get('username') or 'N/A'}  •  {resp_ar}").classes("text-xs text-slate-400 font-mono truncate")
-
-            with ui.row().classes("items-center gap-3 shrink-0 flex-nowrap"):
-                with ui.column().classes("items-center gap-0 shrink-0 text-center"):
-                    ui.label("الصلاحية / Role").classes("text-[10px] app-text-muted font-semibold")
-                    assigned_r_id = self.role_repo.get_user_role_id(pid, user_dict=row)
-                    r_def = self.role_repo.get_by_id(assigned_r_id)
-                    matched_r = r_def.get("name_ar") if r_def else assigned_r_id
-                    ui.label(matched_r).classes("text-xs font-bold px-2.5 py-1 rounded-lg bg-[var(--bg-card)] border border-[var(--border-default)] app-text-primary")
-
-                with ui.column().classes("items-center gap-0 shrink-0 text-center"):
-                    ui.label("ترتيب التوقيع / Order").classes("text-[10px] app-text-muted font-semibold")
-                    if is_signature and display_order and display_order > 0:
-                        order_str = f"🖋️ {display_order}"
-                        order_cls = "app-text-accent border-[var(--color-accent)]"
-                    else:
-                        order_str = "بدون توقيع"
-                        order_cls = "app-text-muted border-[var(--border-default)]"
-                    ui.label(order_str).classes(f"text-xs font-bold px-2.5 py-1 rounded-lg bg-[var(--bg-card)] border {order_cls}")
-
-            with ui.row().classes("items-center gap-2 shrink-0 flex-nowrap"):
-                def toggle_act(r_id=pid, curr=is_active):
-                    try:
-                        self.repo.toggle_active(r_id, 0 if curr else 1)
-                        UI.notify("تم تغيير حالة الكادر / State updated", type="positive")
-                        self._render_content()
-                    except OfflineModeError as err:
-                        UI.notify(err, type="warning")
-                    except Exception as err:
-                        UI.notify(err, type="negative")
-
-                if is_active:
-                    UI.danger_button("تعطيل / Disable", on_click=toggle_act).classes("text-xs px-2 py-1.5")
-                else:
-                    UI.success_button("تفعيل / Enable", on_click=toggle_act).classes("text-xs px-2 py-1.5")
-
-                UI.primary_button(
-                    "",
-                    icon="edit",
-                    on_click=lambda r=row: self.show_edit_view(row=r, mode="edit")
-                ).props("round dense").classes("text-xs p-1.5").tooltip("تعديل / Edit")
-
-                UI.danger_button(
-                    "",
-                    icon="delete",
-                    on_click=lambda r=row: self.confirm_delete(r)
-                ).props("round dense").classes("text-xs p-1.5").tooltip("حذف / Delete")
-
-    def go_prev(self):
-        self.current_offset = max(0, self.current_offset - self.current_limit)
-        self._render_content()
-
-    def go_next(self):
-        self.current_offset += self.current_limit
+    def _go_to_page(self, page: int):
+        self.current_offset = max(0, (int(page) - 1) * self.current_limit)
         self._render_content()
 
     def show_edit_view(self, row: dict | None = None, mode: str = "add"):
@@ -225,27 +183,26 @@ class PersonnelScreen:
         pid = existing_data.get("id")
 
         with self.container:
-            with UI.card().classes("flex-1 gap-6 p-6 overflow-hidden flex-col max-w-4xl mx-auto w-full"):
-                with ui.row().classes("w-full justify-between items-center pb-4 border-b border-[var(--border-default)] shrink-0"):
-                    with ui.row().classes("items-center gap-3"):
-                        ui.button(icon="arrow_back", on_click=self.show_list_view).props("flat round dense").classes("app-text-primary")
-                        title_text = "إضافة كادر جديد — Add Personnel" if mode == "add" else f"تعديل الكادر — Edit {existing_data.get('name_ar', '')}"
-                        ui.label(title_text).classes("text-xl font-bold app-text-primary")
+            with UI.card().classes("gap-6 max-w-4xl mx-auto w-full"):
+                with ui.row().classes("w-full items-center gap-2 no-wrap"):
+                    UI.back_button(self.show_list_view)
+                    title_text = "إضافة كادر جديد" if mode == "add" else f"تعديل الكادر {existing_data.get('name_ar', '')}"
+                    ui.label(title_text).classes("app-page-title")
 
-                with ui.column().classes("w-full gap-6 overflow-y-auto pr-1"):
+                with ui.column().classes("w-full gap-6"):
                     
                     # 1. Account Details
                     with UI.card().classes("w-full p-5 gap-4 rounded-xl border border-[var(--border-default)] bg-[var(--bg-card)] shrink-0"):
-                        ui.label("حساب الدخول — Account Details").classes("text-base font-bold app-text-accent")
+                        ui.label("حساب الدخول").classes("app-section-title")
 
                         with ui.row().classes("w-full gap-4 items-center"):
                             user_inp = UI.text_input(
-                                "اسم المستخدم / Username",
+                                "اسم المستخدم",
                                 value=existing_data.get("username", "") if existing_data else ""
                             ).classes("flex-1 text-sm")
 
                             pass_inp = UI.text_input(
-                                "كلمة المرور / Password",
+                                "كلمة المرور",
                                 value=""
                             ).classes("flex-1 text-sm").props("type=password")
 
@@ -261,7 +218,7 @@ class PersonnelScreen:
                                 init_role = self.role_repo.get_user_role_id(pid) if pid else "user"
 
                             role_inp = UI.select(
-                                "الدور والمسؤولية / Role & Responsibility",
+                                "الدور والمسؤولية",
                                 options=role_options,
                                 value=init_role
                             ).classes("w-72 text-sm")
@@ -283,26 +240,26 @@ class PersonnelScreen:
 
                     # 2. Personal Info
                     with UI.card().classes("w-full p-5 gap-4 rounded-xl border border-[var(--border-default)] bg-[var(--bg-card)] shrink-0"):
-                        ui.label("المعلومات الشخصية — Personal Information").classes("text-base font-bold app-text-accent")
+                        ui.label("المعلومات الشخصية").classes("app-section-title")
 
                         with ui.row().classes("w-full gap-4"):
-                            name_ar_inp = UI.text_input("الاسم بالعربية / Arabic Name", value=existing_data.get("name_ar", "")).classes("flex-1 text-sm")
-                            name_en_inp = UI.text_input("الاسم بالإنكليزية / English Name", value=existing_data.get("name_en", "")).classes("flex-1 text-sm")
+                            name_ar_inp = UI.text_input("الاسم بالعربية", value=existing_data.get("name_ar", "")).classes("flex-1 text-sm")
+                            name_en_inp = UI.text_input("الاسم بالإنكليزية", value=existing_data.get("name_en", "")).classes("flex-1 text-sm")
 
                         with ui.row().classes("w-full gap-4"):
-                            title_ar_inp = UI.text_input("اللقب بالعربية / Arabic Title", value=existing_data.get("academic_title_ar", "")).classes("flex-1 text-sm")
-                            title_en_inp = UI.text_input("اللقب بالإنكليزية / English Title", value=existing_data.get("academic_title_en", "")).classes("flex-1 text-sm")
+                            title_ar_inp = UI.text_input("اللقب بالعربية", value=existing_data.get("academic_title_ar", "")).classes("flex-1 text-sm")
+                            title_en_inp = UI.text_input("اللقب بالإنكليزية", value=existing_data.get("academic_title_en", "")).classes("flex-1 text-sm")
 
                         with ui.row().classes("w-full gap-4"):
-                            resp_ar_inp = UI.text_input("المنصب بالعربية / Arabic Resp", value=existing_data.get("responsibility_ar", "")).classes("flex-1 text-sm")
-                            resp_en_inp = UI.text_input("المنصب بالإنكليزية / English Resp", value=existing_data.get("responsibility_en", "")).classes("flex-1 text-sm")
+                            resp_ar_inp = UI.text_input("المنصب بالعربية", value=existing_data.get("responsibility_ar", "")).classes("flex-1 text-sm")
+                            resp_en_inp = UI.text_input("المنصب بالإنكليزية", value=existing_data.get("responsibility_en", "")).classes("flex-1 text-sm")
 
                         # Initialize role preview with initial role
                         _update_role_preview(init_role)
 
                     # 3. Certificate Settings & Mapping
                     with UI.card().classes("w-full p-5 gap-4 rounded-xl border border-[var(--border-default)] bg-[var(--bg-card)] shrink-0"):
-                        ui.label("إعدادات الوثيقة والتوقيع — Document Position & Signature").classes("text-base font-bold app-text-accent")
+                        ui.label("إعدادات الوثيقة والتوقيع").classes("app-section-title")
 
                         # is_signature is derived from display_order: >0 means signatory
                         existing_order = int(existing_data.get("display_order") or 0)
@@ -310,20 +267,20 @@ class PersonnelScreen:
 
                         # Modern Toggle Switch placed ABOVE the dropdown list
                         is_sig_switch = UI.switch(
-                            "يظهر كتوقيع في الوثيقة / Is Signature",
+                            "يظهر كتوقيع في الوثيقة",
                             value=init_is_sig
                         ).classes("text-sm font-bold app-text-primary mb-2")
 
                         # Find matching label for the current display_order
                         order_key = next(
                             (k for k, v in ORDER_OPTIONS.items() if v == existing_order),
-                            "بدون / None"
+                            "بدون"
                         )
 
                         order_sel = UI.select(
-                            "الموقع والتسلسل / Position & Order",
+                            "الموقع والتسلسل",
                             options={k: k for k in ORDER_OPTIONS.keys()},
-                            value=order_key if init_is_sig else "بدون / None"
+                            value=order_key if init_is_sig else "بدون"
                         ).classes("w-64 text-sm")
 
                         # Dropdown only activates when toggle switch is ON
@@ -335,7 +292,7 @@ class PersonnelScreen:
                             if val:
                                 order_sel.enable()
                             else:
-                                order_sel.value = "بدون / None"
+                                order_sel.value = "بدون"
                                 order_sel.disable()
 
                         is_sig_switch.on_value_change(on_sig_switch_change)
@@ -344,12 +301,12 @@ class PersonnelScreen:
                         def save_action():
                             n_ar = (name_ar_inp.value or "").strip()
                             if not n_ar:
-                                ui.notify("الاسم بالعربية مطلوب / Arabic name is required", type="warning")
+                                ui.notify("الاسم بالعربية مطلوب", type="warning")
                                 return
 
                             pwd = pass_inp.value.strip() if pass_inp.value else None
                             if mode == "add" and not pwd:
-                                ui.notify("كلمة المرور مطلوبة / Password is required", type="warning")
+                                ui.notify("كلمة المرور مطلوبة", type="warning")
                                 return
 
                             # ORDER_OPTIONS maps label→int; 0 when toggle is OFF
@@ -394,14 +351,13 @@ class PersonnelScreen:
                                     new_id = self.repo.insert(data=payload)
                                     if new_id:
                                         self.role_repo.assign_role_to_personnel(int(new_id), chosen_role_id)
-                                    ui.notify("تمت إضافة الكادر وتعيين صلاحيات الدور بنجاح / Personnel added", type="positive")
+                                    ui.notify("تمت إضافة الكادر وتعيين صلاحيات الدور بنجاح", type="positive")
                                 elif not is_online() and pwd and pid is not None:
                                     # Offline: only the password can be reset (temporary, queued for the server)
                                     self.repo.set_password(int(pid), pwd, must_change=temp_pwd)
                                     ui.notify(
                                         "تم تعيين كلمة مرور مؤقتة على هذا الجهاز، وسترسل للسيرفر عند الاتصال. "
-                                        "باقي التعديلات تتطلب الاتصال. / Temporary password set on this PC (sent to the "
-                                        "server when online). Other changes need a connection.",
+                                        "باقي التعديلات تتطلب الاتصال.",
                                         type="info", timeout=10000
                                     )
                                 else:
@@ -411,7 +367,7 @@ class PersonnelScreen:
                                         if pwd:
                                             self.repo.set_password(int(pid), pwd, must_change=temp_pwd)
                                         app_session.refresh_access(int(pid))
-                                    ui.notify("تم تعديل الكادر وتحديث صلاحيات الدور بنجاح / Personnel updated", type="positive")
+                                    ui.notify("تم تعديل الكادر وتحديث صلاحيات الدور بنجاح", type="positive")
                                 self.show_list_view()
                             except OfflineModeError as err:
                                 ui.notify(str(err), type="warning")
@@ -419,31 +375,27 @@ class PersonnelScreen:
                                 log.error(f"Error saving personnel: {err}")
                                 ui.notify(f"خطأ أثناء الحفظ: {err}", type="negative")
 
-                        UI.secondary_button("إلغاء / Cancel", on_click=self.show_list_view).classes("text-sm px-5 py-2")
-                        UI.success_button("حفظ / Save", icon="save", on_click=save_action).classes("text-sm px-5 py-2")
+                        UI.ghost_button("إلغاء", on_click=self.show_list_view)
+                        UI.primary_button("حفظ", icon="save", on_click=save_action)
 
     def confirm_delete(self, row: dict):
         pid = row["id"]
-        dialog = ui.dialog()
-        with dialog, UI.card().classes("p-6 gap-6 w-full max-w-md bg-[var(--bg-card)] rounded-2xl border border-[var(--border-default)]"):
-            ui.label("تأكيد الحذف — Confirm Delete").classes("text-lg font-bold app-text-primary")
-            warning = "تحذير: الكادر لا يزال نشطاً.\n" if row.get("is_active") else ""
-            ui.label(
-                f"{warning}هل أنت متأكد من حذف هذا السجل نهائياً؟\n{row.get('name_ar', '')}"
-            ).classes("text-sm app-text-muted whitespace-pre-line")
+        name_ar = row.get("name_ar", "")
+        warning = " الكادر ما يزال نشطًا." if row.get("is_active") else ""
 
-            with ui.row().classes("w-full justify-end gap-3 pt-2"):
-                def do_delete():
-                    try:
-                        self.repo.delete(pid)
-                        ui.notify("تم حذف السجل / Personnel deleted", type="positive")
-                        dialog.close()
-                        self.show_list_view()
-                    except OfflineModeError as err:
-                        ui.notify(str(err), type="warning")
-                    except Exception as err:
-                        ui.notify(f"خطأ أثناء الحذف: {err}", type="negative")
+        def do_delete():
+            try:
+                self.repo.delete(pid)
+                UI.notify(f"تم حذف الكادر ({name_ar})", type="positive")
+                self._render_content()
+            except OfflineModeError as err:
+                UI.notify(str(err), type="warning")
+            except Exception as err:
+                UI.notify(f"تعذر حذف الكادر: {err}", type="negative")
 
-                UI.danger_button("حذف / Delete", icon="delete", on_click=do_delete).classes("text-sm px-4 py-2")
-                UI.secondary_button("إلغاء / Cancel", on_click=dialog.close).classes("text-sm px-4 py-2")
-        dialog.open()
+        UI.confirm_dialog(
+            "حذف الكادر",
+            f"سيُحذف الكادر ({name_ar}) نهائيًا.{warning} لا يمكن التراجع عن ذلك.",
+            "حذف الكادر",
+            do_delete,
+        )

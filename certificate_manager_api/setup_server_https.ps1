@@ -27,7 +27,9 @@ $ips = @(Get-NetIPAddress -AddressFamily IPv4 -ErrorAction SilentlyContinue |
 if ($ips.Count -gt 0) { Write-Host "IP addresses on this laptop: $($ips -join ', ')" }
 if (-not $Ip) {
     $default = if ($ips.Count -gt 0) { $ips[0] } else { "" }
-    $Ip = Read-Host "Type this server laptop's FIXED IP address (press Enter for $default)"
+    if ([Environment]::UserInteractive) {
+        $Ip = Read-Host "Type this server laptop's FIXED IP address (press Enter for $default)"
+    } else { $Ip = $default }   # update run by the scheduled task: nobody to ask
     if (-not $Ip) { $Ip = $default }
 }
 $parsed = $null

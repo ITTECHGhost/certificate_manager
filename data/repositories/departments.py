@@ -215,3 +215,22 @@ class StudySystemRepository(BaseRepository):
         except Exception as e:
             log_system(f"API request failed: {e}", "WARNING")
             raise
+
+
+def get_department_branch(dept_id: int) -> str:
+    """الفرع of a department ({{branch}} on certificates); empty when offline or not set."""
+    if not is_online():
+        return ""
+    try:
+        resp = api_client.get(f"{get_api_url()}/departments/{int(dept_id)}/branch", timeout=5.0)
+        return (resp.json().get("branch_ar") or "") if resp.status_code == 200 else ""
+    except Exception:
+        return ""
+
+
+def set_department_branch(dept_id: int, branch: str) -> bool:
+    if not is_online():
+        raise OfflineModeError()
+    resp = api_client.put(f"{get_api_url()}/departments/{int(dept_id)}/branch",
+                          json={"branch_ar": branch or ""}, timeout=5.0)
+    return resp.status_code == 200

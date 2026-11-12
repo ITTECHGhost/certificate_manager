@@ -16,12 +16,12 @@ class MaintenanceMixin:
     def _section_database_maintenance(self) -> None:
         """Section for Database Management, SQLite Replica Info, Offline Queue Sync, and Backups."""
         with UI.card():
-            UI.card_header("إدارة وقواعد البيانات والمزامنة — Database Management & Sync", "storage", icon_css="stat-text-amber")
+            UI.card_header("إدارة وقواعد البيانات والمزامنة", "storage", icon_css="stat-text-amber")
 
             # 1. Live Offline Queue & Database Replicas Overview
             with ui.row().classes("w-full items-center justify-between p-4 bg-[var(--bg-main)] rounded-xl border border-[var(--border-default)] mb-2"):
                 with ui.column().classes("gap-1"):
-                    ui.label("حالة قاعدة البيانات والمزامنة الأوفلاين / Database & Sync Status").classes("text-sm font-bold app-text-primary")
+                    ui.label("حالة قاعدة البيانات والمزامنة الأوفلاين").classes("text-sm font-bold app-text-primary")
 
                     # Live metrics from SQLite (refreshed after sync / retry / discard / clear cache)
                     self._sync_status_label = ui.label("").classes("text-xs app-text-muted font-mono")
@@ -33,51 +33,51 @@ class MaintenanceMixin:
             # 2. Database Action Tiles Grid
             with ui.grid(columns=2).classes("w-full gap-4 mt-2"):
                 UI.action_tile(
-                    "مزامنة البيانات المعلقة / Sync Offline Queue",
+                    "مزامنة البيانات المعلقة",
                     "رفع السجلات التي تمت إضافتها أوفلاين إلى قاعدة بيانات MySQL",
-                    "مزامنة السجلات / Sync Queue",
+                    "مزامنة السجلات",
                     "cloud_upload", btn_variant="success", on_click_fn=self._do_sync_offline_queue
                 )
                 UI.action_tile(
-                    "سجلات فشلت مزامنتها / Failed Sync Records",
+                    "سجلات فشلت مزامنتها",
                     "عرض السجلات التي رفضها السيرفر وإعادة المحاولة أو حذفها",
-                    "عرض السجلات / Review Failed",
+                    "عرض السجلات",
                     "sync_problem", btn_variant="danger", on_click_fn=self._show_failed_sync_rows
                 )
                 UI.action_tile(
-                    "تنزيل نسخ الجداول / Download Fresh Replicas",
+                    "تنزيل نسخ الجداول",
                     "سحب تحديثات الجداول الحالية من MySQL وحفظها في SQLite",
-                    "تحديث الجداول / Pull Replicas",
+                    "تحديث الجداول",
                     "cloud_download", btn_variant="primary", on_click_fn=self._do_pull_mysql_replicas
                 )
                 UI.action_tile(
-                    "مسح الذاكرة المؤقتة / Clear Read Cache",
+                    "مسح الذاكرة المؤقتة",
                     "تفريغ ذاكرة الاستعلامات المحفوظة محلياً",
-                    "تفريغ الذاكرة / Clear Cache",
+                    "تفريغ الذاكرة",
                     "cleaning_services", btn_variant="warning", on_click_fn=self._do_clear_read_cache
                 )
                 UI.action_tile(
-                    "فحص اتصال قاعدة البيانات / DB Diagnostics",
+                    "فحص اتصال قاعدة البيانات",
                     "اختبار سرعة وصحة الاتصال بقاعدة البيانات والسيرفر",
-                    "فحص الاتصال / Run Test",
+                    "فحص الاتصال",
                     "find_in_page", btn_variant="info", on_click_fn=self._do_check_db_diagnostics
                 )
                 UI.action_tile(
-                    "نسخ احتياطي لقاعدة البيانات / Backup Database",
+                    "نسخ احتياطي لقاعدة البيانات",
                     "إنشاء نسخة SQL احتياطية حفظاً للبيانات",
-                    "إنشاء نسخة / Create Backup",
+                    "إنشاء نسخة",
                     "backup", btn_variant="success", on_click_fn=self._do_backup
                 )
                 UI.action_tile(
-                    "استعادة نسخة احتياطية / Restore Database",
+                    "استعادة نسخة احتياطية",
                     "استرجاع البيانات من ملف .sql سابق",
-                    "استعادة النسخة / Restore Backup",
+                    "استعادة النسخة",
                     "restore", btn_variant="warning", on_click_fn=self._do_restore
                 )
                 UI.action_tile(
-                    "مسح سجل التغييرات / Clear Audit Logs",
+                    "مسح سجل التغييرات",
                     "تفريغ ملف سجل النشاطات الحالية",
-                    "مسح السجل / Clear Logs",
+                    "مسح السجل",
                     "delete_forever", btn_variant="danger", on_click_fn=self._do_clear_logs
                 )
 
@@ -86,41 +86,41 @@ class MaintenanceMixin:
         from nicegui import run
         from sync_engine import is_online
         if not is_online():
-            ui.notify("النسخ الاحتياطي يتطلب الاتصال بالسيرفر / Backup requires a server connection.", type="warning")
+            ui.notify("النسخ الاحتياطي يتطلب الاتصال بالسيرفر", type="warning")
             return
-        ui.notify("جاري إنشاء النسخة الاحتياطية... / Creating backup...", type="info")
+        ui.notify("جاري إنشاء النسخة الاحتياطية...", type="info")
         try:
             resp = await run.io_bound(
-                api_client.get, f"{get_api_url()}/admin/backup",
+                api_client.get, f"{get_api_url()}",
                 params={"personnel_id": self.emp_id}, timeout=300.0
             )
             if resp.status_code != 200:
                 raise RuntimeError(f"HTTP {resp.status_code}: {resp.text[:300]}")
             filename = f"certificate_manager_backup_{datetime.now():%Y%m%d_%H%M%S}.sql"
-            deliver_file(resp.content, filename, title="تم إنشاء النسخة الاحتياطية بنجاح / Backup created", auto_open=False)
+            deliver_file(resp.content, filename, title="تم إنشاء النسخة الاحتياطية بنجاح", auto_open=False)
         except Exception as exc:
-            ui.notify(f"Backup failed: {exc}", type="negative")
+            ui.notify(f"فشل النسخ الاحتياطي: {exc}", type="negative")
 
     def _do_restore(self) -> None:
         """Pick a .sql backup, confirm, then upload it to the server, which restores it (admin only)."""
         from sync_engine import is_online
         if not is_online():
-            ui.notify("الاستعادة تتطلب الاتصال بالسيرفر / Restore requires a server connection.", type="warning")
+            ui.notify("الاستعادة تتطلب الاتصال بالسيرفر", type="warning")
             return
 
         picked: dict = {}
         with ui.dialog() as dialog, UI.card():
-            UI.card_header("استعادة نسخة احتياطية / Restore Database", "restore", icon_css="stat-text-amber")
+            UI.card_header("استعادة نسخة احتياطية", "restore", icon_css="stat-text-amber")
             ui.label(
                 "تحذير: الاستعادة تستبدل جميع البيانات الحالية في قاعدة البيانات. "
-                "Warning: restoring replaces ALL current data in the database."
+                "تحذير: الاستعادة تستبدل جميع البيانات الحالية في قاعدة البيانات."
             ).classes("text-sm font-bold text-red-500")
-            status_label = ui.label("لم يتم اختيار ملف بعد / No file selected").classes("text-xs app-text-muted")
+            status_label = ui.label("لم يتم اختيار ملف بعد").classes("text-xs app-text-muted")
 
             async def _on_pick(e):
                 name = e.file.name or ""
                 if not name.lower().endswith(".sql"):
-                    ui.notify("يجب اختيار ملف .sql / Please choose a .sql file.", type="warning")
+                    ui.notify("يجب اختيار ملف .sql", type="warning")
                     return
                 picked["name"] = name
                 picked["content"] = await e.file.read()
@@ -132,26 +132,26 @@ class MaintenanceMixin:
             async def _confirm_restore():
                 from nicegui import run
                 if not picked.get("content"):
-                    ui.notify("يرجى اختيار ملف أولاً / Please choose a file first.", type="warning")
+                    ui.notify("يرجى اختيار ملف أولاً", type="warning")
                     return
                 dialog.close()
-                ui.notify("جاري الاستعادة... / Restoring...", type="info")
+                ui.notify("جاري الاستعادة...", type="info")
                 try:
                     resp = await run.io_bound(
-                        api_client.post, f"{get_api_url()}/admin/restore",
+                        api_client.post, f"{get_api_url()}",
                         params={"personnel_id": self.emp_id},
                         files={"file": (picked["name"], picked["content"], "application/sql")},
                         timeout=600.0,
                     )
                     if resp.status_code != 200:
                         raise RuntimeError(f"HTTP {resp.status_code}: {resp.text[:300]}")
-                    ui.notify("تمت استعادة قاعدة البيانات / Database restored!", type="positive")
+                    ui.notify("تمت استعادة قاعدة البيانات", type="positive")
                 except Exception as exc:
-                    ui.notify(f"Restore failed: {exc}", type="negative")
+                    ui.notify(f"فشلت الاستعادة: {exc}", type="negative")
 
             with ui.row().classes("w-full justify-end gap-2 pt-2"):
-                ui.button("إلغاء / Cancel", on_click=dialog.close).props("flat")
-                ui.button("استعادة / Restore", icon="restore", on_click=_confirm_restore).props("color=negative")
+                ui.button("إلغاء", on_click=dialog.close).props("flat")
+                ui.button("استعادة", icon="restore", on_click=_confirm_restore).props("color=negative")
         dialog.open()
 
     def _do_pull_mysql_replicas(self) -> None:
@@ -162,7 +162,7 @@ class MaintenanceMixin:
             return
         try:
             pull_mysql_to_sqlite(force_full=True)
-            ui.notify("تم تحديث وتنزيل نسخ الجداول الحديثة بنجاح! / Fresh table replicas downloaded!", type="positive")
+            ui.notify("تم تحديث وتنزيل نسخ الجداول الحديثة بنجاح!", type="positive")
         except Exception as exc:
             ui.notify(f"خطأ أثناء تنزيل الجداول: {exc}", type="negative")
 
@@ -177,7 +177,7 @@ class MaintenanceMixin:
             cursor.close()
             conn.close()
             self._refresh_sync_status()
-            ui.notify("تم تفريغ الذاكرة المؤقتة بنجاح! / Read cache cleared!", type="positive")
+            ui.notify("تم تفريغ الذاكرة المؤقتة بنجاح!", type="positive")
         except Exception as exc:
             ui.notify(f"خطأ أثناء مسح الذاكرة: {exc}", type="negative")
 

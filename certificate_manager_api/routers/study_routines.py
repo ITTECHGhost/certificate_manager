@@ -42,7 +42,10 @@ class RoutinePeriodCoursePayload(BaseModel):
 @router.get("/study-routines")
 def get_all_study_routines(conn=Depends(get_db)):
     try:
-        return execute_sp_fetchall(conn, "GetAllStudyRoutines")
+        rows = execute_sp_fetchall(conn, "GetAllStudyRoutines")
+        # Newest first, as the local copy (the SP orders by department and name)
+        rows.sort(key=lambda r: int(r.get("id") or 0), reverse=True)
+        return rows
     except Exception as exc:
         raise HTTPException(status_code=500, detail=str(exc))
 

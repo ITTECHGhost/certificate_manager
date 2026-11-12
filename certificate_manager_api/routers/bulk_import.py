@@ -5,7 +5,7 @@
 import logging
 from typing import List, Optional
 from fastapi import APIRouter, Depends, HTTPException, status
-from pydantic import BaseModel
+from pydantic import BaseModel, field_validator
 
 logger = logging.getLogger("api.bulk_import")
 
@@ -41,6 +41,13 @@ class BulkImportScoreItem(BaseModel):
 
 
 class BulkImportStudentItem(BaseModel):
+    @field_validator("average", check_fields=False)
+    @classmethod
+    def _average_out_of_100(cls, v):
+        if v is not None and not (0 <= v <= 100):
+            raise ValueError("المعدل يجب أن يكون بين 0 و 100")
+        return v
+
     full_name_ar: str
     full_name_en: Optional[str] = ""
     gender: Optional[int] = 1
@@ -58,6 +65,9 @@ class BulkImportStudentItem(BaseModel):
     semester_num: Optional[int] = 1
     result_status: Optional[str] = "PASSED"
     scores: Optional[List[BulkImportScoreItem]] = []
+    expected_graduation_year: Optional[int] = None
+    expected_graduation_semester: Optional[str] = ""
+    order_number: Optional[str] = ""   # empty = not graduated yet
 
 
 class BulkImportRequest(BaseModel):
@@ -93,6 +103,8 @@ def bulk_import_students(payload: BulkImportRequest, conn=Depends(get_db_depende
     created_periods = 0
     reused_periods = 0
     saved_enrollments = 0
+    linked_to_orders = 0
+    order_warnings: List[str] = []
 
     try:
         conn.start_transaction()
@@ -165,6 +177,34 @@ def bulk_import_students(payload: BulkImportRequest, conn=Depends(get_db_depende
                 ))
                 student_id = cur.lastrowid
                 created_students += 1
+
+            # 1b. Expected graduation, and the graduation order when the file names one
+            if item.expected_graduation_year or item.expected_graduation_semester:
+                cur.execute(
+                    "UPDATE students SET expected_graduation_year = COALESCE(%s, expected_graduation_year), "
+                    "expected_graduation_semester = COALESCE(NULLIF(%s, ''), expected_graduation_semester) WHERE id = %s",
+                    (item.expected_graduation_year, item.expected_graduation_semester or "", student_id))
+            order_no = str(item.order_number or "").strip()
+            if order_no:
+                cur.execute(
+                    "SELECT id, order_date, graduation_semester, graduation_year FROM graduation_orders "
+                    "WHERE order_number = %s AND department_id = %s "
+                    "ORDER BY (study_system_id = %s) DESC, id DESC LIMIT 1",
+                    (order_no, item.department_id, item.study_system_id or 1))
+                order = cur.fetchone()
+                if not order:
+                    order_warnings.append(f"{item.full_name_ar}: أمر التخرج {order_no} غير موجود لهذا القسم")
+                else:
+                    cur.execute(
+                        "UPDATE students SET order_id = %s, graduation_date = %s, graduation_semester = %s, "
+                        "expected_graduation_year = COALESCE(expected_graduation_year, %s) "
+                        "WHERE id = %s AND (order_id IS NULL OR order_id = 0 OR order_id = %s)",
+                        (order["id"], order["order_date"], order["graduation_semester"],
+                         order["graduation_year"], student_id, order["id"]))
+                    if cur.rowcount:
+                        linked_to_orders += 1
+                    else:
+                        order_warnings.append(f"{item.full_name_ar}: مرتبط بأمر تخرج آخر، لم يُغيَّر")
 
             # 2. Check or create academic periods & enrollments
             sem_num = item.semester_num if item.semester_num is not None else 1
@@ -264,7 +304,9 @@ def bulk_import_students(payload: BulkImportRequest, conn=Depends(get_db_depende
             "created_periods": created_periods,
             "reused_periods": reused_periods,
             "saved_enrollments": saved_enrollments,
-            "total_processed": len(payload.students)
+            "total_processed": len(payload.students),
+            "linked_to_orders": linked_to_orders,
+            "order_warnings": order_warnings[:50],
         }
 
     except Exception as exc:

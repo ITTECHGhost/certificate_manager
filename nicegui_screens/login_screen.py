@@ -27,351 +27,83 @@ class LoginScreen:
         self.username_input = None
         self.password_input = None
         self.error_label = None
-        # Server check: None = not checked yet; has_offline_accounts = this laptop can log in offline
-        self.server_online: bool | None = None
-        self.has_offline_accounts = False
-        self._checking = False
+        self.error_box = None
         self.build_ui()
 
     def build_ui(self) -> None:
-        """Renders the two-column split login layout using UI component factory."""
-        from nicegui_ui.ui_theme import is_windows_dark_mode, set_dark_mode, inject_global_styles, set_accent
+        """Centred sign-in card on a plain background; theme toggle in the corner."""
+        from nicegui_ui.ui_theme import set_dark_mode, inject_global_styles
         from nicegui_ui.state import app_session
         self.dark_mode = ui.dark_mode()
         app_session.load()
         app_session.apply_theme_mode()
 
-        # 1. Reset container padding & inject global styles
         ui.query(".nicegui-content").classes("p-0 m-0")
         ui.query("body").classes("m-0 p-0 overflow-hidden")
 
         inject_global_styles()
-        
+
         # Explicitly allow unsafe-eval for Vue's runtime compiler in PyWebView
         ui.add_head_html('<meta http-equiv="Content-Security-Policy" content="default-src * \'unsafe-inline\' \'unsafe-eval\' data: blob:; script-src * \'unsafe-inline\' \'unsafe-eval\'; style-src * \'unsafe-inline\';">')
 
-        # 2. Main 2-Column Split Container (Login Card on Right, Logo on Left in RTL)
-        with ui.row().classes("w-full h-screen flex-nowrap m-0 p-0 gap-0"):
+        with ui.column().classes("app-login-right w-full h-screen items-center justify-center p-4 gap-5 relative overflow-auto no-wrap"):
+            # Theme toggle in the corner (inline-end = left in RTL)
+            with ui.element("div").classes("absolute top-4 left-4"):
+                def _toggle():
+                    set_dark_mode(not bool(self.dark_mode.value), self.dark_mode)
+                    theme_btn.props(f"icon={'light_mode' if self.dark_mode.value else 'dark_mode'}")
+                    theme_btn.tooltip("الوضع الفاتح" if self.dark_mode.value else "الوضع الداكن")
 
-            # --- RIGHT COLUMN (in RTL): Login Card Form Area ---
-            with ui.column().classes(
-                "app-login-right w-1/2 md:w-2/5 h-full items-center justify-center p-6 relative"
-            ):
-                # The Card Container loaded from global UI factory
-                with UI.login_card():
-                    # Top User Badge Icon (Offset)
-                    with ui.element("div").classes(
-                        "app-avatar-badge w-16 h-16 rounded-2xl border "
-                        "flex items-center justify-center shadow-md avatar-offset"
-                    ):
-                        with ui.element("div").classes(
-                            "app-avatar-inner w-12 h-12 rounded-xl flex items-center justify-center"
-                        ):
-                            ui.icon("person_outline", size="sm").classes("app-avatar-icon")
+                theme_btn = UI.icon_button(
+                    "light_mode" if self.dark_mode.value else "dark_mode",
+                    "تبديل الوضع الفاتح / الداكن",
+                    on_click=_toggle,
+                ).classes("app-theme-toggle")
 
-                    # Title & Subtitle
-                    with ui.column().classes("w-full items-center gap-1 text-center mt-2"):
-                        ui.label("تسجيل الدخول / SYSTEM LOGIN").classes(
-                            "app-login-title text-[1.2rem] font-bold tracking-wide"
-                        )
-                        ui.label("يرجى إدخال بيانات الاعتماد الخاصة بك للوصول").classes(
-                            "app-login-subtitle text-[11px] font-bold"
-                        )
-                        ui.label("Enter credentials to access the system").classes(
-                            "app-login-subtitle text-[11px] font-medium -mb-0.5"
-                        )
+            logo_src = self._find_logo()
+            if logo_src:
+                ui.image(logo_src).classes("app-login-logo w-[112px] h-[112px] object-contain")
 
-                    self._build_server_status()
-                    self._build_blocked_panel()
+            with UI.login_card():
+                with ui.column().classes("w-full items-center gap-1 text-center"):
+                    ui.label("تسجيل الدخول").classes("app-login-title")
+                    ui.label("أدخل اسم المستخدم وكلمة المرور").classes("app-login-subtitle")
 
-                    # Login form: hidden while the server is unreachable and no account is saved here
-                    self.form_box = ui.column().classes("w-full gap-3 p-0")
-                    self.form_box.set_visibility(False)
-                    with self.form_box:
-                        # Username Input Group
-                        with ui.column().classes("w-full gap-1 mt-1"):
-                            with ui.row().classes("w-full justify-between items-end px-1"):
-                                ui.label("اسم المستخدم").classes("app-text-secondary text-xs font-bold")
-                                ui.label("Username").classes("app-text-muted text-xs font-medium")
+                self.username_input = UI.input("اسم المستخدم").props('autofocus autocomplete="username"')
+                self.password_input = UI.input(
+                    "كلمة المرور", password=True, password_toggle_button=True
+                ).props('autocomplete="current-password"')
+                # Enter in either field submits
+                self.username_input.on("keydown.enter", self.handle_login)
+                self.password_input.on("keydown.enter", self.handle_login)
 
-                            self.username_input = ui.input(
-                                placeholder="أدخل اسم المستخدم / Enter Username"
-                            ).classes(
-                                "w-full app-input"
-                            ).props(
-                                'outlined dense input-class="font-semibold text-right"'
-                            )
-                            with self.username_input.add_slot('prepend'):
-                                ui.icon('person_outline', size='sm').classes("app-text-faint ml-1")
-                            self.username_input.on('keydown.enter', self.handle_login)
+                # Error: what went wrong and what to do next
+                with ui.row().classes("w-full items-start gap-2 no-wrap app-chip--danger rounded-lg p-3") as self.error_box:
+                    ui.icon("error_outline", size="20px").classes("app-text-danger shrink-0")
+                    self.error_label = ui.label("").classes("app-text-danger text-sm")
+                self.error_box.set_visibility(False)
 
-                        # Password Input Group
-                        with ui.column().classes("w-full gap-1"):
-                            with ui.row().classes("w-full justify-between items-end px-1"):
-                                ui.label("كلمة المرور").classes("app-text-secondary text-xs font-bold")
-                                ui.label("Password").classes("app-text-muted text-xs font-medium")
+                UI.primary_button("تسجيل الدخول", on_click=self.handle_login).classes("w-full")
 
-                            self.password_input = ui.input(
-                                placeholder="أدخل كلمة المرور / Enter Password",
-                                password=True,
-                                password_toggle_button=True
-                            ).classes(
-                                "w-full app-input"
-                            ).props(
-                                'outlined dense input-class="font-semibold text-right"'
-                            )
-                            with self.password_input.add_slot('prepend'):
-                                ui.icon('key', size='sm').classes("app-text-faint ml-1")
-                            self.password_input.on('keydown.enter', self.handle_login)
-
-                        # Error Feedback Label
-                        self.error_label = ui.label("").classes(
-                            "app-text-error text-xs text-center w-full font-medium"
-                        )
-                        self.error_label.set_visibility(False)
-
-                        # Primary Sign-In Button
-                        with ui.button(color=None, on_click=self.handle_login).classes(
-                            "app-btn-primary w-full text-sm py-3 rounded-xl font-bold "
-                            "normal-case mt-2 cursor-pointer flex-row justify-between px-6"
-                        ):
-                            ui.label("تسجيل الدخول / SIGN IN")
-                            ui.icon("arrow_back", size="sm")
-
-                # Bottom Actions (Theme Toggle)
-                with ui.row().classes("w-[440px] max-w-full justify-end items-center mt-6 px-2"):
-                    with ui.row().classes(
-                        "app-theme-toggle gap-2 items-center px-3 py-1.5 rounded-full border shadow-sm"
-                    ):
-                        ui.icon("light_mode", size="xs").classes("app-text-faint")
-                        ui.switch(
-                            on_change=lambda e: set_dark_mode(e.value, self.dark_mode)
-                        ).props("dense size=sm").bind_value(self.dark_mode, 'value')
-                        ui.icon("dark_mode", size="xs").classes("app-text-faint")
-
-            # --- LEFT COLUMN (in RTL): University Logo Area ---
-            with ui.column().classes(
-                "app-login-bg w-1/2 md:w-3/5 h-full items-center justify-center p-8"
-            ):
-                logo_src = None
-                try:
-                    from data.repositories import SettingsRepository
-                    s_data = SettingsRepository().get_settings() or {}
-                    col_logo = s_data.get("college_logo_path")
-                    univ_logo = s_data.get("univ_logo_path")
-                    if col_logo and os.path.exists(col_logo):
-                        logo_src = col_logo
-                    elif univ_logo and os.path.exists(univ_logo):
-                        logo_src = univ_logo
-                except Exception:
-                    pass
-
-                if not logo_src:
-                    if os.path.exists("assets/college_logo.png"):
-                        logo_src = "assets/college_logo.png"
-                    elif os.path.exists("assets/csit.png"):
-                        logo_src = "assets/csit.png"
-
-                if logo_src:
-                    ui.image(logo_src).classes(
-                        "app-login-logo w-[340px] max-w-full h-auto object-contain"
-                    )
-                else:
-                    ui.label("UNIVERSITY LOGO").classes(
-                        "app-text-faint text-4xl font-extrabold tracking-wider text-center"
-                    )
-
-        # A laptop with saved accounts can log in offline: show the form right away.
-        # A fresh one waits for the server check instead of offering a login that cannot work.
-        from data.query import has_offline_login_accounts
-        self.has_offline_accounts = has_offline_login_accounts()
-        self.form_box.set_visibility(self.has_offline_accounts)
-        self.blocked_box.set_visibility(not self.has_offline_accounts)
-
-        # Check the server now, then every 10 seconds while the login screen is open
-        ui.timer(0.1, self._check_server, once=True)
-        ui.timer(self.SERVER_CHECK_INTERVAL, self._check_server)
-
-    # ------------------------------------------------------------------
-    # Server accessibility
-    # ------------------------------------------------------------------
-
-    SERVER_CHECK_INTERVAL = 10.0
-
-    def _build_server_status(self) -> None:
-        """One row: server state + address, with Check and Server settings buttons."""
-        with ui.row().classes("app-tile w-full items-center justify-between gap-2 px-3 py-2 rounded-xl border mt-2 flex-nowrap"):
-            with ui.row().classes("items-center gap-2 flex-nowrap min-w-0"):
-                self.status_icon = ui.icon("sync", size="xs").classes("app-text-muted")
-                with ui.column().classes("gap-0 min-w-0"):
-                    self.status_label = self._bi_label("app-text-muted text-xs font-bold")
-                    self._set_bi(self.status_label, "جارٍ فحص الاتصال بالسيرفر", "Checking server…")
-                    self.status_url_label = ui.label("").classes("app-text-faint text-[11px] truncate").style("direction: ltr")
-            with ui.row().classes("items-center gap-0 flex-nowrap"):
-                self.check_button = ui.button(icon="refresh", on_click=self._check_server).props(
-                    "flat round dense size=sm"
-                ).tooltip("فحص الاتصال / Check connection")
-                ui.button(icon="settings_ethernet", on_click=self._open_server_dialog).props(
-                    "flat round dense size=sm"
-                ).tooltip("إعدادات السيرفر / Server settings")
-
-    def _build_blocked_panel(self) -> None:
-        """Shown instead of the login form when the server is unreachable and this laptop
-        has no saved account to log in with offline (fresh install / empty cache)."""
-        self.blocked_box = ui.column().classes("w-full items-center gap-2 text-center mt-2")
-        with self.blocked_box:
-            self.blocked_icon = ui.icon("cloud_off", size="lg").classes("app-text-warning")
-            self.blocked_title = self._bi_label("app-text-primary text-sm font-bold items-center")
-            self.blocked_text = self._bi_label("app-text-muted text-xs items-center gap-1")
-            with ui.row().classes("w-full justify-center gap-2 mt-1"):
-                self.retry_button = UI.primary_button(
-                    "إعادة المحاولة / Retry", icon="refresh", on_click=self._check_server
-                )
-                UI.secondary_button(
-                    "إعدادات السيرفر / Server settings", icon="settings_ethernet", on_click=self._open_server_dialog
-                )
-        self._show_checking_panel()
-
-    @staticmethod
-    def _bi_label(classes: str) -> ui.column:
-        """Arabic line over English line, as two labels. A single "عربي / English" label is
-        rebuilt by the page's bilingual script, after which set_text no longer shows."""
-        box = ui.column().classes(f"gap-0 {classes}")
-        with box:
-            box.ar = ui.label("")
-            box.en = ui.label("").classes("text-[10px] font-medium opacity-80")
-        return box
-
-    @staticmethod
-    def _set_bi(box: ui.column, ar: str, en: str) -> None:
-        box.ar.set_text(ar)
-        box.en.set_text(en)
-
-    def _show_checking_panel(self) -> None:
-        self.blocked_icon.name = "sync"
-        self._set_bi(self.blocked_title, "جارٍ فحص الاتصال بالسيرفر", "Checking the server…")
-        self._set_bi(self.blocked_text, "", "")
-
-    async def _check_server(self) -> None:
-        """Ping the server (off the UI thread) and show the login form or the blocked panel."""
-        if self._checking:
-            return
-        self._checking = True
-        from nicegui import run
-        from api_config import get_api_url
-        from sync_engine import check_network_status, set_online
-        from data.query import has_offline_login_accounts
-        url = get_api_url()
+    def _find_logo(self) -> str | None:
+        """College logo from the settings, else the bundled one."""
         try:
-            self.check_button.props("loading")
-            if self.server_online is not True:
-                self.retry_button.props("loading")
-            online = bool(await run.io_bound(check_network_status, url))
-            has_accounts = bool(await run.io_bound(has_offline_login_accounts))
-        except Exception as exc:
-            log.warning(f"[LoginScreen] Server check failed: {exc}")
-            online, has_accounts = False, self.has_offline_accounts
-        finally:
-            self._checking = False
-            self.check_button.props(remove="loading")
-            self.retry_button.props(remove="loading")
+            s_data = SettingsRepository().get_settings() or {}
+            for key in ("college_logo_path", "univ_logo_path"):
+                path = s_data.get(key)
+                if path and os.path.exists(path):
+                    return path
+        except Exception:
+            pass
+        for path in ("assets/college_logo.png", "assets/csit.png"):
+            if os.path.exists(path):
+                return path
+        return None
 
-        was_online = self.server_online
-        set_online(online)
-        self.server_online = online
-        self.has_offline_accounts = has_accounts
-        self._apply_server_state(url)
-        if was_online is False and online:
-            ui.notify("تم الاتصال بالسيرفر / Server connected", type="positive")
-
-    def _apply_server_state(self, url: str) -> None:
-        online = bool(self.server_online)
-        self.status_url_label.set_text(url)
-        self.status_icon.name = "cloud_done" if online else "cloud_off"
-        self.status_icon.classes(replace="app-text-success" if online else "app-text-warning")
-        if online:
-            self._set_bi(self.status_label, "السيرفر متصل", "Server online")
-        elif self.has_offline_accounts:
-            self._set_bi(self.status_label, "السيرفر غير متصل — دخول بدون اتصال", "Server offline — offline login")
-        else:
-            self._set_bi(self.status_label, "السيرفر غير متصل", "Server offline")
-        self.status_label.classes(replace=("app-text-success" if online else "app-text-warning") + " gap-0 text-xs font-bold")
-
-        can_login = online or self.has_offline_accounts
-        self.form_box.set_visibility(can_login)
-        self.blocked_box.set_visibility(not can_login)
-        if not can_login:
-            if self.error_label:
-                self.error_label.set_visibility(False)
-            self.blocked_icon.name = "cloud_off"
-            self._set_bi(self.blocked_title, "لا يمكن الوصول إلى السيرفر", "Can't reach the server")
-            self._set_bi(
-                self.blocked_text,
-                "لا توجد حسابات محفوظة على هذا الجهاز بعد، لذا يحتاج أول تسجيل دخول إلى السيرفر. "
-                "تأكد من الاتصال بشبكة الكلية ومن عنوان السيرفر. تُعاد المحاولة تلقائياً كل 10 ثوانٍ.",
-                "This laptop has no saved accounts yet, so the first login needs the server. "
-                "Check the college network and the server address. Retrying every 10 seconds.",
-            )
-
-    def _open_server_dialog(self) -> None:
-        """Edit the server address before logging in (the Settings screen needs a login)."""
-        from api_config import load_server_config
-        cfg = load_server_config()
-        with ui.dialog() as dialog, UI.login_card():
-            ui.label("إعدادات السيرفر / Server settings").classes("text-base font-bold app-text-primary")
-            ui.label(
-                "عنوان السيرفر مثل http://172.50.1.100 — استخدم https فقط إذا كان السيرفر يعمل بـ HTTPS. "
-                "/ Server address, e.g. http://172.50.1.100 — use https only if the server runs HTTPS."
-            ).classes("text-xs app-text-muted")
-            host_inp = UI.text_input(
-                "عنوان السيرفر / Server address", value=f"{cfg['scheme']}://{cfg['host']}", placeholder="http://172.50.1.100"
-            )
-            port_inp = UI.text_input("منفذ السيرفر / Server port", value=str(cfg["port"]), placeholder="2030")
-            result_label = ui.label("").classes("text-xs w-full").style("direction: ltr")
-
-            def _read() -> tuple[str, int] | None:
-                host = (host_inp.value or "").strip()
-                try:
-                    port = int(str(port_inp.value).strip())
-                    if not host or not 1 <= port <= 65535:
-                        raise ValueError
-                except ValueError:
-                    ui.notify("أدخل عنواناً ومنفذاً صحيحين / Enter a valid address and port", type="warning")
-                    return None
-                return host, port
-
-            async def _test() -> None:
-                from nicegui import run
-                from api_config import preview_api_url
-                from sync_engine import check_network_status
-                values = _read()
-                if not values:
-                    return
-                url = preview_api_url(*values)
-                result_label.classes(replace="app-text-muted text-xs w-full")
-                result_label.set_text(f"… {url}")
-                ok = bool(await run.io_bound(check_network_status, url))
-                result_label.classes(replace=("app-text-success" if ok else "app-text-error") + " text-xs w-full")
-                result_label.set_text(f"{'✔ متصل / Connected' if ok else '✖ غير متصل / Not reachable'} — {url}")
-
-            async def _save() -> None:
-                from api_config import save_server_config
-                values = _read()
-                if not values:
-                    return
-                current = load_server_config()
-                save_server_config(
-                    host=values[0], port=values[1], secret=current["secret"],
-                    timeout=current["timeout"], auto_sync=current["auto_sync"],
-                )
-                dialog.close()
-                await self._check_server()
-
-            with ui.row().classes("w-full justify-end gap-2 pt-2"):
-                ui.button("إلغاء / Cancel", on_click=dialog.close).props("flat")
-                ui.button("فحص / Test", icon="wifi_tethering", on_click=_test).props("flat")
-                ui.button("حفظ / Save", icon="save", on_click=_save).props("color=primary")
-        dialog.open()
+    def _show_error(self, msg: str) -> None:
+        if self.error_label:
+            self.error_label.set_text(msg)
+            self.error_box.set_visibility(True)
 
     def _toggle_theme(self, is_dark: bool) -> None:
         """Explicitly enables/disables dark mode."""
@@ -391,30 +123,27 @@ class LoginScreen:
         if self.on_login_success:
             self.on_login_success(user_record)
 
-        ui.notify(f"مرحباً بك {user_record.get('name_ar', username)} / Welcome!", type="positive")
+        ui.notify(f"مرحباً بك {user_record.get('name_ar', username)}", type="positive")
         ui.navigate.to("/dashboard")
 
     def _ask_new_password(self, user_record: dict, username: str) -> None:
         """Forced password change after logging in with a temporary password."""
         with ui.dialog().props("persistent") as dialog, UI.login_card():
-            ui.label("تغيير كلمة المرور مطلوب / Password change required").classes("text-base font-bold app-text-primary")
-            ui.label(
-                "تم تعيين كلمة مرور مؤقتة لحسابك. اختر كلمة مرور جديدة للمتابعة. "
-                "Your password was set by an administrator. Choose a new one to continue."
-            ).classes("text-xs app-text-muted")
-            new_inp = ui.input("كلمة المرور الجديدة / New password", password=True, password_toggle_button=True).classes("w-full")
-            conf_inp = ui.input("تأكيد كلمة المرور / Confirm password", password=True).classes("w-full")
+            ui.label("تغيير كلمة المرور مطلوب").classes("text-base font-bold app-text-primary")
+            ui.label("تم تعيين كلمة مرور مؤقتة لحسابك. اختر كلمة مرور جديدة للمتابعة.").classes("app-caption")
+            new_inp = ui.input("كلمة المرور الجديدة", password=True, password_toggle_button=True).classes("w-full")
+            conf_inp = ui.input("تأكيد كلمة المرور", password=True).classes("w-full")
 
             def _save():
                 new_pwd = new_inp.value or ""
                 if len(new_pwd) < 4:
-                    ui.notify("كلمة المرور قصيرة جداً (4 أحرف على الأقل) / At least 4 characters", type="warning")
+                    ui.notify("كلمة المرور قصيرة جداً (4 أحرف على الأقل)", type="warning")
                     return
                 if new_pwd != (conf_inp.value or ""):
-                    ui.notify("كلمتا المرور غير متطابقتين / Passwords do not match", type="warning")
+                    ui.notify("كلمتا المرور غير متطابقتين", type="warning")
                     return
                 if self.password_input and new_pwd == (self.password_input.value or ""):
-                    ui.notify("اختر كلمة مرور مختلفة عن المؤقتة / Choose a different password", type="warning")
+                    ui.notify("اختر كلمة مرور مختلفة عن المؤقتة", type="warning")
                     return
                 try:
                     result = PersonnelRepository().set_password(int(user_record["id"]), new_pwd, must_change=False)
@@ -423,14 +152,15 @@ class LoginScreen:
                     return
                 dialog.close()
                 if result == "queued":
-                    ui.notify("تم حفظ كلمة المرور على هذا الجهاز وستُرسل للسيرفر عند الاتصال / Saved on this PC; sent to the server when online",
+                    ui.notify("تم حفظ كلمة المرور على هذا الجهاز وستُرسل للسيرفر عند الاتصال",
                               type="info", timeout=8000)
                 user_record["must_change_password"] = False
                 self._finish_login(user_record, username)
 
-            with ui.row().classes("w-full justify-end gap-2 pt-2"):
-                ui.button("إلغاء / Cancel", on_click=dialog.close).props("flat")
-                ui.button("حفظ ومتابعة / Save and continue", icon="lock_reset", on_click=_save).props("color=primary")
+            conf_inp.on("keydown.enter", _save)
+            with ui.row().classes("app-dialog-actions"):
+                UI.ghost_button("إلغاء", on_click=dialog.close)
+                UI.primary_button("حفظ ومتابعة", on_click=_save)
         dialog.open()
 
     def handle_login(self, e=None) -> None:
@@ -442,17 +172,7 @@ class LoginScreen:
         password = self.password_input.value or ""
 
         if not username or not password:
-            msg = "يرجى إدخال اسم المستخدم وكلمة المرور / Please enter username and password"
-            if self.error_label:
-                self.error_label.set_text(msg)
-                self.error_label.set_visibility(True)
-            ui.notify(msg, type="warning")
-            return
-
-        from sync_engine import is_online
-        if not is_online() and not self.has_offline_accounts:
-            # Nothing to check the password against: show why instead of "invalid password"
-            self._apply_server_state(self.status_url_label.text or "")
+            self._show_error("أدخل اسم المستخدم وكلمة المرور.")
             return
 
         try:
@@ -460,28 +180,17 @@ class LoginScreen:
             user_record = personnel_repo.authenticate(username, password)
 
             if user_record:
-                if self.error_label:
-                    self.error_label.set_visibility(False)
-                
+                if self.error_box:
+                    self.error_box.set_visibility(False)
+
                 if user_record.get("must_change_password"):
                     # A temporary password given by an admin: choose your own before continuing
                     self._ask_new_password(user_record, username)
                     return
                 self._finish_login(user_record, username)
             else:
-                msg = "اسم المستخدم أو كلمة المرور غير صحيحة / Invalid username or password"
-                if not is_online():
-                    msg += (" — السيرفر غير متصل: يمكن الدخول فقط بحساب سبق استخدامه على هذا الجهاز"
-                            " / Server offline: only accounts already synced to this laptop can log in")
-                if self.error_label:
-                    self.error_label.set_text(msg)
-                    self.error_label.set_visibility(True)
-                ui.notify(msg, type="negative")
+                self._show_error("اسم المستخدم أو كلمة المرور غير صحيحة. تأكد منهما وأعد المحاولة.")
 
         except Exception as exc:
             log.warning(f"[LoginScreen] Authentication Error: {exc}")
-            msg = "خطأ في عملية المصادقة / Authentication failed. Check connection."
-            if self.error_label:
-                self.error_label.set_text(msg)
-                self.error_label.set_visibility(True)
-            ui.notify(msg, type="negative")
+            self._show_error("تعذر تسجيل الدخول. تحقق من الاتصال بالشبكة وأعد المحاولة.")

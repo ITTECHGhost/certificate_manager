@@ -40,8 +40,10 @@ def frozen_layout(tmp_path, monkeypatch, reload_paths):
     monkeypatch.setattr(sys, "executable", str(exe))
     monkeypatch.setenv("LOCALAPPDATA", str(local))
     monkeypatch.delenv("CERTMAN_DATA_DIR", raising=False)
+    docs = tmp_path / "Documents" / "CertificateManager"
+    monkeypatch.setenv("CERTMAN_DOCS_DIR", str(docs))
     paths = reload_paths()
-    return {"install": install, "internal": internal, "data": local / "CertificateManager", "paths": paths}
+    return {"install": install, "internal": internal, "data": local / "CertificateManager", "docs": docs, "paths": paths}
 
 
 def test_source_mode_uses_project_root(monkeypatch, reload_paths):
@@ -71,11 +73,12 @@ def test_prepare_seeds_missing_files_only(frozen_layout):
     (data / "data").mkdir(parents=True)
     (data / "data" / "roles_config.json").write_text('{"edited": true}', encoding="utf-8")
     assert paths.prepare_data_dir() == data
-    assert (data / "templets" / "a.docx").read_text(encoding="utf-8") == "template"
+    docs = frozen_layout["docs"]
+    assert (docs / "templets" / "a.docx").read_text(encoding="utf-8") == "template"
     assert (data / "assets" / "logo.png").is_file()
     assert (data / "data" / "roles_config.json").read_text(encoding="utf-8") == '{"edited": true}'
     assert (data / "server_config.json").read_text(encoding="utf-8") == '{"host": "example"}'
-    assert (data / "logs").is_dir() and (data / "certificates").is_dir()
+    assert (data / "logs").is_dir() and (docs / "certificates").is_dir()
     assert Path.cwd() == data
     assert os.environ["NICEGUI_STORAGE_PATH"] == str(data / ".nicegui")
 
@@ -103,7 +106,7 @@ def test_prepare_handles_space_and_arabic_path(frozen_layout, monkeypatch, reloa
     paths = reload_paths()
     assert paths.prepare_data_dir() == target
     assert Path.cwd() == target
-    assert (target / "templets" / "a.docx").is_file()
+    assert (frozen_layout["docs"] / "templets" / "a.docx").is_file()
 
 
 def test_storage_secret_is_stable(monkeypatch, reload_paths, tmp_path):
@@ -112,3 +115,24 @@ def test_storage_secret_is_stable(monkeypatch, reload_paths, tmp_path):
     first = paths.get_storage_secret()
     assert first == paths.get_storage_secret()
     assert len(first) >= 40
+
+
+def test_templets_and_certificates_live_in_documents(frozen_layout):
+    paths, data, docs = frozen_layout["paths"], frozen_layout["data"], frozen_layout["docs"]
+    assert paths.data_path("templets", "x.docx") == docs / "templets" / "x.docx"
+    assert paths.data_path("certificates") == docs / "certificates"
+    assert paths.data_path("local_cache.db") == data / "local_cache.db"
+
+
+def test_old_data_folder_files_move_to_documents_once(frozen_layout):
+    paths, data, docs = frozen_layout["paths"], frozen_layout["data"], frozen_layout["docs"]
+    (data / "templets").mkdir(parents=True)
+    (data / "templets" / "a.docx").write_text("user edit", encoding="utf-8")
+    (data / "certificates").mkdir()
+    (data / "certificates" / "937.docx").write_text("issued", encoding="utf-8")
+    (docs / "certificates").mkdir(parents=True)
+    (docs / "certificates" / "938.docx").write_text("newer", encoding="utf-8")
+    paths.prepare_data_dir()
+    assert (docs / "templets" / "a.docx").read_text(encoding="utf-8") == "user edit"
+    assert (docs / "certificates" / "937.docx").read_text(encoding="utf-8") == "issued"
+    assert (docs / "certificates" / "938.docx").read_text(encoding="utf-8") == "newer"

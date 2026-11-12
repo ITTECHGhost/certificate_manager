@@ -729,7 +729,7 @@ def get_offline_departments() -> list[dict]:
         "       4 AS study_years "
         "FROM departments d "
         "LEFT JOIN university_settings u ON d.university_settings_id = u.id "
-        "ORDER BY d.name_ar"
+        "ORDER BY d.id DESC"
     )
 
 def get_offline_department_by_id(dept_id: int) -> dict | None:
@@ -756,7 +756,7 @@ def get_offline_study_system_by_id(system_id: int) -> dict | None:
     return sqlite_read_one("SELECT * FROM study_systems WHERE id = ?", (system_id,))
 
 def get_offline_personnel() -> list[dict]:
-    return sqlite_read_all("SELECT * FROM personnel")
+    return sqlite_read_all("SELECT * FROM personnel ORDER BY id DESC")
 
 def get_offline_active_personnel() -> list[dict]:
     return sqlite_read_all("SELECT * FROM personnel WHERE is_active = 1")
@@ -787,6 +787,15 @@ def get_offline_courses() -> list[dict]:
         "FROM courses c "
         "LEFT JOIN departments d ON c.department_id = d.id "
         "ORDER BY c.name_ar ASC"
+    )
+
+def get_offline_courses_newest_first() -> list[dict]:
+    """Courses management list: newest first. Lists that feed transcripts or dropdowns keep get_offline_courses."""
+    return sqlite_read_all(
+        "SELECT c.*, d.name_ar AS dept_name_ar, d.name_en AS dept_name_en "
+        "FROM courses c "
+        "LEFT JOIN departments d ON c.department_id = d.id "
+        "ORDER BY c.id DESC"
     )
 
 def get_offline_courses_by_department(dept_id: int) -> list[dict]:
