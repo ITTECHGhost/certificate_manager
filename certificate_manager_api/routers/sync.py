@@ -302,6 +302,9 @@ def _apply_sync_actions(payload: SyncPayload, conn, id_map: dict) -> dict:
                         except Exception as err:
                             logger.error(f"Error deleting {tbl} with ID {target_id}: {err}")
                             raise
+                    # Confirm the action to the client (it drops queue rows found in id_map). Without
+                    # a server id (a record made offline and never synced) there is nothing to delete.
+                    id_map[temp_id] = target_id if target_id and target_id > 0 else temp_id
                     continue
 
                 if tbl == "students":

@@ -170,7 +170,7 @@ class MainAppShell:
         from nicegui import run
         from sync_engine import (
             check_network_status, set_online, is_online,
-            sync_offline_queue_to_mysql, pull_mysql_to_sqlite_background
+            sync_offline_queue_to_mysql, pull_mysql_to_sqlite_background, sync_result_message
         )
 
         prev_online = is_online()
@@ -194,11 +194,9 @@ class MainAppShell:
         if now_online and not prev_online:
             try:
                 sync_result = await run.io_bound(sync_offline_queue_to_mysql)
-                if sync_result and sync_result.get("failed"):
-                    ui.notify(
-                        f"فشلت مزامنة {sync_result['failed']} سجل — راجع الإعدادات > قاعدة البيانات.",
-                        type="warning", timeout=10000
-                    )
+                message = sync_result_message(sync_result)
+                if message:
+                    ui.notify(message[0], type=message[1], timeout=10000)
                 pull_mysql_to_sqlite_background()
                 from data.repositories import IssuedCertificateRepository
                 await run.io_bound(IssuedCertificateRepository().ensure_number_block)
@@ -218,11 +216,9 @@ class MainAppShell:
                 from sync_engine import get_queue_status
                 if get_queue_status().get("pending"):
                     sync_result = await run.io_bound(sync_offline_queue_to_mysql)
-                    if sync_result and sync_result.get("failed"):
-                        ui.notify(
-                            f"فشلت مزامنة {sync_result['failed']} سجل — راجع الإعدادات > قاعدة البيانات.",
-                            type="warning", timeout=10000
-                        )
+                    message = sync_result_message(sync_result)
+                    if message:
+                        ui.notify(message[0], type=message[1], timeout=10000)
             except Exception as exc:
                 log.warning(f"[MainAppShell] Startup queue sync error: {exc}")
 

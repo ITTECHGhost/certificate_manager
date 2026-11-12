@@ -1672,6 +1672,28 @@ def _execute_mysql_insert(mysql_conn, table_name: str, payload: dict) -> int:
         cur.close()
 
 
+def _mark_failed(sqlite_conn, queue_id: int, error: str) -> None:
+    """Stop retrying a queue row and keep why, so it shows in the failed records list."""
+    sqlite_conn.execute(
+        "UPDATE sync_queue SET status = 'failed', last_error = ?, attempts = attempts + 1 WHERE id = ?",
+        (error, queue_id),
+    )
+    sqlite_conn.commit()
+
+
+def sync_result_message(result: dict | None) -> tuple[str, str] | None:
+    """The notification for a sync result: (message, type), or None when there is nothing to say."""
+    if not result:
+        return None
+    synced, failed = result.get("synced", 0), result.get("failed", 0)
+    if result.get("error"):
+        return (f"رفض السيرفر المزامنة، وبقيت {result.get('pending', 0)} سجلات معلقة وستُرسل لاحقاً. "
+                f"السبب: {result['error']}", "negative")
+    if failed:
+        return f"تمت مزامنة {synced} سجل، وفشل {failed} — راجع السجلات الفاشلة.", "warning"
+    return None
+
+
 def sync_offline_queue_to_mysql(mysql_conn=None) -> dict:
     """
     Flush the offline sync queue via FastAPI HTTP sync endpoint and resolve all temp IDs.
@@ -1687,7 +1709,9 @@ def sync_offline_queue_to_mysql(mysql_conn=None) -> dict:
         A summary dict:
             {
                 "synced":  4,       # rows successfully pushed
-                "failed":  0,       # rows that errored (left in queue)
+                "failed":  0,       # rows that errored (marked 'failed', or left pending on a connection error)
+                "error":   "...",   # only when the whole request failed; its rows stay pending
+                "pending": 5,       # with "error": how many rows were not sent
                 "id_map":  {        # temp_id → real_id for every resolved record
                     -1: 542,
                     -2: 87,
@@ -1729,8 +1753,10 @@ def sync_offline_queue_to_mysql(mysql_conn=None) -> dict:
                         log.info("Synced offline settings for user %d", emp_id)
                     else:
                         failed += 1
+                        _mark_failed(sqlite_conn, row["id"], f"HTTP {resp.status_code}: {resp.text[:300]}")
                         log.warning("Failed to sync offline settings for user %d: %s", emp_id, resp.text)
                 except Exception as exc:
+                    # Connection problem, not a refusal: the row stays pending and is sent next time
                     failed += 1
                     log.error("Error syncing offline settings for user %d: %s", row["temp_id"], exc)
                 continue
@@ -1753,8 +1779,10 @@ def sync_offline_queue_to_mysql(mysql_conn=None) -> dict:
             # Rows are saved one by one on the server, so allow more time for large queues
             response = api_client.post(f"{get_api_url()}/sync", json=payload, timeout=120.0)
             if response.status_code != 200:
+                # The whole request was refused (not one record): rows stay pending, the reason is shown
                 log.error("API sync request failed with status %d: %s", response.status_code, response.text)
-                return {"synced": 0, "failed": len(queue_rows), "id_map": {}}
+                return {"synced": synced, "failed": failed, "id_map": {},
+                        "error": f"HTTP {response.status_code}: {response.text[:300]}", "pending": len(actions)}
 
             resp_data = response.json()
             # Convert JSON string keys to integers
@@ -1763,7 +1791,8 @@ def sync_offline_queue_to_mysql(mysql_conn=None) -> dict:
             api_failed = {int(f["queue_id"]): str(f.get("error") or "") for f in resp_data.get("failed", [])}
         except Exception as exc:
             log.error("Failed to connect or communicate with FastAPI sync endpoint: %s", exc)
-            return {"synced": 0, "failed": len(queue_rows), "id_map": {}}
+            return {"synced": synced, "failed": failed, "id_map": {},
+                    "error": str(exc)[:300], "pending": len(actions)}
 
         # 3. Process the resolved IDs in FIFO order
         for row in queue_rows:
@@ -1813,12 +1842,15 @@ def sync_offline_queue_to_mysql(mysql_conn=None) -> dict:
                         "Failed to resolve local DB for queue id=%d (%s temp_id=%d): %s",
                         queue_id, table_name, temp_id, exc
                     )
+                    _mark_failed(sqlite_conn, queue_id, f"Local update after sync failed: {exc}")
                     failed += 1
             else:
                 log.warning(
                     "Queue id=%d (%s temp_id=%d) was not returned in API id_map.",
                     queue_id, table_name, temp_id
                 )
+                # Counted as failed, so it must show in "failed records" (else it stays pending forever)
+                _mark_failed(sqlite_conn, queue_id, "The server did not confirm this record (no id returned)")
                 failed += 1
 
     finally:
