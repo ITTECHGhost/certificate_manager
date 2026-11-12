@@ -63,6 +63,7 @@ if not defined PYTHON_EXE if exist "C:\Users\IT_TECK\AppData\Local\Python\python
 exit /b 0
 
 :check_port
-timeout /t 3 /nobreak >nul
+REM timeout refuses input from nul (setup_server.ps1 runs this file with "< nul"): ping waits ~3 s
+ping -n 4 127.0.0.1 >nul
 powershell -NoProfile -Command "$s = Get-Content 'server_settings.json' -Raw | ConvertFrom-Json; if (Get-NetTCPConnection -LocalPort $s.port -State Listen -ErrorAction SilentlyContinue) { Write-Host ('[SUCCESS] API is listening on port ' + $s.port + ' (' + $(if ($s.https) {'HTTPS'} else {'HTTP'}) + ').') -ForegroundColor Green } else { Write-Host '[WARNING] Nothing is listening yet. Check logs\api_service.log in this folder.' -ForegroundColor Yellow }"
 exit /b 0
