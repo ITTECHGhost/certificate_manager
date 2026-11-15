@@ -89,3 +89,17 @@ MOVED = {
 def test_certificate_screen_reexports_the_moved_function(module, name):
     screen = importlib.import_module("nicegui_screens.certificate_screen")
     assert getattr(screen, name) is getattr(importlib.import_module(module), name)
+
+
+def test_graduation_academic_year():
+    from services.certificate_context import graduation_academic_year
+    assert graduation_academic_year(2022) == "‎٢٠٢٢/٢٠٢١‎"
+    assert graduation_academic_year("2022", is_english=True) == "2021-2022"
+    assert graduation_academic_year("") == "" and graduation_academic_year(None) == ""
+
+
+def test_context_has_sample_document_tags():
+    from services.certificate_context import build_certificate_context
+    ctx = build_certificate_context({"graduation_year": 2022, "average": 75.385}, {})
+    assert ctx["graduation_academic_year"] == "‎٢٠٢٢/٢٠٢١‎"
+    assert ctx["average_words_permille"] == "خمسة وسبعون وثلاثمئة وخمسة وثمانون بالألف"
