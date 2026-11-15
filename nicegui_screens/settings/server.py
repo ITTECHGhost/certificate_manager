@@ -319,7 +319,9 @@ class ServerMixin:
             def _status_view():
                 lines = su.describe(state.get("status"))
                 with ui.column().classes("gap-1"):
+                    from app_version import APP_VERSION
                     ui.label(f"إصدار الخادم: {lines['version']}").classes("app-text-primary font-semibold")
+                    ui.label(f"إصدار البرنامج على هذا الجهاز: {APP_VERSION}").classes("app-caption font-semibold")
                     for key in ("pending", "last"):
                         if lines[key]:
                             ui.label(lines[key]).classes("app-caption")

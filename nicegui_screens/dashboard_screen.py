@@ -299,6 +299,28 @@ class MainAppShell:
                     if item["key"] in allowed_screen_keys:
                         self._build_nav_item(item)
 
+            self._build_version_footer()
+
+    def _build_version_footer(self) -> None:
+        """Bottom of the sidebar: this program's version and the server's (read every 5 min)."""
+        from app_version import APP_VERSION
+        from nicegui import run
+        import services.server_update as su
+
+        with ui.column().classes("w-full gap-0 mt-auto px-3 py-2") as self._version_footer:
+            ui.label(f"إصدار البرنامج: {APP_VERSION}").classes("app-caption truncate")
+            server_lbl = ui.label("إصدار الخادم: …").classes("app-caption truncate")
+
+        async def _load_server_version():
+            status = await run.io_bound(su.get_status)
+            ver = (status or {}).get("server_version")
+            server_lbl.set_text(f"إصدار الخادم: {ver or 'غير متاح'}")
+            if ver and ver != APP_VERSION:
+                server_lbl.tooltip("الخادم والبرنامج بإصدارين مختلفين")
+
+        ui.timer(1.0, _load_server_version, once=True)
+        ui.timer(300.0, _load_server_version)
+
     def _build_nav_item(self, item: dict) -> None:
         """One sidebar row: icon + Arabic label; keyboard-focusable."""
         is_active = (item["key"] == self.current_screen)
@@ -327,6 +349,8 @@ class MainAppShell:
             self._sidebar_col.classes(remove=Styles.SIDEBAR_COL_EXPANDED, add=Styles.SIDEBAR_COL_COLLAPSED)
         if self._sidebar_title_label:
             self._sidebar_title_label.set_visibility(self.is_sidebar_open)
+        if getattr(self, "_version_footer", None):
+            self._version_footer.set_visibility(self.is_sidebar_open)
         for row, label_col, _ in self._nav_labels:
             label_col.set_visibility(self.is_sidebar_open)
             if self.is_sidebar_open:
