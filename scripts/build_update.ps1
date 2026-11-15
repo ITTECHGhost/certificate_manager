@@ -4,7 +4,7 @@
 #   CertificateManagerServer-<v>\   patch_v<v>.zip   CertificateManager-Setup-<v>.exe
 # Output: dist\release\<v>\CertificateManagerUpdate-<v>\
 #   Update.bat  update.ps1  VERSION.txt  checksums.txt
-#   server\CertificateManagerServer-<v>\   client\patch_v<v>.zip  client\CertificateManager-Setup-<v>.exe
+#   server\CertificateManagerServer-<v>\   client\patch_v<v>.zip (no Setup exe, no prereqs)
 # Usage: powershell -ExecutionPolicy Bypass -File scripts\build_update.ps1 [-ReleaseDir <folder>] [-Notes "text"]
 # =============================================================================
 param([string]$ReleaseDir = "", [string]$Notes = "")
@@ -23,11 +23,16 @@ $out = Join-Path $ReleaseDir "CertificateManagerUpdate-$version"
 if (Test-Path $out) { Remove-Item -Recurse -Force $out }
 New-Item -ItemType Directory -Force -Path (Join-Path $out "server"), (Join-Path $out "client") | Out-Null
 
-robocopy $serverBundle (Join-Path $out "server\CertificateManagerServer-$version") /E /NFL /NDL /NJH /NJS /NP | Out-Null
+# prereqs\ (AppServ + Python installers, ~133 MB) is left out: an update runs on a server that
+# already has both, and setup_server.ps1 only needs them when one is missing (it then says so).
+# A first installation uses CertificateManagerServer-<v>.zip, which still has them.
+robocopy $serverBundle (Join-Path $out "server\CertificateManagerServer-$version") /E /XD prereqs /NFL /NDL /NJH /NJS /NP | Out-Null
 if ($LASTEXITCODE -ge 8) { throw "Copying the server bundle failed (robocopy code $LASTEXITCODE)" }
 
+# Only the client patch: update.ps1 publishes it and never uses the Setup exe (~55 MB), which
+# stays in dist\release\<v>\ for new laptops and for 2.5.0/2.5.1 laptops.
 $found = 0
-foreach ($name in "patch_v$version.zip", "CertificateManager-Setup-$version.exe") {
+foreach ($name in "patch_v$version.zip") {
     $src = Join-Path $ReleaseDir $name
     if (-not (Test-Path $src)) { $src = Join-Path $root "dist\$name" }
     if (Test-Path $src) { Copy-Item -LiteralPath $src -Destination (Join-Path $out "client"); $found++ }
@@ -50,6 +55,6 @@ $zip = "$out.zip"
 if (Test-Path $zip) { Remove-Item -Force $zip }
 Compress-Archive -Path $out -DestinationPath $zip
 
-Write-Output "UPDATE FOLDER READY: $out  ($($lines.Count) files, client files: $found of 2)"
+Write-Output "UPDATE FOLDER READY: $out  ($($lines.Count) files, client files: $found of 1)"
 Write-Output "  USB: copy the folder to the server laptop and double-click Update.bat there."
 Write-Output "  Settings: upload $zip in Settings -> Server update."
