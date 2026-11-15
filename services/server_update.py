@@ -3,8 +3,9 @@
 # =============================================================================
 
 import os
+import uuid
 import logging
-from typing import Any, Dict, Optional, Tuple
+from typing import Any, Callable, Dict, Optional, Tuple
 
 import api_client
 from api_config import get_api_url
@@ -35,20 +36,78 @@ def _detail(resp) -> str:
         return resp.text[:200]
 
 
-def upload(zip_path: str, username: str, password: str, run_at: str = "now") -> Tuple[bool, str, Optional[dict]]:
-    """Sends the update zip. run_at: 'now' or 'YYYY-MM-DDTHH:MM'. Returns (ok, message, pending)."""
+class MultipartStream:
+    """multipart/form-data body read in 1 MB pieces, reporting progress(sent, total).
+
+    requests' files= builds the whole body in memory (the update zip is ~300 MB) and gives
+    no progress. This object has a length, so requests sends a Content-Length header
+    (not chunked), and read() is called as the socket takes the data.
+    """
+    CHUNK = 1024 * 1024
+
+    def __init__(self, fields: Dict[str, str], file_field: str, file_path: str,
+                 content_type: str = "application/zip", progress: Optional[Callable[[int, int], None]] = None):
+        self.boundary = "----CertManUpload" + uuid.uuid4().hex
+        b = self.boundary
+        head = b"".join(
+            f'--{b}\r\nContent-Disposition: form-data; name="{k}"\r\n\r\n{v}\r\n'.encode("utf-8")
+            for k, v in fields.items())
+        head += (f'--{b}\r\nContent-Disposition: form-data; name="{file_field}"; '
+                 f'filename="{os.path.basename(file_path)}"\r\nContent-Type: {content_type}\r\n\r\n').encode("utf-8")
+        self._head, self._tail = head, f"\r\n--{b}--\r\n".encode("ascii")
+        self._file = open(file_path, "rb")
+        self._total = len(head) + os.path.getsize(file_path) + len(self._tail)
+        self._stage, self._sent, self._progress = 0, 0, progress
+
+    @property
+    def content_type(self) -> str:
+        return f"multipart/form-data; boundary={self.boundary}"
+
+    def __len__(self) -> int:
+        return self._total
+
+    def read(self, size: int = -1) -> bytes:
+        size = self.CHUNK if size is None or size < 0 else size
+        data = b""
+        if self._stage == 0:
+            data, self._stage = self._head, 1
+        elif self._stage == 1:
+            data = self._file.read(size)
+            if not data:
+                data, self._stage = self._tail, 2
+        if data:
+            self._sent += len(data)
+            if self._progress:
+                try:
+                    self._progress(self._sent, self._total)
+                except Exception:
+                    pass
+        return data
+
+    def close(self) -> None:
+        self._file.close()
+
+
+def upload(zip_path: str, username: str, password: str, run_at: str = "now",
+           progress: Optional[Callable[[int, int], None]] = None) -> Tuple[bool, str, Optional[dict]]:
+    """Sends the update zip. run_at: 'now' or 'YYYY-MM-DDTHH:MM'. Returns (ok, message, pending).
+    progress(sent_bytes, total_bytes) is called from this (worker) thread as the data goes out."""
     if not is_online():
         return False, "تحديث الخادم يحتاج الاتصال بالخادم", None
     if not os.path.isfile(zip_path):
         return False, "ملف التحديث غير موجود", None
     try:
-        with open(zip_path, "rb") as f:
+        body = MultipartStream({"username": username, "password": password, "run_at": run_at},
+                               "file", zip_path, progress=progress)
+        try:
             resp = api_client.post(
                 f"{get_api_url()}{BASE}/upload",
-                files={"file": (os.path.basename(zip_path), f, "application/zip")},
-                data={"username": username, "password": password, "run_at": run_at},
+                data=body,
+                headers={"Content-Type": body.content_type},
                 timeout=900.0,
             )
+        finally:
+            body.close()
         if resp.status_code == 200:
             return True, "", resp.json().get("pending")
         return False, _detail(resp), None

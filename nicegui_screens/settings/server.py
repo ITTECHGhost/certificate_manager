@@ -4,6 +4,7 @@
 
 import json
 import os
+import time
 from nicegui import ui
 from nicegui_ui.ui_components import UI
 
@@ -391,9 +392,40 @@ class ServerMixin:
                     except ValueError:
                         ui.notify("اكتب الوقت بالشكل 2026-11-10 22:00", type="warning")
                         return
-                n = ui.notification("جاري رفع التحديث إلى الخادم...", timeout=None, spinner=True)
-                ok, msg, pending = await run.io_bound(su.upload, state["zip"], self.session.username, password, run_at)
-                n.dismiss()
+                # The worker thread only writes numbers here; a UI timer reads them (UI calls stay on the UI loop).
+                prog = {"sent": 0, "total": 0, "start": time.monotonic()}
+
+                def _on_progress(sent: int, total: int):
+                    prog["sent"], prog["total"] = sent, total
+
+                def _tick():
+                    sent, total = prog["sent"], prog["total"]
+                    if not total:
+                        return
+                    frac = sent / total
+                    upload_bar.set_value(frac)
+                    elapsed = max(time.monotonic() - prog["start"], 0.1)
+                    speed = sent / elapsed
+                    text = f"{sent / 1048576:.1f} / {total / 1048576:.1f} MB ({frac * 100:.0f}%)"
+                    if sent >= total:
+                        text += " — اكتمل الإرسال، الخادم يتحقق من الملف..."
+                    elif speed > 0 and elapsed > 2:
+                        left = int((total - sent) / speed)
+                        text += f" — {speed / 1048576:.1f} MB/ث، متبقٍ {left // 60}:{left % 60:02d}"
+                    upload_text.set_text(text)
+
+                upload_bar.set_value(0)
+                upload_text.set_text("جاري الاتصال بالخادم...")
+                upload_box.set_visibility(True)
+                send_btn.disable()
+                timer = ui.timer(0.3, _tick)
+                try:
+                    ok, msg, pending = await run.io_bound(
+                        su.upload, state["zip"], self.session.username, password, run_at, _on_progress)
+                finally:
+                    timer.cancel()
+                    upload_box.set_visibility(False)
+                    send_btn.enable()
                 if ok:
                     ui.notify(f"سيُثبت الإصدار {pending['version']} في {pending['run_at'].replace('T', ' ')}", type="positive")
                 else:
@@ -424,10 +456,16 @@ class ServerMixin:
                     "الأجهزة الأقدم ستنقطع حتى تُحدَّث.",
                     "متابعة", lambda: _ask_password("تأكيد التحويل إلى الاتصال المشفّر", lambda pw: _switch("https", pw)))
 
+            with ui.column().classes("w-full gap-1") as upload_box:
+                ui.label("إرسال التحديث إلى الخادم").classes("app-caption font-semibold")
+                upload_bar = ui.linear_progress(value=0, show_value=False, size="12px").classes("w-full")
+                upload_text = ui.label("").classes("app-caption").style("direction:rtl")
+            upload_box.set_visibility(False)
+
             with ui.row().classes("w-full justify-end gap-2"):
                 UI.secondary_button("تفعيل الاتصال المشفّر", icon="lock", on_click=_confirm_https)
                 UI.ghost_button("تحديث الحالة", on_click=_refresh)
                 UI.ghost_button("إلغاء التحديث المنتظر", on_click=lambda: _ask_password("تأكيد الإلغاء", _cancel))
-                UI.primary_button("رفع وجدولة التحديث", icon="cloud_upload", on_click=_start_upload)
+                send_btn = UI.primary_button("رفع وجدولة التحديث", icon="cloud_upload", on_click=_start_upload)
 
             ui.timer(0.1, _refresh, once=True)
