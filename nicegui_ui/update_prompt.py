@@ -47,9 +47,18 @@ def show_update_dialog(res: dict) -> None:
         UI.muted_label("«عند إعادة التشغيل» ينزّل التحديث الآن ويثبّته في المرة القادمة التي يُفتح فيها البرنامج.")
 
         async def _download():
-            n = ui.notification("جاري تنزيل التحديث...", timeout=None, spinner=True)
-            path = await run.io_bound(upd.download_patch, res)
-            n.dismiss()
+            # The offer dialog is closed by now: show the bar in its own small dialog.
+            from nicegui_ui.transfer_progress import TransferProgress
+            with ui.dialog().props("persistent") as pdlg, UI.card().classes("w-[460px] max-w-full gap-2"):
+                UI.card_header(f"تنزيل التحديث {res['latest_version']}", "download")
+                bar = TransferProgress("تنزيل ملف التحديث من الخادم", done_text="اكتمل التنزيل، جاري التحقق من الملف...")
+            pdlg.open()
+            bar.start("جاري الاتصال بالخادم...")
+            try:
+                path = await run.io_bound(upd.download_patch, res, bar.report)
+            finally:
+                bar.stop()
+                pdlg.close()
             if not path:
                 ui.notify("فشل تنزيل ملف التحديث", type="negative")
             return path

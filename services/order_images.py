@@ -76,12 +76,17 @@ def list_images(order_id: int) -> list:
     return resp.json()
 
 
-def upload_file(order_id: int, name: str, data: bytes, username: str = "") -> int:
-    """Converts and uploads every page of one file. Returns how many new pages were added."""
+def upload_file(order_id: int, name: str, data: bytes, username: str = "",
+                progress=None) -> int:
+    """Converts and uploads every page of one file. Returns how many new pages were added.
+    progress(pages_sent, pages_total) is called after each page (from this worker thread)."""
     if not is_online():
         raise RuntimeError("رفع صور الأمر يحتاج الاتصال بالخادم")
     added = 0
-    for page, thumb in file_to_pages(name, data):
+    pages = list(file_to_pages(name, data))  # count first, so the bar knows the total
+    if progress:
+        progress(0, len(pages))
+    for i, (page, thumb) in enumerate(pages, start=1):
         resp = api_client.post(
             _base(order_id),
             files={"image": ("page.jpg", page, "image/jpeg"), "thumb": ("thumb.jpg", thumb, "image/jpeg")},
@@ -95,6 +100,8 @@ def upload_file(order_id: int, name: str, data: bytes, username: str = "") -> in
             _cache_put(body.get("sha256", ""), False, page)
             _cache_put(body.get("sha256", ""), True, thumb)
             added += 1
+        if progress:
+            progress(i, len(pages))
     return added
 
 

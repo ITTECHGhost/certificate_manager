@@ -292,20 +292,26 @@ class OrderWorkspaceMixin:
             except Exception as err:
                 ui.notify(f"تعذر قراءة الملف: {err}", type="negative")
                 return
-            n = ui.notification(f"جاري تجهيز {name} ورفعه...", spinner=True, timeout=None)
+            # One bar per file: several files can upload at the same time.
+            from nicegui_ui.transfer_progress import TransferProgress
+            with progress_area:
+                page_progress = TransferProgress(f"رفع {name}", unit="pages")
+            page_progress.start(f"جاري تجهيز صفحات {name}...")
             try:
-                added = await run.io_bound(oi.upload_file, oid, name, content)
+                added = await run.io_bound(oi.upload_file, oid, name, content, "", page_progress.report)
                 ui.notify(f"أضيفت {added} صفحة" if added else "الصفحات موجودة مسبقاً", type="positive")
             except Exception as err:
-                ui.notify(f"تعذر رفع {name}: {err}", type="negative")
+                ui.notify(f"تعذر رفع {name}: {err}", type="negative", timeout=None, close_button="إغلاق")
             finally:
-                n.dismiss()
+                page_progress.stop()
+                page_progress.box.delete()
             load()
             view["i"] = max(0, len(view["items"]) - 1)
             viewer.refresh()
 
         load()
         viewer()
+        progress_area = ui.column().classes("w-full gap-2")
         ui.upload(label="اسحب صور الأمر أو ملف PDF هنا، أو اضغط للاختيار", multiple=True, auto_upload=True,
                   on_upload=on_upload) \
             .props('accept="image/*,.pdf"') \

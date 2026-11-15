@@ -4,7 +4,6 @@
 
 import json
 import os
-import time
 from nicegui import ui
 from nicegui_ui.ui_components import UI
 
@@ -394,39 +393,13 @@ class ServerMixin:
                     except ValueError:
                         ui.notify("اكتب الوقت بالشكل 2026-11-10 22:00", type="warning")
                         return
-                # The worker thread only writes numbers here; a UI timer reads them (UI calls stay on the UI loop).
-                prog = {"sent": 0, "total": 0, "start": time.monotonic()}
-
-                def _on_progress(sent: int, total: int):
-                    prog["sent"], prog["total"] = sent, total
-
-                def _tick():
-                    sent, total = prog["sent"], prog["total"]
-                    if not total:
-                        return
-                    frac = sent / total
-                    upload_bar.set_value(frac)
-                    elapsed = max(time.monotonic() - prog["start"], 0.1)
-                    speed = sent / elapsed
-                    text = f"{sent / 1048576:.1f} / {total / 1048576:.1f} MB ({frac * 100:.0f}%)"
-                    if sent >= total:
-                        text += " — اكتمل الإرسال، الخادم يتحقق من الملف..."
-                    elif speed > 0 and elapsed > 2:
-                        left = int((total - sent) / speed)
-                        text += f" — {speed / 1048576:.1f} MB/ث، متبقٍ {left // 60}:{left % 60:02d}"
-                    upload_text.set_text(text)
-
-                upload_bar.set_value(0)
-                upload_text.set_text("جاري الاتصال بالخادم...")
-                upload_box.set_visibility(True)
+                upload_progress.start("جاري الاتصال بالخادم...")
                 send_btn.disable()
-                timer = ui.timer(0.3, _tick)
                 try:
                     ok, msg, pending = await run.io_bound(
-                        su.upload, state["zip"], self.session.username, password, run_at, _on_progress)
+                        su.upload, state["zip"], self.session.username, password, run_at, upload_progress.report)
                 finally:
-                    timer.cancel()
-                    upload_box.set_visibility(False)
+                    upload_progress.stop()
                     send_btn.enable()
                 # The result stays on the card (and in a notification that waits to be closed):
                 # an 8-second toast after a several-minute upload was easy to miss.
@@ -464,11 +437,9 @@ class ServerMixin:
                     "الأجهزة الأقدم ستنقطع حتى تُحدَّث.",
                     "متابعة", lambda: _ask_password("تأكيد التحويل إلى الاتصال المشفّر", lambda pw: _switch("https", pw)))
 
-            with ui.column().classes("w-full gap-1") as upload_box:
-                ui.label("إرسال التحديث إلى الخادم").classes("app-caption font-semibold")
-                upload_bar = ui.linear_progress(value=0, show_value=False, size="12px").classes("w-full")
-                upload_text = ui.label("").classes("app-caption").style("direction:rtl")
-            upload_box.set_visibility(False)
+            from nicegui_ui.transfer_progress import TransferProgress
+            upload_progress = TransferProgress("إرسال التحديث إلى الخادم",
+                                               done_text="اكتمل الإرسال، الخادم يتحقق من الملف...")
             result_label = ui.label("").classes("app-chip")
             result_label.set_visibility(False)
 
