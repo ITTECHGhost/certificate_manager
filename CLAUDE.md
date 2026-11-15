@@ -108,3 +108,23 @@ An observation file comes into being only through
 which prints the path to write into. Never by copying another file's
 header or counting a listing — including on the turn after a
 compaction, when the skill body is out of context.
+
+## Shared notes between the dev laptop and the server laptop
+
+Claude sessions run on two laptops (the DEV laptop with the repo and the
+build tools, and the SERVER laptop with MySQL and the API). Their memories
+are local; the only thing both see is this GitHub repo.
+
+- Start of a session: `git fetch` and say if origin/main has commits this
+  checkout lacks (pull only with the user's OK, as for any branch change).
+- Shared lessons live in `.ai/cerebrum.md` ("Bug Ledger"). Do NOT read it
+  at session start. Read it only when needed: before debugging or changing
+  an area, search it for that area (grep the file/feature name) and read the
+  matching entries; before a release or a server/laptop update, read the
+  "Releases and updates" entries.
+- When a session learns something the other laptop needs (a failure seen
+  only there, a step that must be done by hand, a workaround), add one short
+  dated entry to the Bug Ledger saying which laptop saw it, commit it with
+  the related change, and push with the user's OK.
+- Detailed commit messages (what was seen, on which laptop, what was and was
+  not checked) are the other half of the hand-over; keep writing them.
