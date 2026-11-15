@@ -426,10 +426,16 @@ class ServerMixin:
                     timer.cancel()
                     upload_box.set_visibility(False)
                     send_btn.enable()
+                # The result stays on the card (and in a notification that waits to be closed):
+                # an 8-second toast after a several-minute upload was easy to miss.
                 if ok:
-                    ui.notify(f"سيُثبت الإصدار {pending['version']} في {pending['run_at'].replace('T', ' ')}", type="positive")
+                    text = f"تم رفع التحديث: سيُثبت الإصدار {pending['version']} في {pending['run_at'].replace('T', ' ')}"
                 else:
-                    ui.notify(msg or "تعذر رفع التحديث", type="negative", timeout=8000)
+                    text = f"فشل رفع التحديث: {msg or 'سبب غير معروف'} — التفاصيل في سجل البرنامج (system_log.txt)"
+                result_label.set_text(f"{datetime.now():%H:%M} — {text}")
+                result_label.classes(replace="app-chip " + ("app-chip--accent" if ok else "app-chip--danger"))
+                result_label.set_visibility(True)
+                ui.notification(text, type="positive" if ok else "negative", timeout=None, close_button="إغلاق")
                 await _refresh()
 
             async def _cancel(password: str):
@@ -461,6 +467,8 @@ class ServerMixin:
                 upload_bar = ui.linear_progress(value=0, show_value=False, size="12px").classes("w-full")
                 upload_text = ui.label("").classes("app-caption").style("direction:rtl")
             upload_box.set_visibility(False)
+            result_label = ui.label("").classes("app-chip")
+            result_label.set_visibility(False)
 
             with ui.row().classes("w-full justify-end gap-2"):
                 UI.secondary_button("تفعيل الاتصال المشفّر", icon="lock", on_click=_confirm_https)

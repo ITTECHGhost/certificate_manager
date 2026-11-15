@@ -11,6 +11,7 @@
 
 import hashlib
 import json
+import logging
 import os
 import re
 import shutil
@@ -23,6 +24,8 @@ from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile
 
 from deps import get_db
 from routers.personnel import _authenticate_user
+
+logger = logging.getLogger("server_update")
 
 router = APIRouter(prefix="/api/admin/server-update", tags=["server-update"])
 
@@ -136,7 +139,12 @@ async def upload_update(
     run_at: str = Form("now"),
     conn=Depends(get_db),
 ):
-    user = _require_admin(conn, username, password)
+    logger.info(f"Server update upload fully received from {username}: {file.filename}, run_at={run_at}")
+    try:
+        user = _require_admin(conn, username, password)
+    except HTTPException as exc:
+        logger.warning(f"Server update upload refused: {exc.detail}")
+        raise
     p = _paths(UPDATES_DIR)
     p["incoming"].mkdir(parents=True, exist_ok=True)
     current = read_json(p["status"]) or {}
@@ -154,11 +162,13 @@ async def upload_update(
         when = parse_run_at(run_at)
     except ValueError as exc:
         tmp.unlink(missing_ok=True)
+        logger.warning(f"Server update upload refused: {exc}")
         raise HTTPException(status_code=400, detail=str(exc))
 
     have = installed_version()
     if have and parse_version(version) <= parse_version(have):
         tmp.unlink(missing_ok=True)
+        logger.warning(f"Server update upload refused: server has {have}, file is {version}")
         raise HTTPException(status_code=400, detail=f"الخادم لديه الإصدار {have} بالفعل؛ الملف المرفوع {version}")
 
     # One waiting update at a time: a new upload replaces the old one
@@ -175,6 +185,7 @@ async def upload_update(
         "uploaded_at": datetime.now().strftime("%Y-%m-%dT%H:%M:%S"),
     }
     p["pending"].write_text(json.dumps(pending, ensure_ascii=False, indent=2), encoding="utf-8")
+    logger.info(f"Server update {version} stored, runs at {pending['run_at']}")
     return {"status": "success", "pending": pending, "updater_running": build_status()["updater_running"]}
 
 

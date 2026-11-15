@@ -82,3 +82,19 @@ def test_upload_missing_file(monkeypatch, tmp_path):
     monkeypatch.setattr(su, "is_online", lambda: True)
     ok, msg, _ = su.upload(str(tmp_path / "nope.zip"), "a", "b")
     assert not ok and msg
+
+
+def test_upload_failure_is_logged(monkeypatch, tmp_path, caplog):
+    """A failed upload must leave a line in the log (the 2.5.2 upload failed with no trace)."""
+    import socket
+    s = socket.socket(); s.bind(("127.0.0.1", 0)); port = s.getsockname()[1]; s.close()  # nothing listens
+    monkeypatch.setattr(su, "is_online", lambda: True)
+    monkeypatch.setattr(su, "get_api_url", lambda: f"http://127.0.0.1:{port}")
+    z = tmp_path / "u.zip"
+    z.write_bytes(b"x" * 10)
+    with caplog.at_level("INFO", logger="server_update"):
+        ok, msg, _ = su.upload(str(z), "a", "secret-pw")
+    assert not ok and msg
+    text = caplog.text
+    assert "upload started" in text and "upload failed" in text
+    assert "secret-pw" not in text

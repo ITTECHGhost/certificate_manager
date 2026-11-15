@@ -3,6 +3,7 @@
 # =============================================================================
 
 import os
+import time
 import uuid
 import logging
 from typing import Any, Callable, Dict, Optional, Tuple
@@ -92,13 +93,26 @@ def upload(zip_path: str, username: str, password: str, run_at: str = "now",
            progress: Optional[Callable[[int, int], None]] = None) -> Tuple[bool, str, Optional[dict]]:
     """Sends the update zip. run_at: 'now' or 'YYYY-MM-DDTHH:MM'. Returns (ok, message, pending).
     progress(sent_bytes, total_bytes) is called from this (worker) thread as the data goes out."""
+    name = os.path.basename(zip_path)
     if not is_online():
+        logger.warning(f"Server update upload not started ({name}): the program is offline")
         return False, "تحديث الخادم يحتاج الاتصال بالخادم", None
     if not os.path.isfile(zip_path):
+        logger.warning(f"Server update upload not started: {zip_path} not found")
         return False, "ملف التحديث غير موجود", None
+    size_mb = os.path.getsize(zip_path) / 1048576
+    logger.info(f"Server update upload started: {name} ({size_mb:.1f} MB), run_at={run_at}")
+    started = time.monotonic()
+    sent = {"n": 0}
+
+    def _progress(s: int, t: int):
+        sent["n"] = s
+        if progress:
+            progress(s, t)
+
     try:
         body = MultipartStream({"username": username, "password": password, "run_at": run_at},
-                               "file", zip_path, progress=progress)
+                               "file", zip_path, progress=_progress)
         try:
             resp = api_client.post(
                 f"{get_api_url()}{BASE}/upload",
@@ -108,10 +122,17 @@ def upload(zip_path: str, username: str, password: str, run_at: str = "now",
             )
         finally:
             body.close()
+        took = time.monotonic() - started
         if resp.status_code == 200:
-            return True, "", resp.json().get("pending")
-        return False, _detail(resp), None
+            pending = resp.json().get("pending")
+            logger.info(f"Server update upload accepted in {took:.0f}s: {pending}")
+            return True, "", pending
+        detail = _detail(resp)
+        logger.warning(f"Server update upload refused in {took:.0f}s: HTTP {resp.status_code} {detail}")
+        return False, detail, None
     except Exception as e:
+        logger.error(f"Server update upload failed after {time.monotonic() - started:.0f}s, "
+                     f"{sent['n'] / 1048576:.1f} of {size_mb:.1f} MB sent: {e!r}")
         return False, f"تعذر رفع التحديث: {e}", None
 
 
