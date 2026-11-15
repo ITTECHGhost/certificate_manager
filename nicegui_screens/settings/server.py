@@ -408,7 +408,9 @@ class ServerMixin:
                 else:
                     text = f"فشل رفع التحديث: {msg or 'سبب غير معروف'} — التفاصيل في سجل البرنامج (system_log.txt)"
                 result_label.set_text(f"{datetime.now():%H:%M} — {text}")
-                result_label.classes(replace="app-chip " + ("app-chip--accent" if ok else "app-chip--danger"))
+                # Wraps: a long error used to run off the card (seen 2026-11-15)
+                result_label.classes(replace="app-chip whitespace-normal break-words max-w-full h-auto "
+                                     + ("app-chip--accent" if ok else "app-chip--danger"))
                 result_label.set_visibility(True)
                 ui.notification(text, type="positive" if ok else "negative", timeout=None, close_button="إغلاق")
                 await _refresh()
