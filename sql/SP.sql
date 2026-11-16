@@ -38,26 +38,26 @@ DELIMITER ;
 -- --------------------------------------------------------
 DELIMITER //
 DROP PROCEDURE IF EXISTS `BulkSetPersonnelPermissions` //
-CREATE DEFINER=`root`@`localhost` PROCEDURE `BulkSetPersonnelPermissions`(
-    IN `p_personnel_id` INT,
-    IN `p_keys_csv` TEXT
+CREATE DEFINER=`root`@`localhost` PROCEDURE `BulkSetPersonnelPermissions`(
+    IN `p_personnel_id` INT,
+    IN `p_keys_csv` TEXT
 )
-BEGIN
-        DELETE FROM personnel_permissions
-    WHERE personnel_id = p_personnel_id;
-
-        IF p_keys_csv IS NOT NULL AND CHAR_LENGTH(TRIM(p_keys_csv)) > 0 THEN
-        SET @sql_insert = CONCAT(
-            'INSERT INTO personnel_permissions (personnel_id, permission_key, is_granted) ',
-            'SELECT ', p_personnel_id, ', permission_key, 1 ',
-            'FROM permissions WHERE FIND_IN_SET(permission_key, ''',
-            REPLACE(p_keys_csv, '''', ''),
-            ''')'
-        );
-        PREPARE stmt FROM @sql_insert;
-        EXECUTE stmt;
-        DEALLOCATE PREPARE stmt;
-    END IF;
+BEGIN
+        DELETE FROM personnel_permissions
+    WHERE personnel_id = p_personnel_id;
+
+        IF p_keys_csv IS NOT NULL AND CHAR_LENGTH(TRIM(p_keys_csv)) > 0 THEN
+        SET @sql_insert = CONCAT(
+            'INSERT INTO personnel_permissions (personnel_id, permission_key, is_granted) ',
+            'SELECT ', p_personnel_id, ', permission_key, 1 ',
+            'FROM permissions WHERE FIND_IN_SET(permission_key, ''',
+            REPLACE(p_keys_csv, '''', ''),
+            ''')'
+        );
+        PREPARE stmt FROM @sql_insert;
+        EXECUTE stmt;
+        DEALLOCATE PREPARE stmt;
+    END IF;
 END //
 DELIMITER ;
 
@@ -79,46 +79,46 @@ DELIMITER ;
 -- --------------------------------------------------------
 DELIMITER //
 DROP PROCEDURE IF EXISTS `CloneRoutineCourses` //
-CREATE DEFINER=`root`@`localhost` PROCEDURE `CloneRoutineCourses`(
-    IN p_source_routine_id INT,
-    IN p_target_routine_id INT
+CREATE DEFINER=`root`@`localhost` PROCEDURE `CloneRoutineCourses`(
+    IN p_source_routine_id INT,
+    IN p_target_routine_id INT
 )
-BEGIN
-    DECLARE v_done INT DEFAULT FALSE;
-    DECLARE v_old_period_id INT;
-    DECLARE v_stage_number INT;
-    DECLARE v_semester_num INT;
-    DECLARE v_new_period_id INT;
-    
-        DECLARE cur_periods CURSOR FOR 
-        SELECT id, stage_number, semester_num 
-        FROM study_routine_period 
-        WHERE routine_id = p_source_routine_id;
-        
-    DECLARE CONTINUE HANDLER FOR NOT FOUND SET v_done = TRUE;
-    
-    OPEN cur_periods;
-    
-    read_loop: LOOP
-        FETCH cur_periods INTO v_old_period_id, v_stage_number, v_semester_num;
-        
-        IF v_done THEN
-            LEAVE read_loop;
-        END IF;
-        
-                INSERT INTO study_routine_period (routine_id, stage_number, semester_num)
-        VALUES (p_target_routine_id, v_stage_number, v_semester_num);
-        
-                SET v_new_period_id = LAST_INSERT_ID();
-        
-                INSERT IGNORE INTO study_routine_courses (period_id, course_id)
-        SELECT v_new_period_id, course_id
-        FROM study_routine_courses
-        WHERE period_id = v_old_period_id;
-        
-    END LOOP;
-    
-    CLOSE cur_periods;
+BEGIN
+    DECLARE v_done INT DEFAULT FALSE;
+    DECLARE v_old_period_id INT;
+    DECLARE v_stage_number INT;
+    DECLARE v_semester_num INT;
+    DECLARE v_new_period_id INT;
+    
+        DECLARE cur_periods CURSOR FOR 
+        SELECT id, stage_number, semester_num 
+        FROM study_routine_period 
+        WHERE routine_id = p_source_routine_id;
+        
+    DECLARE CONTINUE HANDLER FOR NOT FOUND SET v_done = TRUE;
+    
+    OPEN cur_periods;
+    
+    read_loop: LOOP
+        FETCH cur_periods INTO v_old_period_id, v_stage_number, v_semester_num;
+        
+        IF v_done THEN
+            LEAVE read_loop;
+        END IF;
+        
+                INSERT INTO study_routine_period (routine_id, stage_number, semester_num)
+        VALUES (p_target_routine_id, v_stage_number, v_semester_num);
+        
+                SET v_new_period_id = LAST_INSERT_ID();
+        
+                INSERT IGNORE INTO study_routine_courses (period_id, course_id)
+        SELECT v_new_period_id, course_id
+        FROM study_routine_courses
+        WHERE period_id = v_old_period_id;
+        
+    END LOOP;
+    
+    CLOSE cur_periods;
 END //
 DELIMITER ;
 
@@ -170,8 +170,8 @@ DELIMITER ;
 DELIMITER //
 DROP PROCEDURE IF EXISTS `DeleteAcademicPeriod` //
 CREATE DEFINER=`root`@`localhost` PROCEDURE `DeleteAcademicPeriod`(IN p_period_id INT)
-BEGIN
-    DELETE FROM academic_periods WHERE id = p_period_id;
+BEGIN
+    DELETE FROM academic_periods WHERE id = p_period_id;
 END //
 DELIMITER ;
 
@@ -181,8 +181,8 @@ DELIMITER ;
 DELIMITER //
 DROP PROCEDURE IF EXISTS `DeleteCourse` //
 CREATE DEFINER=`root`@`localhost` PROCEDURE `DeleteCourse`(IN p_course_id INT)
-BEGIN
-    DELETE FROM courses WHERE id = p_course_id;
+BEGIN
+    DELETE FROM courses WHERE id = p_course_id;
 END //
 DELIMITER ;
 
@@ -205,8 +205,8 @@ DELIMITER ;
 DELIMITER //
 DROP PROCEDURE IF EXISTS `DeleteEnrollment` //
 CREATE DEFINER=`root`@`localhost` PROCEDURE `DeleteEnrollment`(IN p_enrollment_id INT)
-BEGIN
-    DELETE FROM enrollments WHERE id = p_enrollment_id;
+BEGIN
+    DELETE FROM enrollments WHERE id = p_enrollment_id;
 END //
 DELIMITER ;
 
@@ -230,11 +230,11 @@ DELIMITER ;
 -- --------------------------------------------------------
 DELIMITER //
 DROP PROCEDURE IF EXISTS `DeleteIssuedCertificate` //
-CREATE DEFINER=`root`@`localhost` PROCEDURE `DeleteIssuedCertificate`(
-    IN p_id INT
+CREATE DEFINER=`root`@`localhost` PROCEDURE `DeleteIssuedCertificate`(
+    IN p_id INT
 )
-BEGIN
-    DELETE FROM issued_certificates WHERE id = p_id;
+BEGIN
+    DELETE FROM issued_certificates WHERE id = p_id;
 END //
 DELIMITER ;
 
@@ -303,13 +303,13 @@ DELIMITER ;
 -- --------------------------------------------------------
 DELIMITER //
 DROP PROCEDURE IF EXISTS `DeleteStudyRoutineCourse` //
-CREATE DEFINER=`root`@`localhost` PROCEDURE `DeleteStudyRoutineCourse`(
-    IN p_routine_id INT,
-    IN p_course_id INT
+CREATE DEFINER=`root`@`localhost` PROCEDURE `DeleteStudyRoutineCourse`(
+    IN p_routine_id INT,
+    IN p_course_id INT
 )
-BEGIN
-    DELETE FROM study_routine_courses 
-    WHERE routine_id = p_routine_id AND course_id = p_course_id;
+BEGIN
+    DELETE FROM study_routine_courses 
+    WHERE routine_id = p_routine_id AND course_id = p_course_id;
 END //
 DELIMITER ;
 
@@ -318,11 +318,11 @@ DELIMITER ;
 -- --------------------------------------------------------
 DELIMITER //
 DROP PROCEDURE IF EXISTS `DeleteStudyRoutinePeriod` //
-CREATE DEFINER=`root`@`localhost` PROCEDURE `DeleteStudyRoutinePeriod`(
-    IN p_period_id INT
+CREATE DEFINER=`root`@`localhost` PROCEDURE `DeleteStudyRoutinePeriod`(
+    IN p_period_id INT
 )
-BEGIN
-    DELETE FROM study_routine_period WHERE id = p_period_id;
+BEGIN
+    DELETE FROM study_routine_period WHERE id = p_period_id;
 END //
 DELIMITER ;
 
@@ -331,13 +331,13 @@ DELIMITER ;
 -- --------------------------------------------------------
 DELIMITER //
 DROP PROCEDURE IF EXISTS `DeleteStudyRoutinePeriodCourse` //
-CREATE DEFINER=`root`@`localhost` PROCEDURE `DeleteStudyRoutinePeriodCourse`(
-    IN p_period_id INT,
-    IN p_course_id INT
+CREATE DEFINER=`root`@`localhost` PROCEDURE `DeleteStudyRoutinePeriodCourse`(
+    IN p_period_id INT,
+    IN p_course_id INT
 )
-BEGIN
-    DELETE FROM study_routine_courses 
-    WHERE period_id = p_period_id AND course_id = p_course_id;
+BEGIN
+    DELETE FROM study_routine_courses 
+    WHERE period_id = p_period_id AND course_id = p_course_id;
 END //
 DELIMITER ;
 
@@ -371,8 +371,8 @@ DELIMITER ;
 DELIMITER //
 DROP PROCEDURE IF EXISTS `GetAcademicPeriodsByStudent` //
 CREATE DEFINER=`root`@`localhost` PROCEDURE `GetAcademicPeriodsByStudent`(IN p_student_id INT)
-BEGIN
-    SELECT * FROM academic_periods WHERE student_id = p_student_id ORDER BY academic_year ASC, semester_num ASC;
+BEGIN
+    SELECT * FROM academic_periods WHERE student_id = p_student_id ORDER BY academic_year ASC, semester_num ASC;
 END //
 DELIMITER ;
 
@@ -433,19 +433,19 @@ DELIMITER ;
 DELIMITER //
 DROP PROCEDURE IF EXISTS `GetAllCourses` //
 CREATE DEFINER=`root`@`localhost` PROCEDURE `GetAllCourses`()
-BEGIN
-    SELECT 
-        c.id, 
-        c.name_ar, 
-        c.name_en, 
-        c.credit_hours, 
-        c.stage_number,
-        c.department_id,
-        d.name_ar AS dept_name_ar,
-        d.name_en AS dept_name_en
-    FROM courses c
-    LEFT JOIN departments d ON c.department_id = d.id
-    ORDER BY c.stage_number ASC, c.name_ar ASC;
+BEGIN
+    SELECT 
+        c.id, 
+        c.name_ar, 
+        c.name_en, 
+        c.credit_hours, 
+        c.stage_number,
+        c.department_id,
+        d.name_ar AS dept_name_ar,
+        d.name_en AS dept_name_en
+    FROM courses c
+    LEFT JOIN departments d ON c.department_id = d.id
+    ORDER BY c.stage_number ASC, c.name_ar ASC;
 END //
 DELIMITER ;
 
@@ -534,20 +534,20 @@ DELIMITER ;
 DELIMITER //
 DROP PROCEDURE IF EXISTS `GetAllIssuedCertificates` //
 CREATE DEFINER=`root`@`localhost` PROCEDURE `GetAllIssuedCertificates`()
-BEGIN
-    SELECT
-        ic.id,
-        ic.student_id,
-        COALESCE(ic.to_title, 'من يهمه الأمر') AS to_title,
-        COALESCE(ic.template_type, 'ARABIC') AS template_type,
-        ic.certificate_number,
-        ic.issue_date,
-        ic.created_at,
-        COALESCE(s.full_name_ar, '') AS student_name_ar,
-        COALESCE(s.full_name_en, '') AS student_name_en
-    FROM issued_certificates ic
-    LEFT JOIN students s ON ic.student_id = s.id
-    ORDER BY ic.issue_date DESC, ic.id DESC;
+BEGIN
+    SELECT
+        ic.id,
+        ic.student_id,
+        COALESCE(ic.to_title, 'من يهمه الأمر') AS to_title,
+        COALESCE(ic.template_type, 'ARABIC') AS template_type,
+        ic.certificate_number,
+        ic.issue_date,
+        ic.created_at,
+        COALESCE(s.full_name_ar, '') AS student_name_ar,
+        COALESCE(s.full_name_en, '') AS student_name_en
+    FROM issued_certificates ic
+    LEFT JOIN students s ON ic.student_id = s.id
+    ORDER BY ic.issue_date DESC, ic.id DESC;
 END //
 DELIMITER ;
 
@@ -612,20 +612,20 @@ DELIMITER ;
 DELIMITER //
 DROP PROCEDURE IF EXISTS `GetAllStudyRoutines` //
 CREATE DEFINER=`root`@`localhost` PROCEDURE `GetAllStudyRoutines`()
-BEGIN
-    SELECT 
-        sr.id,
-        COALESCE(sr.name_ar, '') AS name_ar,
-        COALESCE(sr.name_en, '') AS name_en,
-        COALESCE(sr.department_id, 1) AS department_id,
-        COALESCE(sr.study_system_id, 1) AS study_system_id,
-        sr.created_at,
-        COALESCE(d.name_ar, '') AS department_name_ar,
-        COALESCE(ss.name_ar, '') AS study_system_name_ar
-    FROM study_routines sr
-    LEFT JOIN departments d ON sr.department_id = d.id
-    LEFT JOIN study_systems ss ON sr.study_system_id = ss.id
-    ORDER BY d.name_ar ASC, sr.name_ar ASC;
+BEGIN
+    SELECT 
+        sr.id,
+        COALESCE(sr.name_ar, '') AS name_ar,
+        COALESCE(sr.name_en, '') AS name_en,
+        COALESCE(sr.department_id, 1) AS department_id,
+        COALESCE(sr.study_system_id, 1) AS study_system_id,
+        sr.created_at,
+        COALESCE(d.name_ar, '') AS department_name_ar,
+        COALESCE(ss.name_ar, '') AS study_system_name_ar
+    FROM study_routines sr
+    LEFT JOIN departments d ON sr.department_id = d.id
+    LEFT JOIN study_systems ss ON sr.study_system_id = ss.id
+    ORDER BY d.name_ar ASC, sr.name_ar ASC;
 END //
 DELIMITER ;
 
@@ -652,8 +652,8 @@ DELIMITER ;
 DELIMITER //
 DROP PROCEDURE IF EXISTS `GetCoursesByDepartment` //
 CREATE DEFINER=`root`@`localhost` PROCEDURE `GetCoursesByDepartment`(IN p_dept_id INT)
-BEGIN
-    SELECT * FROM courses WHERE department_id = p_dept_id ORDER BY stage_number ASC, name_ar ASC;
+BEGIN
+    SELECT * FROM courses WHERE department_id = p_dept_id ORDER BY stage_number ASC, name_ar ASC;
 END //
 DELIMITER ;
 
@@ -682,11 +682,11 @@ DELIMITER ;
 DELIMITER //
 DROP PROCEDURE IF EXISTS `GetDistinctGraduationYears` //
 CREATE DEFINER=`root`@`localhost` PROCEDURE `GetDistinctGraduationYears`()
-BEGIN
-    SELECT DISTINCT YEAR(graduation_date) AS graduation_year 
-    FROM students 
-    WHERE graduation_date IS NOT NULL 
-    ORDER BY graduation_year DESC;
+BEGIN
+    SELECT DISTINCT YEAR(graduation_date) AS graduation_year 
+    FROM students 
+    WHERE graduation_date IS NOT NULL 
+    ORDER BY graduation_year DESC;
 END //
 DELIMITER ;
 
@@ -789,9 +789,10 @@ BEGIN
 
         COALESCE(ss.calculation_weights, '') AS calculation_weights, 
 
-        COALESCE(ss.period_display, '') AS period_display, 
+        COALESCE(ss.period_display, '') AS period_display,
 
-        COALESCE(ss.study_day_type, '') AS study_type, 
+        -- 0006: the type is the student's (old clients read Morning / Evening / Other)
+        COALESCE(ELT(FIELD(s.study_type, 'morning', 'evening', 'parallel'), 'Morning', 'Evening', 'Other'), 'Morning') AS study_type,
 
         COALESCE(c.name_ar, '') AS nationality_ar, 
 
@@ -972,24 +973,24 @@ DELIMITER ;
 -- --------------------------------------------------------
 DELIMITER //
 DROP PROCEDURE IF EXISTS `GetIssuedCertificateById` //
-CREATE DEFINER=`root`@`localhost` PROCEDURE `GetIssuedCertificateById`(
-    IN p_id INT
+CREATE DEFINER=`root`@`localhost` PROCEDURE `GetIssuedCertificateById`(
+    IN p_id INT
 )
-BEGIN
-    SELECT
-        ic.id,
-        ic.student_id,
-        COALESCE(ic.to_title, 'من يهمه الأمر') AS to_title,
-        COALESCE(ic.template_type, 'ARABIC') AS template_type,
-        ic.certificate_number,
-        ic.issue_date,
-        ic.created_at,
-        COALESCE(s.full_name_ar, '') AS student_name_ar,
-        COALESCE(s.full_name_en, '') AS student_name_en
-    FROM issued_certificates ic
-    LEFT JOIN students s ON ic.student_id = s.id
-    WHERE ic.id = p_id
-    LIMIT 1;
+BEGIN
+    SELECT
+        ic.id,
+        ic.student_id,
+        COALESCE(ic.to_title, 'من يهمه الأمر') AS to_title,
+        COALESCE(ic.template_type, 'ARABIC') AS template_type,
+        ic.certificate_number,
+        ic.issue_date,
+        ic.created_at,
+        COALESCE(s.full_name_ar, '') AS student_name_ar,
+        COALESCE(s.full_name_en, '') AS student_name_en
+    FROM issued_certificates ic
+    LEFT JOIN students s ON ic.student_id = s.id
+    WHERE ic.id = p_id
+    LIMIT 1;
 END //
 DELIMITER ;
 
@@ -998,24 +999,24 @@ DELIMITER ;
 -- --------------------------------------------------------
 DELIMITER //
 DROP PROCEDURE IF EXISTS `GetIssuedCertificatesByStudent` //
-CREATE DEFINER=`root`@`localhost` PROCEDURE `GetIssuedCertificatesByStudent`(
-    IN p_student_id INT
+CREATE DEFINER=`root`@`localhost` PROCEDURE `GetIssuedCertificatesByStudent`(
+    IN p_student_id INT
 )
-BEGIN
-    SELECT
-        ic.id,
-        ic.student_id,
-        COALESCE(ic.to_title, 'من يهمه الأمر') AS to_title,
-        COALESCE(ic.template_type, 'ARABIC') AS template_type,
-        ic.certificate_number,
-        ic.issue_date,
-        ic.created_at,
-        COALESCE(s.full_name_ar, '') AS student_name_ar,
-        COALESCE(s.full_name_en, '') AS student_name_en
-    FROM issued_certificates ic
-    LEFT JOIN students s ON ic.student_id = s.id
-    WHERE ic.student_id = p_student_id
-    ORDER BY ic.issue_date DESC;
+BEGIN
+    SELECT
+        ic.id,
+        ic.student_id,
+        COALESCE(ic.to_title, 'من يهمه الأمر') AS to_title,
+        COALESCE(ic.template_type, 'ARABIC') AS template_type,
+        ic.certificate_number,
+        ic.issue_date,
+        ic.created_at,
+        COALESCE(s.full_name_ar, '') AS student_name_ar,
+        COALESCE(s.full_name_en, '') AS student_name_en
+    FROM issued_certificates ic
+    LEFT JOIN students s ON ic.student_id = s.id
+    WHERE ic.student_id = p_student_id
+    ORDER BY ic.issue_date DESC;
 END //
 DELIMITER ;
 
@@ -1024,52 +1025,54 @@ DELIMITER ;
 -- --------------------------------------------------------
 DELIMITER //
 DROP PROCEDURE IF EXISTS `GetIssuedCertificatesReport` //
-CREATE DEFINER=`root`@`localhost` PROCEDURE `GetIssuedCertificatesReport`(
-    IN p_start_date DATE,
-    IN p_end_date DATE,
-    IN p_department_id INT,
-    IN p_template_type VARCHAR(100),
-    IN p_graduation_year INT,
-    IN p_study_system_id INT,
-    IN p_search_text VARCHAR(255)
+CREATE DEFINER=`root`@`localhost` PROCEDURE `GetIssuedCertificatesReport`(
+    IN p_start_date DATE,
+    IN p_end_date DATE,
+    IN p_department_id INT,
+    IN p_template_type VARCHAR(100),
+    IN p_graduation_year INT,
+    IN p_study_system_id INT,
+    IN p_search_text VARCHAR(255)
 )
-BEGIN
-    SELECT
-        ic.id AS certificate_id,
-        ic.student_id,
-        COALESCE(ic.to_title, 'من يهمه الأمر') AS to_title,
-        COALESCE(ic.template_type, 'ARABIC') AS template_type,
-        ic.certificate_number,
-        COALESCE(ic.issue_date, '1970-01-01') AS issue_date,
-        ic.created_at,
-        COALESCE(s.full_name_ar, '') AS student_name_ar,
-        COALESCE(s.full_name_en, '') AS student_name_en,
-        COALESCE(s.average, 0.0) AS average,
-        COALESCE(d.id, 0) AS department_id,
-        COALESCE(d.name_ar, '') AS department_name_ar,
-        COALESCE(ss.id, 0) AS study_system_id,
-        COALESCE(ss.name_ar, '') AS study_system_name_ar,
-        COALESCE(ss.study_day_type, '') AS study_day_type,
-        COALESCE(go2.graduation_year, 0) AS graduation_year
-    FROM issued_certificates ic
-    LEFT JOIN students s ON ic.student_id = s.id
-    LEFT JOIN departments d ON s.department_id = d.id
-    LEFT JOIN study_systems ss ON s.study_system_id = ss.id
-    LEFT JOIN graduation_orders go2 ON s.order_id = go2.id
-    WHERE
-        (ic.issue_date >= p_start_date OR p_start_date IS NULL)
-        AND (ic.issue_date <= p_end_date OR p_end_date IS NULL)
-        AND (d.id = p_department_id OR p_department_id = 0 OR p_department_id IS NULL)
-        AND (ic.template_type = p_template_type OR p_template_type = '' OR p_template_type IS NULL)
-        AND (go2.graduation_year = p_graduation_year OR p_graduation_year = 0 OR p_graduation_year IS NULL)
-        AND (s.study_system_id = p_study_system_id OR p_study_system_id = 0 OR p_study_system_id IS NULL)
-        AND (
-            p_search_text IS NULL OR p_search_text = ''
-            OR ic.certificate_number LIKE CONCAT('%', p_search_text, '%')
-            OR s.full_name_ar LIKE CONCAT('%', p_search_text, '%')
-            OR s.full_name_en LIKE CONCAT('%', p_search_text, '%')
-        )
-    ORDER BY ic.issue_date DESC, ic.id DESC;
+BEGIN
+    SELECT
+        ic.id AS certificate_id,
+        ic.student_id,
+        COALESCE(ic.to_title, 'من يهمه الأمر') AS to_title,
+        COALESCE(ic.template_type, 'ARABIC') AS template_type,
+        ic.certificate_number,
+        COALESCE(ic.issue_date, '1970-01-01') AS issue_date,
+        ic.created_at,
+        COALESCE(s.full_name_ar, '') AS student_name_ar,
+        COALESCE(s.full_name_en, '') AS student_name_en,
+        COALESCE(s.average, 0.0) AS average,
+        COALESCE(d.id, 0) AS department_id,
+        COALESCE(d.name_ar, '') AS department_name_ar,
+        COALESCE(ss.id, 0) AS study_system_id,
+        COALESCE(ss.name_ar, '') AS study_system_name_ar,
+        -- 0006: the student's own type (the issued-certificates filter reads this column)
+        COALESCE(ELT(FIELD(s.study_type, 'morning', 'evening', 'parallel'), 'Morning', 'Evening', 'Other'), 'Morning') AS study_day_type,
+        COALESCE(s.study_type, 'morning') AS study_type,
+        COALESCE(go2.graduation_year, 0) AS graduation_year
+    FROM issued_certificates ic
+    LEFT JOIN students s ON ic.student_id = s.id
+    LEFT JOIN departments d ON s.department_id = d.id
+    LEFT JOIN study_systems ss ON s.study_system_id = ss.id
+    LEFT JOIN graduation_orders go2 ON s.order_id = go2.id
+    WHERE
+        (ic.issue_date >= p_start_date OR p_start_date IS NULL)
+        AND (ic.issue_date <= p_end_date OR p_end_date IS NULL)
+        AND (d.id = p_department_id OR p_department_id = 0 OR p_department_id IS NULL)
+        AND (ic.template_type = p_template_type OR p_template_type = '' OR p_template_type IS NULL)
+        AND (go2.graduation_year = p_graduation_year OR p_graduation_year = 0 OR p_graduation_year IS NULL)
+        AND (s.study_system_id = p_study_system_id OR p_study_system_id = 0 OR p_study_system_id IS NULL)
+        AND (
+            p_search_text IS NULL OR p_search_text = ''
+            OR ic.certificate_number LIKE CONCAT('%', p_search_text, '%')
+            OR s.full_name_ar LIKE CONCAT('%', p_search_text, '%')
+            OR s.full_name_en LIKE CONCAT('%', p_search_text, '%')
+        )
+    ORDER BY ic.issue_date DESC, ic.id DESC;
 END //
 DELIMITER ;
 
@@ -1140,17 +1143,17 @@ DELIMITER ;
 DELIMITER //
 DROP PROCEDURE IF EXISTS `GetPersonnelPermissions` //
 CREATE DEFINER=`root`@`localhost` PROCEDURE `GetPersonnelPermissions`(IN `p_personnel_id` INT)
-BEGIN
-    SELECT 
-        pp.permission_key,
-        p.category,
-        p.name_ar,
-        p.name_en,
-        pp.is_granted
-    FROM personnel_permissions pp
-    JOIN permissions p ON p.permission_key = pp.permission_key
-    WHERE pp.personnel_id = p_personnel_id
-      AND pp.is_granted = 1;
+BEGIN
+    SELECT 
+        pp.permission_key,
+        p.category,
+        p.name_ar,
+        p.name_en,
+        pp.is_granted
+    FROM personnel_permissions pp
+    JOIN permissions p ON p.permission_key = pp.permission_key
+    WHERE pp.personnel_id = p_personnel_id
+      AND pp.is_granted = 1;
 END //
 DELIMITER ;
 
@@ -1164,7 +1167,7 @@ BEGIN
     SELECT s.*, YEAR(s.graduation_date) AS graduation_year, 
            d.name_ar AS dept_name_ar, d.name_en AS dept_name_en, 
            ss.name_ar AS study_system_name_ar, ss.name_en AS study_system_name_en, 
-           ss.study_day_type AS study_type, 
+           COALESCE(ELT(FIELD(s.study_type, 'morning', 'evening', 'parallel'), 'Morning', 'Evening', 'Other'), 'Morning') AS study_type,
            c.name_ar AS nationality_ar, c.name_en AS nationality_en, 
            g.name_ar AS birthplace_ar, g.name_en AS birthplace_en, 
            o.order_number, o.order_date, o.graduation_semester AS order_graduation_semester 
@@ -1356,21 +1359,21 @@ DELIMITER ;
 -- --------------------------------------------------------
 DELIMITER //
 DROP PROCEDURE IF EXISTS `GetStudyRoutinePeriodCourses` //
-CREATE DEFINER=`root`@`localhost` PROCEDURE `GetStudyRoutinePeriodCourses`(
-    IN p_period_id INT
+CREATE DEFINER=`root`@`localhost` PROCEDURE `GetStudyRoutinePeriodCourses`(
+    IN p_period_id INT
 )
-BEGIN
-    SELECT 
-        src.id AS mapping_id,
-        src.period_id,
-        src.course_id,
-        COALESCE(c.name_ar, '') AS course_name_ar,
-        COALESCE(c.name_en, '') AS course_name_en,
-        COALESCE(c.credit_hours, 0) AS credit_hours
-    FROM study_routine_courses src
-    JOIN courses c ON src.course_id = c.id
-    WHERE src.period_id = p_period_id
-    ORDER BY c.name_ar ASC;
+BEGIN
+    SELECT 
+        src.id AS mapping_id,
+        src.period_id,
+        src.course_id,
+        COALESCE(c.name_ar, '') AS course_name_ar,
+        COALESCE(c.name_en, '') AS course_name_en,
+        COALESCE(c.credit_hours, 0) AS credit_hours
+    FROM study_routine_courses src
+    JOIN courses c ON src.course_id = c.id
+    WHERE src.period_id = p_period_id
+    ORDER BY c.name_ar ASC;
 END //
 DELIMITER ;
 
@@ -1379,18 +1382,18 @@ DELIMITER ;
 -- --------------------------------------------------------
 DELIMITER //
 DROP PROCEDURE IF EXISTS `GetStudyRoutinePeriods` //
-CREATE DEFINER=`root`@`localhost` PROCEDURE `GetStudyRoutinePeriods`(
-    IN p_routine_id INT
+CREATE DEFINER=`root`@`localhost` PROCEDURE `GetStudyRoutinePeriods`(
+    IN p_routine_id INT
 )
-BEGIN
-    SELECT 
-        srp.id AS period_id,
-        srp.routine_id,
-        COALESCE(srp.stage_number, 1) AS stage_number,
-        COALESCE(srp.semester_num, 1) AS semester_num
-    FROM study_routine_period srp
-    WHERE srp.routine_id = p_routine_id
-    ORDER BY srp.stage_number ASC, srp.semester_num ASC;
+BEGIN
+    SELECT 
+        srp.id AS period_id,
+        srp.routine_id,
+        COALESCE(srp.stage_number, 1) AS stage_number,
+        COALESCE(srp.semester_num, 1) AS semester_num
+    FROM study_routine_period srp
+    WHERE srp.routine_id = p_routine_id
+    ORDER BY srp.stage_number ASC, srp.semester_num ASC;
 END //
 DELIMITER ;
 
@@ -1427,8 +1430,8 @@ DELIMITER ;
 DELIMITER //
 DROP PROCEDURE IF EXISTS `GetSystemSettings` //
 CREATE DEFINER=`root`@`localhost` PROCEDURE `GetSystemSettings`()
-BEGIN
-    CALL GetUniversitySettings();
+BEGIN
+    CALL GetUniversitySettings();
 END //
 DELIMITER ;
 
@@ -1450,23 +1453,23 @@ DELIMITER ;
 DELIMITER //
 DROP PROCEDURE IF EXISTS `GetUniversitySettings` //
 CREATE DEFINER=`root`@`localhost` PROCEDURE `GetUniversitySettings`()
-BEGIN
-        IF NOT EXISTS (SELECT 1 FROM university_settings WHERE id = 1) THEN
-        INSERT INTO university_settings (id, univ_name_ar, univ_name_en, college_name_ar, college_name_en)
-        VALUES (1, 'جامعة البصرة', 'University of Basrah', 'كلية علوم الحاسوب وتكنولوجيا المعلومات', 'College of Computer Science and Information Technology');
-    END IF;
-
-    SELECT 
-        id,
-        univ_name_ar,
-        univ_name_en,
-        college_name_ar,
-        college_name_en,
-        COALESCE(univ_logo_path, '') AS univ_logo_path,
-        COALESCE(college_logo_path, '') AS college_logo_path
-    FROM university_settings 
-    WHERE id = 1 
-    LIMIT 1;
+BEGIN
+        IF NOT EXISTS (SELECT 1 FROM university_settings WHERE id = 1) THEN
+        INSERT INTO university_settings (id, univ_name_ar, univ_name_en, college_name_ar, college_name_en)
+        VALUES (1, 'جامعة البصرة', 'University of Basrah', 'كلية علوم الحاسوب وتكنولوجيا المعلومات', 'College of Computer Science and Information Technology');
+    END IF;
+
+    SELECT 
+        id,
+        univ_name_ar,
+        univ_name_en,
+        college_name_ar,
+        college_name_en,
+        COALESCE(univ_logo_path, '') AS univ_logo_path,
+        COALESCE(college_logo_path, '') AS college_logo_path
+    FROM university_settings 
+    WHERE id = 1 
+    LIMIT 1;
 END //
 DELIMITER ;
 
@@ -1542,17 +1545,17 @@ DELIMITER ;
 -- --------------------------------------------------------
 DELIMITER //
 DROP PROCEDURE IF EXISTS `InsertAcademicPeriod` //
-CREATE DEFINER=`root`@`localhost` PROCEDURE `InsertAcademicPeriod`(
-    IN p_student_id INT,
-    IN p_academic_year VARCHAR(50),
-    IN p_stage_number INT,
-    IN p_semester_num INT,
-    IN p_result_status VARCHAR(50)
+CREATE DEFINER=`root`@`localhost` PROCEDURE `InsertAcademicPeriod`(
+    IN p_student_id INT,
+    IN p_academic_year VARCHAR(50),
+    IN p_stage_number INT,
+    IN p_semester_num INT,
+    IN p_result_status VARCHAR(50)
 )
-BEGIN
-    INSERT INTO academic_periods (student_id, academic_year, stage_number, semester_num, result_status) 
-    VALUES (p_student_id, p_academic_year, p_stage_number, p_semester_num, p_result_status);
-    SELECT LAST_INSERT_ID() AS new_period_id;
+BEGIN
+    INSERT INTO academic_periods (student_id, academic_year, stage_number, semester_num, result_status) 
+    VALUES (p_student_id, p_academic_year, p_stage_number, p_semester_num, p_result_status);
+    SELECT LAST_INSERT_ID() AS new_period_id;
 END //
 DELIMITER ;
 
@@ -1561,17 +1564,17 @@ DELIMITER ;
 -- --------------------------------------------------------
 DELIMITER //
 DROP PROCEDURE IF EXISTS `InsertCourse` //
-CREATE DEFINER=`root`@`localhost` PROCEDURE `InsertCourse`(
-    IN p_name_ar VARCHAR(255),
-    IN p_name_en VARCHAR(255),
-    IN p_credit_hours INT,
-    IN p_department_id INT,
-    IN p_stage_number INT
+CREATE DEFINER=`root`@`localhost` PROCEDURE `InsertCourse`(
+    IN p_name_ar VARCHAR(255),
+    IN p_name_en VARCHAR(255),
+    IN p_credit_hours INT,
+    IN p_department_id INT,
+    IN p_stage_number INT
 )
-BEGIN
-    INSERT INTO courses (name_ar, name_en, credit_hours, department_id, stage_number) 
-    VALUES (p_name_ar, p_name_en, p_credit_hours, p_department_id, p_stage_number);
-    SELECT LAST_INSERT_ID() AS new_course_id;
+BEGIN
+    INSERT INTO courses (name_ar, name_en, credit_hours, department_id, stage_number) 
+    VALUES (p_name_ar, p_name_en, p_credit_hours, p_department_id, p_stage_number);
+    SELECT LAST_INSERT_ID() AS new_course_id;
 END //
 DELIMITER ;
 
@@ -1605,16 +1608,16 @@ DELIMITER ;
 -- --------------------------------------------------------
 DELIMITER //
 DROP PROCEDURE IF EXISTS `InsertEnrollment` //
-CREATE DEFINER=`root`@`localhost` PROCEDURE `InsertEnrollment`(
-    IN p_period_id INT,
-    IN p_course_id INT,
-    IN p_score DECIMAL(5,2),
-    IN p_passed_round INT
+CREATE DEFINER=`root`@`localhost` PROCEDURE `InsertEnrollment`(
+    IN p_period_id INT,
+    IN p_course_id INT,
+    IN p_score DECIMAL(5,2),
+    IN p_passed_round INT
 )
-BEGIN
-    INSERT INTO enrollments (period_id, course_id, score, passed_round) 
-    VALUES (p_period_id, p_course_id, p_score, p_passed_round);
-    SELECT LAST_INSERT_ID() AS new_enrollment_id;
+BEGIN
+    INSERT INTO enrollments (period_id, course_id, score, passed_round) 
+    VALUES (p_period_id, p_course_id, p_score, p_passed_round);
+    SELECT LAST_INSERT_ID() AS new_enrollment_id;
 END //
 DELIMITER ;
 
@@ -1635,12 +1638,22 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `InsertGraduationOrder`(
     IN p_study_system_id INT
 )
 BEGIN
+    -- 0006: old system ids 3-6 become (1|2, type); the type is stored as morning/evening/parallel
+    DECLARE v_sys INT DEFAULT NULL;
+    DECLARE v_type VARCHAR(20) DEFAULT NULL;
+    SELECT study_system_id, study_type INTO v_sys, v_type
+      FROM study_system_aliases WHERE old_id = p_study_system_id AND old_id > 2 LIMIT 1;
+    SET v_type = COALESCE(v_type, CASE
+        WHEN LOWER(TRIM(p_study_type)) IN ('evening', 'مسائي', 'المسائي', 'مسائية', 'المسائية') THEN 'evening'
+        WHEN LOWER(TRIM(p_study_type)) IN ('parallel', 'other', 'موازي', 'الموازي', 'موازية', 'الموازية') THEN 'parallel'
+        ELSE 'morning' END);
+
     INSERT INTO graduation_orders (
-        order_number, order_date, department_id, study_type, 
+        order_number, order_date, department_id, study_type,
         graduation_year, graduation_semester, num_students, notes, study_system_id
     ) VALUES (
-        p_order_number, p_order_date, p_department_id, p_study_type, 
-        p_graduation_year, p_graduation_semester, p_num_students, p_notes, p_study_system_id
+        p_order_number, p_order_date, p_department_id, v_type,
+        p_graduation_year, p_graduation_semester, p_num_students, p_notes, COALESCE(v_sys, p_study_system_id)
     );
     SELECT LAST_INSERT_ID() AS new_id;
 END //
@@ -1651,64 +1664,64 @@ DELIMITER ;
 -- --------------------------------------------------------
 DELIMITER //
 DROP PROCEDURE IF EXISTS `InsertIssuedCertificate` //
-CREATE DEFINER=`root`@`localhost` PROCEDURE `InsertIssuedCertificate`(
-    IN p_student_id INT,
-    IN p_to_title VARCHAR(255),
-    IN p_template_type VARCHAR(100),
-    IN p_issue_date DATE,
-    IN p_certificate_number VARCHAR(100)
+CREATE DEFINER=`root`@`localhost` PROCEDURE `InsertIssuedCertificate`(
+    IN p_student_id INT,
+    IN p_to_title VARCHAR(255),
+    IN p_template_type VARCHAR(100),
+    IN p_issue_date DATE,
+    IN p_certificate_number VARCHAR(100)
 )
-BEGIN
-        IF p_certificate_number IS NOT NULL AND p_certificate_number != '' THEN
-        IF EXISTS (
-            SELECT 1 FROM issued_certificates
-            WHERE certificate_number = p_certificate_number
-              AND student_id != p_student_id
-        ) THEN
-            SIGNAL SQLSTATE '45000'
-            SET MESSAGE_TEXT = 'رقم الوثيقة مستخدم بالفعل لطالب آخر / Certificate number already assigned to another student';
-        END IF;
-
-                IF EXISTS (
-            SELECT 1 FROM issued_certificates
-            WHERE certificate_number = p_certificate_number
-              AND student_id = p_student_id
-        ) THEN
-            UPDATE issued_certificates
-            SET to_title = COALESCE(p_to_title, to_title),
-                template_type = COALESCE(p_template_type, template_type),
-                issue_date = COALESCE(p_issue_date, CURDATE())
-            WHERE certificate_number = p_certificate_number
-              AND student_id = p_student_id;
-
-            SELECT id AS inserted_id
-            FROM issued_certificates
-            WHERE certificate_number = p_certificate_number
-              AND student_id = p_student_id
-            LIMIT 1;
-        ELSE
-                        INSERT INTO issued_certificates (
-                student_id, to_title, template_type, certificate_number, issue_date
-            ) VALUES (
-                p_student_id,
-                COALESCE(p_to_title, 'من يهمه الأمر'),
-                COALESCE(p_template_type, 'ARABIC'),
-                p_certificate_number,
-                COALESCE(p_issue_date, CURDATE())
-            );
-            SELECT LAST_INSERT_ID() AS inserted_id;
-        END IF;
-    ELSE
-                INSERT INTO issued_certificates (
-            student_id, to_title, template_type, issue_date
-        ) VALUES (
-            p_student_id,
-            COALESCE(p_to_title, 'من يهمه الأمر'),
-            COALESCE(p_template_type, 'ARABIC'),
-            COALESCE(p_issue_date, CURDATE())
-        );
-        SELECT LAST_INSERT_ID() AS inserted_id;
-    END IF;
+BEGIN
+        IF p_certificate_number IS NOT NULL AND p_certificate_number != '' THEN
+        IF EXISTS (
+            SELECT 1 FROM issued_certificates
+            WHERE certificate_number = p_certificate_number
+              AND student_id != p_student_id
+        ) THEN
+            SIGNAL SQLSTATE '45000'
+            SET MESSAGE_TEXT = 'رقم الوثيقة مستخدم بالفعل لطالب آخر / Certificate number already assigned to another student';
+        END IF;
+
+                IF EXISTS (
+            SELECT 1 FROM issued_certificates
+            WHERE certificate_number = p_certificate_number
+              AND student_id = p_student_id
+        ) THEN
+            UPDATE issued_certificates
+            SET to_title = COALESCE(p_to_title, to_title),
+                template_type = COALESCE(p_template_type, template_type),
+                issue_date = COALESCE(p_issue_date, CURDATE())
+            WHERE certificate_number = p_certificate_number
+              AND student_id = p_student_id;
+
+            SELECT id AS inserted_id
+            FROM issued_certificates
+            WHERE certificate_number = p_certificate_number
+              AND student_id = p_student_id
+            LIMIT 1;
+        ELSE
+                        INSERT INTO issued_certificates (
+                student_id, to_title, template_type, certificate_number, issue_date
+            ) VALUES (
+                p_student_id,
+                COALESCE(p_to_title, 'من يهمه الأمر'),
+                COALESCE(p_template_type, 'ARABIC'),
+                p_certificate_number,
+                COALESCE(p_issue_date, CURDATE())
+            );
+            SELECT LAST_INSERT_ID() AS inserted_id;
+        END IF;
+    ELSE
+                INSERT INTO issued_certificates (
+            student_id, to_title, template_type, issue_date
+        ) VALUES (
+            p_student_id,
+            COALESCE(p_to_title, 'من يهمه الأمر'),
+            COALESCE(p_template_type, 'ARABIC'),
+            COALESCE(p_issue_date, CURDATE())
+        );
+        SELECT LAST_INSERT_ID() AS inserted_id;
+    END IF;
 END //
 DELIMITER ;
 
@@ -1812,40 +1825,50 @@ DELIMITER ;
 -- --------------------------------------------------------
 DELIMITER //
 DROP PROCEDURE IF EXISTS `InsertStudent` //
-CREATE DEFINER=`root`@`localhost` PROCEDURE `InsertStudent`(
-    IN p_full_name_ar VARCHAR(150),
-    IN p_full_name_en VARCHAR(150),
-    IN p_gender VARCHAR(1),
-    IN p_sequence_number INT,
-    IN p_postgraduation_number INT,
-    IN p_date_of_birth DATE,
-    IN p_birthplace_id INT,
-    IN p_birthplace_other VARCHAR(100),
-    IN p_nationality_id INT,
-    IN p_national_id VARCHAR(50),
-    IN p_department_id INT,
-    IN p_study_system_id INT,
-    IN p_degree_level VARCHAR(50),
-    IN p_order_id INT,
-    IN p_admission_year VARCHAR(9),
-    IN p_summer_training_data VARCHAR(20),
-    IN p_average FLOAT,
-    IN p_graduation_date DATE,
-    IN p_graduation_semester VARCHAR(50)
+CREATE DEFINER=`root`@`localhost` PROCEDURE `InsertStudent`(
+    IN p_full_name_ar VARCHAR(150),
+    IN p_full_name_en VARCHAR(150),
+    IN p_gender VARCHAR(1),
+    IN p_sequence_number INT,
+    IN p_postgraduation_number INT,
+    IN p_date_of_birth DATE,
+    IN p_birthplace_id INT,
+    IN p_birthplace_other VARCHAR(100),
+    IN p_nationality_id INT,
+    IN p_national_id VARCHAR(50),
+    IN p_department_id INT,
+    IN p_study_system_id INT,
+    IN p_degree_level VARCHAR(50),
+    IN p_order_id INT,
+    IN p_admission_year VARCHAR(9),
+    IN p_summer_training_data VARCHAR(20),
+    IN p_average FLOAT,
+    IN p_graduation_date DATE,
+    IN p_graduation_semester VARCHAR(50),
+    IN p_study_type VARCHAR(20)
 )
-BEGIN
-    INSERT INTO students (
-        full_name_ar, full_name_en, gender, sequence_number, postgraduation_number, 
-        date_of_birth, birthplace_id, birthplace_other, nationality_id, national_id,
-        department_id, study_system_id, degree_level, order_id, admission_year, 
-        summer_training_data, average, graduation_date, graduation_semester
-    ) VALUES (
-        p_full_name_ar, p_full_name_en, p_gender, p_sequence_number, p_postgraduation_number, 
-        p_date_of_birth, p_birthplace_id, p_birthplace_other, p_nationality_id, p_national_id,
-        p_department_id, p_study_system_id, p_degree_level, p_order_id, p_admission_year, 
-        p_summer_training_data, p_average, p_graduation_date, p_graduation_semester
-    );
-    SELECT LAST_INSERT_ID() AS new_id;
+BEGIN
+    -- 0006: an old system id (3-6) is translated to (system, type); an empty type takes the
+    -- old id's type, else 'morning'. The API normalises p_study_type (morning/evening/parallel).
+    DECLARE v_sys INT DEFAULT NULL;
+    DECLARE v_type VARCHAR(20) DEFAULT NULL;
+    SELECT study_system_id, study_type INTO v_sys, v_type
+      FROM study_system_aliases WHERE old_id = p_study_system_id LIMIT 1;
+
+    INSERT INTO students (
+        full_name_ar, full_name_en, gender, sequence_number, postgraduation_number,
+        date_of_birth, birthplace_id, birthplace_other, nationality_id, national_id,
+        department_id, study_system_id, study_type, degree_level, order_id, admission_year,
+        summer_training_data, average, graduation_date, graduation_semester
+    ) VALUES (
+        p_full_name_ar, p_full_name_en, p_gender, p_sequence_number, p_postgraduation_number,
+        p_date_of_birth, p_birthplace_id, p_birthplace_other, p_nationality_id, p_national_id,
+        p_department_id, COALESCE(v_sys, p_study_system_id),
+        COALESCE(NULLIF(p_study_type, ''), v_type, 'morning'),
+        p_degree_level, p_order_id, p_admission_year,
+        p_summer_training_data, p_average, p_graduation_date, p_graduation_semester
+    );
+    SELECT LAST_INSERT_ID() AS new_id;
 END //
 DELIMITER ;
 
@@ -1866,19 +1889,22 @@ DELIMITER ;
 -- --------------------------------------------------------
 DELIMITER //
 DROP PROCEDURE IF EXISTS `InsertStudyRoutine` //
-CREATE DEFINER=`root`@`localhost` PROCEDURE `InsertStudyRoutine`(
-    IN p_name_ar VARCHAR(150),
-    IN p_name_en VARCHAR(150),
-    IN p_department_id INT,
-    IN p_study_system_id INT
+CREATE DEFINER=`root`@`localhost` PROCEDURE `InsertStudyRoutine`(
+    IN p_name_ar VARCHAR(150),
+    IN p_name_en VARCHAR(150),
+    IN p_department_id INT,
+    IN p_study_system_id INT
 )
-BEGIN
-    INSERT INTO study_routines (
-        name_ar, name_en, department_id, study_system_id
-    ) VALUES (
-        TRIM(p_name_ar), TRIM(p_name_en), p_department_id, COALESCE(p_study_system_id, 1)
-    );
-    SELECT LAST_INSERT_ID() AS inserted_id;
+BEGIN
+    INSERT INTO study_routines (
+        name_ar, name_en, department_id, study_system_id
+    ) VALUES (
+        TRIM(p_name_ar), TRIM(p_name_en), p_department_id,
+        -- 0006: old system ids 3-6 map to 1 / 2
+        COALESCE((SELECT a.study_system_id FROM study_system_aliases a WHERE a.old_id = p_study_system_id),
+                 p_study_system_id, 1)
+    );
+    SELECT LAST_INSERT_ID() AS inserted_id;
 END //
 DELIMITER ;
 
@@ -1887,15 +1913,15 @@ DELIMITER ;
 -- --------------------------------------------------------
 DELIMITER //
 DROP PROCEDURE IF EXISTS `InsertStudyRoutineCourse` //
-CREATE DEFINER=`root`@`localhost` PROCEDURE `InsertStudyRoutineCourse`(
-    IN p_routine_id INT,
-    IN p_course_id INT
+CREATE DEFINER=`root`@`localhost` PROCEDURE `InsertStudyRoutineCourse`(
+    IN p_routine_id INT,
+    IN p_course_id INT
 )
-BEGIN
-    INSERT IGNORE INTO study_routine_courses (routine_id, course_id) 
-    VALUES (p_routine_id, p_course_id);
-    
-    SELECT LAST_INSERT_ID() AS inserted_id;
+BEGIN
+    INSERT IGNORE INTO study_routine_courses (routine_id, course_id) 
+    VALUES (p_routine_id, p_course_id);
+    
+    SELECT LAST_INSERT_ID() AS inserted_id;
 END //
 DELIMITER ;
 
@@ -1904,18 +1930,18 @@ DELIMITER ;
 -- --------------------------------------------------------
 DELIMITER //
 DROP PROCEDURE IF EXISTS `InsertStudyRoutinePeriod` //
-CREATE DEFINER=`root`@`localhost` PROCEDURE `InsertStudyRoutinePeriod`(
-    IN p_routine_id INT,
-    IN p_stage_number INT,
-    IN p_semester_num INT
+CREATE DEFINER=`root`@`localhost` PROCEDURE `InsertStudyRoutinePeriod`(
+    IN p_routine_id INT,
+    IN p_stage_number INT,
+    IN p_semester_num INT
 )
-BEGIN
-    INSERT INTO study_routine_period (
-        routine_id, stage_number, semester_num
-    ) VALUES (
-        p_routine_id, COALESCE(p_stage_number, 1), COALESCE(p_semester_num, 1)
-    );
-    SELECT LAST_INSERT_ID() AS inserted_id;
+BEGIN
+    INSERT INTO study_routine_period (
+        routine_id, stage_number, semester_num
+    ) VALUES (
+        p_routine_id, COALESCE(p_stage_number, 1), COALESCE(p_semester_num, 1)
+    );
+    SELECT LAST_INSERT_ID() AS inserted_id;
 END //
 DELIMITER ;
 
@@ -1924,15 +1950,15 @@ DELIMITER ;
 -- --------------------------------------------------------
 DELIMITER //
 DROP PROCEDURE IF EXISTS `InsertStudyRoutinePeriodCourse` //
-CREATE DEFINER=`root`@`localhost` PROCEDURE `InsertStudyRoutinePeriodCourse`(
-    IN p_period_id INT,
-    IN p_course_id INT
+CREATE DEFINER=`root`@`localhost` PROCEDURE `InsertStudyRoutinePeriodCourse`(
+    IN p_period_id INT,
+    IN p_course_id INT
 )
-BEGIN
-    INSERT IGNORE INTO study_routine_courses (period_id, course_id) 
-    VALUES (p_period_id, p_course_id);
-    
-    SELECT LAST_INSERT_ID() AS inserted_id;
+BEGIN
+    INSERT IGNORE INTO study_routine_courses (period_id, course_id) 
+    VALUES (p_period_id, p_course_id);
+    
+    SELECT LAST_INSERT_ID() AS inserted_id;
 END //
 DELIMITER ;
 
@@ -2000,9 +2026,13 @@ BEGIN
     DECLARE v_study_system_id INT;
     DECLARE v_date DATE;
     DECLARE v_sem VARCHAR(50);
+    DECLARE v_type VARCHAR(50);
 
-    SELECT department_id, graduation_year, study_system_id, order_date, graduation_semester
-    INTO v_dept_id, v_year, v_study_system_id, v_date, v_sem
+    -- 0006: also the same study type (morning / evening / parallel) when the order has one.
+    -- Students of another type can still be added by hand from the order's screen.
+    SELECT department_id, graduation_year, study_system_id, order_date, graduation_semester,
+           NULLIF(LOWER(TRIM(study_type)), '')
+    INTO v_dept_id, v_year, v_study_system_id, v_date, v_sem, v_type
     FROM graduation_orders WHERE id = p_order_id;
 
     IF v_year IS NULL OR v_year = 0 THEN
@@ -2016,6 +2046,7 @@ BEGIN
     SELECT s.id FROM students s
     WHERE s.department_id = v_dept_id
       AND s.study_system_id = v_study_system_id
+      AND (v_type IS NULL OR s.study_type = v_type)
       AND (s.order_id IS NULL OR s.order_id = 0)
       AND (s.expected_graduation_year = v_year
            OR (s.expected_graduation_year IS NULL AND YEAR(s.graduation_date) - (MONTH(s.graduation_date) < 9) = v_year))
@@ -2080,50 +2111,50 @@ DELIMITER ;
 -- --------------------------------------------------------
 DELIMITER //
 DROP PROCEDURE IF EXISTS `SearchStudentsBasic` //
-CREATE DEFINER=`root`@`localhost` PROCEDURE `SearchStudentsBasic`(
-    IN p_search_term VARCHAR(255),
-    IN p_limit INT
+CREATE DEFINER=`root`@`localhost` PROCEDURE `SearchStudentsBasic`(
+    IN p_search_term VARCHAR(255),
+    IN p_limit INT
 )
-BEGIN
-    SET p_search_term = TRIM(p_search_term);
-
-    IF CHAR_LENGTH(p_search_term) < 2 THEN
-        SELECT 
-            s.id AS student_id,
-            s.full_name_ar AS name_ar,
-            s.full_name_en AS name_en,
-            d.name_ar AS dept_name_ar,
-            YEAR(s.graduation_date) AS graduation_year,
-            s.admission_year,
-            s.average
-        FROM students s
-        LEFT JOIN departments d ON s.department_id = d.id
-        WHERE 1 = 0;
-    ELSE
-        SELECT 
-            s.id AS student_id,
-            s.full_name_ar AS name_ar,
-            s.full_name_en AS name_en,
-            d.name_ar AS dept_name_ar,
-            YEAR(s.graduation_date) AS graduation_year,
-            s.admission_year,
-            s.average
-        FROM 
-            students s
-        LEFT JOIN departments d ON s.department_id = d.id
-        WHERE 
-            s.full_name_ar LIKE CONCAT('%', p_search_term, '%') 
-            OR s.full_name_en LIKE CONCAT('%', p_search_term, '%')
-            OR s.national_id LIKE CONCAT('%', p_search_term, '%')
-        ORDER BY 
-            CASE 
-                WHEN s.full_name_ar = p_search_term OR s.full_name_en = p_search_term OR s.national_id = p_search_term THEN 1
-                WHEN s.full_name_ar LIKE CONCAT(p_search_term, '%') OR s.full_name_en LIKE CONCAT(p_search_term, '%') OR s.national_id LIKE CONCAT(p_search_term, '%') THEN 2
-                ELSE 3 
-            END, 
-            s.full_name_ar ASC
-        LIMIT p_limit;
-    END IF;
+BEGIN
+    SET p_search_term = TRIM(p_search_term);
+
+    IF CHAR_LENGTH(p_search_term) < 2 THEN
+        SELECT 
+            s.id AS student_id,
+            s.full_name_ar AS name_ar,
+            s.full_name_en AS name_en,
+            d.name_ar AS dept_name_ar,
+            YEAR(s.graduation_date) AS graduation_year,
+            s.admission_year,
+            s.average
+        FROM students s
+        LEFT JOIN departments d ON s.department_id = d.id
+        WHERE 1 = 0;
+    ELSE
+        SELECT 
+            s.id AS student_id,
+            s.full_name_ar AS name_ar,
+            s.full_name_en AS name_en,
+            d.name_ar AS dept_name_ar,
+            YEAR(s.graduation_date) AS graduation_year,
+            s.admission_year,
+            s.average
+        FROM 
+            students s
+        LEFT JOIN departments d ON s.department_id = d.id
+        WHERE 
+            s.full_name_ar LIKE CONCAT('%', p_search_term, '%') 
+            OR s.full_name_en LIKE CONCAT('%', p_search_term, '%')
+            OR s.national_id LIKE CONCAT('%', p_search_term, '%')
+        ORDER BY 
+            CASE 
+                WHEN s.full_name_ar = p_search_term OR s.full_name_en = p_search_term OR s.national_id = p_search_term THEN 1
+                WHEN s.full_name_ar LIKE CONCAT(p_search_term, '%') OR s.full_name_en LIKE CONCAT(p_search_term, '%') OR s.national_id LIKE CONCAT(p_search_term, '%') THEN 2
+                ELSE 3 
+            END, 
+            s.full_name_ar ASC
+        LIMIT p_limit;
+    END IF;
 END //
 DELIMITER ;
 
@@ -2132,49 +2163,49 @@ DELIMITER ;
 -- --------------------------------------------------------
 DELIMITER //
 DROP PROCEDURE IF EXISTS `SearchStudentsPaginated` //
-CREATE DEFINER=`root`@`localhost` PROCEDURE `SearchStudentsPaginated`(
-    IN p_search_term VARCHAR(255),
-    IN p_limit INT,
-    IN p_offset INT
+CREATE DEFINER=`root`@`localhost` PROCEDURE `SearchStudentsPaginated`(
+    IN p_search_term VARCHAR(255),
+    IN p_limit INT,
+    IN p_offset INT
 )
-BEGIN
-    SET p_search_term = TRIM(COALESCE(p_search_term, ''));
-
-    IF CHAR_LENGTH(p_search_term) < 2 THEN
-        SELECT 
-            s.id AS student_id,
-            COALESCE(s.full_name_ar, 'Unknown') AS name_ar,
-            COALESCE(s.full_name_en, 'Unknown') AS name_en,
-            COALESCE(d.name_ar, 'Unknown') AS department_name_ar,
-            COALESCE(YEAR(s.graduation_date), 'N/A') AS graduation_year,
-            COALESCE(s.average, 0.0) AS average
-        FROM students s
-        LEFT JOIN departments d ON s.department_id = d.id
-        ORDER BY s.id DESC
-        LIMIT p_limit OFFSET p_offset;
-    ELSE
-        SELECT 
-            s.id AS student_id,
-            COALESCE(s.full_name_ar, 'Unknown') AS name_ar,
-            COALESCE(s.full_name_en, 'Unknown') AS name_en,
-            COALESCE(d.name_ar, 'Unknown') AS department_name_ar,
-            COALESCE(YEAR(s.graduation_date), 'N/A') AS graduation_year,
-            COALESCE(s.average, 0.0) AS average
-        FROM students s
-        LEFT JOIN departments d ON s.department_id = d.id
-        WHERE 
-            s.full_name_ar LIKE CONCAT('%', p_search_term, '%')
-            OR s.full_name_en LIKE CONCAT('%', p_search_term, '%')
-            OR s.national_id LIKE CONCAT('%', p_search_term, '%')
-        ORDER BY 
-            CASE 
-                WHEN s.full_name_ar = p_search_term OR s.full_name_en = p_search_term OR s.national_id = p_search_term THEN 1 
-                WHEN s.full_name_ar LIKE CONCAT(p_search_term, '%') OR s.full_name_en LIKE CONCAT(p_search_term, '%') OR s.national_id LIKE CONCAT(p_search_term, '%') THEN 2 
-                ELSE 3 
-            END, 
-            s.full_name_ar ASC
-        LIMIT p_limit OFFSET p_offset;
-    END IF;
+BEGIN
+    SET p_search_term = TRIM(COALESCE(p_search_term, ''));
+
+    IF CHAR_LENGTH(p_search_term) < 2 THEN
+        SELECT 
+            s.id AS student_id,
+            COALESCE(s.full_name_ar, 'Unknown') AS name_ar,
+            COALESCE(s.full_name_en, 'Unknown') AS name_en,
+            COALESCE(d.name_ar, 'Unknown') AS department_name_ar,
+            COALESCE(YEAR(s.graduation_date), 'N/A') AS graduation_year,
+            COALESCE(s.average, 0.0) AS average
+        FROM students s
+        LEFT JOIN departments d ON s.department_id = d.id
+        ORDER BY s.id DESC
+        LIMIT p_limit OFFSET p_offset;
+    ELSE
+        SELECT 
+            s.id AS student_id,
+            COALESCE(s.full_name_ar, 'Unknown') AS name_ar,
+            COALESCE(s.full_name_en, 'Unknown') AS name_en,
+            COALESCE(d.name_ar, 'Unknown') AS department_name_ar,
+            COALESCE(YEAR(s.graduation_date), 'N/A') AS graduation_year,
+            COALESCE(s.average, 0.0) AS average
+        FROM students s
+        LEFT JOIN departments d ON s.department_id = d.id
+        WHERE 
+            s.full_name_ar LIKE CONCAT('%', p_search_term, '%')
+            OR s.full_name_en LIKE CONCAT('%', p_search_term, '%')
+            OR s.national_id LIKE CONCAT('%', p_search_term, '%')
+        ORDER BY 
+            CASE 
+                WHEN s.full_name_ar = p_search_term OR s.full_name_en = p_search_term OR s.national_id = p_search_term THEN 1 
+                WHEN s.full_name_ar LIKE CONCAT(p_search_term, '%') OR s.full_name_en LIKE CONCAT(p_search_term, '%') OR s.national_id LIKE CONCAT(p_search_term, '%') THEN 2 
+                ELSE 3 
+            END, 
+            s.full_name_ar ASC
+        LIMIT p_limit OFFSET p_offset;
+    END IF;
 END //
 DELIMITER ;
 
@@ -2183,15 +2214,15 @@ DELIMITER ;
 -- --------------------------------------------------------
 DELIMITER //
 DROP PROCEDURE IF EXISTS `SearchUnlinkedStudents` //
-CREATE DEFINER=`root`@`localhost` PROCEDURE `SearchUnlinkedStudents`(
-    IN p_dept_id INT, 
-    IN p_year VARCHAR(50)
+CREATE DEFINER=`root`@`localhost` PROCEDURE `SearchUnlinkedStudents`(
+    IN p_dept_id INT, 
+    IN p_year VARCHAR(50)
 )
-BEGIN
-    SELECT * FROM students 
-    WHERE order_id IS NULL
-      AND (p_dept_id IS NULL OR department_id = p_dept_id)
-      AND (p_year IS NULL OR p_year = '' OR YEAR(graduation_date) = p_year);
+BEGIN
+    SELECT * FROM students 
+    WHERE order_id IS NULL
+      AND (p_dept_id IS NULL OR department_id = p_dept_id)
+      AND (p_year IS NULL OR p_year = '' OR YEAR(graduation_date) = p_year);
 END //
 DELIMITER ;
 
@@ -2200,15 +2231,15 @@ DELIMITER ;
 -- --------------------------------------------------------
 DELIMITER //
 DROP PROCEDURE IF EXISTS `SetPersonnelPermission` //
-CREATE DEFINER=`root`@`localhost` PROCEDURE `SetPersonnelPermission`(
-    IN `p_personnel_id` INT,
-    IN `p_permission_key` VARCHAR(50),
-    IN `p_is_granted` TINYINT
+CREATE DEFINER=`root`@`localhost` PROCEDURE `SetPersonnelPermission`(
+    IN `p_personnel_id` INT,
+    IN `p_permission_key` VARCHAR(50),
+    IN `p_is_granted` TINYINT
 )
-BEGIN
-    INSERT INTO personnel_permissions (personnel_id, permission_key, is_granted)
-    VALUES (p_personnel_id, p_permission_key, p_is_granted)
-    ON DUPLICATE KEY UPDATE is_granted = p_is_granted;
+BEGIN
+    INSERT INTO personnel_permissions (personnel_id, permission_key, is_granted)
+    VALUES (p_personnel_id, p_permission_key, p_is_granted)
+    ON DUPLICATE KEY UPDATE is_granted = p_is_granted;
 END //
 DELIMITER ;
 
@@ -2217,12 +2248,12 @@ DELIMITER ;
 -- --------------------------------------------------------
 DELIMITER //
 DROP PROCEDURE IF EXISTS `TogglePersonnelStatus` //
-CREATE DEFINER=`root`@`localhost` PROCEDURE `TogglePersonnelStatus`(
-    IN p_person_id INT, 
-    IN p_is_active TINYINT
+CREATE DEFINER=`root`@`localhost` PROCEDURE `TogglePersonnelStatus`(
+    IN p_person_id INT, 
+    IN p_is_active TINYINT
 )
-BEGIN
-    UPDATE personnel SET is_active = p_is_active WHERE id = p_person_id;
+BEGIN
+    UPDATE personnel SET is_active = p_is_active WHERE id = p_person_id;
 END //
 DELIMITER ;
 
@@ -2231,12 +2262,12 @@ DELIMITER ;
 -- --------------------------------------------------------
 DELIMITER //
 DROP PROCEDURE IF EXISTS `ToggleStudySystemStatus` //
-CREATE DEFINER=`root`@`localhost` PROCEDURE `ToggleStudySystemStatus`(
-    IN p_sys_id INT, 
-    IN p_is_active TINYINT
+CREATE DEFINER=`root`@`localhost` PROCEDURE `ToggleStudySystemStatus`(
+    IN p_sys_id INT, 
+    IN p_is_active TINYINT
 )
-BEGIN
-    UPDATE study_systems SET is_active = p_is_active WHERE id = p_sys_id;
+BEGIN
+    UPDATE study_systems SET is_active = p_is_active WHERE id = p_sys_id;
 END //
 DELIMITER ;
 
@@ -2266,12 +2297,12 @@ DELIMITER ;
 -- --------------------------------------------------------
 DELIMITER //
 DROP PROCEDURE IF EXISTS `UpdateAcademicPeriodStatus` //
-CREATE DEFINER=`root`@`localhost` PROCEDURE `UpdateAcademicPeriodStatus`(
-    IN p_period_id INT, 
-    IN p_status VARCHAR(50)
+CREATE DEFINER=`root`@`localhost` PROCEDURE `UpdateAcademicPeriodStatus`(
+    IN p_period_id INT, 
+    IN p_status VARCHAR(50)
 )
-BEGIN
-    UPDATE academic_periods SET result_status = p_status WHERE id = p_period_id;
+BEGIN
+    UPDATE academic_periods SET result_status = p_status WHERE id = p_period_id;
 END //
 DELIMITER ;
 
@@ -2280,22 +2311,22 @@ DELIMITER ;
 -- --------------------------------------------------------
 DELIMITER //
 DROP PROCEDURE IF EXISTS `UpdateCourse` //
-CREATE DEFINER=`root`@`localhost` PROCEDURE `UpdateCourse`(
-    IN p_course_id INT,
-    IN p_name_ar VARCHAR(255),
-    IN p_name_en VARCHAR(255),
-    IN p_credit_hours INT,
-    IN p_department_id INT,
-    IN p_stage_number INT
+CREATE DEFINER=`root`@`localhost` PROCEDURE `UpdateCourse`(
+    IN p_course_id INT,
+    IN p_name_ar VARCHAR(255),
+    IN p_name_en VARCHAR(255),
+    IN p_credit_hours INT,
+    IN p_department_id INT,
+    IN p_stage_number INT
 )
-BEGIN
-    UPDATE courses 
-    SET name_ar = p_name_ar, 
-        name_en = p_name_en, 
-        credit_hours = p_credit_hours, 
-        department_id = p_department_id, 
-        stage_number = p_stage_number
-    WHERE id = p_course_id;
+BEGIN
+    UPDATE courses 
+    SET name_ar = p_name_ar, 
+        name_en = p_name_en, 
+        credit_hours = p_credit_hours, 
+        department_id = p_department_id, 
+        stage_number = p_stage_number
+    WHERE id = p_course_id;
 END //
 DELIMITER ;
 
@@ -2335,13 +2366,13 @@ DELIMITER ;
 -- --------------------------------------------------------
 DELIMITER //
 DROP PROCEDURE IF EXISTS `UpdateEnrollment` //
-CREATE DEFINER=`root`@`localhost` PROCEDURE `UpdateEnrollment`(
-    IN p_enrollment_id INT,
-    IN p_score DECIMAL(5,2),
-    IN p_passed_round INT
+CREATE DEFINER=`root`@`localhost` PROCEDURE `UpdateEnrollment`(
+    IN p_enrollment_id INT,
+    IN p_score DECIMAL(5,2),
+    IN p_passed_round INT
 )
-BEGIN
-    UPDATE enrollments SET score = p_score, passed_round = p_passed_round WHERE id = p_enrollment_id;
+BEGIN
+    UPDATE enrollments SET score = p_score, passed_round = p_passed_round WHERE id = p_enrollment_id;
 END //
 DELIMITER ;
 
@@ -2363,16 +2394,26 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `UpdateGraduationOrder`(
     IN p_study_system_id INT
 )
 BEGIN
+    -- 0006: same translation as InsertGraduationOrder
+    DECLARE v_sys INT DEFAULT NULL;
+    DECLARE v_type VARCHAR(20) DEFAULT NULL;
+    SELECT study_system_id, study_type INTO v_sys, v_type
+      FROM study_system_aliases WHERE old_id = p_study_system_id AND old_id > 2 LIMIT 1;
+    SET v_type = COALESCE(v_type, CASE
+        WHEN LOWER(TRIM(p_study_type)) IN ('evening', 'مسائي', 'المسائي', 'مسائية', 'المسائية') THEN 'evening'
+        WHEN LOWER(TRIM(p_study_type)) IN ('parallel', 'other', 'موازي', 'الموازي', 'موازية', 'الموازية') THEN 'parallel'
+        ELSE 'morning' END);
+
     UPDATE graduation_orders
     SET order_number = p_order_number,
         order_date = p_order_date,
         department_id = p_department_id,
-        study_type = p_study_type,
+        study_type = v_type,
         graduation_year = p_graduation_year,
         graduation_semester = p_graduation_semester,
         num_students = p_num_students,
         notes = p_notes,
-        study_system_id = p_study_system_id
+        study_system_id = COALESCE(v_sys, p_study_system_id)
     WHERE id = p_id;
 END //
 DELIMITER ;
@@ -2382,21 +2423,21 @@ DELIMITER ;
 -- --------------------------------------------------------
 DELIMITER //
 DROP PROCEDURE IF EXISTS `UpdateIssuedCertificate` //
-CREATE DEFINER=`root`@`localhost` PROCEDURE `UpdateIssuedCertificate`(
-    IN p_id INT,
-    IN p_to_title VARCHAR(255),
-    IN p_template_type VARCHAR(100),
-    IN p_issue_date DATE,
-    IN p_certificate_number VARCHAR(100)
+CREATE DEFINER=`root`@`localhost` PROCEDURE `UpdateIssuedCertificate`(
+    IN p_id INT,
+    IN p_to_title VARCHAR(255),
+    IN p_template_type VARCHAR(100),
+    IN p_issue_date DATE,
+    IN p_certificate_number VARCHAR(100)
 )
-BEGIN
-    UPDATE issued_certificates
-    SET
-        to_title = COALESCE(p_to_title, to_title),
-        template_type = COALESCE(p_template_type, template_type),
-        issue_date = COALESCE(p_issue_date, issue_date),
-        certificate_number = COALESCE(p_certificate_number, certificate_number)
-    WHERE id = p_id;
+BEGIN
+    UPDATE issued_certificates
+    SET
+        to_title = COALESCE(p_to_title, to_title),
+        template_type = COALESCE(p_template_type, template_type),
+        issue_date = COALESCE(p_issue_date, issue_date),
+        certificate_number = COALESCE(p_certificate_number, certificate_number)
+    WHERE id = p_id;
 END //
 DELIMITER ;
 
@@ -2470,12 +2511,12 @@ DELIMITER ;
 -- --------------------------------------------------------
 DELIMITER //
 DROP PROCEDURE IF EXISTS `UpdatePersonnelPassword` //
-CREATE DEFINER=`root`@`localhost` PROCEDURE `UpdatePersonnelPassword`(
-    IN p_person_id INT, 
-    IN p_password_hash VARCHAR(255)
+CREATE DEFINER=`root`@`localhost` PROCEDURE `UpdatePersonnelPassword`(
+    IN p_person_id INT, 
+    IN p_password_hash VARCHAR(255)
 )
-BEGIN
-    UPDATE personnel SET password_hash = p_password_hash WHERE id = p_person_id;
+BEGIN
+    UPDATE personnel SET password_hash = p_password_hash WHERE id = p_person_id;
 END //
 DELIMITER ;
 
@@ -2484,50 +2525,59 @@ DELIMITER ;
 -- --------------------------------------------------------
 DELIMITER //
 DROP PROCEDURE IF EXISTS `UpdateStudent` //
-CREATE DEFINER=`root`@`localhost` PROCEDURE `UpdateStudent`(
-    IN p_id INT,
-    IN p_full_name_ar VARCHAR(150),
-    IN p_full_name_en VARCHAR(150),
-    IN p_gender VARCHAR(1),
-    IN p_sequence_number INT,
-    IN p_postgraduation_number INT,
-    IN p_date_of_birth DATE,
-    IN p_birthplace_id INT,
-    IN p_birthplace_other VARCHAR(100),
-    IN p_nationality_id INT,
-    IN p_national_id VARCHAR(50),
-    IN p_department_id INT,
-    IN p_study_system_id INT,
-    IN p_degree_level VARCHAR(50),
-    IN p_order_id INT,
-    IN p_admission_year VARCHAR(9),
-    IN p_summer_training_data VARCHAR(20),
-    IN p_average FLOAT,
-    IN p_graduation_date DATE,
-    IN p_graduation_semester VARCHAR(50)
+CREATE DEFINER=`root`@`localhost` PROCEDURE `UpdateStudent`(
+    IN p_id INT,
+    IN p_full_name_ar VARCHAR(150),
+    IN p_full_name_en VARCHAR(150),
+    IN p_gender VARCHAR(1),
+    IN p_sequence_number INT,
+    IN p_postgraduation_number INT,
+    IN p_date_of_birth DATE,
+    IN p_birthplace_id INT,
+    IN p_birthplace_other VARCHAR(100),
+    IN p_nationality_id INT,
+    IN p_national_id VARCHAR(50),
+    IN p_department_id INT,
+    IN p_study_system_id INT,
+    IN p_degree_level VARCHAR(50),
+    IN p_order_id INT,
+    IN p_admission_year VARCHAR(9),
+    IN p_summer_training_data VARCHAR(20),
+    IN p_average FLOAT,
+    IN p_graduation_date DATE,
+    IN p_graduation_semester VARCHAR(50),
+    IN p_study_type VARCHAR(20)
 )
-BEGIN
-    UPDATE students
-    SET full_name_ar = p_full_name_ar,
-        full_name_en = p_full_name_en,
-        gender = p_gender,
-        sequence_number = p_sequence_number,
-        postgraduation_number = p_postgraduation_number,
-        date_of_birth = p_date_of_birth,
-        birthplace_id = p_birthplace_id,
-        birthplace_other = p_birthplace_other,
-        nationality_id = p_nationality_id,
-        national_id = p_national_id,
-        department_id = p_department_id,
-        study_system_id = p_study_system_id,
-        degree_level = p_degree_level,
-        order_id = p_order_id,
-        admission_year = p_admission_year,
-        summer_training_data = p_summer_training_data,
-        average = p_average,
-        graduation_date = p_graduation_date,
-        graduation_semester = p_graduation_semester
-    WHERE id = p_id;
+BEGIN
+    -- 0006: empty p_study_type (old clients) keeps the saved type, unless an old system id 3-6
+    -- says which type it meant.
+    DECLARE v_sys INT DEFAULT NULL;
+    DECLARE v_type VARCHAR(20) DEFAULT NULL;
+    SELECT study_system_id, study_type INTO v_sys, v_type
+      FROM study_system_aliases WHERE old_id = p_study_system_id AND old_id > 2 LIMIT 1;
+
+    UPDATE students
+    SET study_type = COALESCE(NULLIF(p_study_type, ''), v_type, study_type),
+        full_name_ar = p_full_name_ar,
+        full_name_en = p_full_name_en,
+        gender = p_gender,
+        sequence_number = p_sequence_number,
+        postgraduation_number = p_postgraduation_number,
+        date_of_birth = p_date_of_birth,
+        birthplace_id = p_birthplace_id,
+        birthplace_other = p_birthplace_other,
+        nationality_id = p_nationality_id,
+        national_id = p_national_id,
+        department_id = p_department_id,
+        study_system_id = COALESCE(v_sys, p_study_system_id),
+        degree_level = p_degree_level,
+        order_id = p_order_id,
+        admission_year = p_admission_year,
+        summer_training_data = p_summer_training_data,
+        average = p_average,
+        graduation_date = p_graduation_date,
+        graduation_semester = p_graduation_semester
+    WHERE id = p_id;
 END //
 DELIMITER ;
 
@@ -2547,36 +2597,39 @@ DELIMITER ;
 -- --------------------------------------------------------
 DELIMITER //
 DROP PROCEDURE IF EXISTS `UpdateStudyRoutine` //
-CREATE DEFINER=`root`@`localhost` PROCEDURE `UpdateStudyRoutine`(
-    IN p_id INT,
-    IN p_name_ar VARCHAR(150),
-    IN p_name_en VARCHAR(150),
-    IN p_department_id INT,
-    IN p_study_system_id INT
+CREATE DEFINER=`root`@`localhost` PROCEDURE `UpdateStudyRoutine`(
+    IN p_id INT,
+    IN p_name_ar VARCHAR(150),
+    IN p_name_en VARCHAR(150),
+    IN p_department_id INT,
+    IN p_study_system_id INT
 )
-BEGIN
-    DECLARE v_duplicate_count INT DEFAULT 0;
-    
-        SET p_name_ar = TRIM(p_name_ar);
-    SET p_name_en = TRIM(p_name_en);
-
-        SELECT COUNT(*) INTO v_duplicate_count
-    FROM study_routines
-    WHERE name_ar = p_name_ar 
-      AND department_id = p_department_id 
-      AND study_system_id = p_study_system_id
-      AND id != p_id; 
-    IF v_duplicate_count > 0 THEN
-                SIGNAL SQLSTATE '45000'
-        SET MESSAGE_TEXT = 'Duplicate entry: A routine with this name already exists in this department and study system.';
-    ELSE
-                UPDATE study_routines SET 
-            name_ar = COALESCE(p_name_ar, name_ar),
-            name_en = COALESCE(p_name_en, name_en),
-            department_id = COALESCE(p_department_id, department_id),
-            study_system_id = COALESCE(p_study_system_id, study_system_id)
-        WHERE id = p_id;
-    END IF;
+BEGIN
+    DECLARE v_duplicate_count INT DEFAULT 0;
+    
+        SET p_name_ar = TRIM(p_name_ar);
+    SET p_name_en = TRIM(p_name_en);
+    -- 0006: old system ids 3-6 map to 1 / 2
+    SET p_study_system_id = COALESCE((SELECT a.study_system_id FROM study_system_aliases a
+                                      WHERE a.old_id = p_study_system_id), p_study_system_id);
+
+        SELECT COUNT(*) INTO v_duplicate_count
+    FROM study_routines
+    WHERE name_ar = p_name_ar 
+      AND department_id = p_department_id 
+      AND study_system_id = p_study_system_id
+      AND id != p_id; 
+    IF v_duplicate_count > 0 THEN
+                SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'Duplicate entry: A routine with this name already exists in this department and study system.';
+    ELSE
+                UPDATE study_routines SET 
+            name_ar = COALESCE(p_name_ar, name_ar),
+            name_en = COALESCE(p_name_en, name_en),
+            department_id = COALESCE(p_department_id, department_id),
+            study_system_id = COALESCE(p_study_system_id, study_system_id)
+        WHERE id = p_id;
+    END IF;
 END //
 DELIMITER ;
 
@@ -2585,16 +2638,16 @@ DELIMITER ;
 -- --------------------------------------------------------
 DELIMITER //
 DROP PROCEDURE IF EXISTS `UpdateStudyRoutinePeriod` //
-CREATE DEFINER=`root`@`localhost` PROCEDURE `UpdateStudyRoutinePeriod`(
-    IN p_period_id INT,
-    IN p_stage_number INT,
-    IN p_semester_num INT
+CREATE DEFINER=`root`@`localhost` PROCEDURE `UpdateStudyRoutinePeriod`(
+    IN p_period_id INT,
+    IN p_stage_number INT,
+    IN p_semester_num INT
 )
-BEGIN
-    UPDATE study_routine_period SET 
-        stage_number = COALESCE(p_stage_number, stage_number),
-        semester_num = COALESCE(p_semester_num, semester_num)
-    WHERE id = p_period_id;
+BEGIN
+    UPDATE study_routine_period SET 
+        stage_number = COALESCE(p_stage_number, stage_number),
+        semester_num = COALESCE(p_semester_num, semester_num)
+    WHERE id = p_period_id;
 END //
 DELIMITER ;
 
@@ -2704,24 +2757,24 @@ DELIMITER ;
 -- --------------------------------------------------------
 DELIMITER //
 DROP PROCEDURE IF EXISTS `UpdateUniversitySettings` //
-CREATE DEFINER=`root`@`localhost` PROCEDURE `UpdateUniversitySettings`(
-    IN p_univ_name_ar VARCHAR(100),
-    IN p_univ_name_en VARCHAR(100),
-    IN p_college_name_ar VARCHAR(100),
-    IN p_college_name_en VARCHAR(100),
-    IN p_univ_logo_path VARCHAR(255),
-    IN p_college_logo_path VARCHAR(255)
+CREATE DEFINER=`root`@`localhost` PROCEDURE `UpdateUniversitySettings`(
+    IN p_univ_name_ar VARCHAR(100),
+    IN p_univ_name_en VARCHAR(100),
+    IN p_college_name_ar VARCHAR(100),
+    IN p_college_name_en VARCHAR(100),
+    IN p_univ_logo_path VARCHAR(255),
+    IN p_college_logo_path VARCHAR(255)
 )
-BEGIN
-    UPDATE university_settings 
-    SET 
-        univ_name_ar = p_univ_name_ar,
-        univ_name_en = p_univ_name_en,
-        college_name_ar = p_college_name_ar,
-        college_name_en = p_college_name_en,
-        univ_logo_path = COALESCE(p_univ_logo_path, univ_logo_path),
-        college_logo_path = COALESCE(p_college_logo_path, college_logo_path)
-    WHERE id = 1;
+BEGIN
+    UPDATE university_settings 
+    SET 
+        univ_name_ar = p_univ_name_ar,
+        univ_name_en = p_univ_name_en,
+        college_name_ar = p_college_name_ar,
+        college_name_en = p_college_name_en,
+        univ_logo_path = COALESCE(p_univ_logo_path, univ_logo_path),
+        college_logo_path = COALESCE(p_college_logo_path, college_logo_path)
+    WHERE id = 1;
 END //
 DELIMITER ;
 
@@ -2833,33 +2886,33 @@ DELIMITER ;
 DELIMITER //
 DROP PROCEDURE IF EXISTS `sp_GetCertificate_AcademicCourses` //
 CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_GetCertificate_AcademicCourses`(IN `p_student_id` INT, IN `p_grouping_mode` VARCHAR(50))
-BEGIN
-    DECLARE v_period_display VARCHAR(50);
-
-    SELECT LOWER(COALESCE(ss.period_display, 'year'))
-    INTO v_period_display
-    FROM students s
-    LEFT JOIN study_systems ss ON s.study_system_id = ss.id
-    WHERE s.id = p_student_id
-    LIMIT 1;
-    
-    IF v_period_display = 'semester' THEN
-        IF p_grouping_mode = 'BY_SEMESTER_stage' THEN
-            CALL sp_GetCertificate_Courses_Semester_ByStage(p_student_id);
-        ELSE
-            CALL sp_GetCertificate_Courses_Semester_ByYear(p_student_id);
-        END IF;
-    ELSE
-        IF p_grouping_mode = 'BY_PERIOD_STAGE' THEN
-            CALL sp_GetCertificate_Courses_Yearly_ByPeriodStage(p_student_id);
-        ELSEIF p_grouping_mode = 'BY_CURRICULUM_STAGE' THEN
-            CALL sp_GetCertificate_Courses_Yearly_ByCurriculumStage(p_student_id);
-        ELSEIF p_grouping_mode = 'BY_ByAcademicYear' THEN
-                        CALL sp_GetCertificate_Courses_Yearly_ByAcademicYear(p_student_id);
-        ELSE
-            CALL sp_GetCertificate_Courses_Yearly_ByAcademicDefualte(p_student_id);
-        END IF;
-    END IF;
+BEGIN
+    DECLARE v_period_display VARCHAR(50);
+
+    SELECT LOWER(COALESCE(ss.period_display, 'year'))
+    INTO v_period_display
+    FROM students s
+    LEFT JOIN study_systems ss ON s.study_system_id = ss.id
+    WHERE s.id = p_student_id
+    LIMIT 1;
+    
+    IF v_period_display = 'semester' THEN
+        IF p_grouping_mode = 'BY_SEMESTER_stage' THEN
+            CALL sp_GetCertificate_Courses_Semester_ByStage(p_student_id);
+        ELSE
+            CALL sp_GetCertificate_Courses_Semester_ByYear(p_student_id);
+        END IF;
+    ELSE
+        IF p_grouping_mode = 'BY_PERIOD_STAGE' THEN
+            CALL sp_GetCertificate_Courses_Yearly_ByPeriodStage(p_student_id);
+        ELSEIF p_grouping_mode = 'BY_CURRICULUM_STAGE' THEN
+            CALL sp_GetCertificate_Courses_Yearly_ByCurriculumStage(p_student_id);
+        ELSEIF p_grouping_mode = 'BY_ByAcademicYear' THEN
+                        CALL sp_GetCertificate_Courses_Yearly_ByAcademicYear(p_student_id);
+        ELSE
+            CALL sp_GetCertificate_Courses_Yearly_ByAcademicDefualte(p_student_id);
+        END IF;
+    END IF;
 END //
 DELIMITER ;
 
@@ -2943,37 +2996,37 @@ DELIMITER ;
 -- --------------------------------------------------------
 DELIMITER //
 DROP PROCEDURE IF EXISTS `sp_GetCertificate_Courses_Semester_ByStage` //
-CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_GetCertificate_Courses_Semester_ByStage`(
-    IN p_student_id INT
+CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_GetCertificate_Courses_Semester_ByStage`(
+    IN p_student_id INT
 )
-BEGIN
-    SELECT 
-        CASE 
-            WHEN ap.academic_year IS NULL OR ap.academic_year = '' THEN ''
-            WHEN ap.academic_year LIKE '%-%' THEN ap.academic_year
-            ELSE CONCAT(ap.academic_year, ' - ', CAST(ap.academic_year AS UNSIGNED) + 1)
-        END AS academic_year_formatted,
-        ap.academic_year,
-        ap.stage_number,
-        COALESCE(ap.semester_num, 1) AS semester_num,
-        COALESCE(c.name_ar, '') AS subject_name,
-        COALESCE(c.name_en, c.name_ar, '') AS subject_name_en,
-        COALESCE(c.name_ar, '') AS subject_name_ar,
-        COALESCE(c.name_en, c.name_ar, '') AS course_name_en,
-        COALESCE(c.name_ar, '') AS course_name_ar,
-        COALESCE(c.credit_hours, 0) AS unit,
-        COALESCE(e.score, 0.0) AS mark,
-        COALESCE(e.passed_round, 1) AS passed_round,
-        CONCAT(ap.stage_number, '_', COALESCE(ap.semester_num, 1)) AS grouping_key
-    FROM academic_periods ap
-    JOIN enrollments e ON e.period_id = ap.id
-    JOIN courses c ON e.course_id = c.id
-    WHERE ap.student_id = p_student_id
-      AND e.score >= 50
-    ORDER BY 
-        ap.stage_number ASC,
-        COALESCE(ap.semester_num, 1) ASC,
-        c.name_ar ASC;
+BEGIN
+    SELECT 
+        CASE 
+            WHEN ap.academic_year IS NULL OR ap.academic_year = '' THEN ''
+            WHEN ap.academic_year LIKE '%-%' THEN ap.academic_year
+            ELSE CONCAT(ap.academic_year, ' - ', CAST(ap.academic_year AS UNSIGNED) + 1)
+        END AS academic_year_formatted,
+        ap.academic_year,
+        ap.stage_number,
+        COALESCE(ap.semester_num, 1) AS semester_num,
+        COALESCE(c.name_ar, '') AS subject_name,
+        COALESCE(c.name_en, c.name_ar, '') AS subject_name_en,
+        COALESCE(c.name_ar, '') AS subject_name_ar,
+        COALESCE(c.name_en, c.name_ar, '') AS course_name_en,
+        COALESCE(c.name_ar, '') AS course_name_ar,
+        COALESCE(c.credit_hours, 0) AS unit,
+        COALESCE(e.score, 0.0) AS mark,
+        COALESCE(e.passed_round, 1) AS passed_round,
+        CONCAT(ap.stage_number, '_', COALESCE(ap.semester_num, 1)) AS grouping_key
+    FROM academic_periods ap
+    JOIN enrollments e ON e.period_id = ap.id
+    JOIN courses c ON e.course_id = c.id
+    WHERE ap.student_id = p_student_id
+      AND e.score >= 50
+    ORDER BY 
+        ap.stage_number ASC,
+        COALESCE(ap.semester_num, 1) ASC,
+        c.name_ar ASC;
 END //
 DELIMITER ;
 
@@ -2982,37 +3035,37 @@ DELIMITER ;
 -- --------------------------------------------------------
 DELIMITER //
 DROP PROCEDURE IF EXISTS `sp_GetCertificate_Courses_Semester_ByYear` //
-CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_GetCertificate_Courses_Semester_ByYear`(
-    IN p_student_id INT
+CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_GetCertificate_Courses_Semester_ByYear`(
+    IN p_student_id INT
 )
-BEGIN
-    SELECT 
-        CASE 
-            WHEN ap.academic_year IS NULL OR ap.academic_year = '' THEN ''
-            WHEN ap.academic_year LIKE '%-%' THEN ap.academic_year
-            ELSE CONCAT(ap.academic_year, ' - ', CAST(ap.academic_year AS UNSIGNED) + 1)
-        END AS academic_year_formatted,
-        ap.academic_year,
-        ap.stage_number,
-        COALESCE(ap.semester_num, 1) AS semester_num,
-        COALESCE(c.name_ar, '') AS subject_name,
-        COALESCE(c.name_en, c.name_ar, '') AS subject_name_en,
-        COALESCE(c.name_ar, '') AS subject_name_ar,
-        COALESCE(c.name_en, c.name_ar, '') AS course_name_en,
-        COALESCE(c.name_ar, '') AS course_name_ar,
-        COALESCE(c.credit_hours, 0) AS unit,
-        COALESCE(e.score, 0.0) AS mark,
-        COALESCE(e.passed_round, 1) AS passed_round,
-        CONCAT(ap.academic_year, '_', COALESCE(ap.semester_num, 1)) AS grouping_key
-    FROM academic_periods ap
-    JOIN enrollments e ON e.period_id = ap.id
-    JOIN courses c ON e.course_id = c.id
-    WHERE ap.student_id = p_student_id
-      AND e.score >= 50
-    ORDER BY 
-        ap.academic_year ASC,
-        COALESCE(ap.semester_num, 1) ASC,
-        c.name_ar ASC;
+BEGIN
+    SELECT 
+        CASE 
+            WHEN ap.academic_year IS NULL OR ap.academic_year = '' THEN ''
+            WHEN ap.academic_year LIKE '%-%' THEN ap.academic_year
+            ELSE CONCAT(ap.academic_year, ' - ', CAST(ap.academic_year AS UNSIGNED) + 1)
+        END AS academic_year_formatted,
+        ap.academic_year,
+        ap.stage_number,
+        COALESCE(ap.semester_num, 1) AS semester_num,
+        COALESCE(c.name_ar, '') AS subject_name,
+        COALESCE(c.name_en, c.name_ar, '') AS subject_name_en,
+        COALESCE(c.name_ar, '') AS subject_name_ar,
+        COALESCE(c.name_en, c.name_ar, '') AS course_name_en,
+        COALESCE(c.name_ar, '') AS course_name_ar,
+        COALESCE(c.credit_hours, 0) AS unit,
+        COALESCE(e.score, 0.0) AS mark,
+        COALESCE(e.passed_round, 1) AS passed_round,
+        CONCAT(ap.academic_year, '_', COALESCE(ap.semester_num, 1)) AS grouping_key
+    FROM academic_periods ap
+    JOIN enrollments e ON e.period_id = ap.id
+    JOIN courses c ON e.course_id = c.id
+    WHERE ap.student_id = p_student_id
+      AND e.score >= 50
+    ORDER BY 
+        ap.academic_year ASC,
+        COALESCE(ap.semester_num, 1) ASC,
+        c.name_ar ASC;
 END //
 DELIMITER ;
 
@@ -3022,98 +3075,98 @@ DELIMITER ;
 DELIMITER //
 DROP PROCEDURE IF EXISTS `sp_GetCertificate_Courses_Yearly_ByAcademicDefualte` //
 CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_GetCertificate_Courses_Yearly_ByAcademicDefualte`(IN `p_student_id` INT)
-BEGIN
-    SELECT 
-        CASE
-            WHEN ap.academic_year IS NULL OR ap.academic_year = '' THEN ''
-            WHEN ap.academic_year LIKE '%-%' THEN ap.academic_year
-            ELSE CONCAT(ap.academic_year, ' - ', CAST(ap.academic_year AS UNSIGNED) + 1)
-        END AS academic_year_formatted,
-        ap.academic_year,
-        ap.stage_number AS period_stage,
-        COALESCE(c.stage_number, ap.stage_number) AS course_curriculum_stage,
-        
-                COALESCE(cd.origin_semester, ap.semester_num, 1) AS semester_num,
-        
-        COALESCE(ap.result_status, 0) AS result_status_code,
-        CASE COALESCE(ap.result_status, 0)
-            WHEN 1 THEN 'PASSED'
-            WHEN 2 THEN 'FAILED_REPEAT'
-            WHEN 3 THEN 'EXCEPTIONAL_PASS'
-            WHEN 4 THEN 'CARRIED_OVER'
-            WHEN 5 THEN 'DEFERRED'
-            WHEN 6 THEN 'DISMISSED'
-            ELSE 'N/A'
-        END AS result_status_label,
-        COALESCE(c.name_en, '') AS course_name_en,
-        COALESCE(c.name_ar, '') AS course_name_ar,
-        COALESCE(c.credit_hours, 0) AS unit,
-        COALESCE(cd.passing_score, 0.0) AS mark,
-        COALESCE(cd.passing_round, 1) AS passed_round,
-        CASE
-            WHEN c.id IS NULL THEN ''
-            WHEN COALESCE(c.stage_number, ap.stage_number) < ap.stage_number THEN 'عبور'
-            ELSE 'أساسي'
-        END AS course_type,
-        ap.academic_year AS grouping_key
-    FROM academic_periods ap
-    JOIN (
-                SELECT academic_year, MAX(CASE WHEN COALESCE(result_status, 0) = 2 THEN 1 ELSE 0 END) AS is_failed_year
-        FROM academic_periods
-        WHERE student_id = p_student_id
-        GROUP BY academic_year
-    ) ys ON ap.academic_year = ys.academic_year
-    
-    LEFT JOIN (
-        SELECT 
-            passed.course_id,
-            passed.passing_score,
-            passed.passing_round,
-            origin.origin_semester,
-            (
-                SELECT ap_target.id 
-                FROM academic_periods ap_target
-                JOIN (
-                    SELECT academic_year, MAX(CASE WHEN COALESCE(result_status, 0) = 2 THEN 1 ELSE 0 END) AS is_failed_year
-                    FROM academic_periods
-                    WHERE student_id = p_student_id
-                    GROUP BY academic_year
-                ) ys_sub ON ap_target.academic_year = ys_sub.academic_year
-                WHERE ap_target.student_id = p_student_id
-                  AND ys_sub.is_failed_year = 0
-                  AND ap_target.stage_number = origin.origin_stage
-                  AND ap_target.academic_year >= origin.origin_year
-                ORDER BY 
-                  ap_target.academic_year ASC,
-                                    CASE WHEN COALESCE(ap_target.semester_num, 1) = origin.origin_semester THEN 0 ELSE 1 END ASC
-                LIMIT 1
-            ) AS target_period_id
-        FROM (
-                        SELECT e.course_id, MAX(e.score) AS passing_score, MAX(e.passed_round) AS passing_round 
-            FROM enrollments e
-            JOIN academic_periods ap_inner ON e.period_id = ap_inner.id
-            WHERE ap_inner.student_id = p_student_id 
-              AND e.score >= 50
-            GROUP BY e.course_id
-        ) passed
-        JOIN (
-                        SELECT e.course_id,
-                   SUBSTRING_INDEX(GROUP_CONCAT(ap_inner.academic_year ORDER BY ap_inner.academic_year ASC), ',', 1) AS origin_year,
-                   SUBSTRING_INDEX(GROUP_CONCAT(ap_inner.stage_number ORDER BY ap_inner.academic_year ASC), ',', 1) AS origin_stage,
-                   CAST(SUBSTRING_INDEX(GROUP_CONCAT(COALESCE(ap_inner.semester_num, 1) ORDER BY ap_inner.academic_year ASC), ',', 1) AS UNSIGNED) AS origin_semester
-            FROM enrollments e
-            JOIN academic_periods ap_inner ON e.period_id = ap_inner.id
-            WHERE ap_inner.student_id = p_student_id
-            GROUP BY e.course_id
-        ) origin ON passed.course_id = origin.course_id
-    ) cd ON cd.target_period_id = ap.id
-    
-    LEFT JOIN courses c ON c.id = cd.course_id
-    WHERE ap.student_id = p_student_id
-      AND ys.is_failed_year = 0
-      AND c.id IS NOT NULL     ORDER BY 
-        ap.academic_year ASC,
-        COALESCE(cd.origin_semester, ap.semester_num, 1) ASC,         c.name_ar ASC;
+BEGIN
+    SELECT 
+        CASE
+            WHEN ap.academic_year IS NULL OR ap.academic_year = '' THEN ''
+            WHEN ap.academic_year LIKE '%-%' THEN ap.academic_year
+            ELSE CONCAT(ap.academic_year, ' - ', CAST(ap.academic_year AS UNSIGNED) + 1)
+        END AS academic_year_formatted,
+        ap.academic_year,
+        ap.stage_number AS period_stage,
+        COALESCE(c.stage_number, ap.stage_number) AS course_curriculum_stage,
+        
+                COALESCE(cd.origin_semester, ap.semester_num, 1) AS semester_num,
+        
+        COALESCE(ap.result_status, 0) AS result_status_code,
+        CASE COALESCE(ap.result_status, 0)
+            WHEN 1 THEN 'PASSED'
+            WHEN 2 THEN 'FAILED_REPEAT'
+            WHEN 3 THEN 'EXCEPTIONAL_PASS'
+            WHEN 4 THEN 'CARRIED_OVER'
+            WHEN 5 THEN 'DEFERRED'
+            WHEN 6 THEN 'DISMISSED'
+            ELSE 'N/A'
+        END AS result_status_label,
+        COALESCE(c.name_en, '') AS course_name_en,
+        COALESCE(c.name_ar, '') AS course_name_ar,
+        COALESCE(c.credit_hours, 0) AS unit,
+        COALESCE(cd.passing_score, 0.0) AS mark,
+        COALESCE(cd.passing_round, 1) AS passed_round,
+        CASE
+            WHEN c.id IS NULL THEN ''
+            WHEN COALESCE(c.stage_number, ap.stage_number) < ap.stage_number THEN 'عبور'
+            ELSE 'أساسي'
+        END AS course_type,
+        ap.academic_year AS grouping_key
+    FROM academic_periods ap
+    JOIN (
+                SELECT academic_year, MAX(CASE WHEN COALESCE(result_status, 0) = 2 THEN 1 ELSE 0 END) AS is_failed_year
+        FROM academic_periods
+        WHERE student_id = p_student_id
+        GROUP BY academic_year
+    ) ys ON ap.academic_year = ys.academic_year
+    
+    LEFT JOIN (
+        SELECT 
+            passed.course_id,
+            passed.passing_score,
+            passed.passing_round,
+            origin.origin_semester,
+            (
+                SELECT ap_target.id 
+                FROM academic_periods ap_target
+                JOIN (
+                    SELECT academic_year, MAX(CASE WHEN COALESCE(result_status, 0) = 2 THEN 1 ELSE 0 END) AS is_failed_year
+                    FROM academic_periods
+                    WHERE student_id = p_student_id
+                    GROUP BY academic_year
+                ) ys_sub ON ap_target.academic_year = ys_sub.academic_year
+                WHERE ap_target.student_id = p_student_id
+                  AND ys_sub.is_failed_year = 0
+                  AND ap_target.stage_number = origin.origin_stage
+                  AND ap_target.academic_year >= origin.origin_year
+                ORDER BY 
+                  ap_target.academic_year ASC,
+                                    CASE WHEN COALESCE(ap_target.semester_num, 1) = origin.origin_semester THEN 0 ELSE 1 END ASC
+                LIMIT 1
+            ) AS target_period_id
+        FROM (
+                        SELECT e.course_id, MAX(e.score) AS passing_score, MAX(e.passed_round) AS passing_round 
+            FROM enrollments e
+            JOIN academic_periods ap_inner ON e.period_id = ap_inner.id
+            WHERE ap_inner.student_id = p_student_id 
+              AND e.score >= 50
+            GROUP BY e.course_id
+        ) passed
+        JOIN (
+                        SELECT e.course_id,
+                   SUBSTRING_INDEX(GROUP_CONCAT(ap_inner.academic_year ORDER BY ap_inner.academic_year ASC), ',', 1) AS origin_year,
+                   SUBSTRING_INDEX(GROUP_CONCAT(ap_inner.stage_number ORDER BY ap_inner.academic_year ASC), ',', 1) AS origin_stage,
+                   CAST(SUBSTRING_INDEX(GROUP_CONCAT(COALESCE(ap_inner.semester_num, 1) ORDER BY ap_inner.academic_year ASC), ',', 1) AS UNSIGNED) AS origin_semester
+            FROM enrollments e
+            JOIN academic_periods ap_inner ON e.period_id = ap_inner.id
+            WHERE ap_inner.student_id = p_student_id
+            GROUP BY e.course_id
+        ) origin ON passed.course_id = origin.course_id
+    ) cd ON cd.target_period_id = ap.id
+    
+    LEFT JOIN courses c ON c.id = cd.course_id
+    WHERE ap.student_id = p_student_id
+      AND ys.is_failed_year = 0
+      AND c.id IS NOT NULL     ORDER BY 
+        ap.academic_year ASC,
+        COALESCE(cd.origin_semester, ap.semester_num, 1) ASC,         c.name_ar ASC;
 END //
 DELIMITER ;
 
@@ -3122,38 +3175,38 @@ DELIMITER ;
 -- --------------------------------------------------------
 DELIMITER //
 DROP PROCEDURE IF EXISTS `sp_GetCertificate_Courses_Yearly_ByAcademicYear` //
-CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_GetCertificate_Courses_Yearly_ByAcademicYear`(
-    IN p_student_id INT
+CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_GetCertificate_Courses_Yearly_ByAcademicYear`(
+    IN p_student_id INT
 )
-BEGIN
-    SELECT 
-        CASE
-            WHEN ap.academic_year IS NULL OR ap.academic_year = '' THEN ''
-            WHEN ap.academic_year LIKE '%-%' THEN ap.academic_year
-            ELSE CONCAT(ap.academic_year, ' - ', CAST(ap.academic_year AS UNSIGNED) + 1)
-        END AS academic_year_formatted,
-        ap.academic_year,
-        ap.stage_number AS period_stage,
-        COALESCE(c.stage_number, ap.stage_number) AS course_curriculum_stage,
-        COALESCE(ap.semester_num, 1) AS semester_num,
-        COALESCE(c.name_en, '') AS course_name_en,
-        COALESCE(c.name_ar, '') AS course_name_ar,
-        COALESCE(c.credit_hours, 0) AS unit,
-        COALESCE(e.score, 0.0) AS mark,
-        COALESCE(e.passed_round, 1) AS passed_round,
-        CASE
-            WHEN COALESCE(c.stage_number, ap.stage_number) < ap.stage_number THEN 'عبور'
-            ELSE 'أساسي'
-        END AS course_type,
-        ap.academic_year AS grouping_key
-    FROM academic_periods ap
-    JOIN enrollments e ON e.period_id = ap.id
-    JOIN courses c ON e.course_id = c.id
-    WHERE ap.student_id = p_student_id
-      AND e.score >= 50     ORDER BY 
-        ap.academic_year ASC,
-        COALESCE(ap.semester_num, 1) ASC,
-        c.name_ar ASC;
+BEGIN
+    SELECT 
+        CASE
+            WHEN ap.academic_year IS NULL OR ap.academic_year = '' THEN ''
+            WHEN ap.academic_year LIKE '%-%' THEN ap.academic_year
+            ELSE CONCAT(ap.academic_year, ' - ', CAST(ap.academic_year AS UNSIGNED) + 1)
+        END AS academic_year_formatted,
+        ap.academic_year,
+        ap.stage_number AS period_stage,
+        COALESCE(c.stage_number, ap.stage_number) AS course_curriculum_stage,
+        COALESCE(ap.semester_num, 1) AS semester_num,
+        COALESCE(c.name_en, '') AS course_name_en,
+        COALESCE(c.name_ar, '') AS course_name_ar,
+        COALESCE(c.credit_hours, 0) AS unit,
+        COALESCE(e.score, 0.0) AS mark,
+        COALESCE(e.passed_round, 1) AS passed_round,
+        CASE
+            WHEN COALESCE(c.stage_number, ap.stage_number) < ap.stage_number THEN 'عبور'
+            ELSE 'أساسي'
+        END AS course_type,
+        ap.academic_year AS grouping_key
+    FROM academic_periods ap
+    JOIN enrollments e ON e.period_id = ap.id
+    JOIN courses c ON e.course_id = c.id
+    WHERE ap.student_id = p_student_id
+      AND e.score >= 50     ORDER BY 
+        ap.academic_year ASC,
+        COALESCE(ap.semester_num, 1) ASC,
+        c.name_ar ASC;
 END //
 DELIMITER ;
 
@@ -3162,39 +3215,39 @@ DELIMITER ;
 -- --------------------------------------------------------
 DELIMITER //
 DROP PROCEDURE IF EXISTS `sp_GetCertificate_Courses_Yearly_ByCurriculumStage` //
-CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_GetCertificate_Courses_Yearly_ByCurriculumStage`(
-    IN p_student_id INT
+CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_GetCertificate_Courses_Yearly_ByCurriculumStage`(
+    IN p_student_id INT
 )
-BEGIN
-    SELECT
-        CASE
-            WHEN ap.academic_year IS NULL OR ap.academic_year = '' THEN ''
-            WHEN ap.academic_year LIKE '%-%' THEN ap.academic_year
-            ELSE CONCAT(ap.academic_year, ' - ', CAST(ap.academic_year AS UNSIGNED) + 1)
-        END AS academic_year_formatted,
-        ap.academic_year,
-        ap.stage_number AS period_stage,
-        COALESCE(c.stage_number, ap.stage_number) AS course_curriculum_stage,
-        COALESCE(ap.semester_num, 1) AS semester_num,
-        COALESCE(c.name_en, c.name_ar, '') AS course_name_en,
-        COALESCE(c.name_ar, '') AS course_name_ar,
-        COALESCE(c.credit_hours, 0) AS unit,
-        COALESCE(e.score, 0.0) AS mark,
-        COALESCE(e.passed_round, 1) AS passed_round,
-        CASE
-            WHEN COALESCE(c.stage_number, ap.stage_number) < ap.stage_number THEN 'عبور'
-            ELSE 'أساسي'
-        END AS course_type,
-        CAST(COALESCE(c.stage_number, ap.stage_number) AS CHAR) AS grouping_key
-    FROM academic_periods ap
-    JOIN enrollments e ON e.period_id = ap.id
-    JOIN courses c ON e.course_id = c.id
-    WHERE ap.student_id = p_student_id
-      AND e.score >= 50
-    ORDER BY
-        COALESCE(c.stage_number, ap.stage_number) ASC,
-        COALESCE(ap.semester_num, 1) ASC,
-        c.name_ar ASC;
+BEGIN
+    SELECT
+        CASE
+            WHEN ap.academic_year IS NULL OR ap.academic_year = '' THEN ''
+            WHEN ap.academic_year LIKE '%-%' THEN ap.academic_year
+            ELSE CONCAT(ap.academic_year, ' - ', CAST(ap.academic_year AS UNSIGNED) + 1)
+        END AS academic_year_formatted,
+        ap.academic_year,
+        ap.stage_number AS period_stage,
+        COALESCE(c.stage_number, ap.stage_number) AS course_curriculum_stage,
+        COALESCE(ap.semester_num, 1) AS semester_num,
+        COALESCE(c.name_en, c.name_ar, '') AS course_name_en,
+        COALESCE(c.name_ar, '') AS course_name_ar,
+        COALESCE(c.credit_hours, 0) AS unit,
+        COALESCE(e.score, 0.0) AS mark,
+        COALESCE(e.passed_round, 1) AS passed_round,
+        CASE
+            WHEN COALESCE(c.stage_number, ap.stage_number) < ap.stage_number THEN 'عبور'
+            ELSE 'أساسي'
+        END AS course_type,
+        CAST(COALESCE(c.stage_number, ap.stage_number) AS CHAR) AS grouping_key
+    FROM academic_periods ap
+    JOIN enrollments e ON e.period_id = ap.id
+    JOIN courses c ON e.course_id = c.id
+    WHERE ap.student_id = p_student_id
+      AND e.score >= 50
+    ORDER BY
+        COALESCE(c.stage_number, ap.stage_number) ASC,
+        COALESCE(ap.semester_num, 1) ASC,
+        c.name_ar ASC;
 END //
 DELIMITER ;
 
@@ -3203,39 +3256,39 @@ DELIMITER ;
 -- --------------------------------------------------------
 DELIMITER //
 DROP PROCEDURE IF EXISTS `sp_GetCertificate_Courses_Yearly_ByPeriodStage` //
-CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_GetCertificate_Courses_Yearly_ByPeriodStage`(
-    IN p_student_id INT
+CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_GetCertificate_Courses_Yearly_ByPeriodStage`(
+    IN p_student_id INT
 )
-BEGIN
-    SELECT
-        CASE
-            WHEN ap.academic_year IS NULL OR ap.academic_year = '' THEN ''
-            WHEN ap.academic_year LIKE '%-%' THEN ap.academic_year
-            ELSE CONCAT(ap.academic_year, ' - ', CAST(ap.academic_year AS UNSIGNED) + 1)
-        END AS academic_year_formatted,
-        ap.academic_year,
-        ap.stage_number AS period_stage,
-        COALESCE(c.stage_number, ap.stage_number) AS course_curriculum_stage,
-        COALESCE(ap.semester_num, 1) AS semester_num,
-        COALESCE(c.name_en, '') AS course_name_en,
-        COALESCE(c.name_ar, '') AS course_name_ar,
-        COALESCE(c.credit_hours, 0) AS unit,
-        COALESCE(e.score, 0.0) AS mark,
-        COALESCE(e.passed_round, 1) AS passed_round,
-        CASE
-            WHEN COALESCE(c.stage_number, ap.stage_number) < ap.stage_number THEN 'عبور'
-            ELSE 'أساسي'
-        END AS course_type,
-        CAST(ap.stage_number AS CHAR) AS grouping_key
-    FROM academic_periods ap
-    JOIN enrollments e ON e.period_id = ap.id
-    JOIN courses c ON e.course_id = c.id
-    WHERE ap.student_id = p_student_id
-      AND e.score >= 50
-    ORDER BY
-        ap.stage_number ASC,
-        COALESCE(ap.semester_num, 1) ASC,
-        c.name_ar ASC;
+BEGIN
+    SELECT
+        CASE
+            WHEN ap.academic_year IS NULL OR ap.academic_year = '' THEN ''
+            WHEN ap.academic_year LIKE '%-%' THEN ap.academic_year
+            ELSE CONCAT(ap.academic_year, ' - ', CAST(ap.academic_year AS UNSIGNED) + 1)
+        END AS academic_year_formatted,
+        ap.academic_year,
+        ap.stage_number AS period_stage,
+        COALESCE(c.stage_number, ap.stage_number) AS course_curriculum_stage,
+        COALESCE(ap.semester_num, 1) AS semester_num,
+        COALESCE(c.name_en, '') AS course_name_en,
+        COALESCE(c.name_ar, '') AS course_name_ar,
+        COALESCE(c.credit_hours, 0) AS unit,
+        COALESCE(e.score, 0.0) AS mark,
+        COALESCE(e.passed_round, 1) AS passed_round,
+        CASE
+            WHEN COALESCE(c.stage_number, ap.stage_number) < ap.stage_number THEN 'عبور'
+            ELSE 'أساسي'
+        END AS course_type,
+        CAST(ap.stage_number AS CHAR) AS grouping_key
+    FROM academic_periods ap
+    JOIN enrollments e ON e.period_id = ap.id
+    JOIN courses c ON e.course_id = c.id
+    WHERE ap.student_id = p_student_id
+      AND e.score >= 50
+    ORDER BY
+        ap.stage_number ASC,
+        COALESCE(ap.semester_num, 1) ASC,
+        c.name_ar ASC;
 END //
 DELIMITER ;
 
@@ -3245,83 +3298,83 @@ DELIMITER ;
 DELIMITER //
 DROP PROCEDURE IF EXISTS `sp_GetCertificate_Ranking` //
 CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_GetCertificate_Ranking`(IN `p_student_id` INT)
-BEGIN
-
-    DECLARE v_dept_id INT;
-
-    DECLARE v_grad_year INT;
-
-    DECLARE v_avg DECIMAL(5,2);
-
-
-
-        SELECT 
-
-        department_id,
-
-        COALESCE(average, 0.0),
-
-        YEAR(graduation_date)
-
-    INTO 
-
-        v_dept_id,
-
-        v_avg,
-
-        v_grad_year
-
-    FROM students
-
-    WHERE id = p_student_id
-
-    LIMIT 1;
-
-
-
-        SELECT 
-
-        (
-
-            SELECT COUNT(*) + 1 
-
-            FROM students s2 
-
-            WHERE s2.department_id = v_dept_id 
-
-              AND YEAR(s2.graduation_date) = v_grad_year 
-
-              AND s2.average > v_avg 
-
-              AND s2.average IS NOT NULL
-
-        ) AS class_rank,
-
-        (
-
-            SELECT COUNT(*) 
-
-            FROM students s3 
-
-            WHERE s3.department_id = v_dept_id 
-
-              AND YEAR(s3.graduation_date) = v_grad_year
-
-        ) AS total_graduates,
-
-        (
-
-            SELECT 
-            CAST(COALESCE(MAX(average), 0.0) AS DECIMAL(5, 3)) AS top_average
-
-            FROM students s4 
-
-            WHERE s4.department_id = v_dept_id 
-
-              AND YEAR(s4.graduation_date) = v_grad_year
-
-        ) AS top_average;
-
+BEGIN
+
+    DECLARE v_dept_id INT;
+
+    DECLARE v_grad_year INT;
+
+    DECLARE v_avg DECIMAL(5,2);
+
+
+
+        SELECT 
+
+        department_id,
+
+        COALESCE(average, 0.0),
+
+        YEAR(graduation_date)
+
+    INTO 
+
+        v_dept_id,
+
+        v_avg,
+
+        v_grad_year
+
+    FROM students
+
+    WHERE id = p_student_id
+
+    LIMIT 1;
+
+
+
+        SELECT 
+
+        (
+
+            SELECT COUNT(*) + 1 
+
+            FROM students s2 
+
+            WHERE s2.department_id = v_dept_id 
+
+              AND YEAR(s2.graduation_date) = v_grad_year 
+
+              AND s2.average > v_avg 
+
+              AND s2.average IS NOT NULL
+
+        ) AS class_rank,
+
+        (
+
+            SELECT COUNT(*) 
+
+            FROM students s3 
+
+            WHERE s3.department_id = v_dept_id 
+
+              AND YEAR(s3.graduation_date) = v_grad_year
+
+        ) AS total_graduates,
+
+        (
+
+            SELECT 
+            CAST(COALESCE(MAX(average), 0.0) AS DECIMAL(5, 3)) AS top_average
+
+            FROM students s4 
+
+            WHERE s4.department_id = v_dept_id 
+
+              AND YEAR(s4.graduation_date) = v_grad_year
+
+        ) AS top_average;
+
 END //
 DELIMITER ;
 
@@ -3372,73 +3425,74 @@ DELIMITER ;
 DELIMITER //
 DROP PROCEDURE IF EXISTS `sp_GetCertificate_StudentInfo` //
 CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_GetCertificate_StudentInfo`(IN `p_student_id` INT)
-BEGIN
-    SELECT 
-        s.id AS student_id,
-        COALESCE(s.full_name_ar, '') AS full_name_ar,
-        COALESCE(s.full_name_en, '') AS full_name_en,
+BEGIN
+    SELECT 
+        s.id AS student_id,
+        COALESCE(s.full_name_ar, '') AS full_name_ar,
+        COALESCE(s.full_name_en, '') AS full_name_en,
         COALESCE(s.gender, '') AS gender,
-        CAST(COALESCE(s.average, 0.0) AS DECIMAL(5, 3)) AS average,
-        COALESCE(YEAR(s.graduation_date), 0) AS graduation_year,
-        COALESCE(s.graduation_date, '1970-01-01') AS graduation_date,
-        COALESCE(s.graduation_semester, 1) AS graduation_semester,
-        COALESCE(s.date_of_birth, '1970-01-01') AS date_of_birth,
-        COALESCE(s.sequence_number, 0) AS sequence_number,
-        
-        CASE 
-            WHEN s.postgraduation_number = 0 OR s.postgraduation_number IS NULL 
-            THEN COALESCE(o.num_students, '')  
-            ELSE COALESCE(s.postgraduation_number, '')  
-        END AS postgraduation_number,
-        
-        COALESCE(s.admission_year, 0) AS admission_year,
-        COALESCE(s.summer_training_data, '') AS summer_training_data,
-        COALESCE(s.order_id, 0) AS order_id,
-
-        COALESCE(d.name_ar, '') AS dept_name_ar, 
-        COALESCE(d.name_en, '') AS dept_name_en, 
+        CAST(COALESCE(s.average, 0.0) AS DECIMAL(5, 3)) AS average,
+        COALESCE(YEAR(s.graduation_date), 0) AS graduation_year,
+        COALESCE(s.graduation_date, '1970-01-01') AS graduation_date,
+        COALESCE(s.graduation_semester, 1) AS graduation_semester,
+        COALESCE(s.date_of_birth, '1970-01-01') AS date_of_birth,
+        COALESCE(s.sequence_number, 0) AS sequence_number,
+        
+        CASE 
+            WHEN s.postgraduation_number = 0 OR s.postgraduation_number IS NULL 
+            THEN COALESCE(o.num_students, '')  
+            ELSE COALESCE(s.postgraduation_number, '')  
+        END AS postgraduation_number,
+        
+        COALESCE(s.admission_year, 0) AS admission_year,
+        COALESCE(s.summer_training_data, '') AS summer_training_data,
+        COALESCE(s.order_id, 0) AS order_id,
+
+        COALESCE(d.name_ar, '') AS dept_name_ar, 
+        COALESCE(d.name_en, '') AS dept_name_en, 
         COALESCE(d.branch_ar, '') AS branch_ar,
-        COALESCE(ss.name_ar, '') AS study_system_name_ar, 
-        COALESCE(ss.name_en, '') AS study_system_name_en, 
-        COALESCE(ss.calculation_rule, '') AS calculation_rule, 
-        COALESCE(ss.calculation_weights, '') AS calculation_weights, 
-        COALESCE(ss.period_display, '') AS period_display, 
-        COALESCE(ss.study_day_type, '') AS study_type, 
-        COALESCE(c.name_ar, '') AS nationality_ar, 
-        COALESCE(c.name_en, '') AS nationality_en, 
-        COALESCE(s.national_id, '') AS national_id,
-        
-        CASE 
-            WHEN s.nationality_id != 274 THEN COALESCE(s.birthplace_other, '') 
-            ELSE COALESCE(g.name_ar, '')  
-        END AS birthplace_ar,
-    
-        CASE 
-            WHEN s.nationality_id != 274 THEN COALESCE(s.birthplace_other, '')  
-            ELSE COALESCE(g.name_en, '')  
-        END AS birthplace_en,
-
-        COALESCE(o.order_number, '') AS order_number, 
-        COALESCE(o.order_date, '1970-01-01') AS order_date,
-
-        COALESCE(us.id, 1) AS university_settings_id,
-        COALESCE(us.univ_name_ar, '') AS univ_name_ar,
-        COALESCE(us.univ_name_en, '') AS univ_name_en,
-        COALESCE(us.college_name_ar, '') AS college_name_ar,
-        COALESCE(us.college_name_en, '') AS college_name_en
-
-    FROM students s 
-    LEFT JOIN departments d ON s.department_id = d.id 
-    LEFT JOIN study_systems ss ON s.study_system_id = ss.id 
-    LEFT JOIN countries c ON s.nationality_id = c.id 
-    LEFT JOIN governorates g ON s.birthplace_id = g.id 
-    LEFT JOIN graduation_orders o ON s.order_id = o.id 
-    LEFT JOIN university_settings us ON us.id = COALESCE(
-        (SELECT id FROM university_settings WHERE id = d.university_settings_id LIMIT 1),
-        (SELECT id FROM university_settings ORDER BY id ASC LIMIT 1)
-    )
-    WHERE s.id = p_student_id
-    LIMIT 1;
+        COALESCE(ss.name_ar, '') AS study_system_name_ar, 
+        COALESCE(ss.name_en, '') AS study_system_name_en, 
+        COALESCE(ss.calculation_rule, '') AS calculation_rule, 
+        COALESCE(ss.calculation_weights, '') AS calculation_weights, 
+        COALESCE(ss.period_display, '') AS period_display,
+        -- 0006: the type is the student's (old clients read Morning / Evening / Other)
+        COALESCE(ELT(FIELD(s.study_type, 'morning', 'evening', 'parallel'), 'Morning', 'Evening', 'Other'), 'Morning') AS study_type,
+        COALESCE(c.name_ar, '') AS nationality_ar, 
+        COALESCE(c.name_en, '') AS nationality_en, 
+        COALESCE(s.national_id, '') AS national_id,
+        
+        CASE 
+            WHEN s.nationality_id != 274 THEN COALESCE(s.birthplace_other, '') 
+            ELSE COALESCE(g.name_ar, '')  
+        END AS birthplace_ar,
+    
+        CASE 
+            WHEN s.nationality_id != 274 THEN COALESCE(s.birthplace_other, '')  
+            ELSE COALESCE(g.name_en, '')  
+        END AS birthplace_en,
+
+        COALESCE(o.order_number, '') AS order_number, 
+        COALESCE(o.order_date, '1970-01-01') AS order_date,
+
+        COALESCE(us.id, 1) AS university_settings_id,
+        COALESCE(us.univ_name_ar, '') AS univ_name_ar,
+        COALESCE(us.univ_name_en, '') AS univ_name_en,
+        COALESCE(us.college_name_ar, '') AS college_name_ar,
+        COALESCE(us.college_name_en, '') AS college_name_en
+
+    FROM students s 
+    LEFT JOIN departments d ON s.department_id = d.id 
+    LEFT JOIN study_systems ss ON s.study_system_id = ss.id 
+    LEFT JOIN countries c ON s.nationality_id = c.id 
+    LEFT JOIN governorates g ON s.birthplace_id = g.id 
+    LEFT JOIN graduation_orders o ON s.order_id = o.id 
+    LEFT JOIN university_settings us ON us.id = COALESCE(
+        (SELECT id FROM university_settings WHERE id = d.university_settings_id LIMIT 1),
+        (SELECT id FROM university_settings ORDER BY id ASC LIMIT 1)
+    )
+    WHERE s.id = p_student_id
+    LIMIT 1;
 END //
 DELIMITER ;
 
@@ -3447,39 +3501,39 @@ DELIMITER ;
 -- --------------------------------------------------------
 DELIMITER //
 DROP PROCEDURE IF EXISTS `sp_GetCertificate_Yearly_ByAcademicYear` //
-CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_GetCertificate_Yearly_ByAcademicYear`(
-    IN p_student_id INT
+CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_GetCertificate_Yearly_ByAcademicYear`(
+    IN p_student_id INT
 )
-BEGIN
-    SELECT 
-        s.id AS student_id,
-        COALESCE(s.full_name_ar, '') AS student_name_ar,
-        COALESCE(ss.name_ar, '') AS study_system_ar,
-        COALESCE(ap.academic_year, '') AS academic_year,
-        GROUP_CONCAT(DISTINCT ap.stage_number ORDER BY ap.stage_number ASC SEPARATOR ', ') AS stages,
-        COUNT(DISTINCT c.id) AS total_courses,
-        GROUP_CONCAT(
-            CONCAT(
-                c.name_ar, 
-                ' (مرحلة ', COALESCE(c.stage_number, ap.stage_number), ' - دور ', e.passed_round, ')',
-                ': ', COALESCE(e.score, 0.0)
-            ) 
-            ORDER BY ap.stage_number ASC, c.name_ar ASC 
-            SEPARATOR ' | '
-        ) AS courses_and_degrees
-    FROM students s
-    LEFT JOIN study_systems ss ON s.study_system_id = ss.id
-    JOIN academic_periods ap ON ap.student_id = s.id
-    JOIN enrollments e ON e.period_id = ap.id
-    JOIN courses c ON e.course_id = c.id
-    WHERE s.id = p_student_id
-      AND e.score >= 50     GROUP BY 
-        s.id, 
-        s.full_name_ar, 
-        ss.name_ar, 
-        ap.academic_year
-    ORDER BY 
-        ap.academic_year ASC;
+BEGIN
+    SELECT 
+        s.id AS student_id,
+        COALESCE(s.full_name_ar, '') AS student_name_ar,
+        COALESCE(ss.name_ar, '') AS study_system_ar,
+        COALESCE(ap.academic_year, '') AS academic_year,
+        GROUP_CONCAT(DISTINCT ap.stage_number ORDER BY ap.stage_number ASC SEPARATOR ', ') AS stages,
+        COUNT(DISTINCT c.id) AS total_courses,
+        GROUP_CONCAT(
+            CONCAT(
+                c.name_ar, 
+                ' (مرحلة ', COALESCE(c.stage_number, ap.stage_number), ' - دور ', e.passed_round, ')',
+                ': ', COALESCE(e.score, 0.0)
+            ) 
+            ORDER BY ap.stage_number ASC, c.name_ar ASC 
+            SEPARATOR ' | '
+        ) AS courses_and_degrees
+    FROM students s
+    LEFT JOIN study_systems ss ON s.study_system_id = ss.id
+    JOIN academic_periods ap ON ap.student_id = s.id
+    JOIN enrollments e ON e.period_id = ap.id
+    JOIN courses c ON e.course_id = c.id
+    WHERE s.id = p_student_id
+      AND e.score >= 50     GROUP BY 
+        s.id, 
+        s.full_name_ar, 
+        ss.name_ar, 
+        ap.academic_year
+    ORDER BY 
+        ap.academic_year ASC;
 END //
 DELIMITER ;
 
@@ -3488,40 +3542,40 @@ DELIMITER ;
 -- --------------------------------------------------------
 DELIMITER //
 DROP PROCEDURE IF EXISTS `sp_GetCertificate_Yearly_ByCurriculumStage` //
-CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_GetCertificate_Yearly_ByCurriculumStage`(
-    IN p_student_id INT
+CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_GetCertificate_Yearly_ByCurriculumStage`(
+    IN p_student_id INT
 )
-BEGIN
-    SELECT 
-        s.id AS student_id,
-        COALESCE(s.full_name_ar, '') AS student_name_ar,
-        COALESCE(ss.name_ar, '') AS study_system_ar,
-        COALESCE(c.stage_number, ap.stage_number) AS curriculum_stage,
-        GROUP_CONCAT(DISTINCT ap.academic_year ORDER BY ap.academic_year ASC SEPARATOR ', ') AS academic_years,
-        COUNT(c.id) AS total_courses,
-        GROUP_CONCAT(
-            CONCAT(
-                c.name_ar, 
-                ' (سنة الإنجاز: ', ap.academic_year, ' - دور ', e.passed_round, ')',
-                ': ', COALESCE(e.score, 0.0)
-            ) 
-            ORDER BY ap.academic_year ASC, c.name_ar ASC 
-            SEPARATOR ' | '
-        ) AS courses_and_degrees
-    FROM students s
-    LEFT JOIN study_systems ss ON s.study_system_id = ss.id
-    JOIN academic_periods ap ON ap.student_id = s.id
-    JOIN enrollments e ON e.period_id = ap.id
-    JOIN courses c ON e.course_id = c.id
-    WHERE s.id = p_student_id
-      AND e.score >= 50
-    GROUP BY 
-        s.id, 
-        s.full_name_ar, 
-        ss.name_ar, 
-        COALESCE(c.stage_number, ap.stage_number)
-    ORDER BY 
-        curriculum_stage ASC;
+BEGIN
+    SELECT 
+        s.id AS student_id,
+        COALESCE(s.full_name_ar, '') AS student_name_ar,
+        COALESCE(ss.name_ar, '') AS study_system_ar,
+        COALESCE(c.stage_number, ap.stage_number) AS curriculum_stage,
+        GROUP_CONCAT(DISTINCT ap.academic_year ORDER BY ap.academic_year ASC SEPARATOR ', ') AS academic_years,
+        COUNT(c.id) AS total_courses,
+        GROUP_CONCAT(
+            CONCAT(
+                c.name_ar, 
+                ' (سنة الإنجاز: ', ap.academic_year, ' - دور ', e.passed_round, ')',
+                ': ', COALESCE(e.score, 0.0)
+            ) 
+            ORDER BY ap.academic_year ASC, c.name_ar ASC 
+            SEPARATOR ' | '
+        ) AS courses_and_degrees
+    FROM students s
+    LEFT JOIN study_systems ss ON s.study_system_id = ss.id
+    JOIN academic_periods ap ON ap.student_id = s.id
+    JOIN enrollments e ON e.period_id = ap.id
+    JOIN courses c ON e.course_id = c.id
+    WHERE s.id = p_student_id
+      AND e.score >= 50
+    GROUP BY 
+        s.id, 
+        s.full_name_ar, 
+        ss.name_ar, 
+        COALESCE(c.stage_number, ap.stage_number)
+    ORDER BY 
+        curriculum_stage ASC;
 END //
 DELIMITER ;
 
@@ -3530,40 +3584,40 @@ DELIMITER ;
 -- --------------------------------------------------------
 DELIMITER //
 DROP PROCEDURE IF EXISTS `sp_GetCertificate_Yearly_ByPeriodStage` //
-CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_GetCertificate_Yearly_ByPeriodStage`(
-    IN p_student_id INT
+CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_GetCertificate_Yearly_ByPeriodStage`(
+    IN p_student_id INT
 )
-BEGIN
-    SELECT 
-        s.id AS student_id,
-        COALESCE(s.full_name_ar, '') AS student_name_ar,
-        COALESCE(ss.name_ar, '') AS study_system_ar,
-        COALESCE(ap.stage_number, 1) AS period_stage,
-        GROUP_CONCAT(DISTINCT ap.academic_year ORDER BY ap.academic_year ASC SEPARATOR ', ') AS academic_years,
-        COUNT(c.id) AS total_courses,
-        GROUP_CONCAT(
-            CONCAT(
-                c.name_ar, 
-                ' (سنة ', ap.academic_year, ' - دور ', e.passed_round, ')',
-                ': ', COALESCE(e.score, 0.0)
-            ) 
-            ORDER BY ap.academic_year ASC, c.name_ar ASC 
-            SEPARATOR ' | '
-        ) AS courses_and_degrees
-    FROM students s
-    LEFT JOIN study_systems ss ON s.study_system_id = ss.id
-    JOIN academic_periods ap ON ap.student_id = s.id
-    JOIN enrollments e ON e.period_id = ap.id
-    JOIN courses c ON e.course_id = c.id
-    WHERE s.id = p_student_id
-      AND e.score >= 50
-    GROUP BY 
-        s.id, 
-        s.full_name_ar, 
-        ss.name_ar, 
-        ap.stage_number
-    ORDER BY 
-        period_stage ASC;
+BEGIN
+    SELECT 
+        s.id AS student_id,
+        COALESCE(s.full_name_ar, '') AS student_name_ar,
+        COALESCE(ss.name_ar, '') AS study_system_ar,
+        COALESCE(ap.stage_number, 1) AS period_stage,
+        GROUP_CONCAT(DISTINCT ap.academic_year ORDER BY ap.academic_year ASC SEPARATOR ', ') AS academic_years,
+        COUNT(c.id) AS total_courses,
+        GROUP_CONCAT(
+            CONCAT(
+                c.name_ar, 
+                ' (سنة ', ap.academic_year, ' - دور ', e.passed_round, ')',
+                ': ', COALESCE(e.score, 0.0)
+            ) 
+            ORDER BY ap.academic_year ASC, c.name_ar ASC 
+            SEPARATOR ' | '
+        ) AS courses_and_degrees
+    FROM students s
+    LEFT JOIN study_systems ss ON s.study_system_id = ss.id
+    JOIN academic_periods ap ON ap.student_id = s.id
+    JOIN enrollments e ON e.period_id = ap.id
+    JOIN courses c ON e.course_id = c.id
+    WHERE s.id = p_student_id
+      AND e.score >= 50
+    GROUP BY 
+        s.id, 
+        s.full_name_ar, 
+        ss.name_ar, 
+        ap.stage_number
+    ORDER BY 
+        period_stage ASC;
 END //
 DELIMITER ;
 
@@ -3573,29 +3627,29 @@ DELIMITER ;
 DELIMITER //
 DROP PROCEDURE IF EXISTS `sp_GetFullCertificateData` //
 CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_GetFullCertificateData`(IN `p_student_id` INT, IN `p_grouping_mode` VARCHAR(50))
-BEGIN
-
-
-        CALL sp_GetCertificate_StudentInfo(p_student_id);
-
-
-
-        CALL sp_GetCertificate_Ranking(p_student_id);
-
-
-
-        CALL sp_GetCertificate_Signers();
-
-
-
-        CALL sp_GetCertificate_AcademicTimeline(p_student_id);
-
-
-
-        CALL sp_GetCertificate_AcademicCourses(p_student_id, p_grouping_mode);
-
-    
-
+BEGIN
+
+
+        CALL sp_GetCertificate_StudentInfo(p_student_id);
+
+
+
+        CALL sp_GetCertificate_Ranking(p_student_id);
+
+
+
+        CALL sp_GetCertificate_Signers();
+
+
+
+        CALL sp_GetCertificate_AcademicTimeline(p_student_id);
+
+
+
+        CALL sp_GetCertificate_AcademicCourses(p_student_id, p_grouping_mode);
+
+    
+
 END //
 DELIMITER ;
 

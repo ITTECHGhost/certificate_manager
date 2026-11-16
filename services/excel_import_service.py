@@ -286,7 +286,9 @@ def parse_students_file(file_bytes: bytes) -> Tuple[List[Dict[str, Any]], List[s
         adm_year = adm_year_raw if adm_year_raw else ""
 
         study_type_raw = str(ws.cell(row=row_idx, column=col_mapping.get("study_type", 9)).value or "").strip()
-        study_type = "Evening" if "مسائي" in study_type_raw or "evening" in study_type_raw.lower() else "Morning"
+        # 0006: kept per student; empty or unknown -> the type chosen on the import screen
+        from utils.study_type import normalize_study_type, STUDY_TYPE_LABELS_AR
+        study_type = normalize_study_type(study_type_raw)
 
         students.append({
             "national_id": nid_val,
@@ -299,7 +301,7 @@ def parse_students_file(file_bytes: bytes) -> Tuple[List[Dict[str, Any]], List[s
             "nationality": nationality_val,
             "admission_year": adm_year,
             "study_type": study_type,
-            "study_type_ar": "مسائي" if study_type == "Evening" else "صباحي",
+            "study_type_ar": STUDY_TYPE_LABELS_AR.get(study_type, "—"),
             "expected_graduation_year": parse_year(ws.cell(row=row_idx, column=col_mapping["expected_year"]).value)
             if "expected_year" in col_mapping else None,
             "expected_graduation_semester": parse_semester(ws.cell(row=row_idx, column=col_mapping["expected_semester"]).value)

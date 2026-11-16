@@ -2,6 +2,7 @@
 # data/repositories/students.py — Students and Module 7: Timelines & Enrollments
 # =============================================================================
 
+from utils.study_type import normalize_study_type
 from .base import *
 from .personnel import _RESULT_STATUS_CODES
 from .certificates import IssuedCertificateRepository
@@ -357,12 +358,14 @@ class StudentRepository(BaseRepository):
         return n
 
     def candidates_for_order(self, order_id: int, name_query: str = "", matching_only: bool = True,
-                             limit: int = 200) -> list[dict]:
-        """Students not in any order; with matching_only, only those this order is likely about."""
+                             limit: int = 200, same_study_type: bool = True) -> list[dict]:
+        """Students not in any order; with matching_only, only those this order is likely about
+        (same_study_type: also its study type — a suggestion the screen can turn off)."""
         if not is_online():
             return search_offline_unlinked_students(name_query=name_query, limit=limit)
         resp = api_client.get(f"{self.api_url}/students/candidates-for-order/{order_id}",
-                              params={"name_query": name_query, "matching_only": matching_only, "limit": limit},
+                              params={"name_query": name_query, "matching_only": matching_only, "limit": limit,
+                                      "same_study_type": same_study_type},
                               timeout=8.0)
         if resp.status_code != 200:
             raise RuntimeError(f"API candidates failed: {resp.text[:200]}")
@@ -451,7 +454,8 @@ class StudentRepository(BaseRepository):
                 "summer_training_data": data.get('summer_training_data'),
                 "average": float(data['average']) if data.get('average') is not None else None,
                 "graduation_date": str(data.get('graduation_date')) if data.get('graduation_date') else None,
-                "graduation_semester": data.get('graduation_semester')
+                "graduation_semester": data.get('graduation_semester'),
+                "study_type": normalize_study_type(data.get('study_type'))
             }
             resp = api_client.post(f"{self.api_url}/students", json=payload, timeout=5.0)
             if resp.status_code == 200:
@@ -484,7 +488,8 @@ class StudentRepository(BaseRepository):
             "summer_training_data": data.get('summer_training_data'),
             "average": float(data['average']) if data.get('average') is not None else None,
             "graduation_date": str(data.get('graduation_date')) if data.get('graduation_date') else None,
-            "graduation_semester": data.get('graduation_semester')
+            "graduation_semester": data.get('graduation_semester'),
+            "study_type": normalize_study_type(data.get('study_type'))
         }
 
         if not is_online():

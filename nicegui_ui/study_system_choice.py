@@ -1,10 +1,10 @@
 # =============================================================================
 # nicegui_ui/study_system_choice.py — Study system and study type as two choices
 #
-# A study_systems row is one system (annual or semester) for one study type
-# (morning or evening), so its id names both. The screens show two selects —
-# نظام الدراسة and نوع الدراسة — and this module maps the pair back to the row
-# id the database stores (study_system_id). Nothing about what is saved changes.
+# Before migration 0006 a study_systems row was one system for one study type, so
+# its id named both. Since 0006 the type is saved on the student (students.study_type)
+# and only the two systems remain. The picker shows two independent selects —
+# نظام الدراسة (.value) and نوع الدراسة (.study_type) — and still reads old ids 3-6.
 # =============================================================================
 
 from __future__ import annotations
@@ -62,38 +62,66 @@ def resolve_system_id(lookup: dict, key: str | None, day: str | None):
     return lookup.get((key, day))
 
 
+def system_ids(systems: list[dict]) -> tuple[dict, dict]:
+    """Since migration 0006 the study type belongs to the student, not to the system.
+
+    Returns ({key: system id}, {any id: (key, day)}). The system id for a key is its
+    morning row (the one 0006 keeps); an old id 3-6 still maps to (key, its day), so a
+    student saved before 0006 opens with the right type.
+    """
+    _kinds, _days, lookup, by_id = split_systems(systems)
+    base: dict[str, int] = {}
+    for (key, day), sid in lookup.items():
+        if key not in base or day == "morning":
+            base[key] = sid
+    return base, by_id
+
+
 class StudySystemPicker:
-    """Two selects (system, study type) that read and write one study_system_id via .value."""
+    """Two independent selects: نظام الدراسة (.value = study_system_id) and
+    نوع الدراسة (.study_type = morning | evening | parallel)."""
 
     def __init__(self, systems: list[dict], value=None, on_change=None,
                  system_label: str = "نظام الدراسة", day_label: str = "نوع الدراسة",
-                 classes: str = "flex-1 min-w-[160px]"):
+                 classes: str = "flex-1 min-w-[160px]", study_type: str | None = None,
+                 show_type: bool = True):
         from nicegui_ui.ui_components import UI
-        self.kinds, self.days, self.lookup, self.by_id = split_systems(systems)
+        self.kinds, _days, _lookup, _by_id = split_systems(systems)
+        self.base, self.by_id = system_ids(systems)
         self._on_change = on_change
-        key, day = self.by_id.get(value, (next(iter(self.kinds), None), next(iter(self.days), "morning")))
+        key, day = self.by_id.get(value, (next(iter(self.kinds), None), "morning"))
+        if study_type:
+            day = normalize_day(study_type)
         self.system_select = UI.select(system_label, self.kinds, value=key, on_change=self._changed).classes(classes)
-        self.day_select = UI.select(day_label, self.days, value=day, on_change=self._changed).classes(classes)
+        self.day_select = UI.select(day_label, dict(DAY_LABELS), value=day, on_change=self._changed).classes(classes)
+        if not show_type:
+            self.day_select.set_visibility(False)
 
     @property
     def value(self):
-        return resolve_system_id(self.lookup, self.system_select.value, self.day_select.value)
+        return self.base.get(self.system_select.value)
 
     @value.setter
     def value(self, sid) -> None:
         if sid in self.by_id:
             key, day = self.by_id[sid]
             self.system_select.value = key
-            self.day_select.value = day
+            if sid not in self.base.values():   # an old id 3-6 carries its type
+                self.day_select.value = day
+
+    @property
+    def study_type(self) -> str:
+        return self.day_select.value or "morning"
+
+    @study_type.setter
+    def study_type(self, value) -> None:
+        self.day_select.value = normalize_day(value)
 
     def disable(self) -> None:
         self.system_select.disable()
         self.day_select.disable()
 
     def _changed(self, _e=None) -> None:
-        if self.value is None:
-            from nicegui import ui
-            ui.notify("هذا النظام غير متاح بهذا النوع من الدراسة", type="warning")
         if self._on_change:
             self._on_change(self.value)
 

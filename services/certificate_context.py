@@ -14,6 +14,18 @@ RANK_KEYS = ("dept_term_system", "dept_term", "dept_system", "dept_year",
              "first_student_college_seq")
 
 
+_STUDY_TYPE_DISP = {"morning": ("الصباحية", "Morning"), "evening": ("المسائية", "Evening"),
+                    "parallel": ("الموازية", "Parallel")}
+
+
+def study_type_display(value, is_english: bool = False) -> str:
+    """The student's own study type as printed on a certificate (0006). The server sends
+    'Morning' / 'Evening' / 'Other' (Other = parallel) or the plain morning|evening|parallel."""
+    from utils.study_type import normalize_study_type
+    ar, en = _STUDY_TYPE_DISP[normalize_study_type(value) or "morning"]
+    return en if is_english else ar
+
+
 def rank_fields(ranks: dict, is_english: bool = False) -> dict:
     """{{seq_<key>}}, {{seq_<key>_words}}, {{seq_<key>_of}} for each calculated (and possibly
     edited) sequence; the first student's college place is {{first_student_college_seq}}."""
@@ -444,11 +456,7 @@ def build_certificate_context(data: dict, options: dict) -> dict:
         avg_float = 0.0
 
     # 3. Study Type display formatting
-    stype_raw = str(data.get("study_type") or "").strip().lower()
-    if "even" in stype_raw or "مساء" in stype_raw or "night" in stype_raw:
-        study_type_disp = "Evening" if is_english else "المسائية"
-    else:
-        study_type_disp = "Morning" if is_english else "الصباحية"
+    study_type_disp = study_type_display(data.get("study_type"), is_english)
 
     # 4. Consolidate course history according to Rules A (Annual) & B (Semester)
     grouping_mode = str(options.get("grouping_mode") or data.get("grouping_mode") or "DEFAULT").upper()

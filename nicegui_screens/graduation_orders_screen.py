@@ -1,4 +1,5 @@
 import logging
+from utils.study_type import normalize_study_type
 from datetime import datetime
 from utils.date_parsing import format_academic_year
 from nicegui import ui
@@ -19,6 +20,7 @@ log = logging.getLogger(__name__)
 STUDY_TYPE_OPTIONS = {
     "morning": "صباحي",
     "evening": "مسائي",
+    "parallel": "موازي",
 }
 
 SEMESTER_OPTIONS = {
@@ -152,7 +154,7 @@ class GraduationOrdersScreen(OrderWorkspaceMixin):
         page_rows = orders[self.current_offset:self.current_offset + self.current_limit]
         rows = []
         for r in page_rows:
-            st_raw = str(r.get("study_type") or "").lower()
+            st_raw = normalize_study_type(r.get("study_type")) or ""
             sem_raw = str(r.get("graduation_semester") or "").lower()
             rows.append({
                 "id": r["id"],
@@ -249,7 +251,7 @@ class GraduationOrdersScreen(OrderWorkspaceMixin):
                             def_dept = existing_data.get("department_id") if existing_data else (list(dept_opts.keys())[0] if dept_opts else 1)
                             dept_sel = UI.select("القسم", dept_opts, value=def_dept).classes("flex-1 text-sm")
 
-                            def_st = existing_data.get("study_type", "morning") if existing_data else "morning"
+                            def_st = (normalize_study_type(existing_data.get("study_type")) if existing_data else None) or "morning"
                             st_sel = UI.select("نوع الدراسة", STUDY_TYPE_OPTIONS, value=def_st).classes("flex-1 text-sm")
 
                         with ui.row().classes("w-full gap-4"):

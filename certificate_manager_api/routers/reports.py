@@ -19,6 +19,9 @@ NATIONALITY_SQL = f"IF(s.nationality_id = {IRAQ}, 'iraqi', 'other')"
 GROUPS = {
     "department": ("s.department_id", "COALESCE(d.name_ar, '-')"),
     "study_system": ("s.study_system_id", "COALESCE(ss.name_ar, '-')"),
+    "study_type": ("COALESCE(s.study_type, 'morning')",
+                   "CASE COALESCE(s.study_type, 'morning') WHEN 'evening' THEN 'مسائي' "
+                   "WHEN 'parallel' THEN 'موازي' ELSE 'صباحي' END"),
     "gender": ("s.gender", "CASE s.gender WHEN 1 THEN 'ذكر' WHEN 2 THEN 'أنثى' ELSE '-' END"),
     "nationality": (NATIONALITY_SQL, f"IF(s.nationality_id = {IRAQ}, 'عراقي', 'غير عراقي')"),
     "status": (STATUS_SQL, "IF(s.order_id IS NULL OR s.order_id = 0, 'غير متخرج', 'متخرج')"),
@@ -39,8 +42,11 @@ FROM = ("FROM students s "
 
 
 def build_where(department_id=None, study_system_id=None, gender=None, nationality=None, status=None,
-                graduation_year=None, semester=None, admission_year=None, name=None) -> tuple[str, list]:
+                graduation_year=None, semester=None, admission_year=None, name=None,
+                study_type=None) -> tuple[str, list]:
     where, params = [], []
+    if study_type in ("morning", "evening", "parallel"):
+        where.append("COALESCE(s.study_type, 'morning') = %s"); params.append(study_type)
     if department_id:
         where.append("s.department_id = %s"); params.append(int(department_id))
     if study_system_id:
@@ -67,14 +73,14 @@ def students_report(department_id: Optional[int] = None, study_system_id: Option
                     gender: Optional[int] = None, nationality: Optional[str] = None,
                     status: Optional[str] = None, graduation_year: Optional[int] = None,
                     semester: Optional[str] = None, admission_year: Optional[int] = None,
-                    name: Optional[str] = None, group_by: str = "department", then_by: str = "",
+                    name: Optional[str] = None, study_type: Optional[str] = None, group_by: str = "department", then_by: str = "",
                     list_limit: int = 2000, conn=Depends(get_db)):
     keys = [k for k in (group_by, then_by) if k]
     bad = [k for k in keys if k not in GROUPS]
     if bad:
         raise HTTPException(status_code=400, detail=f"Unknown group: {bad[0]}")
     where, params = build_where(department_id, study_system_id, gender, nationality, status,
-                                graduation_year, semester, admission_year, name)
+                                graduation_year, semester, admission_year, name, study_type)
     cur = conn.cursor(dictionary=True)
     try:
         cur.execute(

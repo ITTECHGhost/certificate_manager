@@ -13,6 +13,7 @@ from pydantic import BaseModel
 from deps import (logger, get_db, decode_db_value, table_has_updated_at,
                   _set_must_change_password, result_status_code)
 from password_hashing import is_hashed
+from study_type import normalize_study_type
 
 router = APIRouter()
 batch_router = APIRouter()
@@ -34,6 +35,7 @@ TABLE_REGISTRY: Dict[str, Dict[str, Any]] = {
             "department_id", "study_system_id", "degree_level",
             "order_id", "admission_year", "summer_training_data",
             "average", "graduation_date", "graduation_semester",
+            "study_type",   # 0006: last; absent in queues from 2.5.3 and older -> None (keep / morning)
         ],
     },
     "academic_periods": {
@@ -265,6 +267,8 @@ def _apply_sync_actions(payload: SyncPayload, conn, id_map: dict) -> dict:
             resolved_payload.pop("id", None)
             if tbl == "academic_periods" and "result_status" in resolved_payload:
                 resolved_payload["result_status"] = result_status_code(resolved_payload["result_status"])
+            if tbl == "students":
+                resolved_payload["study_type"] = normalize_study_type(resolved_payload.get("study_type"))
             meta = TABLE_REGISTRY[tbl]
             cur = conn.cursor(dictionary=True)
             try:
@@ -566,7 +570,8 @@ def process_offline_sync_batch(payload: dict, conn=Depends(get_db)):
                         data.get("summer_training_data"),
                         data.get("average"),
                         data.get("graduation_date"),
-                        data.get("graduation_semester") or "first"
+                        data.get("graduation_semester") or "first",
+                        normalize_study_type(data.get("study_type")),
                     )
                     cur.callproc("InsertStudent", args)
                     real_id = None
@@ -729,7 +734,8 @@ def process_offline_sync_batch(payload: dict, conn=Depends(get_db)):
                             data.get("summer_training_data"),
                             data.get("average"),
                             data.get("graduation_date"),
-                            data.get("graduation_semester") or "first"
+                            data.get("graduation_semester") or "first",
+                            normalize_study_type(data.get("study_type")),
                         )
                         cur.callproc("UpdateStudent", sp_args)
                         try:

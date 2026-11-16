@@ -3,6 +3,7 @@
 # =============================================================================
 
 import io
+from utils.study_type import STUDY_TYPE_LABELS_AR, normalize_study_type
 import os
 import re
 import csv
@@ -31,12 +32,19 @@ import app_paths
 
 log = logging.getLogger(__name__)
 
+
+def _row_study_type(r: dict) -> str | None:
+    """The student's study type (0006): study_type from a new server or the local copy,
+    else study_day_type ('Morning' / 'Evening' / 'Other') from an older one."""
+    return normalize_study_type(r.get("study_type")) or normalize_study_type(r.get("study_day_type"))
+
 TEMPLATE_FILTER_OPTIONS = get_template_filter_options()
 
 STUDY_TYPE_OPTIONS = {
     "all": "كل الدراسات",
     "morning": "صباحي",
     "evening": "مسائي",
+    "parallel": "موازي",
 }
 
 
@@ -344,12 +352,7 @@ class IssuedCertificatesScreen:
             # 2. Filter for study_day_type if selected
             if self.selected_study_type and self.selected_study_type != "all":
                 target_type = self.selected_study_type.lower()
-                records = [
-                    r for r in records
-                    if str(r.get("study_day_type") or "").strip().lower() == target_type
-                    or (target_type == "morning" and "صباح" in str(r.get("study_day_type") or ""))
-                    or (target_type == "evening" and "مساء" in str(r.get("study_day_type") or ""))
-                ]
+                records = [r for r in records if _row_study_type(r) == target_type]
 
             self.all_records = sort_newest_first(records)
         except Exception as ex:
@@ -374,8 +377,7 @@ class IssuedCertificatesScreen:
         except (TypeError, ValueError):
             grad_year_display = "—"
 
-        raw_study = str(r.get("study_day_type") or "").strip().lower()
-        study_display = {"morning": "صباحي", "evening": "مسائي"}.get(raw_study, raw_study or "—")
+        study_display = STUDY_TYPE_LABELS_AR.get(_row_study_type(r), "—")
         raw_tmpl = str(r.get("template_type") or "graduation")
 
         return {
@@ -700,8 +702,7 @@ class IssuedCertificatesScreen:
                 grad_year = r.get("graduation_year")
                 grad_year_str = str(grad_year) if grad_year and int(grad_year) > 0 else ""
 
-                raw_study = str(r.get("study_day_type") or "").strip().lower()
-                study_str = "صباحي" if raw_study == "morning" else ("مسائي" if raw_study == "evening" else raw_study)
+                study_str = STUDY_TYPE_LABELS_AR.get(_row_study_type(r), "")
 
                 raw_tmpl = str(r.get("template_type") or "graduation")
                 tmpl_str = format_template_display(raw_tmpl)

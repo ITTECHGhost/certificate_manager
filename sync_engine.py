@@ -158,6 +158,7 @@ _TABLE_REGISTRY: dict[str, dict] = {
             "department_id", "study_system_id", "degree_level",
             "order_id", "admission_year", "summer_training_data",
             "average", "graduation_date", "graduation_semester",
+            "study_type",
         ],
         "sp_name": "InsertStudent",
         "sp_args": [
@@ -167,6 +168,7 @@ _TABLE_REGISTRY: dict[str, dict] = {
             "department_id", "study_system_id", "degree_level",
             "order_id", "admission_year", "summer_training_data",
             "average", "graduation_date", "graduation_semester",
+            "study_type",
         ],
         "fk_cascades": [
             ("local_academic_periods", "student_id"),
@@ -855,6 +857,13 @@ def init_local_db() -> None:
             cur.execute("ALTER TABLE students ADD COLUMN admission_year TEXT DEFAULT NULL;")
         except sqlite3.OperationalError:
             pass
+
+        # 0006: study type (morning / evening / parallel) belongs to the student
+        for _tbl in ("students", "local_students"):
+            try:
+                cur.execute(f"ALTER TABLE {_tbl} ADD COLUMN study_type TEXT DEFAULT 'morning';")
+            except sqlite3.OperationalError:
+                pass
 
         try:
             cur.execute("ALTER TABLE local_students ADD COLUMN national_id TEXT DEFAULT NULL;")

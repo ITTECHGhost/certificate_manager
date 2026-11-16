@@ -6,6 +6,7 @@ import logging
 from typing import List, Optional
 from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import BaseModel, field_validator
+from study_type import normalize_study_type
 
 logger = logging.getLogger("api.bulk_import")
 
@@ -68,10 +69,20 @@ class BulkImportStudentItem(BaseModel):
     expected_graduation_year: Optional[int] = None
     expected_graduation_semester: Optional[str] = ""
     order_number: Optional[str] = ""   # empty = not graduated yet
+    study_type: Optional[str] = None   # 0006: morning / evening / parallel (old clients: none)
 
 
 class BulkImportRequest(BaseModel):
     students: List[BulkImportStudentItem]
+
+
+def _study_system_aliases(cur) -> dict:
+    """{old id 3-6: (system id, study type)} from migration 0006; {} before it ran."""
+    try:
+        cur.execute("SELECT old_id, study_system_id, study_type FROM study_system_aliases WHERE old_id > 2")
+        return {int(r["old_id"]): (int(r["study_system_id"]), r["study_type"]) for r in cur.fetchall()}
+    except Exception:
+        return {}
 
 
 def get_db_dependency():
@@ -108,10 +119,17 @@ def bulk_import_students(payload: BulkImportRequest, conn=Depends(get_db_depende
 
     try:
         conn.start_transaction()
+        aliases = _study_system_aliases(cur)
 
         for item in payload.students:
             student_id = None
             nat_id = str(item.national_id or "").strip()
+            # 0006: an old system id 3-6 means (1|2, type)
+            system_id, alias_type = item.study_system_id or 1, None
+            if system_id in aliases:
+                system_id, alias_type = aliases[system_id]
+            item.study_system_id = system_id
+            study_type = normalize_study_type(item.study_type) or alias_type
 
             # 1. Check if student already exists by real national_id (excluding GEN_ fallback)
             if nat_id and not nat_id.startswith("GEN_"):
@@ -144,6 +162,7 @@ def bulk_import_students(payload: BulkImportRequest, conn=Depends(get_db_depende
                         nationality_id = %s,
                         national_id = CASE WHEN %s != '' AND %s NOT LIKE 'GEN_%%' THEN %s ELSE national_id END,
                         study_system_id = COALESCE(%s, study_system_id),
+                        study_type = COALESCE(%s, study_type),
                         average = CASE WHEN %s IS NOT NULL THEN %s ELSE average END
                     WHERE id = %s
                 """, (
@@ -154,6 +173,7 @@ def bulk_import_students(payload: BulkImportRequest, conn=Depends(get_db_depende
                     item.nationality_id or 274,
                     nat_id, nat_id, nat_id,
                     item.study_system_id or 1,
+                    study_type,
                     item.average, item.average,
                     student_id
                 ))
@@ -163,15 +183,15 @@ def bulk_import_students(payload: BulkImportRequest, conn=Depends(get_db_depende
                     INSERT INTO students (
                         full_name_ar, full_name_en, gender, date_of_birth,
                         birthplace_id, nationality_id, national_id,
-                        department_id, study_system_id, degree_level,
+                        department_id, study_system_id, study_type, degree_level,
                         admission_year, average
-                    ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                    ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
                 """, (
                     item.full_name_ar.strip(), item.full_name_en or "",
                     item.gender or 1, item.date_of_birth,
                     item.birthplace_id or 2, item.nationality_id or 274,
                     nat_id if nat_id and not nat_id.startswith("GEN_") else None,
-                    item.department_id, item.study_system_id or 1,
+                    item.department_id, item.study_system_id or 1, study_type or "morning",
                     item.degree_level or 1,
                     item.admission_year or "", item.average
                 ))

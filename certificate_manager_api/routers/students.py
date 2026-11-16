@@ -45,6 +45,14 @@ class StudentPayload(BaseModel):
     average: Optional[float] = None
     graduation_date: Optional[str] = None
     graduation_semester: Optional[str] = None
+    # 0006: morning / evening / parallel. Old clients (2.5.3 and older) do not send it:
+    # None keeps the saved type (UpdateStudent) or defaults to morning (InsertStudent).
+    study_type: Optional[str] = None
+
+
+def _study_type_arg(payload: "StudentPayload"):
+    from study_type import normalize_study_type
+    return normalize_study_type(payload.study_type)
 
 
 class StudentSearchResponse(BaseModel):
@@ -254,7 +262,8 @@ def insert_student(payload: StudentPayload, conn=Depends(get_db)):
             payload.national_id,
             payload.department_id, payload.study_system_id, payload.degree_level,
             payload.order_id, payload.admission_year, payload.summer_training_data,
-            payload.average, payload.graduation_date, payload.graduation_semester
+            payload.average, payload.graduation_date, payload.graduation_semester,
+            _study_type_arg(payload),
         )
         cur.callproc("InsertStudent", args)
         real_id = None
@@ -298,7 +307,8 @@ def update_student(student_id: int, payload: StudentPayload, conn=Depends(get_db
             payload.national_id,
             payload.department_id, payload.study_system_id, payload.degree_level,
             payload.order_id, payload.admission_year, payload.summer_training_data,
-            payload.average, payload.graduation_date, payload.graduation_semester
+            payload.average, payload.graduation_date, payload.graduation_semester,
+            _study_type_arg(payload),
         )
         cur.callproc("UpdateStudent", args)
         try:
@@ -388,13 +398,15 @@ def link_students_to_order(order_id: int, conn=Depends(get_db)):
 
 @router.get("/students/candidates-for-order/{order_id}")
 def candidates_for_order(order_id: int, name_query: str = "", matching_only: bool = True,
-                         limit: int = 200, conn=Depends(get_db)):
+                         same_study_type: bool = True, limit: int = 200, conn=Depends(get_db)):
     """Students in no order. matching_only: the order's department, study system and expected
-    graduation year/semester (the same rule as LinkStudentsToOrder)."""
+    graduation year/semester (the same rule as LinkStudentsToOrder). same_study_type (with
+    matching_only): also the order's study type — a suggestion only, the screen can turn it off."""
+    from study_type import normalize_study_type
     cur = conn.cursor(dictionary=True)
     try:
-        cur.execute("SELECT department_id, study_system_id, graduation_year, graduation_semester, order_date "
-                    "FROM graduation_orders WHERE id = %s", (order_id,))
+        cur.execute("SELECT department_id, study_system_id, graduation_year, graduation_semester, order_date, "
+                    "study_type FROM graduation_orders WHERE id = %s", (order_id,))
         o = cur.fetchone()
         if not o:
             raise HTTPException(status_code=404, detail="Order not found")
@@ -407,12 +419,16 @@ def candidates_for_order(order_id: int, name_query: str = "", matching_only: boo
                       "(s.expected_graduation_semester IS NULL OR s.expected_graduation_semester = '' "
                       "OR s.expected_graduation_semester = %s)"]
             params += [o["department_id"], o["study_system_id"], year, year, o["graduation_semester"]]
+            order_type = normalize_study_type(o.get("study_type"))
+            if same_study_type and order_type:
+                where.append("s.study_type = %s")
+                params.append(order_type)
         if name_query.strip():
             where.append("(s.full_name_ar LIKE %s OR s.full_name_en LIKE %s)")
             params += [f"%{name_query.strip()}%"] * 2
         cur.execute(
             "SELECT s.id, s.full_name_ar, s.full_name_en, s.average, s.department_id, d.name_ar AS dept_name_ar, "
-            "s.expected_graduation_year, s.expected_graduation_semester, s.admission_year "
+            "s.expected_graduation_year, s.expected_graduation_semester, s.admission_year, s.study_type "
             "FROM students s LEFT JOIN departments d ON d.id = s.department_id "
             f"WHERE {' AND '.join(where)} ORDER BY s.full_name_ar LIMIT %s",
             (*params, max(1, min(int(limit), 1000))),
@@ -500,7 +516,9 @@ def graduation_ranks(student_id: int, conn=Depends(get_db)):
     cur = conn.cursor(dictionary=True)
     try:
         sql = ("SELECT s.id, s.department_id, s.average, o.graduation_semester AS semester, "
-               "o.study_system_id AS system_id, COALESCE(o.graduation_year, YEAR(o.order_date)) AS year "
+               # 0006: system + type, so morning and evening stay separate groups as before the split
+               "CONCAT(o.study_system_id, ':', COALESCE(NULLIF(o.study_type, ''), 'morning')) AS system_id, "
+               "COALESCE(o.graduation_year, YEAR(o.order_date)) AS year "
                "FROM students s JOIN graduation_orders o ON o.id = s.order_id ")
         cur.execute(sql + "WHERE s.id = %s", (student_id,))
         me = cur.fetchone()

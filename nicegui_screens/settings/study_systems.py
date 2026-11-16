@@ -1,11 +1,10 @@
 # =============================================================================
 # nicegui_screens/settings/study_systems.py — Settings: study systems
 #
-# A study_systems row is one system for one shift (صباحي / مسائي / موازي).
-# The screen shows one block per system with its shifts inside it, so the rows
-# no longer look duplicated. Editing a system updates all of its shift rows;
-# each shift has its own active switch and delete. No schema change: «موازي»
-# is stored as study_day_type = "Other" until a shifts table exists.
+# Since migration 0006 the study type (صباحي / مسائي / موازي) is saved on each
+# student, so this is a plain list of systems. Rows that a server not yet
+# updated still keeps per type are shown as one system: edit, the active switch
+# and delete act on all of them together.
 # The calculation rule and weights are names/settings only for now (averages
 # are entered by hand).
 # =============================================================================
@@ -14,13 +13,13 @@ from nicegui import ui
 
 from data.repositories import OfflineModeError
 from nicegui_ui.study_system_choice import (
-    DAY_LABELS, DAY_TO_DB, PERIOD_LABELS, RULE_LABELS, group_systems, missing_days, system_name_warning,
+    PERIOD_LABELS, RULE_LABELS, group_systems, system_name_warning,
 )
 from nicegui_ui.ui_components import UI
 
 
 class StudySystemsMixin:
-    """Study systems grouped by system; shifts inside each (part of SettingsScreen)."""
+    """Study systems, one row each (part of SettingsScreen)."""
 
     def _section_study_systems(self) -> None:
         with UI.card():
@@ -28,7 +27,7 @@ class StudySystemsMixin:
                 UI.section_label("أنظمة الدراسة")
                 # Secondary: the tab's one primary is the university info "حفظ" above
                 UI.secondary_button("إضافة نظام", icon="add", on_click=lambda: self._system_dialog(None))
-            UI.muted_label("كل نظام يظهر مرة واحدة، وتحته أنواع الدراسة (صباحي، مسائي، موازي).")
+            UI.muted_label("نوع الدراسة (صباحي، مسائي، موازي) يُختار لكل طالب في بياناته.")
             self._systems_container = ui.column().classes("w-full gap-3")
             self._render_systems_list()
 
@@ -58,18 +57,11 @@ class StudySystemsMixin:
                                 f"الحساب: {RULE_LABELS.get(g['rule'], g['rule'])}",
                                 f"الفترة: {PERIOD_LABELS.get(g['period'], g['period'])}",
                             ) if x)).classes("app-caption")
+                        UI.switch("", value=any(bool(r.get("is_active", 1)) for r in g["shifts"]),
+                                  on_change=lambda e, grp=g: self._toggle_group_active(grp, e.value))
                         UI.icon_button("edit", "تعديل النظام", on_click=lambda _e, grp=g: self._system_dialog(grp), dense=True)
-                        if missing_days(g):
-                            UI.icon_button("add", "إضافة نوع دراسة", on_click=lambda _e, grp=g: self._add_shift_dialog(grp), dense=True)
-
-                    with ui.row().classes("w-full gap-2 flex-wrap"):
-                        for r in g["shifts"]:
-                            with ui.row().classes("app-shift-chip items-center no-wrap gap-1"):
-                                ui.label(DAY_LABELS[r["day"]]).classes("font-semibold")
-                                UI.switch("", value=bool(r.get("is_active", 1)),
-                                          on_change=lambda e, sid=r["id"]: self._toggle_system_active(sid, e.value))
-                                UI.danger_icon_button("delete", "حذف نوع الدراسة هذا",
-                                                      on_click=lambda _e, row=r: self._confirm_delete_shift(row))
+                        UI.danger_icon_button("delete", "حذف النظام",
+                                              on_click=lambda _e, grp=g: self._confirm_delete_group(grp))
 
     def _add_study_system(self) -> None:
         """Opens the new-system dialog (kept name: other code calls it)."""
@@ -78,7 +70,7 @@ class StudySystemsMixin:
     # ── Add / edit a system ─────────────────────────────────────────────────
 
     def _system_dialog(self, group) -> None:
-        """New system (with its first shift), or edit one: the change applies to all its shifts."""
+        """New system, or edit one (the change applies to every row it still has)."""
         is_new = group is None
         g = group or {"name_ar": "", "name_en": "", "rule": "annual", "period": "year",
                       "weights": "10:20:30:40", "shifts": []}
@@ -89,13 +81,6 @@ class StudySystemsMixin:
                 name_en = UI.text_input("اسم النظام بالإنكليزية", value=g["name_en"])
                 rule = UI.select("قاعدة الحساب", dict(RULE_LABELS), value=g["rule"])
                 period = UI.select("الفترة", dict(PERIOD_LABELS), value=g["period"])
-            # A new system can start with several shifts at once
-            day_boxes = {}
-            if is_new:
-                ui.label("أنواع الدراسة").classes("app-caption")
-                with ui.row().classes("gap-4"):
-                    for d, lbl in DAY_LABELS.items():
-                        day_boxes[d] = ui.checkbox(lbl, value=(d == "morning"))
             # Weights are not used yet (averages are entered by hand)
             with ui.expansion("خيارات متقدمة", icon="tune").classes("w-full"):
                 weights = UI.text_input("الأوزان", value=g["weights"], placeholder="10:20:30:40")
@@ -120,14 +105,9 @@ class StudySystemsMixin:
                 w = (weights.value or "").strip() or None
                 try:
                     if is_new:
-                        days = [d for d, box in day_boxes.items() if box.value]
-                        if not days:
-                            ui.notify("اختر نوع دراسة واحدًا على الأقل", type="warning")
-                            return
-                        for d in days:
-                            self.sys_repo.insert(name_ar=n_ar, name_en=n_en, calc_rule=rule.value,
-                                                 period_display=period.value, calculation_weights=w,
-                                                 study_day_type=DAY_TO_DB[d])
+                        self.sys_repo.insert(name_ar=n_ar, name_en=n_en, calc_rule=rule.value,
+                                             period_display=period.value, calculation_weights=w,
+                                             study_day_type="Morning")
                     else:
                         for r in g["shifts"]:
                             self.sys_repo.update(sys_id=int(r["id"]), name_ar=n_ar, name_en=n_en,
@@ -147,33 +127,11 @@ class StudySystemsMixin:
                 UI.primary_button("حفظ", icon="save", on_click=_save)
         dlg.open()
 
-    def _add_shift_dialog(self, group: dict) -> None:
-        """Adds one shift to a system: a new row copying the system's settings."""
-        options = missing_days(group)
-        with ui.dialog() as dlg, UI.card().classes("w-[400px] max-w-full gap-4"):
-            UI.card_header(f"إضافة نوع دراسة: {group['name_ar']}", "add")
-            day = UI.select("نوع الدراسة", options, value=next(iter(options)))
+    # ── Active switch and delete ────────────────────────────────────────────
 
-            def _save():
-                try:
-                    self.sys_repo.insert(name_ar=group["name_ar"], name_en=group["name_en"],
-                                         calc_rule=group["rule"], period_display=group["period"],
-                                         calculation_weights=group["weights"] or None,
-                                         study_day_type=DAY_TO_DB[day.value])
-                    ui.notify("تمت إضافة نوع الدراسة", type="positive")
-                    dlg.close()
-                    self._reload_systems()
-                except OfflineModeError as err:
-                    ui.notify(str(err), type="warning")
-                except Exception as err:
-                    ui.notify(f"تعذر الحفظ: {err}", type="negative")
-
-            with ui.row().classes("app-dialog-actions"):
-                UI.ghost_button("إلغاء", on_click=dlg.close)
-                UI.primary_button("إضافة", icon="add", on_click=_save)
-        dlg.open()
-
-    # ── Shift rows ──────────────────────────────────────────────────────────
+    def _toggle_group_active(self, group: dict, active: bool) -> None:
+        for r in group["shifts"]:
+            self._toggle_system_active(int(r["id"]), active)
 
     def _toggle_system_active(self, sys_id: int, active: bool) -> None:
         try:
@@ -182,13 +140,12 @@ class StudySystemsMixin:
         except Exception as exc:
             ui.notify(f"تعذر تحديث الحالة: {exc}", type="negative")
 
-    def _confirm_delete_shift(self, row: dict) -> None:
-        label = f"{row.get('name_ar', '')} — {DAY_LABELS.get(row.get('day'), '')}"
+    def _confirm_delete_group(self, group: dict) -> None:
         UI.confirm_dialog(
-            "حذف نوع الدراسة",
-            f"سيُحذف ({label}). لا يمكن حذفه إذا كان مرتبطًا بطلاب أو أوامر تخرج.",
+            "حذف النظام",
+            f"سيُحذف ({group.get('name_ar', '')}). لا يمكن حذفه إذا كان مرتبطًا بطلاب أو أوامر تخرج.",
             "حذف",
-            lambda: self._delete_study_system(row["id"]),
+            lambda: [self._delete_study_system(int(r["id"])) for r in group["shifts"]],
         )
 
     def _delete_study_system(self, sys_id: int) -> None:

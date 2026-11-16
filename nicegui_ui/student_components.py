@@ -387,7 +387,8 @@ class CourseEnrollmentView:
 # Stored codes shown in Arabic on the student page (display only)
 _DEGREE_AR = {1: "بكالوريوس", 2: "دبلوم عالي", 3: "ماجستير", 4: "دكتوراه"}
 _SEMESTER_AR = {"first": "الفصل الأول", "second": "الفصل الثاني", "summer": "الفصل الصيفي"}
-_STUDY_TYPE_AR = {"morning": "صباحي", "day": "صباحي", "evening": "مسائي", "night": "مسائي"}
+_STUDY_TYPE_AR = {"morning": "صباحي", "day": "صباحي", "evening": "مسائي", "night": "مسائي",
+                  "parallel": "موازي", "other": "موازي"}
 
 
 class StudentProfileView:
@@ -1418,6 +1419,8 @@ class StudentFormView:
                     self.degree.value = data.get("degree_level")
                 if data.get("study_system_id") in self.study_system.by_id:
                     self.study_system.value = data.get("study_system_id")
+                if data.get("study_type"):
+                    self.study_system.study_type = data.get("study_type")
                 _adm = str(data.get("admission_year") or "")
                 self.admission_year.value = format_academic_year(_adm) or _adm
 
@@ -1474,7 +1477,7 @@ class StudentFormView:
         oid_val = self.order_id.value if isinstance(self.order_id.value, int) and self.order_id.value > 0 else None
         sys_id_val = self.study_system.value
         if not isinstance(sys_id_val, int):
-            ui.notify("اختر نظام الدراسة ونوع الدراسة (هذا الزوج غير موجود)", type="warning")
+            ui.notify("اختر نظام الدراسة", type="warning")
             return
 
         from utils.display_format import average_is_valid
@@ -1492,6 +1495,7 @@ class StudentFormView:
             "national_id": self.national_id.value.strip() if self.national_id.value else None,
             "department_id": self.department.value if isinstance(self.department.value, int) else None,
             "study_system_id": sys_id_val,
+            "study_type": self.study_system.study_type,
             "degree_level": self.degree.value if isinstance(self.degree.value, int) else 1,
             "admission_year": adm_year_val or None,
             "order_id": oid_val,

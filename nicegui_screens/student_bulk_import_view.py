@@ -165,7 +165,7 @@ class StudentBulkImportView:
                         if self.is_dept_locked:
                             self.dept_select.disable()
 
-                        # Study system and study type: two choices mapped to one study_system_id
+                        # Study system and study type: two independent choices (0006); a type in the file wins
                         from nicegui_ui.study_system_choice import StudySystemPicker
                         self.system_select = StudySystemPicker(
                             self.study_systems, value=self.selected_system_id,
@@ -897,6 +897,7 @@ class StudentBulkImportView:
                         "national_id": st.get("national_id") or None,
                         "department_id": self.selected_dept_id,
                         "study_system_id": self.selected_system_id or 1,
+                        "study_type": st.get("study_type") or self.system_select.study_type,
                         "degree_level": 1,
                         "admission_year": st.get("admission_year") or self.academic_year,
                         "average": rec.get("average") if rec.get("has_grades") else None,
@@ -946,6 +947,7 @@ class StudentBulkImportView:
                         "national_id": st.get("national_id") or None,
                         "department_id": self.selected_dept_id,
                         "study_system_id": self.selected_system_id or 1,
+                        "study_type": st.get("study_type") or self.system_select.study_type,
                         "degree_level": 1,
                         "admission_year": st.get("admission_year") or self.academic_year,
                         "average": rec.get("average") if rec.get("has_grades") else None,

@@ -7,6 +7,7 @@
 import base64
 import logging
 
+from utils.study_type import STUDY_TYPE_LABELS_AR, normalize_study_type
 from nicegui import run, ui
 
 from nicegui_ui.ui_components import UI
@@ -21,7 +22,7 @@ class OrderWorkspaceMixin:
     """Part of GraduationOrdersScreen (needs self.student_repo)."""
 
     def _build_order_workspace(self, oid: int, order: dict) -> None:
-        state = {"undo_ids": [], "name": "", "matching_only": True}
+        state = {"undo_ids": [], "name": "", "matching_only": True, "same_type": True}
         expected = order.get("num_students")
         try:
             expected = int(expected) if expected not in (None, "") else None
@@ -97,15 +98,22 @@ class OrderWorkspaceMixin:
                         state["matching_only"] = bool(e.value)
                         candidates_panel.refresh()
 
+                    def on_same_type(e):
+                        state["same_type"] = bool(e.value)
+                        candidates_panel.refresh()
+
                     UI.text_input("", placeholder="بحث بالاسم...", on_change=on_name).classes("flex-1 min-w-[200px]")
                     ui.switch("المطابقون للأمر فقط (القسم، النظام، سنة وفصل التخرج)", value=True,
                               on_change=on_match)
+                    # 0006: same study type is suggested; turn it off to add students of another type
+                    ui.switch("نفس نوع الدراسة فقط", value=True, on_change=on_same_type)
 
                 @ui.refreshable
                 def candidates_panel():
                     try:
                         rows = self.student_repo.candidates_for_order(
-                            oid, state["name"], state["matching_only"], limit=200) or []
+                            oid, state["name"], state["matching_only"], limit=200,
+                            same_study_type=state["same_type"]) or []
                     except Exception as err:
                         log.warning(f"candidates_for_order failed: {err}")
                         ui.label(f"تعذر جلب الطلاب: {err}").classes("app-caption")
@@ -137,7 +145,9 @@ class OrderWorkspaceMixin:
                                     ui.label(st.get("full_name_ar") or "—").classes("font-bold text-sm truncate")
                                     sem = SEMESTER_AR.get(str(st.get("expected_graduation_semester") or ""), "")
                                     yr = st.get("expected_graduation_year") or "—"
-                                    ui.label(f"{st.get('dept_name_ar') or ''} • التخرج المتوقع: {yr} {sem}").classes("app-caption")
+                                    st_type = STUDY_TYPE_LABELS_AR.get(normalize_study_type(st.get("study_type")) or "", "")
+                                    ui.label(" • ".join(x for x in (st.get('dept_name_ar') or '', st_type,
+                                                                     f"التخرج المتوقع: {yr} {sem}") if x)).classes("app-caption")
 
                                 def link_one(sid=st["id"]):
                                     try:

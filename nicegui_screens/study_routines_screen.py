@@ -352,7 +352,7 @@ class StudyRoutinesController:
             dept_select = ui.select(options=dept_options, value=init_dept, label="القسم التابع له").classes("w-full text-sm").props("outlined dense")
             from nicegui_ui.study_system_choice import StudySystemPicker
             with ui.row().classes("w-full gap-3 no-wrap"):
-                sys_select = StudySystemPicker(systems, value=init_sys, classes="flex-1 text-sm")
+                sys_select = StudySystemPicker(systems, value=init_sys, classes="flex-1 text-sm", show_type=False)
 
             with ui.row().classes("w-full justify-end gap-2 pt-3 border-t border-slate-200 dark:border-slate-700"):
                 ui.button("إلغاء", on_click=dialog.close).props("flat").classes("text-slate-500 text-sm")
@@ -367,7 +367,7 @@ class StudyRoutinesController:
                         ui.notify("يرجى إدخال اسم السيرة الدراسية بالعربية", type="warning")
                         return
                     if not isinstance(sys_id, int):
-                        ui.notify("اختر نظام الدراسة ونوع الدراسة (هذا الزوج غير موجود)", type="warning")
+                        ui.notify("اختر نظام الدراسة", type="warning")
                         return
 
                     payload = {
