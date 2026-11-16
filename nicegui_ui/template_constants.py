@@ -408,6 +408,46 @@ def template_tags(raw_name: Optional[str]) -> Dict[str, Any]:
     }
 
 
+# ── Tag colours: one colour family per kind, one shade per value (theme.css .app-tag--*) ──
+_SYSTEM_TAG_CLASS = {"annual": "annual", "semester": "semester", "bologna": "bologna",
+                     "master": "graduate", "phd": "graduate"}
+
+
+def tag_class(kind: str, value: Any) -> str:
+    """The chip classes for one tag, e.g. tag_class('lang', 'En') -> 'app-chip app-tag app-tag--lang-en'."""
+    if kind == "system":
+        v = _SYSTEM_TAG_CLASS.get(str(value or "").lower(), "annual")
+    elif kind == "lang":
+        v = "en" if str(value or "").lower() == "en" else "ar"
+    elif kind == "marks":
+        v = "with" if value in (True, "with", "1", 1) else "without"
+    elif kind == "gender":
+        v = {"male": "male", "female": "female"}.get(str(value or "").lower(), "any")
+    else:
+        return "app-chip"
+    return f"app-chip app-tag app-tag--{kind}-{v}"
+
+
+def tag_chips(tags: Dict[str, Any]) -> list:
+    """[(label, classes)] for a template's four tags, in the order shown everywhere."""
+    return [
+        (tags["system_ar"], tag_class("system", tags["system"])),
+        (tags["lang_ar"], tag_class("lang", tags["lang"])),
+        (tags["marks_ar"], tag_class("marks", tags["sbs"])),
+        (tags["gender_ar"], tag_class("gender", tags["gender"])),
+    ]
+
+
+def tag_label_classes() -> Dict[str, str]:
+    """{Arabic tag label: classes} for every fixed label, so a picker slot can colour the
+    'عربي • بالدرجات' line the same way (custom system names are not in that line)."""
+    out = {lbl: tag_class("lang", k) for k, lbl in TAG_LANGS.items()}
+    out.update({lbl: tag_class("marks", k) for k, lbl in TAG_MARKS.items()})
+    out.update({lbl: tag_class("gender", k) for k, lbl in TAG_GENDERS.items()})
+    out.update({lbl: tag_class("system", k) for k, lbl in TAG_SYSTEMS.items()})
+    return out
+
+
 def system_tag_options(systems: list, current: str = "") -> Dict[str, str]:
     """{system name: rule key} for the template's study-system select, from the study systems
     added in Settings (one entry per system, whatever its shifts). A name no longer in the

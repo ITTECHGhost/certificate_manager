@@ -2,6 +2,7 @@
 # nicegui_screens/certificate_screen.py — Certificate Issuance & Generation Screen
 # =============================================================================
 
+import json
 import os
 import re
 import logging
@@ -14,7 +15,7 @@ from nicegui import ui
 import app_paths
 
 from nicegui_ui.ui_components import UI
-from nicegui_ui.template_constants import get_friendly_template_name, get_template_label_ar
+from nicegui_ui.template_constants import get_friendly_template_name, get_template_label_ar, tag_label_classes
 from nicegui_ui.issue_helpers import (
     GRADUATES_SOURCES, filter_templates_for_system, graduates_count, group_transcript, template_option_label,
 )
@@ -183,18 +184,23 @@ class CertificateScreen:
                                 value=initial_templates[0] if initial_templates else None
                             ).classes("w-full app-template-select")
                             # Two lines: the template name, then its variant (language • marks)
+                            # The variant line as coloured chips: same colours as Settings → قوالب الوثائق
+                            tags_html = (
+                                r"""<span v-for="part in (String(props.opt.label).split('\n')[1] || '').split(' • ').filter(p => p)" """
+                                r""":key="part" :class='TAGMAP[part] || "app-chip"'>{{ part }}</span>"""
+                            ).replace("TAGMAP", json.dumps(tag_label_classes(), ensure_ascii=False).replace("'", "&#39;"))
                             self.template_sel.add_slot("option", r"""
                                 <q-item v-bind="props.itemProps">
                                   <q-item-section>
                                     <q-item-label>{{ String(props.opt.label).split('\n')[0] }}</q-item-label>
-                                    <q-item-label caption>{{ String(props.opt.label).split('\n')[1] || '' }}</q-item-label>
+                                    <q-item-label caption><span class="app-tag-line">TAGS</span></q-item-label>
                                   </q-item-section>
-                                </q-item>""")
+                                </q-item>""".replace("TAGS", tags_html))
                             self.template_sel.add_slot("selected-item", r"""
                                 <div class="app-template-value">
                                   <div>{{ String(props.opt.label).split('\n')[0] }}</div>
-                                  <div class="app-caption">{{ String(props.opt.label).split('\n')[1] || '' }}</div>
-                                </div>""")
+                                  <div class="app-tag-line">TAGS</div>
+                                </div>""".replace("TAGS", tags_html))
 
                             self.to_input = UI.text_input(
                                 "إلى (الجهة المعنية)",

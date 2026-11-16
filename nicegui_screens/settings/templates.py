@@ -9,7 +9,7 @@ from nicegui import ui
 import app_paths
 from nicegui_ui.ui_components import UI
 from nicegui_ui.template_constants import (
-    TAG_GENDERS, TAG_LANGS, TAG_MARKS, get_template_info, save_template_tags, system_tag_options, template_tag_conflicts,
+    tag_chips, TAG_GENDERS, TAG_LANGS, TAG_MARKS, get_template_info, save_template_tags, system_tag_options, template_tag_conflicts,
     template_tags,
 )
 from utils.file_delivery import deliver_file
@@ -137,8 +137,8 @@ class TemplatesMixin:
                                 # The user's name with its tags right beside it
                                 with ui.row().classes("items-center gap-2 flex-wrap"):
                                     ui.label(display_name).classes("app-text-primary font-semibold")
-                                    for chip in (tags["system_ar"], tags["lang_ar"], tags["marks_ar"], tags["gender_ar"]):
-                                        ui.label(chip).classes("app-chip app-chip--accent")
+                                    for chip, chip_cls in tag_chips(tags):
+                                        ui.label(chip).classes(chip_cls)
                                     if modified:
                                         with ui.label("معدّل على هذا الجهاز").classes("app-chip app-chip--warning"):
                                             ui.tooltip("عُدّل الملف هنا ولم يُرفع للخادم بعد؛ لن تصله الأجهزة الأخرى حتى ترفعه.")

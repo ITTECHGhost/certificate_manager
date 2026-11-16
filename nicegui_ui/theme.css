@@ -818,6 +818,36 @@ input, textarea { caret-color: var(--accent); }
 .app-chip--accent  { background: var(--accent-soft); color: var(--accent-text); border-color: transparent; }
 .app-chip--warning { background: var(--warning-soft); color: var(--warning); border-color: transparent; }
 .app-chip--danger  { background: var(--danger-soft); color: var(--danger); border-color: transparent; }
+
+/* Template tags (Settings → قوالب الوثائق and «إصدار كتاب»): one colour family per kind —
+   system blue, language green, marks amber, gender rose/violet — one shade per value.
+   Each value sets --tag (text) and --tag-bg; dark mode swaps in lighter text. */
+.app-tag { background: var(--tag-bg); color: var(--tag); border-color: transparent; }
+.app-tag--system-annual   { --tag: #1d4ed8; --tag-bg: rgba(37, 99, 235, 0.12); }
+.app-tag--system-semester { --tag: #4338ca; --tag-bg: rgba(79, 70, 229, 0.14); }
+.app-tag--system-bologna  { --tag: #0369a1; --tag-bg: rgba(2, 132, 199, 0.12); }
+.app-tag--system-graduate { --tag: #1e3a8a; --tag-bg: rgba(30, 58, 138, 0.12); }
+.app-tag--lang-ar         { --tag: #047857; --tag-bg: rgba(5, 150, 105, 0.12); }
+.app-tag--lang-en         { --tag: #0f766e; --tag-bg: rgba(13, 148, 136, 0.14); }
+.app-tag--marks-with      { --tag: #92400e; --tag-bg: rgba(217, 119, 6, 0.14); }
+.app-tag--marks-without   { --tag: #57534e; --tag-bg: rgba(120, 113, 108, 0.14); }
+.app-tag--gender-any      { --tag: #6d28d9; --tag-bg: rgba(124, 58, 237, 0.10); }
+.app-tag--gender-male     { --tag: #5b21b6; --tag-bg: rgba(109, 40, 217, 0.16); }
+.app-tag--gender-female   { --tag: #be185d; --tag-bg: rgba(219, 39, 119, 0.12); }
+.body--dark .app-tag--system-annual   { --tag: #93c5fd; --tag-bg: rgba(96, 165, 250, 0.18); }
+.body--dark .app-tag--system-semester { --tag: #a5b4fc; --tag-bg: rgba(129, 140, 248, 0.20); }
+.body--dark .app-tag--system-bologna  { --tag: #7dd3fc; --tag-bg: rgba(56, 189, 248, 0.16); }
+.body--dark .app-tag--system-graduate { --tag: #bfdbfe; --tag-bg: rgba(147, 197, 253, 0.14); }
+.body--dark .app-tag--lang-ar         { --tag: #6ee7b7; --tag-bg: rgba(52, 211, 153, 0.16); }
+.body--dark .app-tag--lang-en         { --tag: #5eead4; --tag-bg: rgba(45, 212, 191, 0.18); }
+.body--dark .app-tag--marks-with      { --tag: #fcd34d; --tag-bg: rgba(251, 191, 36, 0.16); }
+.body--dark .app-tag--marks-without   { --tag: #d6d3d1; --tag-bg: rgba(214, 211, 209, 0.14); }
+.body--dark .app-tag--gender-any      { --tag: #c4b5fd; --tag-bg: rgba(167, 139, 250, 0.14); }
+.body--dark .app-tag--gender-male     { --tag: #ddd6fe; --tag-bg: rgba(167, 139, 250, 0.24); }
+.body--dark .app-tag--gender-female   { --tag: #f9a8d4; --tag-bg: rgba(244, 114, 182, 0.18); }
+/* the variant line inside the template picker */
+.app-tag-line { display: inline-flex; flex-wrap: wrap; gap: 4px; margin-top: 2px; }
+.app-tag-line .app-chip { height: 20px; }
 .q-chip { border-radius: 12px !important; font-size: var(--text-xs) !important; font-weight: 600; }
 
 .app-status-online,
