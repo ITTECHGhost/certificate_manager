@@ -51,6 +51,26 @@ class StudentRepository(BaseRepository):
 
         return search_offline_students_paginated(self.local_db_path, query, limit, offset, dept_id=dept_id)
 
+    def search_filtered(self, limit: int = 25, offset: int = 0, **filters) -> dict:
+        """The students list with filters: {"rows": [...], "total": n}.
+        filters: query, dept_id, study_system_id, study_type, status, admission_year.
+        A server older than 2.6 has no /students/filtered: then only name and department apply."""
+        from data.query import search_offline_students_filtered
+        filters = {k: v for k, v in filters.items() if v not in (None, "", "all", 0)}
+        if is_online():
+            try:
+                resp = api_client.get(f"{self.api_url}/students/filtered",
+                                      params={**filters, "limit": limit, "offset": offset}, timeout=5.0)
+                if resp.status_code == 200:
+                    return resp.json()
+                if resp.status_code in (404, 422):
+                    q, dept = filters.get("query", ""), filters.get("dept_id")
+                    return {"rows": self.search_students_paginated(q, limit, offset, dept_id=dept),
+                            "total": self.count(name_query=q, dept_id=dept)}
+            except Exception as err:
+                log_system(f"[StudentRepository] filtered search failed, using the local copy: {err}", "WARNING")
+        return search_offline_students_filtered(limit=limit, offset=offset, **filters)
+
     def get_last_added_students(self, limit: int = 5) -> list[dict]:
         """Fetch the most recently added students (ordered by id DESC)."""
         return get_offline_last_added_students(limit)

@@ -171,6 +171,58 @@ def search_students_basic(query: str = "", limit: int = 50, conn=Depends(get_db)
         raise HTTPException(status_code=500, detail=str(e))
 
 
+def student_filter_where(query: str = "", dept_id=None, study_system_id=None, study_type=None,
+                         status=None, admission_year=None, ph: str = "%s") -> tuple[str, list]:
+    """WHERE for the students list filters. Unknown values are ignored (whitelist).
+    ph is the placeholder: %s for MySQL, ? for the program's local copy."""
+    where, params = [], []
+    term = (query or "").strip()
+    if len(term) >= 2:
+        where.append(f"(s.full_name_ar LIKE {ph} OR s.full_name_en LIKE {ph} OR s.national_id LIKE {ph})")
+        params += [f"%{term}%"] * 3
+    if dept_id:
+        where.append(f"s.department_id = {ph}"); params.append(int(dept_id))
+    if study_system_id:
+        where.append(f"s.study_system_id = {ph}"); params.append(int(study_system_id))
+    if study_type in ("morning", "evening", "parallel"):
+        where.append(f"COALESCE(s.study_type, 'morning') = {ph}"); params.append(study_type)
+    if status == "graduated":
+        where.append("COALESCE(s.order_id, 0) > 0")
+    elif status == "not_graduated":
+        where.append("COALESCE(s.order_id, 0) = 0")
+    if admission_year and str(admission_year).strip().isdigit():
+        where.append(f"SUBSTR(COALESCE(s.admission_year, ''), 1, 4) = {ph}"); params.append(str(admission_year).strip()[:4])
+    return ("WHERE " + " AND ".join(where)) if where else "", params
+
+
+@router.get("/students/filtered")
+def students_filtered(query: str = "", limit: int = 25, offset: int = 0, dept_id: Optional[int] = None,
+                      study_system_id: Optional[int] = None, study_type: Optional[str] = None,
+                      status: Optional[str] = None, admission_year: Optional[str] = None,
+                      conn=Depends(get_db)):
+    """The students list with its search filters: {"rows": [...], "total": n}. New in 2.6;
+    /students/search and /students/count/all stay for older programs."""
+    where, params = student_filter_where(query, dept_id, study_system_id, study_type, status, admission_year)
+    limit = max(1, min(int(limit), 500))
+    cur = conn.cursor(dictionary=True)
+    try:
+        cur.execute(f"SELECT COUNT(*) AS total FROM students s {where}", params)
+        total = int((cur.fetchone() or {}).get("total") or 0)
+        cur.execute(
+            "SELECT s.id AS student_id, COALESCE(s.full_name_ar, '') AS name_ar, "
+            "COALESCE(s.full_name_en, '') AS name_en, COALESCE(d.name_ar, '') AS department_name_ar, "
+            "COALESCE(CAST(YEAR(s.graduation_date) AS CHAR), '') AS graduation_year, "
+            "COALESCE(s.average, 0.0) AS average, COALESCE(s.study_type, 'morning') AS study_type "
+            f"FROM students s LEFT JOIN departments d ON s.department_id = d.id {where} "
+            "ORDER BY s.id DESC LIMIT %s OFFSET %s", (*params, limit, max(0, int(offset))))
+        return {"rows": cur.fetchall(), "total": total}
+    except Exception as exc:
+        logger.error(f"Error filtering students: {exc}")
+        raise HTTPException(status_code=500, detail=str(exc))
+    finally:
+        cur.close()
+
+
 @router.get("/students/{student_id}")
 def get_student_by_id(student_id: int, conn=Depends(get_db)):
     try:

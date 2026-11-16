@@ -1555,3 +1555,47 @@ def delete_offline_enrollment(enrollment_id: int | str) -> None:
         conn.close()
 
 
+
+
+# ── Students list filters (same rules as the API's student_filter_where) ─────
+
+def student_filter_where(query: str = "", dept_id=None, study_system_id=None, study_type=None,
+                         status=None, admission_year=None, ph: str = "?") -> tuple[str, list]:
+    """Kept identical to certificate_manager_api/routers/students.py (tests check it)."""
+    where, params = [], []
+    term = (query or "").strip()
+    if len(term) >= 2:
+        where.append(f"(s.full_name_ar LIKE {ph} OR s.full_name_en LIKE {ph} OR s.national_id LIKE {ph})")
+        params += [f"%{term}%"] * 3
+    if dept_id:
+        where.append(f"s.department_id = {ph}"); params.append(int(dept_id))
+    if study_system_id:
+        where.append(f"s.study_system_id = {ph}"); params.append(int(study_system_id))
+    if study_type in ("morning", "evening", "parallel"):
+        where.append(f"COALESCE(s.study_type, 'morning') = {ph}"); params.append(study_type)
+    if status == "graduated":
+        where.append("COALESCE(s.order_id, 0) > 0")
+    elif status == "not_graduated":
+        where.append("COALESCE(s.order_id, 0) = 0")
+    if admission_year and str(admission_year).strip().isdigit():
+        where.append(f"SUBSTR(COALESCE(s.admission_year, ''), 1, 4) = {ph}"); params.append(str(admission_year).strip()[:4])
+    return ("WHERE " + " AND ".join(where)) if where else "", params
+
+
+def search_offline_students_filtered(limit: int = 25, offset: int = 0, **filters) -> dict:
+    """{"rows": [...], "total": n} from the local copy (students + not yet sent local_students)."""
+    where, params = student_filter_where(**filters)
+    src = ("(SELECT id, full_name_ar, full_name_en, national_id, department_id, study_system_id, study_type, "
+           "        order_id, CAST(admission_year AS TEXT) AS admission_year, graduation_date, average FROM students "
+           " UNION ALL "
+           " SELECT id, full_name_ar, full_name_en, national_id, department_id, study_system_id, study_type, "
+           "        order_id, CAST(admission_year AS TEXT) AS admission_year, graduation_date, average FROM local_students) s ")
+    row = sqlite_read_one(f"SELECT COUNT(*) AS total FROM {src} {where}", tuple(params))
+    rows = sqlite_read_all(
+        "SELECT s.id AS student_id, s.full_name_ar AS name_ar, s.full_name_en AS name_en, "
+        "d.name_ar AS department_name_ar, strftime('%Y', s.graduation_date) AS graduation_year, s.average, "
+        "COALESCE(s.study_type, 'morning') AS study_type "
+        f"FROM {src} LEFT JOIN departments d ON s.department_id = d.id {where} "
+        "ORDER BY CASE WHEN s.id < 0 THEN 1 ELSE 0 END DESC, ABS(s.id) DESC LIMIT ? OFFSET ?",
+        (*params, limit, offset)) or []
+    return {"rows": rows, "total": int(row["total"]) if row else 0}

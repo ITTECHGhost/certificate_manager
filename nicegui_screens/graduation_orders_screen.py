@@ -30,6 +30,30 @@ SEMESTER_OPTIONS = {
 }
 
 
+ORDER_FILTER_KEYS = ("department_id", "study_type", "graduation_year", "graduation_semester")
+
+
+def filter_orders(orders: list[dict], search: str = "", filters: dict | None = None) -> list[dict]:
+    """Orders matching the search text and every chosen filter (empty filters are ignored)."""
+    t = (search or "").strip().lower()
+    f = {k: v for k, v in (filters or {}).items() if k in ORDER_FILTER_KEYS and v not in (None, "", "all")}
+    out = []
+    for r in orders or []:
+        if t and not any(t in str(r.get(k) or "").lower()
+                         for k in ("order_number", "dept_name_ar", "graduation_year", "order_date")):
+            continue
+        if "department_id" in f and str(r.get("department_id")) != str(f["department_id"]):
+            continue
+        if "study_type" in f and (normalize_study_type(r.get("study_type")) or "morning") != f["study_type"]:
+            continue
+        if "graduation_year" in f and str(r.get("graduation_year") or "") != str(f["graduation_year"]):
+            continue
+        if "graduation_semester" in f and str(r.get("graduation_semester") or "").lower() != f["graduation_semester"]:
+            continue
+        out.append(r)
+    return out
+
+
 def extract_event_value(e, default=None):
     """Safely extract primitive value from NiceGUI event object without throwing Attribute/Type Errors."""
     if isinstance(e, (int, float, str, bool)):
@@ -82,6 +106,8 @@ class GraduationOrdersScreen(OrderWorkspaceMixin):
         self.current_limit = 25
         self.current_offset = 0
         self.search_term = ""
+        self.filters: dict = {}
+        self._filter_inputs: dict = {}
 
         # Main Viewport Container
         self.container = ui.column().classes("w-full gap-4")
@@ -100,12 +126,14 @@ class GraduationOrdersScreen(OrderWorkspaceMixin):
                         self.current_offset = 0
                         self._render_content()
 
-                    UI.search_input(
+                    self._search_box = UI.search_input(
                         placeholder="ابحث برقم الأمر أو القسم أو سنة التخرج",
                         on_change=on_search_change,
                     ).classes("flex-1 min-w-[220px] max-w-md")
                     ui.space()
                     UI.primary_button("إضافة أمر تخرج", icon="add", on_click=lambda: self.show_edit_view(mode="add"))
+
+                self._build_filters()
 
                 @ui.refreshable
                 def orders_content_view():
@@ -113,6 +141,47 @@ class GraduationOrdersScreen(OrderWorkspaceMixin):
 
                 orders_content_view()
                 self._refresh_content = orders_content_view
+
+    def _build_filters(self) -> None:
+        """Filters: department, study type, graduation year, semester. Each clears with (×)."""
+        try:
+            depts = {d["id"]: d.get("name_ar") or "" for d in self.dept_repo.get_all() or []}
+        except Exception:
+            depts = {}
+        try:
+            years = sorted({int(r["graduation_year"]) for r in self.repo.get_all(limit=1000, offset=0) or []
+                            if str(r.get("graduation_year") or "").isdigit()}, reverse=True)
+        except Exception:
+            years = []
+
+        def _set(key):
+            def handler(e):
+                self.filters[key] = e.value
+                self.current_offset = 0
+                self._render_content()
+            return handler
+
+        def _select(key, label, options, width="w-40"):
+            sel = UI.select(label, options, value=None, on_change=_set(key)).props("clearable dense").classes(
+                width, remove="w-full")
+            self._filter_inputs[key] = sel
+
+        with ui.row().classes("w-full items-center gap-2 flex-wrap"):
+            _select("department_id", "القسم", depts, "w-48")
+            _select("study_type", "نوع الدراسة", STUDY_TYPE_OPTIONS, "w-32")
+            _select("graduation_year", "سنة التخرج", {y: str(y) for y in years}, "w-32")
+            _select("graduation_semester", "الفصل", SEMESTER_OPTIONS, "w-36")
+            UI.ghost_button("مسح الكل", icon="filter_alt_off", on_click=self.clear_filters)
+
+    def clear_filters(self) -> None:
+        self.filters = {}
+        for inp in self._filter_inputs.values():
+            inp.set_value(None)
+        if getattr(self, "_search_box", None):
+            self._search_box.set_value("")
+        self.search_term = ""
+        self.current_offset = 0
+        self._render_content()
 
     def _render_content(self):
         """Trigger view refresh."""
@@ -127,24 +196,14 @@ class GraduationOrdersScreen(OrderWorkspaceMixin):
             log.warning(f"Failed to fetch graduation orders: {err}")
             orders = []
 
-        if not self.search_term:
-            return orders
-
-        t = self.search_term
-        return [
-            r for r in orders
-            if t in str(r.get("order_number") or "").lower()
-            or t in str(r.get("dept_name_ar") or "").lower()
-            or t in str(r.get("graduation_year") or "").lower()
-            or t in str(r.get("order_date") or "").lower()
-        ]
+        return filter_orders(orders, self.search_term, self.filters)
 
     def _build_orders_table(self):
         orders = self._get_filtered_orders()
         total = len(orders)
         if not orders:
-            if self.search_term:
-                UI.empty_state("لا يوجد أمر مطابق", "تحقق من رقم الأمر أو امسح البحث.", icon="search_off")
+            if self.search_term or any(v not in (None, "") for v in self.filters.values()):
+                UI.empty_state("لا يوجد أمر مطابق", "غيّر البحث أو اضغط «مسح الكل».", icon="search_off")
             else:
                 UI.empty_state("لا توجد أوامر تخرج بعد", "أضف أول أمر ثم اربط به الطلاب.", icon="school",
                                action_text="إضافة أمر تخرج", on_action=lambda: self.show_edit_view(mode="add"))

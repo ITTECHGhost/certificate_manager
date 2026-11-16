@@ -93,6 +93,10 @@
  ],
  [
   "GET",
+  "/students/filtered"
+ ],
+ [
+  "GET",
   "/students/{student_id}"
  ],
  [

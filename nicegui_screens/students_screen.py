@@ -16,6 +16,19 @@ from nicegui_screens.student_bulk_import_view import StudentBulkImportView
 
 from data.repositories import StudentRepository
 
+EMPTY_FILTERS = {"dept_id": None, "study_system_id": None, "study_type": None,
+                 "status": None, "admission_year": None}
+STATUS_OPTIONS = {"graduated": "متخرج", "not_graduated": "غير متخرج"}
+
+
+def active_filters(filters: dict, user_dept_id=None) -> dict:
+    """The filters to send: empty ones dropped; a department-scoped user always sees his department."""
+    out = {k: v for k, v in (filters or {}).items() if v not in (None, "", "all", 0)}
+    if user_dept_id:
+        out["dept_id"] = user_dept_id
+    return out
+
+
 class StudentsScreen:
     def __init__(self, on_issue_certificate=None) -> None:
         from data.repositories import RoleRepository, PersonnelRepository, DepartmentRepository
@@ -35,6 +48,8 @@ class StudentsScreen:
 
         self.current_limit = 25
         self.current_offset = 0
+        self.filters = dict(EMPTY_FILTERS)
+        self._filter_inputs = {}
         
         self.main_container = ui.column().classes('w-full h-full p-0 m-0 gap-0')
         
@@ -95,6 +110,8 @@ class StudentsScreen:
                     UI.secondary_button("استيراد من Excel", icon="upload_file", on_click=self.show_bulk_import_view)
                     UI.primary_button("إضافة طالب", icon="person_add", on_click=self.form_view.render_add)
 
+                self._build_filters()
+
                 columns = [
                     {"name": "name_ar", "label": "الاسم", "field": "name_ar", "align": "right"},
                     {"name": "department_name_ar", "label": "القسم", "field": "department_name_ar"},
@@ -142,6 +159,52 @@ class StudentsScreen:
                 paginator()
                 self._paginator = paginator
                 self.perform_search(reset_offset=False)
+
+    def _build_filters(self) -> None:
+        """Search filters: department, system, study type, graduated or not, admission year.
+        Each has a clear (×); «مسح الكل» clears them and the name search."""
+        from data.repositories import StudySystemRepository
+        from utils.study_type import STUDY_TYPE_LABELS_AR
+        try:
+            depts = {d["id"]: d.get("name_ar") or "" for d in self.dept_repo.get_all() or []}
+        except Exception:
+            depts = {}
+        try:
+            systems = {s["id"]: s.get("name_ar") or "" for s in StudySystemRepository().get_all() or []}
+        except Exception:
+            systems = {}
+
+        def _set(key):
+            def handler(e):
+                self.filters[key] = e.value if e.value not in ("", None) else None
+                self.perform_search(reset_offset=True)
+            return handler
+
+        def _select(key, label, options, width="w-40"):
+            sel = UI.select(label, options, value=None, on_change=_set(key)).props("clearable dense").classes(
+                width, remove="w-full")
+            self._filter_inputs[key] = sel
+            return sel
+
+        with ui.row().classes("w-full items-center gap-2 flex-wrap"):
+            if not self.user_dept_id:
+                _select("dept_id", "القسم", depts, "w-48")
+            _select("study_system_id", "نظام الدراسة", systems)
+            _select("study_type", "نوع الدراسة", dict(STUDY_TYPE_LABELS_AR), "w-32")
+            _select("status", "الحالة", STATUS_OPTIONS, "w-32")
+            year = ui.input("سنة القبول", on_change=_set("admission_year")).props(
+                "clearable dense debounce=400 inputmode=numeric").classes("w-32 app-input")
+            self._filter_inputs["admission_year"] = year
+            UI.ghost_button("مسح الكل", icon="filter_alt_off", on_click=self.clear_filters)
+
+    def clear_filters(self) -> None:
+        """Empties the name search and every filter, then shows all students again."""
+        self.filters = dict(EMPTY_FILTERS)
+        for inp in self._filter_inputs.values():
+            inp.set_value(None)
+        if self.search_input:
+            self.search_input.set_value("")
+        self.perform_search(reset_offset=True)
 
     def _map_rows(self, raw_rows) -> list[dict]:
         """Format raw database student records for ui.table compatibility."""
@@ -210,23 +273,15 @@ class StudentsScreen:
         )
 
     async def _run_search(self, seq: int, search_term: str, limit: int, offset: int) -> None:
+        filters = active_filters(self.filters, self.user_dept_id)
         try:
-            raw_results = await run.io_bound(
-                self.repo.search_students_paginated,
-                query=search_term,
-                limit=limit,
-                offset=offset,
-                dept_id=self.user_dept_id
-            )
-            mapped = self._map_rows(raw_results)
+            result = await run.io_bound(self.repo.search_filtered, limit=limit, offset=offset,
+                                        query=search_term, **filters)
+            mapped = self._map_rows(result.get("rows"))
+            total = result.get("total") or 0
         except Exception as exc:
             log.warning(f"[StudentsScreen] Search error: {exc}")
-            mapped = []
-        try:
-            total = await run.io_bound(self.repo.count, name_query=search_term, dept_id=self.user_dept_id)
-        except Exception as exc:
-            log.warning(f"[StudentsScreen] Count error: {exc}")
-            total = 0
+            mapped, total = [], 0
         if seq != self._search_seq:
             return  # a newer search was started while this one was running
         if not hasattr(self, 'table') or self.table is None or getattr(self.table, 'is_deleted', False):
@@ -246,8 +301,8 @@ class StudentsScreen:
         if has_rows:
             return
         with self.empty_box:
-            if search_term:
-                UI.empty_state("لا يوجد طالب بهذا الاسم", "تحقق من الاسم أو امسح البحث.", icon="search_off")
+            if search_term or active_filters(self.filters):
+                UI.empty_state("لا يوجد طالب بهذا الوصف", "غيّر البحث أو اضغط «مسح الكل».", icon="search_off")
             else:
                 UI.empty_state("لا يوجد طلاب بعد", "أضف طالبًا أو استورد قائمة من Excel.", icon="people",
                                action_text="إضافة طالب", on_action=self.form_view.render_add)
