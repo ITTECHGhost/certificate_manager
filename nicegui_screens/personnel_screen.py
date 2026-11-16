@@ -238,6 +238,12 @@ class PersonnelScreen:
 
                         role_inp.on_value_change(lambda e: _update_role_preview(e.value if hasattr(e, "value") else e))
 
+                        # Account on/off: an inactive account cannot log in (online or offline)
+                        active_switch = UI.switch(
+                            "الحساب نشط (يستطيع تسجيل الدخول)",
+                            value=bool(existing_data.get("is_active", 1)),
+                        ).classes("text-sm font-bold app-text-primary")
+
                     # 2. Personal Info
                     with UI.card().classes("w-full p-5 gap-4 rounded-xl border border-[var(--border-default)] bg-[var(--bg-card)] shrink-0"):
                         ui.label("المعلومات الشخصية").classes("app-section-title")
@@ -334,11 +340,14 @@ class PersonnelScreen:
                                 "display_order": display_order,
                                 "username": user_inp.value.strip() if user_inp.value else "",
                                 "personnel_role": base_role,
-                                "is_active": existing_data.get("is_active", 1)
+                                "is_active": 1 if active_switch.value else 0,
                             }
 
                             from nicegui_ui.state import app_session
                             from sync_engine import is_online
+                            if not payload["is_active"] and pid is not None and int(pid) == int(app_session.emp_id or 0):
+                                ui.notify("لا يمكنك تعطيل حسابك الذي تستخدمه الآن", type="warning")
+                                return
                             # A password an admin types for SOMEONE ELSE is temporary: they must change it at login
                             temp_pwd = bool(pwd) and (pid is None or int(pid) != int(app_session.emp_id))
 

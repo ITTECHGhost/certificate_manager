@@ -23,6 +23,13 @@ def test_screen_sends_zero_for_an_active_row(monkeypatch):
     assert calls == [(7, 0), (7, 1)]
 
 
+def test_edit_form_has_an_active_switch_that_is_saved():
+    src = open(os.path.join(ROOT, "nicegui_screens", "personnel_screen.py"), encoding="utf-8").read()
+    assert "active_switch = UI.switch(" in src
+    assert '"is_active": 1 if active_switch.value else 0' in src
+    assert 'existing_data.get("is_active", 1)\n' not in src
+
+
 def test_repo_posts_the_value(monkeypatch):
     from data.repositories import personnel as mod
     sent = []
