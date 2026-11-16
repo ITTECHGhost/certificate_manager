@@ -12,7 +12,7 @@ import logging
 from datetime import datetime
 from typing import Optional, List, Dict, Any
 
-from nicegui import run, ui
+from nicegui import run, ui, background_tasks
 from nicegui_ui.ui_components import UI
 from nicegui_ui.ui_theme import Styles
 from data.repositories import (
@@ -733,6 +733,8 @@ class IssuedCertificatesScreen:
                 auto_open=False,
                 show_modal=True
             )
+            # The file is saved; start the next search from a clean form
+            background_tasks.create(self._reset_filters(), name="issued-reset-after-export")
         except Exception as ex:
             log.error(f"Failed to export CSV report: {ex}")
             ui.notify(f"خطأ أثناء تصدير التقرير: {ex}", type="negative")

@@ -6,7 +6,7 @@ import os
 from datetime import datetime
 from nicegui import ui
 from nicegui_ui.ui_components import UI
-from nicegui_ui.upload_utils import read_upload
+from nicegui_ui.upload_utils import clear_when_done, read_upload
 
 
 class InstitutionMixin:
@@ -87,10 +87,10 @@ class InstitutionMixin:
                                 ui.notify(f"خطأ في رفع الشعار: {err}", type="negative")
 
                         # The uploader stays hidden: no empty box or "0.0B" until a file is actually chosen
-                        univ_uploader = ui.upload(
+                        univ_uploader = clear_when_done(ui.upload(
                             auto_upload=True,
                             on_upload=_handle_univ_logo_upload
-                        ).props("accept='image/png,image/jpeg,image/webp,image/svg+xml' max-files=1").classes("hidden")
+                        )).props("accept='image/png,image/jpeg,image/webp,image/svg+xml' max-files=1").classes("hidden")
                         UI.secondary_button(
                             "تغيير شعار الجامعة", icon="upload",
                             on_click=lambda u=univ_uploader: u.run_method("pickFiles"),
@@ -146,10 +146,10 @@ class InstitutionMixin:
                                 ui.notify(f"خطأ في رفع الشعار: {err}", type="negative")
 
                         # The uploader stays hidden: no empty box or "0.0B" until a file is actually chosen
-                        college_uploader = ui.upload(
+                        college_uploader = clear_when_done(ui.upload(
                             auto_upload=True,
                             on_upload=_handle_college_logo_upload
-                        ).props("accept='image/png,image/jpeg,image/webp,image/svg+xml' max-files=1").classes("hidden")
+                        )).props("accept='image/png,image/jpeg,image/webp,image/svg+xml' max-files=1").classes("hidden")
                         UI.secondary_button(
                             "تغيير شعار الكلية", icon="upload",
                             on_click=lambda u=college_uploader: u.run_method("pickFiles"),

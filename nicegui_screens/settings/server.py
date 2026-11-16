@@ -305,7 +305,7 @@ class ServerMixin:
         from datetime import datetime, timedelta
         from nicegui import run
         import services.server_update as su
-        from nicegui_ui.upload_utils import read_upload
+        from nicegui_ui.upload_utils import clear_when_done, read_upload
 
         state = {"zip": None, "name": ""}
 
@@ -359,7 +359,7 @@ class ServerMixin:
                 state["zip"], state["name"] = path, name
                 file_label.set_text(f"الملف: {name} ({round(len(content) / 1048576, 1)} MB)")
 
-            ui.upload(label="اختر ملف التحديث المضغوط", auto_upload=True, on_upload=_on_upload) \
+            clear_when_done(ui.upload(label="اختر ملف التحديث المضغوط", auto_upload=True, on_upload=_on_upload)) \
                 .props("accept=.zip max-files=1").classes("w-full")
 
             default_time = (datetime.now() + timedelta(days=1)).replace(hour=22, minute=0) \

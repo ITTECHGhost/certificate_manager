@@ -4,6 +4,7 @@
 
 from datetime import datetime
 from nicegui import ui
+from nicegui_ui.upload_utils import clear_when_done
 import api_client
 from api_config import get_api_url
 from nicegui_ui.ui_components import UI
@@ -126,7 +127,7 @@ class MaintenanceMixin:
                 picked["content"] = await e.file.read()
                 status_label.set_text(f"{name} ({round(len(picked['content']) / 1024, 1)} KB)")
 
-            ui.upload(label="اختر ملف النسخة الاحتياطية (.sql)", auto_upload=True, on_upload=_on_pick) \
+            clear_when_done(ui.upload(label="اختر ملف النسخة الاحتياطية (.sql)", auto_upload=True, on_upload=_on_pick)) \
                 .props("accept=.sql max-files=1").classes("w-full")
 
             async def _confirm_restore():

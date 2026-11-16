@@ -14,6 +14,7 @@ from data.repositories.reports import ReportsRepository
 GROUP_OPTIONS = {
     "department": "القسم",
     "study_system": "نظام الدراسة",
+    "study_type": "نوع الدراسة",
     "graduation_year": "سنة التخرج",
     "semester": "الفصل",
     "admission_year": "سنة القبول",
@@ -109,6 +110,8 @@ class ReportsScreen:
                 with ui.grid(columns=4).classes("w-full gap-3"):
                     self.f_dept = UI.select("القسم", {0: "كل الأقسام", **self.departments}, value=0)
                     self.f_sys = UI.select("نظام الدراسة", {0: "كل الأنظمة", **self.systems}, value=0)
+                    self.f_type = UI.select("نوع الدراسة", {"": "الكل", "morning": "صباحي", "evening": "مسائي",
+                                                            "parallel": "موازي"}, value="")
                     self.f_status = UI.select("حالة التخرج", {"": "الكل", "graduated": "متخرج",
                                                               "not_graduated": "غير متخرج"}, value="")
                     self.f_year = UI.select("سنة التخرج (أو المتوقعة)", {0: "كل السنوات", **self.years}, value=0)
@@ -117,11 +120,12 @@ class ReportsScreen:
                     self.f_adm = UI.select("سنة القبول", {0: "كل السنوات", **self.adm_years}, value=0)
                     self.f_gender = UI.select("الجنس", {0: "الكل", 1: "ذكر", 2: "أنثى"}, value=0)
                     self.f_nat = UI.select("الجنسية", {"": "الكل", "iraqi": "عراقي", "other": "غير عراقي"}, value="")
-                    self.f_name = UI.input(label="الاسم يحتوي على")
+                    self.f_name = UI.input(label="الاسم يحتوي على").props("clearable")
                     self.f_group = UI.select("التجميع حسب", GROUP_OPTIONS, value="department")
                     self.f_then = UI.select("ثم حسب", {"": "بدون", **GROUP_OPTIONS}, value="")
-                    with ui.row().classes("items-end"):
+                    with ui.row().classes("items-end gap-2"):
                         UI.primary_button("عرض التقرير", icon="query_stats", on_click=self._run)
+                        UI.ghost_button("مسح الكل", icon="filter_alt_off", on_click=self.clear_filters)
             self.result = ui.column().classes("w-full gap-4")
         self._run()
 
@@ -130,13 +134,15 @@ class ReportsScreen:
 
     def _filters(self) -> dict:
         return {"department_id": self.f_dept.value, "study_system_id": self.f_sys.value,
+                "study_type": self.f_type.value,
                 "status": self.f_status.value, "graduation_year": self.f_year.value, "semester": self.f_sem.value,
                 "admission_year": self.f_adm.value, "gender": self.f_gender.value,
                 "nationality": self.f_nat.value, "name": (self.f_name.value or "").strip()}
 
     def _filters_text(self) -> str:
         parts = []
-        for sel, label in ((self.f_dept, "القسم"), (self.f_sys, "النظام"), (self.f_status, "الحالة"),
+        for sel, label in ((self.f_dept, "القسم"), (self.f_sys, "النظام"), (self.f_type, "نوع الدراسة"),
+                           (self.f_status, "الحالة"),
                            (self.f_year, "سنة التخرج"), (self.f_sem, "الفصل"), (self.f_adm, "سنة القبول"),
                            (self.f_gender, "الجنس"), (self.f_nat, "الجنسية")):
             if sel.value not in (None, "", 0):
@@ -189,3 +195,14 @@ class ReportsScreen:
         from utils.file_delivery import deliver_file
         deliver_file(build_workbook(full, self._filters_text()),
                      f"تقرير_الطلاب_{datetime.now():%Y%m%d_%H%M}.xlsx", auto_open=True)
+        self.clear_filters()   # the file is saved; start the next report from a clean form
+
+    def clear_filters(self):
+        """Every filter back to «الكل», grouping back to the department, then show the report."""
+        for sel in (self.f_dept, self.f_sys, self.f_year, self.f_adm, self.f_gender):
+            sel.set_value(0)
+        for sel in (self.f_type, self.f_status, self.f_sem, self.f_nat, self.f_then):
+            sel.set_value("")
+        self.f_name.set_value("")
+        self.f_group.set_value("department")
+        self._run()

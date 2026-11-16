@@ -15,3 +15,11 @@ async def read_upload(e) -> tuple[str, bytes]:
     # NiceGUI 2.x
     content = e.content.read() if hasattr(e, "content") else b""
     return str(getattr(e, "name", "") or ""), content or b""
+
+
+def clear_when_done(upload):
+    """Empty the upload box once its files have been sent, so the next pick starts clean
+    (before, the finished file stayed listed and looked like it was still waiting).
+    The result of each file is shown by its handler's message. Returns the upload."""
+    upload.on("finish", lambda _e: upload.reset())
+    return upload

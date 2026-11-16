@@ -13,7 +13,7 @@ from nicegui_ui.template_constants import (
     template_tags,
 )
 from utils.file_delivery import deliver_file
-from nicegui_ui.upload_utils import read_upload
+from nicegui_ui.upload_utils import clear_when_done, read_upload
 
 log = logging.getLogger(__name__)
 
@@ -237,7 +237,7 @@ class TemplatesMixin:
                         dlg.close()
                         _render_templates_table.refresh()
 
-                    ui.upload(label="اختر أو اسحب ملف Word الجديد", auto_upload=True, on_upload=_on_file)                         .props("accept=.docx max-files=1").classes("w-full")
+                    clear_when_done(ui.upload(label="اختر أو اسحب ملف Word الجديد", auto_upload=True, on_upload=_on_file))                         .props("accept=.docx max-files=1").classes("w-full")
                     with ui.row().classes("app-dialog-actions"):
                         UI.ghost_button("إلغاء", on_click=dlg.close)
                 dlg.open()
@@ -338,11 +338,11 @@ class TemplatesMixin:
                         log.error(f"Failed to handle upload: {up_err}")
                         ui.notify(f"خطأ أثناء قراءة الملف: {up_err}", type="negative")
 
-                ui.upload(
+                clear_when_done(ui.upload(
                     label="اختر أو اسحب ملف قالب Word (.docx) هنا",
                     auto_upload=True,
                     on_upload=_handle_upload
-                ).props("accept=.docx max-files=1").classes("w-full border-2 border-dashed border-[var(--border-default)] rounded-2xl p-3 bg-[var(--bg-main)]")
+                )).props("accept=.docx max-files=1").classes("w-full border-2 border-dashed border-[var(--border-default)] rounded-2xl p-3 bg-[var(--bg-main)]")
 
                 # Save Button Row
                 with ui.row().classes("w-full justify-end items-center gap-2 pt-2"):

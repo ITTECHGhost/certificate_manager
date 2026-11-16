@@ -1172,6 +1172,10 @@ class CertificateScreen:
                 log.error(f"Failed to record issued certificate into database via SP: {sp_err}")
 
             UI.notify(f"تم إصدار وتوليد الوثيقة بنجاح: {os.path.basename(out_file)}", type="positive")
+            # The student search of step 1 starts empty next time (the chosen student and this
+            # record stay open, so Word / PDF still re-issue the same document)
+            if getattr(self, "search_input", None) is not None:
+                self.search_input.set_value("")
             return True
         except PermissionError as pe:
             log.error(f"Permission denied while saving certificate file {out_file}: {pe}")

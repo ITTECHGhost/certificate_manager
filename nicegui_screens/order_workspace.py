@@ -11,7 +11,7 @@ from utils.study_type import STUDY_TYPE_LABELS_AR, normalize_study_type
 from nicegui import run, ui
 
 from nicegui_ui.ui_components import UI
-from nicegui_ui.upload_utils import read_upload
+from nicegui_ui.upload_utils import clear_when_done, read_upload
 
 log = logging.getLogger(__name__)
 
@@ -322,7 +322,7 @@ class OrderWorkspaceMixin:
         load()
         viewer()
         progress_area = ui.column().classes("w-full gap-2")
-        ui.upload(label="اسحب صور الأمر أو ملف PDF هنا، أو اضغط للاختيار", multiple=True, auto_upload=True,
-                  on_upload=on_upload) \
+        clear_when_done(ui.upload(label="اسحب صور الأمر أو ملف PDF هنا، أو اضغط للاختيار", multiple=True, auto_upload=True,
+                  on_upload=on_upload)) \
             .props('accept="image/*,.pdf"') \
             .classes("w-full border-2 border-dashed border-[var(--border-default)] rounded-xl")

@@ -30,7 +30,7 @@ from services.excel_import_service import (
     parse_grades_file,
 )
 from utils.file_delivery import deliver_file
-from nicegui_ui.upload_utils import read_upload
+from nicegui_ui.upload_utils import clear_when_done, read_upload
 from sync_engine import sqlite_read_one, sqlite_read_all, is_online
 
 def safe_cast(val: Any, target_type: type = int, default_val: Any = 0) -> Any:
@@ -206,12 +206,12 @@ class StudentBulkImportView:
 
                     # File Upload Widget
                     with ui.row().classes("w-full items-center gap-4 p-4 rounded-xl border border-dashed border-[var(--border-default)] bg-[var(--surface-card)]"):
-                        ui.upload(
+                        clear_when_done(ui.upload(
                             label="اسحب أو اختر ملف بيانات الطلاب (.xlsx)",
                             auto_upload=True,
                             max_files=1,
                             on_upload=self._on_students_file_uploaded
-                        ).props('accept=".xlsx" flat bordered').classes("w-full max-w-md")
+                        )).props('accept=".xlsx" flat bordered').classes("w-full max-w-md")
 
                         with ui.column().classes("gap-1 flex-1 text-xs text-[var(--text-secondary)] leading-relaxed"):
                             ui.label("• يدعم الملف الأرقام العربية والإنكليزية وتنسيقات التواريخ المختلفة.")
@@ -246,12 +246,12 @@ class StudentBulkImportView:
 
                     # File Upload Widget
                     with ui.row().classes("w-full items-center gap-4 p-4 rounded-xl border border-dashed border-[var(--border-default)] bg-[var(--surface-card)]"):
-                        ui.upload(
+                        clear_when_done(ui.upload(
                             label="اسحب أو اختر ملف كشف الدرجات المكتمل (.xlsx)",
                             auto_upload=True,
                             max_files=1,
                             on_upload=self._on_grades_file_uploaded
-                        ).props('accept=".xlsx" flat bordered').classes("w-full max-w-md")
+                        )).props('accept=".xlsx" flat bordered').classes("w-full max-w-md")
 
                         with ui.column().classes("gap-1 flex-1 text-xs text-[var(--text-secondary)] leading-relaxed"):
                             ui.label("• يتم احتساب معدل الطالب الموزون تلقائياً بناءً على عدد وحدات كل مادة.")
