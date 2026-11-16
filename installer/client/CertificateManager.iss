@@ -6,6 +6,8 @@
 ; Command line (tests, silent installs):
 ;   /OldDir=<folder>   import server_config.json, certs\ and the old local_cache.db from <folder>
 ;   /DataDir=<folder>  use another data folder (tests only)
+; client_package\ next to Setup.exe (the install folder from build_release.bat) is imported
+; automatically unless this laptop already has real server settings.
 ; =============================================================================
 
 #ifndef AppVersion
@@ -75,6 +77,25 @@ begin
     Result := (Version <> '') and (Version <> '0.0.0.0');
 end;
 
+{ A real server_config.json, not the example the program copies on first start
+  (127.0.0.1 with a placeholder key): only a real one is worth keeping. }
+function HasRealServerConfig: Boolean;
+var
+  Text: AnsiString;
+begin
+  Result := False;
+  if LoadStringFromFile(AddBackslash(DataDir) + 'server_config.json', Text) then
+    Result := (Pos('ask-the-server-admin-for-this-key', Text) = 0) and (Pos('"127.0.0.1"', Text) = 0);
+end;
+
+{ The install folder handed to users: client_package\ next to Setup.exe }
+function PackageDir: String;
+begin
+  Result := ExpandConstant('{src}\client_package');
+  if not FileExists(AddBackslash(Result) + 'server_config.json') then
+    Result := '';
+end;
+
 procedure InitializeWizard;
 var
   OldDir: String;
@@ -86,7 +107,9 @@ begin
   ModePage.Add('Import settings from a folder (client_package, or the old program folder)');
   ModePage.Add('Type the server address (no program key: only while the server is in audit mode)');
   ModePage.Add('Keep the settings already on this laptop');
-  if FileExists(AddBackslash(DataDir) + 'server_config.json') then
+  { Upgrade with real settings: keep them. Otherwise import (the folder below is
+    filled in when client_package sits next to Setup). }
+  if HasRealServerConfig then
     ModePage.SelectedValueIndex := 2
   else
     ModePage.SelectedValueIndex := 0;
@@ -105,6 +128,12 @@ begin
   AddressPage.Values[1] := '2030';
   AddressPage.Values[2] := 'https';
 
+  if PackageDir <> '' then
+    ImportPage.Values[0] := PackageDir
+  else if WizardSilent then
+    { Silent, nothing to import: install only; the program offers "connect to the server" at login }
+    ModePage.SelectedValueIndex := 2;
+
   OldDir := ExpandConstant('{param:OldDir|}');
   if OldDir <> '' then
   begin
@@ -117,7 +146,9 @@ function ShouldSkipPage(PageID: Integer): Boolean;
 begin
   Result := False;
   if PageID = ImportPage.ID then
-    Result := ModePage.SelectedValueIndex <> 0
+    { client_package found next to Setup: nothing to ask }
+    Result := (ModePage.SelectedValueIndex <> 0) or
+              ((PackageDir <> '') and (CompareText(ImportPage.Values[0], PackageDir) = 0))
   else if PageID = AddressPage.ID then
     Result := ModePage.SelectedValueIndex <> 1;
 end;

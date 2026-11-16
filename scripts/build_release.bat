@@ -78,6 +78,15 @@ if errorlevel 8 exit /b 1
 echo [7/7] Update folder for the server laptop...
 powershell.exe -NoProfile -ExecutionPolicy Bypass -File scripts\build_update.ps1 -ReleaseDir "%OUT%"
 if %errorlevel% neq 0 exit /b 1
+:: Folder for user laptops: Setup + client_package (from the server, never from the repo).
+:: Default F:\CR_PY\client_package; set CLIENT_PACKAGE=<folder> to use another one.
+:: Built after SHA256SUMS.txt, so the package's secrets are never hashed into it.
+if not defined CLIENT_PACKAGE set "CLIENT_PACKAGE=F:\CR_PY\client_package"
+echo [8/8] Install folder for user laptops...
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File scripts\build_install_folder.ps1 -ReleaseDir "%OUT%" -ClientPackage "%CLIENT_PACKAGE%"
+if %errorlevel% neq 0 (
+    echo [WARNING] Install folder not built: client_package missing or incomplete. The rest of the release is ready.
+)
 echo RELEASE READY: %OUT%
 echo INSTALL PACKAGE: %PKG%
 exit /b 0
