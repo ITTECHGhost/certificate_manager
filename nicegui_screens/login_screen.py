@@ -85,6 +85,73 @@ class LoginScreen:
 
                 UI.primary_button("تسجيل الدخول", on_click=self.handle_login).classes("w-full")
 
+                # A new laptop that was never given the server's settings cannot log in at all
+                # (offline login needs accounts synced from the server first).
+                with ui.column().classes("w-full gap-2 app-chip--warning rounded-lg p-3") as self.setup_box:
+                    with ui.row().classes("items-start gap-2 no-wrap"):
+                        ui.icon("lan", size="20px").classes("shrink-0")
+                        ui.label("هذا الجهاز غير مربوط بالسيرفر بعد. اربطه أولاً ثم سجّل الدخول بحسابك على السيرفر.") \
+                            .classes("text-sm")
+                    UI.secondary_button("ربط الجهاز بالسيرفر", icon="link",
+                                        on_click=self._open_connect_dialog).classes("w-full")
+                self._refresh_setup_box()
+
+    def _refresh_setup_box(self) -> None:
+        try:
+            from services.first_connection import is_configured
+            configured = is_configured()
+        except Exception:
+            configured = True
+        if getattr(self, "setup_box", None) is not None:
+            self.setup_box.set_visibility(not configured)
+
+    def _open_connect_dialog(self) -> None:
+        """Import client_package (best: brings the program key and the college CA) or type the address."""
+        from services import first_connection as fc
+        found = fc.find_client_package()
+        with ui.dialog() as dialog, UI.login_card():
+            ui.label("ربط الجهاز بالسيرفر").classes("text-base font-bold app-text-primary")
+            ui.label("اكتب مسار مجلد إعدادات الاتصال الذي نسخته من السيرفر (يكون بجانب ملف التثبيت).") \
+                .classes("app-caption")
+            folder_inp = UI.input("مسار مجلد إعدادات الاتصال").props('dir=ltr')
+            if found:
+                folder_inp.value = str(found)
+
+            def _import():
+                ok, msg = fc.import_client_package(folder_inp.value or "")
+                self._after_connect(dialog, ok, msg)
+
+            UI.primary_button("استيراد الإعدادات", icon="download", on_click=_import).classes("w-full")
+
+            with ui.expansion("أو اكتب عنوان السيرفر (بدون مفتاح البرنامج)").classes("w-full"):
+                host_inp = UI.input("عنوان السيرفر (مثال 172.50.1.100)").props('dir=ltr')
+                port_inp = UI.input("المنفذ").props('dir=ltr')
+                port_inp.value = "2030"
+
+                def _save_address():
+                    ok, msg = fc.save_address(host_inp.value or "", port_inp.value or "")
+                    self._after_connect(dialog, ok, msg)
+
+                UI.secondary_button("حفظ العنوان", icon="save", on_click=_save_address).classes("w-full")
+
+            with ui.row().classes("app-dialog-actions"):
+                UI.ghost_button("إغلاق", on_click=dialog.close)
+        dialog.open()
+
+    def _after_connect(self, dialog, ok: bool, msg: str) -> None:
+        if not ok:
+            ui.notify(msg, type="warning")
+            return
+        from services.first_connection import check_and_set_online
+        online = check_and_set_online()
+        dialog.close()
+        self._refresh_setup_box()
+        if online:
+            ui.notify(f"{msg}. السيرفر متصل: سجّل الدخول بحسابك.", type="positive", timeout=8000)
+        else:
+            ui.notify(f"{msg}، لكن السيرفر لا يجيب الآن. تحقق من الشبكة ومن تشغيل السيرفر.",
+                      type="warning", timeout=10000)
+
     def _find_logo(self) -> str | None:
         """College logo from the settings, else the bundled one."""
         try:
@@ -189,7 +256,12 @@ class LoginScreen:
                     return
                 self._finish_login(user_record, username)
             else:
-                self._show_error("اسم المستخدم أو كلمة المرور غير صحيحة. تأكد منهما وأعد المحاولة.")
+                from services.first_connection import is_configured
+                if not is_configured():
+                    self._show_error("هذا الجهاز غير مربوط بالسيرفر، فلا توجد حسابات عليه بعد. "
+                                     "اضغط «ربط الجهاز بالسيرفر» أولاً.")
+                else:
+                    self._show_error("اسم المستخدم أو كلمة المرور غير صحيحة. تأكد منهما وأعد المحاولة.")
 
         except Exception as exc:
             log.warning(f"[LoginScreen] Authentication Error: {exc}")
