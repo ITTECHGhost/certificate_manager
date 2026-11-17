@@ -177,6 +177,39 @@ class BaseRepository:
             raise OfflineModeError()
         return self._post_sp("write", proc_name, args).get("new_id")
 
+    def _call_write_batch(self, steps: list[tuple[str, tuple]]) -> list[int | None]:
+        """Run several write procedures in ONE server transaction: all are saved, or none.
+
+        steps: [(proc_name, args), ...]; an arg ref(i) is the new id of step i.
+        Returns the new id of each step. Raises BatchNotSupported when the server is older
+        than this endpoint (the caller then uses its step-by-step path), OfflineModeError
+        when offline, RuntimeError when the server refused or rolled back the whole batch.
+        """
+        if not is_online():
+            raise OfflineModeError()
+        body = json.dumps({"steps": [{"proc": p, "args": list(a)} for p, a in steps]},
+                          default=str, ensure_ascii=False)
+        resp = api_client.post(
+            f"{self.api_url}/sp/write-batch",
+            data=body.encode("utf-8"),
+            headers={"Content-Type": "application/json"},
+            timeout=60.0,
+        )
+        if resp.status_code in (404, 405):
+            raise BatchNotSupported()
+        if resp.status_code != 200:
+            raise RuntimeError(f"لم يُحفظ شيء — رفض الخادم العملية ({resp.status_code}): {resp.text}")
+        return resp.json().get("new_ids") or []
+
+
+class BatchNotSupported(Exception):
+    """The server predates /sp/write-batch (older than 2.5.5)."""
+
+
+def ref(i: int) -> dict:
+    """Argument for _call_write_batch: the new row id returned by step i of the same batch."""
+    return {"$ref": i}
+
     def _read_datasets(self, proc_name: str, args: tuple) -> list[list[dict]] | None:
         """Fetch every result set of a read procedure through FastAPI; None means the server is unreachable."""
         try:

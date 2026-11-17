@@ -358,11 +358,22 @@ class PersonnelScreen:
                             if mode == "add" and pwd:
                                 payload["password_hash"] = pwd
                                 payload["must_change_password"] = True
+                            elif pwd:
+                                payload["password_hash"] = pwd
+                                payload["must_change_password"] = temp_pwd
+                            # Role and its permissions travel with the person: ONE transaction on the
+                            # server, so a dropped connection never leaves a half-saved account
+                            payload["role_id"] = str(chosen_role_id)
+                            perm_keys = self.role_repo.role_permission_keys(chosen_role_id)
+                            if perm_keys is not None:
+                                payload["permission_keys"] = perm_keys
 
                             try:
                                 if mode == "add":
                                     new_id = self.repo.insert(data=payload)
-                                    if new_id:
+                                    if new_id and self.repo.last_save_combined:
+                                        self.role_repo.remember_role_locally(int(new_id), chosen_role_id)
+                                    elif new_id:   # older server: separate steps
                                         self.role_repo.assign_role_to_personnel(int(new_id), chosen_role_id)
                                     ui.notify("تمت إضافة الكادر وتعيين صلاحيات الدور بنجاح", type="positive")
                                 elif not is_online() and pwd and pid is not None:
@@ -376,9 +387,12 @@ class PersonnelScreen:
                                 else:
                                     if pid is not None:
                                         self.repo.update(person_id=int(pid), data=payload)
-                                        self.role_repo.assign_role_to_personnel(int(pid), chosen_role_id)
-                                        if pwd:
-                                            self.repo.set_password(int(pid), pwd, must_change=temp_pwd)
+                                        if self.repo.last_save_combined:
+                                            self.role_repo.remember_role_locally(int(pid), chosen_role_id)
+                                        else:   # older server: separate steps
+                                            self.role_repo.assign_role_to_personnel(int(pid), chosen_role_id)
+                                            if pwd:
+                                                self.repo.set_password(int(pid), pwd, must_change=temp_pwd)
                                         app_session.refresh_access(int(pid))
                                     ui.notify("تم تعديل الكادر وتحديث صلاحيات الدور بنجاح", type="positive")
                                 self.show_list_view()

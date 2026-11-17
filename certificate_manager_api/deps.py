@@ -51,6 +51,12 @@ def get_db():
     try:
         yield conn
     finally:
+        # A request that ended (error, dropped client) without commit leaves nothing behind
+        try:
+            if conn.in_transaction:
+                conn.rollback()
+        except Exception:
+            pass
         conn.close()
 
 

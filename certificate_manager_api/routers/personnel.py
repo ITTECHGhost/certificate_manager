@@ -30,6 +30,27 @@ class PersonnelPayload(BaseModel):
     university_settings_id: Optional[int] = 1
     is_active: Optional[int] = 1
     must_change_password: Optional[bool] = None
+    # Since 2.5.5: role and permissions saved in the SAME transaction as the person
+    role_id: Optional[str] = None
+    permission_keys: Optional[List[str]] = None
+
+
+def _save_role_and_permissions(cur, person_id: int, payload: "PersonnelPayload") -> None:
+    """user_roles + personnel_permissions for one person, inside the caller's transaction."""
+    if payload.role_id:
+        cur.execute(
+            "INSERT INTO user_roles (personnel_id, role_id) VALUES (%s, %s) "
+            "ON DUPLICATE KEY UPDATE role_id = VALUES(role_id)",
+            (person_id, payload.role_id.strip()),
+        )
+    if payload.permission_keys is not None:
+        cur.execute("DELETE FROM personnel_permissions WHERE personnel_id = %s", (person_id,))
+        for k in payload.permission_keys:
+            cur.execute(
+                "INSERT INTO personnel_permissions (personnel_id, permission_key, is_granted) VALUES (%s, %s, 1) "
+                "ON DUPLICATE KEY UPDATE is_granted = 1",
+                (person_id, k),
+            )
 
 
 class PersonnelResponse(BaseModel):
@@ -248,8 +269,10 @@ def insert_personnel(payload: PersonnelPayload, conn=Depends(get_db)):
 
         if inserted_id and payload.must_change_password is not None:
             _set_must_change_password(conn, int(inserted_id), bool(payload.must_change_password))
+        if inserted_id:
+            _save_role_and_permissions(cur, int(inserted_id), payload)
         conn.commit()
-        return {"new_id": inserted_id, "inserted_id": inserted_id, "status": "success"}
+        return {"new_id": inserted_id, "inserted_id": inserted_id, "status": "success", "combined": True}
     except Exception as exc:
         conn.rollback()
         raise HTTPException(status_code=500, detail=str(exc))
@@ -281,8 +304,10 @@ def update_personnel(person_id: int, payload: PersonnelPayload, conn=Depends(get
         except Exception:
             pass
 
+        stored = None
         if payload.password_hash:
-            cur.callproc("UpdatePersonnelPassword", (person_id, prepare_for_storage(payload.password_hash)))
+            stored = prepare_for_storage(payload.password_hash)
+            cur.callproc("UpdatePersonnelPassword", (person_id, stored))
             try:
                 while cur.nextset():
                     pass
@@ -290,9 +315,11 @@ def update_personnel(person_id: int, payload: PersonnelPayload, conn=Depends(get
                 pass
             if payload.must_change_password is not None:
                 _set_must_change_password(conn, person_id, bool(payload.must_change_password))
+        _save_role_and_permissions(cur, person_id, payload)
 
         conn.commit()
-        return {"status": "success"}
+        # combined: this server saved role, permissions and password with the person
+        return {"status": "success", "combined": True, "password_hash": stored}
     except Exception as exc:
         conn.rollback()
         raise HTTPException(status_code=500, detail=str(exc))
@@ -391,6 +418,7 @@ def update_user_permissions(person_id: int, payload: PermissionsUpdatePayload, c
             return {"status": "success", "count": len(payload.permission_keys)}
         except Exception as sp_err:
             logger.warning(f"BulkSetPersonnelPermissions SP failed ({sp_err}), using direct transaction")
+            conn.rollback()   # drop whatever the procedure did before failing
             cur.execute("DELETE FROM personnel_permissions WHERE personnel_id = %s", (person_id,))
             for k in payload.permission_keys:
                 cur.execute(

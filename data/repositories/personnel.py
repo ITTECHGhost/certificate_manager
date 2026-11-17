@@ -7,6 +7,10 @@ from .departments import DepartmentRepository
 
 
 class PersonnelRepository(BaseRepository):
+    # True after insert/update when the server saved role, permissions and password in the
+    # same transaction (server 2.5.5+); False means the caller must send them separately.
+    last_save_combined = False
+
     def get_all(self) -> list[dict]:
         if not is_online():
             return get_offline_personnel()
@@ -104,10 +108,15 @@ class PersonnelRepository(BaseRepository):
             }
             if data.get("must_change_password") is not None:
                 payload["must_change_password"] = bool(data.get("must_change_password"))
+            for k in ("role_id", "permission_keys"):
+                if data.get(k) is not None:
+                    payload[k] = data[k]
 
-            resp = api_client.post(f"{self.api_url}/personnel", json=payload, timeout=5.0)
+            resp = api_client.post(f"{self.api_url}/personnel", json=payload, timeout=10.0)
             if resp.status_code == 200:
-                new_id = resp.json()["new_id"]
+                body = resp.json()
+                new_id = body["new_id"]
+                self.last_save_combined = bool(body.get("combined"))
                 log_activity(f"تم إضافة كادر جديد: {data.get('name_ar')}")
                 return new_id
             else:
@@ -135,9 +144,19 @@ class PersonnelRepository(BaseRepository):
                 "university_settings_id": int(data.get("university_settings_id") or 1),
                 "is_active": int(data.get("is_active") if data.get("is_active") is not None else 1),
             }
+            for k in ("role_id", "permission_keys", "must_change_password"):
+                if data.get(k) is not None:
+                    payload[k] = data[k]
 
-            resp = api_client.put(f"{self.api_url}/personnel/{person_id}", json=payload, timeout=5.0)
+            resp = api_client.put(f"{self.api_url}/personnel/{person_id}", json=payload, timeout=10.0)
             if resp.status_code == 200:
+                body = resp.json() or {}
+                self.last_save_combined = bool(body.get("combined"))
+                if body.get("password_hash"):
+                    # Same hash on this laptop, so the new password works offline at once
+                    from sync_engine import set_local_personnel_password
+                    set_local_personnel_password(person_id, body["password_hash"],
+                                                 bool(data.get("must_change_password")))
                 log_activity(f"تم تعديل بيانات الكادر ID: {person_id}")
             else:
                 raise RuntimeError(f"API update failed: {resp.text}")
@@ -965,12 +984,14 @@ class RoleRepository(BaseRepository):
         log_activity(f"تم حذف الدور/المسؤولية [ID: {role_id}]")
         return True
 
-    def _save_user_role_assignment(self, personnel_id: int, role_id: str) -> None:
-        """Persists personnel_id -> role_id assignment on the server, in SQLite and data/user_roles.json, invalidating cache."""
+    def _save_user_role_assignment(self, personnel_id: int, role_id: str, server: bool = True) -> None:
+        """Persists personnel_id -> role_id assignment on the server, in SQLite and data/user_roles.json, invalidating cache.
+        server=False: the server already saved it (with the person, in one transaction); only update this laptop."""
         global _USER_ROLE_CACHE
         _USER_ROLE_CACHE = None
 
-        self._server_write("PUT", f"/user-roles/{int(personnel_id)}", {"role_id": str(role_id).strip()})
+        if server:
+            self._server_write("PUT", f"/user-roles/{int(personnel_id)}", {"role_id": str(role_id).strip()})
 
         try:
             from sync_engine import _get_local_conn
@@ -1082,6 +1103,15 @@ class RoleRepository(BaseRepository):
             log_system(f"Error determining user role for ID {personnel_id}: {exc}", "DEBUG")
 
         return "user"
+
+    def role_permission_keys(self, role_id: str) -> list[str] | None:
+        """The permission keys a role grants (what assign_role_to_personnel writes); None for an unknown role."""
+        role = self.get_by_id(role_id) or next((r for r in DEFAULT_SYSTEM_ROLES if r["id"] == role_id), None)
+        return list(role.get("allowed_actions") or []) if role else None
+
+    def remember_role_locally(self, personnel_id: int, role_id: str) -> None:
+        """After a combined save on the server: update this laptop's copy of the role only."""
+        self._save_user_role_assignment(personnel_id, role_id, server=False)
 
     def assign_role_to_personnel(self, personnel_id: int, role_id: str) -> bool:
         """

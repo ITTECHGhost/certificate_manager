@@ -56,6 +56,10 @@
   "/sp/write"
  ],
  [
+  "POST",
+  "/sp/write-batch"
+ ],
+ [
   "GET",
   "/replica/tables"
  ],

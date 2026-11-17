@@ -126,6 +126,73 @@ def sp_write(payload: SPCallPayload, conn=Depends(get_db)):
         cur.close()
 
 
+class SPBatchPayload(BaseModel):
+    # Each step: {"proc": name, "args": [...]}. An arg {"$ref": i} is replaced by the new
+    # row id that step i (0-based, earlier in this batch) returned.
+    steps: List[SPCallPayload]
+
+
+def _new_id_of(first_row) -> Optional[int]:
+    if not first_row:
+        return None
+    if first_row.get("new_id") is not None:
+        return int(first_row["new_id"])
+    if first_row.get("inserted_id") is not None:
+        return int(first_row["inserted_id"])
+    vals = [v for v in first_row.values() if isinstance(v, int)]
+    return vals[0] if vals else None
+
+
+def resolve_refs(args: List[Any], ids: List[Optional[int]]) -> tuple:
+    """Replace {"$ref": i} by ids[i]; a reference to a later step or to a step without an id is refused."""
+    out = []
+    for a in args:
+        if isinstance(a, dict) and set(a) == {"$ref"}:
+            i = a["$ref"]
+            if not isinstance(i, int) or not 0 <= i < len(ids) or ids[i] is None:
+                raise HTTPException(status_code=422, detail=f"Bad $ref {i!r}")
+            out.append(ids[i])
+        else:
+            out.append(a)
+    return tuple(out)
+
+
+@router.post("/sp/write-batch")
+def sp_write_batch(payload: SPBatchPayload, conn=Depends(get_db)):
+    """Run several whitelisted write procedures in ONE transaction: all are saved, or none.
+    Used for actions that change more than one row, so a dropped connection or an error
+    half-way never leaves half of the action in the database."""
+    if not payload.steps:
+        return {"new_ids": []}
+    if len(payload.steps) > 2000:
+        raise HTTPException(status_code=413, detail="Too many steps in one batch")
+    bad = sorted({s.proc for s in payload.steps if s.proc not in SP_WRITE_WHITELIST})
+    if bad:
+        raise HTTPException(status_code=403, detail=f"Procedure not allowed: {', '.join(bad)}")
+    cur = conn.cursor(dictionary=True)
+    ids: List[Optional[int]] = []
+    try:
+        for step in payload.steps:
+            cur.callproc(step.proc, resolve_refs(step.args, ids))
+            first_row = None
+            for res in cur.stored_results():
+                row = res.fetchone()
+                if first_row is None and isinstance(row, dict):
+                    first_row = row
+            ids.append(_new_id_of(first_row))
+        conn.commit()
+        return {"new_ids": ids}
+    except HTTPException:
+        conn.rollback()
+        raise
+    except Exception as exc:
+        conn.rollback()
+        logger.warning(f"/sp/write-batch rolled back at step {len(ids)} of {len(payload.steps)}: {exc}")
+        raise HTTPException(status_code=500, detail=f"Nothing was saved (step {len(ids) + 1}): {exc}")
+    finally:
+        cur.close()
+
+
 # ---------------------------------------------------------------------------
 # Replica Download (client SQLite offline cache is filled from here)
 # ---------------------------------------------------------------------------

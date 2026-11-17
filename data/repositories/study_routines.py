@@ -79,6 +79,16 @@ class StudyRoutineRepository(BaseRepository):
             log_activity(f"تم إنشاء روتين دراسي جديد (أوفلاين): {name_ar}")
             return local_id or 1
 
+        # The routine and its 8 stage/semester periods in ONE transaction
+        steps = [("InsertStudyRoutine", (name_ar, name_en, dept_id, sys_id))]
+        steps += [("InsertStudyRoutinePeriod", (ref(0), stg, sem)) for stg in range(1, 5) for sem in (1, 2)]
+        try:
+            ids = self._call_write_batch(steps)
+            log_activity(f"تم إنشاء روتين دراسي جديد: {name_ar}")
+            return ids[0] or 1
+        except BatchNotSupported:
+            pass   # older server: the step-by-step path below
+
         new_id = None
         try:
             new_id = self._call_write("InsertStudyRoutine", (name_ar, name_en, dept_id, sys_id))
@@ -111,6 +121,16 @@ class StudyRoutineRepository(BaseRepository):
         if not is_online():
             log_activity(f"تم تعديل الروتين الدراسي (أوفلاين) ID: {routine_id}")
             return
+
+        # Header and course links in ONE transaction
+        steps = [("UpdateStudyRoutine", (routine_id, name_ar, name_en, dept_id, sys_id))]
+        steps += [("InsertStudyRoutineCourse", (routine_id, cid)) for cid in course_ids]
+        try:
+            self._call_write_batch(steps)
+            log_activity(f"تم تعديل بيانات الروتين الدراسي ID: {routine_id}")
+            return
+        except BatchNotSupported:
+            pass   # older server: the step-by-step path below
 
         try:
             payload = {
@@ -347,6 +367,37 @@ class StudyRoutineRepository(BaseRepository):
             sem_n = p.get("semester_num")
             if stg_num and sem_n:
                 period_map[(int(stg_num), int(sem_n))] = p
+
+        # Online: every new period and course of this student in ONE transaction
+        if is_online():
+            steps, periods_affected, total_added_courses = [], 0, 0
+            for (stg, sem), c_list in courses_by_stage_sem.items():
+                start_yr = adm_yr + (stg - 1)
+                existing = period_map.get((stg, sem))
+                if existing:
+                    pid_arg = existing["id"]
+                    have = {e.get("course_id") for e in (enroll_repo.get_by_period(existing["id"]) or [])}
+                else:
+                    steps.append(("InsertAcademicPeriod", (student_id, f"{start_yr}-{start_yr + 1}", stg, sem, "1")))
+                    pid_arg, have = ref(len(steps) - 1), set()
+                added = 0
+                for c in c_list:
+                    cid = c.get("id") or c.get("course_id")
+                    if cid and cid not in have:
+                        steps.append(("InsertEnrollment", (pid_arg, cid, 0.0, 1)))
+                        have.add(cid)
+                        added += 1
+                total_added_courses += added
+                if not existing or added:
+                    periods_affected += 1
+            try:
+                if steps:
+                    self._call_write_batch(steps)
+                log_activity(f"تم تطبيق الروتين الشامل ({routine.get('name_ar')}) على الطالب ID: {student_id} — "
+                             f"تم إضافة {total_added_courses} مادة عبر {periods_affected} فترة دراسية")
+                return {"periods_affected": periods_affected, "added_courses": total_added_courses}
+            except BatchNotSupported:
+                pass   # older server: the step-by-step path below
 
         total_added_courses = 0
         periods_affected = 0
