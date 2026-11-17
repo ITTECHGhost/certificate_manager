@@ -42,7 +42,7 @@ def rank_fields(ranks: dict, is_english: bool = False) -> dict:
 
 IRAQ_NATIONALITY_ID = 274
 
-from utils.arabic_words import number_words, ordinal_words, study_duration_words  # noqa: E402
+from utils.arabic_words import number_words, ordinal_words, permille_words, study_duration_words  # noqa: E402
 
 
 def id_label(data: dict, is_english: bool = False) -> str:
@@ -401,6 +401,19 @@ def format_academic_year_ltr(val: str | None, is_english: bool = False) -> str:
     return to_arabic_num(s, is_english)
 
 
+def graduation_academic_year(graduation_year, is_english: bool = False) -> str:
+    """The academic year that ends in the graduation year, as graduation documents write it:
+    2022 -> '٢٠٢٢/٢٠٢١' in Arabic (shown left to right, read right to left as 2021/2022),
+    '2021-2022' in English. Empty when the year is missing or not a year."""
+    m = re.search(r"\d{4}", str(graduation_year or "").translate(str.maketrans("٠١٢٣٤٥٦٧٨٩", "0123456789")))
+    if not m:
+        return ""
+    end = int(m.group(0))
+    if is_english:
+        return f"{end - 1}-{end}"
+    return f"‎{to_arabic_num(f'{end}/{end - 1}')}‎"
+
+
 def get_subj_display(enr: dict, is_english: bool) -> str:
     """Formats course name, appending attempt round indicator (*) for retaken courses."""
     if not enr:
@@ -756,6 +769,7 @@ def build_certificate_context(data: dict, options: dict) -> dict:
         "national_number": to_arabic_num(data.get("national_id") or options.get("national_id") or "", is_english),
         "admission_year": format_date_rtl(data.get("admission_year") or "", is_english),
         "graduation_year": format_date_rtl(data.get("graduation_year") or "", is_english),
+        "graduation_academic_year": graduation_academic_year(data.get("graduation_year"), is_english),
         "department_id": data.get("dept_name_en" if is_english else "dept_name_ar", ""),
         "study_type": study_type_disp,
         "graduation_date": format_date_rtl(data.get("graduation_date") or "", is_english),
@@ -778,6 +792,7 @@ def build_certificate_context(data: dict, options: dict) -> dict:
         "Average_of_First_Student_words": number_words(top_avg),
         "Sequence_of_Graduation_words": ordinal_words(seq_val),
         "average_words": number_words(avg_str),
+        "average_words_permille": permille_words(avg_str),
         "study_duration": options.get("study_duration") or study_duration_words(
             data.get("calculation_weights") or "", data.get("degree_level")),
         "branch": data.get("branch_ar") or options.get("branch") or "",

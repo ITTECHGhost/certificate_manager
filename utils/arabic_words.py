@@ -65,6 +65,23 @@ def number_words(value) -> str:
     return words
 
 
+def permille_words(value) -> str:
+    """The average as written on graduation documents: whole part, then the three decimals as
+    thousandths. '75.385' -> 'خمسة وسبعون وثلاثمئة وخمسة وثمانون بالألف', '80.5' -> '... وخمسمئة بالألف',
+    '90' -> 'تسعون'. Empty text for empty or invalid input."""
+    text = _to_ascii_digits(str(value if value is not None else "")).strip().replace(",", ".")
+    if not text:
+        return ""
+    try:
+        float(text)
+    except ValueError:
+        return ""
+    whole, _, frac = text.partition(".")
+    words = int_words(int(whole or "0"))
+    thousandths = int((frac + "000")[:3])
+    return f"{words} و{int_words(thousandths)} بالألف" if thousandths else words
+
+
 def ordinal_words(value) -> str:
     """1 -> 'الأول', 21 -> 'الحادي والعشرون', 105 -> 'الخامس بعد المئة'."""
     try:

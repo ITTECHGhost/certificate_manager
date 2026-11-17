@@ -22,3 +22,13 @@ def test_duration():
     assert study_duration_words("10:20:30:40") == "أربع سنوات"
     assert study_duration_words("", 1) == "أربع سنوات"
     assert study_duration_words("10:20:30:40:50") == "خمس سنوات"
+
+
+def test_permille_words():
+    from utils.arabic_words import permille_words
+    assert permille_words("75.385") == "خمسة وسبعون وثلاثمئة وخمسة وثمانون بالألف"
+    assert permille_words("٧٥.٣٨٠") == "خمسة وسبعون وثلاثمئة وثمانون بالألف"
+    assert permille_words("80.5") == "ثمانون وخمسمئة بالألف"
+    assert permille_words("70.005") == "سبعون وخمسة بالألف"
+    assert permille_words("90.000") == "تسعون"
+    assert permille_words("") == "" and permille_words("—") == ""
