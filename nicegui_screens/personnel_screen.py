@@ -138,18 +138,17 @@ class PersonnelScreen:
             </q-td>
         """)
         table.add_slot("body-cell-active", """
-            <q-td :props="props">
-                <span v-if="props.value" class="app-chip">نشط</span>
-                <span v-else class="app-chip app-chip--warning">معطّل</span>
+            <q-td :props="props" @click.stop>
+                <q-toggle :model-value="props.value" dense color="positive"
+                          :label="props.value ? 'نشط' : 'معطّل'"
+                          :aria-label="props.value ? 'تعطيل الحساب' : 'تفعيل الحساب'"
+                          @update:model-value="$parent.$emit('toggle_active', props.row)">
+                    <q-tooltip>{{ props.value ? 'اضغط لتعطيل الحساب' : 'اضغط لتفعيل الحساب' }}</q-tooltip>
+                </q-toggle>
             </q-td>
         """)
         table.add_slot("body-cell-actions", """
             <q-td :props="props" auto-width>
-                <q-btn flat round dense :icon="props.row.active ? 'person_off' : 'person'" class="app-btn-icon"
-                       :aria-label="props.row.active ? 'تعطيل' : 'تفعيل'"
-                       @click.stop="$parent.$emit('toggle_active', props.row)">
-                    <q-tooltip>{{ props.row.active ? 'تعطيل' : 'تفعيل' }}</q-tooltip>
-                </q-btn>
                 <q-btn flat round dense icon="delete" class="app-btn-danger-icon" aria-label="حذف الكادر"
                        @click.stop="$parent.$emit('delete_person', props.row)">
                     <q-tooltip>حذف الكادر</q-tooltip>
@@ -164,6 +163,11 @@ class PersonnelScreen:
 
     def _toggle_active(self, row: dict):
         name = row.get("name") or ""
+        from nicegui_ui.state import app_session
+        if row.get("active") and int(row["id"]) == int(app_session.emp_id or 0):
+            UI.notify("لا يمكنك تعطيل حسابك الذي تستخدمه الآن", type="warning")
+            self._render_content()
+            return
         try:
             self.repo.toggle_active(row["id"], 0 if row.get("active") else 1)
             UI.notify(f"تم {'تعطيل' if row.get('active') else 'تفعيل'} ({name})", type="positive")

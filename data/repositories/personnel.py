@@ -179,6 +179,21 @@ class PersonnelRepository(BaseRepository):
         log_activity(f"تم تغيير كلمة مرور الكادر ID: {person_id} على هذا الجهاز (بانتظار المزامنة)")
         return "queued"
 
+    def is_account_active(self, person_id: int) -> bool | None:
+        """True/False from the server; None when it cannot be told (offline, error)."""
+        if not is_online():
+            return None
+        try:
+            resp = api_client.get(f"{self.api_url}/personnel/{person_id}", timeout=5.0)
+        except Exception as e:
+            log_system(f"Account status check failed: {e}", "WARNING")
+            return None
+        if resp.status_code == 404:
+            return False          # account deleted
+        if resp.status_code != 200:
+            return None
+        return bool(int(resp.json().get("is_active", 1) or 0))
+
     def toggle_active(self, person_id: int, is_active: int) -> None:
         if not is_online():
             raise OfflineModeError()

@@ -185,6 +185,17 @@ class MainAppShell:
             from data.repositories import IssuedCertificateRepository
             await run.io_bound(IssuedCertificateRepository().ensure_number_block)
 
+        # Every minute (12 x 5 s): an account disabled or deleted by an admin is signed out
+        if now_online and self._net_loop_count % 12 == 0:
+            from data.repositories import PersonnelRepository
+            from nicegui_ui.state import app_session
+            active = await run.io_bound(PersonnelRepository().is_account_active, int(app_session.emp_id or 0))
+            if active is False:
+                app_session.logout_user()
+                ui.notify("تم تعطيل حسابك من قبل المدير، وتم تسجيل خروجك", type="warning", timeout=10000)
+                ui.navigate.to("/")
+                return
+
         # Refresh DOM status badges
         if hasattr(self, '_refresh_status') and self._refresh_status:
             self._refresh_status.refresh()
