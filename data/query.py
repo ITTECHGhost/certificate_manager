@@ -1560,7 +1560,7 @@ def delete_offline_enrollment(enrollment_id: int | str) -> None:
 # ── Students list filters (same rules as the API's student_filter_where) ─────
 
 def student_filter_where(query: str = "", dept_id=None, study_system_id=None, study_type=None,
-                         status=None, admission_year=None, ph: str = "?") -> tuple[str, list]:
+                         status=None, admission_year=None, graduation_year=None, ph: str = "?") -> tuple[str, list]:
     """Kept identical to certificate_manager_api/routers/students.py (tests check it)."""
     where, params = [], []
     term = (query or "").strip()
@@ -1579,6 +1579,8 @@ def student_filter_where(query: str = "", dept_id=None, study_system_id=None, st
         where.append("COALESCE(s.order_id, 0) = 0")
     if admission_year and str(admission_year).strip().isdigit():
         where.append(f"SUBSTR(COALESCE(s.admission_year, ''), 1, 4) = {ph}"); params.append(str(admission_year).strip()[:4])
+    if graduation_year and str(graduation_year).strip()[:4].isdigit():
+        where.append(f"SUBSTR(COALESCE(CAST(s.graduation_date AS CHAR), ''), 1, 4) = {ph}"); params.append(str(graduation_year).strip()[:4])
     return ("WHERE " + " AND ".join(where)) if where else "", params
 
 

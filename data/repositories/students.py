@@ -53,7 +53,7 @@ class StudentRepository(BaseRepository):
 
     def search_filtered(self, limit: int = 25, offset: int = 0, **filters) -> dict:
         """The students list with filters: {"rows": [...], "total": n}.
-        filters: query, dept_id, study_system_id, study_type, status, admission_year.
+        filters: query, dept_id, study_system_id, study_type, status, admission_year, graduation_year.
         A server older than 2.6 has no /students/filtered: then only name and department apply."""
         from data.query import search_offline_students_filtered
         filters = {k: v for k, v in filters.items() if v not in (None, "", "all", 0)}

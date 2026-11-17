@@ -87,3 +87,26 @@ def test_stored_procedure_and_logins_respect_is_active():
     assert "AND is_active = 1" in api
     repo = open(os.path.join(ROOT, "data", "repositories", "personnel.py"), encoding="utf-8").read()
     assert 'not user.get("is_active")' in repo
+
+
+def test_disabled_account_gets_its_own_message():
+    import os
+    root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    api = open(os.path.join(root, "certificate_manager_api", "routers", "personnel.py"), encoding="utf-8").read()
+    assert 'status_code=403, detail="Account disabled"' in api
+    repo = open(os.path.join(root, "data", "repositories", "personnel.py"), encoding="utf-8").read()
+    assert "resp.status_code == 403" in repo and "raise AccountDisabledError()" in repo
+    login = open(os.path.join(root, "nicegui_screens", "login_screen.py"), encoding="utf-8").read()
+    assert "except AccountDisabledError:" in login and "هذا الحساب معطّل" in login
+
+
+def test_server_version_falls_back_to_app_version(tmp_path):
+    import sys, os
+    root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    sys.path.insert(0, os.path.join(root, "certificate_manager_api"))
+    from routers.server_update import installed_version
+    (tmp_path / "api").mkdir()
+    (tmp_path / "app_version.py").write_text('APP_VERSION = "9.8.7"\n', encoding="utf-8")
+    assert installed_version(tmp_path / "api") == "9.8.7"
+    (tmp_path / "api" / "server_version.txt").write_text("1.2.3", encoding="utf-8")
+    assert installed_version(tmp_path / "api") == "1.2.3"

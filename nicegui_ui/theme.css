@@ -741,6 +741,8 @@ input, textarea { caret-color: var(--accent); }
 .q-toggle__inner--truthy .q-toggle__track { background: var(--accent) !important; }
 .q-toggle__inner--truthy .q-toggle__thumb:after { background: #ffffff !important; }
 .q-toggle__inner { color: var(--accent) !important; }
+/* dense toggle (table rows): Quasar's track insets (.3em) leave an 8 px stub there; span the whole 32 px box */
+.q-toggle--dense .q-toggle__track { left: 0 !important; right: 0 !important; }
 .q-checkbox__inner--truthy .q-checkbox__bg { background: var(--accent) !important; border-color: var(--accent) !important; }
 .q-checkbox__bg { border-color: var(--text-muted) !important; }
 

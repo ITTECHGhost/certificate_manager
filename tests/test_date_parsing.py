@@ -40,5 +40,6 @@ def test_academic_year_helpers():
     assert format_academic_year("") == ""
     assert academic_year_start("2025/2026") == 2025
     assert academic_year_start("x") is None
-    assert academic_year_from_date("2025-07-01") == "2025/2026"
+    assert academic_year_from_date("2025-07-01") == "2024/2025"
+    assert academic_year_from_date("2026-11-01") == "2025/2026"
     assert academic_year_from_date("") == ""

@@ -11,6 +11,7 @@ log = logging.getLogger(__name__)
 import os
 from nicegui import ui
 from data.repositories import PersonnelRepository, SettingsRepository
+from data.repositories.personnel import AccountDisabledError
 from nicegui_ui.ui_components import UI
 
 
@@ -263,6 +264,8 @@ class LoginScreen:
                 else:
                     self._show_error("اسم المستخدم أو كلمة المرور غير صحيحة. تأكد منهما وأعد المحاولة.")
 
+        except AccountDisabledError:
+            self._show_error("هذا الحساب معطّل. راجع مدير النظام لتفعيله.")
         except Exception as exc:
             log.warning(f"[LoginScreen] Authentication Error: {exc}")
             self._show_error("تعذر تسجيل الدخول. تحقق من الاتصال بالشبكة وأعد المحاولة.")

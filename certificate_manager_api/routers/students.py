@@ -172,7 +172,7 @@ def search_students_basic(query: str = "", limit: int = 50, conn=Depends(get_db)
 
 
 def student_filter_where(query: str = "", dept_id=None, study_system_id=None, study_type=None,
-                         status=None, admission_year=None, ph: str = "%s") -> tuple[str, list]:
+                         status=None, admission_year=None, graduation_year=None, ph: str = "%s") -> tuple[str, list]:
     """WHERE for the students list filters. Unknown values are ignored (whitelist).
     ph is the placeholder: %s for MySQL, ? for the program's local copy."""
     where, params = [], []
@@ -192,6 +192,8 @@ def student_filter_where(query: str = "", dept_id=None, study_system_id=None, st
         where.append("COALESCE(s.order_id, 0) = 0")
     if admission_year and str(admission_year).strip().isdigit():
         where.append(f"SUBSTR(COALESCE(s.admission_year, ''), 1, 4) = {ph}"); params.append(str(admission_year).strip()[:4])
+    if graduation_year and str(graduation_year).strip()[:4].isdigit():
+        where.append(f"SUBSTR(COALESCE(CAST(s.graduation_date AS CHAR), ''), 1, 4) = {ph}"); params.append(str(graduation_year).strip()[:4])
     return ("WHERE " + " AND ".join(where)) if where else "", params
 
 
@@ -199,10 +201,12 @@ def student_filter_where(query: str = "", dept_id=None, study_system_id=None, st
 def students_filtered(query: str = "", limit: int = 25, offset: int = 0, dept_id: Optional[int] = None,
                       study_system_id: Optional[int] = None, study_type: Optional[str] = None,
                       status: Optional[str] = None, admission_year: Optional[str] = None,
+                      graduation_year: Optional[str] = None,
                       conn=Depends(get_db)):
     """The students list with its search filters: {"rows": [...], "total": n}. New in 2.6;
     /students/search and /students/count/all stay for older programs."""
-    where, params = student_filter_where(query, dept_id, study_system_id, study_type, status, admission_year)
+    where, params = student_filter_where(query, dept_id, study_system_id, study_type, status, admission_year,
+                                         graduation_year)
     limit = max(1, min(int(limit), 500))
     cur = conn.cursor(dictionary=True)
     try:

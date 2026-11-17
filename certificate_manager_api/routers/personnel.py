@@ -165,12 +165,26 @@ def _authenticate_user(conn, username: str, password: str) -> Optional[dict]:
     return user
 
 
+def _is_disabled_with_right_password(conn, username: str, password: str) -> bool:
+    """True only when the password is right but the account is switched off, so the
+    login screen can say so without telling a guesser which accounts exist."""
+    cur = conn.cursor(dictionary=True, buffered=True)
+    try:
+        cur.execute("SELECT password_hash FROM personnel WHERE username = %s AND is_active = 0 LIMIT 1", (username,))
+        row = cur.fetchone()
+    finally:
+        cur.close()
+    return bool(row) and verify_password(password, row.get("password_hash"))
+
+
 @router.post("/personnel/login")
 def authenticate_personnel(payload: LoginPayload, conn=Depends(get_db)):
     # payload.password_hash carries the password the user typed (historic field name)
     try:
         row = _authenticate_user(conn, payload.username, payload.password_hash)
         if not row:
+            if _is_disabled_with_right_password(conn, payload.username, payload.password_hash):
+                raise HTTPException(status_code=403, detail="Account disabled")
             raise HTTPException(status_code=401, detail="Invalid username or password")
         return row
     except HTTPException:

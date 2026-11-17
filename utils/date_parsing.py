@@ -95,6 +95,7 @@ def academic_year_start(text) -> int | None:
 
 
 def academic_year_from_date(text) -> str:
-    """Academic year in the Y/Y+1 form for a date: the year of the date, then the next one."""
+    """The academic year a graduation date closes, Y-1/Y: graduating in 2026 (even in a late
+    second round in November) is the 2025/2026 class, as the certificates write it."""
     d = parse_date(text)
-    return f"{int(d[:4])}/{int(d[:4]) + 1}" if d else ""
+    return f"{int(d[:4]) - 1}/{int(d[:4])}" if d else ""

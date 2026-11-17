@@ -17,7 +17,7 @@ from nicegui_screens.student_bulk_import_view import StudentBulkImportView
 from data.repositories import StudentRepository
 
 EMPTY_FILTERS = {"dept_id": None, "study_system_id": None, "study_type": None,
-                 "status": None, "admission_year": None}
+                 "status": None, "graduation_year": None}
 STATUS_OPTIONS = {"graduated": "متخرج", "not_graduated": "غير متخرج"}
 
 
@@ -192,9 +192,9 @@ class StudentsScreen:
             _select("study_system_id", "نظام الدراسة", systems)
             _select("study_type", "نوع الدراسة", dict(STUDY_TYPE_LABELS_AR), "w-32")
             _select("status", "الحالة", STATUS_OPTIONS, "w-32")
-            year = ui.input("سنة القبول", on_change=_set("admission_year")).props(
+            year = ui.input("سنة التخرج", on_change=_set("graduation_year")).props(
                 "clearable dense debounce=400 inputmode=numeric").classes("w-32 app-input")
-            self._filter_inputs["admission_year"] = year
+            self._filter_inputs["graduation_year"] = year
             UI.ghost_button("مسح الكل", icon="filter_alt_off", on_click=self.clear_filters)
 
     def clear_filters(self) -> None:

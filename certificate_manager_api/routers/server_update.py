@@ -53,6 +53,14 @@ def installed_version(api_dir: Path = API_DIR) -> str:
     try:
         return f.read_text(encoding="utf-8-sig").strip()
     except OSError:
+        pass
+    # Run from the source tree (dev laptop): no installer wrote server_version.txt,
+    # so read APP_VERSION from the repo's app_version.py beside the API folder.
+    try:
+        m = re.search(r'APP_VERSION\s*=\s*"([^"]+)"',
+                      (api_dir.parent / "app_version.py").read_text(encoding="utf-8-sig"))
+        return m.group(1) if m else ""
+    except OSError:
         return ""
 
 

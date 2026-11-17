@@ -13,7 +13,7 @@ def test_api_and_program_filter_rules_match():
     cases = [
         {},
         {"query": "علي", "dept_id": 3, "study_system_id": 2, "study_type": "evening",
-         "status": "graduated", "admission_year": "2021/2022"},
+         "status": "graduated", "admission_year": "2021/2022", "graduation_year": "2026"},
         {"query": "x", "status": "not_graduated", "study_type": "bad", "admission_year": "abc"},
     ]
     for c in cases:
@@ -84,3 +84,12 @@ def test_filter_orders():
     assert ids(graduation_year=2025) == [2, 3]
     assert ids(graduation_semester="first", graduation_year="2025") == [3]
     assert ids(department_id=None, study_type="") == [1, 2, 3]
+
+
+def test_graduation_year_filter_runs_on_sqlite():
+    from data.query import student_filter_where
+    db = sqlite3.connect(":memory:")
+    db.execute("CREATE TABLE students (id, graduation_date)")
+    db.executemany("INSERT INTO students VALUES (?,?)", [(1, "2026-11-01"), (2, "2024-07-01"), (3, None)])
+    where, params = student_filter_where(graduation_year="2026")
+    assert [r[0] for r in db.execute(f"SELECT id FROM students s {where}", params)] == [1]

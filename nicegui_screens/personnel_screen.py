@@ -140,7 +140,7 @@ class PersonnelScreen:
         table.add_slot("body-cell-active", """
             <q-td :props="props" @click.stop>
                 <q-toggle :model-value="props.value" dense color="positive"
-                          :label="props.value ? 'نشط' : 'معطّل'"
+                          :label="props.value ? 'مُفعَّل' : 'غير مُفعَّل'"
                           :aria-label="props.value ? 'تعطيل الحساب' : 'تفعيل الحساب'"
                           @update:model-value="$parent.$emit('toggle_active', props.row)">
                     <q-tooltip>{{ props.value ? 'اضغط لتعطيل الحساب' : 'اضغط لتفعيل الحساب' }}</q-tooltip>
@@ -244,7 +244,7 @@ class PersonnelScreen:
 
                         # Account on/off: an inactive account cannot log in (online or offline)
                         active_switch = UI.switch(
-                            "الحساب نشط (يستطيع تسجيل الدخول)",
+                            "الحساب مُفعَّل (يستطيع تسجيل الدخول)",
                             value=bool(existing_data.get("is_active", 1)),
                         ).classes("text-sm font-bold app-text-primary")
 

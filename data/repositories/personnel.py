@@ -6,6 +6,10 @@ from .base import *
 from .departments import DepartmentRepository
 
 
+
+class AccountDisabledError(Exception):
+    """Right password, but an admin has switched this account off."""
+
 class PersonnelRepository(BaseRepository):
     # True after insert/update when the server saved role, permissions and password in the
     # same transaction (server 2.5.5+); False means the caller must send them separately.
@@ -55,6 +59,11 @@ class PersonnelRepository(BaseRepository):
             # user can log in on any laptop while the server is offline. No built-in
             # fallback account: an admin logs in with their own synced password.
             user = get_offline_personnel_by_username(username)
+            if user and not user.get("is_active"):
+                stored = str(user.get("password_hash") or "").strip()
+                if stored and not is_password_disabled(stored) and verify_password(password_hash, stored):
+                    log_activity(f"Offline login refused for '{username}' (account disabled)", "WARNING")
+                    raise AccountDisabledError()
             if not user or not user.get("is_active"):
                 log_activity(f"Offline authentication failed for '{username}' (unknown or inactive account)", "WARNING")
                 return None
@@ -82,7 +91,11 @@ class PersonnelRepository(BaseRepository):
                 return result
             elif resp.status_code == 401:
                 return None
+            elif resp.status_code == 403:
+                raise AccountDisabledError()
             return _check_offline_auth()
+        except AccountDisabledError:
+            raise
         except Exception as e:
             log_system(f"API request failed, falling back to offline authentication: {e}", "WARNING")
             return _check_offline_auth()
