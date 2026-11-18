@@ -321,6 +321,23 @@ class MainAppShell:
         with ui.column().classes("w-full gap-0 mt-auto px-3 py-2") as self._version_footer:
             ui.label(f"إصدار البرنامج: {APP_VERSION}").classes("app-caption truncate")
             server_lbl = ui.label("إصدار الخادم: …").classes("app-caption truncate")
+            upd_lbl = ui.label("").classes("app-caption text-primary cursor-pointer")
+            upd_lbl.tooltip("فتح «تحديث البرنامج» في الإعدادات")
+
+        def _open_update_tab():
+            import nicegui_screens.settings.screen as _st
+            _st.REQUESTED_TAB = "update"
+            self._switch_screen("settings")
+
+        upd_lbl.on("click", _open_update_tab)
+
+        def _draw_update():
+            from nicegui_ui.update_prompt import progress_text
+            txt = progress_text()
+            upd_lbl.set_text(txt)
+            upd_lbl.set_visibility(bool(txt))
+
+        ui.timer(1.0, _draw_update)
 
         async def _load_server_version():
             status = await run.io_bound(su.get_status)

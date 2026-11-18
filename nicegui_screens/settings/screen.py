@@ -49,6 +49,9 @@ from nicegui_screens.settings.templates import TemplatesMixin
 from nicegui_screens.settings.departments import DepartmentsMixin
 
 
+REQUESTED_TAB = None   # a tab another screen wants opened next
+
+
 class SettingsScreen(
     InstitutionMixin,
     DepartmentsMixin,
@@ -148,6 +151,9 @@ class SettingsScreen(
 
         # Default tab selection
         default_tab_name = "institution" if can_inst else ("appearance" if can_app else "printers")
+        global REQUESTED_TAB
+        if REQUESTED_TAB:                       # e.g. the sidebar's update line asked for «update»
+            default_tab_name, REQUESTED_TAB = REQUESTED_TAB, None
 
         with ui.column().classes("w-full max-w-full min-w-0 gap-6 pb-12 overflow-hidden"):
             with ui.row().classes("w-full max-w-full min-w-0 gap-6 items-start no-wrap"):
