@@ -31,6 +31,17 @@ foreach ($f in $keep) { if ((Get-FileHash -LiteralPath (Join-Path $a $f)).Hash -
 if ((Get-Content -LiteralPath (Join-Path $a "main.py") -Raw) -match "old main") { $fails += "case A main.py was not updated" }
 if (-not (Test-Path -LiteralPath (Join-Path $a ".htaccess"))) { $fails += "case A .htaccess missing" }
 if (-not (Test-Path -LiteralPath (Join-Path $a "templets\templates_config.json"))) { $fails += "case A templates were not added" }
+# A template edited on the DEV laptop replaces the server's old copy (until 2.5.5 it was skipped)
+$tpl = "semester - Temp - Ar.docx"
+"OLD SERVER COPY" | Set-Content -Encoding ascii -LiteralPath (Join-Path $a "templets\$tpl")
+'{"server only": {"file": "custom.docx"}}' | Set-Content -Encoding ascii -LiteralPath (Join-Path $a "templets\templates_config.json")
+& powershell.exe -NoProfile -ExecutionPolicy Bypass -File $setup -TargetDir $a @common | Out-Null
+if ($LASTEXITCODE -ne 0) { $fails += "case A run 3 exit code $LASTEXITCODE" }
+if ((Get-FileHash -LiteralPath (Join-Path $a "templets\$tpl")).Hash -ne (Get-FileHash -LiteralPath (Join-Path $Bundle "templets\$tpl")).Hash) { $fails += "case A edited template did not replace the server copy" }
+$cfg = Get-Content -LiteralPath (Join-Path $a "templets\templates_config.json") -Raw -Encoding UTF8 | ConvertFrom-Json
+if (-not $cfg."server only") { $fails += "case A server-only config entry was lost" }
+if (-not $cfg."semester - Temp - Ar") { $fails += "case A release config entry missing" }
+if (-not (Get-ChildItem -LiteralPath (Join-Path $a "_backup_before_update") -Directory -Filter "templets_*")) { $fails += "case A templates were not backed up" }
 
 # Case B: an old server whose config.py still holds the login gets db_config.json from it.
 $b = Join-Path $root "old server"

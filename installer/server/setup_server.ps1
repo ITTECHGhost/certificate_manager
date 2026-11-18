@@ -2,7 +2,8 @@
 # setup_server.ps1 - install or update the Certificate Manager API on the server laptop.
 # Run it through setup_server.bat (Administrator). Safe to run again. Never overwritten:
 #   db_config.json  app_keys.json  server_settings.json  certs\  client_package\  logs\
-#   templets\ (only missing files are added)
+#   templets\ is backed up, then the bundle's templates replace changed ones;
+#   templates that exist only on the server are kept (config entries merged)
 # Parameters (tests / special cases):
 #   -TargetDir <folder>   default C:\AppServ\www\certificate_manager_api
 #   -SkipPip -SkipService -SkipFirewall -SkipDbCheck
@@ -140,10 +141,28 @@ if (Test-Path $dbConfig) {
     Ok "db_config.json created"
 }
 
-# 5. Templates: add missing files only
-robocopy (Join-Path $bundle "templets") (Join-Path $TargetDir "templets") /E /XC /XN /XO /NFL /NDL /NJH /NJS /NP | Out-Null
+# 5. Templates: the release's templates (edited on the DEV laptop) replace the server's copies.
+#    Until 2.5.5 only missing files were added, so an edited template never reached the server.
+#    The server's folder is backed up first; templates that exist only on the server are kept,
+#    and templates_config.json is merged (release entries win, server-only entries stay).
+$tplDir = Join-Path $TargetDir "templets"
+$tplCfg = Join-Path $tplDir "templates_config.json"
+$oldCfg = $null
+if (Test-Path $tplDir) {
+    $tplBackup = Join-Path $TargetDir ("_backup_before_update\templets_" + (Get-Date -Format "yyyyMMdd_HHmmss"))
+    robocopy $tplDir $tplBackup /E /NFL /NDL /NJH /NJS /NP | Out-Null
+    if ($LASTEXITCODE -ge 8) { Fail "Backing up the templates failed (robocopy code $LASTEXITCODE)." }
+    Ok "Templates backed up to $tplBackup"
+    if (Test-Path $tplCfg) { $oldCfg = Join-Path $tplBackup "templates_config.json" }
+}
+robocopy (Join-Path $bundle "templets") $tplDir /E /IS /IT /XF .server_hashes.json /NFL /NDL /NJH /NJS /NP | Out-Null
 if ($LASTEXITCODE -ge 8) { Fail "Copying the templates failed (robocopy code $LASTEXITCODE)." }
-Ok "Templates (missing files added)"
+if ($oldCfg -and (Test-Path $oldCfg)) {
+    $merge = "import json, sys; o = json.load(open(sys.argv[1], encoding='utf-8-sig')); n = json.load(open(sys.argv[2], encoding='utf-8-sig')); o.update(n); json.dump(o, open(sys.argv[2], 'w', encoding='utf-8'), ensure_ascii=False, indent=2)"
+    & $python -c $merge $oldCfg $tplCfg
+    if ($LASTEXITCODE -ne 0) { Fail "Merging templates_config.json failed." }
+}
+Ok "Templates updated from the release (server-only templates kept)"
 
 # 6. Apache must not serve this folder
 if (Test-Path (Join-Path $TargetDir ".htaccess")) { Ok ".htaccess present" } else { Fail ".htaccess is missing in $TargetDir" }
