@@ -252,6 +252,7 @@ EN: dict[str, str] = {
     'البيانات الشخصية': 'Info',
     'التاريخ': 'Date',
     'التالي': 'Next ►',
+    'الحساب غير مُفعَّل (لا يستطيع تسجيل الدخول)': 'Account deactivated (cannot log in)',
     'التحقق من التحديثات': 'Check for Updates',
     'تحديث البرنامج': 'Program Update',
     'تثبيت الآن (يُغلق البرنامج ويفتحه)': 'Install now (restarts the program)',

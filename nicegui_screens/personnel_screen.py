@@ -113,7 +113,7 @@ class PersonnelScreen:
                 "position": r.get("responsibility_ar") or "—",
                 # The signature chip appears only for people who actually sign documents
                 "signature": f"يوقّع ({display_order})" if signs else "",
-                "active": bool(r.get("is_active", 1)),
+                "active": True if r.get("is_active") is None else bool(int(r.get("is_active"))),
                 "raw": r,
             })
 
@@ -243,9 +243,14 @@ class PersonnelScreen:
                         role_inp.on_value_change(lambda e: _update_role_preview(e.value if hasattr(e, "value") else e))
 
                         # Account on/off: an inactive account cannot log in (online or offline)
+                        _on_txt = "الحساب مُفعَّل (يستطيع تسجيل الدخول)"
+                        _off_txt = "الحساب غير مُفعَّل (لا يستطيع تسجيل الدخول)"
+                        _active = existing_data.get("is_active")
+                        _active = True if _active is None else bool(int(_active))
+                        # The label says what the switch shows (it used to read «مُفعَّل» while off)
                         active_switch = UI.switch(
-                            "الحساب مُفعَّل (يستطيع تسجيل الدخول)",
-                            value=bool(existing_data.get("is_active", 1)),
+                            _on_txt if _active else _off_txt, value=_active,
+                            on_change=lambda e: e.sender.set_text(_on_txt if e.value else _off_txt),
                         ).classes("text-sm font-bold app-text-primary")
 
                     # 2. Personal Info
