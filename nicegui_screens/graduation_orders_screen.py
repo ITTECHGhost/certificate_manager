@@ -131,6 +131,9 @@ class GraduationOrdersScreen(OrderWorkspaceMixin):
                         on_change=on_search_change,
                     ).classes("flex-1 min-w-[220px] max-w-md")
                     ui.space()
+                    from nicegui_screens.official_rankings_view import open_official_rankings_dialog
+                    UI.ghost_button("قوائم الترتيب الرسمية", icon="format_list_numbered",
+                                    on_click=open_official_rankings_dialog)
                     UI.primary_button("إضافة أمر تخرج", icon="add", on_click=lambda: self.show_edit_view(mode="add"))
 
                 self._build_filters()

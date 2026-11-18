@@ -722,5 +722,33 @@
  [
   "GET",
   "/api/reports/students"
+ ],
+ [
+  "GET",
+  "/api/official-rankings"
+ ],
+ [
+  "GET",
+  "/api/official-rankings/{ranking_id}/entries"
+ ],
+ [
+  "POST",
+  "/api/official-rankings"
+ ],
+ [
+  "PUT",
+  "/api/official-rankings/{ranking_id}/entries/{position}"
+ ],
+ [
+  "DELETE",
+  "/api/official-rankings/{ranking_id}"
+ ],
+ [
+  "POST",
+  "/api/official-rankings/match"
+ ],
+ [
+  "GET",
+  "/api/official-rankings/for-student/{student_id}"
  ]
 ]

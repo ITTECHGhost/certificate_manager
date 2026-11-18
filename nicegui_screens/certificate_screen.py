@@ -766,6 +766,9 @@ class CertificateScreen:
         self.rank_inputs = {}
         with ui.expansion("التسلسلات المحسوبة (قابلة للتعديل)", icon="format_list_numbered").classes("w-full") \
                 .bind_visibility_from(self.sw_rank, "value"):
+            # Official lists (from the college orders) come first; the computed rows stay as a check
+            self.official_note = ui.label("").classes("text-sm font-bold app-text-primary")
+            self.official_buttons = ui.row().classes("w-full gap-2")
             self.ranks_note = ui.label("").classes("app-caption")
             with ui.grid(columns=3).classes("w-full gap-2 items-center"):
                 for key, label in self.RANK_ROWS:
@@ -800,6 +803,38 @@ class CertificateScreen:
         if mine and (force or not (self.inp_rank_val.value or "").strip()):
             self.inp_rank_val.value = str(mine)
             self.sw_rank.value = True
+        self._fill_official_ranks(student_id, force=force)
+
+    def _fill_official_ranks(self, student_id, force: bool = False) -> None:
+        """The student's place in the official lists (قوائم الترتيب الرسمية). When a list exists,
+        its rank replaces the computed one: the jobs list by default, masters on request."""
+        from data.repositories.official_rankings import OfficialRankingRepository, pick_official_rank, LIST_TYPE_LABELS
+        lists = OfficialRankingRepository().for_student(student_id) if student_id else []
+        self.official_buttons.clear()
+        if not lists:
+            self.official_note.set_text("لا يوجد الطالب في قائمة ترتيب رسمية؛ التسلسل أدناه محسوب.")
+            return
+
+        def use(r):
+            self.inp_rank_val.value = str(r.get("position") or "")
+            self.rank_source_sel.value = "manual"
+            self.inp_rank_total.value = str(r.get("total") or "")
+            if r.get("first_average") is not None:
+                self.inp_rank_avg.value = f"{r['first_average']:.3f}".rstrip("0").rstrip(".")
+            self.sw_rank.value = True
+            self.official_note.set_text(f"التسلسل من القائمة الرسمية ({LIST_TYPE_LABELS.get(r['list_type'], '')}): "
+                                        f"{r.get('position')} من {r.get('total')} — الأمر {r.get('order_number') or '—'}")
+
+        with self.official_buttons:
+            for lt in ("jobs", "masters"):
+                r = pick_official_rank(lists, lt)
+                if r:
+                    UI.ghost_button(f"استعمل {LIST_TYPE_LABELS[lt]}: {r.get('position')} من {r.get('total')}",
+                                    icon="verified", on_click=lambda _=None, r=r: use(r))
+        first = pick_official_rank(lists, "jobs") or pick_official_rank(lists, "masters")
+        if force or not getattr(self, "_official_used_for", None) == student_id:
+            self._official_used_for = student_id
+            use(first)
 
     def _ranks_from_inputs(self) -> dict:
         return {key: {"seq": (seq.value or "").strip(), "of": (of.value or "").strip()}
