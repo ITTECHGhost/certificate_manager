@@ -2237,6 +2237,9 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `SetPersonnelPermission`(
     IN `p_is_granted` TINYINT
 )
 BEGIN
+    -- A newer client may grant a key this server does not list yet (the FK would refuse it)
+    INSERT IGNORE INTO permissions (permission_key, category, name_ar, name_en)
+    VALUES (p_permission_key, 'other', p_permission_key, p_permission_key);
     INSERT INTO personnel_permissions (personnel_id, permission_key, is_granted)
     VALUES (p_personnel_id, p_permission_key, p_is_granted)
     ON DUPLICATE KEY UPDATE is_granted = p_is_granted;

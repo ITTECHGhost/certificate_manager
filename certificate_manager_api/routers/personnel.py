@@ -35,6 +35,15 @@ class PersonnelPayload(BaseModel):
     permission_keys: Optional[List[str]] = None
 
 
+def _ensure_permission_keys(cur, keys) -> None:
+    """A newer client can grant a permission this server's catalogue does not list yet; without
+    the row the FOREIGN KEY on personnel_permissions refuses the whole save (seen on the server,
+    2.5.6). Add the missing keys (named by their key) so the save goes through."""
+    for k in {str(k).strip() for k in (keys or []) if str(k).strip()}:
+        cur.execute("INSERT IGNORE INTO permissions (permission_key, category, name_ar, name_en) "
+                    "VALUES (%s, 'other', %s, %s)", (k[:50], k[:100], k[:100]))
+
+
 def _save_role_and_permissions(cur, person_id: int, payload: "PersonnelPayload") -> None:
     """user_roles + personnel_permissions for one person, inside the caller's transaction."""
     if payload.role_id:
@@ -44,6 +53,7 @@ def _save_role_and_permissions(cur, person_id: int, payload: "PersonnelPayload")
             (person_id, payload.role_id.strip()),
         )
     if payload.permission_keys is not None:
+        _ensure_permission_keys(cur, payload.permission_keys)
         cur.execute("DELETE FROM personnel_permissions WHERE personnel_id = %s", (person_id,))
         for k in payload.permission_keys:
             cur.execute(
@@ -421,6 +431,7 @@ def update_user_permissions(person_id: int, payload: PermissionsUpdatePayload, c
     cur = conn.cursor(dictionary=True)
     try:
         keys_csv = ",".join(payload.permission_keys) if payload.permission_keys else ""
+        _ensure_permission_keys(cur, payload.permission_keys)
         try:
             cur.callproc("BulkSetPersonnelPermissions", (person_id, keys_csv))
             try:
@@ -433,6 +444,7 @@ def update_user_permissions(person_id: int, payload: PermissionsUpdatePayload, c
         except Exception as sp_err:
             logger.warning(f"BulkSetPersonnelPermissions SP failed ({sp_err}), using direct transaction")
             conn.rollback()   # drop whatever the procedure did before failing
+            _ensure_permission_keys(cur, payload.permission_keys)
             cur.execute("DELETE FROM personnel_permissions WHERE personnel_id = %s", (person_id,))
             for k in payload.permission_keys:
                 cur.execute(
