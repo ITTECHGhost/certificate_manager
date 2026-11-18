@@ -40,9 +40,15 @@ def en_rest(gender: str, system: str) -> str:
             "average of ({{average}}).")
 
 
+def _has_picture(run) -> bool:
+    return bool(run._r.xpath(".//w:drawing|.//w:pict"))
+
+
 def _set_runs(paragraph, texts):
-    """Put texts into the paragraph's runs in order (extra runs emptied), keeping each run's format."""
-    runs = paragraph.runs
+    """Put texts into the paragraph's text runs in order (extra runs emptied), keeping each run's
+    format. Runs holding a picture or shape (the photo box) are skipped: run.text = ... would
+    delete them (that is how the box vanished in the first 2.5.6 templates)."""
+    runs = [r for r in paragraph.runs if not _has_picture(r)]
     for i, r in enumerate(runs):
         r.text = texts[i] if i < len(texts) else ""
 
@@ -59,13 +65,15 @@ def build(master: Path, out: Path, lang: str, gender: str, system: str) -> None:
     d = docx.Document(str(master))
     paras = [p for p in d.paragraphs if p.text.strip()]
     title, to_line, body = paras[0], paras[1], paras[2]
+    if not any(_has_picture(r) for r in title.runs):
+        sys.exit(f"The master's title line has no photo box: {master}")
     if lang == "Ar":
-        _set_runs(title, ["", "تأييد", " تخرج"])
+        _set_runs(title, ["تأييد", " تخرج"])
         _set_runs(to_line, ["الـــى/  {{Title}}"])
         _set_runs(body, ["نؤيد لكم ان ", "{{student_name}}", ar_rest(gender, system)])
     else:
         _to_ltr(d)
-        _set_runs(title, ["", "Certification of Graduation"])
+        _set_runs(title, ["Certification of Graduation"])
         _set_runs(to_line, ["To/ {{Title}}"])
         _set_runs(body, ["We certify that ", "{{student_name}}", en_rest(gender, system)])
         body.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
