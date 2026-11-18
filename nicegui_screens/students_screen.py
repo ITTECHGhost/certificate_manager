@@ -192,9 +192,13 @@ class StudentsScreen:
             _select("study_system_id", "نظام الدراسة", systems)
             _select("study_type", "نوع الدراسة", dict(STUDY_TYPE_LABELS_AR), "w-32")
             _select("status", "الحالة", STATUS_OPTIONS, "w-32")
-            year = ui.input("سنة التخرج", on_change=_set("graduation_year")).props(
-                "clearable dense debounce=400 inputmode=numeric").classes("w-32 app-input")
-            self._filter_inputs["graduation_year"] = year
+            try:
+                # Years present in the synced local copy (no network call): newest first
+                from data.query import get_offline_distinct_admission_years as _grad_years
+                years = {y: y for y in _grad_years() if str(y).isdigit()}
+            except Exception:
+                years = {}
+            _select("graduation_year", "سنة التخرج", years, "w-32")
             UI.ghost_button("مسح الكل", icon="filter_alt_off", on_click=self.clear_filters)
 
     def clear_filters(self) -> None:
