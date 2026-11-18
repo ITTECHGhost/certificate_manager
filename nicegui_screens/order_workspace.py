@@ -126,13 +126,11 @@ class OrderWorkspaceMixin:
                         ui.space()
 
                         def link_all(ids=[r["id"] for r in rows]):
-                            done = []
-                            for sid in ids:
-                                try:
-                                    self.student_repo.link_to_order(sid, oid)
-                                    done.append(sid)
-                                except Exception as err:
-                                    log.warning(f"link {sid} failed: {err}")
+                            try:
+                                done = self.student_repo.link_many_to_order(oid, ids)
+                            except Exception as err:
+                                ui.notify(f"لم يُربط أي طالب: {err}", type="negative")
+                                return
                             state["undo_ids"] = done
                             ui.notify(f"تم ربط {len(done)} طالب", type="positive")
                             refresh_all()

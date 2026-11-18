@@ -525,6 +525,32 @@ def unlink_many_from_order(order_id: int, payload: UnlinkManyPayload, conn=Depen
         cur.close()
 
 
+@router.post("/students/link-order/{order_id}/selected")
+def link_many_to_order(order_id: int, payload: UnlinkManyPayload, conn=Depends(get_db)):
+    """Links these students (only those in no order yet) in ONE statement: all or none."""
+    if not payload.student_ids:
+        return {"affected_rows": 0, "student_ids": []}
+    cur = conn.cursor()
+    try:
+        marks = ",".join(["%s"] * len(payload.student_ids))
+        cur.execute(f"SELECT id FROM students WHERE order_id IS NULL AND id IN ({marks})", tuple(payload.student_ids))
+        ids = [int(r[0]) for r in cur.fetchall()]
+        if ids:
+            cur.execute(
+                f"UPDATE students s JOIN graduation_orders o ON o.id = %s "
+                f"SET s.order_id = o.id, s.graduation_date = o.order_date, s.graduation_semester = o.graduation_semester "
+                f"WHERE s.order_id IS NULL AND s.id IN ({','.join(['%s'] * len(ids))})",
+                (order_id, *ids),
+            )
+        conn.commit()
+        return {"affected_rows": len(ids), "student_ids": ids}
+    except Exception as exc:
+        conn.rollback()
+        raise HTTPException(status_code=500, detail=f"Nothing was linked: {exc}")
+    finally:
+        cur.close()
+
+
 @router.post("/students/{student_id}/link-order/{order_id}")
 @router.put("/students/{student_id}/link-order/{order_id}")
 def link_student_to_order(student_id: int, order_id: int, conn=Depends(get_db)):

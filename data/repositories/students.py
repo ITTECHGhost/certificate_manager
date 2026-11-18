@@ -365,6 +365,26 @@ class StudentRepository(BaseRepository):
             log_activity(f"تم ربط {count} طالب تلقائياً بالأمر الجامعي ID: {order_id}")
         return count, ids
 
+    def link_many_to_order(self, order_id: int, student_ids: list[int]) -> list[int]:
+        """Links these students in one server transaction (all or none); returns the ids linked.
+        A server older than 2.5.6 lacks the route: falls back to one request per student."""
+        if not is_online():
+            link_offline_students_to_order(list(student_ids), order_id)   # local copy, sent at the next sync
+            return list(student_ids)
+        resp = api_client.post(f"{self.api_url}/students/link-order/{order_id}/selected",
+                               json={"student_ids": list(student_ids)}, timeout=30.0)
+        if resp.status_code in (404, 405):
+            done = []
+            for sid in student_ids:
+                self.link_to_order(sid, order_id)
+                done.append(sid)
+            return done
+        if resp.status_code != 200:
+            raise RuntimeError(f"لم يُربط أي طالب ({resp.status_code}): {resp.text[:200]}")
+        ids = [int(x) for x in (resp.json().get("student_ids") or [])]
+        log_activity(f"تم ربط {len(ids)} طالب بالأمر الجامعي ID: {order_id}")
+        return ids
+
     def undo_link(self, order_id: int, student_ids: list[int]) -> int:
         """Unlinks these students, only where they are still in this order."""
         if not is_online():

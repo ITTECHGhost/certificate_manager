@@ -156,6 +156,10 @@
   "/students/unlink-order/{order_id}"
  ],
  [
+  "POST",
+  "/students/link-order/{order_id}/selected"
+ ],
+ [
   "PUT",
   "/students/{student_id}/link-order/{order_id}"
  ],
