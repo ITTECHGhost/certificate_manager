@@ -77,7 +77,8 @@ def check_for_updates() -> Optional[Dict[str, Any]]:
             }
         else:
             logger.debug(f"Application is up to date: v{CURRENT_APP_VERSION}")
-            return None
+            # Callers test has_update; the Settings card also shows the server's version
+            return {"has_update": False, "current_version": CURRENT_APP_VERSION, "latest_version": latest_ver}
 
     except requests.exceptions.RequestException as e:
         logger.debug(f"OTA update check failed (network/timeout): {e}")

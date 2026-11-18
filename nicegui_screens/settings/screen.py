@@ -155,6 +155,7 @@ class SettingsScreen(
                     self.tab_institution = ui.tab(name="institution", label="معلومات الجامعة", icon="domain") if can_inst else None
                     self.tab_app = ui.tab(name="appearance", label="المظهر والسمات", icon="palette") if can_app else None
                     self.tab_printers = ui.tab(name="printers", label="إعداد الطابعات", icon="print")
+                    self.tab_update = ui.tab(name="update", label="تحديث البرنامج", icon="system_update_alt")
                     self.tab_personnel = ui.tab(name="personnel", label="الكوادر", icon="manage_accounts") if can_personnel else None
                     self.tab_roles = ui.tab(name="roles", label="الأدوار والصلاحيات", icon="admin_panel_settings") if can_roles else None
                     self.tab_templates = ui.tab(name="templates", label="قوالب الوثائق", icon="description") if can_templates else None
@@ -168,6 +169,7 @@ class SettingsScreen(
                     "institution": (self.tab_institution, (self._section_institution_info, self._section_departments, self._section_study_systems)),
                     "appearance": (self.tab_app, (self._section_appearance,)),
                     "printers": (self.tab_printers, (self._section_printer_settings,)),
+                    "update": (self.tab_update, (self._section_client_update,)),
                     "personnel": (self.tab_personnel, (self._section_personnel,)),
                     "roles": (self.tab_roles, (self._section_roles_and_permissions,)),
                     "templates": (self.tab_templates, (self._section_templates_management,)),
@@ -228,6 +230,10 @@ class SettingsScreen(
                         ui.notify(f"خطأ أثناء التحقق: {e}", type="negative")
 
                 ui.button("التحقق من التحديثات", icon="system_update_alt", on_click=_check_updates_dialog).classes("app-btn-secondary px-4 py-2 text-xs rounded-xl mt-3")
+
+    def _section_client_update(self) -> None:
+        from nicegui_ui.update_prompt import update_card
+        update_card()
 
     def _section_personnel(self) -> None:
         from nicegui_screens.personnel_screen import PersonnelScreen
