@@ -160,14 +160,19 @@ class ProfileScreen:
                 "is_active": cur_rec.get("is_active", 1),
             }
             from sync_engine import is_online
-            if is_online():
+            online = is_online()
+            if online:
+                # Data and password in ONE request: the server saves both or neither
+                if new_pwd:
+                    payload["password_hash"] = new_pwd   # the typed password; the server stores it hashed
+                    payload["must_change_password"] = False
                 self.p_repo.update(self.emp_id, payload)
             elif not new_pwd:
                 ui.notify("تعديل بيانات الحساب يتطلب الاتصال بالسيرفر",
                           type="warning")
                 return
 
-            if new_pwd:
+            if new_pwd and not online:
                 # Works offline too: saved on this laptop and sent to the server at the next sync
                 pwd_result = self.p_repo.set_password(self.emp_id, new_pwd, must_change=False)
                 if pwd_result == "queued":
