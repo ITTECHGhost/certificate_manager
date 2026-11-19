@@ -194,5 +194,82 @@
     "gender": "Male",
     "system_ar": "نظام المقررات (الساعات المعتمدة)",
     "system_name": "نظام المقررات (الساعات المعتمدة)"
+  },
+  "postgrad - morning - Ar - female": {
+    "display_name": "تأييد تقديم دراسات عليا (بدون مسائي)",
+    "lang": "Ar",
+    "lang_ar": "عربي",
+    "type_ar": "تأييد دراسات عليا",
+    "gender": "Female",
+    "file": "postgrad - morning - Ar - female.docx",
+    "system": "Any",
+    "system_ar": "كل الأنظمة",
+    "sbs": false
+  },
+  "postgrad - morning - Ar - male": {
+    "display_name": "تأييد تقديم دراسات عليا (بدون مسائي)",
+    "lang": "Ar",
+    "lang_ar": "عربي",
+    "type_ar": "تأييد دراسات عليا",
+    "gender": "Male",
+    "file": "postgrad - morning - Ar - male.docx",
+    "system": "Any",
+    "system_ar": "كل الأنظمة",
+    "sbs": false
+  },
+  "postgrad - evening - Ar - female": {
+    "display_name": "تأييد تقديم دراسات عليا (مع مسائي)",
+    "lang": "Ar",
+    "lang_ar": "عربي",
+    "type_ar": "تأييد دراسات عليا",
+    "gender": "Female",
+    "file": "postgrad - evening - Ar - female.docx",
+    "system": "Any",
+    "system_ar": "كل الأنظمة",
+    "sbs": false
+  },
+  "postgrad - evening - Ar - male": {
+    "display_name": "تأييد تقديم دراسات عليا (مع مسائي)",
+    "lang": "Ar",
+    "lang_ar": "عربي",
+    "type_ar": "تأييد دراسات عليا",
+    "gender": "Male",
+    "file": "postgrad - evening - Ar - male.docx",
+    "system": "Any",
+    "system_ar": "كل الأنظمة",
+    "sbs": false
+  },
+  "language - En - female": {
+    "display_name": "تأييد لغة إنكليزية",
+    "lang": "En",
+    "lang_ar": "إنكليزي",
+    "type_ar": "تأييد لغة",
+    "gender": "Female",
+    "file": "language - En - female.docx",
+    "system": "Any",
+    "system_ar": "كل الأنظمة",
+    "sbs": false
+  },
+  "language - En - male": {
+    "display_name": "تأييد لغة إنكليزية",
+    "lang": "En",
+    "lang_ar": "إنكليزي",
+    "type_ar": "تأييد لغة",
+    "gender": "Male",
+    "file": "language - En - male.docx",
+    "system": "Any",
+    "system_ar": "كل الأنظمة",
+    "sbs": false
+  },
+  "language proof - En - male": {
+    "display_name": "تأييد إثبات لغة إنكليزية (بلا ترويسة)",
+    "lang": "En",
+    "lang_ar": "إنكليزي",
+    "type_ar": "تأييد لغة",
+    "gender": "Male",
+    "file": "language proof - En - male.docx",
+    "system": "Any",
+    "system_ar": "كل الأنظمة",
+    "sbs": false
   }
 }

@@ -371,6 +371,7 @@ def get_template_filter_options() -> Dict[str, str]:
 TAG_LANGS: Dict[str, str] = {"Ar": "عربي", "En": "إنكليزي"}
 # Names only for now: no calculation depends on the system tag except the template filter.
 TAG_SYSTEMS: Dict[str, str] = {
+    "Any": "كل الأنظمة",            # e.g. the language and postgraduate confirmations
     "Annual": "النظام الفصلي",
     "Semester": "نظام المقررات",
     "Bologna": "مسار بولونيا",
