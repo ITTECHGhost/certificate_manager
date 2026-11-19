@@ -1157,6 +1157,8 @@ class CertificateScreen:
             doc.save(out_file)
 
             self.generated_file_path = out_file
+            # Which template (and which copy of it) made this file: the PDF button reuses it only if unchanged
+            self._generated_from = (tpl_name, os.path.getmtime(tpl_path))
 
             # Record issued certificate into database via Stored Procedure (InsertIssuedCertificate)
             try:
@@ -1347,10 +1349,26 @@ class CertificateScreen:
                 log.error(f"Error opening generated Word doc: {err}")
                 UI.notify(f"تعذر فتح ملف Word: {err}", type="warning")
 
+    def _generated_file_current(self) -> bool:
+        """True when the issued file exists and was made from the selected template as it is now."""
+        path = self.generated_file_path
+        if not path or not os.path.exists(path):
+            return False
+        made = getattr(self, "_generated_from", None)
+        tpl_name = getattr(getattr(self, "template_sel", None), "value", None)
+        if not made or not tpl_name:
+            return False
+        tpl_path = os.path.join(self.templates_dir, tpl_name)
+        try:
+            return made == (tpl_name, os.path.getmtime(tpl_path))
+        except OSError:
+            return False
+
     async def print_certificate(self):
         """Fills Word template, converts to PDF/HTML asynchronously in background, and opens full in-app preview modal."""
-        # Filling the template also records the certificate, so only do it once.
-        if not self.generated_file_path or not os.path.exists(self.generated_file_path):
+        # Filling the template also records the certificate, so only do it once —
+        # unless another template was chosen or the template file was replaced (sync/upload) since.
+        if not self._generated_file_current():
             if not self.generate_certificate():
                 return
 
@@ -1370,7 +1388,7 @@ class CertificateScreen:
                 UI.notify(f"تعذر فتح نافذة المعاينة والطباعة: {err}", type="negative")
 
     def open_generated_document(self):
-        if not self.generated_file_path or not os.path.exists(self.generated_file_path):
+        if not self._generated_file_current():
             self.generate_certificate()
 
         if self.generated_file_path and os.path.exists(self.generated_file_path):

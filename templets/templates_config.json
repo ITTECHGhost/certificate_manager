@@ -260,16 +260,5 @@
     "system": "Any",
     "system_ar": "كل الأنظمة",
     "sbs": false
-  },
-  "language proof - En - male": {
-    "display_name": "تأييد إثبات لغة إنكليزية (بلا ترويسة)",
-    "lang": "En",
-    "lang_ar": "إنكليزي",
-    "type_ar": "تأييد لغة",
-    "gender": "Male",
-    "file": "language proof - En - male.docx",
-    "system": "Any",
-    "system_ar": "كل الأنظمة",
-    "sbs": false
   }
 }

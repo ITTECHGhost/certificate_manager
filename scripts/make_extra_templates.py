@@ -112,10 +112,6 @@ def main(folder: Path) -> None:
         jobs.append((sample, f"language - En - {g}", rules,
                      dict(display_name="تأييد لغة إنكليزية", lang="En", lang_ar="إنكليزي", type_ar="تأييد لغة",
                           gender=g.capitalize())))
-    rules = [(lambda t: t.startswith("This is to certify"), language_text("male"))] + sig_rules("En")
-    jobs.append(("تأييد اثبات لغة  بالانجليزي .docx", "language proof - En - male", rules,
-                 dict(display_name="تأييد إثبات لغة إنكليزية (بلا ترويسة)", lang="En", lang_ar="إنكليزي",
-                      type_ar="تأييد لغة", gender="Male")))
     for sample, key, rules, info in jobs:
         convert(src / sample, folder / f"{key}.docx", rules)
         entry = copy.deepcopy(cfg.get(key) or {})
