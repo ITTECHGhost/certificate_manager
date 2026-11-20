@@ -6,6 +6,12 @@
       "runtimeExecutable": "py",
       "runtimeArgs": ["-3", "main.py", "--web"],
       "port": 2323
+    },
+    {
+      "name": "registration-web",
+      "runtimeExecutable": "cmd",
+      "runtimeArgs": ["/c", "set REGWEB_DEBUG=1&& registration_web\\.venv\\Scripts\\python registration_web\\manage.py runserver 8000 --noreload"],
+      "port": 8000
     }
   ]
 }
