@@ -133,7 +133,15 @@ class StepInline(admin.TabularInline):
 
 @admin.register(Request)
 class RequestAdmin(TrackedAdmin):
-    list_display = ("title", "student", "current_unit", "status", "created_at")
+    list_display = ("title", "student", "stage", "created_at", "open_link")
+
+    @admin.display(description="الحالة")
+    def stage(self, obj):
+        return obj.stage_label
+
+    @admin.display(description="الإرسال والسجل")
+    def open_link(self, obj):
+        return format_html('<a href="{}">فتح</a>', reverse("request_detail", args=[obj.pk]))
     list_filter = ("current_unit", "status")
     search_fields = ("title", "student__name_ar")
     autocomplete_fields = ("student",)

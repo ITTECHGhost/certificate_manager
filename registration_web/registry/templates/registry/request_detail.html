@@ -1,0 +1,26 @@
+{% extends "admin/base_site.html" %}
+{% block content %}
+<p><strong>الطالب:</strong> {{ req.student }} — <strong>الحالة:</strong> {{ req.stage_label }}</p>
+<h2>سجل الخطوات</h2>
+<table>
+  <thead><tr><th>الوقت</th><th>من</th><th>إلى</th><th>الإجراء</th><th>التهميش</th><th>المستخدم</th><th>IP</th></tr></thead>
+  <tbody>
+  {% for s in steps %}
+    <tr><td>{{ s.created_at|date:"Y-m-d H:i" }}</td><td>{{ s.get_from_unit_display }}</td>
+      <td>{{ s.get_to_unit_display }}</td><td>{{ s.get_action_display }}</td>
+      <td>{{ s.annotation|linebreaksbr }}</td><td>{{ s.user }}</td><td>{{ s.ip|default:"" }}</td></tr>
+  {% empty %}<tr><td colspan="7">لا خطوات بعد.</td></tr>{% endfor %}
+  </tbody>
+</table>
+{% if can_move %}
+<h2>إرسال إلى وحدة</h2>
+<form method="post">
+  {% csrf_token %}
+  <p><label for="to_unit">الوحدة:</label>
+    <select name="to_unit" id="to_unit">{% for code, label in targets %}<option value="{{ code }}">{{ label }}</option>{% endfor %}</select></p>
+  <p><label for="annotation">التهميش:</label><br><textarea name="annotation" id="annotation" rows="3" cols="60"></textarea></p>
+  <button type="submit" name="action" value="send">إرسال</button>
+  <button type="submit" name="action" value="accept">قبول الطلب</button>
+</form>
+{% endif %}
+{% endblock %}

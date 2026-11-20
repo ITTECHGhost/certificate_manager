@@ -143,7 +143,7 @@ class Hold(Tracked):
 
 
 class Request(Tracked):
-    STATUSES = [("open", "مفتوح"), ("done", "منجز"), ("rejected", "مرفوض")]
+    STATUSES = [("open", "مفتوح"), ("done", "مقبول"), ("rejected", "مرفوض")]
     student = models.ForeignKey(Student, verbose_name="الطالب", on_delete=models.PROTECT,
                                 related_name="requests")
     title = models.CharField("الموضوع", max_length=200)
@@ -154,6 +154,13 @@ class Request(Tracked):
         verbose_name = "طلب"
         verbose_name_plural = "الطلبات"
         ordering = ["-created_at"]
+
+    @property
+    def stage_label(self):
+        """«عند المالية» while open, else the final status («مقبول» / «مرفوض»)."""
+        if self.status == "open":
+            return f"عند {self.get_current_unit_display()}"
+        return self.get_status_display()
 
     def __str__(self):
         return f"{self.title} — {self.student}"

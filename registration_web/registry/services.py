@@ -39,18 +39,47 @@ def clear_hold(hold, user):
     return hold
 
 
+def holds_request(user, req):
+    """Only the unit the request is at may move or accept it."""
+    return user.is_superuser or req.current_unit in user_units(user)
+
+
+def _check_can_move(req, user):
+    if not holds_request(user, req):
+        raise PermissionDenied("لا يحرّك الطلب إلا الوحدة التي هو عندها.")
+    if req.status != "open":
+        raise ValidationError("الطلب مغلق.")
+
+
 @transaction.atomic
 def send_request(req, to_unit, user, ip=None, annotation="", action="send"):
     """Move a request to another unit: one step row + the request's unit, together."""
     req = Request.objects.select_for_update().get(pk=req.pk)
-    step = RequestStep.objects.create(
+    _check_can_move(req, user)
+    if to_unit not in UNIT_CODES:
+        raise ValidationError({"to_unit": "وحدة غير معروفة."})
+    step = RequestStep(
         request=req, from_unit=req.current_unit, to_unit=to_unit, action=action,
         annotation=annotation, user=user, ip=ip,
     )
-    if to_unit not in UNIT_CODES:
-        raise ValidationError({"to_unit": "وحدة غير معروفة."})
     step.full_clean()
+    step.save()
     req.current_unit = to_unit
-    req.full_clean()
     req.save(update_fields=["current_unit"])
+    return step
+
+
+@transaction.atomic
+def accept_request(req, user, ip=None, annotation=""):
+    """Final acceptance by the holding unit: an approve step + status done, together."""
+    req = Request.objects.select_for_update().get(pk=req.pk)
+    _check_can_move(req, user)
+    step = RequestStep(
+        request=req, from_unit=req.current_unit, to_unit=req.current_unit,
+        action="approve", annotation=annotation, user=user, ip=ip,
+    )
+    step.full_clean()
+    step.save()
+    req.status = "done"
+    req.save(update_fields=["status"])
     return step
