@@ -1,0 +1,16 @@
+{% extends "admin/base_site.html" %}
+{% block content %}
+<p><strong>الطالب:</strong> {{ student }} — <strong>القسم:</strong> {{ student.department }}</p>
+<table>
+  <thead><tr><th>النوع</th><th>الوحدة</th><th>الملاحظة</th><th>الحالة</th><th>أُنشئ</th><th>رفعه</th><th>تاريخ الرفع</th><th></th></tr></thead>
+  <tbody>
+  {% for h, can_clear in rows %}
+    <tr><td>{{ h.get_kind_display }}</td><td>{{ h.get_unit_display }}</td><td>{{ h.note|linebreaksbr }}</td>
+      <td>{% if h.is_open %}مفتوح{% else %}مرفوع{% endif %}</td>
+      <td>{{ h.created_at|date:"Y-m-d H:i" }}</td><td>{{ h.cleared_by|default:"" }}</td>
+      <td>{{ h.cleared_at|date:"Y-m-d H:i" }}</td>
+      <td>{% if can_clear %}<form method="post">{% csrf_token %}<button name="hold" value="{{ h.pk }}">رفع القيد</button></form>{% endif %}</td></tr>
+  {% empty %}<tr><td colspan="8">لا قيود.</td></tr>{% endfor %}
+  </tbody>
+</table>
+{% endblock %}

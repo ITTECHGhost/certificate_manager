@@ -1,13 +1,16 @@
 from django.contrib import admin, messages
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied, ValidationError
-from django.http import FileResponse, Http404
+import io
+
+from django.http import FileResponse, Http404, HttpResponse
+from openpyxl import Workbook
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 
 from . import services, uploads
 from .forms import StudentForm
-from .models import UNITS, Request, StudentDocument
+from .models import UNITS, Hold, Request, Student, StudentDocument
 
 SECTIONS = [
     ("البيانات الشخصية", ["name_ar", "name_en", "mother_name", "birth_date", "birth_place",
@@ -85,3 +88,55 @@ def request_detail(request, pk):
                   {**admin.site.each_context(request), "req": req, "can_move": can_move,
                    "steps": req.steps.select_related("user"), "targets": targets,
                    "title": f"الطلب: {req.title}"})
+
+
+@login_required
+def student_holds(request, pk):
+    """All holds of a student the user may see; only the owning unit clears (server-checked)."""
+    if not (request.user.is_superuser or services.user_units(request.user)):
+        raise PermissionDenied
+    student = get_object_or_404(Student, pk=pk)
+    if request.method == "POST":
+        hold = get_object_or_404(Hold, pk=request.POST.get("hold"), student=student)
+        if not services.can_edit_hold(request.user, hold):
+            raise PermissionDenied
+        services.clear_hold(hold, request.user)
+        messages.success(request, "رُفع القيد.")
+        return redirect(reverse("student_holds", args=[student.pk]))
+    holds = [h for h in student.holds.select_related("cleared_by", "created_by")
+             if services.can_view_hold(request.user, h)]
+    rows = [(h, h.is_open and services.can_edit_hold(request.user, h)) for h in holds]
+    return render(request, "registry/student_holds.html",
+                  {**admin.site.each_context(request), "student": student, "rows": rows,
+                   "title": f"قيود الطالب: {student}"})
+
+
+# Columns of the university e-mail sheet. TODO: replace with the real sample's columns.
+EXPORT_COLUMNS = [("name_ar", "الاسم بالعربية"), ("name_en", "الاسم بالإنكليزية"),
+                  ("department", "القسم"), ("national_id", "رقم البطاقة الوطنية"),
+                  ("phone", "رقم الهاتف")]
+
+
+def export_students_xlsx(students):
+    wb = Workbook()
+    ws = wb.active
+    ws.title = "students"
+    ws.sheet_view.rightToLeft = True
+    ws.append([label for _, label in EXPORT_COLUMNS])
+    for s in students:
+        ws.append([getattr(s, f) or "" for f, _ in EXPORT_COLUMNS])
+    buf = io.BytesIO()
+    wb.save(buf)
+    resp = HttpResponse(buf.getvalue(), content_type=(
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
+    resp["Content-Disposition"] = 'attachment; filename="students_email.xlsx"'
+    return resp
+
+
+@login_required
+def student_export(request):
+    """Excel of ONLY the requested students (?ids=1,2,3); Student Affairs only; read only."""
+    if not _student_affairs(request.user):
+        raise PermissionDenied
+    ids = [int(x) for x in request.GET.get("ids", "").split(",") if x.strip().isdigit()]
+    return export_students_xlsx(Student.objects.filter(pk__in=ids).order_by("name_ar"))

@@ -54,10 +54,23 @@ class HoldInline(admin.TabularInline):
 
 @admin.register(Student)
 class StudentAdmin(TrackedAdmin):
-    list_display = ("name_ar", "name_en", "department", "study_type", "status", "created_at")
+    list_display = ("name_ar", "name_en", "department", "study_type", "status", "created_at",
+                    "holds_link")
     list_filter = ("status", "study_type", "department")
     search_fields = ("name_ar", "name_en", "department")
     inlines = [DocumentInline, HoldInline]
+    actions = ["export_for_email"]
+
+    @admin.display(description="القيود")
+    def holds_link(self, obj):
+        return format_html('<a href="{}">عرض</a>', reverse("student_holds", args=[obj.pk]))
+
+    @admin.action(description="تصدير المحددين للبريد الجامعي (Excel)")
+    def export_for_email(self, request, queryset):
+        from .views import export_students_xlsx
+        if not (request.user.is_superuser or "student_affairs" in services.user_units(request.user)):
+            raise PermissionDenied
+        return export_students_xlsx(queryset.order_by("name_ar"))
 
     def save_formset(self, request, form, formset, change):
         for obj in formset.save(commit=False):
