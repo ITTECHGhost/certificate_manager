@@ -83,3 +83,22 @@ def accept_request(req, user, ip=None, annotation=""):
     req.status = "done"
     req.save(update_fields=["status"])
     return step
+
+
+@transaction.atomic
+def reject_request(req, user, ip=None, annotation=""):
+    """Rejection by the holding unit: a reject step (reason required) + status rejected, together."""
+    req = Request.objects.select_for_update().get(pk=req.pk)
+    _check_can_move(req, user)
+    annotation = (annotation or "").strip()
+    if not annotation:
+        raise ValidationError({"annotation": "سبب الرفض (التهميش) مطلوب."})
+    step = RequestStep(
+        request=req, from_unit=req.current_unit, to_unit=req.current_unit,
+        action="reject", annotation=annotation, user=user, ip=ip,
+    )
+    step.full_clean()
+    step.save()
+    req.status = "rejected"
+    req.save(update_fields=["status"])
+    return step

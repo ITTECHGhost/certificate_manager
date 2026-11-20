@@ -21,6 +21,8 @@
   <p><label for="annotation">التهميش:</label><br><textarea name="annotation" id="annotation" rows="3" cols="60"></textarea></p>
   <button type="submit" name="action" value="send">إرسال</button>
   <button type="submit" name="action" value="accept">قبول الطلب</button>
+  <button type="submit" name="action" value="reject"
+    onclick="if(!document.getElementById('annotation').value.trim()){alert('اكتب سبب الرفض في التهميش.');return false;}return confirm('رفض الطلب نهائيًا؟');">رفض الطلب</button>
 </form>
 {% endif %}
 {% endblock %}

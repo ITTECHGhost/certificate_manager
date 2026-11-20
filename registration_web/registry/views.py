@@ -77,6 +77,9 @@ def request_detail(request, pk):
             if request.POST.get("action") == "accept":
                 services.accept_request(req, request.user, ip=ip, annotation=note)
                 messages.success(request, "قُبل الطلب.")
+            elif request.POST.get("action") == "reject":
+                services.reject_request(req, request.user, ip=ip, annotation=note)
+                messages.success(request, "رُفض الطلب.")
             else:
                 services.send_request(req, request.POST.get("to_unit", ""), request.user,
                                       ip=ip, annotation=note)
