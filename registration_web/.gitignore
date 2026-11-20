@@ -1,0 +1,5 @@
+# The repo root ignores __init__.py (tests folder rule); Django packages need them.
+!__init__.py
+.venv/
+*.sqlite3
+media/

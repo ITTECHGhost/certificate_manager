@@ -16,7 +16,8 @@ SURFACE_MODULES = [
 ]
 CLIENT_PACKAGES = ["nicegui_screens", "nicegui_ui", "services", "utils", "data"]
 CLIENT_TOP_MODULES = ["sync_engine", "api_client", "api_config", "cert_repository"]
-SKIP_DIRS = {"old", ".git", ".claude", ".agent", ".gemini", "tests", "build", "dist", ".venv", "certificate_manager_api"}
+SKIP_DIRS = {"old", ".git", ".claude", ".agent", ".gemini", "tests", "build", "dist", ".venv", "certificate_manager_api",
+             "registration_web"}  # separate Django program
 
 
 def _client_modules() -> list:

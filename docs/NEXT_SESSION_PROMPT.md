@@ -4,25 +4,30 @@ Read CLAUDE.md, docs/TODO.md and docs/PLAN_archive_and_next.md ("المسار ب
 `git pull` first (with my OK). Work on `main`. Plan (≤10 lines) → my OK → tests first → build →
 `pytest -q` (one line) → commit (detailed message) → push only after my OK.
 
-Decisions already made 2026-11-20 (do not re-ask):
-- Registration runs in a small Django app in `registration_web/` (APPROVED). Django 5.2.x LTS, its own
-  SQLite DB; it never touches certificate_manager's MySQL (Django 4.2+ does not support MySQL 5.7).
-  LAN only, served by waitress as a Windows service later (day 2).
+Decisions already made (do not re-ask):
+- Registration runs in `registration_web/` (Django 5.2.19 LTS, waitress), its own SQLite DB in
+  REGWEB_DATA_DIR outside the repo; it never touches certificate_manager's MySQL. LAN only.
 - certificate_manager stays ONE program; its token/units/archive work waits until after the season.
 - Never put real student data in git.
 
-Task: Track B, day 1 — the skeleton that staff can log into.
-1. `registration_web/` with its own `requirements.txt` (pinned Django 5.2.x, waitress; ask before anything else).
-   Do not touch the client's requirements.txt.
-2. Settings: LANGUAGE_CODE='ar', TIME_ZONE='Asia/Baghdad', ATOMIC_REQUESTS=True, SECRET_KEY and
-   ALLOWED_HOSTS from environment variables, DEBUG off by default, MEDIA_ROOT outside the repo.
-3. Models (utf8, created_at/created_by, no hard delete): Student (Arabic name, English name,
-   department, study type, status), StudentDocument (file, kind, pages, sha256), Hold (student, unit,
-   kind financial/legal, note, open/cleared, who/when), Request + RequestStep (from/to unit,
-   action, annotation, user, IP, time; steps append-only).
-4. Admin in Arabic RTL: search, filters, pagination; groups student_affairs / finance / legal.
-   Server rule: only the owning unit edits or clears a Hold; student_affairs sees all holds read-only.
-5. Tests first: permissions (finance cannot clear a legal hold), RequestStep cannot be edited,
-   a failed save writes nothing.
-End with: changed / how to check (`py -3 manage.py runserver` + login path) / next step. Update
-TODO.md, Project Map in CLAUDE.md (new folder), and rewrite this file for day 2.
+Done on day 1 (2026-11-20, DEV laptop): project `regweb/`, app `registry/` (Student, StudentDocument,
+Hold, Request, RequestStep), Arabic RTL admin, groups student_affairs / finance / legal (migration
+0002), hold ownership in `registry/services.py`, steps append-only, ATOMIC_REQUESTS. 9 tests in
+`registration_web/registry/tests/`. Dev deps in `requirements-dev.txt` (pytest, pytest-django).
+
+Task: Track B, day 2 — install on the SERVER laptop so staff log in from their browsers.
+1. First ask me: Python version on the server (3.11+?), free LAN port, server's LAN IP/name,
+   names of two trial staff per unit.
+2. A `registration_web\install_service.ps1` (run as Administrator by me): venv, pip install -r
+   requirements.txt, migrate, collectstatic, create the data folder, set the env vars
+   (REGWEB_SECRET_KEY generated once and kept in the data folder, not in git; REGWEB_ALLOWED_HOSTS),
+   register waitress as a Windows service (ask before adding NSSM or pywin32 — no new dependency
+   without asking). Static files served by the app (ask before adding WhiteNoise).
+3. Firewall rule for the port, LAN profile only.
+4. Nightly backup: SQLite online backup (`sqlite3` .backup API, not a file copy) + media folder to
+   a dated folder; keep 30 days; a restore test documented step by step.
+5. A management command to create the trial users and put them in their unit group.
+6. Tests first: backup produces a readable DB copy; the user command is idempotent.
+End with: changed / how to check (browser on another PC → http://<server>:<port>/admin/) / next
+step. Add a `.ai/releases.md` entry for the server steps done by hand. Update TODO.md and rewrite
+this file for day 3.

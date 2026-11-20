@@ -55,6 +55,7 @@ Then rewrite `docs/NEXT_SESSION_PROMPT.md` (≤25 lines) and tick `docs/TODO.md`
 - Run client: `py -3 main.py`. Run server (dev): `certificate_manager_api\start_server.bat`.
 - Tests: `py -3 -m pytest -q` (72 files; `-m mysql` for read-only tests against local MySQL).
 - Version: `app_version.py` (2.5.9).
+- `registration_web/` SEPARATE Django 5.2 program (Track B registration), own SQLite DB + uploads in `REGWEB_DATA_DIR` (default `F:\CR_PY\registration_data`, outside the repo), never touches MySQL. `regweb/` settings (env vars: REGWEB_SECRET_KEY, REGWEB_DEBUG, REGWEB_ALLOWED_HOSTS), `registry/` models (Student, StudentDocument, Hold, Request, RequestStep), `services.py` (hold ownership, send_request), `admin.py`. Own venv `registration_web\.venv`; tests: `cd registration_web; .venv\Scripts\python -m pytest -q`.
 
 ## Shared notes between the DEV laptop and the SERVER laptop
 Sessions run on two laptops (DEV: repo + build tools; SERVER: MySQL + API). Only this GitHub repo is shared.
