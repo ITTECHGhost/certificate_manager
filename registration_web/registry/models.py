@@ -58,6 +58,20 @@ class Student(Tracked):
     ]
     name_ar = models.CharField("الاسم بالعربية", max_length=200, db_index=True)
     name_en = models.CharField("الاسم بالإنكليزية", max_length=200, blank=True)
+    # Paper-form fields (day 3). Order/names to be matched to the real paper form.
+    GENDERS = [("male", "ذكر"), ("female", "أنثى")]
+    mother_name = models.CharField("اسم الأم الثلاثي", max_length=200, blank=True)
+    birth_date = models.DateField("تاريخ الولادة", null=True, blank=True)
+    birth_place = models.CharField("محل الولادة", max_length=100, blank=True)
+    gender = models.CharField("الجنس", max_length=10, choices=GENDERS, blank=True)
+    national_id = models.CharField("رقم البطاقة الوطنية", max_length=30, blank=True,
+                                   db_index=True)
+    phone = models.CharField("رقم الهاتف", max_length=20, blank=True)
+    address = models.CharField("العنوان", max_length=300, blank=True)
+    school_name = models.CharField("اسم المدرسة الإعدادية", max_length=200, blank=True)
+    graduation_year = models.PositiveSmallIntegerField("سنة التخرج", null=True, blank=True)
+    average = models.DecimalField("المعدل", max_digits=5, decimal_places=2, null=True,
+                                  blank=True)
     department = models.CharField("القسم", max_length=150, db_index=True)
     study_type = models.CharField("نوع الدراسة", max_length=20, choices=STUDY_TYPES)
     status = models.CharField("الحالة", max_length=20, choices=STATUSES, default="new")

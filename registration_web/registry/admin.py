@@ -1,5 +1,7 @@
 from django.contrib import admin
 from django.core.exceptions import PermissionDenied
+from django.urls import reverse
+from django.utils.html import format_html
 
 from . import services
 from .models import Hold, Request, RequestStep, Student, StudentDocument
@@ -24,9 +26,19 @@ class TrackedAdmin(admin.ModelAdmin):
 class DocumentInline(admin.TabularInline):
     model = StudentDocument
     extra = 0
-    fields = ("kind", "file", "pages", "sha256", "created_at")
-    readonly_fields = ("sha256", "created_at")
+    fields = ("kind", "open_file", "pages", "sha256", "created_at")
+    readonly_fields = ("open_file", "sha256", "created_at")
     can_delete = False
+
+    def has_add_permission(self, request, obj=None):
+        return False  # uploads go through /register/ (temp file -> commit -> rename)
+
+    @admin.display(description="الملف")
+    def open_file(self, obj):
+        if not obj.pk:
+            return "-"
+        return format_html('<a href="{}" target="_blank">فتح</a>',
+                           reverse("document_file", args=[obj.pk]))
 
 
 class HoldInline(admin.TabularInline):
@@ -59,8 +71,11 @@ class StudentDocumentAdmin(TrackedAdmin):
     list_display = ("student", "kind", "pages", "sha256", "created_at")
     list_filter = ("kind",)
     search_fields = ("student__name_ar", "sha256")
-    readonly_fields = ("sha256", "created_at", "created_by")
+    readonly_fields = ("file", "sha256", "created_at", "created_by")
     autocomplete_fields = ("student",)
+
+    def has_add_permission(self, request):
+        return False  # uploads go through /register/ (temp file -> commit -> rename)
 
 
 @admin.register(Hold)

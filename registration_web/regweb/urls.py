@@ -1,9 +1,10 @@
 from django.conf import settings
-from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import path, re_path
 from django.views.static import serve
 from django.views.generic import RedirectView
+
+from registry import views
 
 admin.site.site_header = "نظام التسجيل"
 admin.site.site_title = "نظام التسجيل"
@@ -12,10 +13,9 @@ admin.site.index_title = "لوحة الإدارة"
 urlpatterns = [
     path("", RedirectView.as_view(url="/admin/", permanent=False)),
     path("admin/", admin.site.urls),
+    path("register/", views.register, name="register"),
+    path("documents/<int:pk>/", views.document_file, name="document_file"),
     # Static files (admin CSS/JS) served by the app itself: LAN only, small load, no WhiteNoise.
     re_path(r"^static/(?P<path>.*)$", serve, {"document_root": settings.STATIC_ROOT}),
 ]
-
-# Media (student documents) is NOT public: day 3 adds a login-checked view.
-if settings.DEBUG:
-    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+# Media (student documents) is NOT public, not even in DEBUG: only documents/<pk>/ serves it.

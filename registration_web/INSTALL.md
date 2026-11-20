@@ -13,7 +13,7 @@ The address is 172.50.1.100 and the port is 2040. The app runs as its own servic
    `.venv\Scripts\python manage.py createsuperuser`
 6. **Get the trial passwords.** Open `C:\registration_data\trial_passwords.txt`. It has 6 trial users, 2 per unit.
    Give each password to its user, then delete the file.
-7. **Test from another PC.** Open http://172.50.1.100:2040/admin/ and log in as a trial user.
+7. **Test from another PC.** Open http://172.50.1.100:2040/admin/ and log in as a trial user. The registration form is at http://172.50.1.100:2040/register/ (Student Affairs only).
 8. **Test the backup.** Run `regweb_backup.bat`. A folder with today's date should appear in `C:\registration_data\backups\`.
 
 - **Start / stop:** use `regweb_start.bat` / `regweb_stop.bat` as Administrator,

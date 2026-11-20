@@ -2,19 +2,21 @@ Read CLAUDE.md, docs/TODO.md and docs/PLAN_archive_and_next.md ("المسار ب
 `git pull` first (with my OK). Work on `main`. Plan (≤10 lines) → my OK → tests first → build →
 `pytest -q` (one line) → commit (detailed message) → push only after my OK.
 
-Decisions (do not re-ask): registration_web/ = Django 5.2.19 + waitress, SQLite in REGWEB_DATA_DIR
-(server: C:\registration_data), never touches MySQL, LAN only. Server = 172.50.1.100 (changeable via
-settings.json), port 2040, service RegWebRegistration (pywin32 from system Python, like the API),
-independent of Apache (AppServ now, maybe WAMP later). Never put real student data in git.
+Decisions (do not re-ask): registration_web/ = SEPARATE Django 5.2 web program (confirmed again
+2026-11-20); the Windows app with offline cache is unchanged. SQLite in REGWEB_DATA_DIR, never MySQL,
+LAN only, no offline mode. Server 172.50.1.100:2040, service RegWebRegistration.
+Work on the DEV laptop against localhost (launch config "registration-web", port 8000) unless I say
+the real server is available.
 
-Done day 2 (2026-11-20, DEV): install_service.ps1, regweb_service.py, nightly backup_regweb (02:00,
-30 days), create_trial_users (JSON in data folder), RESTORE.md, static served by Django. 13 tests.
-Check first: did the SERVER follow registration_webINSTALL.md (port 2040)? Can staff log in from another PC? If not, fix that first.
+Done day 3 (2026-11-20, DEV): /register/ form (Student Affairs only) in sections, 11 new Student fields
+(migration 0003), several files per document kind (JPG/PNG/PDF, ≤10 MB, signature checked on server),
+temp .part → rows in one transaction → rename on commit. /documents/<pk>/ serves files after login +
+unit check; /media/ is never served. Admin cannot add documents directly. 25 tests.
+Open from day 3: field order is a GUESS — match it to the real paper form when I send a sample
+(use it in-session only, never in git). Real server not yet checked (git pull + migrate + restart).
+Orphan .part files can remain if the outer request rolls back; sweep by age later.
 
-Task: Track B, day 3 — registration form in the order of the real paper form + document upload
-(several pages, phone photos, PDF).
-1. First ask me for the filled sample forms (and permission to use them only in this session).
-2. Media is NOT public: serve uploads only through a login-checked view (unit permissions).
-3. Upload: temp file → rows in the transaction → rename after commit (rules.md). Size/type checks server-side.
-4. Tests first: a student with 3 documents saves all-or-nothing; an anonymous user gets no file.
-End with: changed / how to check / next step. Update TODO.md and rewrite this file for day 4.
+Task: Track B, day 4 — status («عند المالية / عند القانونية / مقبول») + «إرسال إلى وحدة» with
+annotation, each step logged (user, IP, time) using services.send_request. A request passes 3 units.
+Tests first: a step cannot be edited; a unit cannot send a request it does not hold.
+End with: changed / how to check / next step. Update TODO.md and rewrite this file for day 5.

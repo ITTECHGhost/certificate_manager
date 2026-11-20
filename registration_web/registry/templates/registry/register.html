@@ -1,0 +1,38 @@
+{% extends "admin/base_site.html" %}
+{% block content %}
+<style>
+  .reg fieldset { border: 1px solid var(--hairline-color); padding: 12px 16px; margin-bottom: 16px; }
+  .reg legend { font-weight: bold; padding: 0 6px; }
+  .reg .row { display: flex; flex-wrap: wrap; gap: 6px 12px; align-items: center; margin: 6px 0; }
+  .reg .row label { min-width: 170px; }
+  .reg .row input, .reg .row select { min-width: 260px; }
+  .reg .err { color: var(--error-fg); }
+  .reg .hint { color: var(--body-quiet-color); }
+</style>
+<form class="reg" method="post" enctype="multipart/form-data">
+  {% csrf_token %}
+  {% for title, fields in sections %}
+  <fieldset>
+    <legend>{{ title }}</legend>
+    {% for f in fields %}
+    <div class="row">
+      {{ f.label_tag }} {{ f }}
+      {% for e in f.errors %}<span class="err">{{ e }}</span>{% endfor %}
+    </div>
+    {% endfor %}
+  </fieldset>
+  {% endfor %}
+  <fieldset>
+    <legend>الوثائق</legend>
+    <p class="hint">JPG أو PNG أو PDF، 10 ميغابايت للملف كحد أعلى. يمكن اختيار عدة صفحات لكل وثيقة.</p>
+    {% for code, label in kinds %}
+    <div class="row">
+      <label for="doc_{{ code }}">{{ label }}:</label>
+      <input type="file" id="doc_{{ code }}" name="doc_{{ code }}" multiple
+             accept=".jpg,.jpeg,.png,.pdf,image/*" capture="environment">
+    </div>
+    {% endfor %}
+  </fieldset>
+  <input type="submit" class="default" value="حفظ الطالب والوثائق">
+</form>
+{% endblock %}
