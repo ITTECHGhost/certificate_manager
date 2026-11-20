@@ -458,6 +458,7 @@ class MainAppShell:
             "home":         "الرئيسية",
             "students":     "الطلاب",
             "orders":       "أوامر التخرج",
+            "rankings":     "قوائم الترتيب الرسمية",
             "courses":      "المواد الدراسية",
             "personnel":    "الكوادر",
             "certificate":  "إصدار كتاب",
@@ -525,6 +526,9 @@ class MainAppShell:
                     self._active_students_screen.form_view.render_add()
             elif self.current_screen == "orders":
                 GraduationOrdersScreen()
+            elif self.current_screen == "rankings":
+                from nicegui_screens.official_rankings_screen import OfficialRankingsScreen
+                OfficialRankingsScreen()
             elif self.current_screen == "reports":
                 from nicegui_screens.reports_screen import ReportsScreen
                 ReportsScreen()

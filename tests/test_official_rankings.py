@@ -52,10 +52,12 @@ class _Conn:
     def rollback(self): self.rolled = True
 
 
-def test_save_rolls_back_everything_on_error():
+def test_save_rolls_back_everything_on_error(monkeypatch):
     from fastapi import HTTPException
+    from routers import official_rankings as R
+    monkeypatch.setattr(R, "_require_user", lambda conn, pid: None)   # user check: tests/test_official_rankings_page.py
     conn = _Conn()
-    p = RankingPayload(list_type="jobs", entries=[{"position": 1, "name_written": "x"}])
+    p = RankingPayload(list_type="jobs", department_id=5, study_type="morning", exam_round="1", entries=[{"position": 1, "name_written": "x"}])
     with pytest.raises(HTTPException) as e:
         save_ranking(p, conn)
     assert e.value.status_code == 500 and conn.rolled and not conn.committed

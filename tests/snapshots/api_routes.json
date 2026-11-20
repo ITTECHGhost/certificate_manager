@@ -729,6 +729,14 @@
  ],
  [
   "GET",
+  "/api/official-rankings/page"
+ ],
+ [
+  "GET",
+  "/api/official-rankings/{ranking_id}/entries-page"
+ ],
+ [
+  "GET",
   "/api/official-rankings"
  ],
  [
