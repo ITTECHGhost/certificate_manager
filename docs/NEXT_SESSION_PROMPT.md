@@ -8,12 +8,10 @@ SQLite in REGWEB_DATA_DIR, never MySQL, LAN only, no offline mode. Server 172.50
 service RegWebRegistration. DEV = launch config "registration-web", port 8000.
 No real samples yet: do NOT touch the ID card layout, EXPORT_COLUMNS or /register/ field order.
 
-Done 2026-11-20 (DEV): item 1 «مرفوضة» list `/rejected/` (views.rejected, rejected.html, link
+Done 2026-11-20 (DEV): item 2 nightly sweep_parts line in regweb_backup.bat (git pull on server is enough; 71 tests). Item 1 «مرفوضة» list `/rejected/` (views.rejected, rejected.html, link
 on /inbox/; unit filter before search; Student Affairs sees all; reject reason column). 70 tests.
 
 Next items, in order:
-2. Add `manage.py sweep_parts` to the nightly task in install_service.ps1 (after backup_regweb);
-   show the diff; user runs it as Administrator on the server.
 3. Signed-copy archive on accepted requests (JPG/PNG/PDF, uploads.py checks + temp→rename on
    commit, soft delete, holding unit or Student Affairs only).
 4. Accepted students export for certificate_manager bulk import (never MySQL); check

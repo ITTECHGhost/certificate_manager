@@ -78,3 +78,11 @@ def test_create_trial_users_rejects_unknown_unit(tmp_path):
     with pytest.raises(Exception):
         call_command("create_trial_users", str(spec), passwords_file=str(tmp_path / "p.txt"))
     assert not User.objects.filter(username="x").exists()
+
+
+def test_nightly_bat_sweeps_parts_after_backup():
+    from pathlib import Path
+    bat = (Path(__file__).resolve().parents[2] / "regweb_backup.bat").read_text(encoding="utf-8")
+    lines = [l for l in bat.splitlines() if "manage.py" in l]
+    assert "backup_regweb" in lines[0]
+    assert "sweep_parts" in lines[1] and "backup.log" in lines[1]

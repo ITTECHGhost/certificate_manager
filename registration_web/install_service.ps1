@@ -91,7 +91,7 @@ if ($profiles) { Write-Host "[WARN] Network '$($profiles.Name -join ', ')' is Pu
 $action = New-ScheduledTaskAction -Execute (Join-Path $app "regweb_backup.bat") -WorkingDirectory $app
 $trigger = New-ScheduledTaskTrigger -Daily -At $BackupTime
 Register-ScheduledTask -TaskName "RegWeb nightly backup" -Action $action -Trigger $trigger -User "SYSTEM" -RunLevel Highest -Force | Out-Null
-Ok "Nightly backup at $BackupTime -> $DataDir\backups (30 days)"
+Ok "Nightly backup at $BackupTime -> $DataDir\backups (30 days) + sweep_parts (.part older than 24 h)"
 
 Write-Host ""
 Write-Host "Open from another PC: http://$(if ($ServerAddress) { $ServerAddress } else { $env:COMPUTERNAME }):$Port/admin/"
