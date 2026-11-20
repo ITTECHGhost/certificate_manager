@@ -166,6 +166,24 @@ class Request(Tracked):
         return f"{self.title} — {self.student}"
 
 
+class SignedCopy(Tracked):
+    """Scanned signed copy of an accepted request (archive). Soft delete only."""
+
+    request = models.ForeignKey(Request, verbose_name="الطلب", on_delete=models.PROTECT,
+                                related_name="signed_copies")
+    file = models.FileField("الملف", upload_to="signed_copies/%Y/%m/")
+    sha256 = models.CharField("البصمة", max_length=64, editable=False, db_index=True)
+    note = models.CharField("ملاحظة", max_length=200, blank=True)
+
+    class Meta:
+        verbose_name = "نسخة موقعة"
+        verbose_name_plural = "النسخ الموقعة"
+        ordering = ["-created_at", "-pk"]
+
+    def __str__(self):
+        return f"{self.request} — {self.created_at:%Y-%m-%d}"
+
+
 class RequestStep(models.Model):
     """One movement of a request. Append-only: never edited, never deleted."""
 

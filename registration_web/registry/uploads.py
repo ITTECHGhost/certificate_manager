@@ -11,7 +11,7 @@ from django.db import transaction
 from django.utils import timezone
 
 from .forms import StudentForm
-from .models import Student, StudentDocument
+from .models import SignedCopy, Student, StudentDocument
 
 MAX_FILE_BYTES = 10 * 1024 * 1024
 # extension -> accepted leading bytes (checked on the server, not trusted from the browser)
@@ -21,6 +21,7 @@ ALLOWED = {
     ".png": (b"\x89PNG\r\n\x1a\n",),
     ".pdf": (b"%PDF-",),
 }
+UPLOAD_FOLDERS = ("student_docs", "signed_copies")
 KIND_CODES = {k for k, _ in StudentDocument.KINDS}
 
 
@@ -38,10 +39,10 @@ def check_file(f):
         raise ValidationError(f"محتوى الملف لا يطابق نوعه: {f.name}")
 
 
-def _write_temp(f):
+def _write_temp(f, folder="student_docs"):
     """Write the upload to a .part file; return (temp path, final relative name, sha256)."""
     now = timezone.now()
-    rel_dir = Path("student_docs") / f"{now:%Y}" / f"{now:%m}"
+    rel_dir = Path(folder) / f"{now:%Y}" / f"{now:%m}"
     abs_dir = Path(settings.MEDIA_ROOT) / rel_dir
     abs_dir.mkdir(parents=True, exist_ok=True)
     name = f"{uuid.uuid4().hex}{Path(f.name).suffix.lower()}"
@@ -65,14 +66,13 @@ def _discard(temps):
 
 
 def sweep_orphan_parts(max_age_hours=24, dry_run=False):
-    """Delete student_docs/**/*.part older than max_age_hours (left by rolled-back requests).
-    Returns (found, deleted). Only MEDIA_ROOT/student_docs; never final files."""
-    root = Path(settings.MEDIA_ROOT) / "student_docs"
-    if not root.is_dir():
-        return 0, 0
+    """Delete student_docs|signed_copies/**/*.part older than max_age_hours (left by
+    rolled-back requests). Returns (found, deleted). Only those folders; never final files."""
+    roots = [Path(settings.MEDIA_ROOT) / d for d in UPLOAD_FOLDERS]
     cutoff = time.time() - max_age_hours * 3600
     found = deleted = 0
-    for p in root.rglob("*.part"):
+    parts = [p for r in roots if r.is_dir() for p in r.rglob("*.part")]
+    for p in parts:
         if not p.is_file() or p.stat().st_mtime > cutoff:
             continue
         found += 1
@@ -113,3 +113,30 @@ def register_student(data, files, user):
         _discard(temps)
         raise
     return student
+
+
+def can_manage_signed(user, req, user_units):
+    """Holding unit (current_unit) of the request, Student Affairs, or superuser."""
+    units = user_units(user)
+    return user.is_superuser or "student_affairs" in units or req.current_unit in units
+
+
+def add_signed_copy(req, f, user, note=""):
+    """Archive a scanned signed copy of an ACCEPTED request; temp -> rename on commit."""
+    if req.status != "done":
+        raise ValidationError("النسخة الموقعة تُرفع للطلبات المقبولة فقط.")
+    check_file(f)
+    temps = []
+    try:
+        with transaction.atomic():
+            tmp, rel, digest = _write_temp(f, "signed_copies")
+            temps.append((tmp, rel))
+            sc = SignedCopy(request=req, sha256=digest, note=(note or "").strip()[:200],
+                            created_by=user)
+            sc.file.name = rel
+            sc.save()
+            transaction.on_commit(lambda: _finish(temps))
+    except BaseException:
+        _discard(temps)
+        raise
+    return sc

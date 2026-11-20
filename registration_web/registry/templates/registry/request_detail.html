@@ -25,4 +25,25 @@
     onclick="if(!document.getElementById('annotation').value.trim()){alert('اكتب سبب الرفض في التهميش.');return false;}return confirm('رفض الطلب نهائيًا؟');">رفض الطلب</button>
 </form>
 {% endif %}
+{% if can_sign %}
+<h2>النسخ الموقعة</h2>
+<table>
+  <thead><tr><th>التاريخ</th><th>ملاحظة</th><th>رفعها</th><th></th></tr></thead>
+  <tbody>
+  {% for s in signed %}
+    <tr><td><a href="{% url 'signed_file' s.pk %}" target="_blank">{{ s.created_at|date:"Y-m-d H:i" }}</a></td>
+      <td>{{ s.note }}</td><td>{{ s.created_by|default:"" }}</td>
+      <td><form method="post" action="{% url 'signed_delete' s.pk %}" style="display:inline">{% csrf_token %}
+        <button type="submit" onclick="return confirm('إزالة هذه النسخة؟ (أرشفة، لا حذف نهائي)');">إزالة</button></form></td></tr>
+  {% empty %}<tr><td colspan="4">لا نسخ موقعة بعد.</td></tr>{% endfor %}
+  </tbody>
+</table>
+<form method="post" action="{% url 'signed_upload' req.pk %}" enctype="multipart/form-data">
+  {% csrf_token %}
+  <p><input type="file" name="file" accept=".jpg,.jpeg,.png,.pdf" required>
+    <input name="note" maxlength="200" placeholder="ملاحظة (اختياري)">
+    <button type="submit">رفع النسخة الموقعة</button></p>
+  <p>JPG أو PNG أو PDF، حتى 10 ميغابايت.</p>
+</form>
+{% endif %}
 {% endblock %}

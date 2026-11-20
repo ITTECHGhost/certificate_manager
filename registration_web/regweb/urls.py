@@ -20,6 +20,9 @@ urlpatterns = [
     path("students/<int:pk>/holds/", views.student_holds, name="student_holds"),
     path("inbox/", views.inbox, name="inbox"),
     path("rejected/", views.rejected, name="rejected"),
+    path("requests/<int:pk>/signed/", views.signed_upload, name="signed_upload"),
+    path("signed/<int:pk>/", views.signed_file, name="signed_file"),
+    path("signed/<int:pk>/delete/", views.signed_delete, name="signed_delete"),
     path("students/<int:pk>/card/", views.student_card, name="student_card"),
     path("students/export/", views.student_export, name="student_export"),
     # Static files (admin CSS/JS) served by the app itself: LAN only, small load, no WhiteNoise.

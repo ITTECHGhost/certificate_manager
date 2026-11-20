@@ -9,10 +9,11 @@ from django.http import FileResponse, Http404, HttpResponse
 from openpyxl import Workbook
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
+from django.views.decorators.http import require_POST
 
 from . import services, uploads
 from .forms import StudentForm
-from .models import UNITS, Hold, Request, Student, StudentDocument
+from .models import UNITS, Hold, Request, SignedCopy, Student, StudentDocument
 
 SECTIONS = [
     ("البيانات الشخصية", ["name_ar", "name_en", "mother_name", "birth_date", "birth_place",
@@ -89,8 +90,12 @@ def request_detail(request, pk):
                 messages.error(request, msg)
         return redirect(reverse("request_detail", args=[req.pk]))
     targets = [u for u in UNITS if u[0] != req.current_unit]
+    can_sign = req.status == "done" and uploads.can_manage_signed(
+        request.user, req, services.user_units)
     return render(request, "registry/request_detail.html",
                   {**admin.site.each_context(request), "req": req, "can_move": can_move,
+                   "can_sign": can_sign,
+                   "signed": req.signed_copies.all() if can_sign else [],
                    "steps": req.steps.select_related("user"), "targets": targets,
                    "title": f"الطلب: {req.title}"})
 
@@ -139,6 +144,51 @@ def inbox(request):
     return render(request, "registry/inbox.html",
                   {**admin.site.each_context(request), "page": page, "q": q,
                    "title": "صندوق الوارد"})
+
+
+def _signed_allowed(user, req):
+    if not uploads.can_manage_signed(user, req, services.user_units):
+        raise PermissionDenied
+
+
+@login_required
+@require_POST
+def signed_upload(request, pk):
+    """Upload a scanned signed copy to an accepted request (holding unit / Student Affairs)."""
+    req = get_object_or_404(Request, pk=pk)
+    _signed_allowed(request.user, req)
+    f = request.FILES.get("file")
+    try:
+        if not f:
+            raise ValidationError("اختر ملفًا.")
+        uploads.add_signed_copy(req, f, request.user, request.POST.get("note", ""))
+        messages.success(request, "حُفظت النسخة الموقعة.")
+    except ValidationError as e:
+        for msg in e.messages:
+            messages.error(request, msg)
+    return redirect(reverse("request_detail", args=[req.pk]))
+
+
+@login_required
+@require_POST
+def signed_delete(request, pk):
+    """Soft delete only: the row and the file stay."""
+    sc = get_object_or_404(SignedCopy, pk=pk)
+    _signed_allowed(request.user, sc.request)
+    sc.soft_delete(request.user)
+    messages.success(request, "أُزيلت النسخة الموقعة (أرشفة).")
+    return redirect(reverse("request_detail", args=[sc.request_id]))
+
+
+@login_required
+def signed_file(request, pk):
+    """Files are never public: login + unit check, then stream the file."""
+    sc = get_object_or_404(SignedCopy, pk=pk)
+    _signed_allowed(request.user, sc.request)
+    try:
+        return FileResponse(sc.file.open("rb"))
+    except FileNotFoundError:
+        raise Http404
 
 
 @login_required
