@@ -1,6 +1,7 @@
 # The Cerebrum
 
 ## Architectural Rules
+- **ALL OR NOTHING (user rule, 2026-11-20)**: every client request that writes to the database is ONE transaction: all of it is saved or none, even if the network drops halfway. One commit at the end of the request (deps.get_db rolls back anything uncommitted); multi-step saves go to the server as one request (`/sp/write-batch` or one endpoint), never several requests from the UI; no COMMIT inside stored procedures; uploaded files are written under a temp name and kept only if the transaction commits. Guarded by `tests/test_all_or_nothing.py`. Applies to every new feature.
 - **STRICT DATABASE READ-ONLY MODE**: The AI assistant MUST NOT execute any write, insert, update, delete, alter, drop, create, or stored procedure replacement commands/scripts against the MySQL database under any circumstances. Database interaction by the AI assistant is strictly READ-ONLY.
 - Always use the predefined UI themes and color palettes defined in `config.py`.
 - Keep database interaction logic within `db.py`, `sync_engine.py`, or `data/repositories.py`. Never scatter raw SQL in UI files.
