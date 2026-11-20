@@ -643,7 +643,9 @@ class StudentBulkImportView:
         with self.grades_table_container:
             with ui.row().classes("w-full items-center justify-between mt-3 px-2"):
                 ui.label(f"معاينة كشف الدرجات والنتائج المحسوبة ({len(self.parsed_grades)} طالب):").classes("text-sm font-bold text-blue-500")
-                UI.secondary_button("مسح الدرجات", on_click=self._clear_grades).classes("text-xs px-2.5 py-1")
+                with ui.row().classes("items-center gap-2"):
+                    UI.primary_button("مراجعة الاستخراج", icon="fact_check", on_click=self._open_review).classes("text-xs px-2.5 py-1")
+                    UI.secondary_button("مسح الدرجات", on_click=self._clear_grades).classes("text-xs px-2.5 py-1")
 
             cols = [
                 {"name": "index", "label": "#", "field": "index", "align": "center", "classes": "w-12"},
@@ -691,6 +693,19 @@ class StudentBulkImportView:
                 self._show_student_scores_dialog(row_data)
 
             table.on("show_scores_dialog", on_show_dialog)
+
+    def _open_review(self):
+        """«مراجعة الاستخراج»: edit the parsed grades beside the source image; nothing is saved here."""
+        from nicegui_screens.extraction_review_dialog import open_extraction_review
+
+        def done(rows):
+            self.parsed_grades = rows
+            self._sync_merged_records()
+            self._render_grades_table()
+            self._render_summary_zone()
+
+        names = [str(s.get("full_name_ar", "")) for s in self.parsed_students] or None
+        open_extraction_review(self.parsed_grades, self.courses_for_stage, names, done)
 
     def _clear_grades(self):
         self.parsed_grades = []
