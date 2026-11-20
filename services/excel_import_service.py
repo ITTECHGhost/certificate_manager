@@ -228,14 +228,14 @@ def parse_students_file(file_bytes: bytes) -> Tuple[List[Dict[str, Any]], List[s
             col_mapping["full_name_ar"] = c
         elif "الاسم" in raw_val and ("إنكليزي" in raw_val or "انكليزي" in raw_val or "English" in raw_val):
             col_mapping["full_name_en"] = c
+        elif "الجنسية" in raw_val:
+            col_mapping["nationality"] = c
         elif "الجنس" in raw_val:
             col_mapping["gender"] = c
         elif "الميلاد" in raw_val or "تاريخ" in raw_val:
             col_mapping["date_of_birth"] = c
         elif "المحافظة" in raw_val or "مسقط" in raw_val or "الولادة" in raw_val:
             col_mapping["birthplace"] = c
-        elif "الجنسية" in raw_val:
-            col_mapping["nationality"] = c
         elif "القبول" in raw_val or "سنة" in raw_val:
             col_mapping["admission_year"] = c
         elif "نوع الدراسة" in raw_val or "الدراسة" in raw_val:

@@ -66,8 +66,6 @@ def test_gender_cell_written(data):
     assert ws.cell(row=3, column=4).value == "أنثى"
 
 
-@pytest.mark.xfail(strict=True, reason="Windows program bug: excel_import_service checks "
-                   "'الجنس' before 'الجنسية', so gender is read from the nationality column")
 def test_gender_round_trip(data):
     rows, _ = _parse(roster_export.accepted_roster_xlsx("حاسبات", "2026-2027"))
     assert rows[1]["gender"] == 2
