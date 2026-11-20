@@ -8,11 +8,10 @@ SQLite in REGWEB_DATA_DIR, never MySQL, LAN only, no offline mode. Server 172.50
 service RegWebRegistration. DEV = launch config "registration-web", port 8000.
 No real samples yet: do NOT touch the ID card layout, EXPORT_COLUMNS or /register/ field order.
 
-Done 2026-11-20 (DEV): item 3 signed-copy archive (SignedCopy model, SQLite migration 0005, uploads.add_signed_copy, /requests/<pk>/signed/, /signed/<pk>/[delete/]; 83 tests). Item 2 nightly sweep_parts line in regweb_backup.bat (git pull on server is enough; 71 tests). Item 1 «مرفوضة» list `/rejected/` (views.rejected, rejected.html, link
+Done 2026-11-20 (DEV): item 4 accepted-students roster export /students/roster/ (registry/roster_export.py, admission year picked on the page; 92 tests + 1 strict xfail). Item 3 signed-copy archive (SignedCopy model, SQLite migration 0005, uploads.add_signed_copy, /requests/<pk>/signed/, /signed/<pk>/[delete/]; 83 tests). Item 2 nightly sweep_parts line in regweb_backup.bat (git pull on server is enough; 71 tests). Item 1 «مرفوضة» list `/rejected/` (views.rejected, rejected.html, link
 on /inbox/; unit filter before search; Student Affairs sees all; reject reason column). 70 tests.
 
 Next items, in order:
-4. Accepted students export for certificate_manager bulk import (never MySQL); check
-   services/excel_import first; fake data in tests only.
+Known Windows-app bug (bug-ledger 2026-11-20): bulk import reads gender from the nationality column; one-line fix pending (separate session, Windows app).
 5. Real-server check only if I say the server is available (see TODO).
 Still open (needs real samples): ID-card fields/layout, EXPORT_COLUMNS, /register/ field order.

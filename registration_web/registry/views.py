@@ -11,7 +11,9 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.views.decorators.http import require_POST
 
-from . import services, uploads
+from django.utils import timezone
+
+from . import roster_export, services, uploads
 from .forms import StudentForm
 from .models import UNITS, Hold, Request, SignedCopy, Student, StudentDocument
 
@@ -245,6 +247,31 @@ def export_students_xlsx(students):
         "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
     resp["Content-Disposition"] = 'attachment; filename="students_email.xlsx"'
     return resp
+
+
+@login_required
+def roster_export_view(request):
+    """Accepted students of one department -> xlsx for the Windows program's bulk import.
+    Student Affairs only; read only (never MySQL)."""
+    if not _student_affairs(request.user):
+        raise PermissionDenied
+    dept = request.GET.get("department", "").strip()
+    year = request.GET.get("admission_year", "").strip()
+    if dept:
+        try:
+            data = roster_export.accepted_roster_xlsx(dept, year)
+        except ValueError as e:
+            messages.error(request, str(e))
+        else:
+            resp = HttpResponse(data, content_type=(
+                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
+            stamp = timezone.localdate().strftime("%Y%m%d")
+            resp["Content-Disposition"] = f'attachment; filename="accepted_{stamp}.xlsx"'
+            return resp
+    return render(request, "registry/roster_export.html",
+                  {**admin.site.each_context(request), "departments":
+                   roster_export.accepted_departments(), "dept": dept, "year": year,
+                   "title": "تصدير المقبولين إلى برنامج الشهادات"})
 
 
 @login_required

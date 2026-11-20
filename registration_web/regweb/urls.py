@@ -25,6 +25,7 @@ urlpatterns = [
     path("signed/<int:pk>/delete/", views.signed_delete, name="signed_delete"),
     path("students/<int:pk>/card/", views.student_card, name="student_card"),
     path("students/export/", views.student_export, name="student_export"),
+    path("students/roster/", views.roster_export_view, name="roster_export"),
     # Static files (admin CSS/JS) served by the app itself: LAN only, small load, no WhiteNoise.
     re_path(r"^static/(?P<path>.*)$", serve, {"document_root": settings.STATIC_ROOT}),
 ]

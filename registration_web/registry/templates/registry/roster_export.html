@@ -1,0 +1,16 @@
+{% extends "admin/base_site.html" %}
+{% block content %}
+<p>ملف Excel للطلبة <strong>المقبولين</strong> في قسم واحد، يُستورد في برنامج الشهادات
+  (استيراد الطلبة الجماعي) مع اختيار القسم نفسه في شاشة الاستيراد.</p>
+<form method="get">
+  <p><label for="department">القسم:</label>
+    <select name="department" id="department" required>
+      {% for d in departments %}<option value="{{ d }}"{% if d == dept %} selected{% endif %}>{{ d }}</option>
+      {% empty %}<option value="">لا طلبة مقبولون بعد</option>{% endfor %}
+    </select></p>
+  <p><label for="admission_year">سنة القبول:</label>
+    <input name="admission_year" id="admission_year" value="{{ year }}" placeholder="2026-2027"
+      pattern="\d{4}-\d{4}" required></p>
+  <button type="submit">تنزيل الملف</button>
+</form>
+{% endblock %}
