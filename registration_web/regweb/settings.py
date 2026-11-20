@@ -18,13 +18,25 @@ DATA_DIR.mkdir(parents=True, exist_ok=True)
 
 DEBUG = os.environ.get("REGWEB_DEBUG", "") == "1"
 
+# Server install (install_service.ps1): DATA_DIR/settings.json {"port", "allowed_hosts"}
+# and DATA_DIR/secret_key.txt. Change the IP there, then restart the service.
+_SERVER_SETTINGS = {}
+if (DATA_DIR / "settings.json").exists():
+    import json
+    _SERVER_SETTINGS = json.loads((DATA_DIR / "settings.json").read_text(encoding="utf-8-sig"))
+PORT = int(_SERVER_SETTINGS.get("port", 8080))
+
 SECRET_KEY = os.environ.get("REGWEB_SECRET_KEY", "")
+if not SECRET_KEY and (DATA_DIR / "secret_key.txt").exists():
+    SECRET_KEY = (DATA_DIR / "secret_key.txt").read_text(encoding="utf-8").strip()
 if not SECRET_KEY:
     if not DEBUG:
         raise ImproperlyConfigured("Set REGWEB_SECRET_KEY (or REGWEB_DEBUG=1 for local work).")
     SECRET_KEY = "dev-only-insecure-key"
 
 ALLOWED_HOSTS = [h.strip() for h in os.environ.get("REGWEB_ALLOWED_HOSTS", "").split(",") if h.strip()]
+if not ALLOWED_HOSTS:
+    ALLOWED_HOSTS = list(_SERVER_SETTINGS.get("allowed_hosts", []))
 if DEBUG and not ALLOWED_HOSTS:
     ALLOWED_HOSTS = ["localhost", "127.0.0.1"]
 

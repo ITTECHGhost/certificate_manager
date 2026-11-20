@@ -3,3 +3,4 @@
 .venv/
 *.sqlite3
 media/
+service_config.json
