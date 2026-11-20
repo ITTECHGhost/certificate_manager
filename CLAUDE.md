@@ -1,130 +1,62 @@
-(task-observer activation block — template of v3.8.0)
-Before the first tool call of any session — and before writing or
-proposing a plan, not merely before executing one — invoke the
-task-observer skill AND execute its Session Start Protocol (storage
-check, frontmatter scan, review trigger). Loading the skill and running
-the protocol are separate steps; a session that loads the file and stops
-has activated nothing. Any turn that will involve a tool call counts; do
-not classify the session as "too simple" from its opening message.
-A step you did not run is reported before the answer, in one line — never
-after it, where it reads as a suggestion. If the skill does not resolve on
-this turn, say which probe told you so (the skill listing, or the skill
-directory on disk), re-check the listing on every later turn that makes a
-tool call, and run the protocol the first time it resolves — a "not
-installed" verdict holds for one turn.
+# CLAUDE.md — certificate_manager
 
-Select skills on the DECISION the request is about, not on the artefact it
-arrived as. Name what the user is deciding, then match the installed skill
-descriptions against that — a request handed over as a file to review
-still needs the skill whose description names its subject.
+Existing management / archiving app, partly built and in use. Keep answers short; act more than explain.
 
-After completing each task, list the observation records written this
-session in the same turn and report a one-line summary from that listing
-(ids and titles, or "none logged and why") — never from memory of
-writing them. This is the activation backstop: it forces a look at the log,
-so a session that silently skipped the protocol is discovered at the
-first task boundary instead of never.
+## 1. Session start
+- Read this file, then `docs/TODO.md` and `docs/NEXT_SESSION_PROMPT.md`. Read other files only when the task needs them.
+- `git fetch`; say if origin/main has commits this checkout lacks (pull only with the user's OK).
+- Do NOT re-scan the codebase. The Project Map below is the source of truth; `.ai/anatomy.md` has more detail.
+- Live architecture rules: `.ai/rules.md` (short, always applies).
+- Lessons/bugs: `.ai/bug-ledger.md` — never read whole. `grep` it for the area you touch; before a release or a server/laptop update read `.ai/releases.md`.
 
-Loading a skill is not complete until you have queried the observation
-log for OPEN observations naming it and read their bodies:
-  find "/c/Users/IT_TECK/.claude/projects/F--CR-PY-certificate-manager/skill-observations/observation-log" -maxdepth 1 \
-    -name '*.md' -exec grep -l -E "^(skill|target_file):.*<skill-name>" {} +
-(<skill-name> is the bare name: drop a plugin: prefix, up to the last
-colon. A qualified pattern misses every entry filed under the bare name
-and reports a clean zero; the bare one matches both spellings. For an
-agent definition or instructions file it is the file name, which the
-target_file: field carries by any path.)
-(Use find, not a bare *.md glob: under zsh an unmatched glob aborts the
-whole block, and on an empty log it is unmatched in every session.)
-Apply their insights to the current work — meaning: let them change what
-you do in THIS task. Editing the skill file, or writing the rule into any
-other file a later session reads, is acting on the observation and waits
-for the review. See "Log, don't act" in SKILL.md: the test is whether the
-action leaves a durable change outside the observation log. Run this at every skill load, however many skills load
-in one session. The session-start scan does not cover it: that is a
-frontmatter sweep over every observation at session start, this is a
-body-level lookup for one skill at the moment its rules are applied.
+## 2. Working style
+- One feature or fix per session; at the end tell the user to `/clear`.
+- Bigger than a small fix: short plan (files, tables, tests, ≤10 lines) and wait for OK. Small clear fixes: just do them.
+- Minimum change. No refactor/rename/reformat of untouched code. Follow existing patterns. No new dependency without asking.
+- Never delete data, migrations or files without asking. Unclear → ask ONE short question.
+- Work on `main`. Commit with a detailed message (what was seen, on which laptop, what was and was not checked). Push only after the user's OK.
 
-The converse holds too: the grep, and any checkpoint line recording the
-load, run only in the same batch as the Skill invocation, and take the
-skill name from a load that has actually happened — never from a list of
-skills you built to load. A checkpoint line written without the load is a
-false record. Before writing to any file a skill reads at run time (a
-state file), load that skill: a state file that describes itself is not a
-substitute for the skill that owns it.
+## 3. Token discipline
+- Don't print whole files; show changed parts. Grep before reading large files.
+- Never read lock files, build output, venv, `old/`, media/uploads, DB dumps, `local_cache.db`.
+- Quiet test output (`pytest -q`); summarise long logs. Suggest `/compact` with a focus note when long.
 
-Where scripts run, the lookup and its checkpoint line are one command:
-  bash "/f/CR_PY/certificate_manager/.claude/skills/task-observer/scripts/skill-load.sh" "/c/Users/IT_TECK/.claude/projects/F--CR-PY-certificate-manager" <skill-name>
-The Skill invocation and that call are ONE batch — emit them together,
-one call per skill loaded, never the call in a later batch. On a first
-run the log does not exist yet (step 1 creates it): the call says so and
-exits 0 with no checkpoint line; re-run it once per skill loaded in that
-batch after the Workspace creation command.
+## 4. Skills (only when the task matches; this file wins over any skill's "always")
+- writing-plans: features touching 3+ files; small tasks. executing-plans: INLINE only, no subagents unless asked.
+- test-driven-development: business logic (grades, fees, records, permissions, archive rules). Not for pure UI tweaks.
+- systematic-debugging: any bug whose cause isn't obvious after one look.
+- verification-before-completion: before saying done, run the test/command, show one line.
+- brainstorming: only for a NEW module with unclear scope. ui-ux-pro-max: only for a new/redesigned screen.
 
-The task-observer workspace for this project is:
-  /c/Users/IT_TECK/.claude/projects/F--CR-PY-certificate-manager
-It does not exist until the first session creates it: a failed probe whose
-parent resolves and is writable is a first run — run Workspace creation,
-then re-run the lookup above once per skill loaded in that batch (on the
-first batch it finds no log and writes no checkpoint line; that is expected).
-Every path the skill uses derives from that root and nothing else:
-  /c/Users/IT_TECK/.claude/projects/F--CR-PY-certificate-manager/skill-observations/observation-log/   (the log)
-  /c/Users/IT_TECK/.claude/projects/F--CR-PY-certificate-manager/skill-observations/cross-cutting-principles.md
-  /c/Users/IT_TECK/.claude/projects/F--CR-PY-certificate-manager/skill-updates/                        (staging root)
-  /c/Users/IT_TECK/.claude/projects/F--CR-PY-certificate-manager/skill-updates/PENDING.md              (staging manifest)
-Never resolve any of them from the current working
-directory — a cwd inside an ephemeral checkout (a git worktree, a temporary
-clone) is torn down and takes the log with it. Never place the workspace
-inside a skills-discovery directory or any path linked into one. If this
-environment mints a separate project identity per checkout, or more than
-one agent works this project, the pinned path above is the single shared
-location; do not derive one per session, tool or project.
+## 5. Quality rules
+- Server-side validation for every form. Server enforces roles/units for anything that edits or deletes.
+- Paginate and search lists. Soft delete / archive over hard delete for important records.
+- DB changes only via `sql/migrations/NNNN_*.sql` + `sql/fixes/rollback_NNNN_*.sql`; the AI writes the files, the user runs them (dev DB first, after mysqldump to `F:\CR_PY\db_backups_dev`). The AI never writes to MySQL.
+- Every write request is ONE transaction (all or nothing) — guarded by `tests/test_all_or_nothing.py`.
+- Secrets in env/config files outside git; never print keys or passwords. Never put real student data in git.
+- Word templates (`templets/`) are edited by the user only, then print-tested.
+- Ask before any release build; bump the version only when told (`scripts/set_version.py`).
 
-The user's repositories live under:
-  F:/CR_PY
-(the root the sibling check sweeps before declaring a skill absent;
-observation-log.md, "Skill families and the sibling check").
+## 6. End of each task, give exactly
+1. What changed (1–3 lines) 2. How to check it (one command or click path) 3. Next suggested step (one line)
+Then rewrite `docs/NEXT_SESSION_PROMPT.md` (≤25 lines) and tick `docs/TODO.md`.
 
-A subagent dispatched by a session that already runs this protocol does
-not run it again and does not write to the log. The controller observes,
-because only it sees the whole task and its review; a subagent that
-notices something worth logging says so in its final report, and the
-controller writes it, running the id snippet per write. A start-up rule
-in a project file reaches every agent the project ever dispatches.
-Before briefing a delegate under an agent definition or instructions
-file, run the lookup for that file's name; its open entries shape the
-brief.
+## Project Map (≤30 lines; update when structure changes)
+- Stack: Python 3, NiceGUI 3 desktop client (pywebview, Arabic RTL) → FastAPI server → MySQL 5.7 (Windows server, service). Client is a PyInstaller exe with in-app updater.
+- `main.py` client entry (port 2323). `nicegui_screens/` screens (students, courses, departments, personnel, graduation_orders, certificate, issued_certificates, official_rankings_view, reports, settings, study_routines, bulk import). `nicegui_ui/` shared UI kit (ui_components, ui_theme, theme.css, i18n, state).
+- `data/repositories/` client data access (via API only); `api_client.py`, `api_config.py`, `server_config.json` (not in git).
+- `sync_engine.py` offline mode: SQLite `local_cache.db` replica + outbound queue (never open it for writing by hand).
+- `services/` excel_import (students + grades matrix), office_automation (Word → PDF), order_images, official_ranking_import, template_sync, updater, server_update, first_connection.
+- `utils/` order_number, study_type, date_parsing, arabic_words, health_check, logger.
+- `certificate_manager_api/` FastAPI: `main.py` (app, X-App-Key audit/enforce), `deps.py` (`get_db`, rollback on failure), `routers/` (students, courses, departments, graduation, certificates, issued_certificates, official_rankings, bulk_import, order_images, personnel+login, reports, settings, study_routines, study_systems, thesis, sync, system, templates, updates, server_update), `migrate.py`.
+- DB: `sql/schema.sql` (20 tables: students, enrollments, courses, departments, graduation_orders, issued_certificates, personnel, permissions, study_systems, study_routines…), `sql/SP.sql` stored procedures (called via `/sp/read|write|write-batch`), `sql/migrations/0001–0007`, `sql/fixes/` one-off fixes + rollbacks.
+- Templates: `templets/` Word templates (docxtpl). Installer/build: `scripts/build_release.bat`, `make_client_patch.ps1`, `installer/`.
+- Known gap (2026-11-20): `/api/login` issues no per-user token; the server cannot tell who calls it. Fix planned (docs/PLAN_archive_and_next.md).
+- Run client: `py -3 main.py`. Run server (dev): `certificate_manager_api\start_server.bat`.
+- Tests: `py -3 -m pytest -q` (72 files; `-m mysql` for read-only tests against local MySQL).
+- Version: `app_version.py` (2.5.9).
 
-A run of this block that cannot write here or get an approval answered —
-a child run with no protocol-running caller, a job with a narrow tool
-allowlist, a scheduled task in default permission mode — skips the write
-steps, never stalls on them, and ends its final message with a
-`## Task-observer notes` section (environments.md, "Sessions whose
-output channel is owned by a caller"). Such runs write their output to:
-  none
-
-An observation file comes into being only through
-  bash "/f/CR_PY/certificate_manager/.claude/skills/task-observer/scripts/new-observation.sh" <slug> "/c/Users/IT_TECK/.claude/projects/F--CR-PY-certificate-manager"
-which prints the path to write into. Never by copying another file's
-header or counting a listing — including on the turn after a
-compaction, when the skill body is out of context.
-
-## Shared notes between the dev laptop and the server laptop
-
-Claude sessions run on two laptops (the DEV laptop with the repo and the
-build tools, and the SERVER laptop with MySQL and the API). Their memories
-are local; the only thing both see is this GitHub repo.
-
-- Start of a session: `git fetch` and say if origin/main has commits this
-  checkout lacks (pull only with the user's OK, as for any branch change).
-- Shared lessons live in `.ai/cerebrum.md` ("Bug Ledger"). Do NOT read it
-  at session start. Read it only when needed: before debugging or changing
-  an area, search it for that area (grep the file/feature name) and read the
-  matching entries; before a release or a server/laptop update, read the
-  "Releases and updates" entries.
-- When a session learns something the other laptop needs (a failure seen
-  only there, a step that must be done by hand, a workaround), add one short
-  dated entry to the Bug Ledger saying which laptop saw it, commit it with
-  the related change, and push with the user's OK.
-- Detailed commit messages (what was seen, on which laptop, what was and was
-  not checked) are the other half of the hand-over; keep writing them.
+## Shared notes between the DEV laptop and the SERVER laptop
+Sessions run on two laptops (DEV: repo + build tools; SERVER: MySQL + API). Only this GitHub repo is shared.
+- When a session learns something the other laptop needs, add one short dated entry to `.ai/bug-ledger.md` (or `.ai/releases.md`) saying which laptop saw it; commit it with the related change; push with the user's OK.
+- Detailed commit messages are the other half of the hand-over.

@@ -38,7 +38,7 @@ The application fails to transition the user to the local SQLite replica databas
 - **Consequence:** `AuthRepository` is never instantiated and `authenticate_user()` is never invoked. The local SQLite fallback route is aborted before execution begins.
 
 #### 2. Architecture Isolation Rule Violation
-- Rule 15 in [`.ai/cerebrum.md`](file:///f:/CR_PY/certificate_manager/.ai/cerebrum.md#L15) explicitly states:
+- A rule in [`.ai/rules.md`](../.ai/rules.md) explicitly states:
   > *"FastAPI Exclusive Connections: All database connections must be routed through FastAPI. Direct database configurations (like DBConfig) or raw connections from client-side scripts/modules are strictly prohibited to maintain a unified access point."*
 - Importing and calling `db.get_connection()` directly inside a client-side UI screen violates this strict architectural constraint.
 
