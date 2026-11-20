@@ -142,6 +142,31 @@ def inbox(request):
 
 
 @login_required
+def rejected(request):
+    """«مرفوضة»: rejected requests of the user's own units (the unit that rejected keeps
+    current_unit). Unit filter BEFORE search; Student Affairs and superuser see all."""
+    if _student_affairs(request.user):
+        qs = Request.objects.all()
+    else:
+        units = services.user_units(request.user)
+        if not units:
+            raise PermissionDenied
+        qs = Request.objects.filter(current_unit__in=units)
+    qs = qs.filter(status="rejected").select_related("student")
+    q = request.GET.get("q", "").strip()
+    if q:
+        qs = qs.filter(Q(student__name_ar__icontains=q) | Q(student__national_id__icontains=q))
+    qs = qs.order_by("-created_at", "-pk")
+    page = Paginator(qs, INBOX_PAGE_SIZE).get_page(request.GET.get("page"))
+    for r in page.object_list:
+        step = r.steps.filter(action="reject").order_by("-created_at", "-pk").first()
+        r.reject_reason = step.annotation if step else ""
+    return render(request, "registry/rejected.html",
+                  {**admin.site.each_context(request), "page": page, "q": q,
+                   "title": "الطلبات المرفوضة"})
+
+
+@login_required
 def student_card(request, pk):
     """Printable student ID card. Student Affairs only. Fields are a guess until the real card."""
     if not _student_affairs(request.user):

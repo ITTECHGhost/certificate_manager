@@ -1,24 +1,22 @@
 Read CLAUDE.md, docs/TODO.md and docs/PLAN_archive_and_next.md ("المسار ب" only). Rules: .ai/rules.md.
-`git pull` first (with my OK). Work on `main`. Plan (≤10 lines) → my OK → tests first → build →
-`pytest -q` (one line) → commit (detailed message) → push only after my OK.
+`git fetch`; pull only with my OK. Work on `main`. For each item: plan (≤10 lines) → my OK →
+tests first → build → `pytest -q` (registration_web: `.venv\Scripts\python -m pytest -o addopts="" -q`
+shows the count) → commit (detailed message) → tick TODO.md → ask before the next item. Push only after my OK.
 
-Decisions (do not re-ask): registration_web/ = SEPARATE Django 5.2 web program; the Windows app is
-unchanged. SQLite in REGWEB_DATA_DIR, never MySQL, LAN only, no offline mode. Server
-172.50.1.100:2040, service RegWebRegistration. Work on DEV (launch config "registration-web",
-port 8000) unless I say the real server is available.
+Decisions (do not re-ask): registration_web/ = SEPARATE Django 5.2 program; Windows app unchanged.
+SQLite in REGWEB_DATA_DIR, never MySQL, LAN only, no offline mode. Server 172.50.1.100:2040,
+service RegWebRegistration. DEV = launch config "registration-web", port 8000.
+No real samples yet: do NOT touch the ID card layout, EXPORT_COLUMNS or /register/ field order.
 
-Done 2026-11-20 (DEV): /inbox/, ID card, admin search, «رفض الطلب» (services.reject_request).
-Then orphan .part sweep: uploads.sweep_orphan_parts + `manage.py sweep_parts [--hours 24]
-[--dry-run]`; only media/student_docs/**/*.part older than N hours, never final files or
-backup .partial folders. 61 tests. No migration, no new dependency. Not yet scheduled.
+Done 2026-11-20 (DEV): item 1 «مرفوضة» list `/rejected/` (views.rejected, rejected.html, link
+on /inbox/; unit filter before search; Student Affairs sees all; reject reason column). 70 tests.
 
-Open: ID-card fields + layout are a GUESS (needs the real card sample); EXPORT_COLUMNS still a
-guess (real columns in-session only, never in git); /register/ field order still a guess;
-real server not checked (git pull + pip install -r requirements.txt + migrate + restart, then
-one request through 3 units, one reject, one export, one inbox, one card print, one
-`sweep_parts --dry-run`); add sweep_parts to the nightly task in install_service.ps1;
-rejected requests are not yet listed anywhere except the student's page.
-
-Task: real-server check if I say the server is available; otherwise a «مرفوضة» list
-(rejected requests per unit, paginated). Tests first. End with: changed / how to check /
-next step. Update TODO.md and rewrite this file.
+Next items, in order:
+2. Add `manage.py sweep_parts` to the nightly task in install_service.ps1 (after backup_regweb);
+   show the diff; user runs it as Administrator on the server.
+3. Signed-copy archive on accepted requests (JPG/PNG/PDF, uploads.py checks + temp→rename on
+   commit, soft delete, holding unit or Student Affairs only).
+4. Accepted students export for certificate_manager bulk import (never MySQL); check
+   services/excel_import first; fake data in tests only.
+5. Real-server check only if I say the server is available (see TODO).
+Still open (needs real samples): ID-card fields/layout, EXPORT_COLUMNS, /register/ field order.
