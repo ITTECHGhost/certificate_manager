@@ -20,5 +20,5 @@ Each folder holds `registration.sqlite3` (SQLite online backup, checked with int
 2. Rename the broken data: `Rename-Item C:\registration_data\registration.sqlite3 registration.broken.sqlite3`
    and `Rename-Item C:\registration_data\media media.broken` (never delete until the restore is checked).
 3. Copy from the chosen backup: `registration.sqlite3` and `media\` into `C:\registration_data\`.
-4. `regweb_start.bat`, open http://<server>:8080/admin/ and check the latest students.
+4. `regweb_start.bat`, open http://<server>:2040/admin/ and check the latest students.
 5. Work entered after that backup is lost: tell the units the backup date.

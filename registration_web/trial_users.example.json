@@ -1,0 +1,8 @@
+[
+  {"username": "sa_ahmed",  "full_name": "أحمد كريم (تجريبي)",   "unit": "student_affairs"},
+  {"username": "sa_zainab", "full_name": "زينب علي (تجريبي)",    "unit": "student_affairs"},
+  {"username": "fin_omar",  "full_name": "عمر حسن (تجريبي)",     "unit": "finance"},
+  {"username": "fin_noor",  "full_name": "نور جاسم (تجريبي)",    "unit": "finance"},
+  {"username": "leg_saif",  "full_name": "سيف محمد (تجريبي)",    "unit": "legal"},
+  {"username": "leg_huda",  "full_name": "هدى عباس (تجريبي)",    "unit": "legal"}
+]

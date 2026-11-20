@@ -1,13 +1,13 @@
 # install_service.ps1 - install or update registration_web on the server laptop.
 # Run as Administrator from this folder:
 #   powershell -ExecutionPolicy Bypass -File install_service.ps1 -ServerAddress 172.50.1.100
-# Options: -DataDir C:\registration_data  -Port 8080  -BackupTime 02:00
+# Options: -DataDir C:\registration_data  -Port 2040  -BackupTime 02:00
 # Safe to run again (update / new IP): keeps the DB, the secret key and the backups.
 # Independent of Apache (AppServ or WAMP): own service on its own port.
 param(
     [string]$ServerAddress = "",
     [string]$DataDir = "C:\registration_data",
-    [int]$Port = 8080,
+    [int]$Port = 2040,
     [string]$BackupTime = "02:00"
 )
 $ErrorActionPreference = "Stop"
@@ -61,8 +61,11 @@ Push-Location $app
 & $venvPy manage.py migrate --noinput;        if ($LASTEXITCODE -ne 0) { Pop-Location; Fail "migrate failed." }
 & $venvPy manage.py collectstatic --noinput -v 0; if ($LASTEXITCODE -ne 0) { Pop-Location; Fail "collectstatic failed." }
 & $venvPy manage.py check --deploy --fail-level ERROR | Out-Null
+$usersFile = Join-Path $DataDir "trial_users.json"
+if (-not (Test-Path $usersFile)) { Copy-Item (Join-Path $app "trial_users.example.json") $usersFile }
+& $venvPy manage.py create_trial_users $usersFile; if ($LASTEXITCODE -ne 0) { Pop-Location; Fail "create_trial_users failed." }
 Pop-Location
-Ok "Database and static files ready"
+Ok "Database, static files and trial users ready (passwords: $DataDir\trial_passwords.txt)"
 
 # 4. Windows service (pywin32, same as the API), auto start, restart on failure
 $svc = Get-Service $serviceName -ErrorAction SilentlyContinue

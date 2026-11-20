@@ -28,7 +28,7 @@ VENV_PYTHON = os.path.join(APP_DIR, ".venv", "Scripts", "python.exe")
 def load_config():
     with open(os.path.join(APP_DIR, "service_config.json"), encoding="utf-8-sig") as f:
         data_dir = json.load(f)["data_dir"]
-    port = 8080
+    port = 2040
     settings_file = os.path.join(data_dir, "settings.json")
     if os.path.exists(settings_file):
         with open(settings_file, encoding="utf-8-sig") as f:

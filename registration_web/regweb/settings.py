@@ -24,7 +24,7 @@ _SERVER_SETTINGS = {}
 if (DATA_DIR / "settings.json").exists():
     import json
     _SERVER_SETTINGS = json.loads((DATA_DIR / "settings.json").read_text(encoding="utf-8-sig"))
-PORT = int(_SERVER_SETTINGS.get("port", 8080))
+PORT = int(_SERVER_SETTINGS.get("port", 2040))
 
 SECRET_KEY = os.environ.get("REGWEB_SECRET_KEY", "")
 if not SECRET_KEY and (DATA_DIR / "secret_key.txt").exists():
