@@ -7,17 +7,18 @@ unchanged. SQLite in REGWEB_DATA_DIR, never MySQL, LAN only, no offline mode. Se
 172.50.1.100:2040, service RegWebRegistration. Work on DEV (launch config "registration-web",
 port 8000) unless I say the real server is available.
 
-Done 2026-11-20 (DEV): week 2 = /inbox/, /students/<pk>/card/ ID card, student admin search/filters.
-Then «رفض الطلب» on /requests/<pk>/: holding unit only (403 otherwise), annotation required
-(server-side; JS check too), reject step + status «مرفوض» in ONE transaction
-(services.reject_request). Rejected/accepted requests cannot move. 57 tests. No migration,
-no new dependency.
+Done 2026-11-20 (DEV): /inbox/, ID card, admin search, «رفض الطلب» (services.reject_request).
+Then orphan .part sweep: uploads.sweep_orphan_parts + `manage.py sweep_parts [--hours 24]
+[--dry-run]`; only media/student_docs/**/*.part older than N hours, never final files or
+backup .partial folders. 61 tests. No migration, no new dependency. Not yet scheduled.
 
 Open: ID-card fields + layout are a GUESS (needs the real card sample); EXPORT_COLUMNS still a
 guess (real columns in-session only, never in git); /register/ field order still a guess;
 real server not checked (git pull + pip install -r requirements.txt + migrate + restart, then
-one request through 3 units, one reject, one export, one inbox, one card print);
-orphan .part sweep; rejected requests are not yet listed anywhere except the student's page.
+one request through 3 units, one reject, one export, one inbox, one card print, one
+`sweep_parts --dry-run`); add sweep_parts to the nightly task in install_service.ps1;
+rejected requests are not yet listed anywhere except the student's page.
 
-Task: real-server check if I say the server is available; otherwise the orphan .part sweep.
-Tests first. End with: changed / how to check / next step. Update TODO.md and rewrite this file.
+Task: real-server check if I say the server is available; otherwise a «مرفوضة» list
+(rejected requests per unit, paginated). Tests first. End with: changed / how to check /
+next step. Update TODO.md and rewrite this file.

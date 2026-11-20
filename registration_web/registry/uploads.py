@@ -1,6 +1,7 @@
 """Register a student with documents, all or nothing (rules.md):
 temp file -> rows in one transaction -> rename only after commit; any failure deletes the temps."""
 import hashlib
+import time
 import uuid
 from pathlib import Path
 
@@ -63,6 +64,24 @@ def _discard(temps):
         tmp.unlink(missing_ok=True)
 
 
+def sweep_orphan_parts(max_age_hours=24, dry_run=False):
+    """Delete student_docs/**/*.part older than max_age_hours (left by rolled-back requests).
+    Returns (found, deleted). Only MEDIA_ROOT/student_docs; never final files."""
+    root = Path(settings.MEDIA_ROOT) / "student_docs"
+    if not root.is_dir():
+        return 0, 0
+    cutoff = time.time() - max_age_hours * 3600
+    found = deleted = 0
+    for p in root.rglob("*.part"):
+        if not p.is_file() or p.stat().st_mtime > cutoff:
+            continue
+        found += 1
+        if not dry_run:
+            p.unlink(missing_ok=True)
+            deleted += 1
+    return found, deleted
+
+
 def register_student(data, files, user):
     """data: form fields; files: [(kind, UploadedFile)]. Returns the saved Student."""
     form = StudentForm(data)
@@ -88,7 +107,7 @@ def register_student(data, files, user):
                 doc.save()
             # outer request transaction (ATOMIC_REQUESTS): rename only when it commits
             # If the outer transaction later rolls back, the .part files stay orphaned
-            # (never linked to a row); they are harmless and can be swept by age.
+            # (never linked to a row); they are harmless; `manage.py sweep_parts` deletes them by age.
             transaction.on_commit(lambda: _finish(temps))
     except BaseException:
         _discard(temps)
