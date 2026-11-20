@@ -754,5 +754,17 @@
  [
   "GET",
   "/api/official-rankings/for-student/{student_id}"
+ ],
+ [
+  "POST",
+  "/api/feedback"
+ ],
+ [
+  "GET",
+  "/api/feedback"
+ ],
+ [
+  "DELETE",
+  "/api/feedback/{feedback_id}"
  ]
 ]

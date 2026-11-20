@@ -320,6 +320,7 @@ class MainAppShell:
 
         with ui.column().classes("w-full gap-0 mt-auto px-3 py-2") as self._version_footer:
             ui.label(f"إصدار البرنامج: {APP_VERSION}").classes("app-caption truncate")
+            fb_lbl = ui.label("ملاحظات وشكاوى").classes("app-caption text-primary cursor-pointer")
             server_lbl = ui.label("إصدار الخادم: …").classes("app-caption truncate")
             upd_lbl = ui.label("").classes("app-caption text-primary cursor-pointer")
             upd_lbl.tooltip("فتح «تحديث البرنامج» في الإعدادات")
@@ -330,6 +331,13 @@ class MainAppShell:
             self._switch_screen("settings")
 
         upd_lbl.on("click", _open_update_tab)
+
+        def _open_feedback():
+            from nicegui_screens.feedback_view import open_feedback_dialog
+            names = {i["key"]: i["ar"] for i in NAV_ITEMS}
+            open_feedback_dialog(names.get(self.current_screen, self.current_screen))
+
+        fb_lbl.on("click", _open_feedback)
 
         def _draw_update():
             from nicegui_ui.update_prompt import progress_text
