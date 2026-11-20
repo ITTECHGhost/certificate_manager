@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head><meta charset="utf-8"><title>هوية الطالب</title>
+<style>
+  @page { size: A6 landscape; margin: 6mm; }
+  body { font-family: Tahoma, Arial, sans-serif; }
+  .card { border: 1px solid #333; padding: 8mm; width: 130mm; }
+  .card h2 { margin: 0 0 4mm; text-align: center; }
+  .card dt { font-weight: bold; float: right; width: 40mm; }
+  .card dd { margin: 0 0 2mm 0; }
+  @media print { .noprint { display: none; } }
+</style></head>
+<body>
+<div class="card">
+  <h2>هوية طالب</h2>
+  <dl>
+    <dt>الاسم</dt><dd>{{ student.name_ar }}</dd>
+    <dt>Name</dt><dd>{{ student.name_en }}</dd>
+    <dt>القسم</dt><dd>{{ student.department }}</dd>
+    <dt>نوع الدراسة</dt><dd>{{ student.get_study_type_display }}</dd>
+    <dt>رقم البطاقة الوطنية</dt><dd>{{ student.national_id }}</dd>
+  </dl>
+</div>
+<p class="noprint"><button onclick="window.print()">طباعة</button></p>
+</body></html>

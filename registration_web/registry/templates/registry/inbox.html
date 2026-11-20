@@ -1,0 +1,20 @@
+{% extends "admin/base_site.html" %}
+{% block content %}
+<form method="get"><input name="q" value="{{ q }}" placeholder="الاسم أو رقم البطاقة الوطنية">
+  <button>بحث</button></form>
+<table>
+  <thead><tr><th>الموضوع</th><th>الطالب</th><th>رقم البطاقة</th><th>عند الوحدة</th><th>التاريخ</th></tr></thead>
+  <tbody>
+  {% for r in page.object_list %}
+    <tr><td><a href="{% url 'request_detail' r.pk %}">{{ r.title }}</a></td><td>{{ r.student }}</td>
+      <td>{{ r.student.national_id }}</td><td>{{ r.get_current_unit_display }}</td>
+      <td>{{ r.created_at|date:"Y-m-d H:i" }}</td></tr>
+  {% empty %}<tr><td colspan="5">لا طلبات.</td></tr>{% endfor %}
+  </tbody>
+</table>
+<p>
+  {% if page.has_previous %}<a href="?q={{ q|urlencode }}&page={{ page.previous_page_number }}">السابق</a>{% endif %}
+  صفحة {{ page.number }} من {{ page.paginator.num_pages }}
+  {% if page.has_next %}<a href="?q={{ q|urlencode }}&page={{ page.next_page_number }}">التالي</a>{% endif %}
+</p>
+{% endblock %}

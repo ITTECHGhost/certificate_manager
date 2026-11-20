@@ -3,6 +3,8 @@ from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied, ValidationError
 import io
 
+from django.core.paginator import Paginator
+from django.db.models import Q
 from django.http import FileResponse, Http404, HttpResponse
 from openpyxl import Workbook
 from django.shortcuts import get_object_or_404, redirect, render
@@ -109,6 +111,40 @@ def student_holds(request, pk):
     return render(request, "registry/student_holds.html",
                   {**admin.site.each_context(request), "student": student, "rows": rows,
                    "title": f"قيود الطالب: {student}"})
+
+
+INBOX_PAGE_SIZE = 25
+
+
+@login_required
+def inbox(request):
+    """Open requests held NOW by the user's own units, newest first. The unit filter is applied
+    before the search, so a search can never reach another unit's requests."""
+    if request.user.is_superuser:
+        qs = Request.objects.all()
+    else:
+        units = services.user_units(request.user)
+        if not units:
+            raise PermissionDenied
+        qs = Request.objects.filter(current_unit__in=units)
+    qs = qs.filter(status="open").select_related("student")
+    q = request.GET.get("q", "").strip()
+    if q:
+        qs = qs.filter(Q(student__name_ar__icontains=q) | Q(student__national_id__icontains=q))
+    qs = qs.order_by("-created_at", "-pk")
+    page = Paginator(qs, INBOX_PAGE_SIZE).get_page(request.GET.get("page"))
+    return render(request, "registry/inbox.html",
+                  {**admin.site.each_context(request), "page": page, "q": q,
+                   "title": "صندوق الوارد"})
+
+
+@login_required
+def student_card(request, pk):
+    """Printable student ID card. Student Affairs only. Fields are a guess until the real card."""
+    if not _student_affairs(request.user):
+        raise PermissionDenied
+    return render(request, "registry/student_card.html",
+                  {"student": get_object_or_404(Student, pk=pk)})
 
 
 # Columns of the university e-mail sheet. TODO: replace with the real sample's columns.

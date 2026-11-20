@@ -55,15 +55,20 @@ class HoldInline(admin.TabularInline):
 @admin.register(Student)
 class StudentAdmin(TrackedAdmin):
     list_display = ("name_ar", "name_en", "department", "study_type", "status", "created_at",
-                    "holds_link")
-    list_filter = ("status", "study_type", "department")
-    search_fields = ("name_ar", "name_en", "department")
+                    "holds_link", "card_link")
+    list_filter = ("status", "study_type", "department", "gender", "graduation_year")
+    search_fields = ("name_ar", "name_en", "department", "national_id", "mother_name")
     inlines = [DocumentInline, HoldInline]
     actions = ["export_for_email"]
 
     @admin.display(description="القيود")
     def holds_link(self, obj):
         return format_html('<a href="{}">عرض</a>', reverse("student_holds", args=[obj.pk]))
+
+    @admin.display(description="الهوية")
+    def card_link(self, obj):
+        return format_html('<a href="{}" target="_blank">طباعة الهوية</a>',
+                           reverse("student_card", args=[obj.pk]))
 
     @admin.action(description="تصدير المحددين للبريد الجامعي (Excel)")
     def export_for_email(self, request, queryset):

@@ -7,17 +7,19 @@ unchanged. SQLite in REGWEB_DATA_DIR, never MySQL, LAN only, no offline mode. Se
 172.50.1.100:2040, service RegWebRegistration. Work on DEV (launch config "registration-web",
 port 8000) unless I say the real server is available.
 
-Done day 5 (2026-11-20, DEV): /students/<pk>/holds/ — Student Affairs sees every hold in full
-(kind, unit, note, open/cleared, by whom, when), read only; only the owning unit gets the clear
-button and the server re-checks (403 otherwise). Admin student list: «القيود» link + action
-«تصدير المحددين للبريد الجامعي» (Excel, RTL); /students/export/?ids= (SA only, only those ids).
-New dependency openpyxl 3.1.5 (requirements.txt; install it on the server venv). 37 tests.
-Open: EXPORT_COLUMNS in registry/views.py is a GUESS — replace with the real e-mail sample
-columns (in-session only, never in git); /register/ field order still a guess; real server not
-checked (git pull + pip install -r requirements.txt + migrate + restart, then one request through
-3 units and one export); orphan .part sweep; no "reject" button.
+Done week 2 (2026-11-20, DEV): /inbox/ — open requests held NOW by the user's units, newest
+first, search by name/national id (unit filter applied before search → no leak), 25 per page;
+superuser sees all; no unit → 403. Admin header «عرض الموقع» → /inbox/.
+/students/<pk>/card/ printable A6 ID card (Student Affairs only, 403 otherwise); admin student
+list «طباعة الهوية» link. Student admin: search national_id + mother_name, filter gender +
+graduation_year. 48 tests. No migration, no new dependency.
 
-Task: Track B, week 2 — one inbox per unit (requests it holds now, newest first, search by
-name/national id, paginated), ID-card print, search + filter on students. Tests first: a unit sees
-only its own inbox; search never leaks other units' held requests. End with: changed / how to
-check / next step. Update TODO.md and rewrite this file.
+Open: ID-card fields + layout are a GUESS (no photo yet; needs the real card sample);
+EXPORT_COLUMNS still a guess (real columns in-session only, never in git); /register/ field
+order still a guess; real server not checked (git pull + pip install -r requirements.txt +
+migrate + restart, then one request through 3 units, one export, one inbox, one card print);
+orphan .part sweep; no "reject" button.
+
+Task: pick one — real-server check, or the "reject" button (holding unit only, annotation
+required, one transaction). Tests first. End with: changed / how to check / next step.
+Update TODO.md and rewrite this file.
