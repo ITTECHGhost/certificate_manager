@@ -6,9 +6,23 @@ from .base import *
 from .base import _local_ready, _refreshes_local_copy
 
 
+def _clean_order(row):
+    """The order number as it should read (20707/12/3), whatever is stored in the database."""
+    if isinstance(row, dict) and row.get("order_number"):
+        from utils.order_number import normalize_order_number
+        row["order_number"] = normalize_order_number(row["order_number"]).value
+    return row
+
+
 class GraduationOrderRepository(BaseRepository):
 
     def get_all(self, limit: int = 25, offset: int = 0) -> list[dict]:
+        return [_clean_order(r) for r in self._get_all_raw(limit, offset) or []]
+
+    def get_by_id(self, order_id: int) -> dict | None:
+        return _clean_order(self._get_by_id_raw(order_id))
+
+    def _get_all_raw(self, limit: int = 25, offset: int = 0) -> list[dict]:
         # Local-first: the local copy matches the API row for row (refreshed after every change)
         if not is_online() or _local_ready("graduation_orders"):
             return get_offline_graduation_orders(limit=limit, offset=offset)
@@ -21,7 +35,7 @@ class GraduationOrderRepository(BaseRepository):
             log_system(f"API request failed: {e}", "WARNING")
             return []
 
-    def get_by_id(self, order_id: int) -> dict | None:
+    def _get_by_id_raw(self, order_id: int) -> dict | None:
         if not is_online():
             return get_offline_graduation_order_by_id(order_id)
         try:

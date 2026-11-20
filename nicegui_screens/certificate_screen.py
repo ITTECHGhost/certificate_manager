@@ -715,7 +715,8 @@ class CertificateScreen:
         # Fill University Order & Rank
         if data.get("order_number"):
             self.sw_order.value = True
-            self.inp_order_num.value = str(data.get("order_number") or "")
+            from utils.order_number import normalize_order_number
+            self.inp_order_num.value = normalize_order_number(data.get("order_number")).value
             self.inp_order_date.value = str(data.get("order_date") or "")
 
         rank_val_def = data.get("rank") or data.get("sequence_number")

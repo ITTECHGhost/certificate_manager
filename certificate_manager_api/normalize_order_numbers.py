@@ -3,12 +3,15 @@ r"""Lists graduation orders whose number is not in the form 20707/12/3, and can 
     py normalize_order_numbers.py           -> report only, writes nothing
     py normalize_order_numbers.py --apply   -> fixes the ones it can, in ONE transaction
 
-Before --apply on the server: take a mysqldump into backups\ (the usual rule).
+--apply first dumps the whole database into backups\order_numbers_<time>.sql
+(mysqldump) and stops if that fails, so nothing is changed without a backup.
 Numbers with no part of 4+ digits, more than one, or one in the middle are never changed:
 they are listed for someone to fix by hand in the program.
 order_number.py here is a copy of utils/order_number.py (a test keeps them the same).
 """
 import sys
+from datetime import datetime
+from pathlib import Path
 
 import mysql.connector
 
@@ -36,6 +39,12 @@ def main(apply: bool) -> int:
             print(f"order {oid}: {raw!r} NEEDS REVIEW (fix by hand)")
         print(f"{len(fix)} to fix, {len(review)} to review by hand")
         if apply and fix:
+            from db import backup_db
+            dump = Path(__file__).resolve().parent / "backups" / f"order_numbers_{datetime.now():%Y%m%d_%H%M%S}.sql"
+            backup_db(dump)  # raises (and nothing is changed) if the dump fails
+            if not dump.is_file() or dump.stat().st_size < 1000:
+                raise SystemExit(f"backup looks empty, nothing changed: {dump}")
+            print(f"backup: {dump}")
             try:
                 for oid, _raw, new in fix:
                     cur.execute("UPDATE graduation_orders SET order_number = %s WHERE id = %s", (new, oid))

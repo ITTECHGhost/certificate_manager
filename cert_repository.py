@@ -64,6 +64,12 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(na
 # 2. Data Fetching Layer (Online API / Direct MySQL SP / Offline SQLite)
 # =============================================================================
 
+
+def _clean_order_number(raw) -> str:
+    """Order number from the database in the form 20707/12/3 (see utils/order_number.py)."""
+    from utils.order_number import normalize_order_number
+    return normalize_order_number(raw).value
+
 def _normalize_raw_payload(payload_dict: Dict[str, Any], student_id: int, grouping_mode: str) -> Dict[str, Any]:
     """
     Normalizes list/dict payload variations from API or SQLite into a standardized dict representation.
@@ -363,7 +369,7 @@ def _format_demographics(ctx: Dict[str, Any], data: Dict[str, Any], is_english: 
         "graduation_year": student_info.get("graduation_year") or "",
         "graduation_date": student_info.get("graduation_date") or "",
         "graduation_semester": student_info.get("graduation_semester") or "",
-        "order_number": student_info.get("order_number") or "",
+        "order_number": _clean_order_number(student_info.get("order_number")),
         "order_date": student_info.get("order_date") or "",
         "dept_name_ar": student_info.get("dept_name_ar") or "",
         "dept_name_en": student_info.get("dept_name_en") or "",
