@@ -3,6 +3,7 @@
 # =============================================================================
 # Moved from nicegui_screens/certificate_screen.py, which re-imports every name.
 
+from utils.order_number import ltr, normalize_order_number
 import re
 from itertools import zip_longest
 
@@ -800,7 +801,8 @@ def build_certificate_context(data: dict, options: dict) -> dict:
         "Summer_Training_year": to_arabic_num(options.get("summer_year") or "", is_english),
         "Postponement_and_Failure_Years": to_arabic_num(options.get("postpone_years") or "", is_english),
         "Subjects_Passed_with_Second_Trial": second_subjects,
-        "order_number": to_arabic_num(ord_num, is_english),
+        # Normalised (20707/12/3) and isolated left-to-right, so Arabic text never reverses it
+        "order_number": ltr(to_arabic_num(normalize_order_number(ord_num).value, is_english)),
         "order_date": format_date_rtl(ord_date, is_english),
         "num_s_r": first_pair.get("num_s_r", ""),
         "num_s_l": first_pair.get("num_s_l", ""),

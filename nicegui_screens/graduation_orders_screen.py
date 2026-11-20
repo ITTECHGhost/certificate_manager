@@ -308,6 +308,24 @@ class GraduationOrdersScreen(OrderWorkspaceMixin):
                                 value=existing_data.get("order_date", "") if existing_data else "",
                             ).classes("flex-1 text-sm")
 
+                        # What will be saved: the 5-digit part first, whatever the typing direction
+                        from utils.order_number import ltr, normalize_order_number
+                        order_preview = ui.label("").classes("text-xs -mt-2").props('dir="rtl"')
+
+                        def _refresh_order_preview(_=None):
+                            norm = normalize_order_number(order_num_inp.value)
+                            if not norm.value:
+                                order_preview.set_text("")
+                            elif norm.needs_review:
+                                order_preview.set_text(f"تحقق من الرقم: لم يُعرف الجزء الرئيسي (4 أو 5 مراتب) — سيُحفظ كما كُتب: {ltr(norm.value)}")
+                                order_preview.classes(replace="text-xs -mt-2 text-orange-700")
+                            else:
+                                order_preview.set_text(f"سيُحفظ هكذا: {ltr(norm.value)}")
+                                order_preview.classes(replace="text-xs -mt-2 app-text-secondary")
+
+                        order_num_inp.on_value_change(_refresh_order_preview)
+                        _refresh_order_preview()
+
                         # Row 2: Academic Details (Dept, Study Type, Year, Semester)
                         with ui.row().classes("w-full gap-4"):
                             def_dept = existing_data.get("department_id") if existing_data else (list(dept_opts.keys())[0] if dept_opts else 1)
@@ -343,7 +361,7 @@ class GraduationOrdersScreen(OrderWorkspaceMixin):
                         # Save Order Details Button
                         with ui.row().classes("w-full justify-end gap-3 pt-2 border-t border-[var(--border-default)]"):
                             def save_order_action():
-                                onum = order_num_inp.value.strip() if order_num_inp.value else ""
+                                onum = normalize_order_number(order_num_inp.value).value
                                 if not onum:
                                     ui.notify("رقم الأمر مطلوب", type="warning")
                                     return

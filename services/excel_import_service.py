@@ -2,6 +2,7 @@
 # services/excel_import_service.py — Excel Import & Template Engine
 # =============================================================================
 
+from utils.order_number import normalize_order_number
 import io
 import re
 import logging
@@ -306,7 +307,7 @@ def parse_students_file(file_bytes: bytes) -> Tuple[List[Dict[str, Any]], List[s
             if "expected_year" in col_mapping else None,
             "expected_graduation_semester": parse_semester(ws.cell(row=row_idx, column=col_mapping["expected_semester"]).value)
             if "expected_semester" in col_mapping else "",
-            "order_number": str(normalize_digits(ws.cell(row=row_idx, column=col_mapping["order_number"]).value) or "").strip()
+            "order_number": normalize_order_number(ws.cell(row=row_idx, column=col_mapping["order_number"]).value).value
             if "order_number" in col_mapping else "",
         })
 
