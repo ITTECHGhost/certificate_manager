@@ -74,6 +74,10 @@ def _check(p: RankingPayload) -> None:
         raise HTTPException(422, "bad study_type")
     if p.exam_round and p.exam_round not in ROUNDS:
         raise HTTPException(422, "exam_round must be 1 or 2")
+    if not p.department_id:
+        raise HTTPException(422, "department_id is required")
+    if p.list_type == "jobs" and not (p.study_type and p.exam_round):
+        raise HTTPException(422, "a jobs list needs study_type and exam_round")
     if not p.entries:
         raise HTTPException(422, "the list is empty")
     positions = [e.position for e in p.entries]
@@ -81,8 +85,120 @@ def _check(p: RankingPayload) -> None:
         raise HTTPException(422, "positions must be unique and start from 1")
 
 
+PAGE_PERMISSIONS = ("page:rankings",)   # same key the sidebar uses for the page
+
+
+def _require_user(conn, personnel_id: Optional[int]) -> None:
+    """Refuse a write unless personnel_id is an active account that is an admin or was granted the
+    rankings page (page:rankings). NOTE: the server has no per-user token yet (known gap,
+    docs/PLAN_archive_and_next.md), so this trusts the id the client sends."""
+    if not personnel_id:
+        raise HTTPException(403, "A signed-in user is required")
+    cur = conn.cursor(dictionary=True, buffered=True)
+    try:
+        cur.execute("SELECT id, personnel_role, is_active FROM personnel WHERE id = %s", (personnel_id,))
+        user = cur.fetchone()
+        if not user or not user.get("is_active"):
+            raise HTTPException(403, "Account not found or disabled")
+        if str(user.get("personnel_role") or "").lower() == "admin":
+            return
+        cur.execute("SELECT permission_key FROM personnel_permissions "
+                    "WHERE personnel_id = %s AND is_granted = 1", (personnel_id,))
+        granted = {r["permission_key"] for r in cur.fetchall()}
+    finally:
+        cur.close()
+    if not granted.intersection(PAGE_PERMISSIONS):
+        raise HTTPException(403, "No permission for official ranking lists")
+
+
+def _has_soft_delete(conn) -> bool:
+    """True once migration 0010 ran (official_rankings.deleted_at exists)."""
+    cur = conn.cursor(dictionary=True, buffered=True)
+    try:
+        cur.execute("SELECT COUNT(*) AS n FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() "
+                    "AND TABLE_NAME = 'official_rankings' AND COLUMN_NAME = 'deleted_at'")
+        row = cur.fetchone()
+        return bool(row and row.get("n"))
+    finally:
+        cur.close()
+
+
+def _paging(page: int, page_size: int) -> tuple:
+    page = max(1, int(page or 1))
+    page_size = min(100, max(1, int(page_size or 25)))
+    return page, page_size, (page - 1) * page_size
+
+
+def _like(search: str) -> str:
+    q = str(search or "").strip().replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_")
+    return "%" + q + "%"
+
+
+@router.get("/page")
+def rankings_page(search: str = "", page: int = 1, page_size: int = 25,
+                  department_id: Optional[int] = None, conn=Depends(get_db)):
+    """One page of lists, newest first. Search: order number, title, year or department name."""
+    page, page_size, offset = _paging(page, page_size)
+    where, params = ["1 = 1"], []
+    if _has_soft_delete(conn):
+        where.append("r.deleted_at IS NULL")
+    if department_id:
+        where.append("r.department_id = %s")
+        params.append(department_id)
+    if str(search or "").strip():
+        like = _like(search)
+        where.append("(r.order_number LIKE %s OR r.title LIKE %s OR r.academic_year LIKE %s OR d.name_ar LIKE %s)")
+        params += [like, like, like, like]
+    w = " AND ".join(where)
+    cur = conn.cursor(dictionary=True)
+    try:
+        cur.execute("SELECT COUNT(*) AS n FROM official_rankings r LEFT JOIN departments d ON d.id = r.department_id "
+                    "WHERE " + w, tuple(params))
+        total = int((cur.fetchone() or {}).get("n") or 0)
+        cur.execute(
+            "SELECT r.id, r.list_type, r.title, r.order_number, DATE_FORMAT(r.order_date, '%Y-%m-%d') AS order_date, "
+            "r.department_id, COALESCE(d.name_ar, '') AS department_name, r.study_type, r.exam_round, r.academic_year, "
+            "COUNT(e.position) AS total, SUM(e.student_id IS NOT NULL) AS matched "
+            "FROM official_rankings r LEFT JOIN departments d ON d.id = r.department_id "
+            "LEFT JOIN official_ranking_entries e ON e.ranking_id = r.id "
+            "WHERE " + w + " GROUP BY r.id ORDER BY r.id DESC LIMIT %s OFFSET %s",
+            tuple(params) + (page_size, offset))
+        items = [{**r, "matched": int(r.get("matched") or 0)} for r in cur.fetchall()]
+        return {"items": items, "total": total, "page": page, "page_size": page_size}
+    finally:
+        cur.close()
+
+
+@router.get("/{ranking_id}/entries-page")
+def ranking_entries_page(ranking_id: int, search: str = "", only_unlinked: bool = False,
+                         page: int = 1, page_size: int = 50, conn=Depends(get_db)):
+    """One page of a list's names. Search: written name, linked student name or position."""
+    page, page_size, offset = _paging(page, page_size)
+    where, params = ["e.ranking_id = %s"], [ranking_id]
+    if only_unlinked:
+        where.append("e.student_id IS NULL")
+    q = str(search or "").strip()
+    if q:
+        like = _like(q)
+        where.append("(e.name_written LIKE %s OR s.full_name_ar LIKE %s OR e.position = %s)")
+        params += [like, like, int(q) if q.isdigit() else -1]
+    w = " AND ".join(where)
+    cur = conn.cursor(dictionary=True)
+    try:
+        base = "FROM official_ranking_entries e LEFT JOIN students s ON s.id = e.student_id WHERE " + w
+        cur.execute("SELECT COUNT(*) AS n " + base, tuple(params))
+        total = int((cur.fetchone() or {}).get("n") or 0)
+        cur.execute("SELECT e.position, e.name_written, e.average, e.student_id, COALESCE(s.full_name_ar, '') AS student_name "
+                    + base + " ORDER BY e.position LIMIT %s OFFSET %s", tuple(params) + (page_size, offset))
+        items = [{**r, "average": float(r["average"]) if r.get("average") is not None else None} for r in cur.fetchall()]
+        return {"items": items, "total": total, "page": page, "page_size": page_size}
+    finally:
+        cur.close()
+
+
 @router.get("")
 def list_rankings(conn=Depends(get_db)):
+    soft = "WHERE r.deleted_at IS NULL " if _has_soft_delete(conn) else ""
     cur = conn.cursor(dictionary=True)
     try:
         cur.execute(
@@ -91,7 +207,7 @@ def list_rankings(conn=Depends(get_db)):
             "COUNT(e.position) AS total, SUM(e.student_id IS NOT NULL) AS matched "
             "FROM official_rankings r LEFT JOIN departments d ON d.id = r.department_id "
             "LEFT JOIN official_ranking_entries e ON e.ranking_id = r.id "
-            "GROUP BY r.id ORDER BY r.id DESC")
+            + soft + "GROUP BY r.id ORDER BY r.id DESC")
         return [{**r, "matched": int(r.get("matched") or 0)} for r in cur.fetchall()]
     finally:
         cur.close()
@@ -112,6 +228,7 @@ def ranking_entries(ranking_id: int, conn=Depends(get_db)):
 @router.post("")
 def save_ranking(p: RankingPayload, conn=Depends(get_db)):
     _check(p)
+    _require_user(conn, p.created_by)
     cur = conn.cursor()
     try:
         cur.execute(
@@ -136,8 +253,10 @@ def save_ranking(p: RankingPayload, conn=Depends(get_db)):
 
 
 @router.put("/{ranking_id}/entries/{position}")
-def set_entry_student(ranking_id: int, position: int, student_id: Optional[int] = None, conn=Depends(get_db)):
+def set_entry_student(ranking_id: int, position: int, student_id: Optional[int] = None,
+                      personnel_id: Optional[int] = None, conn=Depends(get_db)):
     """Links (or unlinks) one row of the list to a student after the import."""
+    _require_user(conn, personnel_id)
     cur = conn.cursor()
     try:
         cur.execute("UPDATE official_ranking_entries SET student_id = %s WHERE ranking_id = %s AND position = %s",
@@ -149,12 +268,22 @@ def set_entry_student(ranking_id: int, position: int, student_id: Optional[int] 
 
 
 @router.delete("/{ranking_id}")
-def delete_ranking(ranking_id: int, conn=Depends(get_db)):
+def delete_ranking(ranking_id: int, personnel_id: Optional[int] = None, conn=Depends(get_db)):
+    """Archives the list (soft delete, migration 0010); before the migration it is deleted for real."""
+    _require_user(conn, personnel_id)
+    soft = _has_soft_delete(conn)
     cur = conn.cursor()
     try:
-        cur.execute("DELETE FROM official_rankings WHERE id = %s", (ranking_id,))   # entries cascade
+        if soft:
+            cur.execute("UPDATE official_rankings SET deleted_at = NOW(), deleted_by = %s "
+                        "WHERE id = %s AND deleted_at IS NULL", (personnel_id, ranking_id))
+        else:
+            cur.execute("DELETE FROM official_rankings WHERE id = %s", (ranking_id,))   # entries cascade
         conn.commit()
         return {"deleted": cur.rowcount}
+    except Exception as exc:
+        conn.rollback()
+        raise HTTPException(500, f"Nothing was deleted: {exc}")
     finally:
         cur.close()
 

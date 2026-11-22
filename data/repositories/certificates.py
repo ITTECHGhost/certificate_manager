@@ -361,6 +361,10 @@ class IssuedCertificateRepository(BaseRepository):
 
         try:
             resp = api_client.put(f"{self.api_url}/issued-certificates/{cert_id}", json=payload, timeout=5.0)
+            if 400 <= resp.status_code < 500:
+                # Refused (e.g. 409: archived, final) - never queue it offline to be re-sent
+                log_system(f"API refused issued certificate update ({resp.status_code}): {resp.text}", "WARNING")
+                raise CertificateRejected(resp.status_code, "الوثيقة مؤرشفة (نهائية) ولا يمكن تعديلها" if resp.status_code == 409 else resp.text)
             if resp.status_code != 200:
                 log_system(f"API update issued certificate warning: {resp.text}", "WARNING")
                 from data.query import update_offline_issued_certificate
@@ -371,6 +375,8 @@ class IssuedCertificateRepository(BaseRepository):
                     issue_date=payload.get("issue_date"),
                     certificate_number=payload.get("certificate_number")
                 )
+        except CertificateRejected:
+            raise
         except Exception as e:
             log_system(f"API request failed for update issued certificate: {e}", "WARNING")
             from data.query import update_offline_issued_certificate

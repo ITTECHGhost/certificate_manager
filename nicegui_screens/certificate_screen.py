@@ -10,7 +10,7 @@ import asyncio
 import urllib.parse
 from itertools import zip_longest
 from docxtpl import DocxTemplate
-from nicegui import ui
+from nicegui import background_tasks, run, ui
 
 import app_paths
 
@@ -1195,10 +1195,17 @@ class CertificateScreen:
                         log.info(f"Successfully recorded issued certificate for student ID {student_id} via InsertIssuedCertificate SP.")
                     # Stay on the record just issued, so the Word and PDF buttons re-issue it
                     # (update) instead of trying to insert a second record.
+                    rec_id = reissue_id
                     if not reissue_id:
                         new_rec = self._find_issued_record(student_id, issue_dt or "", to_title, tpl_type)
                         if new_rec:
+                            rec_id = new_rec.get("id") or new_rec.get("certificate_id")
                             self._enter_edit_mode(new_rec, self.student_full_data.get("full_name_ar", ""))
+                    # The editable Word file goes to the server as this record's draft (print date
+                    # moves); in the background, so printing never waits. Offline: skipped, logged.
+                    if rec_id:
+                        from services.issued_doc_files import save_draft_quietly
+                        background_tasks.create(run.io_bound(save_draft_quietly, rec_id, out_file, u_id))
             except CertificateRejected as rej:
                 log.warning(f"Server refused to record the issued certificate: {rej}")
                 UI.notify(

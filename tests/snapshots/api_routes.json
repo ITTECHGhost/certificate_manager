@@ -729,6 +729,14 @@
  ],
  [
   "GET",
+  "/api/official-rankings/page"
+ ],
+ [
+  "GET",
+  "/api/official-rankings/{ranking_id}/entries-page"
+ ],
+ [
+  "GET",
   "/api/official-rankings"
  ],
  [
@@ -754,5 +762,65 @@
  [
   "GET",
   "/api/official-rankings/for-student/{student_id}"
+ ],
+ [
+  "GET",
+  "/api/official-rankings/{ranking_id}/images"
+ ],
+ [
+  "GET",
+  "/api/official-rankings/{ranking_id}/images/{image_id}"
+ ],
+ [
+  "POST",
+  "/api/official-rankings/{ranking_id}/images"
+ ],
+ [
+  "DELETE",
+  "/api/official-rankings/{ranking_id}/images/{image_id}"
+ ],
+ [
+  "GET",
+  "/api/issued-doc-files/signed-ids"
+ ],
+ [
+  "GET",
+  "/api/issued-doc-files/status"
+ ],
+ [
+  "GET",
+  "/api/issued-doc-files/{cert_id}"
+ ],
+ [
+  "GET",
+  "/api/issued-doc-files/{cert_id}/{file_id}"
+ ],
+ [
+  "POST",
+  "/api/issued-doc-files/{cert_id}"
+ ],
+ [
+  "DELETE",
+  "/api/issued-doc-files/{cert_id}/{file_id}"
+ ],
+ [
+  "POST",
+  "/api/feedback"
+ ],
+ [
+  "GET",
+  "/api/feedback"
+ ],
+ [
+  "PUT",
+  "/api/feedback/{feedback_id}/reply"
+ ],
+ [
+  "PUT",
+  "/api/feedback/{feedback_id}"
+ ],
+ [
+  "DELETE",
+  "/api/feedback/{feedback_id}"
  ]
 ]
