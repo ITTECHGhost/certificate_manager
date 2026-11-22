@@ -1601,3 +1601,18 @@ def search_offline_students_filtered(limit: int = 25, offset: int = 0, **filters
         "ORDER BY CASE WHEN s.id < 0 THEN 1 ELSE 0 END DESC, ABS(s.id) DESC LIMIT ? OFFSET ?",
         (*params, limit, offset)) or []
     return {"rows": rows, "total": int(row["total"]) if row else 0}
+
+
+def get_past_to_titles(limit: int = 300) -> List[str]:
+    """«إلى» values already used on issued certificates (synced + offline), most used first,
+    for the suggestions of the to-whom field. Read-only on the local replica; [] on any error."""
+    try:
+        rows = sqlite_read_all(
+            "SELECT TRIM(to_title) AS t, COUNT(*) AS n FROM ("
+            "  SELECT to_title FROM issued_certificates"
+            "  UNION ALL SELECT to_title FROM local_issued_certificates"
+            ") WHERE TRIM(COALESCE(to_title, '')) <> '' GROUP BY TRIM(to_title) "
+            "ORDER BY n DESC, t LIMIT ?", (int(limit),)) or []
+    except Exception:
+        return []
+    return [r["t"] for r in rows if r.get("t")]

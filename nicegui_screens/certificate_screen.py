@@ -206,6 +206,10 @@ class CertificateScreen:
                                 "إلى (الجهة المعنية)",
                                 value="من يهمه الأمر",
                             ).classes("w-full")
+                            # Suggestions while typing: the «إلى» values used before, most used first
+                            from data.query import get_past_to_titles
+                            self.to_input.set_autocomplete(get_past_to_titles())
+                            self.to_input.tooltip("اكتب أول الحروف لتظهر الجهات المستعملة سابقًا؛ زر الجدولة لاختيار الاقتراح")
 
                         with ui.column().classes("gap-3 min-w-0"):
                             with ui.row().classes("w-full items-center gap-1 no-wrap"):
