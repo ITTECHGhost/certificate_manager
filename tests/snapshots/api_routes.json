@@ -772,6 +772,14 @@
   "/api/feedback"
  ],
  [
+  "PUT",
+  "/api/feedback/{feedback_id}/reply"
+ ],
+ [
+  "PUT",
+  "/api/feedback/{feedback_id}"
+ ],
+ [
   "DELETE",
   "/api/feedback/{feedback_id}"
  ]

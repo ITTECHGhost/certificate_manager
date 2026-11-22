@@ -68,15 +68,7 @@ def test_message_is_capped():
     assert len(conn.cur.sql[0][1][0]) == 4000
 
 
-def test_list_skips_deleted_and_delete_is_soft():
-    conn = _Conn(rows=[{"id": 1}])
-    assert list_feedback(conn) == [{"id": 1}]
-    assert "deleted_at IS NULL" in conn.cur.sql[0][0]
-    conn2 = _Conn()
-    delete_feedback(1, conn2, deleted_by=2)
-    sql = conn2.cur.sql[0][0]
-    assert sql.startswith("UPDATE feedback SET deleted_at") and "DELETE" not in sql
-    assert conn2.commits == 1
+# list + soft delete now need the calling user: see tests/test_feedback_reply.py (0011)
 
 
 def test_repository_send_offline_raises(monkeypatch):
