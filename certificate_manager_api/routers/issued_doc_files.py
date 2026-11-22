@@ -1,5 +1,8 @@
 """Archive files of «سجل الوثائق الصادرة» (migration 0013).
 
+Only the FINAL document is archived: printed, signed, stamped, with its issued number and
+date (issue_date is NOT NULL; an upload without certificate_number is refused, 409).
+
 Files on disk: issue_archive\\<year>\\<sha256>.<pdf|jpg|png>, written as .part and renamed only
 after the row is committed. Replace = a new row with supersedes_id (old versions stay).
 Delete = soft delete (the file stays).
@@ -23,7 +26,7 @@ router = APIRouter(prefix="/api/issued-doc-files", tags=["issued-doc-files"])
 MAX_FILE_BYTES = 20 * 1024 * 1024
 API_DIR = Path(__file__).resolve().parents[1]
 ARCHIVE_DIR = Path("C:/AppServ/issue_archive") if os.path.isdir("C:/AppServ") else API_DIR / "issue_archive"
-KINDS = ("signed", "generated")
+KINDS = ("signed",)   # only the final signed+stamped document is archived
 VIEW, MANAGE = "issued_certs:view", "issued_certs:delete"
 _TYPES = ((b"%PDF", "pdf", "application/pdf"), (b"\xff\xd8\xff", "jpg", "image/jpeg"),
           (b"\x89PNG", "png", "image/png"))
@@ -110,10 +113,12 @@ async def add_file(cert_id: int, file: UploadFile = File(...), kind: str = Form(
     sha = hashlib.sha256(data).hexdigest()
     cur = conn.cursor(dictionary=True, buffered=True)
     try:
-        cur.execute("SELECT id, YEAR(issue_date) AS y FROM issued_certificates WHERE id = %s", (cert_id,))
+        cur.execute("SELECT id, YEAR(issue_date) AS y, certificate_number FROM issued_certificates WHERE id = %s", (cert_id,))
         cert = cur.fetchone()
         if not cert:
             raise HTTPException(404, "Issued document not found")
+        if not str(cert.get("certificate_number") or "").strip():
+            raise HTTPException(409, "The document has no issued number yet")
         cur.execute("SELECT id FROM issued_document_files WHERE certificate_id = %s AND sha256 = %s "
                     "AND deleted_at IS NULL", (cert_id, sha))
         dup = cur.fetchone()

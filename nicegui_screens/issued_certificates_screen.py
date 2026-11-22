@@ -601,9 +601,17 @@ class IssuedCertificatesScreen:
                           type="positive")
                 await refresh()
 
-            clear_when_done(ui.upload(label="رفع النسخة الموقعة المختومة (PDF أو صورة)", auto_upload=True,
-                                      on_upload=on_upload).props('accept=".pdf,.jpg,.jpeg,.png" flat bordered'
-                                                                 ).classes("w-full"))
+            # Archive only the final document: printed, signed, stamped, numbered and dated
+            if str(row.get("certificate_number") or "").strip() in ("", "—"):
+                with ui.row().classes("app-chip--warning w-full items-start gap-2 no-wrap rounded-lg p-3"):
+                    ui.icon("info", size="20px").classes("shrink-0")
+                    ui.label("لا تُؤرشف الوثيقة قبل طباعتها وتوقيعها وختمها وإعطائها رقمًا صادرًا وتاريخًا."
+                             ).classes("text-sm")
+            else:
+                ui.label("ارفع الوثيقة بعد طباعتها وتوقيعها وختمها.").classes("app-caption")
+                clear_when_done(ui.upload(label="رفع النسخة الموقعة المختومة (PDF أو صورة)", auto_upload=True,
+                                          on_upload=on_upload).props('accept=".pdf,.jpg,.jpeg,.png" flat bordered'
+                                                                     ).classes("w-full"))
             ui.timer(0.05, refresh, once=True)
         dialog.open()
 

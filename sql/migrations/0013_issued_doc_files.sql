@@ -1,4 +1,5 @@
--- 0013: archive files of «سجل الوثائق الصادرة» (signed/stamped scans; later the generated PDF).
+-- 0013: archive files of «سجل الوثائق الصادرة»: the FINAL document only (printed, signed, stamped,
+--   with its issued number and date). kind stays for future use; the API accepts 'signed' only.
 --   Files on the server: issue_archive\<year>\<sha256>.<pdf|jpg|png>; the table keeps the row.
 --   Replace = a NEW row with supersedes_id (old versions are kept). Soft delete only.
 -- Rollback: sql/fixes/rollback_0013_issued_doc_files.sql

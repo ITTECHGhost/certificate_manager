@@ -6,7 +6,7 @@ Branch `overnight-builds` (NOT pushed, NOT merged into main) has:
 - B: scanned pages for official ranking lists (migration 0012, router `ranking_images.py`,
   `services/ranking_images.py`, «الورقة الممسوحة» button in the lists table)
 - Archive in «سجل الوثائق الصادرة» (migration 0013, router `issued_doc_files.py`, button «الأرشيف»
-  in a record's dialog, filter «النسخة الموقعة»). Next part: auto-save the generated PDF.
+  in a record's dialog, filter «النسخة الموقعة»). Only the final signed+stamped+numbered document is archived (no auto-save of generated PDFs).
 main has `00b238a` (scripts/orders_csv_to_roster.py) — NOT pushed.
 
 User steps still open:

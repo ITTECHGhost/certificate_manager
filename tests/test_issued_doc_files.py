@@ -18,7 +18,7 @@ PDF = b"%PDF-1.4 signed scan"
 PNG = b"\x89PNG\r\n\x1a\n data"
 ADMIN = {"id": 1, "personnel_role": "admin", "is_active": 1}
 USER = {"id": 7, "personnel_role": "user", "is_active": 1}
-CERT = {"id": 3, "y": 2026}
+CERT = {"id": 3, "y": 2026, "certificate_number": "125/2026"}
 
 
 class _Cur:
@@ -130,6 +130,21 @@ def test_unknown_certificate_404():
     with pytest.raises(HTTPException) as e:
         _add(conn)
     assert e.value.status_code == 404 and not _writes(conn)
+
+
+def test_no_issued_number_refused(archive_dir):
+    """Archive only the final document: printed, signed, stamped, with its number and date."""
+    conn = _Conn(one=[ADMIN, {"id": 3, "y": 2026, "certificate_number": None}])
+    with pytest.raises(HTTPException) as e:
+        _add(conn)
+    assert e.value.status_code == 409 and not _writes(conn) and not _files(archive_dir)
+
+
+def test_generated_kind_not_accepted():
+    up = UploadFile(file=io.BytesIO(PDF), filename="a.pdf")
+    with pytest.raises(HTTPException) as e:
+        asyncio.run(idf.add_file(3, up, "generated", 1, None, _Conn(one=[ADMIN])))
+    assert e.value.status_code == 422
 
 
 def test_duplicate_not_added():
