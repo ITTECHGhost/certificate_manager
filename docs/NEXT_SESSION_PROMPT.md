@@ -14,7 +14,8 @@ User steps still open:
 1. mysqldump the dev DB to F:\CR_PY\db_backups_dev, then from certificate_manager_api:
    `py -3 migrate.py --sql-dir ..\sql` (runs 0011, 0012, 0013).
 2. Restart start_server.bat, test feedback reply, ranking scans and the archive in the app; review dialog (later).
-3. Run orders_csv_to_roster.py on a real Gemini CSV; birthplace default البصرة.
+3. Try «استيراد الأوامر الممسوحة» (admins, sidebar) on a real Gemini CSV: create the orders in
+   «أوامر التخرج» first, then import (link_only: no academic period). Script still works too.
 4. Then: merge overnight-builds into main (ask), push with OK.
 
 Known: tests/test_api_golden fails since ff05a22 (unrelated). Migration numbers: 0008 reserved

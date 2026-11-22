@@ -139,6 +139,7 @@ NAV_ITEMS: list[dict] = [
     {"key": "students",    "ar": "الطلاب",          "en": "Students",          "icon": "people"},
     {"key": "orders",      "ar": "أوامر التخرج",    "en": "Graduation Orders", "icon": "school"},
     {"key": "rankings",    "ar": "قوائم الترتيب الرسمية", "en": "Official Rankings", "icon": "format_list_numbered"},
+    {"key": "scan_import", "ar": "استيراد الأوامر الممسوحة", "en": "Scanned Orders Import", "icon": "document_scanner"},
     {"key": "courses",     "ar": "المواد الدراسية", "en": "Courses",           "icon": "book"},
     {"key": "certificate",  "ar": "إصدار كتاب",       "en": "Issue Certificate",    "icon": "print"},
     {"key": "issued_certs", "ar": "سجل الوثائق الصادرة", "en": "Issued Certificates",  "icon": "fact_check"},

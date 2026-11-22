@@ -70,6 +70,9 @@ class BulkImportStudentItem(BaseModel):
     expected_graduation_semester: Optional[str] = ""
     order_number: Optional[str] = ""   # empty = not graduated yet
     study_type: Optional[str] = None   # 0006: morning / evening / parallel (old clients: none)
+    # Scanned graduation orders (no grades): save the student + link the order, but create NO
+    # academic period (a stage-1 period would be wrong for a graduate). Old clients: False.
+    link_only: Optional[bool] = False
 
 
 class BulkImportRequest(BaseModel):
@@ -225,6 +228,9 @@ def bulk_import_students(payload: BulkImportRequest, conn=Depends(get_db_depende
                         linked_to_orders += 1
                     else:
                         order_warnings.append(f"{item.full_name_ar}: مرتبط بأمر تخرج آخر، لم يُغيَّر")
+
+            if item.link_only:
+                continue
 
             # 2. Check or create academic periods & enrollments
             sem_num = item.semester_num if item.semester_num is not None else 1

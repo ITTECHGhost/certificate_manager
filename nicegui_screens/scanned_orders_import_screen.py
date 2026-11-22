@@ -1,0 +1,191 @@
+# =============================================================================
+# nicegui_screens/scanned_orders_import_screen.py — «استيراد الأوامر الممسوحة» (admins)
+# Gemini's CSV files of scanned graduation orders -> review -> students saved and linked to their
+# order (services/scanned_orders_import.py). Online only. One request per order, all-or-nothing.
+# =============================================================================
+
+from nicegui import background_tasks, run, ui
+
+from nicegui_ui.ui_components import UI
+from nicegui_ui.upload_utils import read_upload, clear_when_done
+from services import scanned_orders_import as soi
+from utils.file_delivery import deliver_file
+
+IMPORTABLE = (soi.EXACT, soi.VARIANT, soi.NEW)
+STATUS_COLOR = {soi.EXACT: "green", soi.VARIANT: "teal", soi.NEW: "orange",
+                soi.AMBIGUOUS: "red", soi.NO_DEPT: "red", soi.DUPLICATE: "grey"}
+GENDERS = {1: "ذكر", 2: "أنثى"}
+
+
+class ScannedOrdersImportScreen:
+    def __init__(self):
+        self.files: list[tuple[str, str]] = []
+        self.result = None
+        self.container = ui.column().classes("w-full gap-4")
+        self.show()
+
+    # ── step 1: files ────────────────────────────────────────────────────────
+    def show(self):
+        self.container.clear()
+        with self.container, UI.card().classes("gap-3"):
+            ui.label("استيراد الأوامر الممسوحة").classes("app-section-title")
+            ui.label("ارفع ملفات CSV التي أخرجها الذكاء الاصطناعي من صور أوامر التخرج (ملف لكل أمر). يطابق البرنامج "
+                     "الأسماء مع الطلاب المحفوظين، ويضيف الجدد بقيم افتراضية (محل الولادة البصرة، الجنسية "
+                     "العراق) لتُكمل لاحقًا. لا تُنشأ سنوات دراسية؛ يُربط الطالب بأمر تخرجه فقط."
+                     ).classes("app-caption")
+            self.files_label = ui.label("لم تُرفع ملفات بعد.").classes("text-sm")
+
+            async def on_upload(e):
+                name, data = await read_upload(e)
+                try:
+                    text = data.decode("utf-8-sig")
+                except UnicodeDecodeError:
+                    UI.notify(f"{name}: ترميز الملف غير صحيح. احفظه من المفكرة بترميز يونيكود.", type="negative")
+                    return
+                self.files = [f for f in self.files if f[0] != name] + [(name, text)]
+                self.files_label.set_text("الملفات: " + "، ".join(n for n, _ in self.files))
+
+            clear_when_done(ui.upload(label="ملفات CSV", multiple=True, auto_upload=True,
+                                      on_upload=on_upload).props('accept=".csv" flat bordered').classes("w-full"))
+            with ui.row().classes("gap-2"):
+                UI.primary_button("تحليل ومطابقة", icon="manage_search", on_click=self.analyse)
+                UI.ghost_button("مسح الملفات", icon="delete_sweep", on_click=self._clear)
+        with self.container:
+            self.review_box = ui.column().classes("w-full gap-4")
+
+    def _clear(self):
+        self.files, self.result = [], None
+        self.show()
+
+    async def analyse(self):
+        if not self.files:
+            UI.notify("ارفع ملف CSV واحدًا على الأقل", type="warning")
+            return
+        try:
+            self.result = await run.io_bound(soi.analyse, list(self.files))
+        except Exception as err:
+            UI.notify(f"تعذر التحليل: {err}", type="negative")
+            return
+        self.render_review()
+
+    # ── step 2: review ───────────────────────────────────────────────────────
+    def render_review(self):
+        res = self.result
+        self.review_box.clear()
+        counts = {}
+        for r in res.review:
+            counts[r["الحالة"]] = counts.get(r["الحالة"], 0) + 1
+        with self.review_box:
+            with UI.card().classes("gap-2"):
+                with ui.row().classes("items-center gap-2"):
+                    ui.label("النتيجة").classes("app-section-title")
+                    for k, v in counts.items():
+                        ui.badge(f"{k}: {v}").props(f"color={STATUS_COLOR.get(k, 'grey')}")
+                    ui.space()
+                    UI.secondary_button("تصدير للمراجعة (Excel)", icon="file_download",
+                                        on_click=lambda: deliver_file(soi.review_xlsx(res), "مراجعة_الأوامر.xlsx",
+                                                                      title="تم تصدير ملف المراجعة"))
+                missing = soi.missing_orders(res)
+                if missing:
+                    with ui.row().classes("app-chip--warning w-full items-start gap-2 no-wrap rounded-lg p-3"):
+                        ui.icon("warning", size="20px").classes("shrink-0")
+                        ui.label("أوامر غير موجودة في النظام (يُحفظ طلابها دون ربط حتى تُنشأ في «أوامر التخرج»): "
+                                 + "، ".join(f"{o['رقم الأمر']} ({o['القسم']})" for o in missing)).classes("text-sm")
+
+            # importable rows, all ticked; click a row to fix its name / gender
+            with UI.card().classes("gap-2"):
+                ui.label("الأسماء القابلة للاستيراد (أزل العلامة عمّا لا تريده، واضغط الصف للتصحيح)"
+                         ).classes("font-bold app-text-primary")
+                rows = [self._row(i, it) for i, it in enumerate(res.items)]
+                table = ui.table(columns=[
+                    {"name": "status", "label": "الحالة", "field": "status", "align": "right"},
+                    {"name": "order", "label": "رقم الأمر", "field": "order"},
+                    {"name": "paper", "label": "الاسم في الورقة", "field": "paper", "align": "right"},
+                    {"name": "name", "label": "يُحفظ باسم", "field": "name", "align": "right"},
+                    {"name": "gender", "label": "الجنس", "field": "gender"},
+                    {"name": "average", "label": "المعدل", "field": "average"},
+                    {"name": "missing", "label": "يحتاج إكمال", "field": "missing", "align": "right"},
+                ], rows=rows, row_key="key", selection="multiple",
+                    pagination={"rowsPerPage": 50}).classes("w-full")
+                table.selected = list(rows)
+                table.on("rowClick", lambda e: self._edit_row(e.args[1], table))
+                self.table = table
+                with ui.row().classes("gap-2"):
+                    UI.primary_button("استيراد المحدد", icon="cloud_upload", on_click=self.confirm_import)
+
+            skipped = [r for r in res.review if r["الحالة"] not in IMPORTABLE]
+            if skipped:
+                with UI.card().classes("gap-2"):
+                    ui.label(f"لم تُستورد ({len(skipped)}): تُعالج يدويًا").classes("font-bold app-text-primary")
+                    ui.table(columns=[{"name": k, "label": k, "field": k, "align": "right"}
+                                      for k in ("الحالة", "رقم الأمر", "القسم", "الاسم في الورقة",
+                                                "الاسم في النظام", "الملف", "الصفحة", "السطر")],
+                             rows=skipped, pagination={"rowsPerPage": 20}).classes("w-full")
+
+    def _row(self, i, it):
+        rv = self.result.review[it["review_index"]]
+        return {"key": i, "status": it["status"], "order": it.get("order_number"),
+                "paper": rv["الاسم في الورقة"], "name": it["full_name_ar"],
+                "gender": GENDERS.get(it.get("gender"), "ذكر"),
+                "average": "" if it.get("average") is None else it["average"],
+                "missing": rv.get("يحتاج إكمال", "")}
+
+    def _edit_row(self, row, table):
+        it = self.result.items[row["key"]]
+        with ui.dialog() as dlg, UI.card().classes("app-dialog gap-3"):
+            ui.label("تصحيح قبل الاستيراد").classes("app-section-title")
+            ui.label(f"في الورقة: {row['paper']}").classes("app-caption")
+            name = UI.text_input("الاسم الذي يُحفظ", value=it["full_name_ar"])
+            if it["status"] != soi.NEW:
+                name.disable()
+                ui.label("طالب موجود: يبقى اسمه المحفوظ. غيّره من صفحة الطالب إن لزم.").classes("app-caption")
+            gender = ui.select(GENDERS, value=it.get("gender") or 1, label="الجنس").props("outlined dense")
+
+            def save():
+                if it["status"] == soi.NEW:
+                    it["full_name_ar"] = " ".join(str(name.value or "").split()) or it["full_name_ar"]
+                it["gender"] = int(gender.value or 1)
+                new = self._row(row["key"], it)
+                table.rows[row["key"]] = new
+                table.selected = [new if s["key"] == new["key"] else s for s in table.selected]
+                table.update()
+                dlg.close()
+            with ui.row().classes("app-dialog-actions"):
+                UI.ghost_button("إلغاء", on_click=dlg.close)
+                UI.primary_button("حفظ", icon="check", on_click=save)
+        dlg.open()
+
+    # ── step 3: import ───────────────────────────────────────────────────────
+    def confirm_import(self):
+        chosen = [self.result.items[r["key"]] for r in (self.table.selected or [])]
+        if not chosen:
+            UI.notify("لم تحدد أي اسم", type="warning")
+            return
+        new = sum(1 for it in chosen if it["status"] == soi.NEW)
+        UI.confirm_dialog("استيراد الأسماء",
+                          f"سيُحفظ {len(chosen)} اسمًا ({new} طالب جديد بقيم افتراضية) ويُربط كل منهم بأمر تخرجه. "
+                          "كل أمر يُستورد كاملًا أو لا شيء.", "استيراد",
+                          lambda: background_tasks.create(self.do_import(chosen)), danger=False)
+
+    async def do_import(self, chosen):
+        from data.repositories.students import StudentRepository
+        repo = StudentRepository()
+        done, failed, warnings = 0, [], []
+        for (order_no, _dept), group in soi.group_by_order(chosen).items():
+            try:
+                res = await run.io_bound(repo.bulk_import, soi.payloads(group))
+                done += len(group)
+                warnings += res.get("order_warnings") or []
+            except Exception as err:
+                failed.append(f"{order_no or 'بلا رقم'}: {err}")
+        with self.container, ui.dialog() as dlg, UI.card().classes("app-dialog gap-2").style("width: 640px"):
+            ui.label("نتيجة الاستيراد").classes("app-section-title")
+            ui.label(f"حُفظ {done} اسمًا.").classes("text-sm")
+            for f in failed:
+                ui.label(f"لم يُستورد الأمر {f}").classes("text-sm text-red-600")
+            if warnings:
+                ui.label("تنبيهات الربط:").classes("font-bold")
+                for w in warnings[:30]:
+                    ui.label(w).classes("app-caption")
+            UI.primary_button("إغلاق", on_click=dlg.close)
+        dlg.open()

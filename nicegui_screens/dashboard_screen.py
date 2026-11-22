@@ -467,6 +467,7 @@ class MainAppShell:
             "students":     "الطلاب",
             "orders":       "أوامر التخرج",
             "rankings":     "قوائم الترتيب الرسمية",
+            "scan_import":  "استيراد الأوامر الممسوحة",
             "courses":      "المواد الدراسية",
             "personnel":    "الكوادر",
             "certificate":  "إصدار كتاب",
@@ -537,6 +538,12 @@ class MainAppShell:
             elif self.current_screen == "rankings":
                 from nicegui_screens.official_rankings_screen import OfficialRankingsScreen
                 OfficialRankingsScreen()
+            elif self.current_screen == "scan_import":
+                # Admins only: other users never get this key in their screens (no page grant exists)
+                from nicegui_ui.state import app_session
+                if app_session.role == "admin":
+                    from nicegui_screens.scanned_orders_import_screen import ScannedOrdersImportScreen
+                    ScannedOrdersImportScreen()
             elif self.current_screen == "reports":
                 from nicegui_screens.reports_screen import ReportsScreen
                 ReportsScreen()
