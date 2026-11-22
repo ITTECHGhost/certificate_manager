@@ -764,6 +764,22 @@
   "/api/official-rankings/for-student/{student_id}"
  ],
  [
+  "GET",
+  "/api/official-rankings/{ranking_id}/images"
+ ],
+ [
+  "GET",
+  "/api/official-rankings/{ranking_id}/images/{image_id}"
+ ],
+ [
+  "POST",
+  "/api/official-rankings/{ranking_id}/images"
+ ],
+ [
+  "DELETE",
+  "/api/official-rankings/{ranking_id}/images/{image_id}"
+ ],
+ [
   "POST",
   "/api/feedback"
  ],

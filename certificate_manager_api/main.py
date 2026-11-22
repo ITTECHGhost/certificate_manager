@@ -167,6 +167,7 @@ from routers.server_update import router as server_update_router  # noqa: E402
 from routers.order_images import router as order_images_router  # noqa: E402
 from routers.reports import router as reports_router  # noqa: E402
 from routers.official_rankings import router as official_rankings_router  # noqa: E402
+from routers.ranking_images import router as ranking_images_router  # noqa: E402
 from routers.feedback import router as feedback_router  # noqa: E402
 
 app.include_router(system_router)               # /ping /health/db /sp/* /replica/* /table-count/* /admin/*
@@ -189,6 +190,7 @@ app.include_router(server_update_router)        # /api/admin/server-update/* (up
 app.include_router(order_images_router)         # /orders/{id}/images*
 app.include_router(reports_router)              # /api/reports/*
 app.include_router(official_rankings_router)    # /api/official-rankings/*
+app.include_router(ranking_images_router)       # /api/official-rankings/{id}/images*
 app.include_router(feedback_router)             # /api/feedback/*
 
 

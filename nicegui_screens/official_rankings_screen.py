@@ -5,7 +5,9 @@
 # Saving a list is ONE request (header + every entry); the server saves all or nothing.
 # =============================================================================
 
-from nicegui import run, ui
+import base64
+
+from nicegui import background_tasks, run, ui
 
 from nicegui_ui.ui_components import UI
 from nicegui_ui.upload_utils import read_upload, clear_when_done
@@ -90,11 +92,14 @@ class OfficialRankingsScreen:
         ], rows, clickable=True)
         table.add_slot("body-cell-actions", """
             <q-td :props="props" auto-width>
+              <q-btn flat round dense icon="document_scanner" aria-label="الورقة الممسوحة"
+                     @click.stop="$parent.$emit('scan_list', props.row)"><q-tooltip>الورقة الممسوحة</q-tooltip></q-btn>
               <q-btn flat round dense icon="delete" class="app-btn-danger-icon" aria-label="حذف القائمة"
                      @click.stop="$parent.$emit('del_list', props.row)"><q-tooltip>حذف القائمة</q-tooltip></q-btn>
             </q-td>""")
         table.on("rowClick", lambda e: self.show_entries(e.args[1]["id"]))
         table.on("del_list", lambda e: self._confirm_delete(e.args))
+        table.on("scan_list", lambda e: self._show_scans(e.args))
 
         def go(page: int):
             self.page = max(1, int(page))
@@ -114,6 +119,76 @@ class OfficialRankingsScreen:
             UI.notify("حُذفت القائمة", type="positive")
             self._lists_view.refresh()
         UI.confirm_dialog("حذف القائمة", "تُؤرشف القائمة وتختفي من الصفحة. الوثائق الصادرة سابقًا لا تتغير.", "حذف", do)
+
+    def _show_scans(self, row: dict):
+        """«الورقة الممسوحة»: upload (image or PDF), view and archive the scanned pages."""
+        from services import ranking_images as rimg
+        rid = row["id"]
+        with ui.dialog() as dialog, ui.card().classes("w-[900px] max-w-full app-card"):
+            with ui.row().classes("w-full items-center"):
+                ui.label(f"الورقة الممسوحة — {row.get('title') or row.get('scope') or rid}"
+                         ).classes("text-lg font-bold app-text-primary")
+                ui.space()
+                UI.ghost_button("إغلاق", icon="close", on_click=dialog.close)
+            big = ui.image().classes("w-full max-h-[60vh]").props("fit=contain")
+            thumbs = ui.row().classes("w-full gap-2")
+
+            async def refresh():
+                thumbs.clear()
+                try:
+                    items = await run.io_bound(rimg.list_images, rid)
+                except Exception as err:
+                    UI.notify(str(err), type="negative")
+                    return
+                with thumbs:
+                    if not items:
+                        ui.label("لا توجد صفحات ممسوحة لهذه القائمة.").classes("app-caption")
+                    for it in items:
+                        await thumb_card(it)
+
+            async def show_big(it):
+                data = await run.io_bound(rimg.get_image, rid, it["id"])
+                big.set_source("data:image/jpeg;base64," + base64.b64encode(data).decode())
+
+            async def thumb_card(it):
+                data = await run.io_bound(rimg.get_image, rid, it["id"], True)
+                with ui.column().classes("items-center gap-0"):
+                    ui.image("data:image/jpeg;base64," + base64.b64encode(data).decode()).classes(
+                        "w-24 h-32 cursor-pointer border").props("fit=contain").on(
+                        "click", lambda _e, i=it: show_big(i))
+                    with ui.row().classes("items-center gap-1"):
+                        ui.label(f"ص {it.get('page_no')}").classes("app-caption")
+                        ui.button(icon="delete", on_click=lambda _e, i=it: remove(i)).props(
+                            "flat round dense").classes("app-btn-danger-icon")
+
+            def remove(it):
+                async def do():
+                    try:
+                        await run.io_bound(rimg.delete_image, rid, it["id"], _me())
+                    except Exception as err:
+                        UI.notify(str(err), type="negative")
+                        return
+                    big.set_source("")
+                    UI.notify("أُرشفت الصفحة", type="positive")
+                    await refresh()
+                UI.confirm_dialog("حذف الصفحة", "تُؤرشف الصفحة وتختفي من القائمة.", "حذف",
+                                 lambda: background_tasks.create(do()))
+
+            async def on_upload(e):
+                name, data = await read_upload(e)
+                try:
+                    added = await run.io_bound(rimg.upload_file, rid, name, data, _me())
+                except Exception as err:
+                    UI.notify(str(err), type="negative")
+                    return
+                UI.notify(f"أُضيفت {added} صفحة" if added else "الصفحات موجودة مسبقًا", type="positive")
+                await refresh()
+
+            clear_when_done(ui.upload(label="رفع صورة أو PDF", auto_upload=True, multiple=True,
+                                      on_upload=on_upload).props('accept=".jpg,.jpeg,.png,.pdf" flat bordered'
+                                                                 ).classes("w-full"))
+            ui.timer(0.1, refresh, once=True)
+        dialog.open()
 
     # ── VIEW 2: names of one list ────────────────────────────────────────────
     def show_entries(self, ranking_id: int):
