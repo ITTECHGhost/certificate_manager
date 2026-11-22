@@ -227,6 +227,10 @@ def insert_issued_certificate(payload: IssuedCertificatePayload, conn=Depends(ge
 @router.put("/api/issued-certificates/{cert_id}")
 @router.put("/issued-certificates/{cert_id}")
 def update_issued_certificate(cert_id: int, payload: IssuedCertificatePayload, conn=Depends(get_db)):
+    # An archived record (signed copy saved, migration 0013) is final: no edit / reissue
+    from routers.issued_doc_files import is_archived
+    if is_archived(conn, cert_id):
+        raise HTTPException(status_code=409, detail="The document is archived (final)")
     cur = conn.cursor(dictionary=True)
     try:
         issue_date = payload.issue_date or datetime.now().strftime("%Y-%m-%d")

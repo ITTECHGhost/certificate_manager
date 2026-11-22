@@ -785,6 +785,10 @@
  ],
  [
   "GET",
+  "/api/issued-doc-files/status"
+ ],
+ [
+  "GET",
   "/api/issued-doc-files/{cert_id}"
  ],
  [

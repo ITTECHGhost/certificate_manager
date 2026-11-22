@@ -1,5 +1,7 @@
--- 0013: archive files of «سجل الوثائق الصادرة»: the FINAL document only (printed, signed, stamped,
---   with its issued number and date). kind stays for future use; the API accepts 'signed' only.
+-- 0013: archive files of «سجل الوثائق الصادرة».
+--   kind 'draft'  = the editable Word file, saved at each print until the record is archived.
+--   kind 'signed' = the FINAL printed, signed, stamped copy. Archiving it sets issue_date to that
+--   day, drops the drafts and locks the record (no edit / reprint).
 --   Files on the server: issue_archive\<year>\<sha256>.<pdf|jpg|png>; the table keeps the row.
 --   Replace = a NEW row with supersedes_id (old versions are kept). Soft delete only.
 -- Rollback: sql/fixes/rollback_0013_issued_doc_files.sql
@@ -23,3 +25,9 @@ CREATE TABLE IF NOT EXISTS `issued_document_files` (
   KEY `ix_issued_document_files_cert` (`certificate_id`, `kind`),
   KEY `ix_issued_document_files_sha` (`sha256`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- Print date, kept apart from the issue date (user decision 2026-11-22):
+--   printed_at = last time the draft was printed/saved; issue_date = the day the signed copy
+--   was archived (set by the API). Old records start with printed_at = issue_date.
+ALTER TABLE `issued_certificates` ADD COLUMN `printed_at` datetime NULL DEFAULT NULL;
+UPDATE `issued_certificates` SET `printed_at` = `issue_date` WHERE `printed_at` IS NULL;

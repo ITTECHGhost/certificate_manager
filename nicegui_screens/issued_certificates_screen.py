@@ -66,7 +66,27 @@ def extract_event_val(e, default=None):
     return default
 
 
-SCAN_FILTER_OPTIONS = {"all": "الكل", "has": "مؤرشفة", "missing": "بلا نسخة موقعة"}
+# Two lists (user decision 2026-11-22): printed drafts vs. archived (final) issued documents
+LIST_OPTIONS = {"issued": "الوثائق الصادرة", "drafts": "المسودات المطبوعة"}
+
+
+def split_lists(records: list[dict], status: dict | None, which: str) -> list[dict]:
+    """Adds printed_at / archived from the archive status and keeps one list:
+    'issued' = archived (signed copy saved), newest issue date first;
+    'drafts' = printed, not archived yet, newest print first.
+    status None (offline / migration 0013 not run): every record, unsplit."""
+    if status is None:
+        return sort_newest_first(records)
+    out = []
+    for r in records:
+        st = status.get(int(r.get("certificate_id") or r.get("id") or 0)) or {}
+        r = dict(r, printed_at=st.get("printed_at"), archived=bool(st.get("archived")))
+        if r["archived"] == (which == "issued"):
+            out.append(r)
+    if which == "issued":
+        return sort_newest_first(out)
+    return sorted(out, key=lambda r: (str(r.get("printed_at") or ""),
+                                      int(r.get("certificate_id") or r.get("id") or 0)), reverse=True)
 
 
 def template_filter_options_ar() -> dict:
@@ -134,8 +154,8 @@ class IssuedCertificatesScreen:
         self.selected_year: Optional[int] = None
         self.selected_study_type: str = "all"
         self.selected_template: str = "all"
-        self.selected_scan: str = "all"   # all / has / missing (signed scan)
-        self.scan_select = None
+        self.selected_list: str = "issued"   # issued / drafts
+        self.list_split: bool = True
 
         # Pagination & Data
         self.current_limit: int = 25
@@ -170,6 +190,15 @@ class IssuedCertificatesScreen:
                     ui.space()
                     UI.icon_button("refresh", "تحديث القائمة", on_click=self.load_data)
                     UI.secondary_button("تصدير CSV", icon="file_download", on_click=self._export_csv)
+
+                # ── Two lists: archived issued documents / printed drafts ────
+                async def _on_list_change(e):
+                    self.selected_list = str(extract_event_val(e, default="issued") or "issued")
+                    self.current_offset = 0
+                    await self.load_data()
+
+                ui.toggle(LIST_OPTIONS, value=self.selected_list, on_change=_on_list_change).props(
+                    "no-caps unelevated toggle-color=primary")
 
                 # ── Filters: one row on wide windows, wrapping on narrow ones ─
                 dept_options = {0: "كل الأقسام"}
@@ -259,14 +288,6 @@ class IssuedCertificatesScreen:
                     self.tmpl_select = UI.select("نوع الوثيقة", options=template_filter_options_ar(), value="all",
                                                  on_change=_on_template_change).classes("w-56", remove="w-full")
 
-                    async def _on_scan_change(e):
-                        self.selected_scan = str(extract_event_val(e, default="all") or "all")
-                        self.current_offset = 0
-                        await self.load_data()
-
-                    self.scan_select = UI.select("النسخة الموقعة", options=SCAN_FILTER_OPTIONS, value="all",
-                                                 on_change=_on_scan_change).classes("w-44", remove="w-full")
-
                     UI.icon_button("filter_alt_off", "مسح عوامل التصفية", on_click=self._reset_filters)
 
                 # ── List: a skeleton first, then the table and one paginator ─
@@ -303,7 +324,8 @@ class IssuedCertificatesScreen:
             {"name": "student_name", "label": "الطالب", "field": "student_name_ar", "align": "right"},
             {"name": "template_type", "label": "الوثيقة", "field": "template_type_display", "align": "right", "classes": "app-cell-wrap"},
             {"name": "to_title", "label": "إلى", "field": "to_title", "align": "right", "classes": "app-cell-wrap"},
-            {"name": "issue_date", "label": "تاريخ الإصدار", "field": "issue_date"},
+            {"name": "issue_date", "label": "تاريخ الطباعة" if self._drafts_view() else "تاريخ الإصدار",
+             "field": "printed_at" if self._drafts_view() else "issue_date"},
         ], self.records, row_key="certificate_id", clickable=True)
         self.table.add_slot("body-cell-certificate_number", """
             <q-td :props="props"><span class="font-semibold app-text-primary" dir="ltr">{{ props.value }}</span></q-td>
@@ -323,6 +345,9 @@ class IssuedCertificatesScreen:
     def _go_to_page(self, page: int) -> None:
         self.current_offset = max(0, (int(page) - 1) * self.current_limit)
         self._update_table_view()
+
+    def _drafts_view(self) -> bool:
+        return self.list_split and self.selected_list == "drafts"
 
     def _has_filters(self) -> bool:
         return bool(self.search_text or self.selected_dept_id or self.selected_year
@@ -367,20 +392,15 @@ class IssuedCertificatesScreen:
                 target_type = self.selected_study_type.lower()
                 records = [r for r in records if _row_study_type(r) == target_type]
 
-            # 3. Signed scan in the archive (online only)
-            if self.selected_scan in ("has", "missing"):
-                from services import issued_doc_files as idf
-                try:
-                    have = await run.io_bound(idf.signed_ids)
-                except Exception as ex:
-                    UI.notify(f"تعذر تطبيق تصفية النسخة الموقعة: {ex}", type="warning")
-                    have = None
-                if have is not None:
-                    want = self.selected_scan == "has"
-                    records = [r for r in records
-                               if (int(r.get("certificate_id") or r.get("id") or 0) in have) == want]
-
-            self.all_records = sort_newest_first(records)
+            # 3. Two lists by the archive status (online, after migration 0013)
+            from services import issued_doc_files as idf
+            try:
+                status = await run.io_bound(idf.status)
+            except Exception as ex:
+                log.warning(f"Archive status unavailable, lists not split: {ex}")
+                status = None
+            self.list_split = status is not None
+            self.all_records = split_lists(records, status, self.selected_list)
         except Exception as ex:
             log.error(f"Failed to load issued certificates: {ex}")
             self.all_records = []
@@ -420,6 +440,9 @@ class IssuedCertificatesScreen:
             "raw_template_type": raw_tmpl,
             "to_title": r.get("to_title") or "من يهمه الأمر",
             "issue_date": r.get("issue_date") or "—",
+            "printed_at": r.get("printed_at") or "—",
+            "archived": bool(r.get("archived")),
+            "status_known": "archived" in r,
         }
 
     async def _reset_filters(self) -> None:
@@ -429,7 +452,6 @@ class IssuedCertificatesScreen:
         self.selected_year = None
         self.selected_study_type = "all"
         self.selected_template = "all"
-        self.selected_scan = "all"
         self.current_offset = 0
 
         if self.search_input:
@@ -443,8 +465,6 @@ class IssuedCertificatesScreen:
         if self.tmpl_select:
             self.tmpl_select.options = template_filter_options_ar()
             self.tmpl_select.value = "all"
-        if self.scan_select:
-            self.scan_select.value = "all"
 
         await self.load_data()
 
@@ -465,12 +485,20 @@ class IssuedCertificatesScreen:
                 ("القسم", row.get("department_name_ar")),
                 ("الوثيقة", row.get("template_type_display")),
                 ("إلى", row.get("to_title")),
-                ("تاريخ الإصدار", row.get("issue_date")),
+                ("تاريخ الطباعة", row.get("printed_at")),
+                ("تاريخ الإصدار", row.get("issue_date") if row.get("archived") or not row.get("status_known")
+                 else "لم تُؤرشف بعد (مسودة)"),
                 ("سنة التخرج", row.get("graduation_year")),
                 ("الدراسة", row.get("study_day_type")),
             ])
 
-            if not docx_path:
+            archived = bool(row.get("archived"))
+            if archived:
+                with ui.row().classes("w-full items-start gap-2 no-wrap rounded-lg p-3 bg-green-50"):
+                    ui.icon("verified", size="20px").classes("shrink-0")
+                    ui.label("الوثيقة مؤرشفة (نهائية): لا تُعدَّل ولا يُعاد طبعها. النسخة الموقعة في «الأرشيف»."
+                             ).classes("text-sm")
+            elif not docx_path:
                 with ui.row().classes("app-chip--warning w-full items-start gap-2 no-wrap rounded-lg p-3"):
                     ui.icon("info", size="20px").classes("shrink-0")
                     ui.label("ملف هذه الوثيقة غير موجود على هذا الجهاز. لطباعتها افتح القيد في شاشة الإصدار وأصدرها مجددًا.").classes("text-sm")
@@ -493,6 +521,29 @@ class IssuedCertificatesScreen:
                 with self.container:
                     self._on_delete_clicked(row)
 
+            async def _fetch_draft():
+                """This computer has no Word file: take the record's latest draft from the server."""
+                from services import issued_doc_files as idf
+                cid = row.get("certificate_id") or row.get("id")
+                try:
+                    draft = idf.latest_draft(await run.io_bound(idf.list_files, cid))
+                    if not draft:
+                        UI.notify("لا توجد مسودة محفوظة على الخادم لهذه الوثيقة", type="warning")
+                        return
+                    data = await run.io_bound(idf.get_file, cid, draft["id"])
+                except Exception as err:
+                    UI.notify(str(err), type="negative")
+                    return
+                safe_num = re.sub(r'[\\/*?:"<>|]', "-", str(row.get("certificate_number") or "")).strip()
+                folder = str(app_paths.data_path("certificates"))
+                os.makedirs(folder, exist_ok=True)
+                with open(os.path.join(folder, f"{safe_num} - مسودة من الخادم.docx"), "wb") as fh:
+                    fh.write(data)
+                UI.notify("نُزّلت المسودة؛ يمكنك الآن الطباعة", type="positive")
+                dialog.close()
+                with self.container:
+                    self._show_cert_detail(row)
+
             def _archive():
                 dialog.close()
                 with self.container:
@@ -502,12 +553,15 @@ class IssuedCertificatesScreen:
                 UI.danger_icon_button("delete", "حذف القيد", on_click=_delete)
                 ui.space()
                 UI.ghost_button("الأرشيف", icon="inventory_2", on_click=_archive)
-                UI.ghost_button("تعديل القيد", icon="edit", on_click=_edit)
-                pdf_btn = UI.secondary_button("ملف PDF", icon="picture_as_pdf", on_click=_open_pdf)
-                print_btn = UI.primary_button("إعادة الطباعة", icon="print", on_click=_reprint)
-                if not docx_path:
-                    pdf_btn.disable()
-                    print_btn.disable()
+                if not archived:
+                    if not docx_path:
+                        UI.ghost_button("تنزيل المسودة من الخادم", icon="cloud_download", on_click=_fetch_draft)
+                    UI.ghost_button("تعديل القيد", icon="edit", on_click=_edit)
+                    pdf_btn = UI.secondary_button("ملف PDF", icon="picture_as_pdf", on_click=_open_pdf)
+                    print_btn = UI.primary_button("إعادة الطباعة", icon="print", on_click=_reprint)
+                    if not docx_path:
+                        pdf_btn.disable()
+                        print_btn.disable()
         dialog.open()
 
     def _show_archive(self, row: dict) -> None:
@@ -597,9 +651,14 @@ class IssuedCertificatesScreen:
                 except Exception as err:
                     UI.notify(str(err), type="negative")
                     return
-                UI.notify("الملف موجود مسبقًا" if out.get("duplicate") else "حُفظ الملف في الأرشيف",
-                          type="positive")
+                if out.get("duplicate"):
+                    UI.notify("الملف موجود مسبقًا", type="info")
+                elif out.get("archived"):
+                    UI.notify("أُرشفت الوثيقة: صارت نهائية وتاريخ إصدارها اليوم", type="positive")
+                else:
+                    UI.notify("حُفظ الملف في الأرشيف", type="positive")
                 await refresh()
+                await self.load_data()   # the record moves from «المسودات» to «الوثائق الصادرة»
 
             # Archive only the final document: printed, signed, stamped, numbered and dated
             if str(row.get("certificate_number") or "").strip() in ("", "—"):
@@ -608,7 +667,9 @@ class IssuedCertificatesScreen:
                     ui.label("لا تُؤرشف الوثيقة قبل طباعتها وتوقيعها وختمها وإعطائها رقمًا صادرًا وتاريخًا."
                              ).classes("text-sm")
             else:
-                ui.label("ارفع الوثيقة بعد طباعتها وتوقيعها وختمها.").classes("app-caption")
+                ui.label("ارفع النسخة بعد طباعتها وتوقيعها وختمها. أول نسخة موقعة تجعل الوثيقة نهائية "
+                         "وتاريخ إصدارها يوم الرفع؛ بعدها يكون الرفع للاستبدال فقط (للمشرف)."
+                         ).classes("app-caption")
                 clear_when_done(ui.upload(label="رفع النسخة الموقعة المختومة (PDF أو صورة)", auto_upload=True,
                                           on_upload=on_upload).props('accept=".pdf,.jpg,.jpeg,.png" flat bordered'
                                                                      ).classes("w-full"))
