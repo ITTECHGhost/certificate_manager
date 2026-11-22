@@ -780,6 +780,26 @@
   "/api/official-rankings/{ranking_id}/images/{image_id}"
  ],
  [
+  "GET",
+  "/api/issued-doc-files/signed-ids"
+ ],
+ [
+  "GET",
+  "/api/issued-doc-files/{cert_id}"
+ ],
+ [
+  "GET",
+  "/api/issued-doc-files/{cert_id}/{file_id}"
+ ],
+ [
+  "POST",
+  "/api/issued-doc-files/{cert_id}"
+ ],
+ [
+  "DELETE",
+  "/api/issued-doc-files/{cert_id}/{file_id}"
+ ],
+ [
   "POST",
   "/api/feedback"
  ],
