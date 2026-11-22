@@ -1,7 +1,7 @@
 r"""One click: mysqldump backup -> copy the server file folders -> show pending migrations ->
 run them (after a yes). Stops if the backup fails. Login comes from db_config.json; nothing is printed.
 
-    py -3 scripts/backup_and_migrate.py --backup-dir F:\CR_PY\db_backups_dev [--server]
+    py -3 certificate_manager_api/backup_and_migrate.py --backup-dir F:\CR_PY\db_backups_dev [--server]
 """
 import argparse
 import shutil
