@@ -27,6 +27,8 @@ class ScannedOrdersImportScreen:
     # ── step 1: files ────────────────────────────────────────────────────────
     def show(self):
         self.container.clear()
+        with self.container:
+            self._scan_card()
         with self.container, UI.card().classes("gap-3"):
             ui.label("استيراد الأوامر الممسوحة").classes("app-section-title")
             ui.label("ارفع ملفات CSV التي أخرجها الذكاء الاصطناعي من صور أوامر التخرج (ملف لكل أمر). يطابق البرنامج "
@@ -52,6 +54,65 @@ class ScannedOrdersImportScreen:
                 UI.ghost_button("مسح الملفات", icon="delete_sweep", on_click=self._clear)
         with self.container:
             self.review_box = ui.column().classes("w-full gap-4")
+
+    # ── step 0: scan the papers ─────────────────────────────────────────────
+    def _scan_card(self):
+        from services import scanner
+        with UI.card().classes("gap-3"):
+            ui.label("مسح أوراق الأوامر بالماسح").classes("app-section-title")
+            ui.label("ضع أوراق الأمر الواحد (الصفحة الأولى أولًا) ثم اضغط «مسح». تُحفظ الصفحات صورًا في مجلد "
+                     "جديد؛ أعطِها للذكاء الاصطناعي ليُخرج ملف CSV ثم ارفعه أدناه.").classes("app-caption")
+            with ui.row().classes("w-full items-end gap-2"):
+                dev = UI.select("الماسح", options={}, value=None).classes("w-72", remove="w-full")
+                src = ui.toggle(scanner.SOURCES, value="feeder").props("no-caps unelevated toggle-color=primary")
+                dpi = UI.select("الدقة", options=scanner.DPI_OPTIONS, value=300).classes("w-36", remove="w-full")
+                color = ui.checkbox("ملوّن", value=False)
+            status = ui.label("").classes("text-sm")
+
+            async def find():
+                try:
+                    found = await run.io_bound(scanner.list_scanners)
+                except Exception as err:
+                    UI.notify(f"تعذر البحث عن الماسحات: {err}", type="negative")
+                    return
+                dev.options = found
+                dev.value = next(iter(found), None)
+                dev.update()
+                status.set_text(f"وُجد {len(found)} ماسح." if found else
+                                "لم يُعثر على ماسح: تأكد أنه مشغّل ومتصل ومُعرَّف في ويندوز.")
+
+            async def scan():
+                if not dev.value:
+                    UI.notify("اختر الماسح أولًا (زر «البحث عن الماسحات»)", type="warning")
+                    return
+                status.set_text("جارٍ المسح... لا تُغلق البرنامج.")
+                scan_btn.disable()
+                try:
+                    folder, pages = await run.io_bound(scanner.scan_pages, dev.value, src.value,
+                                                       int(dpi.value or 300), bool(color.value))
+                except Exception as err:
+                    status.set_text("")
+                    UI.notify(f"تعذر المسح: {err}", type="negative")
+                    return
+                finally:
+                    scan_btn.enable()
+                self.last_scan = folder
+                status.set_text(f"مُسحت {len(pages)} صفحة في: {folder}")
+                UI.notify(f"مُسحت {len(pages)} صفحة", type="positive")
+
+            def open_folder():
+                try:
+                    scanner.open_folder(getattr(self, "last_scan", None))
+                except Exception as err:
+                    UI.notify(f"تعذر فتح المجلد: {err}", type="negative")
+
+            with ui.row().classes("gap-2"):
+                UI.ghost_button("البحث عن الماسحات", icon="search", on_click=find)
+                scan_btn = UI.primary_button("مسح", icon="scanner", on_click=scan)
+                UI.secondary_button("فتح مجلد المسح", icon="folder_open", on_click=open_folder)
+                ocr = UI.ghost_button("قراءة آلية دون إنترنت (لاحقًا)", icon="smart_toy")
+                ocr.disable()
+                ocr.tooltip("نموذج قراءة محلي يُضاف لاحقًا؛ الآن استعمل الذكاء الاصطناعي لإخراج ملف CSV")
 
     def _clear(self):
         self.files, self.result = [], None
