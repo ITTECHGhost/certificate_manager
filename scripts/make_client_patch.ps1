@@ -7,6 +7,9 @@
 # The ZIP holds the contents of dist\CertificateManager EXCEPT server_config.json,
 # so an update never replaces a laptop's server address, HTTPS setting or app key.
 # =============================================================================
+# Optional: -Changes <dist\manifest_vOLD.json> also writes patch_v<new>_from_<old>.zip with only
+# the files that differ from that earlier release (small update for laptops on exactly that version).
+param([string]$Changes = "")
 $ErrorActionPreference = "Stop"
 $root = Split-Path $PSScriptRoot -Parent
 $distApp = Join-Path $root "dist\CertificateManager"
@@ -38,6 +41,15 @@ try {
 } finally {
     $zip.Dispose()
 }
+
+# Manifest of this build (kept for the next release) + optional changes-only zip
+$helperArgs = @((Join-Path $PSScriptRoot "release_manifest.py"), $distApp, $version, (Join-Path $root "dist"))
+if ($Changes) {
+    if (-not (Test-Path $Changes)) { Write-Host "[ERROR] Old manifest not found: $Changes" -ForegroundColor Red; exit 1 }
+    $helperArgs += @("--changes", $Changes)
+}
+& py -3 @helperArgs
+if ($LASTEXITCODE -ne 0) { Write-Host "[ERROR] release_manifest.py failed" -ForegroundColor Red; exit 1 }
 
 $hash = (Get-FileHash $zipPath -Algorithm SHA256).Hash.ToLower()
 $sizeMb = [math]::Round((Get-Item $zipPath).Length / 1MB, 1)

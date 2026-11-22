@@ -74,6 +74,8 @@ def check_for_updates() -> Optional[Dict[str, Any]]:
                 "sha256": data.get("sha256", ""),
                 "size_bytes": data.get("size_bytes", 0),
                 "mandatory": data.get("mandatory", False),
+                # Small zip (only changed files): valid only from exactly changes_from
+                "changes": _changes_entry(data),
             }
         else:
             logger.debug(f"Application is up to date: v{CURRENT_APP_VERSION}")
@@ -88,6 +90,15 @@ def check_for_updates() -> Optional[Dict[str, Any]]:
         return None
 
 
+def _changes_entry(data: Dict[str, Any]) -> Optional[Dict[str, Any]]:
+    if data.get("changes_from") != CURRENT_APP_VERSION:
+        return None
+    if not (data.get("changes_filename") and data.get("changes_download_url") and data.get("changes_sha256")):
+        return None
+    return {"patch_filename": data["changes_filename"], "download_url": data["changes_download_url"],
+            "sha256": data["changes_sha256"], "size_bytes": data.get("changes_size_bytes", 0)}
+
+
 def calculate_file_sha256(filepath: str) -> str:
     """Computes SHA-256 hex digest for a local file."""
     sha = hashlib.sha256()
@@ -98,6 +109,20 @@ def calculate_file_sha256(filepath: str) -> str:
 
 
 def download_patch(
+    update_info: Dict[str, Any],
+    on_progress: Optional[Callable[[int, int], None]] = None
+) -> Optional[str]:
+    """Small (changes-only) zip first when offered; any failure falls back to the full zip."""
+    small = update_info.get("changes")
+    if small:
+        path = _download_one({**update_info, **small}, on_progress)
+        if path:
+            return path
+        logger.warning("Changes-only update failed; falling back to the full zip.")
+    return _download_one(update_info, on_progress)
+
+
+def _download_one(
     update_info: Dict[str, Any],
     on_progress: Optional[Callable[[int, int], None]] = None
 ) -> Optional[str]:

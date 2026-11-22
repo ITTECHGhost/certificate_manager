@@ -38,6 +38,10 @@ foreach ($name in "patch_v$version.zip") {
     if (Test-Path $src) { Copy-Item -LiteralPath $src -Destination (Join-Path $out "client"); $found++ }
     else { Write-Host "[WARNING] $name not found: the update folder will not contain it" -ForegroundColor Yellow }
 }
+# Changes-only zip (made with make_client_patch.ps1 -Changes), if any: published beside the full one
+foreach ($extra in (Get-ChildItem $root\dist -Filter "patch_v${version}_from_*.zip" -ErrorAction SilentlyContinue)) {
+    Copy-Item -LiteralPath $extra.FullName -Destination (Join-Path $out "client")
+}
 if ($Notes) { [IO.File]::WriteAllText((Join-Path $out "client\CHANGES.txt"), $Notes, (New-Object Text.UTF8Encoding $false)) }
 
 Copy-Item -LiteralPath (Join-Path $root "installer\update\Update.bat"), (Join-Path $root "installer\update\update.ps1") -Destination $out

@@ -24,6 +24,10 @@ New-Item -ItemType Directory -Force -Path $patches | Out-Null
 $target = Join-Path $patches $name
 Copy-Item $Zip $target -Force
 
+# Optional small zip made next to the full one: patch_v<version>_from_<old>.zip
+$small = Get-ChildItem (Split-Path (Resolve-Path $Zip) -Parent) -Filter "patch_v${version}_from_*.zip" -ErrorAction SilentlyContinue | Select-Object -First 1
+if ($small) { Copy-Item $small.FullName (Join-Path $patches $small.Name) -Force }
+
 $manifestPath = Join-Path $base "version.json"
 $minimum = "2.0.0"
 if (Test-Path $manifestPath) {
@@ -45,6 +49,13 @@ $manifest = [ordered]@{
     sha256                    = (Get-FileHash $target -Algorithm SHA256).Hash.ToLower()
     size_bytes                = (Get-Item $target).Length
     mandatory                 = $false
+}
+if ($small -and $small.Name -match '^patch_v[\d.]+_from_(\d+\.\d+\.\d+)\.zip$') {
+    $manifest["changes_from"]         = $Matches[1]
+    $manifest["changes_filename"]     = $small.Name
+    $manifest["changes_download_url"] = "/api/update/download/$($small.Name)"
+    $manifest["changes_sha256"]       = (Get-FileHash (Join-Path $patches $small.Name) -Algorithm SHA256).Hash.ToLower()
+    $manifest["changes_size_bytes"]   = $small.Length
 }
 [System.IO.File]::WriteAllText($manifestPath, ($manifest | ConvertTo-Json), (New-Object System.Text.UTF8Encoding($false)))
 Write-Host "[SUCCESS] Version $version published. Clients can update from Settings > Check for updates." -ForegroundColor Green

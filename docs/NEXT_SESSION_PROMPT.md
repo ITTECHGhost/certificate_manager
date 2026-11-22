@@ -21,3 +21,8 @@ User steps still open:
 Known: tests/test_api_golden fails since ff05a22 (unrelated). Migration numbers: 0008 reserved
 (identity), student_holds → 0014. Uncommitted templets/ changes belong to the user — don't commit.
 Track B item 5 (real-server check) only when the server is available.
+
+Update (2026-11-22, DEV): changes-only client update is built (commit on main, NOT pushed): scripts/release_manifest.py,
+`make_client_patch.ps1 -Changes <manifest_vOLD.json>`, changes_* in version.json, updater falls back to the full zip.
+Open: try it on the next real build (keep dist\manifest_v2.5.9... from THAT build: 2.5.9 has none, so the first
+small zip can only be made from the release after it). tests/test_architecture fails on scripts/backup_and_migrate.py:25 (import db) — not from this change.

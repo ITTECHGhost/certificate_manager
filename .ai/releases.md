@@ -22,3 +22,8 @@ ollback_0007_official_rankings.sql`. Applied on the DEV laptop's MySQL after a m
   SERVER laptop: mysqldump first, then `py -3 migrate.py --sql-dir ..\sql`. New file folders are
   made on first upload: C:\AppServ\ranking_images, C:\AppServ\issue_archive - add both to the
   nightly backup. Old issued records show under «المسودات المطبوعة» until their signed copy is uploaded.
+
+## 2026-11-22 (DEV) - changes-only client update
+- Every `make_client_patch.ps1` run writes `dist\manifest_v<ver>.json` (KEEP it: it is the base of the next small update).
+- Next release: `scripts\make_client_patch.ps1 -Changes dist\manifest_v<old>.json` also writes `patch_v<new>_from_<old>.zip`; build_update/update.ps1/publish_client_update.ps1 carry it and add `changes_from` etc. to version.json. Laptops on exactly <old> download the small zip; others (or any failure) the full zip.
+- Files deleted between releases are NOT removed on laptops. Not yet tried with a real build.

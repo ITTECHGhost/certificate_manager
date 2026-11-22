@@ -74,7 +74,7 @@ if ($LASTEXITCODE -ne 0) { Fail "The server update stopped (see the lines above)
 Ok "Server updated to $version"
 
 # 4. Client patch
-$patch = Get-ChildItem (Join-Path $here "client") -Filter "patch_v*.zip" -ErrorAction SilentlyContinue | Select-Object -First 1
+$patch = Get-ChildItem (Join-Path $here "client") -Filter "patch_v*.zip" -ErrorAction SilentlyContinue | Where-Object { $_.Name -notlike "*_from_*" } | Select-Object -First 1
 if (-not $patch) {
     Write-Host "[SKIP] No client patch in this update."
 } else {
