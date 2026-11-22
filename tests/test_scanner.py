@@ -68,3 +68,22 @@ def test_paper_empty_detection():
 def test_unknown_source_refused():
     with pytest.raises(ValueError):
         scanner.scan_pages("dev", source="cloud")
+
+
+def test_pages_join_into_one_pdf(tmp_path):
+    from PIL import Image
+    pages = []
+    for i in range(3):
+        p = tmp_path / f"page_{i}.jpg"
+        Image.new("RGB", (40, 60), "white").save(p, "JPEG")
+        pages.append(p)
+    pdf = scanner.pages_to_pdf(pages, tmp_path / "order.pdf")
+    data = pdf.read_bytes()
+    assert data.startswith(b"%PDF") and data.count(b"/Type /Page\n") + data.count(b"/Type /Page ") >= 1
+
+
+def test_scan_defaults_match_the_office_scanner():
+    import inspect
+    sig = inspect.signature(scanner.scan_pages)
+    assert sig.parameters["file_type"].default == "pdf" and sig.parameters["page_size"].default == "A4"
+    assert sig.parameters["color"].default is True and sig.parameters["dpi"].default == 300

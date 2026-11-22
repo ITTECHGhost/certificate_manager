@@ -66,7 +66,9 @@ class ScannedOrdersImportScreen:
                 dev = UI.select("الماسح", options={}, value=None).classes("w-72", remove="w-full")
                 src = ui.toggle(scanner.SOURCES, value="feeder").props("no-caps unelevated toggle-color=primary")
                 dpi = UI.select("الدقة", options=scanner.DPI_OPTIONS, value=300).classes("w-36", remove="w-full")
-                color = ui.checkbox("ملوّن", value=False)
+                ftype = UI.select("نوع الملف", options=scanner.FILE_TYPES, value="pdf").classes("w-40", remove="w-full")
+                size = UI.select("حجم الورقة", options=scanner.PAGE_SIZES, value="A4").classes("w-36", remove="w-full")
+                color = ui.checkbox("ملوّن", value=True)
             status = ui.label("").classes("text-sm")
 
             async def find():
@@ -88,8 +90,9 @@ class ScannedOrdersImportScreen:
                 status.set_text("جارٍ المسح... لا تُغلق البرنامج.")
                 scan_btn.disable()
                 try:
-                    folder, pages = await run.io_bound(scanner.scan_pages, dev.value, src.value,
-                                                       int(dpi.value or 300), bool(color.value))
+                    folder, pages = await run.io_bound(
+                        lambda: scanner.scan_pages(dev.value, src.value, int(dpi.value or 300), bool(color.value),
+                                                   file_type=ftype.value or "pdf", page_size=size.value or "A4"))
                 except Exception as err:
                     status.set_text("")
                     UI.notify(f"تعذر المسح: {err}", type="negative")
@@ -97,8 +100,8 @@ class ScannedOrdersImportScreen:
                 finally:
                     scan_btn.enable()
                 self.last_scan = folder
-                status.set_text(f"مُسحت {len(pages)} صفحة في: {folder}")
-                UI.notify(f"مُسحت {len(pages)} صفحة", type="positive")
+                status.set_text(f"حُفظ المسح في: {folder}")
+                UI.notify("تم المسح" if ftype.value == "pdf" else f"مُسحت {len(pages)} صفحة", type="positive")
 
             def open_folder():
                 try:

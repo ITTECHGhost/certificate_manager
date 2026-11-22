@@ -13,6 +13,9 @@ import app_paths
 
 SOURCES = {"feeder": "المغذّي (عدة أوراق)", "flatbed": "الزجاج (ورقة واحدة)"}
 DPI_OPTIONS = {200: "200", 300: "300 (مستحسن)", 400: "400"}
+FILE_TYPES = {"pdf": "ملف PDF واحد", "jpg": "صور JPEG"}
+PAGE_SIZES = {"A4": "A4", "auto": "حجم الماسح"}
+_A4_INCHES = (8.27, 11.69)
 
 # WIA constants
 _SCANNER_TYPE = 1
@@ -22,6 +25,7 @@ _PAGES = 3096
 _FEEDER, _FLATBED = 1, 2
 _FEED_READY = 1
 _H_DPI, _V_DPI, _COLOR_INTENT = 6147, 6148, 6146
+_X_EXTENT, _Y_EXTENT = 6151, 6152
 _JPEG = "{B96B3CAE-0728-11D3-9D7B-0000F81EF32E}"
 _PAPER_EMPTY = (-2145320957, 0x80210003)   # WIA_ERROR_PAPER_EMPTY (signed / unsigned)
 
@@ -102,9 +106,11 @@ def _transfer_pages(item, source, folder: Path, max_pages: int, progress=None) -
     return saved
 
 
-def scan_pages(device_id: str, source: str = "feeder", dpi: int = 300, color: bool = False,
-               max_pages: int = 200, progress=None) -> tuple[Path, list]:
-    """Scans into a new folder; returns (folder, [page paths]). Raises RuntimeError in Arabic."""
+def scan_pages(device_id: str, source: str = "feeder", dpi: int = 300, color: bool = True,
+               max_pages: int = 200, progress=None, file_type: str = "pdf",
+               page_size: str = "A4") -> tuple[Path, list]:
+    """Scans into a new folder; returns (folder, [files]): one PDF (file_type pdf) or the JPEG
+    pages. Raises RuntimeError in Arabic."""
     if source not in SOURCES:
         raise ValueError("مصدر غير معروف")
     client = _com()
@@ -124,6 +130,9 @@ def scan_pages(device_id: str, source: str = "feeder", dpi: int = 300, color: bo
     _set_prop(item.Properties, _H_DPI, int(dpi))
     _set_prop(item.Properties, _V_DPI, int(dpi))
     _set_prop(item.Properties, _COLOR_INTENT, 1 if color else 2)   # 1 color, 2 grayscale
+    if page_size == "A4":
+        _set_prop(item.Properties, _X_EXTENT, int(_A4_INCHES[0] * int(dpi)))
+        _set_prop(item.Properties, _Y_EXTENT, int(_A4_INCHES[1] * int(dpi)))
     folder = new_batch_folder()
     try:
         pages = _transfer_pages(item, source, folder, max_pages, progress)
@@ -131,7 +140,19 @@ def scan_pages(device_id: str, source: str = "feeder", dpi: int = 300, color: bo
         if not any(folder.iterdir()):
             folder.rmdir()
         raise
+    if file_type == "pdf":
+        return folder, [pages_to_pdf(pages, folder / f"{folder.name}.pdf")]
     return folder, pages
+
+
+def pages_to_pdf(pages: list, pdf_path: Path) -> Path:
+    """All scanned pages in one PDF (the page images are kept beside it)."""
+    from PIL import Image
+    images = [Image.open(p).convert("RGB") for p in pages]
+    if not images:
+        raise RuntimeError("لا توجد صفحات")
+    images[0].save(pdf_path, "PDF", save_all=True, append_images=images[1:], resolution=300.0)
+    return pdf_path
 
 
 def open_folder(path=None) -> None:
