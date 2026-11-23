@@ -49,7 +49,15 @@ call scripts\build_client.bat /nopause
 if errorlevel 1 exit /b 1
 
 echo [3/6] Update ZIP...
-powershell.exe -NoProfile -ExecutionPolicy Bypass -File scripts\make_client_patch.ps1
+REM Newest earlier manifest (dist\manifest_v<old>.json) -> also a small changes-only zip
+set "PREV="
+for /f "delims=" %%m in ('dir /b /o:d "dist\manifest_v*.json" 2^>nul') do if /i not "%%m"=="manifest_v%VER%.json" set "PREV=dist\%%m"
+if defined PREV (
+    echo     changes-only zip from %PREV%
+    powershell.exe -NoProfile -ExecutionPolicy Bypass -File scripts\make_client_patch.ps1 -Changes "%PREV%"
+) else (
+    powershell.exe -NoProfile -ExecutionPolicy Bypass -File scripts\make_client_patch.ps1
+)
 if %errorlevel% neq 0 exit /b 1
 
 echo [4/6] Installer...

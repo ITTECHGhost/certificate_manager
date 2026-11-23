@@ -31,7 +31,7 @@ _PAPER_EMPTY = (-2145320957, 0x80210003)   # WIA_ERROR_PAPER_EMPTY (signed / uns
 _INVALID_ARG = (-2147024809, 0x80070057)   # E_INVALIDARG: the driver refused a setting
 # What to set, from all settings to the scanner's own defaults (each level is tried once when
 # the driver answers "the parameter is incorrect" before the first page).
-SETTING_LEVELS = ("all", "no_page_size", "source_only")
+SETTING_LEVELS = ("all", "no_page_size", "source_only", "feeder_bare")
 
 
 def scans_root() -> Path:
@@ -171,10 +171,12 @@ def _prepare(device_id, source, dpi, color, page_size, level):
     if device is None:
         raise RuntimeError("الماسح غير متصل أو مطفأ")
     _set_prop(device.Properties, _DOCUMENT_HANDLING_SELECT, _FEEDER if source == "feeder" else _FLATBED)
-    if source == "feeder":
-        _set_prop(device.Properties, _PAGES, 0)   # 0 = all sheets in the tray
+    if source == "feeder" and level != "feeder_bare":
+        # one sheet per Transfer (the loop asks again until the tray is empty). 0 = "all sheets"
+        # is refused by some drivers (Canon MF270: E_INVALIDARG even with default settings).
+        _set_prop(device.Properties, _PAGES, 1)
     item = device.Items(1)
-    if level == "source_only":
+    if level in ("source_only", "feeder_bare"):
         return item
     _set_prop(item.Properties, _H_DPI, int(dpi))
     _set_prop(item.Properties, _V_DPI, int(dpi))
