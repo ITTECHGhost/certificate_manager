@@ -87,3 +87,49 @@ def test_scan_defaults_match_the_office_scanner():
     sig = inspect.signature(scanner.scan_pages)
     assert sig.parameters["file_type"].default == "pdf" and sig.parameters["page_size"].default == "A4"
     assert sig.parameters["color"].default is True and sig.parameters["dpi"].default == 300
+
+
+class _Invalid(Exception):
+    def __init__(self):
+        super().__init__(-2147352567, "Exception occurred.",
+                         (0, None, "The parameter is incorrect.\r\n", None, 0, -2147024809), None)
+
+
+class _Refuses(_Item):
+    """Refuses (E_INVALIDARG) at the levels listed, then gives pages."""
+    def __init__(self, pages, refuse):
+        super().__init__(pages)
+        self.refuse = refuse
+
+    def Transfer(self, fmt):
+        if self.refuse:
+            raise _Invalid()
+        return super().Transfer(fmt)
+
+
+def _fake_levels(monkeypatch, tmp_path, refused_levels, pages=2):
+    tried = []
+    monkeypatch.setattr(scanner, "scans_root", lambda: tmp_path)
+
+    def prep(device_id, source, dpi, color, page_size, level):
+        tried.append(level)
+        return _Refuses(pages, level in refused_levels)
+    monkeypatch.setattr(scanner, "_prepare", prep)
+    return tried
+
+
+def test_refused_setting_retries_with_fewer(monkeypatch, tmp_path):
+    tried = _fake_levels(monkeypatch, tmp_path, {"all"})
+    folder, files = scanner.scan_pages("dev", file_type="jpg")
+    assert tried == ["all", "no_page_size"] and len(files) == 2
+
+
+def test_refused_everything_is_clear_message(monkeypatch, tmp_path):
+    tried = _fake_levels(monkeypatch, tmp_path, set(scanner.SETTING_LEVELS))
+    with pytest.raises(RuntimeError, match="رفض الماسح"):
+        scanner.scan_pages("dev")
+    assert tried == list(scanner.SETTING_LEVELS) and not list(tmp_path.iterdir())
+
+
+def test_invalid_setting_detected():
+    assert scanner.is_invalid_setting(_Invalid()) and not scanner.is_invalid_setting(_Empty())
