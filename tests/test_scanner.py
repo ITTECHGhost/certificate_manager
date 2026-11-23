@@ -17,14 +17,14 @@ class _Empty(Exception):
 
 class _Image:
     def SaveFile(self, path):
-        Path(path).write_bytes(b"\xff\xd8\xff")
+        __import__("PIL.Image").Image.new("RGB", (4, 4)).save(path, "BMP")
 
 
 class _Item:
     def __init__(self, pages):
         self.left = pages
 
-    def Transfer(self, fmt):
+    def Transfer(self, fmt=None):
         if self.left <= 0:
             raise _Empty()
         self.left -= 1
@@ -48,7 +48,7 @@ def test_flatbed_takes_one_page(tmp_path):
 
 def test_other_errors_are_not_swallowed(tmp_path):
     class _Jam(_Item):
-        def Transfer(self, fmt):
+        def Transfer(self, fmt=None):
             raise RuntimeError("paper jam")
     with pytest.raises(RuntimeError, match="paper jam"):
         scanner._transfer_pages(_Jam(1), "feeder", tmp_path, 200)
@@ -101,7 +101,7 @@ class _Refuses(_Item):
         super().__init__(pages)
         self.refuse = refuse
 
-    def Transfer(self, fmt):
+    def Transfer(self, fmt=None):
         if self.refuse:
             raise _Invalid()
         return super().Transfer(fmt)
@@ -135,7 +135,8 @@ def test_invalid_setting_detected():
     assert scanner.is_invalid_setting(_Invalid()) and not scanner.is_invalid_setting(_Empty())
 
 
-def test_feeder_jpeg_none_falls_back_to_default_format(tmp_path):
+
+def test_feeder_uses_driver_format_and_ends_on_rpc_failure(tmp_path):
     from PIL import Image
     from services import scanner
 
@@ -143,14 +144,16 @@ def test_feeder_jpeg_none_falls_back_to_default_format(tmp_path):
         def SaveFile(self, p):
             Image.new("RGB", (4, 4)).save(p, "BMP")
 
-    class _NoneItem:
+    class _Feeder:
         calls = 0
-        def Transfer(self, fmt=None):
+        def Transfer(self, *fmt):
+            assert not fmt
             self.calls += 1
             if self.calls > 2:
-                raise Exception("empty")
-            return None if fmt else _Img()
+                e = Exception("rpc"); e.args = ("x", (0, None, "RPC", None, 0, -2147023170), None)
+                raise e
+            return _Img()
 
-    out = scanner._transfer_pages(_NoneItem(), "glass", tmp_path, 5)
-    assert [p.suffix for p in out] == [".jpg"] and out[0].exists()
-    assert not list(tmp_path.glob("*.bmp"))
+    out = scanner._transfer_pages(_Feeder(), "feeder", tmp_path, 9)
+    assert [p.name for p in out] == ["page_001.jpg", "page_002.jpg"]
+    assert not list(tmp_path.glob("*.raw"))

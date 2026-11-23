@@ -107,31 +107,45 @@ def list_scanners() -> dict:
     return out
 
 
+_RPC_FAILED = -2147023170
+
+
+def _as_jpeg(image, folder: Path, n: int) -> Path:
+    """Saves a WIA image in its own format (BMP/PNG) and turns it into page_NNN.jpg
+    (only a step: the pages are joined into the PDF afterwards)."""
+    raw = folder / f"page_{n:03d}.raw"
+    image.SaveFile(str(raw))
+    path = folder / f"page_{n:03d}.jpg"
+    from PIL import Image
+    with Image.open(raw) as im:
+        im.convert("RGB").save(path, "JPEG", quality=90)
+    raw.unlink(missing_ok=True)
+    return path
+
+
 def _transfer_pages(item, source, folder: Path, max_pages: int, progress=None) -> list:
     """Takes pages from the scanner item until the feeder is empty (or one page from the glass)."""
     saved = []
     while len(saved) < (max_pages if source == "feeder" else 1):
         try:
-            image = item.Transfer(_JPEG)
+            # Feeder: ask in the driver's own format - the Canon MF270 feeder gives None for JPEG
+            # and a second Transfer then crashes the WIA service (RPC call failed).
+            image = item.Transfer() if source == "feeder" else item.Transfer(_JPEG)
+            if image is not None and source == "feeder":
+                image = _as_jpeg(image, folder, len(saved) + 1)
         except Exception as exc:
-            if source == "feeder" and saved and is_paper_empty(exc):
+            if source == "feeder" and saved and (is_paper_empty(exc) or _RPC_FAILED in _codes(exc)):
                 break
             if source == "feeder" and not saved and is_paper_empty(exc):
                 raise RuntimeError("المغذّي فارغ: ضع أوراق الأمر في المغذّي ثم أعد المحاولة") from exc
             raise
         path = folder / f"page_{len(saved) + 1:03d}.jpg"
-        if image is None:  # some feeders (Canon MF270) give nothing for JPEG: try the driver's own format
+        if image is None:
             if saved:
                 break
-            image = item.Transfer()
-            if image is None:
-                raise RuntimeError("لم يُرجع الماسح أي صورة من المغذّي: جرّب المسح من الزجاج")
-            raw = folder / f"page_{len(saved) + 1:03d}.bmp"
-            image.SaveFile(str(raw))
-            from PIL import Image
-            with Image.open(raw) as im:
-                im.convert("RGB").save(path, "JPEG", quality=90)
-            raw.unlink(missing_ok=True)
+            raise RuntimeError("لم يُرجع الماسح أي صورة: جرّب المسح من الزجاج")
+        if isinstance(image, Path):
+            path = image
         else:
             image.SaveFile(str(path))
         saved.append(path)
