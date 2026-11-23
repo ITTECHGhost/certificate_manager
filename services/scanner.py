@@ -230,12 +230,17 @@ def _prepare(device_id, source, dpi, color, page_size, level):
 
 
 def pages_to_pdf(pages: list, pdf_path: Path) -> Path:
-    """All scanned pages in one PDF (the page images are kept beside it)."""
+    """All scanned pages in one PDF; the page images were only a step and are deleted."""
     from PIL import Image
-    images = [Image.open(p).convert("RGB") for p in pages]
+    images = []
+    for p in pages:
+        with Image.open(p) as im:
+            images.append(im.convert("RGB"))
     if not images:
         raise RuntimeError("لا توجد صفحات")
     images[0].save(pdf_path, "PDF", save_all=True, append_images=images[1:], resolution=300.0)
+    for p in pages:
+        Path(p).unlink(missing_ok=True)
     return pdf_path
 
 

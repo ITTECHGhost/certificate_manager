@@ -79,6 +79,7 @@ def test_pages_join_into_one_pdf(tmp_path):
         pages.append(p)
     pdf = scanner.pages_to_pdf(pages, tmp_path / "order.pdf")
     data = pdf.read_bytes()
+    assert not any(p.exists() for p in pages)  # only the PDF stays
     assert data.startswith(b"%PDF") and data.count(b"/Type /Page\n") + data.count(b"/Type /Page ") >= 1
 
 
