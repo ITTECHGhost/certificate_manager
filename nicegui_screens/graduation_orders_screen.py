@@ -109,9 +109,29 @@ class GraduationOrdersScreen(OrderWorkspaceMixin):
         self.filters: dict = {}
         self._filter_inputs: dict = {}
 
-        # Main Viewport Container
-        self.container = ui.column().classes("w-full gap-4")
-        self.show_list_view()
+        # Tabs: orders | official ranking lists | scanned papers import (admins only)
+        from nicegui_ui.state import app_session
+        access = app_session.get_access() or {}
+        allowed = access.get("allowed_screens")
+        is_admin = app_session.role == "admin"
+        show_rankings = is_admin or allowed is None or "rankings" in allowed
+        with ui.tabs().props("dense no-caps align=right").classes("w-full") as tabs:
+            t_orders = ui.tab("orders", label="الأوامر", icon="gavel")
+            t_rank = ui.tab("rankings", label="قوائم الترتيب الرسمية", icon="format_list_numbered")                 if show_rankings else None
+            t_scan = ui.tab("scan", label="استيراد الأوراق الممسوحة", icon="document_scanner") if is_admin else None
+        with ui.tab_panels(tabs, value=t_orders).classes("w-full bg-transparent"):
+            with ui.tab_panel(t_orders).classes("p-0"):
+                # Main Viewport Container
+                self.container = ui.column().classes("w-full gap-4")
+                self.show_list_view()
+            if t_rank is not None:
+                with ui.tab_panel(t_rank).classes("p-0"):
+                    from nicegui_screens.official_rankings_screen import OfficialRankingsScreen
+                    OfficialRankingsScreen()
+            if t_scan is not None:
+                with ui.tab_panel(t_scan).classes("p-0"):
+                    from nicegui_screens.scanned_orders_import_screen import ScannedOrdersImportScreen
+                    ScannedOrdersImportScreen()
 
     # ── VIEW 1: Orders list ──────────────────────────────────────────────────
     def show_list_view(self):

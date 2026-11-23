@@ -213,7 +213,7 @@ def test_save_validates_scope():
 
 
 def test_nav_and_screen_wired():
-    nav = (ROOT / "nicegui_ui/ui_theme.py").read_text(encoding="utf-8")
-    dash = (ROOT / "nicegui_screens/dashboard_screen.py").read_text(encoding="utf-8")
-    assert '"key": "rankings"' in nav and 'current_screen == "rankings"' in dash
+    # 2026-11-23: a tab inside the graduation orders page, no longer a side-menu page
+    orders = (ROOT / "nicegui_screens/graduation_orders_screen.py").read_text(encoding="utf-8")
+    assert "OfficialRankingsScreen()" in orders
     assert (ROOT / "nicegui_screens/official_rankings_screen.py").is_file()

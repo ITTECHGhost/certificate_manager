@@ -56,12 +56,13 @@ class ScannedOrdersImportScreen:
             self.review_box = ui.column().classes("w-full gap-4")
 
     # ── step 0: scan the papers ─────────────────────────────────────────────
-    def _scan_card(self):
+    def _scan_card(self, title: str = "مسح أوراق الأوامر بالماسح",
+                   hint: str = "ضع أوراق الأمر الواحد (الصفحة الأولى أولًا) ثم اضغط «مسح». تُحفظ الصفحات في مجلد "
+                               "جديد؛ أعطِها للذكاء الاصطناعي ليُخرج ملف CSV ثم ارفعه أدناه."):
         from services import scanner
         with UI.card().classes("gap-3"):
-            ui.label("مسح أوراق الأوامر بالماسح").classes("app-section-title")
-            ui.label("ضع أوراق الأمر الواحد (الصفحة الأولى أولًا) ثم اضغط «مسح». تُحفظ الصفحات صورًا في مجلد "
-                     "جديد؛ أعطِها للذكاء الاصطناعي ليُخرج ملف CSV ثم ارفعه أدناه.").classes("app-caption")
+            ui.label(title).classes("app-section-title")
+            ui.label(hint).classes("app-caption")
             with ui.row().classes("w-full items-end gap-2"):
                 dev = UI.select("الماسح", options={}, value=None).classes("w-72", remove="w-full")
                 src = ui.toggle(scanner.SOURCES, value="feeder").props("no-caps unelevated toggle-color=primary")
@@ -253,3 +254,9 @@ class ScannedOrdersImportScreen:
                     ui.label(w).classes("app-caption")
             UI.primary_button("إغلاق", on_click=dlg.close)
         dlg.open()
+
+
+def scan_card(title: str, hint: str) -> None:
+    """The same scanner card for other pages (official ranking lists)."""
+    from types import SimpleNamespace
+    ScannedOrdersImportScreen._scan_card(SimpleNamespace(), title, hint)

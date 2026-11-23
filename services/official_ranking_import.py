@@ -79,3 +79,16 @@ def read_excel(path_or_bytes) -> list:
         return parse_rows(wb.worksheets[0].iter_rows(values_only=True))
     finally:
         wb.close()
+
+
+def read_csv(data) -> list:
+    """parse_rows() on a CSV file (bytes or text), e.g. the list the AI made from the scanned paper."""
+    import csv
+    import io
+    text = data.decode("utf-8-sig") if isinstance(data, (bytes, bytearray)) else data
+    return parse_rows(csv.reader(io.StringIO(text)))
+
+
+def read_list_file(name: str, data: bytes) -> list:
+    """Excel (.xlsx) or CSV, by file name."""
+    return read_csv(data) if str(name).lower().endswith(".csv") else read_excel(data)

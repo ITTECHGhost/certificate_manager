@@ -261,6 +261,11 @@ class OfficialRankingsScreen:
     # ── VIEW 3: import ───────────────────────────────────────────────────────
     def show_import(self):
         self.container.clear()
+        with self.container:
+            from nicegui_screens.scanned_orders_import_screen import scan_card
+            scan_card("مسح ورقة القائمة بالماسح",
+                      "ضع أوراق القائمة (الصفحة الأولى أولًا) ثم اضغط «مسح». أعطِ الملف للذكاء الاصطناعي ليُخرج "
+                      "ملف CSV بالأعمدة نفسها، ثم ارفعه أدناه.")
         state = {"rows": []}
         try:
             from data.repositories import DepartmentRepository
@@ -284,10 +289,10 @@ class OfficialRankingsScreen:
                 preview = ui.column().classes("w-full gap-1")
 
                 async def on_upload(e):
-                    from services.official_ranking_import import read_excel
+                    from services.official_ranking_import import read_list_file
                     try:
-                        _name, content = await read_upload(e)
-                        rows = read_excel(content)
+                        name, content = await read_upload(e)
+                        rows = read_list_file(name, content)
                         ids = await run.io_bound(self.repo.match, [r["name_written"] for r in rows], dept.value)
                     except Exception as err:
                         UI.notify(f"تعذرت قراءة القائمة: {err}", type="negative")
@@ -306,8 +311,8 @@ class OfficialRankingsScreen:
                         if len(rows) > 300:
                             ui.label(f"… و{len(rows) - 300} اسمًا آخر (تُحفظ كلها).").classes("app-caption")
 
-                clear_when_done(ui.upload(label="اسحب ملف Excel للقائمة هنا (xlsx)", auto_upload=True, on_upload=on_upload)) \
-                    .props('accept=".xlsx"').classes("w-full")
+                clear_when_done(ui.upload(label="اسحب ملف القائمة هنا (Excel أو CSV)", auto_upload=True, on_upload=on_upload)) \
+                    .props('accept=".xlsx,.csv"').classes("w-full")
 
                 async def save():
                     if not state["rows"]:
