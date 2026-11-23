@@ -37,6 +37,20 @@ def _to_jpeg(img, max_side: int, quality: int) -> bytes:
     return out.getvalue()
 
 
+def to_feedback_jpeg(data: bytes, max_side: int = 1920) -> bytes:
+    """Any picture (PNG screenshot, JPEG photo) -> one JPEG for a feedback note."""
+    from PIL import Image
+    return _to_jpeg(Image.open(io.BytesIO(data)), max_side, PAGE_QUALITY)
+
+
+def screen_png() -> bytes:
+    """A picture of the whole screen now (Windows), as PNG bytes."""
+    from PIL import ImageGrab
+    out = io.BytesIO()
+    ImageGrab.grab(all_screens=False).save(out, "PNG")
+    return out.getvalue()
+
+
 def file_to_pages(name: str, data: bytes) -> List[Tuple[bytes, bytes]]:
     """[(page_jpeg, thumb_jpeg), ...] for one uploaded photo or PDF."""
     from PIL import Image

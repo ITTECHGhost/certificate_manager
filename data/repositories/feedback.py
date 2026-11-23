@@ -60,8 +60,40 @@ class FeedbackRepository(BaseRepository):
             raise RuntimeError(_detail(resp, "تعذر حذف الملاحظة"))
 
 
+    # ── pictures (0014) ──────────────────────────────────────────────────────
+    def add_image(self, feedback_id: int, user_id, name: str, data: bytes) -> None:
+        """One picture (PNG/JPEG/screenshot) -> JPEG, ONE request."""
+        if not is_online():
+            raise OfflineModeError()
+        from services.order_images import to_feedback_jpeg
+        resp = api_client.post(f"{self.api_url}{self.BASE}/{int(feedback_id)}/images",
+                               files={"image": ("image.jpg", to_feedback_jpeg(data), "image/jpeg")},
+                               data={"source_name": name or "", "personnel_id": str(user_id or "")},
+                               timeout=60.0)
+        if resp.status_code != 200:
+            raise RuntimeError(_detail(resp, "تعذر رفع الصورة"))
+
+    def list_images(self, feedback_id: int, user_id) -> list:
+        if not is_online() or not user_id:
+            return []
+        try:
+            resp = api_client.get(f"{self.api_url}{self.BASE}/{int(feedback_id)}/images",
+                                  params={"personnel_id": int(user_id)}, timeout=10.0)
+            return resp.json() if resp.status_code == 200 else []
+        except Exception as e:
+            log_system(f"Feedback images list failed: {e}", "WARNING")
+            return []
+
+    def get_image(self, feedback_id: int, image_id: int, user_id) -> bytes:
+        resp = api_client.get(f"{self.api_url}{self.BASE}/{int(feedback_id)}/images/{int(image_id)}",
+                              params={"personnel_id": int(user_id)}, timeout=30.0)
+        if resp.status_code != 200:
+            raise RuntimeError(_detail(resp, "تعذر تحميل الصورة"))
+        return resp.content
+
+
 _DETAIL_AR = {403: "ليست لديك صلاحية لهذا الإجراء", 404: "الملاحظة غير موجودة",
-              409: "لا يمكن التعديل: الملاحظة قيد المعالجة", 422: "البيانات غير صحيحة"}
+              409: "لا يمكن: الملاحظة قيد المعالجة أو الصور كثيرة", 413: "الصورة كبيرة جدًا", 422: "البيانات غير صحيحة"}
 
 
 def _detail(resp, default: str) -> str:

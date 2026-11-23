@@ -27,3 +27,8 @@ ollback_0007_official_rankings.sql`. Applied on the DEV laptop's MySQL after a m
 - Every `make_client_patch.ps1` run writes `dist\manifest_v<ver>.json` (KEEP it: it is the base of the next small update).
 - Next release: `scripts\make_client_patch.ps1 -Changes dist\manifest_v<old>.json` also writes `patch_v<new>_from_<old>.zip`; build_update/update.ps1/publish_client_update.ps1 carry it and add `changes_from` etc. to version.json. Laptops on exactly <old> download the small zip; others (or any failure) the full zip.
 - Files deleted between releases are NOT removed on laptops. Not yet tried with a real build.
+
+- 2026-11-23 (DEV laptop): migration 0014 (feedback_images). SERVER laptop: the server bundle's
+  setup_server.bat runs it (backup first). New file folder C:\AppServ\feedback_images is made on
+  the first upload. Scanned-order import now CREATES missing orders on the server (bulk_import
+  order_date/order_semester/order_year), so the server must be updated before using it there.

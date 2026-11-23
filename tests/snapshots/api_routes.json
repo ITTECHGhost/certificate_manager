@@ -781,6 +781,18 @@
  ],
  [
   "GET",
+  "/api/feedback/{feedback_id}/images"
+ ],
+ [
+  "GET",
+  "/api/feedback/{feedback_id}/images/{image_id}"
+ ],
+ [
+  "POST",
+  "/api/feedback/{feedback_id}/images"
+ ],
+ [
+  "GET",
   "/api/issued-doc-files/signed-ids"
  ],
  [

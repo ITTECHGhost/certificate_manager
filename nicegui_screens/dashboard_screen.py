@@ -320,7 +320,6 @@ class MainAppShell:
 
         with ui.column().classes("w-full gap-0 mt-auto px-3 py-2") as self._version_footer:
             ui.label(f"إصدار البرنامج: {APP_VERSION}").classes("app-caption truncate")
-            fb_lbl = ui.label("ملاحظات وشكاوى").classes("app-caption text-primary cursor-pointer")
             server_lbl = ui.label("إصدار الخادم: …").classes("app-caption truncate")
             upd_lbl = ui.label("").classes("app-caption text-primary cursor-pointer")
             upd_lbl.tooltip("فتح «تحديث البرنامج» في الإعدادات")
@@ -332,12 +331,6 @@ class MainAppShell:
 
         upd_lbl.on("click", _open_update_tab)
 
-        def _open_feedback():
-            from nicegui_screens.feedback_view import open_feedback_dialog
-            names = {i["key"]: i["ar"] for i in NAV_ITEMS}
-            open_feedback_dialog(names.get(self.current_screen, self.current_screen))
-
-        fb_lbl.on("click", _open_feedback)
 
         def _draw_update():
             from nicegui_ui.update_prompt import progress_text
@@ -413,6 +406,17 @@ class MainAppShell:
             danger=False,
         )
 
+    def _open_feedback(self):
+        """Feedback dialog; a picture of the screen is taken first (before the dialog covers it)."""
+        from nicegui_screens.feedback_view import open_feedback_dialog
+        from services.order_images import screen_png
+        names = {i["key"]: i["ar"] for i in NAV_ITEMS}
+        try:
+            shot = screen_png()
+        except Exception:
+            shot = None
+        open_feedback_dialog(names.get(self.current_screen, self.current_screen), screenshot=shot)
+
     # =========================================================================
     # 4. HEADER BAR
     # =========================================================================
@@ -441,6 +445,7 @@ class MainAppShell:
                 self._refresh_status = None
 
                 UI.icon_button("refresh", "تحديث البيانات", on_click=self._on_refresh_click)
+                UI.secondary_button("الملاحظات", icon="feedback", on_click=self._open_feedback)
                 self._build_topbar_user_card()
 
     def _build_topbar_user_card(self) -> None:
