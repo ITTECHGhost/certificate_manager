@@ -133,3 +133,24 @@ def test_refused_everything_is_clear_message(monkeypatch, tmp_path):
 
 def test_invalid_setting_detected():
     assert scanner.is_invalid_setting(_Invalid()) and not scanner.is_invalid_setting(_Empty())
+
+
+def test_feeder_jpeg_none_falls_back_to_default_format(tmp_path):
+    from PIL import Image
+    from services import scanner
+
+    class _Img:
+        def SaveFile(self, p):
+            Image.new("RGB", (4, 4)).save(p, "BMP")
+
+    class _NoneItem:
+        calls = 0
+        def Transfer(self, fmt=None):
+            self.calls += 1
+            if self.calls > 2:
+                raise Exception("empty")
+            return None if fmt else _Img()
+
+    out = scanner._transfer_pages(_NoneItem(), "glass", tmp_path, 5)
+    assert [p.suffix for p in out] == [".jpg"] and out[0].exists()
+    assert not list(tmp_path.glob("*.bmp"))

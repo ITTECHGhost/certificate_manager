@@ -120,7 +120,20 @@ def _transfer_pages(item, source, folder: Path, max_pages: int, progress=None) -
                 raise RuntimeError("المغذّي فارغ: ضع أوراق الأمر في المغذّي ثم أعد المحاولة") from exc
             raise
         path = folder / f"page_{len(saved) + 1:03d}.jpg"
-        image.SaveFile(str(path))
+        if image is None:  # some feeders (Canon MF270) give nothing for JPEG: try the driver's own format
+            if saved:
+                break
+            image = item.Transfer()
+            if image is None:
+                raise RuntimeError("لم يُرجع الماسح أي صورة من المغذّي: جرّب المسح من الزجاج")
+            raw = folder / f"page_{len(saved) + 1:03d}.bmp"
+            image.SaveFile(str(raw))
+            from PIL import Image
+            with Image.open(raw) as im:
+                im.convert("RGB").save(path, "JPEG", quality=90)
+            raw.unlink(missing_ok=True)
+        else:
+            image.SaveFile(str(path))
         saved.append(path)
         if progress:
             progress(len(saved))

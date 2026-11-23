@@ -19,25 +19,46 @@ from config import DBConfig
 from order_number import normalize_order_number
 
 
+def plan(rows: list) -> tuple[list, list, list]:
+    """rows: id, order_number, department_id, study_system_id, graduation_semester.
+    Returns (fix, review, clash): clash = the fixed number would be the SAME order as another row
+    (same number, department, study system, semester: the unique key) - both are kept and listed
+    to merge by hand; changing it would fail the whole run."""
+    def key(r, number):
+        return (number, r.get("department_id"), r.get("study_system_id"), r.get("graduation_semester"))
+    taken = {key(r, r["order_number"] or ""): r["id"] for r in rows}
+    fix, review, clash = [], [], []
+    for r in rows:
+        raw = r["order_number"] or ""
+        norm = normalize_order_number(raw)
+        if norm.needs_review:
+            review.append((r["id"], raw))
+        elif norm.value != raw:
+            other = taken.get(key(r, norm.value))
+            if other and other != r["id"]:
+                clash.append((r["id"], raw, norm.value, other))
+            else:
+                fix.append((r["id"], raw, norm.value))
+                taken[key(r, norm.value)] = r["id"]
+    return fix, review, clash
+
+
 def main(apply: bool) -> int:
     conn = mysql.connector.connect(host=DBConfig.DB_HOST, user=DBConfig.DB_USER,
                                    password=DBConfig.DB_PASSWORD, database=DBConfig.DB_NAME)
     try:
         cur = conn.cursor(dictionary=True)
-        cur.execute("SELECT id, order_number FROM graduation_orders ORDER BY id")
-        fix, review = [], []
-        for row in cur.fetchall():
-            raw = row["order_number"] or ""
-            norm = normalize_order_number(raw)
-            if norm.needs_review:
-                review.append((row["id"], raw))
-            elif norm.value != raw:
-                fix.append((row["id"], raw, norm.value))
+        cur.execute("SELECT id, order_number, department_id, study_system_id, graduation_semester "
+                    "FROM graduation_orders ORDER BY id")
+        fix, review, clash = plan(cur.fetchall())
         for oid, raw, new in fix:
             print(f"order {oid}: {raw!r} -> {new}")
         for oid, raw in review:
             print(f"order {oid}: {raw!r} NEEDS REVIEW (fix by hand)")
-        print(f"{len(fix)} to fix, {len(review)} to review by hand")
+        for oid, raw, new, other in clash:
+            print(f"order {oid}: {raw!r} is the SAME order as order {other} ({new}) - not changed; "
+                  f"move its students to order {other} in the program, then delete order {oid}")
+        print(f"{len(fix)} to fix, {len(review)} to review by hand, {len(clash)} duplicates to merge by hand")
         if apply and fix:
             from db import backup_db
             dump = Path(__file__).resolve().parent / "backups" / f"order_numbers_{datetime.now():%Y%m%d_%H%M%S}.sql"
