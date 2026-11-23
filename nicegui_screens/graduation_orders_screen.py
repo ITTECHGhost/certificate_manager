@@ -136,7 +136,7 @@ class GraduationOrdersScreen(OrderWorkspaceMixin):
         with self.container:
             UI.ghost_button("رجوع إلى الأوامر", icon="arrow_forward", on_click=self.show_list_view)
             from nicegui_screens.scanned_orders_import_screen import ScannedOrdersImportScreen
-            ScannedOrdersImportScreen()
+            ScannedOrdersImportScreen(on_done=self.show_list_view)
 
     # ── VIEW 1: Orders list ──────────────────────────────────────────────────
     def show_list_view(self):

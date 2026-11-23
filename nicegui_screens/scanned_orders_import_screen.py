@@ -20,7 +20,8 @@ GENDERS = {1: "ذكر", 2: "أنثى"}
 
 
 class ScannedOrdersImportScreen:
-    def __init__(self):
+    def __init__(self, on_done=None):
+        self.on_done = on_done   # called when the result dialog closes (back to the orders list)
         self.files: list[tuple[str, str]] = []
         self.result = None
         self.container = ui.column().classes("w-full gap-4")
@@ -255,6 +256,13 @@ class ScannedOrdersImportScreen:
                 order_ids.update({(k, _dept): v for k, v in (res.get("order_ids") or {}).items()})
             except Exception as err:
                 failed.append(f"{order_no or 'بلا رقم'}: {err}")
+        if done:
+            # the orders list and student search read the local copy: bring the new rows now
+            from sync_engine import refresh_replica_tables
+            try:
+                await run.io_bound(refresh_replica_tables, ["graduation_orders", "students"])
+            except Exception:
+                pass   # the normal sync brings them later
         with self.container, ui.dialog() as dlg, UI.card().classes("app-dialog gap-2").style("width: 640px"):
             ui.label("نتيجة الاستيراد").classes("app-section-title")
             ui.label(f"حُفظ {done} اسمًا.").classes("text-sm")
@@ -268,7 +276,11 @@ class ScannedOrdersImportScreen:
                 ui.label("تنبيهات الربط:").classes("font-bold")
                 for w in warnings[:30]:
                     ui.label(w).classes("app-caption")
-            UI.primary_button("إغلاق", on_click=dlg.close)
+            def close():
+                dlg.close()
+                if self.on_done and done:
+                    self.on_done()
+            UI.primary_button("إغلاق والعودة إلى الأوامر" if self.on_done and done else "إغلاق", on_click=close)
         dlg.open()
 
     def _attach_scans(self, order_ids: dict):
