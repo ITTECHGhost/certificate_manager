@@ -251,7 +251,8 @@ class ScannedOrdersImportScreen:
                 done += len(group)
                 warnings += res.get("order_warnings") or []
                 created += res.get("created_orders") or []
-                order_ids.update({k: (v, _dept) for k, v in (res.get("order_ids") or {}).items()})
+                # one order number can exist in two departments: keep both
+                order_ids.update({(k, _dept): v for k, v in (res.get("order_ids") or {}).items()})
             except Exception as err:
                 failed.append(f"{order_no or 'بلا رقم'}: {err}")
         with self.container, ui.dialog() as dlg, UI.card().classes("app-dialog gap-2").style("width: 640px"):
@@ -286,9 +287,10 @@ class ScannedOrdersImportScreen:
             except Exception as err:
                 UI.notify(f"{label}: تعذر الحفظ: {err}", type="negative")
 
-        for order_no, (order_id, _dept) in order_ids.items():
+        depts = {it.get("department_id"): it.get("department") for it in (self.result.items if self.result else [])}
+        for (order_no, dept_id), order_id in order_ids.items():
             with ui.row().classes("w-full items-center gap-2"):
-                ui.label(f"الأمر {order_no}").classes("text-sm w-32")
+                ui.label(f"الأمر {order_no} ({depts.get(dept_id) or ''})").classes("text-sm w-48")
                 if last_pdf:
                     UI.secondary_button("إرفاق آخر مسح", icon="attach_file",
                                         on_click=lambda oid=order_id, no=order_no: background_tasks.create(
@@ -297,7 +299,7 @@ class ScannedOrdersImportScreen:
                 async def on_up(e, oid=order_id, no=order_no):
                     name, data = await read_upload(e)
                     await attach(oid, name, data, no)
-                clear_when_done(ui.upload(label="أو اختر ملف المسح (PDF أو صورة)", auto_upload=True,
+                clear_when_done(ui.upload(label="أو اختر ملف المسح (PDF أو صور، يمكن اختيار عدة صور)", multiple=True, auto_upload=True,
                                           on_upload=on_up).props('accept=".pdf,.jpg,.jpeg,.png" flat bordered dense')
                                 .classes("flex-1"))
 
