@@ -42,8 +42,23 @@ def test_bad_average_dropped():
     assert _build().items[2]["average"] is None
 
 
-def test_missing_order_reported():
-    assert [o["رقم الأمر"] for o in soi.missing_orders(_build())] == ["3/12/45"]
+def test_order_not_in_system_will_be_created_first():
+    res = _build()
+    assert soi.missing_orders(res) == [] and [o["رقم الأمر"] for o in soi.new_orders(res)] == ["3/12/45"]
+
+
+def test_order_without_date_cannot_be_created():
+    rows = soi.read_csv_text(CSV.replace("2024-07-01", ""), "o.csv")
+    res = soi.build(rows, STUDENTS, DEPTS, GOVS, COUNTRIES, orders=[])
+    assert [o["رقم الأمر"] for o in soi.missing_orders(res)] == ["3/12/45"] and soi.new_orders(res) == []
+
+
+def test_order_fields_from_the_paper():
+    f = soi.order_fields({"order_date": "١/٧/٢٠٢٤", "semester": "الدور الثاني", "graduation_year": "2023-2024"})
+    assert f == {"order_date": "2024-07-01", "order_semester": "second", "order_year": 2023}
+    # no year on the paper: from the date (graduating 2026 = the 2025/2026 class)
+    assert soi.order_fields({"order_date": "2026-07-20", "semester": ""})["order_year"] == 2025
+    assert soi.order_fields({"order_date": "", "semester": "الأول"})["order_date"] is None
 
 
 def test_payload_is_link_only_and_keeps_system():
@@ -61,3 +76,64 @@ def test_server_accepts_link_only_flag():
     assert ast.literal_eval(fields["link_only"].value) is False
     src = (ROOT / "certificate_manager_api" / "routers" / "bulk_import.py").read_text(encoding="utf-8")
     assert src.index("if item.link_only:") < src.index("# 2. Check or create academic periods")
+
+
+def test_payload_carries_order_fields():
+    p = soi.payloads(_build().items)
+    assert p[0]["order_date"] == "2024-07-01" and p[0]["order_semester"] == "first" and p[0]["order_year"] == 2023
+
+
+class _Cur:
+    def __init__(self, conn):
+        self.conn, self.rowcount, self.lastrowid = conn, 1, 0
+
+    def execute(self, sql, params=None):
+        self.conn.sql.append(sql)
+        self.conn.next_id += 1
+        self.lastrowid = self.conn.next_id
+        self.last = sql
+        self.conn.orders_made += sql.lstrip().startswith("INSERT INTO graduation_orders")
+
+    def fetchone(self):
+        if "FROM graduation_orders" in self.last and self.conn.orders_made:
+            return {"id": 77, "order_date": "2024-07-01", "graduation_semester": "first", "graduation_year": 2023}
+        return None
+
+    def fetchall(self):
+        return []
+
+    def close(self):
+        pass
+
+
+class _Conn:
+    def __init__(self):
+        self.sql, self.next_id, self.orders_made, self.commits, self.rollbacks = [], 100, 0, 0, 0
+
+    def cursor(self, **k):
+        return _Cur(self)
+
+    def start_transaction(self):
+        pass
+
+    def commit(self):
+        self.commits += 1
+
+    def rollback(self):
+        self.rollbacks += 1
+
+
+def test_server_creates_missing_order_once_then_links_every_student(monkeypatch):
+    import importlib
+    import types
+    sys.path.append(str(ROOT / "certificate_manager_api"))
+    monkeypatch.setitem(sys.modules, "main", types.SimpleNamespace(get_db=lambda: None))
+    monkeypatch.delitem(sys.modules, "routers.bulk_import", raising=False)
+    bi = importlib.import_module("routers.bulk_import")
+    items = [bi.BulkImportStudentItem(**{k: v for k, v in x.items() if v is not None})
+             for x in soi.payloads(_build().items[:2])]
+    conn = _Conn()
+    out = bi.bulk_import_students(bi.BulkImportRequest(students=items), conn=conn)
+    assert conn.orders_made == 1 and conn.commits == 1 and conn.rollbacks == 0
+    assert out["created_orders"] == ["3/12/45"] and out["linked_to_orders"] == 2
+    assert list(out["order_ids"].values()) and not out["order_warnings"]

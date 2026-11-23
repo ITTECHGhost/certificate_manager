@@ -52,7 +52,7 @@ class OfficialRankingsScreen:
                     UI.search_input(placeholder="ابحث برقم الأمر أو القسم أو العام الدراسي",
                                     on_change=on_search).classes("flex-1 min-w-[220px] max-w-md")
                     ui.space()
-                    UI.primary_button("استيراد قائمة من Excel", icon="upload_file", on_click=self.show_import)
+                    UI.primary_button("استيراد قائمة (مسح أو ملف)", icon="document_scanner", on_click=self.show_import)
                 ui.label("ترتيب الطلبة كما ورد في الأمر الرسمي. الوثيقة تأخذ تسلسل الطالب من هنا؛ "
                          "إن لم يوجد الطالب في قائمة يُستعمل التسلسل المحسوب.").classes("app-caption")
 
@@ -70,8 +70,8 @@ class OfficialRankingsScreen:
             if self.search:
                 UI.empty_state("لا توجد قائمة مطابقة", "غيّر البحث.", icon="search_off")
             else:
-                UI.empty_state("لا توجد قوائم بعد", "استورد أول قائمة من ملف Excel (أو البرنامج غير متصل بالخادم).",
-                               icon="format_list_numbered", action_text="استيراد قائمة من Excel",
+                UI.empty_state("لا توجد قوائم بعد", "امسح ورقة القائمة أو استورد ملف Excel أو CSV (أو البرنامج غير متصل بالخادم).",
+                               icon="format_list_numbered", action_text="استيراد قائمة (مسح أو ملف)",
                                on_action=self.show_import)
             return
         rows = [{

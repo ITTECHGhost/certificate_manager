@@ -120,7 +120,7 @@ def test_orders_summary_marks_missing_orders():
                   "200/9,2025-08-01,قسم المدني,,2025,الثاني,2,1,عمر,ذكر,,"))
     by_no = {o["رقم الأمر"]: o for o in r.orders}
     assert by_no["100/5"]["موجود في النظام"] == "نعم"
-    assert by_no["200/9"]["موجود في النظام"] == "لا"
+    assert by_no["200/9"]["موجود في النظام"] == "سيُنشأ"   # has a date: created first on import
     assert by_no["200/9"]["عدد الأسماء"] == 1
 
 

@@ -17,6 +17,7 @@ from dataclasses import dataclass, field
 from openpyxl import Workbook
 
 from services.excel_import_service import STUDENT_ROSTER_HEADERS
+from utils.date_parsing import academic_year_from_date, academic_year_start, parse_date
 from utils.order_number import normalize_order_number
 from utils.study_type import normalize_study_type
 
@@ -108,7 +109,9 @@ def build(rows, students, departments, governorates, countries, orders,
             "القسم": dept["name_ar"] if dept else r.get("department", ""),
             "نوع الدراسة": r.get("study_type", ""), "سنة التخرج": r.get("graduation_year", ""),
             "الفصل": r.get("semester", ""),
-            "موجود في النظام": "نعم" if okey in existing_orders else "لا", "عدد الأسماء": 0})
+            "موجود في النظام": "نعم" if okey in existing_orders else
+                               ("سيُنشأ" if order_fields(r)["order_date"] else "لا (لا يوجد تاريخ)"),
+            "عدد الأسماء": 0})
         o["عدد الأسماء"] += 1
         if not dept:
             rv["الحالة"] = NO_DEPT
@@ -171,6 +174,7 @@ def build(rows, students, departments, governorates, countries, orders,
             "study_type": normalize_study_type(r.get("study_type")),
             "graduation_year": r.get("graduation_year", ""), "semester": r.get("semester", ""),
             "order_number": r.get("order_number", ""), "average": _average(r.get("average")),
+            "order_date": r.get("order_date", ""),
         })
         res.roster.setdefault(dept["name_ar"], []).append([
             nat_id, name, "", gender, dob, birthplace, nationality, "",
@@ -221,8 +225,31 @@ def _average(text):
 
 
 def missing_orders(result):
-    """Orders named on the papers that are not in the system yet (students would stay unlinked)."""
-    return [o for o in result.orders if o["موجود في النظام"] == "لا"]
+    """Orders named on the papers that are not in the system and cannot be created (no date on
+    the paper): their students would stay unlinked."""
+    return [o for o in result.orders if str(o["موجود في النظام"]).startswith("لا")]
+
+
+def new_orders(result):
+    """Orders that the import will create first (not in the system, date known)."""
+    return [o for o in result.orders if o["موجود في النظام"] == "سيُنشأ"]
+
+
+_SEMESTERS = {"الأول": "first", "الاول": "first", "اول": "first", "أول": "first", "1": "first", "first": "first",
+              "الثاني": "second", "ثاني": "second", "2": "second", "second": "second",
+              "الصيفي": "summer", "صيفي": "summer", "3": "summer", "summer": "summer"}
+
+
+def order_fields(row):
+    """order_date / order_semester / order_year for creating a missing order from the paper.
+    The year is stored as the first year (2025 = 2025/2026); from the date when the paper has none."""
+    date = parse_date(str(row.get("order_date") or "").translate(_DIGITS)) or None
+    sem = str(row.get("semester") or "").strip().replace("الفصل", "").replace("الدور", "").strip()
+    year = academic_year_start(row.get("graduation_year"))
+    if year is None and date:
+        year = academic_year_start(academic_year_from_date(date))
+    return {"order_date": date, "order_semester": _SEMESTERS.get(sem.lower(), "first" if date else None),
+            "order_year": year}
 
 
 def payloads(items, default_system_id=1):
@@ -240,6 +267,7 @@ def payloads(items, default_system_id=1):
             "academic_year": str(it.get("graduation_year") or ""),
             "expected_graduation_semester": it.get("semester") or "",
             "order_number": it.get("order_number") or "", "link_only": True,
+            **order_fields(it),
         })
     return out
 

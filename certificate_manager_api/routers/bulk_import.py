@@ -73,6 +73,11 @@ class BulkImportStudentItem(BaseModel):
     # Scanned graduation orders (no grades): save the student + link the order, but create NO
     # academic period (a stage-1 period would be wrong for a graduate). Old clients: False.
     link_only: Optional[bool] = False
+    # Scanned order papers: when the order is not in the system yet it is created first (same
+    # transaction) from these fields, then the student is linked to it. No date = not created.
+    order_date: Optional[str] = None            # YYYY-MM-DD
+    order_semester: Optional[str] = None        # first / second / summer
+    order_year: Optional[int] = None            # first year of the academic year (2025 = 2025/2026)
 
 
 class BulkImportRequest(BaseModel):
@@ -119,6 +124,8 @@ def bulk_import_students(payload: BulkImportRequest, conn=Depends(get_db_depende
     saved_enrollments = 0
     linked_to_orders = 0
     order_warnings: List[str] = []
+    created_orders: set = set()
+    order_ids: dict = {}     # order number -> id (to attach the scanned pages afterwards)
 
     try:
         conn.start_transaction()
@@ -215,9 +222,21 @@ def bulk_import_students(payload: BulkImportRequest, conn=Depends(get_db_depende
                     "ORDER BY (study_system_id = %s) DESC, id DESC LIMIT 1",
                     (order_no, item.department_id, item.study_system_id or 1))
                 order = cur.fetchone()
+                if not order and item.order_date and item.order_semester in ("first", "second", "summer"):
+                    cur.execute(
+                        "INSERT INTO graduation_orders (order_number, order_date, department_id, "
+                        "graduation_semester, graduation_year, study_system_id, study_type, notes) "
+                        "VALUES (%s, %s, %s, %s, %s, %s, %s, %s)",
+                        (order_no, item.order_date, item.department_id, item.order_semester,
+                         item.order_year, item.study_system_id or 1, item.study_type,
+                         "أُنشئ من الأوراق الممسوحة"))
+                    created_orders.add(order_no)
+                    order = {"id": cur.lastrowid, "order_date": item.order_date,
+                             "graduation_semester": item.order_semester, "graduation_year": item.order_year}
                 if not order:
                     order_warnings.append(f"{item.full_name_ar}: أمر التخرج {order_no} غير موجود لهذا القسم")
                 else:
+                    order_ids[order_no] = order["id"]
                     cur.execute(
                         "UPDATE students SET order_id = %s, graduation_date = %s, graduation_semester = %s, "
                         "expected_graduation_year = COALESCE(expected_graduation_year, %s) "
@@ -333,6 +352,8 @@ def bulk_import_students(payload: BulkImportRequest, conn=Depends(get_db_depende
             "total_processed": len(payload.students),
             "linked_to_orders": linked_to_orders,
             "order_warnings": order_warnings[:50],
+            "created_orders": sorted(created_orders),
+            "order_ids": order_ids,
         }
 
     except Exception as exc:

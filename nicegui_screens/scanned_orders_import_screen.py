@@ -4,6 +4,8 @@
 # order (services/scanned_orders_import.py). Online only. One request per order, all-or-nothing.
 # =============================================================================
 
+from pathlib import Path
+
 from nicegui import background_tasks, run, ui
 
 from nicegui_ui.ui_components import UI
@@ -150,11 +152,18 @@ class ScannedOrdersImportScreen:
                     UI.secondary_button("تصدير للمراجعة (Excel)", icon="file_download",
                                         on_click=lambda: deliver_file(soi.review_xlsx(res), "مراجعة_الأوامر.xlsx",
                                                                       title="تم تصدير ملف المراجعة"))
+                created = soi.new_orders(res)
+                if created:
+                    with ui.row().classes("app-chip--accent w-full items-start gap-2 no-wrap rounded-lg p-3"):
+                        ui.icon("add_circle", size="20px").classes("shrink-0")
+                        ui.label("أوامر جديدة ستُنشأ أولًا ثم يُربط بها طلابها: "
+                                 + "، ".join(f"{o['رقم الأمر']} ({o['القسم']}، {o['التاريخ']})" for o in created)
+                                 ).classes("text-sm")
                 missing = soi.missing_orders(res)
                 if missing:
                     with ui.row().classes("app-chip--warning w-full items-start gap-2 no-wrap rounded-lg p-3"):
                         ui.icon("warning", size="20px").classes("shrink-0")
-                        ui.label("أوامر غير موجودة في النظام (يُحفظ طلابها دون ربط حتى تُنشأ في «أوامر التخرج»): "
+                        ui.label("أوامر بلا تاريخ في الورقة، لا يمكن إنشاؤها (يُحفظ طلابها دون ربط حتى تُنشأ في «أوامر التخرج»): "
                                  + "، ".join(f"{o['رقم الأمر']} ({o['القسم']})" for o in missing)).classes("text-sm")
 
             # importable rows, all ticked; click a row to fix its name / gender
@@ -235,17 +244,23 @@ class ScannedOrdersImportScreen:
     async def do_import(self, chosen):
         from data.repositories.students import StudentRepository
         repo = StudentRepository()
-        done, failed, warnings = 0, [], []
+        done, failed, warnings, created, order_ids = 0, [], [], [], {}
         for (order_no, _dept), group in soi.group_by_order(chosen).items():
             try:
                 res = await run.io_bound(repo.bulk_import, soi.payloads(group))
                 done += len(group)
                 warnings += res.get("order_warnings") or []
+                created += res.get("created_orders") or []
+                order_ids.update({k: (v, _dept) for k, v in (res.get("order_ids") or {}).items()})
             except Exception as err:
                 failed.append(f"{order_no or 'بلا رقم'}: {err}")
         with self.container, ui.dialog() as dlg, UI.card().classes("app-dialog gap-2").style("width: 640px"):
             ui.label("نتيجة الاستيراد").classes("app-section-title")
             ui.label(f"حُفظ {done} اسمًا.").classes("text-sm")
+            if created:
+                ui.label("أوامر أُنشئت: " + "، ".join(created)).classes("text-sm text-positive")
+            if order_ids:
+                self._attach_scans(order_ids)
             for f in failed:
                 ui.label(f"لم يُستورد الأمر {f}").classes("text-sm text-red-600")
             if warnings:
@@ -254,6 +269,37 @@ class ScannedOrdersImportScreen:
                     ui.label(w).classes("app-caption")
             UI.primary_button("إغلاق", on_click=dlg.close)
         dlg.open()
+
+    def _attach_scans(self, order_ids: dict):
+        """Keep the scanned paper with its order (the order's images, as in «أوامر التخرج»)."""
+        from services import order_images
+        ui.label("حفظ الورقة الممسوحة مع الأمر (للأرشيف):").classes("font-bold")
+        last_pdf = None
+        if getattr(self, "last_scan", None):
+            pdfs = sorted(Path(self.last_scan).glob("*.pdf"))
+            last_pdf = pdfs[0] if pdfs else None
+
+        async def attach(order_id, name, data, label):
+            try:
+                n = await run.io_bound(order_images.upload_file, order_id, name, data)
+                UI.notify(f"{label}: حُفظت {n} صفحة", type="positive")
+            except Exception as err:
+                UI.notify(f"{label}: تعذر الحفظ: {err}", type="negative")
+
+        for order_no, (order_id, _dept) in order_ids.items():
+            with ui.row().classes("w-full items-center gap-2"):
+                ui.label(f"الأمر {order_no}").classes("text-sm w-32")
+                if last_pdf:
+                    UI.secondary_button("إرفاق آخر مسح", icon="attach_file",
+                                        on_click=lambda oid=order_id, no=order_no: background_tasks.create(
+                                            attach(oid, last_pdf.name, last_pdf.read_bytes(), no)))
+
+                async def on_up(e, oid=order_id, no=order_no):
+                    name, data = await read_upload(e)
+                    await attach(oid, name, data, no)
+                clear_when_done(ui.upload(label="أو اختر ملف المسح (PDF أو صورة)", auto_upload=True,
+                                          on_upload=on_up).props('accept=".pdf,.jpg,.jpeg,.png" flat bordered dense')
+                                .classes("flex-1"))
 
 
 def scan_card(title: str, hint: str) -> None:

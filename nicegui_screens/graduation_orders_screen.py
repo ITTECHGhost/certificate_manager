@@ -109,16 +109,17 @@ class GraduationOrdersScreen(OrderWorkspaceMixin):
         self.filters: dict = {}
         self._filter_inputs: dict = {}
 
-        # Tabs: orders | official ranking lists | scanned papers import (admins only)
+        # Tabs: orders | official ranking lists (both official orders). Scanning the order papers is a
+        # button inside the orders tab (admins).
         from nicegui_ui.state import app_session
         access = app_session.get_access() or {}
         allowed = access.get("allowed_screens")
-        is_admin = app_session.role == "admin"
-        show_rankings = is_admin or allowed is None or "rankings" in allowed
+        self.is_admin = app_session.role == "admin"
+        show_rankings = self.is_admin or allowed is None or "rankings" in allowed
         with ui.tabs().props("dense no-caps align=right").classes("w-full") as tabs:
-            t_orders = ui.tab("orders", label="الأوامر", icon="gavel")
-            t_rank = ui.tab("rankings", label="قوائم الترتيب الرسمية", icon="format_list_numbered")                 if show_rankings else None
-            t_scan = ui.tab("scan", label="استيراد الأوراق الممسوحة", icon="document_scanner") if is_admin else None
+            t_orders = ui.tab("orders", label="أوامر التخرج", icon="gavel")
+            t_rank = (ui.tab("rankings", label="قوائم الترتيب الرسمية", icon="format_list_numbered")
+                      if show_rankings else None)
         with ui.tab_panels(tabs, value=t_orders).classes("w-full bg-transparent"):
             with ui.tab_panel(t_orders).classes("p-0"):
                 # Main Viewport Container
@@ -128,10 +129,14 @@ class GraduationOrdersScreen(OrderWorkspaceMixin):
                 with ui.tab_panel(t_rank).classes("p-0"):
                     from nicegui_screens.official_rankings_screen import OfficialRankingsScreen
                     OfficialRankingsScreen()
-            if t_scan is not None:
-                with ui.tab_panel(t_scan).classes("p-0"):
-                    from nicegui_screens.scanned_orders_import_screen import ScannedOrdersImportScreen
-                    ScannedOrdersImportScreen()
+
+    def show_scan_import(self):
+        """Scan the order papers -> AI CSV -> create the order, link its students, keep the scan."""
+        self.container.clear()
+        with self.container:
+            UI.ghost_button("رجوع إلى الأوامر", icon="arrow_forward", on_click=self.show_list_view)
+            from nicegui_screens.scanned_orders_import_screen import ScannedOrdersImportScreen
+            ScannedOrdersImportScreen()
 
     # ── VIEW 1: Orders list ──────────────────────────────────────────────────
     def show_list_view(self):
@@ -151,9 +156,9 @@ class GraduationOrdersScreen(OrderWorkspaceMixin):
                         on_change=on_search_change,
                     ).classes("flex-1 min-w-[220px] max-w-md")
                     ui.space()
-                    from nicegui_screens.official_rankings_view import open_official_rankings_dialog
-                    UI.ghost_button("قوائم الترتيب الرسمية", icon="format_list_numbered",
-                                    on_click=open_official_rankings_dialog)
+                    if getattr(self, "is_admin", False):
+                        UI.secondary_button("استيراد من الأوراق الممسوحة", icon="document_scanner",
+                                            on_click=self.show_scan_import)
                     UI.primary_button("إضافة أمر تخرج", icon="add", on_click=lambda: self.show_edit_view(mode="add"))
 
                 self._build_filters()
