@@ -248,12 +248,15 @@ if ($SkipDbCheck -or -not $dbOk) { Skip "Database update (no working database lo
         Warn "The backup has all tables and data but not the stored procedures. For full backups next time, run once as Administrator:"
         Write-Host "  $grantCmd"
     }
-    # Order images live as files since 2.5.0: keep a copy beside the database backups (adds only new files)
-    $imagesDir = "C:\AppServ\order_images"
-    if (Test-Path $imagesDir) {
-        robocopy $imagesDir (Join-Path $backups "order_images") /E /NFL /NDL /NJH /NJS /NP | Out-Null
-        if ($LASTEXITCODE -ge 8) { Warn "Copying the order images to backups failed (robocopy code $LASTEXITCODE)" }
-        else { Ok "Order images backed up: $(Join-Path $backups 'order_images')" }
+    # Files kept beside the database: order images (2.5.0), ranking scans and issued-document archive (0012/0013).
+    # Keep a copy beside the database backups (adds only new files)
+    foreach ($name in @("order_images", "ranking_images", "issue_archive")) {
+        $imagesDir = "C:\AppServ\$name"
+        if (Test-Path $imagesDir) {
+            robocopy $imagesDir (Join-Path $backups $name) /E /NFL /NDL /NJH /NJS /NP | Out-Null
+            if ($LASTEXITCODE -ge 8) { Warn "Copying $name to backups failed (robocopy code $LASTEXITCODE)" }
+            else { Ok "$name backed up: $(Join-Path $backups $name)" }
+        }
     }
 
     Push-Location $TargetDir
