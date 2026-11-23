@@ -123,6 +123,21 @@ def _as_jpeg(image, folder: Path, n: int) -> Path:
     return path
 
 
+_BMP = "{B96B3CAB-0728-11D3-9D7B-0000F81EF32E}"
+
+
+def _feeder_transfer(item):
+    """One feeder sheet. item.Transfer() gives None on some feeders (Canon MF270) through
+    win32com; WIA's CommonDialog.ShowTransfer (what Windows Scan uses) returns the image."""
+    try:
+        from win32com import client
+        dialog = client.Dispatch("WIA.CommonDialog")
+    except Exception:
+        return item.Transfer()
+    image = dialog.ShowTransfer(item, _BMP, False)
+    return image if image is not None else item.Transfer()
+
+
 def _transfer_pages(item, source, folder: Path, max_pages: int, progress=None) -> list:
     """Takes pages from the scanner item until the feeder is empty (or one page from the glass)."""
     saved = []
@@ -130,7 +145,7 @@ def _transfer_pages(item, source, folder: Path, max_pages: int, progress=None) -
         try:
             # Feeder: ask in the driver's own format - the Canon MF270 feeder gives None for JPEG
             # and a second Transfer then crashes the WIA service (RPC call failed).
-            image = item.Transfer() if source == "feeder" else item.Transfer(_JPEG)
+            image = _feeder_transfer(item) if source == "feeder" else item.Transfer(_JPEG)
             if image is not None and source == "feeder":
                 image = _as_jpeg(image, folder, len(saved) + 1)
         except Exception as exc:

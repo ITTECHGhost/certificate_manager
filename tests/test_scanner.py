@@ -157,3 +157,12 @@ def test_feeder_uses_driver_format_and_ends_on_rpc_failure(tmp_path):
     out = scanner._transfer_pages(_Feeder(), "feeder", tmp_path, 9)
     assert [p.name for p in out] == ["page_001.jpg", "page_002.jpg"]
     assert not list(tmp_path.glob("*.raw"))
+
+
+import pytest  # noqa: E402
+
+
+@pytest.fixture(autouse=True)
+def _no_real_wia_dialog(monkeypatch):
+    from services import scanner
+    monkeypatch.setattr(scanner, "_feeder_transfer", lambda item: item.Transfer())
