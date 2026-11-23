@@ -262,6 +262,7 @@ class OfficialRankingsScreen:
     def show_import(self):
         self.container.clear()
         with self.container:
+            UI.ghost_button("رجوع إلى القوائم", icon="arrow_forward", on_click=self.show_lists)
             from nicegui_screens.scanned_orders_import_screen import scan_card
             scan_card("مسح ورقة القائمة بالماسح",
                       "ضع أوراق القائمة (الصفحة الأولى أولًا) ثم اضغط «مسح». أعطِ الملف للذكاء الاصطناعي ليُخرج "
@@ -274,7 +275,6 @@ class OfficialRankingsScreen:
             depts = {}
         with self.container:
             with UI.card().classes("flex-1"):
-                UI.ghost_button("رجوع إلى القوائم", icon="arrow_forward", on_click=self.show_lists)
                 with ui.row().classes("w-full gap-2 flex-wrap"):
                     list_type = UI.select("نوع القائمة", LIST_TYPE_LABELS, value="jobs").classes("w-44")
                     dept = UI.select("القسم", depts).classes("w-56")

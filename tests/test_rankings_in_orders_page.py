@@ -43,6 +43,6 @@ def test_side_menu_has_no_separate_pages():
 
 def test_orders_page_holds_both_tabs():
     src = (ROOT / "nicegui_screens" / "graduation_orders_screen.py").read_text(encoding="utf-8")
-    assert "OfficialRankingsScreen()" in src and "ScannedOrdersImportScreen()" in src
+    assert "OfficialRankingsScreen()" in src and "ScannedOrdersImportScreen(" in src
     rank = (ROOT / "nicegui_screens" / "official_rankings_screen.py").read_text(encoding="utf-8")
     assert "scan_card(" in rank and ".csv" in rank
