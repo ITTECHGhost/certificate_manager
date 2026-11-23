@@ -137,33 +137,20 @@ def test_invalid_setting_detected():
 
 
 
-def test_feeder_uses_driver_format_and_ends_on_rpc_failure(tmp_path):
-    from PIL import Image
+
+def test_feeder_no_image_retries_with_fewer_settings(tmp_path, monkeypatch):
+    """Seen on the Canon MF270: the feeder gives None with all settings, an image with fewer."""
     from services import scanner
+    monkeypatch.setattr(scanner, "new_batch_folder", lambda: (tmp_path / "b").mkdir() or tmp_path / "b")
+    levels = []
 
-    class _Img:
-        def SaveFile(self, p):
-            Image.new("RGB", (4, 4)).save(p, "BMP")
+    class _Maybe(_Item):
+        def Transfer(self, fmt=None):
+            return None if levels[-1] == "all" else super().Transfer(fmt)
 
-    class _Feeder:
-        calls = 0
-        def Transfer(self, *fmt):
-            assert not fmt
-            self.calls += 1
-            if self.calls > 2:
-                e = Exception("rpc"); e.args = ("x", (0, None, "RPC", None, 0, -2147023170), None)
-                raise e
-            return _Img()
-
-    out = scanner._transfer_pages(_Feeder(), "feeder", tmp_path, 9)
-    assert [p.name for p in out] == ["page_001.jpg", "page_002.jpg"]
-    assert not list(tmp_path.glob("*.raw"))
-
-
-import pytest  # noqa: E402
-
-
-@pytest.fixture(autouse=True)
-def _no_real_wia_dialog(monkeypatch):
-    from services import scanner
-    monkeypatch.setattr(scanner, "_feeder_transfer", lambda item: item.Transfer())
+    def prep(*a):
+        levels.append(a[-1])
+        return _Maybe(2)
+    monkeypatch.setattr(scanner, "_prepare", prep)
+    folder, files = scanner.scan_pages("dev", "feeder", file_type="jpg")
+    assert levels == ["all", "no_page_size"] and len(files) == 2

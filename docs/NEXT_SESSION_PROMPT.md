@@ -4,12 +4,8 @@ Read CLAUDE.md, docs/TODO.md, then this. Do not re-scan the codebase.
 
 State: release 2.6.0 is on the server. All commits up to b331948 are pushed.
 
-1. Canon MF270 FEEDER still gives no image (glass works; Windows Scan works).
-   - services/scanner.py `_feeder_transfer` / `_transfer_pages`. Tried: Transfer(JPEG) -> None;
-     Transfer() twice -> "remote procedure call failed" (-2147023170); CommonDialog.ShowTransfer(BMP) -> still fails.
-   - Driver formats: JPEG {..CAE}, BMP {..CAB}, {9980BD5B-...} (raw?). No PDF.
-   - Ask the user to run `py -3 scans\feeder_test.py` (3 sheets in feeder) and paste output;
-     use the way that works. PDF choice must leave ONLY the PDF (done in pages_to_pdf).
+1. Canon MF270 feeder: scanseeder_test.py showed Transfer(JPEG) WORKS with only feeder+Pages=1 set
+   (ShowTransfer -> error 500). Fixed: no image -> retry with fewer settings. User must re-test the feeder.
 2. DONE 2026-11-23: order numbers normalized on the server; order 138 merged by hand.
 3. Then build 2.6.1 (changes-only zip from dist\manifest_v2.6.0.json) - ask first; stash templets/ changes.
 4. DONE 2026-11-23: migration 0014 run on the dev DB.

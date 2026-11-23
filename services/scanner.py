@@ -110,32 +110,8 @@ def list_scanners() -> dict:
 _RPC_FAILED = -2147023170
 
 
-def _as_jpeg(image, folder: Path, n: int) -> Path:
-    """Saves a WIA image in its own format (BMP/PNG) and turns it into page_NNN.jpg
-    (only a step: the pages are joined into the PDF afterwards)."""
-    raw = folder / f"page_{n:03d}.raw"
-    image.SaveFile(str(raw))
-    path = folder / f"page_{n:03d}.jpg"
-    from PIL import Image
-    with Image.open(raw) as im:
-        im.convert("RGB").save(path, "JPEG", quality=90)
-    raw.unlink(missing_ok=True)
-    return path
-
-
-_BMP = "{B96B3CAB-0728-11D3-9D7B-0000F81EF32E}"
-
-
-def _feeder_transfer(item):
-    """One feeder sheet. item.Transfer() gives None on some feeders (Canon MF270) through
-    win32com; WIA's CommonDialog.ShowTransfer (what Windows Scan uses) returns the image."""
-    try:
-        from win32com import client
-        dialog = client.Dispatch("WIA.CommonDialog")
-    except Exception:
-        return item.Transfer()
-    image = dialog.ShowTransfer(item, _BMP, False)
-    return image if image is not None else item.Transfer()
+class _NoImage(Exception):
+    """The driver gave None for the first page (Canon MF270 feeder with some settings)."""
 
 
 def _transfer_pages(item, source, folder: Path, max_pages: int, progress=None) -> list:
@@ -143,11 +119,7 @@ def _transfer_pages(item, source, folder: Path, max_pages: int, progress=None) -
     saved = []
     while len(saved) < (max_pages if source == "feeder" else 1):
         try:
-            # Feeder: ask in the driver's own format - the Canon MF270 feeder gives None for JPEG
-            # and a second Transfer then crashes the WIA service (RPC call failed).
-            image = _feeder_transfer(item) if source == "feeder" else item.Transfer(_JPEG)
-            if image is not None and source == "feeder":
-                image = _as_jpeg(image, folder, len(saved) + 1)
+            image = item.Transfer(_JPEG)
         except Exception as exc:
             if source == "feeder" and saved and (is_paper_empty(exc) or _RPC_FAILED in _codes(exc)):
                 break
@@ -158,11 +130,8 @@ def _transfer_pages(item, source, folder: Path, max_pages: int, progress=None) -
         if image is None:
             if saved:
                 break
-            raise RuntimeError("لم يُرجع الماسح أي صورة: جرّب المسح من الزجاج")
-        if isinstance(image, Path):
-            path = image
-        else:
-            image.SaveFile(str(path))
+            raise _NoImage()
+        image.SaveFile(str(path))
         saved.append(path)
         if progress:
             progress(len(saved))
@@ -185,12 +154,15 @@ def scan_pages(device_id: str, source: str = "feeder", dpi: int = 300, color: bo
                 pages = _transfer_pages(item, source, folder, max_pages, progress)
                 break
             except Exception as exc:
-                if is_invalid_setting(exc) and not any(folder.iterdir()) and level != SETTING_LEVELS[-1]:
-                    continue   # the driver refused a setting: try again with fewer
+                if ((is_invalid_setting(exc) or isinstance(exc, _NoImage))
+                        and not any(folder.iterdir()) and level != SETTING_LEVELS[-1]):
+                    continue   # the driver refused a setting / gave no image: try again with fewer
                 raise
     except Exception as exc:
         if not any(folder.iterdir()):
             folder.rmdir()
+        if isinstance(exc, _NoImage):
+            raise RuntimeError("لم يُرجع الماسح أي صورة: جرّب المسح من الزجاج") from exc
         if is_invalid_setting(exc):
             raise RuntimeError("رفض الماسح إعدادات المسح حتى الافتراضية منها. تأكد أن الأوراق في المغذّي، "
                                "أو جرّب «الزجاج»، أو امسح من برنامج ويندوز ثم ارفع الملف.") from exc
