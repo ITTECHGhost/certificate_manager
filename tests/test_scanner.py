@@ -121,14 +121,14 @@ def _fake_levels(monkeypatch, tmp_path, refused_levels, pages=2):
 
 def test_refused_setting_retries_with_fewer(monkeypatch, tmp_path):
     tried = _fake_levels(monkeypatch, tmp_path, {"all"})
-    folder, files = scanner.scan_pages("dev", file_type="jpg")
-    assert tried == ["all", "no_page_size"] and len(files) == 2
+    folder, files = scanner.scan_pages("dev", "flatbed", file_type="jpg")
+    assert tried == ["all", "no_page_size"] and len(files) == 1   # flatbed: one page
 
 
 def test_refused_everything_is_clear_message(monkeypatch, tmp_path):
     tried = _fake_levels(monkeypatch, tmp_path, set(scanner.SETTING_LEVELS))
     with pytest.raises(RuntimeError, match="رفض الماسح"):
-        scanner.scan_pages("dev")
+        scanner.scan_pages("dev", "flatbed")
     assert tried == list(scanner.SETTING_LEVELS) and not list(tmp_path.iterdir())
 
 
@@ -136,21 +136,47 @@ def test_invalid_setting_detected():
     assert scanner.is_invalid_setting(_Invalid()) and not scanner.is_invalid_setting(_Empty())
 
 
-
-
-def test_feeder_no_image_retries_with_fewer_settings(tmp_path, monkeypatch):
-    """Seen on the Canon MF270: the feeder gives None with all settings, an image with fewer."""
-    from services import scanner
+def _fake_winrt(monkeypatch, tmp_path, output, rc=0):
     monkeypatch.setattr(scanner, "new_batch_folder", lambda: (tmp_path / "b").mkdir() or tmp_path / "b")
-    levels = []
+    monkeypatch.setattr(scanner, "_scanner_name", lambda d: "Canon MF270 Series")
+    calls = []
 
-    class _Maybe(_Item):
-        def Transfer(self, fmt=None):
-            return None if levels[-1] == "all" else super().Transfer(fmt)
+    def run(script, args):
+        calls.append(args)
+        folder = Path(args[args.index("-Out") + 1])
+        lines = []
+        for n in range(output if isinstance(output, int) else 0):
+            f = folder / (f"SCN_x_{n}.jpg" if n else "SCN_x.jpg")
+            from PIL import Image
+            Image.new("RGB", (10, 10)).save(f)
+            lines.append(f"FILE {f}")
+        return rc, "\n".join(lines) if isinstance(output, int) else output
+    monkeypatch.setattr(scanner, "_run_powershell", run)
+    return calls
 
-    def prep(*a):
-        levels.append(a[-1])
-        return _Maybe(2)
-    monkeypatch.setattr(scanner, "_prepare", prep)
+
+def test_feeder_uses_windows_scan_api_and_names_pages(monkeypatch, tmp_path):
+    """Seen on the Canon MF270 (2026-11-24): WIA Transfer gives None; the WinRT API gives one file per sheet."""
+    calls = _fake_winrt(monkeypatch, tmp_path, 3)
     folder, files = scanner.scan_pages("dev", "feeder", file_type="jpg")
-    assert levels == ["all", "no_page_size"] and len(files) == 2
+    assert [f.name for f in files] == ["page_001.jpg", "page_002.jpg", "page_003.jpg"]
+    assert calls[0][calls[0].index("-Name") + 1] == "Canon MF270 Series"
+
+
+def test_feeder_pages_become_one_pdf(monkeypatch, tmp_path):
+    _fake_winrt(monkeypatch, tmp_path, 2)
+    folder, files = scanner.scan_pages("dev", "feeder")
+    assert len(files) == 1 and files[0].suffix == ".pdf" and [p.name for p in folder.iterdir()] == [files[0].name]
+
+
+def test_feeder_empty_is_clear_message(monkeypatch, tmp_path):
+    _fake_winrt(monkeypatch, tmp_path, "ERR -2145844748 Internal server error (500).", rc=1)
+    with pytest.raises(RuntimeError, match="المغذّي فارغ"):
+        scanner.scan_pages("dev", "feeder")
+    assert not (tmp_path / "b").exists()
+
+
+def test_feeder_busy_is_clear_message(monkeypatch, tmp_path):
+    _fake_winrt(monkeypatch, tmp_path, "ERR -2145320954 busy", rc=1)
+    with pytest.raises(RuntimeError, match="مشغول"):
+        scanner.scan_pages("dev", "feeder")

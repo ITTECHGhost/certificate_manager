@@ -147,6 +147,18 @@ def scan_pages(device_id: str, source: str = "feeder", dpi: int = 300, color: bo
         raise ValueError("مصدر غير معروف")
     folder = new_batch_folder()
     pages = []
+    if source == "feeder":
+        try:
+            pages = _scan_feeder_winrt(_scanner_name(device_id), folder, dpi, color, max_pages)
+        except Exception:
+            if not any(folder.iterdir()):
+                folder.rmdir()
+            raise
+        if progress:
+            progress(len(pages))
+        if file_type == "pdf":
+            return folder, [pages_to_pdf(pages, folder / f"{folder.name}.pdf")]
+        return folder, pages
     try:
         for level in SETTING_LEVELS:
             item = _prepare(device_id, source, dpi, color, page_size, level)
@@ -170,6 +182,85 @@ def scan_pages(device_id: str, source: str = "feeder", dpi: int = 300, color: bo
     if file_type == "pdf":
         return folder, [pages_to_pdf(pages, folder / f"{folder.name}.pdf")]
     return folder, pages
+
+
+def _scanner_name(device_id) -> str:
+    try:
+        return list_scanners().get(device_id, "")
+    except Exception:
+        return ""
+
+
+# Feeder through Windows.Devices.Scanners (the API of the Windows Scan app), run by Windows
+# PowerShell: no new library. WIA's item.Transfer on the Canon MF270 (eSCL driver) pulls every
+# sheet through and returns None (seen 2026-11-24, DEV laptop); this API returns one file per sheet.
+_WINRT_PS = r"""
+param([string]$Out, [string]$Name, [int]$Dpi, [int]$Color)
+$ErrorActionPreference = 'Stop'
+Add-Type -AssemblyName System.Runtime.WindowsRuntime
+$null = [Windows.Devices.Scanners.ImageScanner, Windows.Devices.Scanners, ContentType = WindowsRuntime]
+$null = [Windows.Devices.Enumeration.DeviceInformation, Windows.Devices.Enumeration, ContentType = WindowsRuntime]
+$null = [Windows.Storage.StorageFolder, Windows.Storage, ContentType = WindowsRuntime]
+$ext = [System.WindowsRuntimeSystemExtensions].GetMethods() | ? { $_.Name -eq 'AsTask' -and $_.GetParameters().Count -eq 1 }
+$m1 = $ext | ? { $_.GetParameters()[0].ParameterType.Name -eq 'IAsyncOperation`1' }
+$m2 = $ext | ? { $_.GetParameters()[0].ParameterType.Name -eq 'IAsyncOperationWithProgress`2' }
+function Wait-Op($t) {
+  while (-not $t.IsCompleted) { Start-Sleep -Milliseconds 100 }
+  if ($t.IsFaulted) { $e = $t.Exception.InnerException; "ERR $($e.HResult) $($e.Message -replace '\s+', ' ')"; exit 1 }
+  $t.Result
+}
+function Await($op, [Type]$t) { Wait-Op ($m1.MakeGenericMethod($t).Invoke($null, @($op))) }
+$devs = Await ([Windows.Devices.Enumeration.DeviceInformation]::FindAllAsync([Windows.Devices.Scanners.ImageScanner]::GetDeviceSelector())) ([Windows.Devices.Enumeration.DeviceInformationCollection])
+if ($devs.Count -eq 0) { 'ERR 0 no scanner'; exit 1 }
+$dev = $devs | ? { $_.Name -eq $Name } | Select-Object -First 1
+if (-not $dev) { $dev = $devs[0] }
+$sc = Await ([Windows.Devices.Scanners.ImageScanner]::FromIdAsync($dev.Id)) ([Windows.Devices.Scanners.ImageScanner])
+$f = $sc.FeederConfiguration
+$f.Format = 'Jpeg'
+if ($f.DesiredResolution.DpiX -ne $Dpi) { try { $f.DesiredResolution = New-Object Windows.Devices.Scanners.ImageScannerResolution -Property @{DpiX = $Dpi; DpiY = $Dpi} } catch {} }
+$mode = if ($Color) { 'Color' } else { 'Grayscale' }
+if ("$($f.ColorMode)" -ne $mode) { try { $f.ColorMode = $mode } catch {} }
+$folder = Await ([Windows.Storage.StorageFolder]::GetFolderFromPathAsync($Out)) ([Windows.Storage.StorageFolder])
+$r = Wait-Op ($m2.MakeGenericMethod([Windows.Devices.Scanners.ImageScannerScanResult], [uint32]).Invoke($null, @($sc.ScanFilesToFolderAsync('Feeder', $folder))))
+foreach ($file in $r.ScannedFiles) { "FILE $($file.Path)" }
+"""
+
+_WINRT_EMPTY = -2145844748   # "Internal server error (500)": the MF270 answers this when the feeder is empty
+_WINRT_BUSY = -2145320954    # WIA_ERROR_BUSY
+
+
+def _run_powershell(script: str, args: list) -> tuple[int, str]:
+    import subprocess
+    import tempfile
+    with tempfile.NamedTemporaryFile("w", suffix=".ps1", delete=False, encoding="utf-8-sig") as fh:
+        fh.write(script)
+    try:
+        proc = subprocess.run(["powershell", "-NoProfile", "-ExecutionPolicy", "Bypass", "-File", fh.name, *args],
+                              capture_output=True, text=True, encoding="utf-8", errors="replace",
+                              timeout=1800, creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0))
+        return proc.returncode, proc.stdout + proc.stderr
+    finally:
+        Path(fh.name).unlink(missing_ok=True)
+
+
+def _scan_feeder_winrt(name: str, folder: Path, dpi: int, color: bool, max_pages: int) -> list:
+    """All sheets in the feeder → page_001.jpg … in folder. Raises RuntimeError in Arabic."""
+    code, out = _run_powershell(_WINRT_PS, ["-Out", str(folder), "-Name", name or "",
+                                            "-Dpi", str(int(dpi)), "-Color", "1" if color else "0"])
+    files = [Path(line[5:].strip()) for line in out.splitlines() if line.startswith("FILE ")]
+    if not files:
+        err = next((line for line in out.splitlines() if line.startswith("ERR ")), out.strip()[-300:])
+        if str(_WINRT_EMPTY) in err:
+            raise RuntimeError("المغذّي فارغ: ضع أوراق الأمر في المغذّي ثم أعد المحاولة")
+        if str(_WINRT_BUSY) in err:
+            raise RuntimeError("الماسح مشغول: أعد شاشة الطابعة إلى الرئيسية وانتظر قليلًا ثم أعد المحاولة")
+        raise RuntimeError(f"تعذّر المسح من المغذّي: {err}")
+    pages = []
+    for i, src in enumerate(files[:max_pages], 1):
+        dst = folder / f"page_{i:03d}.jpg"
+        Path(src).replace(dst)
+        pages.append(dst)
+    return pages
 
 
 def _prepare(device_id, source, dpi, color, page_size, level):

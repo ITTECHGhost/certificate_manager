@@ -4,8 +4,8 @@ Read CLAUDE.md, docs/TODO.md, then this. Do not re-scan the codebase.
 
 State: release 2.6.0 is on the server. All commits up to b331948 are pushed.
 
-1. Canon MF270 feeder: scans\feeder_test.py showed Transfer(JPEG) WORKS with only feeder+Pages=1 set
-   (ShowTransfer -> error 500). Fixed: no image -> retry with fewer settings. User must re-test the feeder.
+1. DONE 2026-11-24: Canon MF270 feeder now scans through WinRT (Windows Scan app API via PowerShell);
+   real test 3 sheets -> 3-page PDF from scanner.py. User to confirm once in the app (py -3 main.py).
 2. DONE 2026-11-23: order numbers normalized on the server; order 138 merged by hand.
 3. Then build 2.6.1 (changes-only zip from dist\manifest_v2.6.0.json) - ask first; stash templets/ changes.
 4. DONE 2026-11-23: migration 0014 run on the dev DB.
