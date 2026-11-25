@@ -46,3 +46,13 @@ def test_accepted_certificate_returns_server_id(monkeypatch):
     queued = _setup(monkeypatch, _Resp(200))
     assert _insert() == 7
     assert queued == []
+
+
+def test_temp_student_id_is_queued_even_online(monkeypatch):
+    """A student created offline (negative id) is unknown to the server (MySQL 1452):
+    the print is queued; sync swaps the id. Seen on a user laptop, 2026-11-24."""
+    def never():
+        raise AssertionError("must not call the server")
+    queued = _setup(monkeypatch, never)
+    mod.IssuedCertificateRepository().insert(student_id=-3, issue_date="2026-11-24", certificate_number="1084/26")
+    assert queued and queued[0]["student_id"] == -3

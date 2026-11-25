@@ -73,6 +73,27 @@ class FeedbackRepository(BaseRepository):
         if resp.status_code != 200:
             raise RuntimeError(_detail(resp, "تعذر رفع الصورة"))
 
+    def add_log(self, feedback_id: int, user_id, lines: int = 400) -> None:
+        """The last lines of this laptop's logs\\system_log.txt, gzipped, ONE request.
+        IT opens it on the «الملاحظات» page (no more photos of the log)."""
+        if not is_online():
+            raise OfflineModeError()
+        import gzip
+        import app_paths
+        path = app_paths.data_path("logs", "system_log.txt")
+        try:
+            with open(path, encoding="utf-8", errors="replace") as f:
+                tail = "".join(f.readlines()[-lines:])
+        except OSError:
+            tail = "(no system_log.txt on this laptop)"
+        resp = api_client.post(f"{self.api_url}{self.BASE}/{int(feedback_id)}/images",
+                               files={"image": ("system_log.txt.gz", gzip.compress(tail.encode("utf-8")),
+                                                "application/gzip")},
+                               data={"source_name": "system_log.txt", "personnel_id": str(user_id or "")},
+                               timeout=60.0)
+        if resp.status_code != 200:
+            raise RuntimeError(_detail(resp, "تعذر رفع السجل"))
+
     def list_images(self, feedback_id: int, user_id) -> list:
         if not is_online() or not user_id:
             return []

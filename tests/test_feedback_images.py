@@ -129,3 +129,15 @@ def test_migration_0014_and_rollback_exist():
 def test_feedback_button_in_top_bar_not_sidebar():
     src = (ROOT / "nicegui_screens" / "dashboard_screen.py").read_text(encoding="utf-8")
     assert '"الملاحظات", icon="feedback"' in src and 'ui.label("ملاحظات وشكاوى")' not in src
+
+
+def test_gzipped_log_is_accepted_and_served_as_gzip(images_dir):
+    """The user's program log (gzipped) rides on the same route, saved as .gz (2026-11-24)."""
+    import gzip
+    data = gzip.compress(b"2026-11-24 09:51:57 [WARNING] API refused ...")
+    conn = _Conn(one=[AUTHOR, NOTE, None, {"n": 0}])
+    assert _add(conn, data=data)["duplicate"] is False
+    saved = _files(images_dir)
+    assert [p.suffix for p in saved] == [".gz"]
+    resp = fi.get_image(3, 42, 7, _Conn(one=[AUTHOR, NOTE, {"sha256": saved[0].stem, "file_name": saved[0].name}]))
+    assert resp.media_type == "application/gzip" and gzip.decompress(resp.body).startswith(b"2026")

@@ -443,13 +443,14 @@ class UI:
         which turns raw API / database errors into a title and what to do next.
         """
         from html import escape
-        from utils.error_formatter import format_error_message
+        from utils.error_formatter import format_error_message, remember_error
 
         icon_map = {"positive": "check_circle", "negative": "error_outline", "warning": "warning_amber", "info": "info"}
         norm_type = (type or "info").lower()
         norm_type = {"error": "negative", "success": "positive"}.get(norm_type, norm_type)
 
         if norm_type in {"negative", "warning"} or isinstance(message, Exception):
+            remember_error(message)
             parsed_title, parsed_desc = format_error_message(message)
             display_title = title or parsed_title
             display_msg = parsed_desc

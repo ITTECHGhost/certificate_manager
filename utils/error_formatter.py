@@ -4,6 +4,24 @@
 
 import re
 import json
+from collections import deque
+from datetime import datetime
+
+# The last raw errors shown to the user (before translation). The feedback dialog sends
+# them to IT, so a friendly toast in a screenshot never hides the real cause.
+recent_errors: deque = deque(maxlen=5)
+
+
+def remember_error(raw) -> None:
+    text = str(raw or "").strip()
+    if text:
+        recent_errors.append(f"{datetime.now():%Y-%m-%d %H:%M:%S} {text[:600]}")
+
+
+def _mysql_code(msg: str, *codes: str) -> bool:
+    """True only for a real MySQL error code, e.g. '1452 (23000)' - not any number that contains it."""
+    return any(re.search(rf"(?<!\d){c}(?!\d)\s*\(\w{{5}}\)", msg) for c in codes)
+
 
 def format_error_message(err: Exception | str) -> tuple[str, str]:
     """
@@ -39,14 +57,14 @@ def format_error_message(err: Exception | str) -> tuple[str, str]:
         msg = raw_str
 
     # 1. MySQL Trigger Error 1644: Signatory Slot Conflict
-    if "1644" in msg or "This signatory slot is already assigned" in msg:
+    if _mysql_code(msg, "1644") or "This signatory slot is already assigned" in msg:
         return (
             "تعارض في موقع التوقيع",
             "عذراً، موقع التوقيع هذا مخصص لشخص آخر بالفعل. يرجى اختيار ترتيب آخر أو إزالة التوقيع السابق أولاً."
         )
 
     # 2. MySQL Error 1062: Duplicate Entry
-    if "1062" in msg or "Duplicate entry" in msg:
+    if _mysql_code(msg, "1062") or "Duplicate entry" in msg:
         dup_match = re.search(r"Duplicate entry '([^']+)' for key '([^']+)'", msg)
         if dup_match:
             val, key = dup_match.groups()
@@ -60,7 +78,15 @@ def format_error_message(err: Exception | str) -> tuple[str, str]:
         )
 
     # 3. Foreign Key Constraint Violation (Error 1451 / 1452)
-    if "1451" in msg or "1452" in msg or "foreign key constraint" in msg.lower():
+    # 1452 = adding a row that points to a record the server does not have (e.g. a student
+    # deleted / re-imported on the server while this screen still holds the old id).
+    if _mysql_code(msg, "1452") or "Cannot add or update a child row" in msg:
+        return (
+            "السجل المرتبط غير موجود على الخادم",
+            "الطالب أو السجل المرتبط لم يعد موجوداً على الخادم (ربما حُذف أو أُعيد استيراده). "
+            "أعد اختيار الطالب من البحث ثم حاول مرة أخرى."
+        )
+    if _mysql_code(msg, "1451") or "foreign key constraint" in msg.lower():
         return (
             "تعارض في البيانات المرتبطة",
             "لا يمكن إتمام العملية لوجود سجلات أو بيانات أخرى مرتبطة بهذا العنصر في النظام."

@@ -304,6 +304,7 @@ class MainAppShell:
 
                 allowed_screen_keys.add("home")
                 allowed_screen_keys.add("profile")
+                allowed_screen_keys.add("feedback")   # everyone; the server shows each user only their own notes
                 self.allowed_screens = allowed_screen_keys
 
                 for item in NAV_ITEMS:
@@ -415,7 +416,8 @@ class MainAppShell:
             shot = screen_png()
         except Exception:
             shot = None
-        open_feedback_dialog(names.get(self.current_screen, self.current_screen), screenshot=shot)
+        open_feedback_dialog(names.get(self.current_screen, self.current_screen), screenshot=shot,
+                             on_open_notes=lambda: self._switch_screen("feedback"))
 
     # =========================================================================
     # 4. HEADER BAR
@@ -478,6 +480,7 @@ class MainAppShell:
             "certificate":  "إصدار كتاب",
             "issued_certs": "سجل الوثائق الصادرة",
             "reports":      "تقارير الطلاب",
+            "feedback":     "الملاحظات",
             "history":      "سجل التغييرات",
             "settings":     "الإعدادات",
             "profile":      "الملف الشخصي",
@@ -549,6 +552,10 @@ class MainAppShell:
                 if app_session.role == "admin":
                     from nicegui_screens.scanned_orders_import_screen import ScannedOrdersImportScreen
                     ScannedOrdersImportScreen()
+            elif self.current_screen == "feedback":
+                from nicegui_screens.feedback_view import build_notes_panel
+                with ui.card().classes("w-full app-card p-4 gap-3"):
+                    build_notes_panel()
             elif self.current_screen == "reports":
                 from nicegui_screens.reports_screen import ReportsScreen
                 ReportsScreen()

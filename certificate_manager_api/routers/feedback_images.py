@@ -26,8 +26,16 @@ IMAGES_DIR = Path("C:/AppServ/feedback_images") if os.path.isdir("C:/AppServ") e
 _JPEG = b"\xff\xd8\xff"
 
 
-def _file(feedback_id: int, sha: str) -> Path:
-    return IMAGES_DIR / str(int(feedback_id)) / f"{sha}.jpg"
+_GZIP = b"\x1f\x8b"   # the user's program log (system_log tail), gzipped by the client
+_MEDIA = {"jpg": "image/jpeg", "gz": "application/gzip"}
+
+
+def _file(feedback_id: int, sha: str, ext: str = "jpg") -> Path:
+    return IMAGES_DIR / str(int(feedback_id)) / f"{sha}.{ext}"
+
+
+def _ext_of(file_name) -> str:
+    return "gz" if str(file_name or "").endswith(".gz") else "jpg"
 
 
 def _allowed(conn, feedback_id: int, personnel_id: Optional[int]) -> dict:
@@ -55,17 +63,18 @@ def get_image(feedback_id: int, image_id: int, personnel_id: Optional[int] = Non
     _allowed(conn, feedback_id, personnel_id)
     cur = conn.cursor(dictionary=True, buffered=True)
     try:
-        cur.execute("SELECT sha256 FROM feedback_images WHERE id = %s AND feedback_id = %s "
+        cur.execute("SELECT sha256, file_name FROM feedback_images WHERE id = %s AND feedback_id = %s "
                     "AND deleted_at IS NULL", (image_id, feedback_id))
         row = cur.fetchone()
     finally:
         cur.close()
     if not row:
         raise HTTPException(404, "Image not found")
-    path = _file(feedback_id, row["sha256"])
+    ext = _ext_of(row.get("file_name"))
+    path = _file(feedback_id, row["sha256"], ext)
     if not path.exists():
         raise HTTPException(404, "Image file missing")
-    return Response(content=path.read_bytes(), media_type="image/jpeg")
+    return Response(content=path.read_bytes(), media_type=_MEDIA[ext])
 
 
 @router.post("/{feedback_id}/images")
@@ -75,8 +84,12 @@ async def add_image(feedback_id: int, image: UploadFile = File(...), source_name
     data = await image.read()
     if len(data) > MAX_IMAGE_BYTES:
         raise HTTPException(413, "Image too large")
-    if not data.startswith(_JPEG):
-        raise HTTPException(400, "Only JPEG images are accepted")
+    if data.startswith(_JPEG):
+        ext = "jpg"
+    elif data.startswith(_GZIP):
+        ext = "gz"
+    else:
+        raise HTTPException(400, "Only JPEG images (or the gzipped program log) are accepted")
     sha = hashlib.sha256(data).hexdigest()
     cur = conn.cursor(dictionary=True, buffered=True)
     try:
@@ -89,9 +102,9 @@ async def add_image(feedback_id: int, image: UploadFile = File(...), source_name
                     (feedback_id,))
         if int((cur.fetchone() or {}).get("n") or 0) >= MAX_IMAGES_PER_NOTE:
             raise HTTPException(409, "Too many images for one note")
-        path = _file(feedback_id, sha)
+        path = _file(feedback_id, sha, ext)
         path.parent.mkdir(parents=True, exist_ok=True)
-        tmp = path.with_suffix(".jpg.part")
+        tmp = path.with_suffix(f".{ext}.part")
         try:
             tmp.write_bytes(data)
             cur.execute("INSERT INTO feedback_images (feedback_id, sha256, file_name, source_name, created_by) "

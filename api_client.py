@@ -52,8 +52,33 @@ def _prepare(kwargs: dict) -> dict:
 
 
 def request(method: str, url: str, **kwargs) -> requests.Response:
-    """Send a request to the API through this thread's shared session."""
-    return _session().request(method, url, **_prepare(kwargs))
+    """Send a request to the API through this thread's shared session.
+    A request slower than SLOW_SECONDS (or one that fails) is written to the system log with
+    its time and size, so a slow laptop's log shows where the waiting goes."""
+    import time
+    t0 = time.perf_counter()
+    try:
+        resp = _session().request(method, url, **_prepare(kwargs))
+    except Exception as exc:
+        _log_timing(method, url, time.perf_counter() - t0, f"failed: {type(exc).__name__}")
+        raise
+    took = time.perf_counter() - t0
+    if took >= SLOW_SECONDS:
+        size = resp.headers.get("Content-Length") or len(resp.content or b"")
+        _log_timing(method, url, took, f"{resp.status_code}, {size} bytes")
+    return resp
+
+
+SLOW_SECONDS = 2.0
+
+
+def _log_timing(method: str, url: str, took: float, what: str) -> None:
+    try:
+        from urllib.parse import urlsplit
+        from utils.logger import log_system
+        log_system(f"Slow API call {took:.1f}s {method} {urlsplit(url).path} ({what})", "WARNING")
+    except Exception:
+        pass
 
 
 def get(url: str, **kwargs) -> requests.Response:

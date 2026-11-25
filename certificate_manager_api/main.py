@@ -43,6 +43,28 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(title="Certificate Manager API", lifespan=lifespan)
+
+# Compress JSON answers (lists shrink ~5-10x): on a slow link between a laptop and the server
+# this is most of the waiting time. Files (updates, images, archive, templates) are already
+# compressed or streamed, so they are left alone. requests decodes gzip on its own.
+from starlette.middleware.gzip import GZipMiddleware  # noqa: E402
+
+_NO_GZIP_PARTS = ("update", "image", "file", "template", "download", "backup")
+
+
+class _JsonGZip:
+    def __init__(self, inner_app):
+        self.plain = inner_app
+        self.gzip = GZipMiddleware(inner_app, minimum_size=1024)
+
+    async def __call__(self, scope, receive, send):
+        path = scope.get("path", "").lower() if scope.get("type") == "http" else ""
+        if not path or any(p in path for p in _NO_GZIP_PARTS):
+            return await self.plain(scope, receive, send)
+        return await self.gzip(scope, receive, send)
+
+
+app.add_middleware(_JsonGZip)
 # GET /students/search was registered on this first-included router; it lives in routers/students.py
 from routers.students import search_router as router  # noqa: E402
 app.include_router(router)

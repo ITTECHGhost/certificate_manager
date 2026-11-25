@@ -36,6 +36,14 @@ class CertificateRepository(BaseRepository):
             return []
 
 
+def _is_temp_id(value) -> bool:
+    """Offline-created records get negative temporary ids until sync gives them real ones."""
+    try:
+        return int(value) < 0
+    except (TypeError, ValueError):
+        return False
+
+
 class CertificateRejected(Exception):
     """The server refused to record the certificate (4xx, e.g. 409 duplicate); it is not queued offline."""
 
@@ -61,7 +69,7 @@ class IssuedCertificateRepository(BaseRepository):
             return get_offline_issued_certificates_report()
 
     def get_by_student(self, student_id: int) -> list[dict]:
-        if not is_online():
+        if not is_online() or _is_temp_id(student_id):
             from data.query import get_offline_issued_certificates_by_student
             return get_offline_issued_certificates_by_student(student_id)
         try:
@@ -285,7 +293,10 @@ class IssuedCertificateRepository(BaseRepository):
         }
 
         new_id = None
-        if not is_online():
+        # A student with a temporary (negative) id exists only on this laptop until sync:
+        # the server would refuse it (MySQL 1452). Queue it like an offline print; sync swaps
+        # the temporary id for the real one (id_map), so the user can still print now.
+        if not is_online() or _is_temp_id(student_id):
             from data.query import insert_offline_issued_certificate
             new_id = insert_offline_issued_certificate(
                 student_id=payload["student_id"],
@@ -348,7 +359,7 @@ class IssuedCertificateRepository(BaseRepository):
         if issue_date is not None: payload["issue_date"] = issue_date
         if certificate_number is not None: payload["certificate_number"] = certificate_number
 
-        if not is_online():
+        if not is_online() or _is_temp_id(cert_id):   # a record still waiting in the offline queue
             from data.query import update_offline_issued_certificate
             update_offline_issued_certificate(
                 cert_id=cert_id,
