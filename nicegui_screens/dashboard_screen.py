@@ -174,8 +174,9 @@ class MainAppShell:
         )
 
         prev_online = is_online()
-        now_online = bool(await run.io_bound(check_network_status))
-        set_online(now_online)
+        # 2 failed / 2 good checks in a row before the flag changes (sync_engine.record_check)
+        from sync_engine import record_check
+        now_online = record_check(bool(await run.io_bound(check_network_status)))
 
         # Every 5 minutes (60 x 5 s): pick up reference data changed on other laptops
         self._net_loop_count = getattr(self, "_net_loop_count", 0) + 1

@@ -32,11 +32,12 @@ def _build_session() -> requests.Session:
     return session
 
 
-def _session() -> requests.Session:
-    session = getattr(_local, "session", None)
+def _session(retry: bool = True) -> requests.Session:
+    name = "session" if retry else "session_no_retry"
+    session = getattr(_local, name, None)
     if session is None:
-        session = _build_session()
-        _local.session = session
+        session = _build_session() if retry else requests.Session()
+        setattr(_local, name, session)
     return session
 
 
@@ -56,9 +57,10 @@ def request(method: str, url: str, **kwargs) -> requests.Response:
     A request slower than SLOW_SECONDS (or one that fails) is written to the system log with
     its time and size, so a slow laptop's log shows where the waiting goes."""
     import time
+    retry = kwargs.pop("retry", True)   # retry=False: one attempt only (the online check)
     t0 = time.perf_counter()
     try:
-        resp = _session().request(method, url, **_prepare(kwargs))
+        resp = _session(retry).request(method, url, **_prepare(kwargs))
     except Exception as exc:
         _log_timing(method, url, time.perf_counter() - t0, f"failed: {type(exc).__name__}")
         raise

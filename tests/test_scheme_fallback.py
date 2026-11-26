@@ -11,7 +11,7 @@ class _Resp:
 def test_switches_to_the_scheme_that_answers(monkeypatch):
     calls = []
 
-    def fake_get(url, timeout=None):
+    def fake_get(url, timeout=None, **k):
         calls.append(url)
         if url.startswith("https://"):
             return _Resp()

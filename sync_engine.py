@@ -66,6 +66,30 @@ def set_online(status: bool) -> None:
     _is_online = status
 
 
+# A dropping link must not flip the app on every check (2026-11-26: a user laptop with mostly
+# failed pings flipped every 5 s, made temporary ids and re-synced on each return).
+CHECKS_TO_GO_OFFLINE = 2
+CHECKS_TO_COME_BACK = 2
+_streak = {"ok": 0, "fail": 0}
+
+
+def record_check(ok: bool) -> bool:
+    """Feed one ping result from the polling loop; the flag changes only after
+    CHECKS_TO_GO_OFFLINE failures / CHECKS_TO_COME_BACK successes in a row. Returns the flag."""
+    global _is_online
+    if ok:
+        _streak["ok"] += 1
+        _streak["fail"] = 0
+        if not _is_online and _streak["ok"] >= CHECKS_TO_COME_BACK:
+            _is_online = True
+    else:
+        _streak["fail"] += 1
+        _streak["ok"] = 0
+        if _is_online and _streak["fail"] >= CHECKS_TO_GO_OFFLINE:
+            _is_online = False
+    return _is_online
+
+
 def check_network_status(target_url: str | None = None) -> bool:
     """
     Attempt a fast, low-timeout HTTP GET request to the FastAPI server ping endpoint.
@@ -76,7 +100,8 @@ def check_network_status(target_url: str | None = None) -> bool:
     """
     url = target_url or get_api_url()
     try:
-        response = api_client.get(f"{url}/ping", timeout=2.0)
+        # No retries: a failed ping must answer in ~2 s, not wait out the retry back-off
+        response = api_client.get(f"{url}/ping", timeout=2.0, retry=False)
         if response.status_code == 200:
             if target_url is None:
                 _ensure_ca_cert()
@@ -126,7 +151,7 @@ def _try_other_scheme() -> bool:
     _last_scheme_probe = time.monotonic()
     url = other_scheme_url()
     try:
-        if api_client.get(f"{url}/ping", timeout=2.0).status_code == 200:
+        if api_client.get(f"{url}/ping", timeout=2.0, retry=False).status_code == 200:
             set_scheme(url.split("://", 1)[0])
             log.info(f"Server answers on {url}: switched")
             return True
@@ -1154,21 +1179,39 @@ def refresh_replica_tables_background(tables: list[str]) -> None:
                      name="replica-refresh").start()
 
 
-def pull_mysql_to_sqlite_background() -> None:
+PULL_MIN_GAP_SECONDS = 60
+_pull_lock = threading.Lock()
+_last_pull_start = 0.0
+
+
+def pull_mysql_to_sqlite_background() -> bool:
     """
-    Run pull_mysql_to_sqlite in a background thread.
+    Run pull_mysql_to_sqlite in a background thread. Returns True when a pull was started.
 
     Safe to call from the UI thread — spawns a daemon thread that
     downloads through FastAPI and opens its own SQLite connection.
+    On a dropping link it is called on every reconnect: never a second pull while one runs,
+    and at most one start per PULL_MIN_GAP_SECONDS.
     """
+    import time
+    global _last_pull_start
+    if time.monotonic() - _last_pull_start < PULL_MIN_GAP_SECONDS and _last_pull_start:
+        return False
+    if not _pull_lock.acquire(blocking=False):
+        return False
+    _last_pull_start = time.monotonic()
+
     def _worker():
         try:
             pull_mysql_to_sqlite()
         except Exception as exc:
             log.error("Background inbound sync failed: %s", exc)
+        finally:
+            _pull_lock.release()
 
     t = threading.Thread(target=_worker, daemon=True, name="inbound-sync")
     t.start()
+    return True
 
 
 # ---------------------------------------------------------------------------
