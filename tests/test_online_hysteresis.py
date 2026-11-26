@@ -68,3 +68,14 @@ def test_ping_does_not_retry(monkeypatch):
     monkeypatch.setattr(se, "_ensure_ca_cert", lambda: None)
     assert se.check_network_status() is True
     assert seen.get("retry") is False and seen["timeout"] <= 2.0
+
+
+def test_queue_counts_for_the_header_badge(monkeypatch, tmp_path):
+    import sqlite3
+    db = tmp_path / "q.db"
+    c = sqlite3.connect(db)
+    c.execute("CREATE TABLE sync_queue (id INTEGER PRIMARY KEY, status TEXT)")
+    c.executemany("INSERT INTO sync_queue (status) VALUES (?)", [(None,), ("pending",), ("failed",)])
+    c.commit(); c.close()
+    monkeypatch.setattr(se, "_get_local_conn", lambda: sqlite3.connect(db))
+    assert se.get_queue_counts() == {"pending": 2, "failed": 1}

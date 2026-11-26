@@ -8,8 +8,12 @@ from .base import _local_ready
 
 class SettingsRepository(BaseRepository):
     def get_settings(self) -> dict:
-        if not is_online():
-            return get_offline_settings()
+        # Local-first: the university names/logos rarely change; the local copy is refreshed
+        # every 5 min (LOCAL_FIRST_TABLES) and update_settings writes it at once.
+        if not is_online() or _local_ready("university_settings"):
+            local = get_offline_settings()
+            if local:
+                return local
         try:
             resp = api_client.get(f"{self.api_url}/settings", timeout=5.0)
             if resp.status_code == 200:

@@ -17,7 +17,7 @@ from datetime import datetime
 from typing import Any, List, Dict, Optional, Union, cast
 from api_config import API_URL, get_api_url
 from sync_engine import (
-    is_online, log_offline_insert, log_offline_update,
+    is_online, read_local_first, log_offline_insert, log_offline_update,
     cache_read_result, get_cached_read,
     pull_mysql_to_sqlite_background,
     refresh_replica_tables,
@@ -123,6 +123,24 @@ def _refreshes_local_copy(*tables: str):
             if is_online():
                 try:
                     refresh_replica_tables(list(tables))
+                except Exception as exc:
+                    log_system(f"Local copy refresh after {fn.__qualname__} failed: {exc}", "WARNING")
+            return result
+        return wrapper
+    return decorator
+
+
+def _refreshes_in_background(*tables: str):
+    """Decorator for writes to tables screens read local-first (students): after the write
+    succeeds online, reads go to the server until the background re-download is done."""
+    def decorator(fn):
+        @functools.wraps(fn)
+        def wrapper(*args, **kwargs):
+            result = fn(*args, **kwargs)
+            if is_online():
+                try:
+                    from sync_engine import mark_stale_and_refresh
+                    mark_stale_and_refresh(list(tables))
                 except Exception as exc:
                     log_system(f"Local copy refresh after {fn.__qualname__} failed: {exc}", "WARNING")
             return result

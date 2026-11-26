@@ -4,6 +4,7 @@
 
 from utils.study_type import normalize_study_type
 from .base import *
+from .base import _refreshes_in_background
 from .personnel import _RESULT_STATUS_CODES
 from .certificates import IssuedCertificateRepository
 
@@ -23,8 +24,8 @@ class StudentRepository(BaseRepository):
         self._api_base_url = value
 
     def search_students_paginated(self, query: str = "", limit: int = 25, offset: int = 0, dept_id: Optional[int] = None) -> List[Dict[str, Any]]:
-        """Paginated student search route supporting online API endpoint with offline SQLite fallback."""
-        if is_online():
+        """Paginated student search: the local copy when it is fresh (local-first), else the API."""
+        if not read_local_first("students"):
             try:
                 params = {"query": query, "limit": limit, "offset": offset}
                 if dept_id is not None:
@@ -57,7 +58,7 @@ class StudentRepository(BaseRepository):
         A server older than 2.6 has no /students/filtered: then only name and department apply."""
         from data.query import search_offline_students_filtered
         filters = {k: v for k, v in filters.items() if v not in (None, "", "all", 0)}
-        if is_online():
+        if not read_local_first("students"):
             try:
                 resp = api_client.get(f"{self.api_url}/students/filtered",
                                       params={**filters, "limit": limit, "offset": offset}, timeout=5.0)
@@ -179,7 +180,7 @@ class StudentRepository(BaseRepository):
         return students_list
 
     def get_all_paginated(self, limit: int = 25, offset: int = 0, name_query: str = "", dept_id: int = None, year: str | int | None = None) -> list[dict]:
-        if not is_online():
+        if read_local_first("students"):
             res = get_offline_students_paginated(limit=limit, offset=offset, name_query=name_query, dept_id=dept_id, year=year)
         else:
             try:
@@ -230,7 +231,7 @@ class StudentRepository(BaseRepository):
         if len(clean_query) < 2:
             return []
 
-        if not is_online():
+        if read_local_first("students"):
             res = search_offline_students(clean_query, limit=limit)
         else:
             # 3. Online Mode: FastAPI Call
@@ -264,7 +265,7 @@ class StudentRepository(BaseRepository):
         return self._inject_missing_graduation_numbers(formatted_res)
 
     def count(self, name_query: str = "", dept_id: int = None, year: str | int | None = None) -> int:
-        if not is_online():
+        if read_local_first("students"):
             return count_offline_students(name_query=name_query, dept_id=dept_id, year=year)
         try:
             resp = api_client.get(
@@ -470,6 +471,7 @@ class StudentRepository(BaseRepository):
             log_system(f"API request failed: {e}", "WARNING")
             return []
 
+    @_refreshes_in_background("students")
     def insert(self, data: dict) -> int:
         if not is_online():
             # Route to offline sync engine
@@ -508,6 +510,7 @@ class StudentRepository(BaseRepository):
             log_system(f"API request failed: {e}", "WARNING")
             raise
 
+    @_refreshes_in_background("students")
     def update(self, student_id: int, data: dict) -> None:
         payload = {
             "full_name_ar": data.get('full_name_ar'),
@@ -547,6 +550,7 @@ class StudentRepository(BaseRepository):
             log_system(f"API request failed: {e}", "WARNING")
             raise
 
+    @_refreshes_in_background("students")
     def bulk_import(self, students_payload: list[dict]) -> dict:
         """Atomically imports a cohort of students, periods, and enrollments."""
         if not is_online():
@@ -568,6 +572,7 @@ class StudentRepository(BaseRepository):
             log_system(f"Bulk import API error: {e}", "ERROR")
             raise
 
+    @_refreshes_in_background("students")
     def delete(self, student_id: int) -> None:
         if not is_online():
             delete_offline_student(student_id)

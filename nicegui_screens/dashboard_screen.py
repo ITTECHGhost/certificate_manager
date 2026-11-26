@@ -180,6 +180,12 @@ class MainAppShell:
 
         # Every 5 minutes (60 x 5 s): pick up reference data changed on other laptops
         self._net_loop_count = getattr(self, "_net_loop_count", 0) + 1
+
+        # Every 2 minutes (24 x 5 s, first at the first check): changed student rows, so
+        # search and lists can read the local copy (sync_engine.read_local_first)
+        if now_online and self._net_loop_count % 24 == 1:
+            from sync_engine import refresh_local_first_background
+            refresh_local_first_background()
         if now_online and prev_online and self._net_loop_count % 60 == 0:
             from sync_engine import refresh_replica_tables_background, LOCAL_FIRST_TABLES
             refresh_replica_tables_background(LOCAL_FIRST_TABLES)
@@ -442,6 +448,20 @@ class MainAppShell:
                     dot = ui.element("span").classes("app-sync-dot" + ("" if online else " app-sync-dot--offline"))
                     dot.props(f'role="status" aria-label="{label}"')
                     dot.tooltip(label)
+                    # Work saved on this laptop and not yet on the server (offline prints, edits):
+                    # users see it is queued, not lost. Red when the server refused some rows.
+                    from sync_engine import get_queue_counts
+                    q = get_queue_counts()
+                    waiting = q["pending"] + q["failed"]
+                    if waiting:
+                        tip = (f"{q['pending']} بانتظار الرفع إلى السيرفر"
+                               + (f"، {q['failed']} رفضها السيرفر (راجع الإعدادات ← السيرفر والصيانة)" if q["failed"] else ""))
+                        chip = ui.label(f"{waiting} بانتظار الرفع").classes(
+                            "app-caption px-2 rounded cursor-pointer "
+                            + ("bg-red-100 text-red-800" if q["failed"] else "bg-amber-100 text-amber-900"))
+                        chip.props(f'role="status" aria-label="{tip}"')
+                        chip.tooltip(tip)
+                        chip.on("click", self._open_sync_queue)
 
                 header_status_badge()
                 self._header_status = header_status_badge
@@ -450,6 +470,12 @@ class MainAppShell:
                 UI.icon_button("refresh", "تحديث البيانات", on_click=self._on_refresh_click)
                 UI.secondary_button("الملاحظات", icon="feedback", on_click=self._open_feedback)
                 self._build_topbar_user_card()
+
+    def _open_sync_queue(self) -> None:
+        """The waiting-to-upload chip: the queue lives in Settings → «السيرفر والصيانة والسجلات»."""
+        import nicegui_screens.settings.screen as _st
+        _st.REQUESTED_TAB = "logs"
+        self._switch_screen("settings")
 
     def _build_topbar_user_card(self) -> None:
         """User chip: avatar + name; its menu holds Profile and Logout."""

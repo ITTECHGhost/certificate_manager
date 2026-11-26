@@ -1093,6 +1093,7 @@ def pull_mysql_to_sqlite(mysql_conn=None, sqlite_conn=None, tables: list[str] | 
                     _save_sync_state(sqlite_conn, table_name, body.get("next_since"), now_text)
                     sqlite_conn.commit()
                     tables_synced += 1
+                    _mark_fresh(table_name)
                     continue
 
                 # A column added in MySQL (e.g. by an update SQL file) is added here too,
@@ -1129,6 +1130,7 @@ def pull_mysql_to_sqlite(mysql_conn=None, sqlite_conn=None, tables: list[str] | 
                     _save_sync_state(sqlite_conn, table_name, body.get("next_since"), now_text)
                 sqlite_conn.commit()
                 tables_synced += 1
+                _mark_fresh(table_name)
                 total_rows += len(rows)
                 log.debug("Replicated %s (%s): %d rows", table_name, "changes" if is_delta else "full", len(rows))
 
@@ -1160,9 +1162,38 @@ def pull_mysql_to_sqlite(mysql_conn=None, sqlite_conn=None, tables: list[str] | 
     return summary
 
 
+# ---------------------------------------------------------------------------
+# Local-first reads (2026-11-26): on a dropping link the user must not wait on the server to
+# search or list. A table counts as fresh for REPLICA_FRESH_SECONDS after a successful pull;
+# while fresh (or offline) repositories read it from SQLite. The dashboard pulls changed rows
+# every LOCAL_FIRST_PULL_SECONDS, and a successful write refreshes its table at once.
+# ---------------------------------------------------------------------------
+REPLICA_FRESH_SECONDS = 10 * 60
+LOCAL_FIRST_PULL_SECONDS = 2 * 60
+_fresh_at: dict[str, float] = {}
+
+
+def _mark_fresh(table_name: str) -> None:
+    import time
+    _fresh_at[table_name] = time.monotonic()
+
+
+def replica_is_fresh(table_name: str) -> bool:
+    import time
+    t = _fresh_at.get(table_name)
+    return t is not None and time.monotonic() - t < REPLICA_FRESH_SECONDS
+
+
+def read_local_first(table_name: str) -> bool:
+    """True when a screen should read this table from the local copy: offline, or the copy
+    was refreshed recently. Otherwise (e.g. just started, copy never pulled) ask the server."""
+    return not is_online() or replica_is_fresh(table_name)
+
+
 # Reference tables screens read from the local copy first (repositories, "local-first").
 # They are small, change rarely, and their local rows match the API's rows field for field.
-LOCAL_FIRST_TABLES = ["departments", "study_systems", "courses", "countries", "governorates", "graduation_orders"]
+LOCAL_FIRST_TABLES = ["departments", "study_systems", "courses", "countries", "governorates", "graduation_orders",
+                      "university_settings"]
 
 
 def refresh_replica_tables(tables: list[str]) -> bool:
@@ -1173,10 +1204,39 @@ def refresh_replica_tables(tables: list[str]) -> bool:
     return not result["errors"]
 
 
+def mark_stale_and_refresh(tables: list[str]) -> None:
+    """After a write saved online: reads of these tables go to the server until a background
+    re-download of the changed rows finishes (then the local copy is fresh again)."""
+    for t in tables:
+        _fresh_at.pop(t, None)
+    refresh_replica_tables_background(tables)
+
+
 def refresh_replica_tables_background(tables: list[str]) -> None:
     """Same as refresh_replica_tables, on a background thread (never blocks the UI)."""
     threading.Thread(target=lambda: refresh_replica_tables(tables), daemon=True,
                      name="replica-refresh").start()
+
+
+LOCAL_FIRST_PULL_TABLES = ["students"]
+
+
+def refresh_local_first_background() -> bool:
+    """Every LOCAL_FIRST_PULL_SECONDS (dashboard loop): re-download changed rows of the tables
+    screens read local-first, so they stay fresh. Skipped while another pull runs."""
+    if not is_online() or not _pull_lock.acquire(blocking=False):
+        return False
+
+    def _worker():
+        try:
+            pull_mysql_to_sqlite(tables=list(LOCAL_FIRST_PULL_TABLES))
+        except Exception as exc:
+            log.warning("Local-first refresh failed: %s", exc)
+        finally:
+            _pull_lock.release()
+
+    threading.Thread(target=_worker, daemon=True, name="local-first-refresh").start()
+    return True
 
 
 PULL_MIN_GAP_SECONDS = 60
@@ -1916,6 +1976,21 @@ def sync_offline_queue_to_mysql(mysql_conn=None) -> dict:
 # ---------------------------------------------------------------------------
 # Convenience: queue status inspection
 # ---------------------------------------------------------------------------
+
+def get_queue_counts() -> dict:
+    """{"pending": n, "failed": n} only — cheap enough for the header badge every 5 s."""
+    try:
+        conn = _get_local_conn()
+        try:
+            rows = conn.execute("SELECT COALESCE(status, 'pending') AS st, COUNT(*) AS n "
+                                "FROM sync_queue GROUP BY st").fetchall()
+        finally:
+            conn.close()
+        counts = {r[0]: int(r[1]) for r in rows}
+    except Exception:
+        counts = {}
+    return {"pending": counts.get("pending", 0), "failed": counts.get("failed", 0)}
+
 
 def get_queue_status() -> dict:
     """

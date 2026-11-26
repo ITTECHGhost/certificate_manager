@@ -84,7 +84,10 @@ class PersonnelRepository(BaseRepository):
             return _check_offline_auth()
         try:
             payload = {"username": username, "password_hash": password_hash}
-            resp = api_client.post(f"{self.api_url}/personnel/login", json=payload, timeout=5.0)
+            # One attempt, 3 s to connect (10 s to answer): a server that cannot be reached falls
+            # back to the password stored on this laptop in ~3 s, not after 3 retries x 5 s.
+            resp = api_client.post(f"{self.api_url}/personnel/login", json=payload,
+                                   timeout=(3.0, 10.0), retry=False)
             if resp.status_code == 200:
                 result = resp.json()
                 pull_mysql_to_sqlite_background()
